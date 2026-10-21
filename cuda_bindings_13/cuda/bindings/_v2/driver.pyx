@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=63a771e60437f82799ca6e5cbf1efadbd30b8dd9b8a20edbcca387c5d6009795
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e84c1fe79d03709871d5a37c4970bfec7d3eec5ce9ba6297e03bf63721011166
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -5620,7 +5620,7 @@ cdef class GraphEdgeData:
 
     @from_port.setter
     def from_port(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This GraphEdgeData instance is read-only")
         self._data.from_port = val
 
@@ -5633,7 +5633,7 @@ cdef class GraphEdgeData:
 
     @to_port.setter
     def to_port(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This GraphEdgeData instance is read-only")
         self._data.to_port = val
 
@@ -5646,7 +5646,7 @@ cdef class GraphEdgeData:
 
     @type.setter
     def type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This GraphEdgeData instance is read-only")
         self._data.type = val
 
@@ -15089,7 +15089,7 @@ cdef class DevSmResourceGroupParams:
 
     @sm_count.setter
     def sm_count(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.sm_count = val
 
@@ -15102,7 +15102,7 @@ cdef class DevSmResourceGroupParams:
 
     @coscheduled_sm_count.setter
     def coscheduled_sm_count(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.coscheduled_sm_count = val
 
@@ -15115,7 +15115,7 @@ cdef class DevSmResourceGroupParams:
 
     @preferred_coscheduled_sm_count.setter
     def preferred_coscheduled_sm_count(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.preferred_coscheduled_sm_count = val
 
@@ -15128,7 +15128,7 @@ cdef class DevSmResourceGroupParams:
 
     @flags_.setter
     def flags_(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.flags_ = val
 
@@ -15141,7 +15141,7 @@ cdef class DevSmResourceGroupParams:
 
     @locality_domain_id.setter
     def locality_domain_id(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.locality_domain_id = val
 
@@ -15832,7 +15832,7 @@ cdef class CliqueInfo:
 
     @type.setter
     def type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This CliqueInfo instance is read-only")
         self._data.type = val
 
@@ -15845,7 +15845,7 @@ cdef class CliqueInfo:
 
     @id.setter
     def id(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This CliqueInfo instance is read-only")
         self._data.id = val
 
@@ -19378,7 +19378,7 @@ cdef class StreamBatchMemOpParams_v1:
 
     @wait_value.setter
     def wait_value(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpWaitValueParams val_ = val
         if self._data.size != 1:
@@ -19395,7 +19395,7 @@ cdef class StreamBatchMemOpParams_v1:
 
     @write_value.setter
     def write_value(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpWriteValueParams val_ = val
         if self._data.size != 1:
@@ -19412,7 +19412,7 @@ cdef class StreamBatchMemOpParams_v1:
 
     @flush_remote_writes.setter
     def flush_remote_writes(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpFlushRemoteWritesParams val_ = val
         if self._data.size != 1:
@@ -19429,7 +19429,7 @@ cdef class StreamBatchMemOpParams_v1:
 
     @memory_barrier.setter
     def memory_barrier(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpMemoryBarrierParams val_ = val
         if self._data.size != 1:
@@ -19446,7 +19446,7 @@ cdef class StreamBatchMemOpParams_v1:
 
     @atomic_reduction.setter
     def atomic_reduction(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpAtomicReductionParams val_ = val
         if self._data.size != 1:
@@ -19463,7 +19463,7 @@ cdef class StreamBatchMemOpParams_v1:
 
     @operation.setter
     def operation(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         self._data.operation = val
 
@@ -19964,7 +19964,7 @@ cdef class ExecAffinityParam_v1:
 
     @param.setter
     def param(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ExecAffinityParam_v1 instance is read-only")
         cdef _py_anon_pod10 val_ = val
         if self._data.size != 1:
@@ -19981,7 +19981,7 @@ cdef class ExecAffinityParam_v1:
 
     @type.setter
     def type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ExecAffinityParam_v1 instance is read-only")
         self._data.type = val
 
@@ -20935,7 +20935,7 @@ cdef class ArrayMapInfo_v1:
 
     @resource.setter
     def resource(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         cdef _py_anon_pod32 val_ = val
         if self._data.size != 1:
@@ -20952,7 +20952,7 @@ cdef class ArrayMapInfo_v1:
 
     @subresource.setter
     def subresource(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         cdef _py_anon_pod33 val_ = val
         if self._data.size != 1:
@@ -20969,7 +20969,7 @@ cdef class ArrayMapInfo_v1:
 
     @mem_handle.setter
     def mem_handle(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         cdef _py_anon_pod36 val_ = val
         if self._data.size != 1:
@@ -20986,7 +20986,7 @@ cdef class ArrayMapInfo_v1:
 
     @resource_type.setter
     def resource_type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.resource_type = val
 
@@ -20999,7 +20999,7 @@ cdef class ArrayMapInfo_v1:
 
     @subresource_type.setter
     def subresource_type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.subresource_type = val
 
@@ -21012,7 +21012,7 @@ cdef class ArrayMapInfo_v1:
 
     @mem_operation_type.setter
     def mem_operation_type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.mem_operation_type = val
 
@@ -21025,7 +21025,7 @@ cdef class ArrayMapInfo_v1:
 
     @mem_handle_type.setter
     def mem_handle_type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.mem_handle_type = val
 
@@ -21038,7 +21038,7 @@ cdef class ArrayMapInfo_v1:
 
     @offset.setter
     def offset(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.offset = val
 
@@ -21051,7 +21051,7 @@ cdef class ArrayMapInfo_v1:
 
     @device_bit_mask.setter
     def device_bit_mask(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.device_bit_mask = val
 
@@ -21064,7 +21064,7 @@ cdef class ArrayMapInfo_v1:
 
     @flags_.setter
     def flags_(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.flags_ = val
 
@@ -21707,7 +21707,7 @@ cdef class DevResource_v1:
 
     @sm.setter
     def sm(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
         cdef DevSmResource val_ = val
         if self._data.size != 1:
@@ -21724,7 +21724,7 @@ cdef class DevResource_v1:
 
     @wq_config.setter
     def wq_config(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
         cdef DevWorkqueueConfigResource val_ = val
         if self._data.size != 1:
@@ -21741,7 +21741,7 @@ cdef class DevResource_v1:
 
     @wq.setter
     def wq(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
         cdef DevWorkqueueResource val_ = val
         if self._data.size != 1:
@@ -21758,7 +21758,7 @@ cdef class DevResource_v1:
 
     @type.setter
     def type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
         self._data.type = val
 
@@ -21769,7 +21769,7 @@ cdef class DevResource_v1:
 
     @_internal_padding.setter
     def _internal_padding(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
         self._data._internal_padding = val
 
@@ -21780,7 +21780,7 @@ cdef class DevResource_v1:
 
     @_oversize.setter
     def _oversize(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
         self._data._oversize = val
 
@@ -21793,7 +21793,7 @@ cdef class DevResource_v1:
 
     @next_resource.setter
     def next_resource(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
         self._data.next_resource = val
 
@@ -23748,7 +23748,7 @@ cdef class MemAccessDesc_v1:
 
     @location.setter
     def location(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemAccessDesc_v1 instance is read-only")
         cdef MemLocation_v1 val_ = val
         if self._data.size != 1:
@@ -23765,7 +23765,7 @@ cdef class MemAccessDesc_v1:
 
     @flags_.setter
     def flags_(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemAccessDesc_v1 instance is read-only")
         self._data.flags_ = val
 
