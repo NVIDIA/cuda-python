@@ -295,9 +295,10 @@ python -m ci.tools.bindings_config --check-package-metadata
 ## Maintaining Both Bindings Roots
 
 `main` is the integration branch for both bindings release lines. The old
-`12.9.x` branch remains available as a record of earlier releases; develop
-new CUDA 12 changes in `cuda_bindings_12/` on `main`. Short release branches
-may stabilize a selected version or carry urgent fixes while `main` advances.
+`12.9.x` branch stays frozen except for emergency fixes using compatible
+historical tooling; reconcile any such fix into `cuda_bindings_12/` on `main`.
+Routine CUDA 12 development belongs in that main-tree root. Short release
+branches may stabilize a selected version or carry urgent fixes while `main` advances.
 The [bindings release guide](../.github/RELEASE-bindings.md) describes branch
 creation, backport automation, independent release validation, and returning
 fixes to `main`. The
