@@ -459,8 +459,9 @@ through the [CI tools](ci/README.md).
 `main` integrates changes for both supported majors. Short release branches
 can stabilize a selected release or carry urgent fixes while development
 continues. Return applicable fixes to `main` and assess both source roots.
-The historical `12.9.x` branch is retained for diagnosis of old releases;
-new main CI and releases do not fetch package artifacts from that branch.
+The historical `12.9.x` branch stays frozen except for emergency fixes,
+which must be reconciled into `main`. New main CI and releases do not fetch
+package artifacts from that branch.
 
 The [bindings release guide](.github/RELEASE-bindings.md) covers release scope,
 manual backport automation, source and control revisions, and validation.
