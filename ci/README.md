@@ -279,7 +279,14 @@ and `maintenance` describe release roles that can change at the next major.
 The standalone `cuda-python` source distribution contains its own small tag
 selector map because it cannot import repository CI tooling. The pre-commit
 metadata check keeps those selectors, bindings packaging, and the maintenance
-preview target aligned with the registry. Run it explicitly with:
+preview target aligned with the registry. Copying maintenance files does not
+make their old branch an ancestor of `main`, so its later release tags are not
+necessarily reachable. Until an appropriate tag is reachable, CI uses
+`ci.tools.bindings_scm_version` to create a local preview tag in its disposable
+checkout, then lets setuptools-scm derive the version normally. Existing
+appropriate tags take precedence. The helper never pushes or moves tags;
+local preview builds should use an independent clone so their temporary tags
+do not affect other worktrees. Run the metadata check explicitly with:
 
 ```console
 python -m ci.tools.bindings_config --check-package-metadata
