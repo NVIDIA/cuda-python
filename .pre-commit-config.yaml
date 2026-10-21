@@ -78,12 +78,20 @@ repos:
         files: ^cuda_bindings_(?:12|13)/
         types: [text]
 
+      - id: check-bindings-config
+        name: Validate bindings registry and package metadata
+        entry: python -m ci.tools.bindings_config --check-package-metadata
+        language: python
+        additional_dependencies: [packaging==26.0, pyyaml==6.0.3]
+        files: '^(ci/versions\.yml|cuda_bindings_(?:12|13)/(pyproject|pixi)\.toml|cuda_python/setup\.py|cuda_core/pyproject\.toml|cuda_core/cuda/core/_bindings_floor\.py)$'
+        pass_filenames: false
+
       - id: check-pixi-cuda-version
         name: Check pixi cuda-version pins track ci/versions.yml
-        entry: python ./ci/tools/check_pixi_cuda_version.py
+        entry: python -m ci.tools.check_pixi_cuda_version
         language: python
-        additional_dependencies: [pyyaml==6.0.3]
-        files: '^(ci/versions\.yml|cuda_bindings_13/pixi\.toml|cuda_core/pixi\.toml)$'
+        additional_dependencies: [packaging==26.0, pyyaml==6.0.3]
+        files: '^(ci/versions\.yml|cuda_bindings_(?:12|13)/pixi\.toml|cuda_core/pixi\.toml)$'
         pass_filenames: false
 
       - id: check-mempool-hygiene
@@ -162,7 +170,7 @@ repos:
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
-      exclude: '^(?:cuda_bindings_13/cuda/bindings/(?:nvml\.pyx|_v2/driver\.pyx)|cuda_bindings_12/cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx))$'
+      exclude: '^(?:cuda_bindings_(?:12|13)/(?:cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx)|pixi\.lock)|cuda_bindings_13/cuda/bindings/_v2/driver\.pyx)$'
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
