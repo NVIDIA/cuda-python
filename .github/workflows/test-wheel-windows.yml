@@ -133,7 +133,7 @@ jobs:
                    [if $workplan == null or $workplan.modules.pathfinder.needs_test then "pathfinder" else empty end,
                     if $row.BINDINGS_SOURCE == "local" and ($workplan == null or $workplan.modules.bindings.package_roots[$row.BINDINGS_SOURCE_DIR].needs_test) then "bindings" + ($row.CUDA_VER | split(".")[0]) else empty end,
                     if $workplan == null or $workplan.modules.core.cuda_majors[$row.CUDA_VARIANT].needs_test then "core" + ($row.CUDA_VER | split(".")[0]) else empty end,
-                    if $row.BINDINGS_SOURCE == "local" and ($workplan == null or $workplan.modules.python.package_roots[$row.BINDINGS_SOURCE_DIR].needs_test) then "python" + ($row.CUDA_VER | split(".")[0]) else empty end] | join("+") end)
+                    if $row.BINDINGS_SOURCE == "local" and ($workplan == null or $workplan.modules.python.package_roots[$row.BINDINGS_SOURCE_DIR].needs_test) then "meta" + ($row.CUDA_VER | split(".")[0]) else empty end] | join("+") end)
                })
              | map(select(.SUITES != ""))
              | map(. + {RUNNER_DRIVER: (if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)})

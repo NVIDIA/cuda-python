@@ -554,13 +554,13 @@ def test_workflow_matrix_executes_component_selection_and_coverage_guard(
     assert result.returncode == 0, result.stderr
     rows = json.loads(output.read_text().strip().removeprefix("MATRIX="))["include"]
     if scenario == "maintenance-only":
-        assert [row["SUITES"] for row in rows] == ["bindings12+core12+python12", "core12"]
+        assert [row["SUITES"] for row in rows] == ["bindings12+core12+meta12", "core12"]
     elif scenario == "nightly-floor":
         assert rows[0]["BINDINGS_SOURCE"] == "floor"
         assert rows[0]["SUITES"] == "nightly-pytorch"
     elif scenario == "full":
-        assert rows[0]["SUITES"] == "pathfinder+bindings12+core12+python12"
-        assert rows[1]["SUITES"] == "pathfinder+bindings13+core13+python13"
+        assert rows[0]["SUITES"] == "pathfinder+bindings12+core12+meta12"
+        assert rows[1]["SUITES"] == "pathfinder+bindings13+core13+meta13"
         assert rows[2]["SUITES"] == "pathfinder+core12"
     assert "Selected wheel test coverage" in summary.read_text()
 
