@@ -7,6 +7,10 @@ Inspect the CUDA 13 counterpart during implementation and review, and record
 matching changes or why they are not applicable. Preserve intentional API,
 layout, and build differences rather than copying the CUDA 13 root wholesale.
 
+Follow the [maintenance guide](MAINTENANCE.md) for branch and release policy
+and [Maintaining Both Bindings Roots](../ci/README.md#maintaining-both-bindings-roots)
+for generation provenance and review expectations.
+
 ## Generated and handwritten sources
 
 - Files carrying a `CYTHON-BINDINGS-GENERATED` seal are cybind output,
