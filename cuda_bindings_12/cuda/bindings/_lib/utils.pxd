@@ -152,6 +152,7 @@ cdef class _HelperCUcoredumpSettings:
     cdef cydriver.CUcoredumpSettings_enum _attrib
     cdef bint _is_getter
     cdef size_t _size
+    cdef object _references  # keeps caller bytes alive so _charstar stays valid
 
     # Return values
     cdef cpp_bool _bool
