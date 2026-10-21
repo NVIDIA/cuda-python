@@ -540,6 +540,7 @@ def test_cuda_mem_range_attr():
 
 
 @pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
+@pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
 def test_cuda_graphMem_attr():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -755,8 +756,10 @@ def test_device_get_name():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     p = subprocess.check_output(
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], shell=False, stderr=subprocess.PIPE
-    )  # nosec B603, B607
+        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],  # noqa: S607
+        shell=False,
+        stderr=subprocess.PIPE,
+    )
 
     delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
     expect = p.split(delimiter)

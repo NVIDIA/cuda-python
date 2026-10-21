@@ -5,7 +5,7 @@
 `cuda.bindings` supports the same platforms as CUDA. Runtime dependencies are:
 
 * Linux (x86-64, arm64) and Windows (x86-64)
-* Python 3.9 - 3.13
+* Python 3.10 - 3.14
 * Driver: Linux (450.80.02 or later) Windows (456.38 or later)
 * Optionally, NVRTC, nvJitLink, and NVVM from CUDA Toolkit 12.x
 
@@ -19,12 +19,12 @@ Starting from v12.8.0, `cuda-python` becomes a meta package which currently depe
 ## Installing from PyPI
 
 ```console
-$ pip install -U cuda-python
+$ pip install -U "cuda-python~=12.9.0"
 ```
 
 Install all optional dependencies with:
 ```{code-block} shell
-pip install -U cuda-python[all]
+pip install -U "cuda-python[all]~=12.9.0"
 ```
 
 Where the optional dependencies are:
@@ -37,7 +37,7 @@ Where the optional dependencies are:
 ## Installing from Conda
 
 ```console
-$ conda install -c conda-forge cuda-python
+$ conda install -c conda-forge cuda-python=12.9
 ```
 
 

@@ -16,13 +16,12 @@ fi
 
 # SPHINX_CUDA_BINDINGS_VER is used to create a subdir under build/html
 # (the Makefile file for sphinx-build also honors it if defined).
-# If there's a post release (ex: .post1) we don't want it to show up in the
-# version selector or directory structure.
+# Post releases reuse their base release directory, while prerelease and
+# development releases remain distinct so they cannot overwrite stable docs.
 if [[ -z "${SPHINX_CUDA_BINDINGS_VER}" ]]; then
     export SPHINX_CUDA_BINDINGS_VER=$(python -c "from importlib.metadata import version; \
-                                                 ver = '.'.join(str(version('cuda-bindings')).split('.')[:3]); \
-                                                 print(ver)" \
-                                      | awk -F'+' '{print $1}')
+                                                 ver = str(version('cuda-bindings')).split('+', 1)[0]; \
+                                                 print(ver if '.dev' in ver else ver.split('.post', 1)[0])")
 fi
 
 # build the docs (in parallel)
@@ -33,8 +32,9 @@ SPHINXOPTS="-j 4 -d build/.doctrees" make html
 # obsecure Sphinx errors
 #SPHINXOPTS="-v" make html
 
-# to support version dropdown menu
-cp ./versions.json build/html
+# Keep the CUDA 12.9 release pages on the monorepo's canonical bindings
+# selector so publishing this line cannot remove newer CUDA 13 entries.
+cp ../../cuda_bindings_13/docs/nv-versions.json build/html/nv-versions.json
 
 # to have a redirection page (to the latest docs)
 cp source/_templates/main.html build/html/index.html

@@ -92,6 +92,27 @@ def test_get_handle_error(target):
         handle = get_cuda_native_handle(target)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_get_handle_does_not_report_a_registered_type_as_unknown(monkeypatch):
+    """A KeyError from inside a handle getter is a bug in that getter.
+
+    Reporting it as "Unknown type" is wrong twice over: the type *is*
+    registered, and `from None` hides the traceback that would say otherwise.
+    """
+    from cuda.bindings.utils import _handle_getters
+
+    class Registered:
+        pass
+
+    def getter(_obj):
+        raise KeyError("lookup inside the getter failed")
+
+    monkeypatch.setitem(_handle_getters, Registered, getter)
+
+    with pytest.raises(KeyError, match="lookup inside the getter failed"):
+        get_cuda_native_handle(Registered())
+
+
 @pytest.mark.parametrize(
     "module",
     [
@@ -112,6 +133,6 @@ def test_get_handle_error(target):
     ],
 )
 def test_cyclical_imports(module):
-    subprocess.check_call(  # nosec B603
+    subprocess.check_call(  # noqa: S603
         [sys.executable, Path(__file__).parent / "utils" / "check_cyclical_import.py", f"cuda.bindings.{module}"],
     )
