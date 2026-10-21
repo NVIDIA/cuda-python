@@ -11,6 +11,27 @@
 # Inputs (env):
 #   DRIVER_MODE  One of WDDM, TCC, MCDM.
 
+function Stop-DisplayContainer {
+
+    # A crash-looping display-container process can race the subsequent device
+    # cycle and prevent the NVIDIA kernel driver from unloading.
+    Write-Output "Stopping NVDisplay.ContainerLocalSystem..."
+    Stop-Service -Name "NVDisplay.ContainerLocalSystem" -Force -ErrorAction Stop
+
+    Write-Output "Waiting for NVDisplay.Container processes to exit..."
+    $deadline = (Get-Date).AddSeconds(60)
+    $container_processes = @(Get-Process -Name "NVDisplay.Container" -ErrorAction SilentlyContinue)
+    while ($container_processes.Count -gt 0 -and (Get-Date) -lt $deadline) {
+        Start-Sleep -Milliseconds 500
+        $container_processes = @(Get-Process -Name "NVDisplay.Container" -ErrorAction SilentlyContinue)
+    }
+    if ($container_processes.Count -gt 0) {
+        $process_ids = $container_processes.Id -join ", "
+        Write-Error "NVDisplay.Container processes ($process_ids) did not exit within 60s of stopping NVDisplay.ContainerLocalSystem"
+        exit 1
+    }
+}
+
 function Set-DriverMode {
 
     # Map matrix DRIVER_MODE to nvidia-smi -fdm code.
@@ -18,17 +39,21 @@ function Set-DriverMode {
     $driver_mode = $env:DRIVER_MODE
     if ($driver_mode -eq "WDDM") {
         Write-Output "Setting driver mode to WDDM..."
-        nvidia-smi -fdm 0
+        $driver_mode_code = 0
     } elseif ($driver_mode -eq "TCC") {
         Write-Output "Setting driver mode to TCC..."
-        nvidia-smi -fdm 1
+        $driver_mode_code = 1
     } elseif ($driver_mode -eq "MCDM") {
         Write-Output "Setting driver mode to MCDM..."
-        nvidia-smi -fdm 2
+        $driver_mode_code = 2
     } else {
         Write-Output "Unknown driver mode: $driver_mode"
         exit 1
     }
+
+    Stop-DisplayContainer
+
+    nvidia-smi -fdm $driver_mode_code
 
     # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA).
     $nvidia_devices = @(Get-PnpDevice -Class Display -FriendlyName "NVIDIA*")
