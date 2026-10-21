@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_nvlink\_remote\_pci\_info\_v2
-=============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_nvlink_remote_pci_info_v2
