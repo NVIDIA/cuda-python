@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c662c34c028ead7aa3ae319bec964ec7a466b7db235aa53b00be828d3194ea54
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cc64687a7f1c8074b36e6dd6bbcf5eb5e00809e72fd7e9afc1d9688d4c8da04d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -35044,6 +35044,8 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
     cdef intptr_t _p_scheduler_ptr_ = 0 if p_scheduler is None else int(p_scheduler)
+    if _p_scheduler_ptr_ == 0:
+        raise ValueError("p_scheduler must not be None")
     (<nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_)
