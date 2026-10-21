@@ -148,6 +148,10 @@ html_static_path = []  # ["_static"] does not exist in our environment
 copybutton_exclude = ".linenos, .gp"
 
 extlinks = {
+    "repo-tree": (
+        f"https://github.com/NVIDIA/cuda-python/tree/{GITHUB_EXAMPLES_REF}/%s",
+        "%s",
+    ),
     # Historical release notes use this role to link into pre-migration tags.
     "cuda-core-example": (
         f"https://github.com/NVIDIA/cuda-python/blob/{GITHUB_EXAMPLES_REF}/cuda_core/examples/%s",

@@ -1,10 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Build helpers shared by the cuda-bindings and cuda-core PEP 517 backends.
+"""Build helpers shared by the cuda-bindings, cuda-core and cuda-pathfinder builds.
 
 ``cuda_bindings_13/_build_shared.py`` is canonical. ``cuda_core/_build_shared.py``
-is either a symlink to it or a byte-for-byte identical copy. Both backends load
+and ``cuda_pathfinder/_build_shared.py`` are each either a symlink to it or a
+byte-for-byte identical copy. Both backends load
 the helper through their package-local path, keeping ``Path(__file__)``-relative
 state package-local.
 
@@ -30,6 +31,7 @@ import contextlib
 import functools
 import hashlib
 import os
+import re
 import shlex
 import shutil
 import sys
@@ -509,3 +511,29 @@ def record_build_key(stamp, key):
     """
     stamp.parent.mkdir(parents=True, exist_ok=True)
     stamp.write_text(key + "\n", encoding="utf-8")
+
+
+_SOURCE_LINK_RE = re.compile(r"(https://github\.com/NVIDIA/cuda-python/(?:blob|tree))/main/")
+
+
+def make_egg_info_command(tag_prefix):
+    """Return an ``egg_info`` command that pins README source links to the release tag.
+
+    DESCRIPTION.rst links to ``main`` so that it renders correctly in the
+    repository. In a release build, the command pins those links to the tag
+    that produced the wheel (``tag_prefix`` followed by the version), so that
+    they survive later repository changes. Development builds keep ``main``.
+    """
+    from packaging.version import Version
+    from setuptools.command.egg_info import egg_info
+
+    class ReleaseLinksEggInfo(egg_info):
+        def run(self):
+            metadata = self.distribution.metadata
+            version = Version(self.distribution.get_version())
+            if not (version.is_devrelease or version.local):
+                tag = f"{tag_prefix}{version}"
+                metadata.long_description = _SOURCE_LINK_RE.sub(rf"\1/{tag}/", metadata.long_description)
+            super().run()
+
+    return ReleaseLinksEggInfo

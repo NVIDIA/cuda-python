@@ -4,7 +4,7 @@
 
 """Shared GL helpers for graphics interop tests.
 
-Both ``cuda_core`` and ``cuda_bindings_13`` graphics tests need to skip
+Both ``cuda_core`` and ``cuda_bindings`` graphics tests need to skip
 when the GL backend cannot be made current, and that decision must not
 hide real bugs in the tests' own GL allocation code. This module owns the
 shared predicate so the two test suites stay in sync.
@@ -135,7 +135,7 @@ def tcc_skip_reason() -> str | None:
     OpenGL support, so CUDA-GL interop is unavailable on a TCC device. The
     check queries the currently-selected device via the CUDA runtime API
     (``cuda.bindings``) rather than ``cuda.core``, so both the ``cuda_core``
-    and ``cuda_bindings_13`` graphics tests can share it without the latter
+    and ``cuda_bindings`` graphics tests can share it without the latter
     taking a ``cuda.core`` dependency.
 
     Runtime query failures (e.g. no CUDA device) propagate rather than being

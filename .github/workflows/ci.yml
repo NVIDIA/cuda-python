@@ -122,13 +122,13 @@ jobs:
   #
   # Dependency graph (verified in pyproject.toml files):
   #   cuda_pathfinder   -> (no internal deps)
-  #   cuda_bindings_13  -> cuda_pathfinder
-  #   cuda_core         -> cuda_pathfinder, cuda_bindings_13
-  #   cuda_python       -> cuda_pathfinder, cuda_bindings_13, cuda_core (meta package)
+  #   cuda_bindings     -> cuda_pathfinder
+  #   cuda_core         -> cuda_pathfinder, cuda_bindings
+  #   cuda_python       -> cuda_pathfinder, cuda_bindings, cuda_core (meta package)
   #
   # A change to cuda_pathfinder (or shared infra) forces a rebuild of every
-  # downstream module. A change to cuda_bindings_13 forces rebuild of cuda_core.
-  # A change to cuda_core alone skips rebuilding/retesting cuda_bindings_13 and
+  # downstream module. A change to cuda_bindings forces rebuild of cuda_core.
+  # A change to cuda_core alone skips rebuilding/retesting cuda_bindings and
   # cuda_pathfinder, but still retests the downstream cuda-python metapackage.
   # Shared build/orchestration changes run the full pipeline; test-only CI
   # infrastructure runs every test suite without rebuilding package wheels.

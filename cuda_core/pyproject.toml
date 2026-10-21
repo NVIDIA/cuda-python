@@ -79,7 +79,7 @@ test = [
     "psutil==7.2.2; sys_platform != 'win32' or python_version < '3.15'",
     "packaging>=24",
     "docutils==0.23",
-    # Required by tests/test_graphics.py; pinned to match cuda_bindings_13.
+    # Required by tests/test_graphics.py; pinned to match cuda-bindings.
     "pyglet==2.1.14",
     "cffi==2.1.1",
 ]
@@ -103,7 +103,7 @@ conflicts = [
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
 documentation = "https://nvidia.github.io/cuda-python/cuda-core/"
-repository = "https://github.com/NVIDIA/cuda-python/tree/main/cuda_core"
+repository = "https://github.com/NVIDIA/cuda-python"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
 [tool.setuptools.packages.find]
