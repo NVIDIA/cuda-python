@@ -60,8 +60,5 @@ To run these samples:
 
 ### Benchmark
 
-Allows for analyzing binding performance using plugin [pytest-benchmark](https://github.com/ionelmc/pytest-benchmark).
-
-To run these benchmarks:
-* `python -m pytest --benchmark-only benchmarks/` against editable installations
-* `pytest --benchmark-only benchmarks/` against installed packages
+See the shared [cuda.bindings benchmark harness](../benchmarks/cuda_bindings/README.md)
+for performance benchmarks and usage instructions.

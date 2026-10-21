@@ -116,12 +116,6 @@ exclude = ["cuda/bindings/_version.py"]
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
 
-"benchmarks/**/*" = [
-  "E722", 
-  "UP022",
-  "E402", # module level import not at top of file
-  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
-
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
