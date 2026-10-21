@@ -67,6 +67,8 @@ __all__ = [
     "NotReadyError",
     "NotSupportedError",
     "NvmlError",
+    "NvmlMemoryError",
+    "NvmlTimeoutError",
     "OperatingSystemError",
     "ResetRequiredError",
     "ResetTypeNotSupportedError",
