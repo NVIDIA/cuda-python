@@ -142,8 +142,8 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          .venv/bin/pip wheel -v --no-deps ./cuda_bindings -w ./wheels/
-          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings/pyproject.toml:test
+          .venv/bin/pip wheel -v --no-deps ./cuda_bindings_13 -w ./wheels/
+          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings_13/pyproject.toml:test
 
       - name: Constrain cuda-core to the local cuda-bindings wheel
         run: |
@@ -188,7 +188,7 @@ jobs:
         continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings_13/tests
 
       - name: Run cuda.core tests
         continue-on-error: true
@@ -284,7 +284,7 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          cd cuda_bindings
+          cd cuda_bindings_13
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
@@ -423,7 +423,7 @@ jobs:
         run: |
           .venv/Scripts/pip install coverage pytest-cov Cython
           .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
-          .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
+          .venv/Scripts/pip install --group ./cuda_bindings_13/pyproject.toml:test
           .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root
@@ -448,7 +448,7 @@ jobs:
             --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/cuda_bindings/tests"
+            "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
 
       - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true

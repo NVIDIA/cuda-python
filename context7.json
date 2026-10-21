@@ -4,7 +4,7 @@
   "public_key": "pk_gupaHhsdvsuT1j3BZpb7i",
   "folders": [
     "cuda_python/docs/source",
-    "cuda_bindings/docs/source",
+    "cuda_bindings_13/docs/source",
     "cuda_core/docs/source",
     "cuda_pathfinder/docs/source"
   ],

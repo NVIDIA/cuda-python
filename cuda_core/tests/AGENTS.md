@@ -109,7 +109,7 @@ Follow these rules when adding or moving shared test code:
   before adding a new helper; consolidate duplicates across
 
   packages into `cuda_python_test_helpers` (both `cuda_core` and
-  `cuda_bindings` test environments already depend on it).
+  `cuda-bindings` test environments already depend on it).
 - Fixtures in a nested `conftest.py` are available to tests in its directory
   and descendants; fixtures from applicable parent `conftest.py` files remain
   available.
