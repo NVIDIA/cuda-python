@@ -243,6 +243,7 @@ def compute_workplan(
         if universal and ("pathfinder", None) in builds:
             labels.append("pathfinder")
         for module in ("bindings", "core", "python"):
+            component_label = "meta" if module == "python" else module
             if module == "python" and not universal:
                 continue
             for package in packages:
@@ -250,7 +251,7 @@ def compute_workplan(
                     continue
                 selector = package.cuda_variant if module == "core" else package.package_root
                 if (module, selector) in builds:
-                    labels.append(f"{module}{package.cuda_major}")
+                    labels.append(f"{component_label}{package.cuda_major}")
         return "+".join(labels) or "baseline wheels and test extensions"
 
     return {
@@ -266,7 +267,7 @@ def compute_workplan(
                             (("pathfinder", None) in builds, "pathfinder"),
                             (("bindings", package.package_root) in builds, f"bindings{package.cuda_major}"),
                             (("core", package.cuda_variant) in builds, f"core{package.cuda_major}"),
-                            (("python", package.package_root) in builds, f"python{package.cuda_major}"),
+                            (("python", package.package_root) in builds, f"meta{package.cuda_major}"),
                         )
                         if selected
                     ]
