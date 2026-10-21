@@ -5,10 +5,13 @@
 cuda-bindings: Low-level CUDA interfaces
 ****************************************
 
-`cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/>`_ is a standard set of low-level interfaces, providing full coverage of and 1:1 access to the CUDA host APIs from Python. Checkout the `Overview <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/overview.html>`_ for the workflow and performance results.
+.. Keep documentation URLs aligned with README.md and build_hooks.py.
+   Use a published CUDA 12 snapshot; latest follows the current CUDA major.
+
+`cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/>`_ is a standard set of low-level interfaces, providing full coverage of and 1:1 access to the CUDA host APIs from Python. Checkout the `Overview <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/overview.html>`_ for the workflow and performance results.
 
 * `Repository <https://github.com/NVIDIA/cuda-python/tree/main/cuda_bindings_12>`_
-* `Documentation <https://nvidia.github.io/cuda-python/cuda-bindings/>`_
+* `Documentation <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/>`_
 * `Examples <https://github.com/NVIDIA/cuda-python/tree/main/cuda_bindings_12/examples>`_
 * `Issue tracker <https://github.com/NVIDIA/cuda-python/issues/>`_
 

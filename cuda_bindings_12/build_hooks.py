@@ -64,7 +64,9 @@ _extensions = None
 _CYDRIVER_PXD = Path(__file__).resolve().parent / "cuda" / "bindings" / "cydriver.pxd"
 _GENERATED_VERSION_RE = re.compile(r"^cdef enum:\s*CUDA_VERSION\s*=\s*(\d+)\s*$")
 _CUDA_H_VERSION_RE = re.compile(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$")
-_INSTALL_URL = "https://nvidia.github.io/cuda-python/cuda-bindings/12.9.10/install.html#installing-from-source"
+# Keep this published CUDA 12 snapshot aligned with README.md and DESCRIPTION.rst;
+# latest follows the current CUDA major. Refresh when newer CUDA 12 docs are published.
+_INSTALL_URL = "https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html#installing-from-source"
 
 
 @functools.cache

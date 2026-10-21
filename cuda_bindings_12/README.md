@@ -2,6 +2,9 @@
 
 `cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview page](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/overview.html) for the workflow and performance results.
 
+<!-- Keep documentation URLs aligned with DESCRIPTION.rst and build_hooks.py.
+Use a published CUDA 12 snapshot; latest follows the current CUDA major. -->
+
 ## Installing
 
 Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html) for instructions and required/optional dependencies.
