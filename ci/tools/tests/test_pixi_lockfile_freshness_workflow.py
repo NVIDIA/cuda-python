@@ -7,10 +7,12 @@ from __future__ import annotations
 
 import shlex
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
 import yaml
+from packaging.requirements import Requirement
 
 ROOT = Path(__file__).resolve().parents[3]
 WORKFLOWS = ROOT / ".github/workflows"
@@ -110,11 +112,17 @@ def test_source_builds_and_tests_still_use_frozen_pixi():
         assert any("pixi run" in step.get("run", "") for step in job["steps"])
 
 
-@pytest.mark.agent_authored(model="gpt-6")
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_nightly_ci_declares_workflow_test_dependencies():
     workflow = _workflow("ci-nightly.yml")
     step = next(step for step in workflow["jobs"]["test-ci-tools-for-release"]["steps"] if "run" in step)
     install = next(line for line in step["run"].splitlines() if "pip install" in line)
-    dependencies = {argument.lower().split("==")[0] for argument in shlex.split(install)}
+    arguments = shlex.split(install)
+    if "./ci[test]" in arguments:
+        metadata = tomllib.loads((ROOT / "ci/pyproject.toml").read_text(encoding="utf-8"))["project"]
+        requirements = [*metadata["dependencies"], *metadata["optional-dependencies"]["test"]]
+        dependencies = {Requirement(requirement).name.lower() for requirement in requirements}
+    else:
+        dependencies = {argument.lower().split("==")[0] for argument in arguments}
 
     assert {"pytest", "pyyaml"} <= dependencies
