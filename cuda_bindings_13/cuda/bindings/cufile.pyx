@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d429cbad8076b96b3deb6eeceb51bbcb55e7b1fe5a189afa88a3ebce9970fa8d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4cd7fb4cb292ff81e108e26a96438d85d1cdce1df12e53819fe52b84d8812d99
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -494,6 +494,8 @@ cdef class IOEvents:
 
     @cookie.setter
     def cookie(self, val):
+        if self._readonly:
+            raise ValueError("This IOEvents instance is read-only")
         self._data.cookie = val
 
     @property
@@ -505,6 +507,8 @@ cdef class IOEvents:
 
     @status.setter
     def status(self, val):
+        if self._readonly:
+            raise ValueError("This IOEvents instance is read-only")
         self._data.status = val
 
     @property
@@ -516,6 +520,8 @@ cdef class IOEvents:
 
     @ret.setter
     def ret(self, val):
+        if self._readonly:
+            raise ValueError("This IOEvents instance is read-only")
         self._data.ret = val
 
     def __getitem__(self, key):
@@ -838,6 +844,8 @@ cdef class PerGpuStats:
 
     @uuid.setter
     def uuid(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.uuid = val
 
     @property
@@ -849,6 +857,8 @@ cdef class PerGpuStats:
 
     @read_bytes.setter
     def read_bytes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.read_bytes = val
 
     @property
@@ -860,6 +870,8 @@ cdef class PerGpuStats:
 
     @read_bw_bytes_per_sec.setter
     def read_bw_bytes_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.read_bw_bytes_per_sec = val
 
     @property
@@ -871,6 +883,8 @@ cdef class PerGpuStats:
 
     @read_utilization.setter
     def read_utilization(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.read_utilization = val
 
     @property
@@ -882,6 +896,8 @@ cdef class PerGpuStats:
 
     @read_duration_us.setter
     def read_duration_us(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.read_duration_us = val
 
     @property
@@ -893,6 +909,8 @@ cdef class PerGpuStats:
 
     @n_total_reads.setter
     def n_total_reads(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_total_reads = val
 
     @property
@@ -904,6 +922,8 @@ cdef class PerGpuStats:
 
     @n_p2p_reads.setter
     def n_p2p_reads(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_p2p_reads = val
 
     @property
@@ -915,6 +935,8 @@ cdef class PerGpuStats:
 
     @n_nvfs_reads.setter
     def n_nvfs_reads(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_nvfs_reads = val
 
     @property
@@ -926,6 +948,8 @@ cdef class PerGpuStats:
 
     @n_posix_reads.setter
     def n_posix_reads(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_posix_reads = val
 
     @property
@@ -937,6 +961,8 @@ cdef class PerGpuStats:
 
     @n_unaligned_reads.setter
     def n_unaligned_reads(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_unaligned_reads = val
 
     @property
@@ -948,6 +974,8 @@ cdef class PerGpuStats:
 
     @n_dr_reads.setter
     def n_dr_reads(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_dr_reads = val
 
     @property
@@ -959,6 +987,8 @@ cdef class PerGpuStats:
 
     @n_sparse_regions.setter
     def n_sparse_regions(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_sparse_regions = val
 
     @property
@@ -970,6 +1000,8 @@ cdef class PerGpuStats:
 
     @n_inline_regions.setter
     def n_inline_regions(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_inline_regions = val
 
     @property
@@ -981,6 +1013,8 @@ cdef class PerGpuStats:
 
     @n_reads_err.setter
     def n_reads_err(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_reads_err = val
 
     @property
@@ -992,6 +1026,8 @@ cdef class PerGpuStats:
 
     @writes_bytes.setter
     def writes_bytes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.writes_bytes = val
 
     @property
@@ -1003,6 +1039,8 @@ cdef class PerGpuStats:
 
     @write_bw_bytes_per_sec.setter
     def write_bw_bytes_per_sec(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.write_bw_bytes_per_sec = val
 
     @property
@@ -1014,6 +1052,8 @@ cdef class PerGpuStats:
 
     @write_utilization.setter
     def write_utilization(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.write_utilization = val
 
     @property
@@ -1025,6 +1065,8 @@ cdef class PerGpuStats:
 
     @write_duration_us.setter
     def write_duration_us(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.write_duration_us = val
 
     @property
@@ -1036,6 +1078,8 @@ cdef class PerGpuStats:
 
     @n_total_writes.setter
     def n_total_writes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_total_writes = val
 
     @property
@@ -1047,6 +1091,8 @@ cdef class PerGpuStats:
 
     @n_p2p_writes.setter
     def n_p2p_writes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_p2p_writes = val
 
     @property
@@ -1058,6 +1104,8 @@ cdef class PerGpuStats:
 
     @n_nvfs_writes.setter
     def n_nvfs_writes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_nvfs_writes = val
 
     @property
@@ -1069,6 +1117,8 @@ cdef class PerGpuStats:
 
     @n_posix_writes.setter
     def n_posix_writes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_posix_writes = val
 
     @property
@@ -1080,6 +1130,8 @@ cdef class PerGpuStats:
 
     @n_unaligned_writes.setter
     def n_unaligned_writes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_unaligned_writes = val
 
     @property
@@ -1091,6 +1143,8 @@ cdef class PerGpuStats:
 
     @n_dr_writes.setter
     def n_dr_writes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_dr_writes = val
 
     @property
@@ -1102,6 +1156,8 @@ cdef class PerGpuStats:
 
     @n_writes_err.setter
     def n_writes_err(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_writes_err = val
 
     @property
@@ -1113,6 +1169,8 @@ cdef class PerGpuStats:
 
     @n_mmap.setter
     def n_mmap(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_mmap = val
 
     @property
@@ -1124,6 +1182,8 @@ cdef class PerGpuStats:
 
     @n_mmap_ok.setter
     def n_mmap_ok(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_mmap_ok = val
 
     @property
@@ -1135,6 +1195,8 @@ cdef class PerGpuStats:
 
     @n_mmap_err.setter
     def n_mmap_err(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_mmap_err = val
 
     @property
@@ -1146,6 +1208,8 @@ cdef class PerGpuStats:
 
     @n_mmap_free.setter
     def n_mmap_free(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.n_mmap_free = val
 
     @property
@@ -1157,6 +1221,8 @@ cdef class PerGpuStats:
 
     @reg_bytes.setter
     def reg_bytes(self, val):
+        if self._readonly:
+            raise ValueError("This PerGpuStats instance is read-only")
         self._data.reg_bytes = val
 
     def __getitem__(self, key):
@@ -1304,6 +1370,8 @@ cdef class IOVec:
 
     @base_.setter
     def base_(self, val):
+        if self._readonly:
+            raise ValueError("This IOVec instance is read-only")
         self._data.base_ = val
 
     @property
@@ -1315,6 +1383,8 @@ cdef class IOVec:
 
     @len.setter
     def len(self, val):
+        if self._readonly:
+            raise ValueError("This IOVec instance is read-only")
         self._data.len = val
 
     def __getitem__(self, key):
@@ -1463,6 +1533,8 @@ cdef class Descr:
 
     @type.setter
     def type(self, val):
+        if self._readonly:
+            raise ValueError("This Descr instance is read-only")
         self._data.type = val
 
     @property
@@ -1472,6 +1544,8 @@ cdef class Descr:
 
     @handle.setter
     def handle(self, val):
+        if self._readonly:
+            raise ValueError("This Descr instance is read-only")
         self._data.handle = val
 
     @property
@@ -1483,6 +1557,8 @@ cdef class Descr:
 
     @fs_ops.setter
     def fs_ops(self, val):
+        if self._readonly:
+            raise ValueError("This Descr instance is read-only")
         self._data.fs_ops = val
 
     def __getitem__(self, key):
@@ -2675,6 +2751,8 @@ cdef class IOParams:
 
     @mode.setter
     def mode(self, val):
+        if self._readonly:
+            raise ValueError("This IOParams instance is read-only")
         self._data.mode = val
 
     @property
@@ -2684,6 +2762,8 @@ cdef class IOParams:
 
     @u.setter
     def u(self, val):
+        if self._readonly:
+            raise ValueError("This IOParams instance is read-only")
         self._data.u = val
 
     @property
@@ -2695,6 +2775,8 @@ cdef class IOParams:
 
     @fh.setter
     def fh(self, val):
+        if self._readonly:
+            raise ValueError("This IOParams instance is read-only")
         self._data.fh = val
 
     @property
@@ -2706,6 +2788,8 @@ cdef class IOParams:
 
     @opcode.setter
     def opcode(self, val):
+        if self._readonly:
+            raise ValueError("This IOParams instance is read-only")
         self._data.opcode = val
 
     @property
@@ -2717,6 +2801,8 @@ cdef class IOParams:
 
     @cookie.setter
     def cookie(self, val):
+        if self._readonly:
+            raise ValueError("This IOParams instance is read-only")
         self._data.cookie = val
 
     def __getitem__(self, key):

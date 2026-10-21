@@ -158,7 +158,7 @@ From the repository root, run:
 
 .. code-block:: console
 
-   $ cd cuda_bindings
+   $ cd cuda_bindings_13
    $ pip install -v -e .
 
 This installs the module as editable in your current Python environment (e.g. for testing or porting other libraries to use the bindings).

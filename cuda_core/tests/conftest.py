@@ -12,7 +12,7 @@ import warnings
 
 import pytest
 
-# Keep in sync with cuda_bindings/tests/conftest.py.
+# Keep in sync with cuda_bindings_13/tests/conftest.py.
 try:
     import cuda_python_test_helpers._pytest_plugin  # noqa: F401
 except ImportError as e:

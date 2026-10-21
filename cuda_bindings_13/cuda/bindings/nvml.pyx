@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=475626c3bcb69e8e6c831c4d204de2fac2c4f31f282ef903901ae0ce444da212
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0c61c4b052b755a096b9fd7ab1b56beae4da9828b276f099390f0b09dd17b450
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -4222,6 +4222,8 @@ cdef class ProcessInfo:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.pid = val
 
     @property
@@ -4233,6 +4235,8 @@ cdef class ProcessInfo:
 
     @used_gpu_memory.setter
     def used_gpu_memory(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.used_gpu_memory = val
 
     @property
@@ -4244,6 +4248,8 @@ cdef class ProcessInfo:
 
     @gpu_instance_id.setter
     def gpu_instance_id(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.gpu_instance_id = val
 
     @property
@@ -4255,6 +4261,8 @@ cdef class ProcessInfo:
 
     @compute_instance_id.setter
     def compute_instance_id(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.compute_instance_id = val
 
     def __getitem__(self, key):
@@ -4405,6 +4413,8 @@ cdef class ProcessDetail_v1:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.pid = val
 
     @property
@@ -4416,6 +4426,8 @@ cdef class ProcessDetail_v1:
 
     @used_gpu_memory.setter
     def used_gpu_memory(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.used_gpu_memory = val
 
     @property
@@ -4427,6 +4439,8 @@ cdef class ProcessDetail_v1:
 
     @gpu_instance_id.setter
     def gpu_instance_id(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.gpu_instance_id = val
 
     @property
@@ -4438,6 +4452,8 @@ cdef class ProcessDetail_v1:
 
     @compute_instance_id.setter
     def compute_instance_id(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.compute_instance_id = val
 
     @property
@@ -4449,6 +4465,8 @@ cdef class ProcessDetail_v1:
 
     @used_gpu_cc_protected_memory.setter
     def used_gpu_cc_protected_memory(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.used_gpu_cc_protected_memory = val
 
     def __getitem__(self, key):
@@ -5115,6 +5133,8 @@ cdef class BridgeChipInfo:
 
     @type.setter
     def type(self, val):
+        if self._readonly:
+            raise ValueError("This BridgeChipInfo instance is read-only")
         self._data.type = val
 
     @property
@@ -5126,6 +5146,8 @@ cdef class BridgeChipInfo:
 
     @fw_version.setter
     def fw_version(self, val):
+        if self._readonly:
+            raise ValueError("This BridgeChipInfo instance is read-only")
         self._data.fw_version = val
 
     def __getitem__(self, key):
@@ -5485,6 +5507,8 @@ cdef class _py_anon_pod0:
 
     @controller.setter
     def controller(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.controller = val
 
     @property
@@ -5496,6 +5520,8 @@ cdef class _py_anon_pod0:
 
     @default_min_temp.setter
     def default_min_temp(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.default_min_temp = val
 
     @property
@@ -5507,6 +5533,8 @@ cdef class _py_anon_pod0:
 
     @default_max_temp.setter
     def default_max_temp(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.default_max_temp = val
 
     @property
@@ -5518,6 +5546,8 @@ cdef class _py_anon_pod0:
 
     @current_temp.setter
     def current_temp(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.current_temp = val
 
     @property
@@ -5529,6 +5559,8 @@ cdef class _py_anon_pod0:
 
     @target.setter
     def target(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.target = val
 
     def __getitem__(self, key):
@@ -5837,6 +5869,8 @@ cdef class ClkMonFaultInfo:
 
     @clk_api_domain.setter
     def clk_api_domain(self, val):
+        if self._readonly:
+            raise ValueError("This ClkMonFaultInfo instance is read-only")
         self._data.clk_api_domain = val
 
     @property
@@ -5848,6 +5882,8 @@ cdef class ClkMonFaultInfo:
 
     @clk_domain_fault_mask.setter
     def clk_domain_fault_mask(self, val):
+        if self._readonly:
+            raise ValueError("This ClkMonFaultInfo instance is read-only")
         self._data.clk_domain_fault_mask = val
 
     def __getitem__(self, key):
@@ -6184,6 +6220,8 @@ cdef class ProcessUtilizationSample:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.pid = val
 
     @property
@@ -6195,6 +6233,8 @@ cdef class ProcessUtilizationSample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -6206,6 +6246,8 @@ cdef class ProcessUtilizationSample:
 
     @sm_util.setter
     def sm_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -6217,6 +6259,8 @@ cdef class ProcessUtilizationSample:
 
     @mem_util.setter
     def mem_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -6228,6 +6272,8 @@ cdef class ProcessUtilizationSample:
 
     @enc_util.setter
     def enc_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -6239,6 +6285,8 @@ cdef class ProcessUtilizationSample:
 
     @dec_util.setter
     def dec_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.dec_util = val
 
     def __getitem__(self, key):
@@ -6392,6 +6440,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -6403,6 +6453,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.pid = val
 
     @property
@@ -6414,6 +6466,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @sm_util.setter
     def sm_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -6425,6 +6479,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @mem_util.setter
     def mem_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -6436,6 +6492,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @enc_util.setter
     def enc_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -6447,6 +6505,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @dec_util.setter
     def dec_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.dec_util = val
 
     @property
@@ -6458,6 +6518,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @jpg_util.setter
     def jpg_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.jpg_util = val
 
     @property
@@ -6469,6 +6531,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @ofa_util.setter
     def ofa_util(self, val):
+        if self._readonly:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.ofa_util = val
 
     def __getitem__(self, key):
@@ -7329,6 +7393,8 @@ cdef class _py_anon_pod1:
 
     @b_is_present.setter
     def b_is_present(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.b_is_present = val
 
     @property
@@ -7340,6 +7406,8 @@ cdef class _py_anon_pod1:
 
     @percentage.setter
     def percentage(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.percentage = val
 
     @property
@@ -7351,6 +7419,8 @@ cdef class _py_anon_pod1:
 
     @inc_threshold.setter
     def inc_threshold(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.inc_threshold = val
 
     @property
@@ -7362,6 +7432,8 @@ cdef class _py_anon_pod1:
 
     @dec_threshold.setter
     def dec_threshold(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.dec_threshold = val
 
     def __getitem__(self, key):
@@ -7825,6 +7897,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -7836,6 +7910,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.pid = val
 
     @property
@@ -7845,6 +7921,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @process_name.setter
     def process_name(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.process_name = val
 
     @property
@@ -7856,6 +7934,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -7867,6 +7947,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @sm_util.setter
     def sm_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -7878,6 +7960,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @mem_util.setter
     def mem_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -7889,6 +7973,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @enc_util.setter
     def enc_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -7900,6 +7986,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @dec_util.setter
     def dec_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.dec_util = val
 
     def __getitem__(self, key):
@@ -8053,6 +8141,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @process_name.setter
     def process_name(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.process_name = val
 
     @property
@@ -8064,6 +8154,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -8075,6 +8167,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -8086,6 +8180,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.pid = val
 
     @property
@@ -8097,6 +8193,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @sm_util.setter
     def sm_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -8108,6 +8206,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @mem_util.setter
     def mem_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -8119,6 +8219,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @enc_util.setter
     def enc_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -8130,6 +8232,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @dec_util.setter
     def dec_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.dec_util = val
 
     @property
@@ -8141,6 +8245,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @jpg_util.setter
     def jpg_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.jpg_util = val
 
     @property
@@ -8152,6 +8258,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @ofa_util.setter
     def ofa_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.ofa_util = val
 
     def __getitem__(self, key):
@@ -8589,6 +8697,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @timestamp.setter
     def timestamp(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.timestamp = val
 
     @property
@@ -8600,6 +8710,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @time_run_total.setter
     def time_run_total(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.time_run_total = val
 
     @property
@@ -8611,6 +8723,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @time_run.setter
     def time_run(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.time_run = val
 
     @property
@@ -8622,6 +8736,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @sw_runlist_id.setter
     def sw_runlist_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.sw_runlist_id = val
 
     @property
@@ -8633,6 +8749,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @target_time_slice.setter
     def target_time_slice(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.target_time_slice = val
 
     @property
@@ -8644,6 +8762,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @cumulative_preemption_time.setter
     def cumulative_preemption_time(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.cumulative_preemption_time = val
 
     def __getitem__(self, key):
@@ -10181,6 +10301,8 @@ cdef class HwbcEntry:
 
     @hwbc_id.setter
     def hwbc_id(self, val):
+        if self._readonly:
+            raise ValueError("This HwbcEntry instance is read-only")
         self._data.hwbc_id = val
 
     @property
@@ -10190,6 +10312,8 @@ cdef class HwbcEntry:
 
     @firmware_version.setter
     def firmware_version(self, val):
+        if self._readonly:
+            raise ValueError("This HwbcEntry instance is read-only")
         self._data.firmware_version = val
 
     def __getitem__(self, key):
@@ -10820,6 +10944,8 @@ cdef class UnitFanInfo:
 
     @speed.setter
     def speed(self, val):
+        if self._readonly:
+            raise ValueError("This UnitFanInfo instance is read-only")
         self._data.speed = val
 
     @property
@@ -10831,6 +10957,8 @@ cdef class UnitFanInfo:
 
     @state.setter
     def state(self, val):
+        if self._readonly:
+            raise ValueError("This UnitFanInfo instance is read-only")
         self._data.state = val
 
     def __getitem__(self, key):
@@ -11151,6 +11279,8 @@ cdef class SystemEventData_v1:
 
     @event_type.setter
     def event_type(self, val):
+        if self._readonly:
+            raise ValueError("This SystemEventData_v1 instance is read-only")
         self._data.event_type = val
 
     @property
@@ -11162,6 +11292,8 @@ cdef class SystemEventData_v1:
 
     @gpu_id.setter
     def gpu_id(self, val):
+        if self._readonly:
+            raise ValueError("This SystemEventData_v1 instance is read-only")
         self._data.gpu_id = val
 
     def __getitem__(self, key):
@@ -11501,6 +11633,8 @@ cdef class EncoderSessionInfo:
 
     @session_id.setter
     def session_id(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.session_id = val
 
     @property
@@ -11512,6 +11646,8 @@ cdef class EncoderSessionInfo:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.pid = val
 
     @property
@@ -11523,6 +11659,8 @@ cdef class EncoderSessionInfo:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -11534,6 +11672,8 @@ cdef class EncoderSessionInfo:
 
     @codec_type.setter
     def codec_type(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.codec_type = val
 
     @property
@@ -11545,6 +11685,8 @@ cdef class EncoderSessionInfo:
 
     @h_resolution.setter
     def h_resolution(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.h_resolution = val
 
     @property
@@ -11556,6 +11698,8 @@ cdef class EncoderSessionInfo:
 
     @v_resolution.setter
     def v_resolution(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.v_resolution = val
 
     @property
@@ -11567,6 +11711,8 @@ cdef class EncoderSessionInfo:
 
     @average_fps.setter
     def average_fps(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.average_fps = val
 
     @property
@@ -11578,6 +11724,8 @@ cdef class EncoderSessionInfo:
 
     @average_latency.setter
     def average_latency(self, val):
+        if self._readonly:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.average_latency = val
 
     def __getitem__(self, key):
@@ -11884,6 +12032,8 @@ cdef class FBCSessionInfo:
 
     @session_id.setter
     def session_id(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.session_id = val
 
     @property
@@ -11895,6 +12045,8 @@ cdef class FBCSessionInfo:
 
     @pid.setter
     def pid(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.pid = val
 
     @property
@@ -11906,6 +12058,8 @@ cdef class FBCSessionInfo:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -11917,6 +12071,8 @@ cdef class FBCSessionInfo:
 
     @display_ordinal.setter
     def display_ordinal(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.display_ordinal = val
 
     @property
@@ -11928,6 +12084,8 @@ cdef class FBCSessionInfo:
 
     @session_type.setter
     def session_type(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.session_type = val
 
     @property
@@ -11939,6 +12097,8 @@ cdef class FBCSessionInfo:
 
     @session_flags.setter
     def session_flags(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.session_flags = val
 
     @property
@@ -11950,6 +12110,8 @@ cdef class FBCSessionInfo:
 
     @h_max_resolution.setter
     def h_max_resolution(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.h_max_resolution = val
 
     @property
@@ -11961,6 +12123,8 @@ cdef class FBCSessionInfo:
 
     @v_max_resolution.setter
     def v_max_resolution(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.v_max_resolution = val
 
     @property
@@ -11972,6 +12136,8 @@ cdef class FBCSessionInfo:
 
     @h_resolution.setter
     def h_resolution(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.h_resolution = val
 
     @property
@@ -11983,6 +12149,8 @@ cdef class FBCSessionInfo:
 
     @v_resolution.setter
     def v_resolution(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.v_resolution = val
 
     @property
@@ -11994,6 +12162,8 @@ cdef class FBCSessionInfo:
 
     @average_fps.setter
     def average_fps(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.average_fps = val
 
     @property
@@ -12005,6 +12175,8 @@ cdef class FBCSessionInfo:
 
     @average_latency.setter
     def average_latency(self, val):
+        if self._readonly:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.average_latency = val
 
     def __getitem__(self, key):
@@ -14258,6 +14430,8 @@ cdef class GpuInstancePlacement:
 
     @start.setter
     def start(self, val):
+        if self._readonly:
+            raise ValueError("This GpuInstancePlacement instance is read-only")
         self._data.start = val
 
     @property
@@ -14269,6 +14443,8 @@ cdef class GpuInstancePlacement:
 
     @size_.setter
     def size_(self, val):
+        if self._readonly:
+            raise ValueError("This GpuInstancePlacement instance is read-only")
         self._data.size_ = val
 
     def __getitem__(self, key):
@@ -14689,6 +14865,8 @@ cdef class ComputeInstancePlacement:
 
     @start.setter
     def start(self, val):
+        if self._readonly:
+            raise ValueError("This ComputeInstancePlacement instance is read-only")
         self._data.start = val
 
     @property
@@ -14700,6 +14878,8 @@ cdef class ComputeInstancePlacement:
 
     @size_.setter
     def size_(self, val):
+        if self._readonly:
+            raise ValueError("This ComputeInstancePlacement instance is read-only")
         self._data.size_ = val
 
     def __getitem__(self, key):
@@ -15797,6 +15977,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @unit.setter
     def unit(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.unit = val
 
     @property
@@ -15808,6 +15990,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @location.setter
     def location(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.location = val
 
     @property
@@ -15819,6 +16003,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @sublocation.setter
     def sublocation(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.sublocation = val
 
     @property
@@ -15830,6 +16016,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @extlocation.setter
     def extlocation(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.extlocation = val
 
     @property
@@ -15841,6 +16029,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @address.setter
     def address(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.address = val
 
     @property
@@ -15852,6 +16042,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @is_parity.setter
     def is_parity(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.is_parity = val
 
     @property
@@ -15863,6 +16055,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @count.setter
     def count(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.count = val
 
     def __getitem__(self, key):
@@ -16352,6 +16546,8 @@ cdef class NvlinkFirmwareVersion:
 
     @ucode_type.setter
     def ucode_type(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.ucode_type = val
 
     @property
@@ -16363,6 +16559,8 @@ cdef class NvlinkFirmwareVersion:
 
     @major.setter
     def major(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.major = val
 
     @property
@@ -16374,6 +16572,8 @@ cdef class NvlinkFirmwareVersion:
 
     @minor.setter
     def minor(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.minor = val
 
     @property
@@ -16385,6 +16585,8 @@ cdef class NvlinkFirmwareVersion:
 
     @sub_minor.setter
     def sub_minor(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.sub_minor = val
 
     def __getitem__(self, key):
@@ -16835,6 +17037,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @timestamp.setter
     def timestamp(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.timestamp = val
 
     @property
@@ -16846,6 +17050,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @time_run_total.setter
     def time_run_total(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.time_run_total = val
 
     @property
@@ -16857,6 +17063,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @time_run.setter
     def time_run(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.time_run = val
 
     @property
@@ -16868,6 +17076,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @sw_runlist_id.setter
     def sw_runlist_id(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.sw_runlist_id = val
 
     @property
@@ -16879,6 +17089,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @target_time_slice.setter
     def target_time_slice(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.target_time_slice = val
 
     @property
@@ -16890,6 +17102,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @cumulative_preemption_time.setter
     def cumulative_preemption_time(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.cumulative_preemption_time = val
 
     @property
@@ -16901,6 +17115,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @weight.setter
     def weight(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.weight = val
 
     def __getitem__(self, key):
@@ -18244,6 +18460,8 @@ cdef class PmgrPwrTuple:
 
     @pwrm_w.setter
     def pwrm_w(self, val):
+        if self._readonly:
+            raise ValueError("This PmgrPwrTuple instance is read-only")
         self._data.pwrm_w = val
 
     def __getitem__(self, key):
@@ -18391,6 +18609,8 @@ cdef class RailMetrics:
 
     @freqk_hz.setter
     def freqk_hz(self, val):
+        if self._readonly:
+            raise ValueError("This RailMetrics instance is read-only")
         self._data.freqk_hz = val
 
     @property
@@ -18402,6 +18622,8 @@ cdef class RailMetrics:
 
     @util_pct.setter
     def util_pct(self, val):
+        if self._readonly:
+            raise ValueError("This RailMetrics instance is read-only")
         self._data.util_pct = val
 
     def __getitem__(self, key):
@@ -18548,6 +18770,8 @@ cdef class PwrModelMetricsDlppm1xPerf:
 
     @perfms.setter
     def perfms(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsDlppm1xPerf instance is read-only")
         self._data.perfms = val
 
     def __getitem__(self, key):
@@ -18693,6 +18917,8 @@ cdef class PwrModelMetricsSamplePfpp1x:
 
     @freqk_hz.setter
     def freqk_hz(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsSamplePfpp1x instance is read-only")
         self._data.freqk_hz = val
 
     @property
@@ -18704,6 +18930,8 @@ cdef class PwrModelMetricsSamplePfpp1x:
 
     @est_tgp_pwrm_w.setter
     def est_tgp_pwrm_w(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsSamplePfpp1x instance is read-only")
         self._data.est_tgp_pwrm_w = val
 
     def __getitem__(self, key):
@@ -18851,6 +19079,8 @@ cdef class PwrModelOperatingPointPfpp1x:
 
     @freqk_hz.setter
     def freqk_hz(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelOperatingPointPfpp1x instance is read-only")
         self._data.freqk_hz = val
 
     @property
@@ -18862,6 +19092,8 @@ cdef class PwrModelOperatingPointPfpp1x:
 
     @pwrm_w.setter
     def pwrm_w(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelOperatingPointPfpp1x instance is read-only")
         self._data.pwrm_w = val
 
     def __getitem__(self, key):
@@ -20492,6 +20724,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @link_id.setter
     def link_id(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.link_id = val
 
     @property
@@ -20503,6 +20737,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @sample_type.setter
     def sample_type(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.sample_type = val
 
     @property
@@ -20514,6 +20750,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @sample_count.setter
     def sample_count(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.sample_count = val
 
     @property
@@ -20525,6 +20763,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @samples.setter
     def samples(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.samples = val
 
     @property
@@ -20536,6 +20776,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @nvml_return.setter
     def nvml_return(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.nvml_return = val
 
     def __getitem__(self, key):
@@ -21278,6 +21520,8 @@ cdef class Sample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if self._readonly:
+            raise ValueError("This Sample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -21287,6 +21531,8 @@ cdef class Sample:
 
     @sample_value.setter
     def sample_value(self, val):
+        if self._readonly:
+            raise ValueError("This Sample instance is read-only")
         self._data.sample_value = val
 
     def __getitem__(self, key):
@@ -21438,6 +21684,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -21449,6 +21697,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -21458,6 +21708,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @sm_util.setter
     def sm_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -21467,6 +21719,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @mem_util.setter
     def mem_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -21476,6 +21730,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @enc_util.setter
     def enc_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -21485,6 +21741,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @dec_util.setter
     def dec_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.dec_util = val
 
     def __getitem__(self, key):
@@ -21638,6 +21896,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -21649,6 +21909,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -21658,6 +21920,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @sm_util.setter
     def sm_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -21667,6 +21931,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @mem_util.setter
     def mem_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -21676,6 +21942,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @enc_util.setter
     def enc_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -21685,6 +21953,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @dec_util.setter
     def dec_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.dec_util = val
 
     @property
@@ -21694,6 +21964,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @jpg_util.setter
     def jpg_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.jpg_util = val
 
     @property
@@ -21703,6 +21975,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @ofa_util.setter
     def ofa_util(self, val):
+        if self._readonly:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.ofa_util = val
 
     def __getitem__(self, key):
@@ -21855,6 +22129,8 @@ cdef class FieldValue:
 
     @field_id.setter
     def field_id(self, val):
+        if self._readonly:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.field_id = val
 
     @property
@@ -21866,6 +22142,8 @@ cdef class FieldValue:
 
     @scope_id.setter
     def scope_id(self, val):
+        if self._readonly:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.scope_id = val
 
     @property
@@ -21877,6 +22155,8 @@ cdef class FieldValue:
 
     @timestamp.setter
     def timestamp(self, val):
+        if self._readonly:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.timestamp = val
 
     @property
@@ -21888,6 +22168,8 @@ cdef class FieldValue:
 
     @latency_usec.setter
     def latency_usec(self, val):
+        if self._readonly:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.latency_usec = val
 
     @property
@@ -21899,6 +22181,8 @@ cdef class FieldValue:
 
     @value_type.setter
     def value_type(self, val):
+        if self._readonly:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.value_type = val
 
     @property
@@ -21910,6 +22194,8 @@ cdef class FieldValue:
 
     @nvml_return.setter
     def nvml_return(self, val):
+        if self._readonly:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.nvml_return = val
 
     @property
@@ -21919,6 +22205,8 @@ cdef class FieldValue:
 
     @value.setter
     def value(self, val):
+        if self._readonly:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.value = val
 
     def __getitem__(self, key):
@@ -23473,6 +23761,8 @@ cdef class GridLicensableFeature:
 
     @feature_code.setter
     def feature_code(self, val):
+        if self._readonly:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.feature_code = val
 
     @property
@@ -23484,6 +23774,8 @@ cdef class GridLicensableFeature:
 
     @feature_state.setter
     def feature_state(self, val):
+        if self._readonly:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.feature_state = val
 
     @property
@@ -23493,6 +23785,8 @@ cdef class GridLicensableFeature:
 
     @license_info.setter
     def license_info(self, val):
+        if self._readonly:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.license_info = val
 
     @property
@@ -23502,6 +23796,8 @@ cdef class GridLicensableFeature:
 
     @product_name.setter
     def product_name(self, val):
+        if self._readonly:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.product_name = val
 
     @property
@@ -23513,6 +23809,8 @@ cdef class GridLicensableFeature:
 
     @feature_enabled.setter
     def feature_enabled(self, val):
+        if self._readonly:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.feature_enabled = val
 
     @property
@@ -23522,6 +23820,8 @@ cdef class GridLicensableFeature:
 
     @license_expiry.setter
     def license_expiry(self, val):
+        if self._readonly:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.license_expiry = val
 
     def __getitem__(self, key):
@@ -25015,6 +25315,8 @@ cdef class CoreRailMetrics:
 
     @rails.setter
     def rails(self, val):
+        if self._readonly:
+            raise ValueError("This CoreRailMetrics instance is read-only")
         self._data.rails = val
 
     def __getitem__(self, key):
@@ -25182,6 +25484,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @b_valid.setter
     def b_valid(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.b_valid = val
 
     @property
@@ -25191,6 +25495,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @max_perf_per_watt_point.setter
     def max_perf_per_watt_point(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.max_perf_per_watt_point = val
 
     @property
@@ -25200,6 +25506,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @fmax_at_vmax_point.setter
     def fmax_at_vmax_point(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.fmax_at_vmax_point = val
 
     @property
@@ -25211,6 +25519,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @tgp_headroomm_w.setter
     def tgp_headroomm_w(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.tgp_headroomm_w = val
 
     def __getitem__(self, key):
@@ -26063,6 +26373,8 @@ cdef class PRMCounter_v1:
 
     @counter_id.setter
     def counter_id(self, val):
+        if self._readonly:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
         self._data.counter_id = val
 
     @property
@@ -26072,6 +26384,8 @@ cdef class PRMCounter_v1:
 
     @in_data.setter
     def in_data(self, val):
+        if self._readonly:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
         self._data.in_data = val
 
     @property
@@ -26081,6 +26395,8 @@ cdef class PRMCounter_v1:
 
     @counter_value.setter
     def counter_value(self, val):
+        if self._readonly:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
         self._data.counter_value = val
 
     def __getitem__(self, key):
@@ -27452,6 +27768,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @b_valid.setter
     def b_valid(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.b_valid = val
 
     @property
@@ -27461,6 +27779,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @core_rail.setter
     def core_rail(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.core_rail = val
 
     @property
@@ -27470,6 +27790,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @fb_rail.setter
     def fb_rail(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.fb_rail = val
 
     @property
@@ -27479,6 +27801,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @tgp_pwr_tuple.setter
     def tgp_pwr_tuple(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.tgp_pwr_tuple = val
 
     @property
@@ -27488,6 +27812,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @perf_metrics.setter
     def perf_metrics(self, val):
+        if self._readonly:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.perf_metrics = val
 
     def __getitem__(self, key):
@@ -27632,6 +27958,8 @@ cdef class PerfMetricsPfpp1xSample:
 
     @estimated_metrics.setter
     def estimated_metrics(self, val):
+        if self._readonly:
+            raise ValueError("This PerfMetricsPfpp1xSample instance is read-only")
         self._data.estimated_metrics = val
 
     def __getitem__(self, key):
@@ -27947,6 +28275,8 @@ cdef class ObservedMetrics:
 
     @initial_dramclk_est.setter
     def initial_dramclk_est(self, val):
+        if self._readonly:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.initial_dramclk_est = val
 
     @property
@@ -27958,6 +28288,8 @@ cdef class ObservedMetrics:
 
     @b_valid.setter
     def b_valid(self, val):
+        if self._readonly:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.b_valid = val
 
     @property
@@ -27967,6 +28299,8 @@ cdef class ObservedMetrics:
 
     @core_rail.setter
     def core_rail(self, val):
+        if self._readonly:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.core_rail = val
 
     @property
@@ -27976,6 +28310,8 @@ cdef class ObservedMetrics:
 
     @fb_rail.setter
     def fb_rail(self, val):
+        if self._readonly:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.fb_rail = val
 
     @property
@@ -27985,6 +28321,8 @@ cdef class ObservedMetrics:
 
     @tgp_pwr_tuple.setter
     def tgp_pwr_tuple(self, val):
+        if self._readonly:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.tgp_pwr_tuple = val
 
     @property
@@ -27994,6 +28332,8 @@ cdef class ObservedMetrics:
 
     @perf_metrics.setter
     def perf_metrics(self, val):
+        if self._readonly:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.perf_metrics = val
 
     def __getitem__(self, key):
@@ -28138,6 +28478,8 @@ cdef class PerfMetricsDlppc2xSample:
 
     @observed_metrics.setter
     def observed_metrics(self, val):
+        if self._readonly:
+            raise ValueError("This PerfMetricsDlppc2xSample instance is read-only")
         self._data.observed_metrics = val
 
     def __getitem__(self, key):
@@ -28446,6 +28788,8 @@ cdef class PerfMetricControllerSample:
 
     @controller_type.setter
     def controller_type(self, val):
+        if self._readonly:
+            raise ValueError("This PerfMetricControllerSample instance is read-only")
         self._data.controller_type = val
 
     @property
@@ -28455,6 +28799,8 @@ cdef class PerfMetricControllerSample:
 
     @data_.setter
     def data_(self, val):
+        if self._readonly:
+            raise ValueError("This PerfMetricControllerSample instance is read-only")
         self._data.data_ = val
 
     def __getitem__(self, key):

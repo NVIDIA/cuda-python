@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=669fccd9c90beac89a312832e43ef932007842229300c7a881d8bb6c960f9b6a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=63a771e60437f82799ca6e5cbf1efadbd30b8dd9b8a20edbcca387c5d6009795
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -5620,6 +5620,8 @@ cdef class GraphEdgeData:
 
     @from_port.setter
     def from_port(self, val):
+        if self._readonly:
+            raise ValueError("This GraphEdgeData instance is read-only")
         self._data.from_port = val
 
     @property
@@ -5631,6 +5633,8 @@ cdef class GraphEdgeData:
 
     @to_port.setter
     def to_port(self, val):
+        if self._readonly:
+            raise ValueError("This GraphEdgeData instance is read-only")
         self._data.to_port = val
 
     @property
@@ -5642,6 +5646,8 @@ cdef class GraphEdgeData:
 
     @type.setter
     def type(self, val):
+        if self._readonly:
+            raise ValueError("This GraphEdgeData instance is read-only")
         self._data.type = val
 
     def __getitem__(self, key):
@@ -15083,6 +15089,8 @@ cdef class DevSmResourceGroupParams:
 
     @sm_count.setter
     def sm_count(self, val):
+        if self._readonly:
+            raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.sm_count = val
 
     @property
@@ -15094,6 +15102,8 @@ cdef class DevSmResourceGroupParams:
 
     @coscheduled_sm_count.setter
     def coscheduled_sm_count(self, val):
+        if self._readonly:
+            raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.coscheduled_sm_count = val
 
     @property
@@ -15105,6 +15115,8 @@ cdef class DevSmResourceGroupParams:
 
     @preferred_coscheduled_sm_count.setter
     def preferred_coscheduled_sm_count(self, val):
+        if self._readonly:
+            raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.preferred_coscheduled_sm_count = val
 
     @property
@@ -15116,6 +15128,8 @@ cdef class DevSmResourceGroupParams:
 
     @flags_.setter
     def flags_(self, val):
+        if self._readonly:
+            raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.flags_ = val
 
     @property
@@ -15127,6 +15141,8 @@ cdef class DevSmResourceGroupParams:
 
     @locality_domain_id.setter
     def locality_domain_id(self, val):
+        if self._readonly:
+            raise ValueError("This DevSmResourceGroupParams instance is read-only")
         self._data.locality_domain_id = val
 
     def __getitem__(self, key):
@@ -15816,6 +15832,8 @@ cdef class CliqueInfo:
 
     @type.setter
     def type(self, val):
+        if self._readonly:
+            raise ValueError("This CliqueInfo instance is read-only")
         self._data.type = val
 
     @property
@@ -15827,6 +15845,8 @@ cdef class CliqueInfo:
 
     @id.setter
     def id(self, val):
+        if self._readonly:
+            raise ValueError("This CliqueInfo instance is read-only")
         self._data.id = val
 
     def __getitem__(self, key):
@@ -19358,6 +19378,8 @@ cdef class StreamBatchMemOpParams_v1:
 
     @wait_value.setter
     def wait_value(self, val):
+        if self._readonly:
+            raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpWaitValueParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].wait_value = value")
@@ -19373,6 +19395,8 @@ cdef class StreamBatchMemOpParams_v1:
 
     @write_value.setter
     def write_value(self, val):
+        if self._readonly:
+            raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpWriteValueParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].write_value = value")
@@ -19388,6 +19412,8 @@ cdef class StreamBatchMemOpParams_v1:
 
     @flush_remote_writes.setter
     def flush_remote_writes(self, val):
+        if self._readonly:
+            raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpFlushRemoteWritesParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].flush_remote_writes = value")
@@ -19403,6 +19429,8 @@ cdef class StreamBatchMemOpParams_v1:
 
     @memory_barrier.setter
     def memory_barrier(self, val):
+        if self._readonly:
+            raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpMemoryBarrierParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].memory_barrier = value")
@@ -19418,6 +19446,8 @@ cdef class StreamBatchMemOpParams_v1:
 
     @atomic_reduction.setter
     def atomic_reduction(self, val):
+        if self._readonly:
+            raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         cdef StreamMemOpAtomicReductionParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].atomic_reduction = value")
@@ -19433,6 +19463,8 @@ cdef class StreamBatchMemOpParams_v1:
 
     @operation.setter
     def operation(self, val):
+        if self._readonly:
+            raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
         self._data.operation = val
 
     def __getitem__(self, key):
@@ -19932,6 +19964,8 @@ cdef class ExecAffinityParam_v1:
 
     @param.setter
     def param(self, val):
+        if self._readonly:
+            raise ValueError("This ExecAffinityParam_v1 instance is read-only")
         cdef _py_anon_pod10 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].param = value")
@@ -19947,6 +19981,8 @@ cdef class ExecAffinityParam_v1:
 
     @type.setter
     def type(self, val):
+        if self._readonly:
+            raise ValueError("This ExecAffinityParam_v1 instance is read-only")
         self._data.type = val
 
     def __getitem__(self, key):
@@ -20899,6 +20935,8 @@ cdef class ArrayMapInfo_v1:
 
     @resource.setter
     def resource(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         cdef _py_anon_pod32 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].resource = value")
@@ -20914,6 +20952,8 @@ cdef class ArrayMapInfo_v1:
 
     @subresource.setter
     def subresource(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         cdef _py_anon_pod33 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].subresource = value")
@@ -20929,6 +20969,8 @@ cdef class ArrayMapInfo_v1:
 
     @mem_handle.setter
     def mem_handle(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         cdef _py_anon_pod36 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].mem_handle = value")
@@ -20944,6 +20986,8 @@ cdef class ArrayMapInfo_v1:
 
     @resource_type.setter
     def resource_type(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.resource_type = val
 
     @property
@@ -20955,6 +20999,8 @@ cdef class ArrayMapInfo_v1:
 
     @subresource_type.setter
     def subresource_type(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.subresource_type = val
 
     @property
@@ -20966,6 +21012,8 @@ cdef class ArrayMapInfo_v1:
 
     @mem_operation_type.setter
     def mem_operation_type(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.mem_operation_type = val
 
     @property
@@ -20977,6 +21025,8 @@ cdef class ArrayMapInfo_v1:
 
     @mem_handle_type.setter
     def mem_handle_type(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.mem_handle_type = val
 
     @property
@@ -20988,6 +21038,8 @@ cdef class ArrayMapInfo_v1:
 
     @offset.setter
     def offset(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.offset = val
 
     @property
@@ -20999,6 +21051,8 @@ cdef class ArrayMapInfo_v1:
 
     @device_bit_mask.setter
     def device_bit_mask(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.device_bit_mask = val
 
     @property
@@ -21010,6 +21064,8 @@ cdef class ArrayMapInfo_v1:
 
     @flags_.setter
     def flags_(self, val):
+        if self._readonly:
+            raise ValueError("This ArrayMapInfo_v1 instance is read-only")
         self._data.flags_ = val
 
     def __getitem__(self, key):
@@ -21651,6 +21707,8 @@ cdef class DevResource_v1:
 
     @sm.setter
     def sm(self, val):
+        if self._readonly:
+            raise ValueError("This DevResource_v1 instance is read-only")
         cdef DevSmResource val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].sm = value")
@@ -21666,6 +21724,8 @@ cdef class DevResource_v1:
 
     @wq_config.setter
     def wq_config(self, val):
+        if self._readonly:
+            raise ValueError("This DevResource_v1 instance is read-only")
         cdef DevWorkqueueConfigResource val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].wq_config = value")
@@ -21681,6 +21741,8 @@ cdef class DevResource_v1:
 
     @wq.setter
     def wq(self, val):
+        if self._readonly:
+            raise ValueError("This DevResource_v1 instance is read-only")
         cdef DevWorkqueueResource val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].wq = value")
@@ -21696,6 +21758,8 @@ cdef class DevResource_v1:
 
     @type.setter
     def type(self, val):
+        if self._readonly:
+            raise ValueError("This DevResource_v1 instance is read-only")
         self._data.type = val
 
     @property
@@ -21705,6 +21769,8 @@ cdef class DevResource_v1:
 
     @_internal_padding.setter
     def _internal_padding(self, val):
+        if self._readonly:
+            raise ValueError("This DevResource_v1 instance is read-only")
         self._data._internal_padding = val
 
     @property
@@ -21714,6 +21780,8 @@ cdef class DevResource_v1:
 
     @_oversize.setter
     def _oversize(self, val):
+        if self._readonly:
+            raise ValueError("This DevResource_v1 instance is read-only")
         self._data._oversize = val
 
     @property
@@ -21725,6 +21793,8 @@ cdef class DevResource_v1:
 
     @next_resource.setter
     def next_resource(self, val):
+        if self._readonly:
+            raise ValueError("This DevResource_v1 instance is read-only")
         self._data.next_resource = val
 
     def __getitem__(self, key):
@@ -23678,6 +23748,8 @@ cdef class MemAccessDesc_v1:
 
     @location.setter
     def location(self, val):
+        if self._readonly:
+            raise ValueError("This MemAccessDesc_v1 instance is read-only")
         cdef MemLocation_v1 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].location = value")
@@ -23693,6 +23765,8 @@ cdef class MemAccessDesc_v1:
 
     @flags_.setter
     def flags_(self, val):
+        if self._readonly:
+            raise ValueError("This MemAccessDesc_v1 instance is read-only")
         self._data.flags_ = val
 
     def __getitem__(self, key):
