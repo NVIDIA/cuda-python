@@ -43,7 +43,13 @@ cmd = [
 cmd = [
     "bash",
     "-c",
-    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings_13" -e "$PIXI_ENVIRONMENT_NAME" test',
+    '''
+case "$PIXI_ENVIRONMENT_NAME" in
+  cu12|cu13) bindings_root="cuda_bindings_${PIXI_ENVIRONMENT_NAME#cu}" ;;
+  *) printf 'Unsupported bindings test environment: %s\n' "$PIXI_ENVIRONMENT_NAME" >&2; exit 2 ;;
+esac
+pixi run --manifest-path "$PIXI_PROJECT_ROOT/$bindings_root" -e "$PIXI_ENVIRONMENT_NAME" test
+''',
 ]
 
 [target.linux.tasks.test-core]
