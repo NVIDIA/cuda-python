@@ -70,10 +70,16 @@ function Set-DriverMode {
 
         Write-Output "Setting driver mode to $driver_mode..."
         nvidia-smi -fdm $driver_mode_code
+        if ($LASTEXITCODE -ne 0) {
+            throw "nvidia-smi -fdm $driver_mode_code ($driver_mode) failed with exit code $LASTEXITCODE"
+        }
 
         # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA).
         $nvidia_devices = @(Get-PnpDevice -Class Display -FriendlyName "NVIDIA*")
         $gpu_count = $nvidia_devices.Count
+        if ($gpu_count -eq 0) {
+            throw "No NVIDIA display devices were found."
+        }
         foreach ($device in $nvidia_devices) {
             Write-Output "Restarting device: $($device.FriendlyName) ($($device.InstanceId))"
             pnputil /disable-device "$($device.InstanceId)"
