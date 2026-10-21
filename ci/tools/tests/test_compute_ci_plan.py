@@ -485,10 +485,10 @@ if __name__ == "__main__":
 def test_workplan_labels_and_summary_show_component_majors_and_exclusions() -> None:
     plan = plan_for(release_tag="v12.9.11")
     assert plan["labels"] == {
-        "build": "bindings12+python12",
+        "build": "bindings12+meta12",
         "build_platform": "bindings12",
         "build_current": "baseline wheels and test extensions",
-        "sdist": {"cuda_bindings_12": "bindings12+python12", "cuda_bindings_13": "excluded"},
+        "sdist": {"cuda_bindings_12": "bindings12+meta12", "cuda_bindings_13": "excluded"},
     }
     assert plan["jobs"]["windows_arm64_build"] is False
     summary = format_workplan_summary(plan, DEFAULT_BINDINGS_CONFIG)
