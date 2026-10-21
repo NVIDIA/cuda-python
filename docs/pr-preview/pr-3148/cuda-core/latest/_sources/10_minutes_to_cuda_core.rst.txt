@@ -316,8 +316,7 @@ for a complete capture-and-replay example with a measured speedup.
 Beyond the stream capture shown here, ``cuda.core`` also provides an explicit
 graph interface (the :mod:`cuda.core.graph` module) for building, inspecting, and
 modifying graphs directly, including graphs first produced by capture. The
-project's `graph tests
-<https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/tests/graph>`_ have
+project's :repo-tree:`graph tests <cuda_core/tests/graph>` have
 many usage examples.
 
 
