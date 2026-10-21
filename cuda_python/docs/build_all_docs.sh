@@ -13,7 +13,7 @@ rm -rf build
 CUDA_BINDINGS_PATH=build/html/cuda-bindings
 mkdir -p $CUDA_BINDINGS_PATH
 pushd .
-cd ../../cuda_bindings/docs
+cd ../../cuda_bindings_13/docs
 rm -rf build
 ./build_docs.sh $@
 cp -r build/html/* "$(dirs -l +1)"/$CUDA_BINDINGS_PATH
