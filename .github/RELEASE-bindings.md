@@ -24,8 +24,10 @@ must continue while development advances, create a short release branch such
 as `release/bindings-12.9.11` from the chosen commit. For an emergency after a
 release, start from its exact tag, provided that tag contains the new package
 layout. For the first release after this transition, use a validated commit
-containing both roots; do not resume development on the historical `12.9.x`
-branch. Keep the package layout and release tooling together on the branch.
+containing both roots. Keep routine development on `main`; the historical
+`12.9.x` branch stays frozen except for emergency fixes using compatible
+historical tooling. Reconcile those fixes into the main-tree maintenance
+root. Keep the package layout and release tooling together on new release branches.
 
 Record the source commit, intended tag, selected package root, release owner,
 and accepted changes in the release checklist. A branch is a temporary scope
