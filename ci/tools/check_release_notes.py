@@ -6,8 +6,11 @@
 Usage:
     python check_release_notes.py --git-tag <tag> --component <component>
 
+Notes and release configuration come from the working tree. Successful checks
+append the parsed version to GITHUB_OUTPUT when it is set.
+
 Exit codes:
-    0 — release notes present and non-empty (or .post version, skipped)
+    0 — release-notes policy satisfied
     1 — release notes missing or empty
     2 — invalid arguments (including unparsable tag, or component/tag-prefix mismatch)
 """
@@ -95,8 +98,8 @@ def check_release_notes(git_tag: str, component: str, repo_root: Path = Path("."
     ``path`` is the repo-relative notes path, or a ``<placeholder>`` naming the
     offending argument when the tag or component itself is the problem.
 
-    Returns an empty list when notes are present and non-empty, or when the
-    tag is a .post release (no new notes required).
+    Pathfinder requires a notes file, including for .post releases, but allows
+    an empty file. Other components require non-empty notes and skip .post.
     """
     if component not in COMPONENT_TO_PACKAGE:
         return [("<component>", f"unknown component '{component}'")]
@@ -105,14 +108,14 @@ def check_release_notes(git_tag: str, component: str, repo_root: Path = Path("."
     if version is None:
         return [("<tag>", f"cannot parse version from tag '{git_tag}' for component '{component}'")]
 
-    if is_post_release(version):
+    if is_post_release(version) and component != "cuda-pathfinder":
         return []
 
     path = notes_path(COMPONENT_TO_PACKAGE[component], version)
     full = repo_root / path
     if not full.is_file():
         return [(path, "missing")]
-    if full.stat().st_size == 0:
+    if full.stat().st_size == 0 and component != "cuda-pathfinder":
         return [(path, "empty")]
     return []
 
@@ -125,6 +128,13 @@ def write_step_summary(message: str) -> None:
         f.write(message)
         if not message.endswith("\n"):
             f.write("\n")
+
+
+def write_version_output(version: str) -> None:
+    output_path = os.environ.get("GITHUB_OUTPUT")
+    if output_path:
+        with open(output_path, "a", encoding="utf-8") as f:
+            f.write(f"version={version}\n")
 
 
 def warn_missing_backport_notes(git_tag: str, component: str, problems: list[tuple[str | Path, str]]) -> None:
@@ -222,8 +232,9 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    if is_post_release(version):
+    if is_post_release(version) and args.component != "cuda-pathfinder":
         print(f"Post-release tag ({args.git_tag}), skipping release-notes check.")
+        write_version_output(version)
         return 0
 
     backport_branch = args.backport_branch or load_backport_branch(args.repo_root)
@@ -240,6 +251,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: release notes policy failed for tag {args.git_tag}:", file=sys.stderr)
             for path, reason in problems:
                 print(f"  - {path} ({reason})", file=sys.stderr)
+        if rc == 0:
+            write_version_output(version)
         return rc
 
     if not problems:
@@ -247,6 +260,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not problems:
         print(f"Release notes present for tag {args.git_tag}, component {args.component}.")
+        write_version_output(version)
         return 0
 
     print(f"ERROR: missing or empty release notes for tag {args.git_tag}:", file=sys.stderr)
