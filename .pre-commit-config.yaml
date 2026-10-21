@@ -14,6 +14,9 @@ ci:
 
 # Please update the rev: SHAs below with this command:
 # pre-commit autoupdate --freeze
+# This unchanged maintenance-source import is inactive until its integration layer.
+exclude: ^cuda_bindings_12/
+
 repos:
   # Runs first so a leaked credential blocks the commit before any formatter runs.
   # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on

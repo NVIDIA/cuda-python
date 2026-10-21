@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cc64687a7f1c8074b36e6dd6bbcf5eb5e00809e72fd7e9afc1d9688d4c8da04d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5c3afec4f14f03303533c7e373c24a624243ebed2e91d50bf9617d546d0297bc
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -37051,6 +37051,7 @@ cdef FieldValue _cast_field_values(values):
             values_[i].scope_id = v[1]
         elif isinstance(v, int):
             values_[i].field_id = v
+            values_[i].scope_id = 0
         else:
             raise ValueError("Each entry must be an integer field ID, or a tuple of (field ID, scope ID)")
     return values_
@@ -37063,6 +37064,8 @@ cpdef object device_get_field_values(intptr_t device, values):
         device (intptr_t): The device handle of the GPU to request field values for.
         values (FieldValue): Array of FieldValue specifying what to retrieve.
 
+    Entries left unpopulated by NVML report ``ERROR_UNKNOWN`` in ``nvml_return``.
+
     .. seealso:: `nvmlDeviceGetFieldValues`
     """
     cdef FieldValue values_ = _cast_field_values(values)
@@ -37072,6 +37075,10 @@ cpdef object device_get_field_values(intptr_t device, values):
     # Passing a valuesCount of 0 to nvmlDeviceGetFieldValues returns NVML_INVALID_ARGUMENT
     if valuesCount == 0:
         return values_
+
+    # nvbug 6952048: native NVML can return success without populating an entry.
+    # Reset every query so untouched entries cannot retain stale success statuses.
+    values_.nvml_return = NVML_ERROR_UNKNOWN
 
     with nogil:
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
