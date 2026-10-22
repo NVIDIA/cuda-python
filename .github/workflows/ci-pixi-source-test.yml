@@ -41,10 +41,10 @@ on:
       # Path-dependency metadata (including cuda_python_test_helpers) feeds the
       # solve, so it can break the source build without a pixi.toml edit.
       - "**/pyproject.toml"
-      - "cuda_bindings/build_hooks.py"
+      - "cuda_bindings_13/build_hooks.py"
       - "cuda_core/build_hooks.py"
-      - "cuda_bindings/cuda/bindings/**" # generated bindings sources
-      - "cuda_bindings/tests/cython/**"
+      - "cuda_bindings_13/cuda/bindings/**" # generated bindings sources
+      - "cuda_bindings_13/tests/cython/**"
       - "cuda_core/tests/cython/**"
       - "ci/versions.yml"
       - "ci/pixi-version.env"
@@ -103,16 +103,16 @@ jobs:
 
           # bindings + core: force the source build (catches nvrtc/driver
           # compile errors like #2182) and import them (catches ABI mismatches).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" \
+          pixi run --manifest-path cuda_bindings_13 -e "${CUDA_ENV}" \
             python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
           pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
             python -c "import cuda.core; print('core import OK')"
 
           # cython test extensions: build them and confirm each .so landed next
           # to its .pyx in tests/cython (catches the placement regression #2180).
-          pixi run --manifest-path cuda_bindings -e "${CUDA_ENV}" build-cython-tests
+          pixi run --manifest-path cuda_bindings_13 -e "${CUDA_ENV}" build-cython-tests
           pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
-          for d in cuda_bindings/tests/cython cuda_core/tests/cython; do
+          for d in cuda_bindings_13/tests/cython cuda_core/tests/cython; do
             if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
               echo "::error::no compiled cython test .so in ${d} (placement regression)"
               exit 1
@@ -131,7 +131,7 @@ jobs:
   # The round trip (not just cu13 -> cu12) is what catches the second half:
   # coming back to cu13 must not silently reuse the cu12 extension.
   #
-  # cuda_core only: cuda_bindings cannot be source-built in its cu12
+  # cuda_core only: cuda-bindings cannot be source-built in its cu12
   # environment at all, for reasons unrelated to stale artifacts.
   build-identity-roundtrip:
     name: "cu13 -> cu12 -> cu13 round trip (linux-64, CPU)"

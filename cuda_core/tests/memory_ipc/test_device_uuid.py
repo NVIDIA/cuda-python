@@ -199,6 +199,30 @@ def test_virtual_memory_resource_peers(vmm_ipc_device_x2):
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 @pytest.mark.thread_unsafe(reason="sets CUDA_VISIBLE_DEVICES, which is process-global")
+def test_virtual_memory_resource_peers_from_generator(vmm_ipc_device_x2):
+    """Peers given as a generator reach every allocation and the pickled resource, not only the first allocation."""
+    dev0, dev1 = vmm_ipc_device_x2
+    if not dev1.can_access_peer(dev0):
+        pytest.skip("Test requires peer access from the second device to the first")
+    mr = _vmm_resource(dev0, peers=(peer for peer in (dev1.device_id,)))
+    first = mr.allocate(NBYTES)
+    buf = mr.allocate(NBYTES)
+    _fill(dev0, buf)
+    assert _access_flags(first, dev1.device_id) == 3
+    assert _access_flags(buf, dev1.device_id) == 3
+
+    report = _send_to_child(buf, visible=(dev1, dev0))
+    _check_report(report, dev0)
+    assert report["peer_uuids"] == [dev1.uuid]
+    assert report["peer_access"] == [3]
+
+    first.close()
+    buf.close()
+    dev0.sync()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.thread_unsafe(reason="sets CUDA_VISIBLE_DEVICES, which is process-global")
 @pytest.mark.parametrize("kind", ["device", "vmm"])
 def test_owning_device_not_visible(request, kind):
     """A child that cannot see the owning device refuses the resource and names the missing UUID."""

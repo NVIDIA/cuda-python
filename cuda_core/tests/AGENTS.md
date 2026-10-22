@@ -96,11 +96,20 @@ Follow these rules when adding or moving shared test code:
   `tests/helpers/` instead.
 - Import helpers explicitly from the test root, for example:
   `from helpers.memory import create_managed_memory_resource_or_skip`.
+- Reuse `run_child` and `noop` from `helpers.child_processes` for synchronous
+  child-process tests. The runner applies the sanitizer-aware timeout, kills
+  surviving children before asserting success, and closes process handles.
+  Before measuring file-descriptor counts around spawned processes, call
+  `warmup_multiprocessing` from the same module to start the persistent
+  resource-tracker pipe outside the baseline. Keep explicit process management
+  when the test needs to communicate with a running child or inspect its lifetime;
+  use `kill_subprocesses` before assertions and `track_child_processes` for
+  fixture cleanup so a stuck child cannot block IPC resource teardown.
 - Search `tests/helpers/` and `cuda_python_test_helpers/` for prior art
   before adding a new helper; consolidate duplicates across
 
   packages into `cuda_python_test_helpers` (both `cuda_core` and
-  `cuda_bindings` test environments already depend on it).
+  `cuda-bindings` test environments already depend on it).
 - Fixtures in a nested `conftest.py` are available to tests in its directory
   and descendants; fixtures from applicable parent `conftest.py` files remain
   available.

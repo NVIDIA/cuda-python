@@ -120,6 +120,9 @@ Fixes and enhancements
   ``RuntimeError`` when the device is not visible in the receiving process.
   (`#3196 <https://github.com/NVIDIA/cuda-python/issues/3196>`__)
 
+- Fixed a ``TypeError`` in :meth:`Program.compile` when retrying after PCH
+  heap exhaustion.
+
 - :attr:`system.Device.uuid_without_prefix` preserves UUIDs that NVML already
   reports without a prefix, such as on Orin. This also allows
   :meth:`system.Device.to_cuda_device` to match those devices correctly.

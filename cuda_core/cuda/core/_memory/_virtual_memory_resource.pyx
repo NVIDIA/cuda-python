@@ -117,6 +117,7 @@ class VirtualMemoryResourceOptions:
         Alignment for the VA reservation. If `None`, use the queried granularity.
     peers: Iterable[int]
         Extra device IDs that should be granted access in addition to ``device``.
+        The options store them as a tuple.
     self_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for the owning device.
     peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
@@ -164,6 +165,11 @@ class VirtualMemoryResourceOptions:
     _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     if BUILD_CUDA_MAJOR >= 13:
         _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
+
+    def __post_init__(self) -> None:
+        # Allocation and pickling each read the peers, so a one-shot iterable
+        # such as a generator must not reach them.
+        self.peers = tuple(int(peer) for peer in self.peers)
 
     @staticmethod
     def _access_to_flags(spec: VirtualMemoryAccessType | None) -> int:

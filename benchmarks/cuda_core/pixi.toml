@@ -33,7 +33,7 @@ cuda-core = "==0.7.0"
 # sources so local changes are exercised. Mirrors cuda_core/pixi.toml.
 [feature.core-source.dependencies]
 cuda-core = { path = "../../cuda_core" }
-cuda-bindings = { path = "../../cuda_bindings" }
+cuda-bindings = { path = "../../cuda_bindings_13" }
 
 [environments]
 wheel = { features = ["cu13", "cu13-pinned", "bench", "dev", "core-wheel"] }

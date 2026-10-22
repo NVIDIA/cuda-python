@@ -11,6 +11,8 @@ leading to deadlock and wedging the test runner for hours.
 """
 
 import contextlib
+import functools
+import multiprocessing as mp
 import multiprocessing.process
 import weakref
 
@@ -62,6 +64,36 @@ def kill_subprocesses(*processes):
             proc.join()
         killed.append(proc)
     return killed
+
+
+def run_child(target, *args):
+    """Run ``target(*args)`` in a child, killing it on timeout or interrupted join.
+
+    Fail unless the child exits successfully. Close the Process object before
+    returning so its handles cannot affect file-descriptor leak checks.
+    """
+    with contextlib.closing(mp.Process(target=target, args=args)) as process:
+        try:
+            process.start()
+            process.join(timeout=child_timeout_sec())
+        finally:
+            survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+
+
+def noop(*args):
+    """A picklable child target that accepts and discards any arguments."""
+
+
+@functools.cache
+def warmup_multiprocessing():
+    """Start spawn's persistent resource-tracker pipe before counting open FDs.
+
+    Cache only a successful warmup; the pipe outlives individual Process objects.
+    """
+    assert mp.get_start_method() == "spawn"
+    run_child(noop)
 
 
 @contextlib.contextmanager

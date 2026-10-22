@@ -135,6 +135,66 @@ def test_from_dlpack_cpu_stream_none_ambiguous():
         StridedMemoryView.from_dlpack(src, stream_ptr=None)
 
 
+class _StreamHandleLike:
+    """Stand-in for a third-party stream wrapper such as numba-cuda's ``CUstream``.
+
+    It is int-convertible but has no ``__bool__``/``__len__``, so it is always
+    truthy even when it wraps 0.
+    """
+
+    def __init__(self, value):
+        self._value = value
+
+    def __int__(self):
+        return self._value
+
+
+class _RecordingDLPackSource:
+    """CPU DLPack exporter that records the ``stream`` it was asked for."""
+
+    def __init__(self, array):
+        self._array = array
+        self.streams = []
+
+    def __dlpack_device__(self):
+        return self._array.__dlpack_device__()
+
+    def __dlpack__(self, *, stream=None, **kwargs):
+        self.streams.append(stream)
+        return self._array.__dlpack__(stream=stream, **kwargs)
+
+
+def _view_via_constructor(src, stream_ptr):
+    with pytest.warns(DeprecationWarning, match="Constructing a StridedMemoryView directly"):
+        return StridedMemoryView(src, stream_ptr)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize("handle_value", [0, -1], ids=["zero", "opt-out"])
+@pytest.mark.parametrize(
+    "make_view",
+    [
+        StridedMemoryView.from_dlpack,
+        StridedMemoryView.from_any_interface,
+        _view_via_constructor,
+    ],
+    ids=["from_dlpack", "from_any_interface", "constructor"],
+)
+def test_cpu_dlpack_accepts_int_convertible_stream_ptr(make_view, handle_value):
+    """A truthy int-convertible stream wrapper is coerced before ``__dlpack__``.
+
+    CPU exporters such as NumPy only accept ``stream=None``. A wrapper around
+    0 (or the -1 opt-out) must be treated as the integer it wraps, not as an
+    opaque truthy object forwarded to ``__dlpack__`` as a stream.
+    """
+    src = _RecordingDLPackSource(np.arange(4, dtype=np.float32))
+
+    view = make_view(src, _StreamHandleLike(handle_value))
+
+    assert src.streams == [None]
+    assert view.shape == (4,)
+
+
 def test_from_dlpack_unsupported_device_type():
     """``view_as_dlpack`` rejects a DLPack device that is neither CPU, CUDA,
     CUDA-pinned, nor CUDA-managed before ever calling ``__dlpack__``."""

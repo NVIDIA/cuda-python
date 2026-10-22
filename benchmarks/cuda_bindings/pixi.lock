@@ -136,7 +136,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/virtualenv-21.14.6-pyh5ded981_0.conda
-      - conda_source: cuda-bindings[d44e1d66] @ ../../cuda_bindings
+      - conda_source: cuda-bindings[d44e1d66] @ ../../cuda_bindings_13
       - conda_source: cuda-pathfinder[6b7636a9] @ ../../cuda_pathfinder
   wheel:
     channels:
@@ -2065,7 +2065,7 @@ packages:
   run_exports: {}
   size: 3994924
   timestamp: 1791486987517
-- conda_source: cuda-bindings[d44e1d66] @ ../../cuda_bindings
+- conda_source: cuda-bindings[d44e1d66] @ ../../cuda_bindings_13
   variants:
     c_stdlib: sysroot
     c_stdlib_version: '2.28'
