@@ -227,7 +227,7 @@ jobs:
 
       - name: Build cuda.bindings wheel
         if: ${{ env.BUILD_BINDINGS == 'true' }}
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299  # v4.3.1
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
         with:
           package-dir: ./cuda_bindings_13/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -324,7 +324,7 @@ jobs:
 
       - name: Build cuda.core wheel
         if: ${{ env.BUILD_CORE == 'true' }}
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299  # v4.3.1
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -602,7 +602,7 @@ jobs:
 
       - name: Build cuda.core wheel
         if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299  # v4.3.1
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
