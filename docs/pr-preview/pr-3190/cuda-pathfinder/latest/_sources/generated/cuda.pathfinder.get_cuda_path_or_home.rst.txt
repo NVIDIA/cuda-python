@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.get\_cuda\_path\_or\_home
+=========================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autofunction:: get_cuda_path_or_home
