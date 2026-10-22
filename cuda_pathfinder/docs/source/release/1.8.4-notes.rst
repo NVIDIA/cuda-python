@@ -10,3 +10,7 @@ Highlights
 ----------
 
 * Python 3.10 support was dropped (end of life).
+
+* Recognize the cuDSS 1.0 dynamic-library names ``libcudss.so.1`` and
+  ``cudss64_1.dll`` while retaining the cuDSS 0.x names. Loading cuDSS also
+  preloads NVRTC when available, as required by cuDSS 1.0.
