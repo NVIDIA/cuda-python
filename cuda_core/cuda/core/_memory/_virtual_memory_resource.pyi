@@ -48,6 +48,7 @@ class VirtualMemoryResourceOptions:
         Alignment for the VA reservation. If `None`, use the queried granularity.
     peers: Iterable[int]
         Extra device IDs that should be granted access in addition to ``device``.
+        The options store them as a tuple.
     self_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for the owning device.
     peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
@@ -74,6 +75,7 @@ class VirtualMemoryResourceOptions:
     _t = driver.CUmemAllocationType
     _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}
 
+    def __post_init__(self) -> None: ...
     @staticmethod
     def _access_to_flags(spec: VirtualMemoryAccessType | None) -> int: ...
     @staticmethod
