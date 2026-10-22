@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_set\_fan\_control\_policy
+====================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_set_fan_control_policy
