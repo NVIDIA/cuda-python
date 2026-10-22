@@ -73,11 +73,12 @@
   "#": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   "$": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "%": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "'": "tests/test_program.py::test_nvvm_program_options[options4-ptx]|setup",
-  "(": "tests/test_program.py::test_nvvm_program_with_multiple_extra_sources|run",
-  ")": "tests/test_program.py::test_nvvm_program_with_single_extra_source|run",
-  "*": "tests/test_program.py::test_nvvm_compile_invalid_ir|run",
-  "+": "tests/test_nvvm.py::test_get_error_string|run"
+  "'": "tests/test_program.py::test_nvvm_program_numba_debug|setup",
+  "(": "tests/test_program.py::test_nvvm_program_options[options1-ptx]|setup",
+  ")": "tests/test_program.py::test_nvvm_program_with_multiple_extra_sources|run",
+  "*": "tests/test_program.py::test_nvvm_program_with_single_extra_source|run",
+  "+": "tests/test_program.py::test_nvvm_compile_invalid_ir|run",
+  ",": "tests/test_nvvm.py::test_get_error_string|run"
 }
     </script>
     <script src="coverage_html_cb_15cffcd0.js" defer></script>
@@ -140,7 +141,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-21 02:55 +0000
+            created at 2026-10-22 01:18 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -240,10 +241,10 @@
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">class nvvmError(Exception):</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    def __init__(self, status):</span>&nbsp;</span><span class="r"><label for="ctxs85" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF*pq</span></p>
-    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF*pq</span></p>
-    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        cdef str err = f&quot;{s.name} ({s.value})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF*pq</span></p>
-    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">        super(nvvmError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF*pq</span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        self.status = status</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF+pq</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        s = Result(status)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF+pq</span></p>
+    <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        cdef str err = f&quot;{s.name} ({s.value})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs88"><span class="r"><label for="ctxs88" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF+pq</span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">        super(nvvmError, self).__init__(err)</span>&nbsp;</span><input type="checkbox" id="ctxs89"><span class="r"><label for="ctxs89" class="ctx">13 ctx</label></span><span class="ctxs">1CDjklmnoEF+pq</span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">    def __reduce__(self):</span>&nbsp;</span><span class="r"><label for="ctxs91" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        return (type(self), (self.status,))</span>&nbsp;</span><span class="r"></span></p>
@@ -251,10 +252,10 @@
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs95" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">cdef int check_status(int status) except 1 nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">69 ctx</label></span><span class="ctxs">1aCDjSkTlUmVnoEFbWcXdYeZf0g1h2i3GAB4R5u6v7w8x9y!z#$%'()HIJKLMNOPQprqst</span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">70 ctx</label></span><span class="ctxs">1aCDjSkTlUmVnoEFbWcXdYeZf0g1h2i3GAB4R5u6v7w8x9y!z#$%'()*HIJKLMNOPQprqst</span></p>
     <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">12 ctx</label></span><span class="ctxs">1CDjklmnoEFpq</span></p>
     <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            raise nvvmError(status)</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">12 ctx</label></span><span class="ctxs">1CDjklmnoEFpq</span></p>
-    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">69 ctx</label></span><span class="ctxs">1aCDjSkTlUmVnoEFbWcXdYeZf0g1h2i3GAB4R5u6v7w8x9y!z#$%'()HIJKLMNOPQprqst</span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">70 ctx</label></span><span class="ctxs">1aCDjSkTlUmVnoEFbWcXdYeZf0g1h2i3GAB4R5u6v7w8x9y!z#$%'()*HIJKLMNOPQprqst</span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
@@ -286,10 +287,10 @@
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">    cdef const char *_output_cstr_</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    cdef bytes _output_</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">1 ctx</label></span><span class="ctxs">1+</span></p>
-    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">        _output_cstr_ = nvvmGetErrorString(&lt;_Result&gt;result)</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">2 ctx</label></span><span class="ctxs">1a+</span></p>
-    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">    _output_ = _output_cstr_</span>&nbsp;</span><input type="checkbox" id="ctxs134"><span class="r"><label for="ctxs134" class="ctx">1 ctx</label></span><span class="ctxs">1+</span></p>
-    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    return _output_.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">1 ctx</label></span><span class="ctxs">1+</span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">1 ctx</label></span><span class="ctxs">1,</span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">        _output_cstr_ = nvvmGetErrorString(&lt;_Result&gt;result)</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">2 ctx</label></span><span class="ctxs">1a,</span></p>
+    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">    _output_ = _output_cstr_</span>&nbsp;</span><input type="checkbox" id="ctxs134"><span class="r"><label for="ctxs134" class="ctx">1 ctx</label></span><span class="ctxs">1,</span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    return _output_.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">1 ctx</label></span><span class="ctxs">1,</span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">cpdef tuple version():</span>&nbsp;</span><span class="r"><label for="ctxs138" class="ctx">(empty)</label></span></p>
@@ -328,10 +329,10 @@
     <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    cdef int minor_ir</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    cdef int major_dbg</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">    cdef int minor_dbg</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">40 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()HIJKLMNOPQprqst</span></p>
-    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">        __status__ = nvvmIRVersion(&amp;major_ir, &amp;minor_ir, &amp;major_dbg, &amp;minor_dbg)</span>&nbsp;</span><input type="checkbox" id="ctxs175"><span class="r"><label for="ctxs175" class="ctx">40 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()HIJKLMNOPQprqst</span></p>
-    <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs176"><span class="r"><label for="ctxs176" class="ctx">40 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()HIJKLMNOPQprqst</span></p>
-    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    return (major_ir, minor_ir, major_dbg, minor_dbg)</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">40 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()HIJKLMNOPQprqst</span></p>
+    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">41 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()*HIJKLMNOPQprqst</span></p>
+    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">        __status__ = nvvmIRVersion(&amp;major_ir, &amp;minor_ir, &amp;major_dbg, &amp;minor_dbg)</span>&nbsp;</span><input type="checkbox" id="ctxs175"><span class="r"><label for="ctxs175" class="ctx">41 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()*HIJKLMNOPQprqst</span></p>
+    <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs176"><span class="r"><label for="ctxs176" class="ctx">41 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()*HIJKLMNOPQprqst</span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    return (major_ir, minor_ir, major_dbg, minor_dbg)</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">41 ctx</label></span><span class="ctxs">1aSTUVWXYZ012346789!#$%'()*HIJKLMNOPQprqst</span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">cpdef intptr_t create_program() except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs180" class="ctx">(empty)</label></span></p>
@@ -630,7 +631,7 @@
             <a class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.2">coverage.py v7.16.2</a>,
-            created at 2026-10-21 02:55 +0000
+            created at 2026-10-22 01:18 +0000
         </p>
     </div>
 </footer>
