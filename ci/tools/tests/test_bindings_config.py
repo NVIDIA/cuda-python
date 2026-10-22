@@ -133,6 +133,47 @@ def test_registry_validation_rejects_invalid_schema_and_release_layout(change, m
         validate_config(data)
 
 
+@pytest.mark.parametrize("toolkit_version", ("12.9.1", "12.8.4"))
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_backport_branch_agrees_with_the_maintenance_toolkit_line(toolkit_version):
+    data = _registry()
+    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]["toolkit_version"] = toolkit_version
+    data["backport_branch"] = ".".join(toolkit_version.split(".")[:2]) + ".x"
+
+    config = validate_config(data)
+
+    assert data["backport_branch"] == f"{config.package_for_release_status('maintenance').ctk_target}.x"
+
+
+@pytest.mark.parametrize("branch", ("13.4.x", "12.8.x", "12.9", "", None, True))
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_registry_rejects_backport_branches_outside_the_maintenance_line(branch):
+    data = _registry()
+    data["backport_branch"] = branch
+
+    with pytest.raises(BindingsConfigError, match="backport_branch must match maintenance CUDA line '12.9.x'"):
+        validate_config(data)
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_registry_accepts_no_legacy_backport_branch():
+    data = _registry()
+
+    config = validate_config(data)
+
+    assert config.package_for_release_status("maintenance").ctk_target == "12.9"
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_registry_rejects_unknown_root_fields():
+    data = _registry()
+    data["backport_branch"] = "12.9.x"
+    data["unexpected"] = True
+
+    with pytest.raises(BindingsConfigError, match="must contain exactly"):
+        validate_config(data)
+
+
 @pytest.mark.agent_authored(model="gpt-6-sol")
 def test_registry_rejects_unknown_package_fields():
     data = _registry()
