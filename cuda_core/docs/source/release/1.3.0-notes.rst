@@ -113,6 +113,13 @@ Fixes and enhancements
   one of the devices is not visible in the receiving process.
   (`#3097 <https://github.com/NVIDIA/cuda-python/issues/3097>`__)
 
+- A pickled :class:`Device` now names its device by UUID, and unpickling
+  returns the device with that UUID in the receiving process. Before, it
+  named the device by ordinal, which names a different device when
+  ``CUDA_VISIBLE_DEVICES`` differs between the processes. Unpickling raises
+  ``RuntimeError`` when the device is not visible in the receiving process.
+  (`#3196 <https://github.com/NVIDIA/cuda-python/issues/3196>`__)
+
 - :attr:`system.Device.uuid_without_prefix` preserves UUIDs that NVML already
   reports without a prefix, such as on Orin. This also allows
   :meth:`system.Device.to_cuda_device` to match those devices correctly.

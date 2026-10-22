@@ -479,6 +479,11 @@ class Device:
     Newly returned :obj:`~_device.Device` objects are thread-local singletons
     for a specified device.
 
+    A pickled :obj:`~_device.Device` names its device by UUID. Unpickling
+    returns the device with that UUID in the receiving process, whatever its
+    ordinal is there, and raises ``RuntimeError`` if that device is not
+    visible.
+
     Note
     ----
     Will not initialize the GPU.
