@@ -188,7 +188,11 @@ def _validate_release_statuses(packages: tuple[BindingsPackage, ...]) -> None:
 
 
 def validate_config(raw: Any) -> BindingsConfig:
-    root = _mapping(raw, "versions configuration", {"schema_version", "cuda", "python"})
+    root = _mapping(raw, "versions configuration")
+    root_keys = {"schema_version", "cuda", "python"}
+    if "backport_branch" in root:
+        root_keys.add("backport_branch")
+    _mapping(root, "versions configuration", root_keys)
     if type(root["schema_version"]) is not int or root["schema_version"] != SCHEMA_VERSION:
         raise BindingsConfigError(f"schema_version must be {SCHEMA_VERSION}")
     cuda = _mapping(root["cuda"], "cuda", {"bindings"})
@@ -196,6 +200,11 @@ def validate_config(raw: Any) -> BindingsConfig:
     raw_package_roots = _mapping(bindings["package_roots"], "cuda.bindings.package_roots")
     packages = tuple(_package(package_root, value) for package_root, value in raw_package_roots.items())
     _validate_release_statuses(packages)
+    if "backport_branch" in root:
+        maintenance = next(package for package in packages if package.release_status == "maintenance")
+        expected_branch = f"{maintenance.ctk_target}.x"
+        if root["backport_branch"] != expected_branch:
+            raise BindingsConfigError(f"backport_branch must match maintenance CUDA line {expected_branch!r}")
     cuda_majors = [package.cuda_major for package in packages]
     if len(set(cuda_majors)) != len(cuda_majors):
         raise BindingsConfigError("CUDA bindings cuda_major values must be unique")
