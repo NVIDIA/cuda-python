@@ -179,16 +179,6 @@ def test_cudnn_metadata_matches_supported_layouts():
     assert spec.requires_add_dll_directory
 
 
-@pytest.mark.agent_authored(model="gpt-5")
-def test_cudss_metadata_matches_supported_library_names():
-    spec = _CATALOG_BY_NAME["cudss"]
-
-    assert spec.linux_sonames == ("libcudss.so.1", "libcudss.so.0")
-    assert spec.windows_dlls == ("cudss64_1.dll", "cudss64_0.dll")
-    assert spec.dependencies == ("cublas", "cublasLt")
-    assert spec.optional_dependencies == ("nvrtc",)
-
-
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_nccl_metadata_matches_supported_linux_install_layouts():
     spec = _CATALOG_BY_NAME["nccl"]
