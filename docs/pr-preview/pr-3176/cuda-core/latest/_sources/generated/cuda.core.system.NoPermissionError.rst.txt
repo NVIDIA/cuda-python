@@ -1,0 +1,6 @@
+﻿cuda.core.system.NoPermissionError
+==================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: NoPermissionError
