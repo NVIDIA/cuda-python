@@ -1,6 +1,0 @@
-﻿cuda.core.system.typing.ThermalTarget
-=====================================
-
-.. currentmodule:: cuda.core.system.typing
-
-.. autoenum:: ThermalTarget
