@@ -229,7 +229,7 @@ jobs:
         if: ${{ env.BUILD_BINDINGS == 'true' }}
         uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299  # v4.3.1
         with:
-          package-dir: ./cuda_bindings/
+          package-dir: ./cuda_bindings_13/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           extras: uv
         env:
@@ -246,6 +246,7 @@ jobs:
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
+            SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
@@ -343,6 +344,7 @@ jobs:
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
+            SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
@@ -474,7 +476,7 @@ jobs:
       - name: Build cuda.bindings Cython tests
         if: ${{ env.TEST_BINDINGS == 'true' }}
         run: |
-          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings/pyproject.toml:test
+          pip install ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl --group ./cuda_bindings_13/pyproject.toml:test
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -563,7 +565,7 @@ jobs:
             --branch "${OLD_BRANCH}" \
             --artifact "${OLD_ARTIFACT_PATTERN}" \
             NVIDIA/cuda-python "CI")
-          PREV_BINDINGS_DIR="cuda_bindings/dist-prev"
+          PREV_BINDINGS_DIR="cuda_bindings_13/dist-prev"
 
           gh run download \
             "${LATEST_PRIOR_RUN_ID}" \
@@ -580,7 +582,7 @@ jobs:
         if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
-          bindings_wheels=(cuda_bindings/dist-prev/cuda_bindings-"${BUILD_PREV_CUDA_MAJOR}".*.whl)
+          bindings_wheels=(cuda_bindings_13/dist-prev/cuda_bindings-"${BUILD_PREV_CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${pathfinder_wheels[0]}"
@@ -620,6 +622,7 @@ jobs:
             CC="/host/${{ env.SCCACHE_PATH }} cc"
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
+            SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}

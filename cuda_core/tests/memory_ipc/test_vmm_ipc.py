@@ -22,7 +22,7 @@ import socket
 import threading
 
 import pytest
-from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.child_processes import child_timeout_sec, kill_subprocesses, noop, run_child, warmup_multiprocessing
 from helpers.contexts import assert_no_cuda_warning
 
 from cuda.bindings import driver
@@ -149,20 +149,6 @@ class _CustomResource(VirtualMemoryResource):
     """A subclass, to check that pickling preserves the type."""
 
 
-def _run_child(target, *args):
-    """Run ``target(*args)`` in a spawned child and fail if it does not exit cleanly."""
-    process = mp.Process(target=target, args=args)
-    process.start()
-    process.join(timeout=CHILD_TIMEOUT_SEC)
-    survivors = kill_subprocesses(process)
-    assert not survivors, "child did not exit within timeout"
-    assert process.exitcode == 0, f"child exited with {process.exitcode}"
-
-
-def _noop(*args):
-    pass
-
-
 def _close_argument(buffer):
     buffer.close()
 
@@ -260,7 +246,7 @@ class TestManyChunkBuffer:
             assert _open_fds() == fds_before + 3
             fds = [int(handle) for handle in desc._handles]
 
-            _run_child(self.child_main, device.device_id, desc, gran, queue)
+            run_child(self.child_main, device.device_id, desc, gran, queue)
             result = queue.get(timeout=CHILD_TIMEOUT_SEC)
             assert result["chunks"] == [bytes([value]) * 16 for value in values]
             assert result["released"] is True
@@ -311,7 +297,7 @@ class TestImportOnSecondDevice:
 
         peers_possible = dev1.can_access_peer(dev0)
         queue = mp.Queue()
-        _run_child(self.child_main, dev0.device_id, dev1.device_id, desc, peers_possible, queue)
+        run_child(self.child_main, dev0.device_id, dev1.device_id, desc, peers_possible, queue)
         result = queue.get(timeout=CHILD_TIMEOUT_SEC)
         assert f"device {dev0.device_id}" in result["wrong_device"]
         assert result["device_id"] == dev1.device_id
@@ -495,7 +481,7 @@ class TestReexport:
             with parent_conn, child_conn, pytest.raises(RuntimeError, match=_REEXPORT_MESSAGE):
                 parent_conn.send(imported)
             with pytest.raises(RuntimeError, match=_REEXPORT_MESSAGE):
-                mp.Process(target=_noop, args=(imported,)).start()
+                mp.Process(target=noop, args=(imported,)).start()
             # The original descriptor still serves new importers, and the data is intact.
             _fill(buf, 0x3C)
             alias = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
@@ -589,20 +575,20 @@ class TestFileDescriptorLifetime:
     @pytest.mark.thread_unsafe(reason="counts process-global file descriptors")
     def test_process_argument_releases_with_the_process_object(self, vmm_ipc_device):
         """A buffer passed to a spawned Process imports there; its descriptor goes when the Process object does."""
+        warmup_multiprocessing()
         device = vmm_ipc_device
         mr = _resource(device)
-        buf = mr.allocate(1)
-        fds0 = _settled_open_fds()
-        process = mp.Process(target=_close_argument, args=(buf,))
-        process.start()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0, f"child exited with {process.exitcode}"
-        del process
-        gc.collect()
-        assert _open_fds() == fds0
-        buf.close()
+        with mr.allocate(1) as buf:
+            fds0 = _settled_open_fds()
+            process = mp.Process(target=_close_argument, args=(buf,))
+            process.start()
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0, f"child exited with {process.exitcode}"
+            del process
+            gc.collect()
+            assert _open_fds() == fds0
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_importer_holds_none_after_the_import(self, vmm_ipc_device):
@@ -647,6 +633,71 @@ class TestFileDescriptorLifetime:
         imported.close()
         counts["after_close"] = _open_fds()
         from_child.put(counts)
+
+
+_FORKSERVER_UNAVAILABLE = "forkserver" not in mp.get_all_start_methods()
+
+
+def _forkserver_child(device_id, buffer, report):
+    """Read the parent's pattern from the imported buffer, then write a new one."""
+    device = Device(device_id)
+    device.set_current()
+    report.put(_read(buffer, 0, 16))
+    _fill(buffer, 0x6C)
+    buffer.close()
+
+
+@pytest.mark.skipif(_FORKSERVER_UNAVAILABLE, reason="the forkserver start method is not available on this platform")
+class TestForkserver:
+    """The conftest forces ``spawn``; a forkserver context passes descriptors the same way and must work too."""
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_process_argument(self, vmm_ipc_device):
+        """A buffer passed as a forkserver Process argument imports in the child, and writes go both ways."""
+        device = vmm_ipc_device
+        buf = _resource(device).allocate(1)
+        _fill(buf, 0x5D)
+        ctx = mp.get_context("forkserver")
+        report = ctx.Queue()
+        process = ctx.Process(target=_forkserver_child, args=(device.device_id, buf, report))
+        process.start()
+        seen = report.get(timeout=CHILD_TIMEOUT_SEC)
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+        assert seen == b"\x5d" * 16
+        assert _read(buf, 0, 16) == b"\x6c" * 16
+        buf.close()
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_queue_round_trip(self, vmm_ipc_device):
+        """A buffer sent through a forkserver Queue imports in the child, and writes go both ways."""
+        device = vmm_ipc_device
+        buf = _resource(device).allocate(1)
+        _fill(buf, 0x5E)
+        ctx = mp.get_context("forkserver")
+        to_child, from_child = ctx.Queue(), ctx.Queue()
+        process = ctx.Process(target=self.child_main, args=(device.device_id, to_child, from_child))
+        process.start()
+        to_child.put(buf)
+        seen = from_child.get(timeout=CHILD_TIMEOUT_SEC)
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        survivors = kill_subprocesses(process)
+        assert not survivors, "child did not exit within timeout"
+        assert process.exitcode == 0, f"child exited with {process.exitcode}"
+        assert seen == b"\x5e" * 16
+        assert _read(buf, 0, 16) == b"\x6d" * 16
+        buf.close()
+
+    @staticmethod
+    def child_main(device_id, to_child, from_child):
+        device = Device(device_id)
+        device.set_current()
+        buffer = to_child.get(timeout=CHILD_TIMEOUT_SEC)
+        from_child.put(_read(buffer, 0, 16))
+        _fill(buffer, 0x6D)
+        buffer.close()
 
 
 class TestFileDescriptorLimit:
@@ -859,7 +910,7 @@ class TestEmptyBuffer:
         assert alias.is_mapped
         alias.close()
         queue = mp.Queue()
-        _run_child(self.child_main, device.device_id, desc, queue)
+        run_child(self.child_main, device.device_id, desc, queue)
         assert queue.get(timeout=CHILD_TIMEOUT_SEC) == {"size": 0, "is_mapped": True}
         empty.close()
 
@@ -881,7 +932,7 @@ class TestDLPackConsumer:
         buf = mr.allocate(1)
         _fill(buf, 0x7E)
         queue = mp.Queue()
-        _run_child(self.child_main, device.device_id, buf, queue)
+        run_child(self.child_main, device.device_id, buf, queue)
         result = queue.get(timeout=CHILD_TIMEOUT_SEC)
         assert result["dl_device"] == (int(DLDeviceType.kDLCUDA), device.device_id)
         assert result["shape"] == (buf.size,)
