@@ -9,20 +9,13 @@
 Highlights
 ----------
 
-* Python 3.10 support was dropped (end of life).
-  (`PR #3080 <https://github.com/NVIDIA/cuda-python/pull/3080>`_)
-
-* Add support for Python 3.15.
-  (`PR #3113 <https://github.com/NVIDIA/cuda-python/pull/3113>`_)
-
 * Recognize the cuDSS 1.0 dynamic-library names ``libcudss.so.1`` and
   ``cudss64_1.dll`` while retaining the cuDSS 0.x names. Loading cuDSS also
   preloads NVRTC when available, as required by cuDSS 1.0.
   (`PR #3188 <https://github.com/NVIDIA/cuda-python/pull/3188>`_)
 
-Documentation
--------------
+* Add support for Python 3.15.
+  (`PR #3113 <https://github.com/NVIDIA/cuda-python/pull/3113>`_)
 
-* Pin repository source links in release package descriptions to the matching
-  release tag so links remain valid as the repository evolves.
-  (`PR #3165 <https://github.com/NVIDIA/cuda-python/pull/3165>`_)
+* Python 3.10 support was dropped (end of life).
+  (`PR #3080 <https://github.com/NVIDIA/cuda-python/pull/3080>`_)
