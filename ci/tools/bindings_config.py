@@ -145,6 +145,12 @@ def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
         )
     if len({package.toolkit[0] for package in packages}) != len(packages):
         raise ValueError("CUDA bindings cuda_major values must be unique")
+    # Older schema-2 tags may still record the retired workflow branch.
+    if "backport_branch" in raw:
+        maintenance = next(package for package in packages if package.release_status == "maintenance")
+        expected_branch = f"{maintenance.ctk_target}.x"
+        if raw["backport_branch"] != expected_branch:
+            raise ValueError(f"backport_branch must match maintenance CUDA line {expected_branch!r}")
     return BindingsConfig(
         schema_version=SCHEMA_VERSION,
         package_roots=tuple(packages),

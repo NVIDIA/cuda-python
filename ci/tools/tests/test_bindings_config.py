@@ -105,6 +105,7 @@ def test_release_uses_its_tagged_registry_instead_of_the_control_tree(tmp_path, 
     control = _write_config(tmp_path / "control", _registry("control-maintenance", "control-current"))
     source = tmp_path / "release"
     registry = _registry("tag-maintenance", "tag-current")
+    registry["backport_branch"] = "12.9.x"
     _write_config(source, registry)
 
     assert main(["--config", str(control), "--release-tag", tag, "--release-source-root", str(source)]) == 0
