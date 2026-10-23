@@ -311,6 +311,9 @@ jobs:
           python-version: ${{ matrix.PY_VER }}
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.16') }}
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Verify LongPathsEnabled
         run: |
           $val = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled').LongPathsEnabled

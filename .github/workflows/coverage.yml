@@ -121,8 +121,10 @@ jobs:
         run: |
           python -m venv .venv
 
-      - name: Install pip with build-constraint support
-        run: .venv/bin/python -m pip install "pip>=25.3"
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+        with:
+          python: .venv/bin/python
 
       - name: Build and install cuda-pathfinder wheel
         run: |
@@ -266,9 +268,14 @@ jobs:
         run: |
           python -m venv .venv
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+        with:
+          python: .venv/Scripts/python
+
       - name: Build cuda.pathfinder wheel
         run: |
-          .venv/Scripts/python -m pip install "pip>=25.3" wheel setuptools Cython
+          .venv/Scripts/python -m pip install wheel setuptools Cython
           .venv/Scripts/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
 
       - name: Constrain builds to the local cuda.pathfinder wheel
@@ -408,6 +415,11 @@ jobs:
         run: |
           python -m venv .venv
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+        with:
+          python: .venv/Scripts/python
+
       - name: Install wheels from build job
         run: |
           .venv/Scripts/pip install ./wheels/cuda_pathfinder*.whl
@@ -490,6 +502,9 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ env.PY_VER }}
+
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
 
       - name: Install coverage
         run: |

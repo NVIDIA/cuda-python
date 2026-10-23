@@ -115,6 +115,9 @@ jobs:
           python-version: "3.12"
           architecture: ${{ ((inputs.host-platform == 'linux-aarch64' || inputs.host-platform == 'win-arm64') && 'arm64') || 'x64' }}
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') }}
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
@@ -445,6 +448,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.16') }}
+
+      - name: Harden pip
+        if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
+        uses: ./.github/actions/harden-pip
 
       - name: verify free-threaded build
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && endsWith(matrix.python-version, 't') }}
