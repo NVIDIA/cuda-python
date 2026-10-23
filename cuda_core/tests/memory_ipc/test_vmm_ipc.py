@@ -181,9 +181,8 @@ class _ReportingQueue(multiprocessing.queues.Queue):
         pytest.param({"handle_type": "fabric"}, False, id="fabric"),
         pytest.param({"handle_type": "win32_kmt"}, False, id="win32_kmt"),
         pytest.param({"location_type": "host", "handle_type": None}, False, id="host"),
-        pytest.param({"location_type": "host_numa", "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"),
         pytest.param(
-            {"location_type": "host_numa_current", "handle_type": "posix_fd"}, False, id="host_numa_current-posix_fd"
+            {"location_type": "host_numa", "numa_id": 0, "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"
         ),
     ],
 )
