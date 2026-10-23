@@ -1022,7 +1022,6 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/driver_v2/cuda.bindings._v2.driver.ipc_close_mem_handle.html">cuda.bindings._v2.driver.ipc_close_mem_handle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/driver_v2/cuda.bindings._v2.driver.mem_host_register_v2.html">cuda.bindings._v2.driver.mem_host_register_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/driver_v2/cuda.bindings._v2.driver.mem_host_unregister.html">cuda.bindings._v2.driver.mem_host_unregister</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/driver_v2/cuda.bindings._v2.driver.cu_memcpy.html">cuda.bindings._v2.driver.cu_memcpy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/driver_v2/cuda.bindings._v2.driver.memcpy_peer.html">cuda.bindings._v2.driver.memcpy_peer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/driver_v2/cuda.bindings._v2.driver.memcpy_htod_v2.html">cuda.bindings._v2.driver.memcpy_htod_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/driver_v2/cuda.bindings._v2.driver.memcpy_dtoh_v2.html">cuda.bindings._v2.driver.memcpy_dtoh_v2</a></li>
@@ -2307,8 +2306,10 @@ noted in the tables below.</p>
 <li><p>Functions use <code class="docutils literal notranslate"><span class="pre">snake_case</span></code> with the <code class="docutils literal notranslate"><span class="pre">cu</span></code>/<code class="docutils literal notranslate"><span class="pre">nvrtc</span></code> prefix removed
 (<code class="docutils literal notranslate"><span class="pre">cuStreamCreate</span></code> becomes <code class="docutils literal notranslate"><span class="pre">stream_create</span></code>). Driver functions keep the version suffix of
 the C symbol (<code class="docutils literal notranslate"><span class="pre">mem_alloc_v2</span></code>), whereas the legacy module drops it.</p></li>
-<li><p>Parameters and struct members use <code class="docutils literal notranslate"><span class="pre">snake_case</span></code>. Names that would clash with a Python keyword or
-builtin, or with a name reserved by the generated classes, get a trailing underscore (<code class="docutils literal notranslate"><span class="pre">input_</span></code>, <code class="docutils literal notranslate"><span class="pre">flags_</span></code>).</p></li>
+<li><p>Parameters and struct members use <code class="docutils literal notranslate"><span class="pre">snake_case</span></code>. A parameter that is a Python keyword gets a
+trailing underscore (<code class="docutils literal notranslate"><span class="pre">from_</span></code>). Python builtin names such as <code class="docutils literal notranslate"><span class="pre">type</span></code> and <code class="docutils literal notranslate"><span class="pre">object</span></code> are kept as they are.
+A struct member whose name would shadow an attribute of the class (<code class="docutils literal notranslate"><span class="pre">ptr</span></code>) or of the NumPy array that backs
+struct arrays (<code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">flags</span></code>, <code class="docutils literal notranslate"><span class="pre">size</span></code>, <code class="docutils literal notranslate"><span class="pre">device</span></code>) also gets a trailing underscore (<code class="docutils literal notranslate"><span class="pre">flags_</span></code>, <code class="docutils literal notranslate"><span class="pre">data_</span></code>).</p></li>
 <li><p>Enumeration classes and structs use <code class="docutils literal notranslate"><span class="pre">CamelCase</span></code> with the <code class="docutils literal notranslate"><span class="pre">CU</span></code>/<code class="docutils literal notranslate"><span class="pre">nvrtc</span></code> prefix removed.
 Structs keep their C version suffix (<code class="docutils literal notranslate"><span class="pre">MemLocation_v1</span></code>) and there is a single class per
 versioned C type instead of several aliases.</p></li>
@@ -2358,7 +2359,7 @@ few ungrouped constants remain at module level, keeping their C names: <code cla
 <p>The <code class="docutils literal notranslate"><span class="pre">cuda.bindings._v2.driver</span></code> module replaces <code class="docutils literal notranslate"><span class="pre">cuda.bindings.driver</span></code>. The deprecated driver APIs (texture references, surface references, <code class="docutils literal notranslate"><span class="pre">cuLaunch*</span></code> and <code class="docutils literal notranslate"><span class="pre">cuParam*</span></code> functions, <code class="docutils literal notranslate"><span class="pre">cuCtxAttach</span></code>, and so on) are also available and follow the same rules. They are listed in the <em>Deprecated functions</em> table below.</p>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
-<p>Where the C symbol has a version suffix (<code class="docutils literal notranslate"><span class="pre">cuCtxCreate_v2</span></code>), the legacy module exposes only the unsuffixed name, while the new module keeps the suffix, so one legacy function can map to several new ones. Only changes to parameters and return values beyond the general rules above are noted. Renamed parameters are not listed.</p>
+<p>Where the C symbol has a version suffix (<code class="docutils literal notranslate"><span class="pre">cuCtxCreate_v2</span></code>), the legacy module generally exposes only the unsuffixed name, while the new module keeps the suffix, so one legacy function can map to several new ones. A few legacy functions (<code class="docutils literal notranslate"><span class="pre">cuCtxGetDevice_v2</span></code> and similar) already carry the suffix. They have their own rows and map to the new function of the same name. Only changes to parameters and return values beyond the general rules above are noted. Renamed parameters are not listed.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 30.0%" />
@@ -2508,65 +2509,73 @@ few ungrouped constants remain at module level, keeping their C names: <code cla
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_get_device_v2</span></code></p></td>
 <td><p>Parameters added: <code class="docutils literal notranslate"><span class="pre">ctx</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetExecAffinity</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetDevice_v2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ctx_get_device_v2</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetExecAffinity</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_get_exec_affinity</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetFlags</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetFlags</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_get_flags</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetId</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetId</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_get_id</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetLimit</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetLimit</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_get_limit</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetStreamPriorityRange</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxGetStreamPriorityRange</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_get_stream_priority_range</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxPopCurrent</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxPopCurrent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_pop_current_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxPushCurrent</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxPushCurrent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_push_current_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxRecordEvent</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxRecordEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_record_event</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxResetPersistingL2Cache</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxResetPersistingL2Cache</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_reset_persisting_l2cache</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetCacheConfig</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetCacheConfig</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_set_cache_config</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetCurrent</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetCurrent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_set_current</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetFlags</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetFlags</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_set_flags</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetLimit</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSetLimit</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_set_limit</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSynchronize</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSynchronize</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_synchronize</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSynchronize</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSynchronize</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_synchronize_v2</span></code></p></td>
 <td><p>Parameters added: <code class="docutils literal notranslate"><span class="pre">ctx</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxSynchronize_v2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ctx_synchronize_v2</span></code></p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuCtxWaitEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ctx_wait_event</span></code></p></td>
@@ -2928,271 +2937,279 @@ few ungrouped constants remain at module level, keeping their C names: <code cla
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_add_node_v3</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphBatchMemOpNodeGetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphAddNode_v3</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">graph_add_node_v3</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphBatchMemOpNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_batch_mem_op_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphBatchMemOpNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphBatchMemOpNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_batch_mem_op_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphChildGraphNodeGetGraph</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphChildGraphNodeGetGraph</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_child_graph_node_get_graph</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphClone</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphClone</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_clone</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphConditionalHandleCreate</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphConditionalHandleCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_conditional_handle_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphCreate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphDebugDotPrint</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphDebugDotPrint</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_debug_dot_print</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphDestroy</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphDestroy</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_destroy</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphDestroyNode</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphDestroyNode</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_destroy_node</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventRecordNodeGetEvent</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventRecordNodeGetEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_event_record_node_get_event</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventRecordNodeSetEvent</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventRecordNodeSetEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_event_record_node_set_event</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventWaitNodeGetEvent</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventWaitNodeGetEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_event_wait_node_get_event</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventWaitNodeSetEvent</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphEventWaitNodeSetEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_event_wait_node_set_event</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecBatchMemOpNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecBatchMemOpNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_batch_mem_op_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecChildGraphNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecChildGraphNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_child_graph_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecDestroy</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecDestroy</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_destroy</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecEventRecordNodeSetEvent</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecEventRecordNodeSetEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_event_record_node_set_event</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecEventWaitNodeSetEvent</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecEventWaitNodeSetEvent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_event_wait_node_set_event</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecExternalSemaphoresSignalNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecExternalSemaphoresSignalNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_external_semaphores_signal_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecExternalSemaphoresWaitNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecExternalSemaphoresWaitNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_external_semaphores_wait_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecGetFlags</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecGetFlags</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_get_flags</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecGetId</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecGetId</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_get_id</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecHostNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecHostNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_host_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecKernelNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecKernelNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_kernel_node_set_params_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecMemcpyNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecMemcpyNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_memcpy_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecMemsetNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecMemsetNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_memset_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecUpdate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExecUpdate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_exec_update_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresSignalNodeGetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresSignalNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_external_semaphores_signal_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresSignalNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresSignalNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_external_semaphores_signal_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresWaitNodeGetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresWaitNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_external_semaphores_wait_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresWaitNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphExternalSemaphoresWaitNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_external_semaphores_wait_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetEdges</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetEdges</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_get_edges</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numEdges</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">(from,</span> <span class="pre">to,</span> <span class="pre">edge_data)</span></code>. The edge count is no longer returned.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetEdges</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetEdges</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_get_edges_v2</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numEdges</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">(from,</span> <span class="pre">to,</span> <span class="pre">edge_data)</span></code>. The edge count is no longer returned.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetId</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetId</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_get_id</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetNodes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetNodes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_get_nodes</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numNodes</span></code>. Returns an array of node handles. The count is no longer returned.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetRootNodes</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphGetRootNodes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_get_root_nodes</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numRootNodes</span></code>. Returns an array of node handles. The count is no longer returned.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphHostNodeGetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphHostNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_host_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphHostNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphHostNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_host_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphInstantiate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphInstantiate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_instantiate</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphInstantiateWithParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphInstantiateWithParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_instantiate_with_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeCopyAttributes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeCopyAttributes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_kernel_node_copy_attributes</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeGetAttribute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeGetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_kernel_node_get_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeGetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_kernel_node_get_params_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeSetAttribute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeSetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_kernel_node_set_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_kernel_node_set_params_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphLaunch</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphLaunch</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_launch</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemAllocNodeGetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemAllocNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_mem_alloc_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemFreeNodeGetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemFreeNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_mem_free_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemcpyNodeGetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemcpyNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_memcpy_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemcpyNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemcpyNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_memcpy_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemsetNodeGetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemsetNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_memset_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemsetNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphMemsetNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_memset_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeFindInClone</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeFindInClone</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_find_in_clone</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetContainingGraph</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetContainingGraph</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_containing_graph</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependencies</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependencies</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_dependencies</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numDependencies</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">(dependencies,</span> <span class="pre">edge_data)</span></code>. The count is no longer returned.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependencies</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependencies</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_dependencies_v2</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numDependencies</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">(dependencies,</span> <span class="pre">edge_data)</span></code>. The count is no longer returned.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependentNodes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependentNodes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_dependent_nodes</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numDependentNodes</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">(dependent_nodes,</span> <span class="pre">edge_data)</span></code>. The count is no longer returned.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependentNodes</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetDependentNodes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_dependent_nodes_v2</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numDependentNodes</span></code>. Returns <code class="docutils literal notranslate"><span class="pre">(dependent_nodes,</span> <span class="pre">edge_data)</span></code>. The count is no longer returned.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetEnabled</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetEnabled</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_enabled</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetLocalId</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetLocalId</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_local_id</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetToolsId</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetToolsId</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_tools_id</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetType</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetType</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_get_type</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeSetEnabled</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeSetEnabled</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_set_enabled</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeSetParams</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeSetParams</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_set_params</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeSetParams</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeSetParams</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">graph_node_set_params_v2</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuGraphNodeSetParams_v2</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">graph_node_set_params_v2</span></code></p></td>
 <td></td>
 </tr>
@@ -3372,593 +3389,601 @@ few ungrouped constants remain at module level, keeping their C names: <code cla
 <td><p><code class="docutils literal notranslate"><span class="pre">launch_host_func_v2</span></code></p></td>
 <td><p>Parameters added: <code class="docutils literal notranslate"><span class="pre">sync_mode</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLaunchHostFunc_v2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">launch_host_func_v2</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">launch_kernel</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLaunchKernelEx</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLaunchKernelEx</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">launch_kernel_ex</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryEnumerateKernels</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryEnumerateKernels</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_enumerate_kernels</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numKernels</span></code>. Returns an array of kernel handles.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetGlobal</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetGlobal</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_get_global</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetKernel</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetKernel</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_get_kernel</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetKernelCount</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetKernelCount</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_get_kernel_count</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetManaged</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetManaged</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_get_managed</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetModule</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetModule</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_get_module</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetUnifiedFunction</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryGetUnifiedFunction</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_get_unified_function</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryLoadData</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryLoadData</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_load_data</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryLoadFromFile</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryLoadFromFile</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_load_from_file</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryUnload</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLibraryUnload</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">library_unload</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkAddData</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkAddData</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">link_add_data_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkAddFile</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkAddFile</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">link_add_file_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkComplete</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkComplete</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">link_complete</span></code></p></td>
 <td><p>Returns the linked image as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>. <code class="docutils literal notranslate"><span class="pre">sizeOut</span></code> is no longer returned.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkCreate</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">link_create_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkDestroy</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLinkDestroy</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">link_destroy</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointAddDevice</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointAddDevice</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_add_device</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindAddr</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindAddr</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_bind_addr</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindMem</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointBindMem</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_bind_mem</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointCreate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointDestroy</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointDestroy</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_destroy</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointExport</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointExport</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_export</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointGetLimits</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointGetLimits</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_get_limits</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdRelease</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdRelease</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_id_release</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdReserve</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointIdReserve</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_id_reserve</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointImport</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointImport</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_import</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointQuery</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointQuery</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_query</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointUnbind</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointUnbind</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logical_endpoint_unbind</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsCurrent</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsCurrent</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logs_current</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsDumpToFile</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsDumpToFile</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logs_dump_to_file</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsDumpToMemory</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsDumpToMemory</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logs_dump_to_memory</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsRegisterCallback</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsRegisterCallback</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logs_register_callback</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsUnregisterCallback</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuLogsUnregisterCallback</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">logs_unregister_callback</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAddressFree</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAddressFree</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_address_free</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAddressReserve</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAddressReserve</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_address_reserve</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAdvise</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAdvise</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_advise_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_alloc_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_alloc_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocFromPoolAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocFromPoolAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_alloc_from_pool_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocHost</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocHost</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_alloc_host_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocManaged</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocManaged</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_alloc_managed</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocPitch</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemAllocPitch</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_alloc_pitch_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemBatchDecompressAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemBatchDecompressAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_batch_decompress_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemDiscardAndPrefetchBatchAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemDiscardAndPrefetchBatchAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_discard_and_prefetch_batch_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemDiscardBatchAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemDiscardBatchAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_discard_batch_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemExportToShareableHandle</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemExportToShareableHandle</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_export_to_shareable_handle</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemFree</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemFree</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_free_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemFreeAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemFreeAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_free_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemFreeHost</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemFreeHost</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_free_host</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAccess</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAccess</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_access</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAddressRange</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAddressRange</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_address_range_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationGranularity</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationGranularity</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_allocation_granularity</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationPropertiesFromHandle</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationPropertiesFromHandle</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_allocation_properties_from_handle</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetDefaultMemPool</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetDefaultMemPool</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_default_mem_pool</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetHandleForAddressRange</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetHandleForAddressRange</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_handle_for_address_range</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetInfo</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetInfo</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_info_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetLocationInfo</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetLocationInfo</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_location_info</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">location_out</span></code>. Returns the array of <code class="docutils literal notranslate"><span class="pre">MemLocation_v1</span></code> entries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetMemPool</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemGetMemPool</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_get_mem_pool</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostAlloc</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostAlloc</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_host_alloc</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostGetDevicePointer</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostGetDevicePointer</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_host_get_device_pointer_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostGetFlags</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostGetFlags</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_host_get_flags</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostRegister</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostRegister</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_host_register_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostUnregister</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemHostUnregister</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_host_unregister</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemImportFromShareableHandle</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemImportFromShareableHandle</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_import_from_shareable_handle</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_map</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemMapArrayAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemMapArrayAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_map_array_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolCreate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolDestroy</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolDestroy</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_destroy</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolExportPointer</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolExportPointer</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_export_pointer</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolExportToShareableHandle</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolExportToShareableHandle</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_export_to_shareable_handle</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolGetAccess</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolGetAccess</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_get_access</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolGetAttribute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolGetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_get_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolImportFromShareableHandle</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolImportFromShareableHandle</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_import_from_shareable_handle</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolImportPointer</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolImportPointer</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_import_pointer</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolSetAccess</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolSetAccess</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_set_access</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolSetAttribute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolSetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_set_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolTrimTo</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPoolTrimTo</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_pool_trim_to</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPrefetchAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPrefetchAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_prefetch_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPrefetchBatchAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemPrefetchBatchAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_prefetch_batch_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttribute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_range_get_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttributes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRangeGetAttributes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_range_get_attributes</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numAttributes</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRelease</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRelease</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_release</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRetainAllocationHandle</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemRetainAllocationHandle</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_retain_allocation_handle</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemSetAccess</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemSetAccess</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_set_access</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemSetMemPool</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemSetMemPool</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_set_mem_pool</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemUnmap</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemUnmap</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mem_unmap</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cu_memcpy</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">memcpy</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy2D</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy2D</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_2d_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy2DAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy2DAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_2d_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy2DUnaligned</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy2DUnaligned</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_2d_unaligned_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3D</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3D</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_3d_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_3d_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DBatchAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DBatchAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_3d_batch_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DPeer</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DPeer</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_3d_peer</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DPeerAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DPeerAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_3d_peer_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DWithAttributesAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpy3DWithAttributesAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_3d_with_attributes_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoA</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoA</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_atoa_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoD</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoD</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_atod_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoH</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoH</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_atoh_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoHAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyAtoHAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_atoh_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_batch_async</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">numAttrs</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyBatchAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_batch_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoA</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoA</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_dtoa_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoD</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoD</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_dtod_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoDAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoDAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_dtod_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoH</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoH</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_dtoh_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoHAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyDtoHAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_dtoh_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoA</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoA</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_htoa_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoAAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoAAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_htoa_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoD</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoD</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_htod_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_htod_async_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyPeer</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyPeer</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_peer</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyPeerAsync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyPeerAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_peer_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyWithAttributesAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemcpyWithAttributesAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memcpy_with_attributes_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD16</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD16</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d16_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD16Async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD16Async</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d16_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D16</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D16</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d2d16_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D16Async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D16Async</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d2d16_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D32</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D32</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d2d32_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D32Async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D32Async</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d2d32_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D8</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D8</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d2d8_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D8Async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD2D8Async</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d2d8_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD32</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD32</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d32_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD32Async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD32Async</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d32_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD8</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD8</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d8_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD8Async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMemsetD8Async</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">memset_d8_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayCreate</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mipmapped_array_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayDestroy</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayDestroy</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mipmapped_array_destroy</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetLevel</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetLevel</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mipmapped_array_get_level</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetMemoryRequirements</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetMemoryRequirements</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mipmapped_array_get_memory_requirements</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetSparseProperties</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetSparseProperties</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">mipmapped_array_get_sparse_properties</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleEnumerateFunctions</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleEnumerateFunctions</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_enumerate_functions</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numFunctions</span></code>. Returns an array of function handles.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_get_function</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetFunctionCount</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetFunctionCount</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_get_function_count</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetGlobal</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetGlobal</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_get_global_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetLoadingMode</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetLoadingMode</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_get_loading_mode</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoad</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoad</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_load</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoadData</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoadData</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_load_data</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoadDataEx</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoadDataEx</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_load_data_ex</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoadFatBinary</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleLoadFatBinary</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_load_fat_binary</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleUnload</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuModuleUnload</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">module_unload</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastAddDevice</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastAddDevice</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_add_device</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastBindAddr</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastBindAddr</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_bind_addr</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastBindAddr</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastBindAddr</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_bind_addr_v2</span></code></p></td>
 <td><p>Parameters added: <code class="docutils literal notranslate"><span class="pre">dev</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastBindAddr_v2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">multicast_bind_addr_v2</span></code></p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastBindMem</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_bind_mem</span></code></p></td>
@@ -3968,141 +3993,149 @@ few ungrouped constants remain at module level, keeping their C names: <code cla
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_bind_mem_v2</span></code></p></td>
 <td><p>Parameters added: <code class="docutils literal notranslate"><span class="pre">dev</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastCreate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastBindMem_v2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">multicast_bind_mem_v2</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastGetGranularity</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastGetGranularity</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_get_granularity</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastUnbind</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuMulticastUnbind</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">multicast_unbind</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyAvailableDynamicSMemPerBlock</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyAvailableDynamicSMemPerBlock</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">occupancy_available_dynamic_smem_per_block</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessor</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessor</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">occupancy_max_active_blocks_per_multiprocessor</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">occupancy_max_active_blocks_per_multiprocessor_with_flags</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveClusters</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxActiveClusters</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">occupancy_max_active_clusters</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxPotentialBlockSize</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxPotentialBlockSize</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">occupancy_max_potential_block_size</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxPotentialBlockSizeWithFlags</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxPotentialBlockSizeWithFlags</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">occupancy_max_potential_block_size_with_flags</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxPotentialClusterSize</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuOccupancyMaxPotentialClusterSize</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">occupancy_max_potential_cluster_size</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuPointerGetAttribute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuPointerGetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pointer_get_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuPointerGetAttributes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuPointerGetAttributes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pointer_get_attributes</span></code></p></td>
 <td><p>Parameters removed: <code class="docutils literal notranslate"><span class="pre">numAttributes</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuPointerSetAttribute</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuPointerSetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pointer_set_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuProfilerStart</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuProfilerStart</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">profiler_start</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuProfilerStop</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuProfilerStop</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">profiler_stop</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuSignalExternalSemaphoresAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuSignalExternalSemaphoresAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">signal_external_semaphores_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamAddCallback</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamAddCallback</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_add_callback</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamAttachMemAsync</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamAttachMemAsync</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_attach_mem_async</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBatchMemOp</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBatchMemOp</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_batch_mem_op_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_begin_capture_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCaptureToCig</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCaptureToCig</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_begin_capture_to_cig</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCaptureToGraph</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginCaptureToGraph</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_begin_capture_to_graph</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginRecaptureToGraph</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamBeginRecaptureToGraph</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_begin_recapture_to_graph</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamCopyAttributes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamCopyAttributes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_copy_attributes</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamCreate</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamCreate</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_create</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamCreateWithPriority</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamCreateWithPriority</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_create_with_priority</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamDestroy</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamDestroy</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_destroy_v2</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamEndCapture</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamEndCapture</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_end_capture</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamEndCaptureToCig</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamEndCaptureToCig</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_end_capture_to_cig</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetAttribute</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetAttribute</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_get_attribute</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCaptureInfo</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCaptureInfo</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_get_capture_info_v2</span></code></p></td>
 <td><p>Returns a 4-tuple. The dependency count is no longer returned and edge data is not included.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCaptureInfo</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCaptureInfo</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_get_capture_info_v3</span></code></p></td>
 <td><p>Returns a 5-tuple. The dependency count is no longer returned.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCtx</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCtx</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_get_ctx</span></code></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCtx</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCtx</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_get_ctx_v2</span></code></p></td>
 <td><p>Returns a 2-tuple <code class="docutils literal notranslate"><span class="pre">(ctx,</span> <span class="pre">green_ctx)</span></code>. The legacy function returned only the context.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetCtx_v2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stream_get_ctx_v2</span></code></p></td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuStreamGetDevResource</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stream_get_dev_resource</span></code></p></td>
@@ -7093,15 +7126,15 @@ few ungrouped constants remain at module level, keeping their C names: <code cla
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nvrtcInstallBundledHeaders</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">install_bundled_headers</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">flags</span></code> takes <code class="docutils literal notranslate"><span class="pre">InstallHeadersFlag</span></code> values. Returns the optional error message (<code class="docutils literal notranslate"><span class="pre">bytes</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">flags</span></code> takes <code class="docutils literal notranslate"><span class="pre">InstallHeadersFlag</span></code> values. Returns the optional error message as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, empty (<code class="docutils literal notranslate"><span class="pre">b&quot;&quot;</span></code>) when there is none.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nvrtcGetBundledHeadersInfo</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">get_bundled_headers_info</span></code></p></td>
-<td><p>Returns <code class="docutils literal notranslate"><span class="pre">(BundledHeadersInfo,</span> <span class="pre">error_log)</span></code> as a tuple, with <code class="docutils literal notranslate"><span class="pre">error_log</span></code> set to <code class="docutils literal notranslate"><span class="pre">None</span></code> on success.</p></td>
+<td><p>Returns <code class="docutils literal notranslate"><span class="pre">(BundledHeadersInfo,</span> <span class="pre">error_log)</span></code> as a tuple, with <code class="docutils literal notranslate"><span class="pre">error_log</span></code> empty (<code class="docutils literal notranslate"><span class="pre">b&quot;&quot;</span></code>) when there is no error message.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nvrtcRemoveBundledHeaders</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">remove_bundled_headers</span></code></p></td>
-<td><p>Returns the optional error message (<code class="docutils literal notranslate"><span class="pre">bytes</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></td>
+<td><p>Returns the optional error message as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, empty (<code class="docutils literal notranslate"><span class="pre">b&quot;&quot;</span></code>) when there is none.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nvrtcGetErrorString</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">get_error_string</span></code></p></td>

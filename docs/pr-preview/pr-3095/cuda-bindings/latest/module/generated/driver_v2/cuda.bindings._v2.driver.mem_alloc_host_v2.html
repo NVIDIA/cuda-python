@@ -1024,7 +1024,6 @@
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings._v2.driver.ipc_close_mem_handle.html">cuda.bindings._v2.driver.ipc_close_mem_handle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings._v2.driver.mem_host_register_v2.html">cuda.bindings._v2.driver.mem_host_register_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings._v2.driver.mem_host_unregister.html">cuda.bindings._v2.driver.mem_host_unregister</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda.bindings._v2.driver.cu_memcpy.html">cuda.bindings._v2.driver.cu_memcpy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings._v2.driver.memcpy_peer.html">cuda.bindings._v2.driver.memcpy_peer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings._v2.driver.memcpy_htod_v2.html">cuda.bindings._v2.driver.memcpy_htod_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cuda.bindings._v2.driver.memcpy_dtoh_v2.html">cuda.bindings._v2.driver.memcpy_dtoh_v2</a></li>
@@ -2293,8 +2292,8 @@
 <p>Allocates <code class="docutils literal notranslate"><span class="pre">bytesize</span></code> bytes of host memory that is page-locked and accessible
 to the device. The driver tracks the virtual memory ranges allocated with this
 function and automatically accelerates calls to functions such as
-<a class="reference internal" href="cuda.bindings._v2.driver.cu_memcpy.html#cuda.bindings._v2.driver.cu_memcpy" title="cuda.bindings._v2.driver.cu_memcpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">cu_memcpy()</span></code></a>. Since the memory can be accessed directly by the device, it
-can be read or written with much higher bandwidth than pageable memory obtained
+<code class="xref py py-func docutils literal notranslate"><span class="pre">memcpy()</span></code>. Since the memory can be accessed directly by the device, it can
+be read or written with much higher bandwidth than pageable memory obtained
 with functions such as <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>.
 On systems where
 <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES</span></code> is true,

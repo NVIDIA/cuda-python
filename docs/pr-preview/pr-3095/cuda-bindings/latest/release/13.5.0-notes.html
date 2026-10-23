@@ -1024,7 +1024,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/driver_v2/cuda.bindings._v2.driver.ipc_close_mem_handle.html">cuda.bindings._v2.driver.ipc_close_mem_handle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/driver_v2/cuda.bindings._v2.driver.mem_host_register_v2.html">cuda.bindings._v2.driver.mem_host_register_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/driver_v2/cuda.bindings._v2.driver.mem_host_unregister.html">cuda.bindings._v2.driver.mem_host_unregister</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../module/generated/driver_v2/cuda.bindings._v2.driver.cu_memcpy.html">cuda.bindings._v2.driver.cu_memcpy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/driver_v2/cuda.bindings._v2.driver.memcpy_peer.html">cuda.bindings._v2.driver.memcpy_peer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/driver_v2/cuda.bindings._v2.driver.memcpy_htod_v2.html">cuda.bindings._v2.driver.memcpy_htod_v2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../module/generated/driver_v2/cuda.bindings._v2.driver.memcpy_dtoh_v2.html">cuda.bindings._v2.driver.memcpy_dtoh_v2</a></li>
@@ -3529,6 +3528,10 @@ it possible to access invalid memory.</p></li>
 <li><p>The following functions now accept <code class="docutils literal notranslate"><span class="pre">None</span></code> for their buffer-like pointer argument (an integer address or an object supporting the buffer protocol), which is treated as <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudla.module_load_from_memory</span></code> (<code class="docutils literal notranslate"><span class="pre">p_module</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudla.submit_task</span></code> (<code class="docutils literal notranslate"><span class="pre">ptr_to_tasks</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cufile.handle_register</span></code> (<code class="docutils literal notranslate"><span class="pre">descr</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cufile.batch_io_submit</span></code>, <code class="docutils literal notranslate"><span class="pre">cufile.batch_io_get_status</span></code> (<code class="docutils literal notranslate"><span class="pre">iocbp</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cufile.get_stats_l1</span></code>, <code class="docutils literal notranslate"><span class="pre">cufile.get_stats_l2</span></code>, <code class="docutils literal notranslate"><span class="pre">cufile.get_stats_l3</span></code> (<code class="docutils literal notranslate"><span class="pre">stats</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvfatbin.add_cubin</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_index</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_ltoir</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_ptx</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_reloc</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin.add_tile_ir</span></code> (<code class="docutils literal notranslate"><span class="pre">code</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvfatbin.get</span></code> (<code class="docutils literal notranslate"><span class="pre">buffer</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.add_data</span></code> (<code class="docutils literal notranslate"><span class="pre">data</span></code>)</p></li>
@@ -3536,9 +3539,21 @@ it possible to access invalid memory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.get_linked_cubin</span></code> (<code class="docutils literal notranslate"><span class="pre">cubin</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.get_linked_ltoir</span></code> (<code class="docutils literal notranslate"><span class="pre">ltoir</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvjitlink.get_linked_ptx</span></code> (<code class="docutils literal notranslate"><span class="pre">ptx</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_set_clock_offsets</span></code> (<code class="docutils literal notranslate"><span class="pre">info</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_set_nvlink_bw_mode</span></code> (<code class="docutils literal notranslate"><span class="pre">set_bw_mode</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_modify_drain_state</span></code>, <code class="docutils literal notranslate"><span class="pre">nvml.device_query_drain_state</span></code>, <code class="docutils literal notranslate"><span class="pre">nvml.device_remove_gpu_v2</span></code>, <code class="docutils literal notranslate"><span class="pre">nvml.device_discover_gpus</span></code> (<code class="docutils literal notranslate"><span class="pre">pci_info</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.gpu_instance_set_vgpu_scheduler_state</span></code> (<code class="docutils literal notranslate"><span class="pre">p_scheduler</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.set_vgpu_version</span></code> (<code class="docutils literal notranslate"><span class="pre">vgpu_version</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_create_gpu_instance_with_placement</span></code>, <code class="docutils literal notranslate"><span class="pre">nvml.gpu_instance_create_compute_instance_with_placement</span></code> (<code class="docutils literal notranslate"><span class="pre">placement</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_set_power_mizer_mode_v1</span></code> (<code class="docutils literal notranslate"><span class="pre">power_mizer_mode</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_set_vgpu_scheduler_state_v2</span></code>, <code class="docutils literal notranslate"><span class="pre">nvml.gpu_instance_set_vgpu_scheduler_state_v2</span></code> (<code class="docutils literal notranslate"><span class="pre">p_scheduler_state</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_set_memory_limits_v1</span></code> (<code class="docutils literal notranslate"><span class="pre">limits</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.event_set_register_gpu_operational_events_v1</span></code> (<code class="docutils literal notranslate"><span class="pre">config</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvvm.add_module_to_program</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.lazy_add_module_to_program</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.get_compiled_result</span></code>, <code class="docutils literal notranslate"><span class="pre">nvvm.get_program_log</span></code> (<code class="docutils literal notranslate"><span class="pre">buffer</span></code>)</p></li>
 </ul>
 </li>
+<li><p>Buffer-like pointer arguments in <code class="docutils literal notranslate"><span class="pre">cudla</span></code>, <code class="docutils literal notranslate"><span class="pre">nvfatbin</span></code>, <code class="docutils literal notranslate"><span class="pre">nvjitlink</span></code> and <code class="docutils literal notranslate"><span class="pre">nvvm</span></code> are no longer required to be 1D. Any contiguous buffer
+(a ctypes object, NumPy array of any shape, <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, …) is accepted, and the error message for an invalid buffer says so.</p></li>
 <li><p>For all <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the <code class="docutils literal notranslate"><span class="pre">.ptr</span></code> property.</p></li>
 <li><p>Creating class instances in <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> should now be faster in most cases, because it requires 1 heap allocation rather than 2.</p></li>
 <li><p>Before a source build compiles anything, it now checks that the CUDA Toolkit’s <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> has the major.minor the source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. Previously a mismatch surfaced as a long list of C++ redefinition errors.</p></li>
@@ -3579,14 +3594,22 @@ function captured into a CUDA graph crashed on the second launch of that graph.
 Callers must retain the callback object and user data storage for the lifetime
 of the graph and its executables, including pending launches; see
 <a class="reference internal" href="../overview.html#host-function-lifetime"><span class="std std-ref">Host functions</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cufile</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml</span></code> struct array wrappers (for example <code class="docutils literal notranslate"><span class="pre">nvml.ProcessInfo</span></code> and <code class="docutils literal notranslate"><span class="pre">cufile.IOParams</span></code>) are now zero-initialized when
+created with a given size. Previously they were allocated with uninitialized memory, so unset fields held garbage values.</p></li>
+<li><p>Assigning to a member of a read-only <code class="docutils literal notranslate"><span class="pre">cufile</span></code> or <code class="docutils literal notranslate"><span class="pre">nvml</span></code> struct array wrapper now raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> (“This &lt;Class&gt; instance is
+read-only”). Previously no such check was made.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.PwrModelMetricsPfpp1x</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml.PwrModelMetricsDlppm1x</span></code> array wrappers now populate their nested <code class="docutils literal notranslate"><span class="pre">estimated_metrics</span></code> member
+with one array per element, sized by <code class="docutils literal notranslate"><span class="pre">num_vf_points</span></code> and <code class="docutils literal notranslate"><span class="pre">num_estimated_metrics</span></code> respectively.</p></li>
 </ul>
 </section>
 <section id="prerelease-feature">
 <h2>Prerelease feature<a class="headerlink" href="#prerelease-feature" title="Link to this heading">#</a></h2>
-<p>A new version of the <code class="docutils literal notranslate"><span class="pre">nvrtc</span></code> API is available as <code class="docutils literal notranslate"><span class="pre">cuda.bindings._v2.nvrtc</span></code>.  The
-primary improvements are: (1) raising exceptions rather than returning error
-codes, (2) uses PEP8-compliant naming, and (3) more performance.  This API is
-still experimental and subject to change.</p>
+<p>A new version of the <code class="docutils literal notranslate"><span class="pre">nvrtc</span></code> and <code class="docutils literal notranslate"><span class="pre">driver</span></code> APIs is available as
+<code class="docutils literal notranslate"><span class="pre">cuda.bindings._v2.nvrtc</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda.bindings._v2.driver</span></code>.  The primary
+improvements are: (1) raising exceptions rather than returning error codes, (2)
+uses PEP8-compliant naming, and (3) more performance.  This API is still
+experimental and subject to change.</p>
+<p>See the <a class="reference internal" href="../module/v2_migration.html#v2-migration"><span class="std std-ref">v2 migration guide</span></a> for details on migrating to new API.</p>
 </section>
 <section id="known-issues">
 <h2>Known issues<a class="headerlink" href="#known-issues" title="Link to this heading">#</a></h2>
