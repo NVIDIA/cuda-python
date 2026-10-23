@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=28f09483"></script>
+    <script src="_static/documentation_options.js?v=e4bc8419"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev134';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev258';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -602,6 +602,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -705,6 +706,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="release/1.3.0-notes.html">1.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.1.1-notes.html">1.1.1</a></li>
@@ -813,9 +815,7 @@ while an exception is being raised, for example the caller’s context cannot be
 restored after a failed call, or the rollback of a partially built graph node
 fails, the second failure is attached to the exception as a note
 (<a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#BaseException.add_note" title="(in Python v3.15)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseException.add_note()</span></code></a>), which appears in the traceback and in
-<code class="docutils literal notranslate"><span class="pre">__notes__</span></code>. Python 3.10 has no exception notes; there the information is
-appended to the message when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> constructs the exception, and
-reported as described in the next section otherwise.</p>
+<code class="docutils literal notranslate"><span class="pre">__notes__</span></code>.</p>
 </section>
 <section id="failures-that-cannot-be-raised">
 <h2>Failures that cannot be raised<a class="headerlink" href="#failures-that-cannot-be-raised" title="Link to this heading">#</a></h2>

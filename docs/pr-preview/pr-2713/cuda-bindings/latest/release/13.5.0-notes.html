@@ -1364,6 +1364,12 @@
                   
   <section id="cuda-bindings-13-5-0-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.5.0 Release notes<a class="headerlink" href="#cuda-bindings-13-5-0-release-notes" title="Link to this heading">#</a></h1>
+<section id="highlights">
+<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Python 3.10 support was dropped (end of life).</p></li>
+</ul>
+</section>
 <section id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -2592,6 +2598,9 @@ a tuple <code class="docutils literal notranslate"><span class="pre">(sample_cou
 contained one element. It is now correctly returned as a properly-sized array
 (and the redundant <code class="docutils literal notranslate"><span class="pre">sample_count</span></code> — which was only ever the array’s own size —
 is no longer part of the returned value; use <code class="docutils literal notranslate"><span class="pre">len(result)</span></code> instead).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.NvlinkFirmwareInfo</span></code>: The <code class="docutils literal notranslate"><span class="pre">firmware_version</span></code> member now returns only
+valid entries.  The <code class="docutils literal notranslate"><span class="pre">num_valid_entries</span></code> member is removed, as its design made
+it possible to access invalid memory.</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -2613,6 +2622,7 @@ is no longer part of the returned value; use <code class="docutils literal notra
 </li>
 <li><p>For all <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the <code class="docutils literal notranslate"><span class="pre">.ptr</span></code> property.</p></li>
 <li><p>Creating class instances in <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> should now be faster in most cases, because it requires 1 heap allocation rather than 2.</p></li>
+<li><p>Before a source build compiles anything, it now checks that the CUDA Toolkit’s <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> has the major.minor the source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. Previously a mismatch surfaced as a long list of C++ redefinition errors.</p></li>
 </ul>
 </section>
 <section id="behavior-changes">
@@ -2627,6 +2637,14 @@ is no longer part of the returned value; use <code class="docutils literal notra
 <li><p>A number of incorrect docstrings have been corrected.</p></li>
 <li><p>Setting a <code class="docutils literal notranslate"><span class="pre">cuda_bindings</span></code> class instance to itself (<code class="docutils literal notranslate"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">cuda_bindings.driver.Class();</span> <span class="pre">obj[0]</span> <span class="pre">=</span> <span class="pre">obj</span></code>) will no longer crash or use garbage values.</p></li>
 <li><p>Fix a potential use-after-free error in the destructors of classes in <code class="docutils literal notranslate"><span class="pre">driver</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">driver.cuLaunchHostFunc</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime.cudaLaunchHostFunc</span></code> now pass the host
+function and its user data to CUDA unchanged. They used to route the call through
+an internal trampoline that freed its state after the first invocation, so a host
+function captured into a CUDA graph crashed on the second launch of that graph.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/790">Issue #790</a>)
+Callers must retain the callback object and user data storage for the lifetime
+of the graph and its executables, including pending launches; see
+<a class="reference internal" href="../overview.html#host-function-lifetime"><span class="std std-ref">Host functions</span></a>.</p></li>
 </ul>
 </section>
 <section id="prerelease-feature">
@@ -2694,6 +2712,7 @@ still experimental and subject to change.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#changes">Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">Enhancements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior-changes">Behavior changes</a></li>

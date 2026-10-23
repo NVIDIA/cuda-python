@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=28f09483"></script>
+    <script src="../_static/documentation_options.js?v=e4bc8419"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev134';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev258';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.MemoryResource" href="cuda.core.MemoryResource.html" />
+    <link rel="next" title="cuda.core.VirtualMemoryBuffer" href="cuda.core.VirtualMemoryBuffer.html" />
     <link rel="prev" title="cuda.core.Buffer" href="cuda.core.Buffer.html" />
 
 
@@ -602,6 +602,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.ManagedBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -705,6 +706,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.3.0-notes.html">1.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
@@ -860,8 +862,8 @@ the deallocation stream stored in the handle is used.</p>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a>, optional) – Transfer hints (source access order, location hints, overlap mode).
-Honored when cuda.bindings and the driver are both CUDA 13.2 or
-newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
+Honored on the CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with a driver of CUDA
+13.2 or newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
 <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code> instead. Not accepted with a
 capturing stream either, since a graph cannot represent these
 attributes; use <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memcpy" title="cuda.core.graph.GraphNode.memcpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code></a> for a plain,
@@ -909,8 +911,8 @@ is allocated using this buffer’s memory resource.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 <li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.utils.CopyOptions.html#cuda.core.utils.CopyOptions" title="cuda.core.utils.CopyOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">CopyOptions</span></code></a>, optional) – Transfer hints (source access order, location hints, overlap mode).
-Honored when cuda.bindings and the driver are both CUDA 13.2 or
-newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
+Honored on the CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with a driver of CUDA
+13.2 or newer. Not accepted with <code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code>; use
 <code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code> instead. Not accepted with a
 capturing stream either, since a graph cannot represent these
 attributes; use <a class="reference internal" href="cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.memcpy" title="cuda.core.graph.GraphNode.memcpy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphNode.memcpy()</span></code></a> for a plain,
@@ -1033,7 +1035,7 @@ refers to a different stream on each thread.</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span> <span class="pre">|</span> <span class="pre">PinnedMemoryResource</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span> <span class="pre">|</span> <span class="pre">PinnedMemoryResource</span> <span class="pre">|</span> <span class="pre">VirtualMemoryResource</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">IPCBufferDescriptor</span> <span class="pre">ipc_descriptor:</span> <span class="pre">IPCBufferDescriptor</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
@@ -1044,7 +1046,12 @@ refers to a different stream on each thread.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code>) – The IPC-enabled memory resource matching the exporting process.</p></li>
+<li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code>) – The IPC-enabled memory resource matching the exporting process. A
+descriptor exported from a <a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> is imported
+with a <a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> of this process whose
+<code class="docutils literal notranslate"><span class="pre">handle_type</span></code> matches the exporter’s; the import maps the shared
+physical memory for that resource’s device with that resource’s
+access options.</p></li>
 <li><p><strong>ipc_descriptor</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">IPCBufferDescriptor</span></code>) – The descriptor exported from another process.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – Keyword-only. The stream used for asynchronous deallocation when
 the buffer is closed or garbage collected.</p></li>
@@ -1148,6 +1155,8 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Bu
 <span class="sig-name descname"><span class="pre">ipc_descriptor</span></span><a class="headerlink" href="#cuda.core.ManagedBuffer.ipc_descriptor" title="Link to this definition">#</a></dt>
 <dd><p>IPCBufferDescriptor</p>
 <p>Descriptor for sharing this buffer with other processes.</p>
+<p>A pool-backed buffer caches its descriptor; a
+<a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a> exports a new one on every access.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Buffer.ipc_descriptor</p>
@@ -1304,11 +1313,11 @@ as <code class="docutils literal notranslate"><span class="pre">Host()</span></c
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.MemoryResource.html"
+       href="cuda.core.VirtualMemoryBuffer.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.MemoryResource</p>
+        <p class="prev-next-title">cuda.core.VirtualMemoryBuffer</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
