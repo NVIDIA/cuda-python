@@ -14,8 +14,9 @@ from cuda.core._utils.cuda_utils import CUDAError
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
-# these tests spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 class TestPeerAccessNotPreservedOnImport:
@@ -96,7 +97,11 @@ class TestBufferPeerAccessAfterImport:
 
         buffer.close()
         # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        # Make dev0 current; Device.sync() must act on dev1 and leave dev0 current.
+        dev0.set_current()
+        assert Device().device_id == dev0.device_id
         dev1.sync()
+        assert Device().device_id == dev0.device_id
         mr.close()
 
     def child_main(self, mr, buffer):

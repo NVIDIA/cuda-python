@@ -4,6 +4,7 @@
 import multiprocessing
 import os
 import pickle
+import platform
 import re
 import uuid
 
@@ -17,6 +18,7 @@ from cuda.core import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     PinnedMemoryResource,
+    VirtualMemoryResource,
 )
 from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor
 from cuda.core._utils.cuda_utils import CUDAError
@@ -25,8 +27,14 @@ CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 
-# these tests spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
+
+
+def _is_pool(mr):
+    """Whether ``mr`` has the pool half of the IPC protocol (allocation handle, registry, is_mapped)."""
+    return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
 
 
 def test_outer_timeout_marker_is_applied(request):
@@ -44,10 +52,24 @@ def test_outer_timeout_marker_is_applied(request):
     assert marker.args == (expected,), f"unexpected timeout value: {marker.args!r}"
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_ipc_types_cannot_be_constructed_directly():
+    """Factory-only IPC types reject direct construction."""
+    with pytest.raises(RuntimeError, match=r"^IPCBufferDescriptor objects cannot be instantiated directly\."):
+        IPCBufferDescriptor()
+    with pytest.raises(RuntimeError, match=r"^IPCAllocationHandle objects cannot be instantiated directly\."):
+        IPCAllocationHandle()
+
+
 def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
     """Truncated IPC buffer descriptor payload is rejected before driver import."""
     desc = IPCBufferDescriptor._init(b"\x00" * 8, NBYTES)
-    with pytest.raises(ValueError, match=r"payload is 8 bytes; expected at least 64"):
+    if _is_pool(ipc_memory_resource):
+        expected = pytest.raises(ValueError, match=r"payload is 8 bytes; expected at least 64")
+    else:
+        # A pool descriptor cannot be imported with a VirtualMemoryResource at all.
+        expected = pytest.raises(TypeError, match="memory pool")
+    with expected:
         Buffer.from_ipc_descriptor(ipc_memory_resource, desc, stream=ipc_device.default_stream)
 
 
@@ -120,6 +142,8 @@ def test_ipc_allocation_handle_state_tracks_close():
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_closed_ipc_allocation_handle_rejected_before_registry_hit(ipc_device, ipc_memory_resource):
     mr = ipc_memory_resource
+    if not _is_pool(mr):
+        pytest.skip("allocation handles and the registry are pool-only")
     handle = IPCAllocationHandle._init(os.dup(int(mr.allocation_handle)), mr.uuid)
     assert mr.register(mr.uuid) is mr
     handle.close()
@@ -134,8 +158,17 @@ def test_closed_ipc_allocation_handle_rejected_before_registry_hit(ipc_device, i
 
 class ChildErrorHarness:
     """Test harness for checking errors in child processes. Subclasses override
-    PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""
+    PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples). A subclass
+    that exercises the pool half of the protocol sets POOL_ONLY."""
 
+    POOL_ONLY = False
+
+    @pytest.mark.thread_unsafe(
+        reason=(
+            "pytest-run-parallel shares the ipc fixtures across workers; "
+            "Process(target=...) pickles that shared state (#2784)"
+        )
+    )
     @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         """Parent process that checks child errors."""
@@ -144,11 +177,20 @@ class ChildErrorHarness:
         self.device = ipc_device
         self.mr = ipc_memory_resource
         self._extra_mrs = []
+        if self.POOL_ONLY and not _is_pool(self.mr):
+            pytest.skip("this scenario needs the pool half of the IPC protocol")
+        # Clear stale 'buffer' left by a previous flaky-rerun attempt.
+        # Its backing DeviceMemoryResource may already be closed, which causes
+        # process.start() to fail when pickling self for spawn-mode IPC.
+        self.__dict__.pop("buffer", None)
 
         try:
-            # Start a child process to generate error info.
+            # Start a child process to generate error info. Target a fresh
+            # instance: pickling ``self`` would also ship state left behind by
+            # an earlier attempt, such as a buffer whose resource is closed.
             pipe = [multiprocessing.Queue() for _ in range(2)]
-            process = multiprocessing.Process(target=self.child_main, args=(pipe, self.device, self.mr))
+            child = type(self)()
+            process = multiprocessing.Process(target=child.child_main, args=(pipe, self.device, self.mr))
             process.start()
 
             # Interact.
@@ -166,6 +208,14 @@ class ChildErrorHarness:
         finally:
             for mr in self._extra_mrs:
                 mr.close()
+            # Drop the fixture MR and buffer references stored on this class
+            # instance: pytest retains ``item._instance`` for the session, so the
+            # closed (but not destroyed) MR objects would otherwise ratchet the
+            # live-MemoryResource baseline the init_cuda teardown compares against.
+            self.__dict__.pop("buffer", None)
+            self.__dict__.pop("mr", None)
+            self.__dict__.pop("device", None)
+            self._extra_mrs.clear()
 
     def child_main(self, pipe, device, mr):
         """Child process that pushes IPC errors to a shared pipe for testing."""
@@ -187,8 +237,14 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
     def PARENT_ACTION(self, queue):
         stream = self.device.default_stream
         self.buffer = self.mr.allocate(NBYTES, stream=stream)
-        payload, _ = self.buffer.ipc_descriptor.__reduce__()[1]
-        oversized = IPCBufferDescriptor._init(payload, NBYTES * 100)
+        desc = self.buffer.ipc_descriptor
+        if _is_pool(self.mr):
+            payload, _ = desc.__reduce__()[1]
+            oversized = IPCBufferDescriptor._init(payload, NBYTES * 100)
+        else:
+            # The VMM descriptor carries the exported handles and their sizes;
+            # forge only the buffer size.
+            oversized = type(desc)._from_exports(desc._handle_type, desc._chunk_sizes, desc._handles, desc.size * 100)
         stream.sync()
         queue.put(oversized)
 
@@ -199,31 +255,43 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is ValueError
         assert "exceeds" in exc_msg
-        assert "mapped allocation extent" in exc_msg
+        if _is_pool(self.mr):
+            assert "mapped allocation extent" in exc_msg
+        else:
+            assert "exported allocations" in exc_msg
 
 
 class TestAllocFromImportedMr(ChildErrorHarness):
-    """Error when attempting to allocate from an import memory resource."""
+    """Allocating from a received memory resource: an error for an imported pool, fine for a rebuilt VMM resource."""
 
     def PARENT_ACTION(self, queue):
         queue.put(self.mr)
 
     def CHILD_ACTION(self, queue):
         mr = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        mr.allocate(NBYTES, stream=self.device.default_stream)
+        buffer = mr.allocate(NBYTES, stream=self.device.default_stream)
+        buffer.close()
 
     def ASSERT(self, exc_type, exc_msg):
-        assert exc_type is TypeError
-        assert exc_msg == "Cannot allocate from a mapped IPC-enabled memory resource"
+        if _is_pool(self.mr):
+            assert exc_type is TypeError
+            assert exc_msg == "Cannot allocate from a mapped IPC-enabled memory resource"
+        else:
+            # A VirtualMemoryResource pickles as (device, options) and the
+            # receiver's copy is an ordinary resource, not a mapping.
+            assert exc_type is None
 
 
 class TestImportWrongMR(ChildErrorHarness):
-    """Error when importing a buffer from the wrong memory resource."""
+    """Importing a buffer with a resource other than the exporter's: an error for pools, fine for VMM."""
 
     def PARENT_ACTION(self, queue):
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mr2 = DeviceMemoryResource(self.device, options=options)
-        self._extra_mrs.append(mr2)
+        if _is_pool(self.mr):
+            options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+            mr2 = DeviceMemoryResource(self.device, options=options)
+            self._extra_mrs.append(mr2)
+        else:
+            mr2 = VirtualMemoryResource(self.device, config=self.mr.config)
         stream = self.device.default_stream
         self.buffer = mr2.allocate(NBYTES, stream=stream)
         stream.sync()
@@ -231,11 +299,16 @@ class TestImportWrongMR(ChildErrorHarness):
 
     def CHILD_ACTION(self, queue):
         mr, buffer_desc = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        Buffer.from_ipc_descriptor(mr, buffer_desc, stream=self.device.default_stream)
+        Buffer.from_ipc_descriptor(mr, buffer_desc, stream=self.device.default_stream).close()
 
     def ASSERT(self, exc_type, exc_msg):
-        assert exc_type is CUDAError
-        assert "CUDA_ERROR_INVALID_VALUE" in exc_msg
+        if _is_pool(self.mr):
+            assert exc_type is CUDAError
+            assert "CUDA_ERROR_INVALID_VALUE" in exc_msg
+        else:
+            # A VMM import never references the exporting resource; any
+            # resource with the same handle type and location imports it.
+            assert exc_type is None
 
 
 class TestImportBuffer(ChildErrorHarness):
@@ -264,6 +337,8 @@ class TestDanglingBuffer(ChildErrorHarness):
     resource.
     """
 
+    POOL_ONLY = True  # plain pickle of a VMM buffer is refused (fds), and VMM has no registry
+
     def PARENT_ACTION(self, queue):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
@@ -282,3 +357,96 @@ class TestDanglingBuffer(ChildErrorHarness):
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is RuntimeError
         assert re.match(r"Memory resource [a-z0-9-]+ was not found", exc_msg)
+
+
+@pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.thread_unsafe(
+    reason="serialize the affected IPC mempool import/destroy path under pytest-run-parallel (#2784)"
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_from_allocation_handle_raw_fd_imports_mapped_pool(ipc_device):
+    """from_allocation_handle accepts a raw int fd and constructs an unregistered mapped MR."""
+    from helpers.buffers import PatternGen
+
+    device = ipc_device
+    stream = device.default_stream
+    exporter = DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+    try:
+        dup_fd = os.dup(exporter.allocation_handle.handle)
+        try:
+            imported = DeviceMemoryResource.from_allocation_handle(device, dup_fd)
+        finally:
+            # The int overload dups the fd internally, so the imported pool must
+            # outlive the caller's copy: everything below runs without it.
+            os.close(dup_fd)
+        try:
+            assert imported.is_mapped
+            assert imported.is_ipc_enabled
+            assert imported.device_id == device.device_id
+            # No uuid was supplied, so the pool never entered the registry.
+            assert imported.uuid is None
+            # Mapped pools cannot allocate; import a peer buffer instead.
+            with exporter.allocate(NBYTES, stream=stream) as exported:
+                descriptor = exported.ipc_descriptor
+                with Buffer.from_ipc_descriptor(imported, descriptor, stream=stream) as mapped_buf:
+                    pgen = PatternGen(device, NBYTES, stream=stream)
+                    pgen.fill_buffer(mapped_buf, seed=1)
+                    pgen.verify_buffer(exported, seed=1)
+        finally:
+            imported.close()
+    finally:
+        exporter.close()
+
+
+@pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.thread_unsafe(
+    reason="concurrent IPC mempool export/destroy SEGV in cuMemPoolDestroy under pytest-run-parallel (#2784)"
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_allocation_handle_forking_pickler_roundtrip(ipc_device):
+    """ForkingPickler transfers an IPCAllocationHandle by duplicating its fd."""
+    from multiprocessing.reduction import ForkingPickler
+
+    device = ipc_device
+    mr = DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+    try:
+        handle = mr.allocation_handle
+        restored = ForkingPickler.loads(ForkingPickler.dumps(handle))
+        try:
+            assert isinstance(restored, IPCAllocationHandle)
+            # DupFd must hand back a real duplicate: a shared fd number would mean
+            # restored.close() also clobbers the exporter's handle. The number
+            # itself is unpredictable, so only check validity and distinctness.
+            assert restored.handle > 0
+            assert restored.handle != handle.handle
+            assert restored.uuid == handle.uuid
+        finally:
+            restored.close()
+    finally:
+        mr.close()
+
+
+@pytest.mark.skipif(platform.system() != "Linux", reason="CUDA mempool IPC is Linux-only")
+@pytest.mark.thread_unsafe(
+    reason="concurrent IPC mempool import/destroy SEGV in cuMemPoolDestroy under pytest-run-parallel (#2784)"
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_ipc_registry_dedups_repeated_imports(ipc_device):
+    """from_allocation_handle registers the mapped pool; later imports hit the cache."""
+    device = ipc_device
+    exporter = DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+    mapped = None
+    try:
+        key = exporter.uuid
+        mapped = DeviceMemoryResource.from_allocation_handle(device, exporter.allocation_handle)
+        assert mapped.is_mapped
+        assert DeviceMemoryResource.from_registry(key) is mapped
+        mapped2 = DeviceMemoryResource.from_allocation_handle(device, exporter.allocation_handle)
+        assert mapped2 is mapped
+        # Registering under a key that is already taken hands back the existing
+        # entry, so the exporter itself never enters the registry.
+        assert exporter.register(key) is mapped
+    finally:
+        if mapped is not None:
+            mapped.close()
+        exporter.close()

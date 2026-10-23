@@ -45,7 +45,8 @@ from cuda.core.graph._subclasses cimport (
     SwitchNode,
     WhileNode,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport attach_rollback_failure
+from cuda.core._rt cimport (
     GraphHandle,
     GraphNodeHandle,
     OpaqueHandle,
@@ -214,7 +215,7 @@ cdef class GraphNode:
         s.clear()
         s.update(value)
 
-    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
+    def launch(self, LaunchConfig config not None: LaunchConfig, Kernel kernel not None: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
         Clustered and cooperative launch configurations are not currently
@@ -242,7 +243,7 @@ cdef class GraphNode:
             A new KernelNode representing the kernel launch.
         """
         GN_check_valid(self)
-        return GN_launch(self, config, <Kernel>kernel, ParamHolder(args))
+        return GN_launch(self, config, kernel, ParamHolder(args))
 
     def join(self, *nodes: GraphNode) -> EmptyNode:
         """Create an empty node that depends on this node and all given nodes.
@@ -445,7 +446,7 @@ cdef class GraphNode:
             self, c_dst, dst_attachment_owner,
             c_src, src_attachment_owner, size)
 
-    def embed(self, child: GraphDefinition) -> ChildGraphNode:
+    def embed(self, GraphDefinition child not None: GraphDefinition) -> ChildGraphNode:
         """Add a child graph node depending on this node.
 
         Embeds a clone of the given graph definition as a sub-graph node.
@@ -462,9 +463,9 @@ cdef class GraphNode:
         ChildGraphNode
             A new ChildGraphNode representing the embedded sub-graph.
         """
-        return GN_embed(self, <GraphDefinition>child)
+        return GN_embed(self, child)
 
-    def record(self, event: Event) -> EventRecordNode:
+    def record(self, Event event not None: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
 
         Parameters
@@ -477,9 +478,9 @@ cdef class GraphNode:
         EventRecordNode
             A new EventRecordNode representing the event record operation.
         """
-        return GN_record_event(self, <Event>event)
+        return GN_record_event(self, event)
 
-    def wait(self, event: Event) -> EventWaitNode:
+    def wait(self, Event event not None: Event) -> EventWaitNode:
         """Add an event wait node depending on this node.
 
         Parameters
@@ -492,7 +493,7 @@ cdef class GraphNode:
         EventWaitNode
             A new EventWaitNode representing the event wait operation.
         """
-        return GN_wait_event(self, <Event>event)
+        return GN_wait_event(self, event)
 
     def callback(self, fn, *, user_data=None) -> object:
         """Add a host callback node depending on this node.
@@ -544,7 +545,7 @@ cdef class GraphNode:
         """
         return GN_callback(self, fn, user_data)
 
-    def if_then(self, condition: GraphCondition) -> IfNode:
+    def if_then(self, GraphCondition condition not None: GraphCondition) -> IfNode:
         """Add an if-conditional node depending on this node.
 
         The body graph executes only when the condition evaluates to
@@ -564,7 +565,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 1, IfNode)
 
-    def if_else(self, condition: GraphCondition) -> IfElseNode:
+    def if_else(self, GraphCondition condition not None: GraphCondition) -> IfElseNode:
         """Add an if-else conditional node depending on this node.
 
         Two body graphs: the first executes when the condition is
@@ -585,7 +586,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 2, IfElseNode)
 
-    def while_loop(self, condition: GraphCondition) -> WhileNode:
+    def while_loop(self, GraphCondition condition not None: GraphCondition) -> WhileNode:
         """Add a while-loop conditional node depending on this node.
 
         The body graph executes repeatedly while the condition
@@ -605,7 +606,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_WHILE, 1, WhileNode)
 
-    def switch(self, condition: GraphCondition, unsigned int count) -> SwitchNode:
+    def switch(self, GraphCondition condition not None: GraphCondition, unsigned int count) -> SwitchNode:
         """Add a switch conditional node depending on this node.
 
         The condition value selects which branch to execute. If the
@@ -1114,6 +1115,12 @@ cdef inline ChildGraphNode GN_embed(GraphNode self, GraphDefinition child_def):
             rollback_status = cydriver.cuGraphDestroyNode(new_node)
         if rollback_status == cydriver.CUDA_SUCCESS:
             invalidate_child_graph_state(h_graph, new_node)
+        else:
+            # The original exception propagates with the failed rollback
+            # attached as a note (error handling policy).
+            attach_rollback_failure(
+                b"cuGraphDestroyNode", rollback_status,
+                b"failed while rolling back a child graph node; the node remains in the graph")
         raise
 
     return _registered(ChildGraphNode._create_with_params(

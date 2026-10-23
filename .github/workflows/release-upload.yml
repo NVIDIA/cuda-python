@@ -25,13 +25,9 @@ on:
         default: false
 
 concurrency:
-  # Concurrency group that uses the workflow name and PR number if available
-  # or commit SHA as a fallback. If a new build is triggered under that
-  # concurrency group while a previous build is running it will be canceled.
-  # Repeated pushes to a PR will cancel all previous builds, while multiple
-  # merges to main will not cancel.
-  group: ${{ github.workflow }}-${{ github.ref_name || github.sha }}
-  cancel-in-progress: true
+  # Keep upload locks component-specific and separate from the caller's workflow lock.
+  group: release-upload-${{ inputs.component }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -46,7 +42,7 @@ jobs:
       ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
     steps:
       - name: Checkout Source
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ inputs.git-tag }}
@@ -100,7 +96,7 @@ jobs:
 
       - name: Upload dry-run release artifacts
         if: ${{ inputs.dry-run }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: release-artifacts-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
           path: release/

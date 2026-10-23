@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Sequence
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     create_graphics_resource_handle,
     deviceptr_create_mapped_graphics,
     as_cu,
@@ -223,7 +223,7 @@ cdef class GraphicsResource:
             return None
         return self._mapped_buffer
 
-    def map(self, *, stream: Stream) -> Buffer:
+    def map(self, *, Stream stream not None: Stream) -> Buffer:
         """Map this graphics resource for CUDA access.
 
         After mapping, a CUDA device pointer into the underlying graphics

@@ -59,7 +59,7 @@ The root `LICENSE` governs the repository as a whole:
 
 | Subproject       | License    | License file                                             |
 | ---------------- | ---------- | -------------------------------------------------------- |
-| `cuda.bindings`  | Apache-2.0 | [`cuda_bindings/LICENSE`](./cuda_bindings/LICENSE)       |
+| `cuda.bindings`  | Apache-2.0 | [`cuda_bindings_13/LICENSE`](./cuda_bindings_13/LICENSE)       |
 | `cuda.core`      | Apache-2.0 | [`cuda_core/LICENSE`](./cuda_core/LICENSE)               |
 | `cuda.pathfinder`| Apache-2.0 | [`cuda_pathfinder/LICENSE`](./cuda_pathfinder/LICENSE)   |
 | `cuda-python`    | Apache-2.0 | [`cuda_python/LICENSE`](./cuda_python/LICENSE)           |

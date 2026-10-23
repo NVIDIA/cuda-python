@@ -9,7 +9,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._module cimport Kernel
-from cuda.core._resource_handles cimport as_cu
+from cuda.core._rt cimport as_cu
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
@@ -29,8 +29,8 @@ __all__ = ['launch']
 
 def launch(
     stream: Stream | GraphBuilder | IsStreamType,
-    config: LaunchConfig,
-    kernel: Kernel,
+    LaunchConfig config not None: LaunchConfig,
+    Kernel kernel not None: Kernel,
     *kernel_args
 ) -> None:
     """Launches a :obj:`~_module.Kernel`
@@ -59,8 +59,7 @@ def launch(
     cdef ParamHolder ker_args = ParamHolder(kernel_args)
     cdef void** args_ptr = <void**><uintptr_t>(ker_args.ptr)
 
-    cdef Kernel ker = <Kernel>kernel
-    cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>as_cu(ker._h_kernel)
+    cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>as_cu(kernel._h_kernel)
 
     drv_cfg = conf._to_native_launch_config()
     drv_cfg.hStream = as_cu(s._h_stream)

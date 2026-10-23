@@ -5,7 +5,7 @@
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     GraphHandle,
     GraphNodeHandle,
     OpaqueHandle,

@@ -2,13 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
+import sys
 import time
 import types
+from unittest.mock import Mock
 
 import pytest
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer, thread_unsafe_on_windows
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
+from helpers.memory import create_managed_memory_resource_or_skip
 from helpers.oom_diagnostics import (
     DEFAULT_FILENAME,
     OOM_MARKER,
@@ -30,12 +34,11 @@ NBYTES = 64
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 @pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
-def test_latchkernel():
+def test_latchkernel(init_cuda):
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
     log("begin")
-    device = Device()
-    device.set_current()
+    device = init_cuda
     stream = device.create_stream()
     target = make_scratch_buffer(device, 0, NBYTES)
     zeros = make_scratch_buffer(device, 0, NBYTES)
@@ -351,3 +354,153 @@ def test_oom_diagnostics_probe_basics_is_live_and_cheap(init_cuda):
     assert snapshot.pool_va_ok is None
     assert snapshot.get_mem_pool_ok is None
     assert snapshot.capped_pool_create_ok is None
+
+
+# ---------------------------------------------------------------------------
+# GL helper tests
+# ---------------------------------------------------------------------------
+
+import pytest
+from cuda_python_test_helpers.graphics import (
+    gl_context_not_on_nvidia_gpu_reason,
+    is_gl_context_unavailable,
+    open_gl_window,
+)
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet module")
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_open_gl_window_cleans_up_failed_construction(monkeypatch):
+    windows = set()
+    partial_window = Mock()
+    previous_context = Mock()
+
+    def fail_window(**_kwargs):
+        windows.add(partial_window)
+        raise RuntimeError
+
+    pyglet = types.ModuleType("pyglet")
+    pyglet.options = {}
+    pyglet.app = types.SimpleNamespace(windows=windows)
+    pyglet.gl = types.SimpleNamespace(Config=Mock(), current_context=previous_context)
+    pyglet.window = types.SimpleNamespace(Window=fail_window)
+    monkeypatch.setitem(sys.modules, "pyglet", pyglet)
+
+    with pytest.raises(RuntimeError):
+        open_gl_window()
+
+    assert partial_window.close.called
+    assert previous_context.set_current.called
+
+
+class _PygletError(Exception):
+    pass
+
+
+# Simulate a pyglet-namespaced exception by name.
+def _make_pyglet_exc(name, module="pyglet.window"):
+    cls = type(name, (_PygletError,), {})
+    cls.__module__ = module
+    return cls
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize(
+    "exc",
+    [
+        _make_pyglet_exc("NoSuchDisplayException")("x"),
+        _make_pyglet_exc("NoSuchConfigException")("x"),
+        _make_pyglet_exc("NoSuchScreenModeException")("x"),
+        _make_pyglet_exc("WindowException")("x"),
+        _make_pyglet_exc("ContextException")("x"),
+        _make_pyglet_exc("MissingFunctionException", module="pyglet.gl.lib")("x"),
+        FileNotFoundError("Could not find module 'opengl32' (or one of its dependencies)."),
+        AttributeError("opengl32"),
+        ImportError('Library "GL" not found.'),
+        ImportError('Library "EGL" not found.'),
+    ],
+)
+def test_is_gl_context_unavailable_accepts_genuine(exc):
+    assert is_gl_context_unavailable(exc) is True
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize(
+    "exc",
+    [
+        # pyglet exception names that are not context-creation failures
+        _make_pyglet_exc("GLException")("GL_INVALID_ENUM"),
+        _make_pyglet_exc("ImageException")("x"),
+        # Built-in exceptions that do not mention opengl32 / GL library
+        TypeError("bug"),
+        AttributeError("'NoneType' object has no attribute 'Config'"),
+        FileNotFoundError("No such file: /tmp/missing"),
+        ImportError("No module named 'foo'"),
+        OSError("disk full"),
+        RuntimeError("bug"),
+    ],
+)
+def test_is_gl_context_unavailable_rejects_unrelated(exc):
+    assert is_gl_context_unavailable(exc) is False
+
+
+def _patch_gl_vendor(monkeypatch, vendor):
+    # Only GL_VENDOR is answered; any other query (e.g. GL_RENDERER) returns NULL.
+    gl = types.SimpleNamespace(
+        GL_VENDOR=1,
+        GL_RENDERER=2,
+        glGetString=lambda name: ctypes.c_char_p(vendor if name == 1 else None),
+    )
+    monkeypatch.setitem(sys.modules, "pyglet.gl", types.SimpleNamespace(gl=gl))
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet.gl module")
+def test_gl_context_not_on_nvidia_gpu_reason_accepts_nvidia(monkeypatch):
+    _patch_gl_vendor(monkeypatch, b"NVIDIA Corporation")
+    assert gl_context_not_on_nvidia_gpu_reason() is None
+
+
+@pytest.mark.thread_unsafe(reason="patches the process-wide pyglet.gl module")
+@pytest.mark.parametrize("vendor", [b"AMD", b"Mesa", None])
+def test_gl_context_not_on_nvidia_gpu_reason_rejects_other_vendors(monkeypatch, vendor):
+    _patch_gl_vendor(monkeypatch, vendor)
+    reason = gl_context_not_on_nvidia_gpu_reason()
+    assert reason is not None
+    assert "not on an NVIDIA GPU" in reason
+
+
+def _patch_managed_mr_factory(monkeypatch, concurrent_managed_access):
+    # Stand in for the helper's Device and ManagedMemoryResource so the skip
+    # decision does not depend on the local device.
+    device = types.SimpleNamespace(
+        properties=types.SimpleNamespace(concurrent_managed_access=concurrent_managed_access)
+    )
+    monkeypatch.setattr("helpers.memory.Device", lambda: device)
+    factory = Mock(name="ManagedMemoryResource")
+    monkeypatch.setattr("helpers.memory.ManagedMemoryResource", factory)
+    return factory
+
+
+@pytest.mark.thread_unsafe(reason="patches module globals of helpers.memory")
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_managed_mr_helper_skips_default_pool_without_concurrent_access(monkeypatch):
+    factory = _patch_managed_mr_factory(monkeypatch, concurrent_managed_access=False)
+    with pytest.raises(pytest.skip.Exception, match="concurrent managed memory access"):
+        create_managed_memory_resource_or_skip()
+    factory.assert_not_called()
+
+
+@pytest.mark.thread_unsafe(reason="patches module globals of helpers.memory")
+@pytest.mark.parametrize(
+    ("concurrent_managed_access", "args", "kwargs"),
+    [
+        pytest.param(False, ("options",), {}, id="positional-options"),
+        pytest.param(False, (), {"options": "options"}, id="keyword-options"),
+        pytest.param(True, (), {}, id="default-pool-with-concurrent-access"),
+    ],
+)
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_managed_mr_helper_constructs_when_pool_is_usable(monkeypatch, concurrent_managed_access, args, kwargs):
+    factory = _patch_managed_mr_factory(monkeypatch, concurrent_managed_access)
+    assert create_managed_memory_resource_or_skip(*args, **kwargs) is factory.return_value
+    factory.assert_called_once_with(*args, **kwargs)

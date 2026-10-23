@@ -28,26 +28,29 @@ def supports_ipc_mempool(device_id: int | object) -> bool:
     Uses cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES)
     to check for CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR support. Does not
     require an active CUDA context.
+
+    Unsupported handle types are represented by a successful query whose bitmask
+    lacks the POSIX-FD bit, so the check below naturally returns False.
+    Other driver errors (invalid device, deinitialized driver) propagate via
+    handle_return so a real bug is not hidden as "unsupported".
     """
     if IS_WSL:
         return False
 
-    try:
-        # Lazy import to avoid hard dependency when not running GPU tests
-        from cuda.bindings import driver  # type: ignore
+    # Lazy import to avoid hard dependency when not running GPU tests
+    from cuda.bindings import driver  # type: ignore
 
-        # Initialize CUDA
-        handle_return(driver.cuInit(0))
+    # Initialize CUDA
+    handle_return(driver.cuInit(0))
 
-        # Resolve device id from int or Device-like object
-        dev_id = int(getattr(device_id, "device_id", device_id))
+    # Resolve device id from int or Device-like object
+    dev_id = int(getattr(device_id, "device_id", device_id))
 
-        # Query supported mempool handle types bitmask
-        attr = driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES
-        mask = handle_return(driver.cuDeviceGetAttribute(attr, dev_id))
+    # Query supported mempool handle types bitmask. Unsupported handle types are
+    # represented by a successful query whose bitmask lacks the POSIX-FD bit.
+    attr = driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES
+    mask = handle_return(driver.cuDeviceGetAttribute(attr, dev_id))
 
-        # Check POSIX FD handle type support via bitmask
-        posix_fd = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-        return (int(mask) & int(posix_fd)) != 0
-    except Exception:
-        return False
+    # Check POSIX FD handle type support via bitmask
+    posix_fd = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+    return (int(mask) & int(posix_fd)) != 0

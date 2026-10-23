@@ -29,7 +29,12 @@ from cuda.core.graph._graph_node cimport (
     _init_memcpy_params,
     _resolve_memcpy_operand,
 )
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
+    ContextHandle,
+    create_context_handle_ref,
+    graph_node_set_params,
+)
+from cuda.core._rt cimport (
     EventHandle,
     GraphExecHandle,
     GraphHandle,
@@ -55,14 +60,13 @@ from cuda.core._resource_handles cimport (
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.version cimport cy_driver_version
 
 from cuda.core.graph._host_callback cimport (
     _is_py_host_trampoline,
     _resolve_host_callback,
 )
 
-from cuda.core._utils.cuda_utils import driver, handle_return
 from cuda.core.typing import GraphConditionalType
 
 __all__ = [
@@ -92,22 +96,12 @@ __all__ = [
 ]
 
 
-cdef bint _has_cuGraphNodeGetParams = False
-cdef bint _version_checked = False
-
-
 cdef void _require_graph_node_update_support() except *:
     cdef tuple version = cy_driver_version()
     if version < (12, 2, 0):
         raise RuntimeError(
             "Graph node mutation requires CUDA driver 12.2 or newer; "
             f"using driver version {'.'.join(map(str, version))}"
-        )
-    version = cy_binding_version()
-    if version < (12, 2, 0):
-        raise RuntimeError(
-            "Graph node mutation requires cuda.bindings 12.2 or newer; "
-            f"using cuda.bindings version {'.'.join(map(str, version))}"
         )
 
 
@@ -124,26 +118,25 @@ cdef void _set_definition_node_params(
     if node == NULL:
         raise RuntimeError("GraphNode has been destroyed")
     _require_graph_node_update_support()
-    cdef cydriver.CUcontext previous_ctx = NULL
-    cdef bint restore_ctx = False
     cdef PreparedAttachment prepared
+    cdef ContextHandle h_update_ctx
+    cdef cydriver.CUresult status
+    cdef cydriver.CUresult restore_status = cydriver.CUresult.CUDA_SUCCESS
 
     HANDLE_RETURN(graph_prepare_attachment(
         h_graph, owner0, owner1, &prepared))
     if update_ctx != NULL:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&previous_ctx))
-            if previous_ctx != update_ctx:
-                HANDLE_RETURN(cydriver.cuCtxSetCurrent(update_ctx))
-                restore_ctx = True
+        h_update_ctx = create_context_handle_ref(update_ctx)
+    with nogil:
+        status = graph_node_set_params(node, params, h_update_ctx, &restore_status)
+    HANDLE_RETURN(status)
+    # The driver node now references the new owners. Publish their attachment
+    # before raising anything else: an exception here would roll back the
+    # prepared retention and leave the node pointing at released resources.
     try:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphNodeSetParams(node, params))
+        HANDLE_RETURN(graph_commit_attachment(prepared, node))
     finally:
-        if restore_ctx:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuCtxSetCurrent(previous_ctx))
-    HANDLE_RETURN(graph_commit_attachment(prepared, node))
+        HANDLE_RETURN(restore_status)
 
 
 cdef void _set_executable_node_params(
@@ -210,14 +203,22 @@ cdef void _set_executable_node_enabled(
 
 
 cdef bint _check_node_get_params():
-    global _has_cuGraphNodeGetParams, _version_checked
-    if not _version_checked:
-        from cuda.core._utils.version import binding_version, driver_version
-        _has_cuGraphNodeGetParams = (
-            driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
-        )
-        _version_checked = True
-    return _has_cuGraphNodeGetParams
+    """Whether cuGraphNodeGetParams, a 13.2 driver API, is available.
+
+    The CUDA 13 build always has the binding. Only the driver can lack it."""
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        return cy_driver_version() >= (13, 2, 0)
+    ELSE:
+        return False
+
+
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    cdef void _node_get_params(
+            cydriver.CUgraphNode node,
+            cydriver.CUgraphNodeParams* params) except *:
+        c_memset(params, 0, sizeof(params[0]))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphNodeGetParams(node, params))
 
 
 cdef void _reject_unsupported_kernel_node(
@@ -242,13 +243,33 @@ cdef void _reject_unsupported_kernel_node(
             "updating clustered or cooperative kernel nodes is not supported")
 
 
+cdef inline bint _is_linear_memcpy_memory_type(
+        cydriver.CUmemorytype memory_type) noexcept nogil:
+    # HOST and DEVICE name the location of a linear operand. UNIFIED is what
+    # the driver records for a copy captured from cuMemcpyAsync: a generic
+    # address that it resolves itself, stored in the device-pointer field.
+    return (memory_type == cydriver.CU_MEMORYTYPE_HOST
+            or memory_type == cydriver.CU_MEMORYTYPE_DEVICE
+            or memory_type == cydriver.CU_MEMORYTYPE_UNIFIED)
+
+
+cdef str _memcpy_memory_type_tag(cydriver.CUmemorytype memory_type):
+    if memory_type == cydriver.CU_MEMORYTYPE_HOST:
+        return "H"
+    if memory_type == cydriver.CU_MEMORYTYPE_DEVICE:
+        return "D"
+    if memory_type == cydriver.CU_MEMORYTYPE_UNIFIED:
+        return "U"
+    if memory_type == cydriver.CU_MEMORYTYPE_ARRAY:
+        return "A"
+    return str(int(memory_type))
+
+
 cdef bint _is_supported_memcpy_descriptor(
         cydriver.CUDA_MEMCPY3D* params) noexcept nogil:
     return (
-        (params.srcMemoryType == cydriver.CU_MEMORYTYPE_HOST or
-         params.srcMemoryType == cydriver.CU_MEMORYTYPE_DEVICE)
-        and (params.dstMemoryType == cydriver.CU_MEMORYTYPE_HOST or
-             params.dstMemoryType == cydriver.CU_MEMORYTYPE_DEVICE)
+        _is_linear_memcpy_memory_type(params.srcMemoryType)
+        and _is_linear_memcpy_memory_type(params.dstMemoryType)
         and params.srcXInBytes == 0
         and params.srcY == 0
         and params.srcZ == 0
@@ -649,9 +670,10 @@ cdef class MemsetNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` may
         only accompany a raw-address ``dst``.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -667,7 +689,7 @@ cdef class MemsetNode(GraphNode):
         cdef cydriver.CUcontext ctx = NULL
         cdef cydriver.CUDA_MEMSET_NODE_PARAMS current
         cdef cydriver.CUgraphNodeParams params
-        cdef object queried
+        cdef cydriver.CUgraphNodeParams queried  # no-cython-lint
 
         if dst is None and dst_owner is not None:
             raise ValueError("dst_owner requires dst")
@@ -680,11 +702,14 @@ cdef class MemsetNode(GraphNode):
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemsetNodeGetParams(
                 node, &current))
-        if _check_node_get_params():
-            queried = handle_return(driver.cuGraphNodeGetParams(
-                <uintptr_t>node))
-            ctx = <cydriver.CUcontext><uintptr_t>int(queried.memset.ctx)
-        else:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if _check_node_get_params():
+                _node_get_params(node, &queried)
+                ctx = queried.memset.ctx
+            else:
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        ELSE:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
 
@@ -814,8 +839,8 @@ cdef class MemcpyNode(GraphNode):
             params.dstMemoryType, params.srcMemoryType)
 
     def __repr__(self) -> str:
-        cdef str dt = "H" if self._dst_type == cydriver.CU_MEMORYTYPE_HOST else "D"
-        cdef str st = "H" if self._src_type == cydriver.CU_MEMORYTYPE_HOST else "D"
+        cdef str dt = _memcpy_memory_type_tag(self._dst_type)
+        cdef str st = _memcpy_memory_type_tag(self._src_type)
         return (f"<MemcpyNode handle=0x{as_intptr(self._h_node):x}"
                 f" dst=0x{self._dst:x}({dt}) src=0x{self._src:x}({st}) size={self._size}>")
 
@@ -833,11 +858,12 @@ cdef class MemcpyNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` and
         ``src_owner`` may only accompany their corresponding raw addresses.
         Multidimensional, pitched, offset, and array-backed memcpy nodes are
-        not supported.
+        not supported. Nodes recorded by stream capture are supported.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -857,7 +883,7 @@ cdef class MemcpyNode(GraphNode):
         cdef cydriver.CUgraphNodeParams params
         cdef cydriver.CUmemorytype c_dst_type
         cdef cydriver.CUmemorytype c_src_type
-        cdef object queried
+        cdef cydriver.CUgraphNodeParams queried  # no-cython-lint
 
         if dst is None and dst_owner is not None:
             raise ValueError("dst_owner requires dst")
@@ -871,12 +897,14 @@ cdef class MemcpyNode(GraphNode):
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(
                 node, &params.memcpy.copyParams))
-        if _check_node_get_params():
-            queried = handle_return(driver.cuGraphNodeGetParams(
-                <uintptr_t>node))
-            ctx = <cydriver.CUcontext><uintptr_t>int(
-                queried.memcpy.copyCtx)
-        else:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if _check_node_get_params():
+                _node_get_params(node, &queried)
+                ctx = queried.memcpy.copyCtx
+            else:
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        ELSE:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
         params.memcpy.copyCtx = ctx
@@ -886,32 +914,31 @@ cdef class MemcpyNode(GraphNode):
                 "updating multidimensional, pitched, offset, or array-backed "
                 "memcpy nodes is not supported")
 
+        # The descriptor check above admits HOST, DEVICE, and UNIFIED operands;
+        # the last two keep their address in the device-pointer field.
         c_dst_type = params.memcpy.copyParams.dstMemoryType
         c_src_type = params.memcpy.copyParams.srcMemoryType
         if c_dst_type == cydriver.CU_MEMORYTYPE_HOST:
             c_dst = <cydriver.CUdeviceptr><uintptr_t>(
                 params.memcpy.copyParams.dstHost)
-        elif c_dst_type == cydriver.CU_MEMORYTYPE_DEVICE:
-            c_dst = params.memcpy.copyParams.dstDevice
         else:
-            raise NotImplementedError(
-                f"unsupported destination memory type: {int(c_dst_type)}")
+            c_dst = params.memcpy.copyParams.dstDevice
         if c_src_type == cydriver.CU_MEMORYTYPE_HOST:
             c_src = <cydriver.CUdeviceptr><uintptr_t>(
                 params.memcpy.copyParams.srcHost)
-        elif c_src_type == cydriver.CU_MEMORYTYPE_DEVICE:
-            c_src = params.memcpy.copyParams.srcDevice
         else:
-            raise NotImplementedError(
-                f"unsupported source memory type: {int(c_src_type)}")
+            c_src = params.memcpy.copyParams.srcDevice
 
         HANDLE_RETURN(graph_get_attachment(
             h_graph, node,
             &dst_attachment_owner, &src_attachment_owner))
+        # A unified operand stays unified: any address is valid for that type,
+        # and an executable update rejects a change of memory type.
         if dst is not None:
             dst_attachment_owner = _resolve_memcpy_operand(
                 dst, dst_owner, "dst", &c_dst)
-            c_dst_type = _get_memcpy_memory_type(c_dst)
+            if c_dst_type != cydriver.CU_MEMORYTYPE_UNIFIED:
+                c_dst_type = _get_memcpy_memory_type(c_dst)
             params.memcpy.copyParams.dstMemoryType = c_dst_type
             params.memcpy.copyParams.dstHost = NULL
             params.memcpy.copyParams.dstDevice = 0
@@ -924,7 +951,8 @@ cdef class MemcpyNode(GraphNode):
         if src is not None:
             src_attachment_owner = _resolve_memcpy_operand(
                 src, src_owner, "src", &c_src)
-            c_src_type = _get_memcpy_memory_type(c_src)
+            if c_src_type != cydriver.CU_MEMORYTYPE_UNIFIED:
+                c_src_type = _get_memcpy_memory_type(c_src)
             params.memcpy.copyParams.srcMemoryType = c_src_type
             params.memcpy.copyParams.srcHost = NULL
             params.memcpy.copyParams.srcDevice = 0
@@ -997,7 +1025,7 @@ cdef class ChildGraphNode(GraphNode):
         return (f"<ChildGraphNode handle=0x{as_intptr(self._h_node):x}"
                 f" child=0x{as_intptr(self._h_child_graph):x}>")
 
-    def update(self, child: GraphDefinition) -> None:
+    def update(self, GraphDefinition child not None: GraphDefinition) -> None:
         """Replace the embedded graph with a clone of ``child``.
 
         ``child`` must belong to an independent graph hierarchy.
@@ -1068,7 +1096,7 @@ cdef class EventRecordNode(GraphNode):
         return (f"<EventRecordNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event not None: Event) -> None:
         """Replace the event recorded by this node."""
         GN_check_valid(self)
         Event_check_open(event)
@@ -1121,7 +1149,7 @@ cdef class EventWaitNode(GraphNode):
         return (f"<EventWaitNode handle=0x{as_intptr(self._h_node):x}"
                 f" event=0x{as_intptr(self._h_event):x}>")
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event not None: Event) -> None:
         """Replace the event waited on by this node."""
         GN_check_valid(self)
         Event_check_open(event)
@@ -1258,47 +1286,52 @@ cdef class ConditionalNode(GraphNode):
             n._cond_type = cydriver.CU_GRAPH_COND_TYPE_IF
             n._branches = ()
             return n
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            return ConditionalNode._create_from_driver_params(h_node)
+        ELSE:
+            raise AssertionError("unreachable: cuGraphNodeGetParams needs the CUDA 13 build")
 
-        cdef cydriver.CUgraphNode node = as_cu(h_node)
-        params = handle_return(driver.cuGraphNodeGetParams(
-            <uintptr_t>node))
-        cond_params = params.conditional
-        cdef int cond_type_int = int(cond_params.type)
-        cdef unsigned int size = int(cond_params.size)
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        @staticmethod
+        cdef ConditionalNode _create_from_driver_params(GraphNodeHandle h_node):
+            cdef ConditionalNode n
+            cdef cydriver.CUgraphNode node = as_cu(h_node)
+            cdef cydriver.CUgraphNodeParams params
+            _node_get_params(node, &params)
+            cdef int cond_type_int = <int>params.conditional.type
+            cdef unsigned int size = params.conditional.size
 
-        cdef GraphCondition condition = GraphCondition.__new__(GraphCondition)
-        condition._c_handle = <cydriver.CUgraphConditionalHandle>(
-            <unsigned long long>int(cond_params.handle))
+            cdef GraphCondition condition = GraphCondition.__new__(GraphCondition)
+            condition._c_handle = params.conditional.handle
 
-        cdef GraphHandle h_graph = graph_node_get_graph(h_node)
-        cdef list branch_list = []
-        cdef unsigned int i
-        cdef GraphHandle h_branch
-        if cond_params.phGraph_out is not None:
-            for i in range(size):
-                h_branch = create_child_graph_handle(
-                    <cydriver.CUgraph><uintptr_t>int(cond_params.phGraph_out[i]),
-                    h_graph, node)
-                branch_list.append(GraphDefinition._from_handle(h_branch))
-        cdef tuple branches = tuple(branch_list)
+            cdef GraphHandle h_graph = graph_node_get_graph(h_node)
+            cdef list branch_list = []
+            cdef unsigned int i
+            cdef GraphHandle h_branch
+            if params.conditional.phGraph_out != NULL:
+                for i in range(size):
+                    h_branch = create_child_graph_handle(
+                        params.conditional.phGraph_out[i], h_graph, node)
+                    branch_list.append(GraphDefinition._from_handle(h_branch))
+            cdef tuple branches = tuple(branch_list)
 
-        cdef type cls
-        if cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_IF:
-            if size == 1:
-                cls = IfNode
+            cdef type cls
+            if cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_IF:
+                if size == 1:
+                    cls = IfNode
+                else:
+                    cls = IfElseNode
+            elif cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_WHILE:
+                cls = WhileNode
             else:
-                cls = IfElseNode
-        elif cond_type_int == <int>cydriver.CU_GRAPH_COND_TYPE_WHILE:
-            cls = WhileNode
-        else:
-            cls = SwitchNode
+                cls = SwitchNode
 
-        n = cls.__new__(cls)
-        n._h_node = h_node
-        n._condition = condition
-        n._cond_type = <cydriver.CUgraphConditionalNodeType>cond_type_int
-        n._branches = branches
-        return n
+            n = cls.__new__(cls)
+            n._h_node = h_node
+            n._condition = condition
+            n._cond_type = <cydriver.CUgraphConditionalNodeType>cond_type_int
+            n._branches = branches
+            return n
 
     def __repr__(self) -> str:
         return f"<ConditionalNode handle=0x{as_intptr(self._h_node):x}>"
@@ -1411,8 +1444,8 @@ cdef class ExecutableKernelNode(ExecutableGraphNode):
     def update(
         self,
         *,
-        config: LaunchConfig,
-        kernel: Kernel,
+        LaunchConfig config not None: LaunchConfig,
+        Kernel kernel not None: Kernel,
         args,
     ) -> None:
         """Replace all kernel launch parameters for future launches.
@@ -1538,7 +1571,10 @@ cdef class ExecutableMemcpyNode(ExecutableGraphNode):
         src: Buffer | int,
         size_t size,
     ) -> None:
-        """Replace all one-dimensional memcpy parameters for future launches."""
+        """Replace all one-dimensional memcpy parameters for future launches.
+
+        Nodes recorded by stream capture are supported.
+        """
         cdef cydriver.CUdeviceptr c_dst
         cdef cydriver.CUdeviceptr c_src
         cdef OpaqueHandle dst_owner = _resolve_memcpy_operand(
@@ -1549,12 +1585,33 @@ cdef class ExecutableMemcpyNode(ExecutableGraphNode):
         cdef cydriver.CUmemorytype src_type
         cdef cydriver.CUcontext ctx = NULL
         cdef cydriver.CUgraphNodeParams params
+        cdef cydriver.CUDA_MEMCPY3D recorded
+        cdef cydriver.CUgraphNode node = as_cu(self._h_node)
 
         c_memset(&params, 0, sizeof(params))
         params.type = cydriver.CU_GRAPH_NODE_TYPE_MEMCPY
         _init_memcpy_params(
             c_dst, c_src, size, &params.memcpy.copyParams,
             &dst_type, &src_type)
+        # A destroyed node is reported by _set_executable_node_params below.
+        # The memory types are read from the definition node, not from the
+        # instantiated graph. That is correct only while MemcpyNode.update()
+        # keeps a unified operand unified, which it does; an executable update
+        # rejects a change of memory type.
+        if node != NULL:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphMemcpyNodeGetParams(
+                    node, &recorded))
+            if recorded.dstMemoryType == cydriver.CU_MEMORYTYPE_UNIFIED:
+                params.memcpy.copyParams.dstMemoryType = (
+                    cydriver.CU_MEMORYTYPE_UNIFIED)
+                params.memcpy.copyParams.dstHost = NULL
+                params.memcpy.copyParams.dstDevice = c_dst
+            if recorded.srcMemoryType == cydriver.CU_MEMORYTYPE_UNIFIED:
+                params.memcpy.copyParams.srcMemoryType = (
+                    cydriver.CU_MEMORYTYPE_UNIFIED)
+                params.memcpy.copyParams.srcHost = NULL
+                params.memcpy.copyParams.srcDevice = c_src
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
         params.memcpy.copyCtx = ctx
@@ -1582,7 +1639,7 @@ cdef class ExecutableMemcpyNode(ExecutableGraphNode):
 cdef class ExecutableChildGraphNode(ExecutableGraphNode):
     """An executable child-graph-node view."""
 
-    def update(self, child: GraphDefinition) -> None:
+    def update(self, GraphDefinition child not None: GraphDefinition) -> None:
         """Replace the embedded graph parameters for future launches."""
         GD_check_valid(child)
         cdef cydriver.CUgraphNodeParams params
@@ -1596,7 +1653,7 @@ cdef class ExecutableChildGraphNode(ExecutableGraphNode):
 cdef class ExecutableEventRecordNode(ExecutableGraphNode):
     """An executable event-record-node view."""
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event not None: Event) -> None:
         """Replace the event recorded by future launches."""
         Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event
@@ -1611,7 +1668,7 @@ cdef class ExecutableEventRecordNode(ExecutableGraphNode):
 cdef class ExecutableEventWaitNode(ExecutableGraphNode):
     """An executable event-wait-node view."""
 
-    def update(self, event: Event) -> None:
+    def update(self, Event event not None: Event) -> None:
         """Replace the event waited on by future launches."""
         Event_check_open(event)
         cdef OpaqueHandle event_owner = event._h_event

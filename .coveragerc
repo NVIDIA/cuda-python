@@ -11,11 +11,12 @@ plugins = Cython.Coverage
 core = ctrace
 branch = False
 relative_files = True
-# Omits specific definition files that causes plugin errors
+# Cython.Coverage cannot build a FileReporter for .pxd/.pxi (not standalone
+# translation units). Pattern in [run], not an enumeration: a new file of
+# either kind otherwise breaks `coverage html`. Must be [run], not [report].
 omit =
-    */windll.pxd
-    */_lib/windll.pxd
-    */_lib/utils.pxd
+    */*.pxd
+    */*.pxi
 
 [report]
 show_missing = true

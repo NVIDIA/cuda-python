@@ -6,8 +6,31 @@
 This document covers the `cuda.core` release process. For other packages:
 `cuda-bindings` and `cuda-python` involve a private repository and are not
 documented here; `cuda-pathfinder` is largely automated by the
-[release-cuda-pathfinder.yml](workflows/release-cuda-pathfinder.yml)
+[CI: Release](workflows/release.yml)
 workflow.
+
+To release `cuda-pathfinder`, dispatch **CI: Release** with
+`component` set to `cuda-pathfinder`, `release-action` set
+to `full-release`, and `git-tag` set to the existing
+`cuda-pathfinder-v<VERSION>` tag. The workflow finds the successful
+tag-triggered CI run, checks release notes, creates or reuses a draft,
+builds and deploys versioned docs, and uploads the source archive, checksum,
+and wheels. It publishes to TestPyPI, verifies installation and the imported
+version, then publishes to PyPI and verifies again before publishing the
+GitHub Release without marking it as latest. A failed
+docs build prevents asset uploads, package publication, and finalization.
+
+The release-note checker runs from `git-tag`, not the workflow revision.
+For Pathfinder, that tag must contain a version
+of `ci/tools/check_release_notes.py` that writes `version=<VERSION>` to
+`GITHUB_OUTPUT`. The release-notes job rejects an empty version before
+documentation, asset uploads, or package publication can start. Pathfinder
+package publication also requires successful draft metadata preparation.
+
+The default `dry-run` action validates preparation, builds docs, and
+collects release artifacts without creating a GitHub Release or publishing
+packages. It can be dispatched from a development branch; use
+`dry-run-docs-branch` only when a preview deployment is needed.
 
 Each section below provides detailed guidance for a step in the
 [Release Checklist](ISSUE_TEMPLATE/release_checklist.yml). To start a
@@ -62,7 +85,14 @@ platforms as appropriate for each release.
 ## Check (or update if needed) the dependency requirements
 
 Review `cuda_core/pyproject.toml` and verify that all dependency
-requirements are current.
+requirements are current. The `cu12`/`cu13` extras declare the
+`cuda-bindings` floors; see "Bumping the cuda-bindings floor" in
+`cuda_core/AGENTS.md`.
+
+Update the `cuda-core` pin in `cuda_python/setup.py` to the new minor
+series (`cuda-core~=X.Y.0`), and plan a `cuda-python` release right after
+this one. Until that release, `pip install cuda-python` resolves to the
+previous `cuda-core`.
 
 ---
 

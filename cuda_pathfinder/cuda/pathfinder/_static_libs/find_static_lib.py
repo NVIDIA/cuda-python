@@ -28,6 +28,8 @@ class LocatedStaticLib:
 
 
 class _StaticLibInfo(TypedDict):
+    """Static-library metadata with ordered alternatives searched first-to-last."""
+
     filename: str
     ctk_rel_paths: tuple[str, ...]
     conda_rel_paths: tuple[str, ...]

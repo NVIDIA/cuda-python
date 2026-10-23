@@ -4,28 +4,9 @@
 
 """Public type aliases, protocols, and enumerations used in cuda.core API signatures."""
 
-import sys
-from typing import TYPE_CHECKING
+from enum import StrEnum
 from typing import Literal as _Literal
 from typing import TypeAlias as _TypeAlias
-
-if TYPE_CHECKING:
-    # `backports.strenum` ships no type stubs and typeshed conditionally gates
-    # `enum.StrEnum` behind `sys.version_info >= (3, 11)`. Declaring a minimal
-    # local shape here (mirroring typeshed's 3.11 StrEnum) lets mypy at
-    # `python_version = "3.10"` infer subclass members as `Literal[Foo.MEMBER]`
-    # rather than bare `str`.
-    from enum import Enum
-
-    class StrEnum(str, Enum):
-        _value_: str
-
-
-if not TYPE_CHECKING:
-    if sys.version_info >= (3, 11):
-        from enum import StrEnum
-    else:
-        from backports.strenum import StrEnum
 
 from cuda.core._context import DeviceResourcesType
 from cuda.core._stream import IsStreamType
@@ -84,7 +65,7 @@ class ObjectCodeFormatType(StrEnum):
     * ``CUBIN`` — device-native CUDA binary.
     * ``LTOIR`` — LTO (link-time optimization) IR for later linking.
     * ``FATBIN`` — fat binary bundling multiple device images.
-    * ``OBJECT`` — relocatable device object.
+    * ``OBJECT`` — host object containing device code.
     * ``LIBRARY`` — device code library.
     """
 
