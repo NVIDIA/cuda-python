@@ -376,7 +376,7 @@ improvements are: (1) raising exceptions rather than returning error codes, (2)
 uses PEP8-compliant naming, and (3) more performance.  This API is still
 experimental and subject to change.
 
-See `v2 migration guide <../../module/v2_migration.html>`_ for details on migrating to new API.
+See the :ref:`v2 migration guide <v2-migration>` for details on migrating to new API.
 
 Known issues
 ------------
