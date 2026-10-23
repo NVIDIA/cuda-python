@@ -37,7 +37,16 @@ def supportsSparseTexturesDeviceFilter():
 
 
 def supportsCudaAPI(name):
-    return name in dir(cuda) or dir(cudart)
+    return name in dir(cuda) or name in dir(cudart)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_supportsCudaAPI():
+    # Guards the operator precedence: `name in dir(cuda) or dir(cudart)` parses
+    # as `(name in dir(cuda)) or dir(cudart)`, which is truthy for every name.
+    assert supportsCudaAPI("cudaMalloc") is True  # runtime module
+    assert supportsCudaAPI("cuInit") is True  # driver module
+    assert supportsCudaAPI("this_is_not_a_cuda_api") is False
 
 
 def test_cudart_memcpy():
@@ -512,7 +521,10 @@ def test_cudart_cudaStreamGetCaptureInfo():
     assert status == cudart.cudaStreamCaptureStatus.cudaStreamCaptureStatusNone
 
     # start capture
-    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
+    # Thread-local mode: pytest-run-parallel runs this test in several threads
+    # at once, and in global mode a call such as cudaGraphInstantiate in one
+    # thread fails while another thread is capturing.
+    (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal)
     assertSuccess(err)
 
     # validate that stream is capturing now
@@ -1365,7 +1377,10 @@ def test_cudart_host_func_graph_replay():
     err, stream = cudart.cudaStreamCreate()
     assertSuccess(err)
     try:
-        (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeGlobal)
+        # Thread-local mode: pytest-run-parallel runs this test in several threads
+        # at once, and in global mode a call such as cudaGraphInstantiate in one
+        # thread fails while another thread is capturing.
+        (err,) = cudart.cudaStreamBeginCapture(stream, cudart.cudaStreamCaptureMode.cudaStreamCaptureModeThreadLocal)
         assertSuccess(err)
         (err,) = cudart.cudaLaunchHostFunc(stream, callback, ctypes.addressof(counter))
         assertSuccess(err)

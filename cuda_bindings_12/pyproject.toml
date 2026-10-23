@@ -3,9 +3,9 @@
 
 [build-system]
 requires = [
-    "setuptools>=80.0.0", 
+    "setuptools>=80.0.0",
     "setuptools-scm[simple]>=8",
-    "cython>=3.2,<3.3", 
+    "cython>=3.2,<3.3",
     "pyclibrary>=0.1.7"
 ]
 build-backend = "build_hooks"
@@ -93,10 +93,12 @@ select = [
 ]
 
 ignore = [
-    "UP007", 
+    "UP007",
     "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name 
-    "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
+    "B007", # rename unsued loop variable to _name
+    "UP035", # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
+    "B905", # preserve the imported line's zip() behavior
+    "I001", # preserve generated and legacy import ordering
 ]
 
 exclude = ["cuda/bindings/_version.py"]
@@ -104,6 +106,8 @@ exclude = ["cuda/bindings/_version.py"]
 [tool.ruff.lint.per-file-ignores]
 "setup.py" = ["F401"]
 "__init__.py" = ["F401"]
+"site-packages/_cuda_bindings_redirector.py" = ["F401"]
+"cuda/bindings/_internal/_fast_enum.py" = ["E501"]
 
 "examples/**/*" = [
   "E722",
@@ -111,13 +115,7 @@ exclude = ["cuda/bindings/_version.py"]
   ]
 
 "tests/**/*" = [
-  "E722", 
-  "UP022",
-  "E402", # module level import not at top of file
-  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
-
-"benchmarks/**/*" = [
-  "E722", 
+  "E722",
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)

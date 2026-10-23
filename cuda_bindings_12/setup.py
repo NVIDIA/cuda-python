@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import functools
 import os
 import pathlib
-import subprocess
+import sys
 from warnings import warn
 
 from setuptools import setup
@@ -13,6 +12,7 @@ from setuptools.command.build_py import build_py
 from setuptools.command.editable_wheel import _TopLevelFinder, editable_wheel
 
 import build_hooks
+from _build_shared import drop_empty_venv_include_dir, make_egg_info_command
 
 if os.environ.get("PARALLEL_LEVEL") is not None:
     warn(
@@ -25,29 +25,28 @@ else:
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", "0") or "0")
 
 
-def _is_clang(compiler):
-    @functools.lru_cache
-    def _check(compiler_cxx):
-        try:
-            output = subprocess.check_output([*compiler_cxx, "--version"])  # noqa: S603
-        except subprocess.CalledProcessError:
-            return False
-        lines = output.decode().splitlines()
-        return len(lines) > 0 and "clang" in lines[0]
-
-    if not hasattr(compiler, "compiler_cxx"):
-        return False
-    return _check(tuple(compiler.compiler_cxx))
-
-
 class build_ext(_build_ext):
+    def finalize_options(self):
+        super().finalize_options()
+        # A per-build venv path on every -I line defeats sccache's
+        # preprocessor cache; see _build_shared.drop_empty_venv_include_dir().
+        self.include_dirs = drop_empty_venv_include_dir(self.include_dirs)
+        # A conda environment can provide libcudart_static.a in <prefix>/lib.
+        # Added here rather than to the Extensions: Cython copies Extension
+        # library_dirs into the generated sources, and under build isolation
+        # sys.prefix is a fresh /tmp/build-env-<random> per build, which
+        # defeats sccache's preprocessor cache.
+        prefix_lib = os.path.join(sys.prefix, "lib")
+        if prefix_lib not in self.library_dirs:
+            self.library_dirs.append(prefix_lib)
+
     def build_extensions(self):
         if nthreads > 0:
             self.parallel = nthreads
-        if _is_clang(self.compiler):
-            for ext in self.extensions:
-                ext.extra_compile_args = [a for a in ext.extra_compile_args if a != "-fno-var-tracking-assignments"]
+        if build_hooks.force_build_ext:
+            self.force = True
         super().build_extensions()
+        build_hooks.record_build_toolchain()
 
 
 ################################################################################
@@ -123,6 +122,7 @@ setup(
         "build_ext": build_ext,
         "build_py": build_py_with_redirector,
         "editable_wheel": editable_wheel_with_redirector,
+        "egg_info": make_egg_info_command("v"),
     },
     zip_safe=False,
 )

@@ -21,3 +21,11 @@ paths:
   ".github/workflows/ci-workflow-health.yml":
     ignore:
       - 'unexpected key "queue" for "concurrency" section'
+  # GitHub supports self-repository ($/) action references, but the latest
+  # actionlint release does not yet recognize them (rhysd/actionlint#711).
+  ".github/workflows/test-wheel-linux.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/test-wheel-windows.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'

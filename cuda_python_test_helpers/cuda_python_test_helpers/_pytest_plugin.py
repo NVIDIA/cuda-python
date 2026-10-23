@@ -32,7 +32,11 @@ def pytest_collection_modifyitems(config, items):  # noqa: ARG001
         # Package markers by path
         if nodeid.startswith("cuda_pathfinder/tests/") or "/cuda_pathfinder/tests/" in nodeid:
             item.add_marker(pytest.mark.pathfinder)
-        if nodeid.startswith("cuda_bindings_13/tests/") or "/cuda_bindings_13/tests/" in nodeid:
+        if (
+            nodeid.startswith(("cuda_bindings_12/tests/", "cuda_bindings_13/tests/"))
+            or "/cuda_bindings_12/tests/" in nodeid
+            or "/cuda_bindings_13/tests/" in nodeid
+        ):
             item.add_marker(pytest.mark.bindings)
         if nodeid.startswith("cuda_core/tests/") or "/cuda_core/tests/" in nodeid:
             item.add_marker(pytest.mark.core)

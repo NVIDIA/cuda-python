@@ -113,6 +113,9 @@ runs:
           printf '[Open the cache refresh workflow](%s).\n' "$WORKFLOW_URL"
         } >> "$GITHUB_STEP_SUMMARY"
 
+    - name: Harden pip
+      uses: ./.github/actions/harden-pip
+
     - name: Check links through the configured pre-commit hook
       shell: bash --noprofile --norc -euo pipefail {0}
       env:
