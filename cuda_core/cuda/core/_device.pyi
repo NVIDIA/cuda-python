@@ -846,3 +846,16 @@ class Device:
 
         .. versionadded:: 1.1.0
         """
+
+def _device_from_uuid(device_uuid: str) -> Device:
+    """Return the visible device whose :attr:`Device.uuid` is ``device_uuid``.
+
+    Device ordinals are per process (``CUDA_VISIBLE_DEVICES`` can renumber
+    devices), so objects that cross a process boundary name their devices by
+    UUID, and the receiving process maps each UUID back with this function.
+
+    Raises
+    ------
+    RuntimeError
+        If no device visible to this process has the UUID.
+    """
