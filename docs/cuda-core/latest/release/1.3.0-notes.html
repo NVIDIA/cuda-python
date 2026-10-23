@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3b5eadb1"></script>
+    <script src="../_static/documentation_options.js?v=9f2629a8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev254';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev255';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -876,6 +876,14 @@ in the receiver. Fabric handles are not shared yet.
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> or a <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>
+sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> now names its device, and the
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> <code class="docutils literal notranslate"><span class="pre">peers</span></code>, by UUID. The receiving process maps
+each UUID to its own device ordinal. Before, the receiver used the sender’s
+ordinals, which name different devices when <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code>
+differs between the processes. Unpickling now raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> when
+one of the devices is not visible in the receiving process.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3097">#3097</a>)</p></li>
 <li><p>Fixed a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> in <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> when retrying after PCH
 heap exhaustion.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.uuid_without_prefix" title="cuda.core.system.Device.uuid_without_prefix"><code class="xref py py-attr docutils literal notranslate"><span class="pre">system.Device.uuid_without_prefix</span></code></a> preserves UUIDs that NVML already
