@@ -32,6 +32,13 @@ repos:
       - id: ruff-format
         exclude: .*\.pyi$
 
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 98ad4ddb9c057de2f5b9e93e44e6db959807d68c  # frozen: v23.1.3
+    hooks:
+      - id: clang-format
+        types_or: [c, c++, cuda]
+        exclude: ^cuda_core/(cuda/core/_include/(dlpack|aoti_shim)\.h|third_party/)
+
   - repo: local
     hooks:
       - id: check-precommit-installed
