@@ -52,11 +52,11 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, check_or_create_options
 
 import os
 import platform
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from multiprocessing import context as _mp_context
 from typing import TYPE_CHECKING, Iterable
 
-from cuda.core._device import Device
+from cuda.core._device import Device, _device_from_uuid
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._utils.version import BUILD_CUDA_MAJOR
 from cuda.core.typing import (
@@ -117,6 +117,7 @@ class VirtualMemoryResourceOptions:
         Alignment for the VA reservation. If `None`, use the queried granularity.
     peers: Iterable[int]
         Extra device IDs that should be granted access in addition to ``device``.
+        The options store them as a tuple.
     self_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for the owning device.
     peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
@@ -164,6 +165,11 @@ class VirtualMemoryResourceOptions:
     _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     if BUILD_CUDA_MAJOR >= 13:
         _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
+
+    def __post_init__(self) -> None:
+        # Allocation and pickling each read the peers, so a one-shot iterable
+        # such as a generator must not reach them.
+        self.peers = tuple(int(peer) for peer in self.peers)
 
     @staticmethod
     def _access_to_flags(spec: VirtualMemoryAccessType | None) -> int:
@@ -427,9 +433,12 @@ cdef class VirtualMemoryResource(MemoryResource):
     access; :meth:`Buffer.from_ipc_descriptor` imports a descriptor with a
     ``VirtualMemoryResource`` of the receiving process for the device that
     owns the memory; and a buffer sent through ``multiprocessing`` does both.
-    Plain ``pickle`` cannot carry the file descriptors; a process with its
-    own file descriptor passing sends the descriptor's ``fds``, ``sizes``,
-    and ``size`` and rebuilds it with
+    A pickled resource names its device and its ``peers`` by UUID, and the
+    receiving process rebuilds it for the devices with those UUIDs, whatever
+    their ordinals are there; it raises ``RuntimeError`` if one of the devices
+    is not visible. Plain ``pickle`` cannot carry the file descriptors; a
+    process with its own file descriptor passing sends the descriptor's
+    ``fds``, ``sizes``, and ``size`` and rebuilds it with
     ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
@@ -459,7 +468,12 @@ cdef class VirtualMemoryResource(MemoryResource):
         # The resource holds no driver object that other processes must share;
         # the receiving process rebuilds an equivalent one from the device and
         # the options. This is what lets a Buffer pickle as (resource, descriptor).
-        return type(self), (self.device.device_id if self.device is not None else 0, self.config)
+        # Device ordinals are per process, so the owning device and the peers
+        # travel by UUID and the receiver maps them to its own devices.
+        owner_uuid = self.device.uuid if self.device is not None else None
+        peer_uuids = tuple(Device(peer).uuid for peer in self.config.peers)
+        return _reconstruct_virtual_memory_resource, (
+            type(self), owner_uuid, peer_uuids, replace(self.config, peers=()))
 
     cdef int _check_config(self, object cfg) except -1:
         """Reject options the driver would reject, before any driver call.
@@ -1069,6 +1083,15 @@ cdef class VirtualMemoryResource(MemoryResource):
         return f"<VirtualMemoryResource device={self.device}>"
 
 
+def _reconstruct_virtual_memory_resource(
+    cls: type, owner_uuid: str | None, peer_uuids: tuple[str, ...], config: VirtualMemoryResourceOptions
+) -> VirtualMemoryResource:
+    """Rebuild a pickled resource with the receiving process's device ordinals."""
+    device = _device_from_uuid(owner_uuid) if owner_uuid is not None else 0
+    peers = tuple(_device_from_uuid(peer_uuid).device_id for peer_uuid in peer_uuids)
+    return cls(device, replace(config, peers=peers))
+
+
 cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
     """Export the allocations that back ``buf`` as shareable handles, in address order.
 
@@ -1124,7 +1147,9 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
         try:
             handle = IPCAllocationHandle._init(fd, None)
         except:  # noqa: E722  rollback-then-raise: the fd is not owned yet
-            os.close(fd)
+            # nvbug 6977893: an Orin driver can return a negative fd despite success.
+            if fd >= 0:
+                os.close(fd)
             raise
         # The handle owns the fd now; if append fails, the handle closes it once.
         handles.append(handle)

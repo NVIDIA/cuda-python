@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Windows counterpart of test-sdist-linux.yml. Exists so that platform-gated
-# sources (e.g. cuda_bindings/*_windows.pyx selected by build_hooks.py) are
+# sources (e.g. cuda_bindings_13/*_windows.pyx selected by build_hooks.py) are
 # exercised by the sdist completeness test. Keep the shape of this file in
 # sync with test-sdist-linux.yml aside from Windows-specific setup (MSVC,
 # no sccache, no proxy cache).
@@ -60,12 +60,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Set up MSVC
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
       - name: Install build tools
-        run: python -m pip install "pip>=25.3" build
+        run: python -m pip install build
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
@@ -108,7 +111,7 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
-      # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
+      # cuda_bindings_13/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.
       # Constraint paths are passed as native Windows paths because the pip
       # subprocesses run outside Git Bash.
@@ -118,22 +121,22 @@ jobs:
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          python -m build --sdist cuda_bindings/
-          pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
+          python -m build --sdist cuda_bindings_13/
+          pip wheel --no-deps --wheel-dir cuda_bindings_13/dist cuda_bindings_13/dist/*.tar.gz
 
       - name: Download cuda.bindings wheel
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: ./.github/actions/download-artifact-retry
         with:
           name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
-          path: cuda_bindings/dist
+          path: cuda_bindings_13/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
-          bindings_wheels=(cuda_bindings/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          bindings_wheels=(cuda_bindings_13/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${pathfinder_wheels[0]}"

@@ -11,50 +11,100 @@
 # Inputs (env):
 #   DRIVER_MODE  One of WDDM, TCC, MCDM.
 
+function Stop-DisplayContainer {
+    param (
+        [System.ServiceProcess.ServiceController]$Service
+    )
+
+    # A crash-looping display-container process can race the subsequent device
+    # cycle and prevent the NVIDIA kernel driver from unloading.
+    Write-Output "Stopping NVDisplay.ContainerLocalSystem..."
+    $deadline = (Get-Date).AddSeconds(60)
+
+    Write-Output "Waiting for NVDisplay.ContainerLocalSystem to stop and NVDisplay.Container processes to exit..."
+    while ($true) {
+        $Service.Refresh()
+        # A recovery start may already be in flight when the service is
+        # disabled. Stop it as soon as it reaches a stoppable state.
+        if ($Service.Status -eq "Running" -or $Service.Status -eq "Paused") {
+            Stop-Service -InputObject $Service -Force -NoWait -ErrorAction Stop
+            $Service.Refresh()
+        }
+        $container_processes = @(Get-Process -Name "NVDisplay.Container" -ErrorAction SilentlyContinue)
+        if ($Service.Status -eq "Stopped" -and $container_processes.Count -eq 0) {
+            break
+        }
+        if ((Get-Date) -ge $deadline) {
+            $process_ids = $container_processes.Id -join ", "
+            if (-not $process_ids) { $process_ids = "none" }
+            throw "Timed out after 60s waiting for the NVIDIA display container (service status: $($Service.Status); remaining NVDisplay.Container PIDs: $process_ids)"
+        }
+        Start-Sleep -Milliseconds 500
+    }
+}
+
 function Set-DriverMode {
 
     # Map matrix DRIVER_MODE to nvidia-smi -fdm code.
     # This assumes we have the prior knowledge on which GPU can use which mode.
     $driver_mode = $env:DRIVER_MODE
     if ($driver_mode -eq "WDDM") {
-        Write-Output "Setting driver mode to WDDM..."
-        nvidia-smi -fdm 0
+        $driver_mode_code = 0
     } elseif ($driver_mode -eq "TCC") {
-        Write-Output "Setting driver mode to TCC..."
-        nvidia-smi -fdm 1
+        $driver_mode_code = 1
     } elseif ($driver_mode -eq "MCDM") {
-        Write-Output "Setting driver mode to MCDM..."
-        nvidia-smi -fdm 2
+        $driver_mode_code = 2
     } else {
         Write-Output "Unknown driver mode: $driver_mode"
         exit 1
     }
 
-    # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA).
-    $nvidia_devices = @(Get-PnpDevice -Class Display -FriendlyName "NVIDIA*")
-    $gpu_count = $nvidia_devices.Count
-    foreach ($device in $nvidia_devices) {
-        Write-Output "Restarting device: $($device.FriendlyName) ($($device.InstanceId))"
-        pnputil /disable-device "$($device.InstanceId)"
-        pnputil /enable-device "$($device.InstanceId)"
-    }
+    $display_container_service = Get-Service -Name "NVDisplay.ContainerLocalSystem" -ErrorAction Stop
+    $display_container_start_type = $display_container_service.StartType
+    try {
+        # A queued recovery restart cannot be canceled, so keep the service
+        # disabled until the device cycle and NVML recovery are complete.
+        Write-Output "Temporarily disabling NVDisplay.ContainerLocalSystem..."
+        Set-Service -InputObject $display_container_service -StartupType Disabled -ErrorAction Stop
+        Stop-DisplayContainer -Service $display_container_service
 
-    # Initial settle after the device cycle.
-    Start-Sleep -Seconds 5
+        Write-Output "Setting driver mode to $driver_mode..."
+        nvidia-smi -fdm $driver_mode_code
+        if ($LASTEXITCODE -ne 0) {
+            throw "nvidia-smi -fdm $driver_mode_code ($driver_mode) failed with exit code $LASTEXITCODE"
+        }
 
-    # Poll nvidia-smi for N consecutive successes (N == cycled GPUs)
-    # so a mid-init "ok" flap doesn't fool the loop; bail after ~60s.
-    Write-Output "Waiting for nvidia-smi/NVML to come back up after device cycle..."
-    $deadline = (Get-Date).AddSeconds(60)
-    $consecutive_ok = 0
-    do {
-        Start-Sleep -Seconds 3
-        & nvidia-smi.exe 2>&1 | Out-Null
-        if ($LASTEXITCODE -eq 0) { $consecutive_ok++ } else { $consecutive_ok = 0 }
-    } while ($consecutive_ok -lt $gpu_count -and (Get-Date) -lt $deadline)
-    if ($consecutive_ok -lt $gpu_count) {
-        Write-Error "nvidia-smi did not return cleanly $gpu_count times in a row within 60s of the device cycle"
-        exit 1
+        # Only restart NVIDIA display adapters, not other display devices (e.g. QEMU VGA).
+        $nvidia_devices = @(Get-PnpDevice -Class Display -FriendlyName "NVIDIA*")
+        $gpu_count = $nvidia_devices.Count
+        if ($gpu_count -eq 0) {
+            throw "No NVIDIA display devices were found."
+        }
+        foreach ($device in $nvidia_devices) {
+            Write-Output "Restarting device: $($device.FriendlyName) ($($device.InstanceId))"
+            pnputil /disable-device "$($device.InstanceId)"
+            pnputil /enable-device "$($device.InstanceId)"
+        }
+
+        # Initial settle after the device cycle.
+        Start-Sleep -Seconds 5
+
+        # Poll nvidia-smi for N consecutive successes (N == cycled GPUs)
+        # so a mid-init "ok" flap doesn't fool the loop; bail after ~60s.
+        Write-Output "Waiting for nvidia-smi/NVML to come back up after device cycle..."
+        $deadline = (Get-Date).AddSeconds(60)
+        $consecutive_ok = 0
+        do {
+            Start-Sleep -Seconds 3
+            & nvidia-smi.exe 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) { $consecutive_ok++ } else { $consecutive_ok = 0 }
+        } while ($consecutive_ok -lt $gpu_count -and (Get-Date) -lt $deadline)
+        if ($consecutive_ok -lt $gpu_count) {
+            throw "nvidia-smi did not return cleanly $gpu_count times in a row within 60s of the device cycle"
+        }
+    } finally {
+        Write-Output "Restoring NVDisplay.ContainerLocalSystem startup type to $display_container_start_type..."
+        Set-Service -Name $display_container_service.Name -StartupType $display_container_start_type -ErrorAction Stop
     }
 }
 
