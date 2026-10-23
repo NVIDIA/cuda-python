@@ -3116,6 +3116,13 @@ def test_vmm_options_handle_type_win32_raises():
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_vmm_options_store_peers_as_tuple():
+    """The options store a one-shot peers iterable as a tuple, so every reader sees all the peers."""
+    options = VirtualMemoryResourceOptions(peers=(peer for peer in (1, 2)))
+    assert options.peers == (1, 2)
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize("location_type", ["host", "host_numa"])
 def test_vmm_host_location_types_report_host_accessible(init_cuda, location_type):

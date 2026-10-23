@@ -104,6 +104,15 @@ New features
 Fixes and enhancements
 ----------------------
 
+- A :class:`~_memory.DeviceMemoryResource` or a :class:`VirtualMemoryResource`
+  sent through ``multiprocessing`` now names its device, and the
+  ``VirtualMemoryResource`` ``peers``, by UUID. The receiving process maps
+  each UUID to its own device ordinal. Before, the receiver used the sender's
+  ordinals, which name different devices when ``CUDA_VISIBLE_DEVICES``
+  differs between the processes. Unpickling now raises ``RuntimeError`` when
+  one of the devices is not visible in the receiving process.
+  (`#3097 <https://github.com/NVIDIA/cuda-python/issues/3097>`__)
+
 - Fixed a ``TypeError`` in :meth:`Program.compile` when retrying after PCH
   heap exhaustion.
 

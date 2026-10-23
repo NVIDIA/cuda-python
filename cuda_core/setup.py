@@ -13,7 +13,7 @@ from setuptools import setup
 from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.build_py import build_py as _build_py
 
-from _build_shared import drop_empty_venv_include_dir
+from _build_shared import drop_empty_venv_include_dir, make_egg_info_command
 
 nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
 coverage_mode = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
@@ -160,6 +160,7 @@ if __name__ == "__main__":
         cmdclass={
             "build_ext": build_ext,
             "build_py": build_py,
+            "egg_info": make_egg_info_command("cuda-core-v"),
         },
         zip_safe=False,
     )

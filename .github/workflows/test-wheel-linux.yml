@@ -332,6 +332,11 @@ jobs:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
+      - name: Harden pip
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/harden-pip
+
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
         uses: ./.github/actions/fetch_ctk
