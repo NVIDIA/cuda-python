@@ -26,9 +26,12 @@ cuda.core.VirtualMemoryResource
    .. rubric:: Attributes
 
    
+   .. autoattribute:: config
+   .. autoattribute:: device
    .. autoattribute:: device_id
    .. autoattribute:: is_device_accessible
    .. autoattribute:: is_host_accessible
+   .. autoattribute:: is_ipc_enabled
    .. autoattribute:: is_managed
    
    
