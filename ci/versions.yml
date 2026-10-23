@@ -3,9 +3,6 @@
 
 schema_version: 2
 
-# Retain until the legacy release and backport workflows stop reading this field.
-backport_branch: "12.9.x"  # keep in sync with target-branch in .github/dependabot.yml
-
 cuda:
   bindings:
     package_roots:

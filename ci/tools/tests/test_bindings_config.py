@@ -299,6 +299,46 @@ def test_bindings_release_uses_registry_from_its_tag_tree(
     }
 
 
+@pytest.mark.parametrize(
+    ("tag", "package_root", "toolkit_version", "release_version"),
+    (
+        ("v12.9.8", "tag-maintenance", "12.9.1", "12.9.8"),
+        ("v13.4.2rc1", "tag-current", "13.4.1", "13.4.2rc1"),
+        ("cuda-core-v1.2.0", "tag-current", "13.4.1", None),
+        ("cuda-pathfinder-v1.1.0", "tag-current", "13.4.1", None),
+    ),
+)
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_release_cli_accepts_tagged_schema_two_registry_with_legacy_backport_branch(
+    tmp_path, capsys, tag, package_root, toolkit_version, release_version
+):
+    release_root = tmp_path / "release"
+    registry = _registry("tag-maintenance", "tag-current")
+    registry["backport_branch"] = "12.9.x"
+    _write_config(release_root, registry)
+    control_root = tmp_path / "control"
+    _write_config(control_root, _registry("control-maintenance", "control-current"))
+
+    assert (
+        main(
+            [
+                "--config",
+                str(control_root / "ci" / "versions.yml"),
+                "--release-tag",
+                tag,
+                "--release-source-root",
+                str(release_root),
+            ]
+        )
+        == 0
+    )
+
+    expected = {"package_root": package_root, "toolkit_version": toolkit_version}
+    if release_version is not None:
+        expected["release_version"] = release_version
+    assert json.loads(capsys.readouterr().out) == expected
+
+
 @pytest.mark.parametrize("tag", ("cuda-core-v1.2.0", "cuda-pathfinder-v1.1.0"))
 @pytest.mark.agent_authored(model="gpt-6-sol")
 def test_component_release_uses_current_bindings_from_its_tag_tree(tmp_path, tag):

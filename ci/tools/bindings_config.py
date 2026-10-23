@@ -190,6 +190,8 @@ def _validate_release_statuses(packages: tuple[BindingsPackage, ...]) -> None:
 def validate_config(raw: Any) -> BindingsConfig:
     root = _mapping(raw, "versions configuration")
     root_keys = {"schema_version", "cuda", "python"}
+    # Earlier schema-2 release tags retain this field; keep reading their
+    # registries after the active backport workflow stops using it.
     if "backport_branch" in root:
         root_keys.add("backport_branch")
     _mapping(root, "versions configuration", root_keys)
