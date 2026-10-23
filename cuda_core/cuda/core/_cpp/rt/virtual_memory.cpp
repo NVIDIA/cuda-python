@@ -68,12 +68,10 @@ box_of(const Handle &h) noexcept
 // reference releases it; the memory is freed once no mapping remains.
 MemAllocationHandle
 wrap_mem_allocation(
-    CUmemGenericAllocationHandle handle,
-    size_t size,
-    std::vector<CUmemAccessDesc> &&access,
-    bool imported
+    CUmemGenericAllocationHandle handle, size_t size, std::vector<CUmemAccessDesc> &&access, bool imported
 )
 {
+    // clang-format off
     auto box = std::shared_ptr<const MemAllocationBox>(
         new MemAllocationBox{{handle}, size, std::move(access), imported},
         [](const MemAllocationBox *b) {
@@ -82,6 +80,7 @@ wrap_mem_allocation(
             delete b;
         }
     );
+    // clang-format on
     return MemAllocationHandle(box, &box->resource);
 }
 
@@ -107,11 +106,7 @@ create_mem_allocation_handle(size_t size, const CUmemAllocationProp &prop, const
 
 MemAllocationHandle
 import_mem_allocation_handle(
-    void *os_handle,
-    CUmemAllocationHandleType handle_type,
-    size_t size,
-    const CUmemAccessDesc *descs,
-    size_t count
+    void *os_handle, CUmemAllocationHandleType handle_type, size_t size, const CUmemAccessDesc *descs, size_t count
 )
 {
     // Copy the descriptors before the driver call so a failed copy leaves
@@ -153,12 +148,17 @@ create_va_reservation_handle(size_t size, size_t alignment, CUdeviceptr hint)
     // Count before constructing the shared_ptr: if its control-block allocation
     // throws, it runs the deleter on raw, whose decrement then balances this.
     g_live_va_reservations.fetch_add(1, std::memory_order_relaxed);
-    auto box = std::shared_ptr<const VaReservationBox>(raw, [](const VaReservationBox *b) {
-        GILReleaseGuard gil;
-        pw_cuMemAddressFree(b->resource.raw, b->size);
-        g_live_va_reservations.fetch_sub(1, std::memory_order_relaxed);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const VaReservationBox>(
+        raw,
+        [](const VaReservationBox *b) {
+            GILReleaseGuard gil;
+            pw_cuMemAddressFree(b->resource.raw, b->size);
+            g_live_va_reservations.fetch_sub(1, std::memory_order_relaxed);
+            delete b;
+        }
+    );
+    // clang-format on
     return VaReservationHandle(box, &box->resource);
 }
 
@@ -209,6 +209,7 @@ create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHandle &h_alloc, co
             return {};
         }
     }
+    // clang-format off
     auto box = std::shared_ptr<const VaMappingBox>(
         new VaMappingBox{{ptr}, alloc->size, h_alloc, h_res},
         [](const VaMappingBox *b) {
@@ -217,6 +218,7 @@ create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHandle &h_alloc, co
             delete b;  // then the allocation and the reservation release
         }
     );
+    // clang-format on
     return VaMappingHandle(box, &box->resource);
 }
 

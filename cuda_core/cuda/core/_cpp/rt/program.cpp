@@ -35,12 +35,17 @@ create_library_handle_from_file(const char *path)
         return {};
     }
 
-    auto box = std::shared_ptr<const LibraryBox>(new LibraryBox{library}, [](const LibraryBox *b) {
-        GILReleaseGuard gil;
-        // TODO: re-enable once LibraryBox tracks its owning context
-        // p_cuLibraryUnload(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const LibraryBox>(
+        new LibraryBox{library},
+        [](const LibraryBox *b) {
+            GILReleaseGuard gil;
+            // TODO: re-enable once LibraryBox tracks its owning context
+            // p_cuLibraryUnload(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     return LibraryHandle(box, &box->resource);
 }
 
@@ -54,12 +59,17 @@ create_library_handle_from_data(const void *data)
         return {};
     }
 
-    auto box = std::shared_ptr<const LibraryBox>(new LibraryBox{library}, [](const LibraryBox *b) {
-        GILReleaseGuard gil;
-        // TODO: re-enable once LibraryBox tracks its owning context
-        // p_cuLibraryUnload(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const LibraryBox>(
+        new LibraryBox{library},
+        [](const LibraryBox *b) {
+            GILReleaseGuard gil;
+            // TODO: re-enable once LibraryBox tracks its owning context
+            // p_cuLibraryUnload(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     return LibraryHandle(box, &box->resource);
 }
 
@@ -140,13 +150,18 @@ create_nvrtc_program_handle(nvrtcProgram prog)
     // Resolve the table now, while the library that created `prog` is loaded,
     // so that the deleter never triggers a fill.
     ensure_fn_table(FnTable::nvrtc);
-    auto box = std::shared_ptr<NvrtcProgramBox>(new NvrtcProgramBox{prog}, [](NvrtcProgramBox *b) {
-        // Note: nvrtcDestroyProgram takes nvrtcProgram* and nulls it,
-        // but we're deleting the box anyway so nulling is harmless.
-        GILReleaseGuard gil;
-        pw_nvrtcDestroyProgram(&b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<NvrtcProgramBox>(
+        new NvrtcProgramBox{prog},
+        [](NvrtcProgramBox *b) {
+            // Note: nvrtcDestroyProgram takes nvrtcProgram* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            GILReleaseGuard gil;
+            pw_nvrtcDestroyProgram(&b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     return NvrtcProgramHandle(box, &box->resource);
 }
 
@@ -171,13 +186,18 @@ NvvmProgramHandle
 create_nvvm_program_handle(nvvmProgram prog)
 {
     ensure_fn_table(FnTable::nvvm);
-    auto box = std::shared_ptr<NvvmProgramBox>(new NvvmProgramBox{{prog}}, [](NvvmProgramBox *b) {
-        // Note: nvvmDestroyProgram takes nvvmProgram* and nulls it,
-        // but we're deleting the box anyway so nulling is harmless.
-        GILReleaseGuard gil;
-        pw_nvvmDestroyProgram(&b->resource.raw);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<NvvmProgramBox>(
+        new NvvmProgramBox{{prog}},
+        [](NvvmProgramBox *b) {
+            // Note: nvvmDestroyProgram takes nvvmProgram* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            GILReleaseGuard gil;
+            pw_nvvmDestroyProgram(&b->resource.raw);
+            delete b;
+        }
+    );
+    // clang-format on
     return NvvmProgramHandle(box, &box->resource);
 }
 
@@ -202,13 +222,18 @@ NvJitLinkHandle
 create_nvjitlink_handle(nvJitLink_t handle)
 {
     ensure_fn_table(FnTable::nvjitlink);
-    auto box = std::shared_ptr<NvJitLinkBox>(new NvJitLinkBox{{handle}}, [](NvJitLinkBox *b) {
-        // Note: nvJitLinkDestroy takes nvJitLinkHandle* and nulls it,
-        // but we're deleting the box anyway so nulling is harmless.
-        GILReleaseGuard gil;
-        pw_nvJitLinkDestroy(&b->resource.raw);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<NvJitLinkBox>(
+        new NvJitLinkBox{{handle}},
+        [](NvJitLinkBox *b) {
+            // Note: nvJitLinkDestroy takes nvJitLinkHandle* and nulls it,
+            // but we're deleting the box anyway so nulling is harmless.
+            GILReleaseGuard gil;
+            pw_nvJitLinkDestroy(&b->resource.raw);
+            delete b;
+        }
+    );
+    // clang-format on
     return NvJitLinkHandle(box, &box->resource);
 }
 
@@ -233,12 +258,17 @@ CuLinkHandle
 create_culink_handle(CUlinkState state)
 {
     ensure_fn_table(FnTable::driver);
-    auto box = std::shared_ptr<CuLinkBox>(new CuLinkBox{state}, [](CuLinkBox *b) {
-        // cuLinkDestroy takes CUlinkState by value (not pointer).
-        GILReleaseGuard gil;
-        pw_cuLinkDestroy(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<CuLinkBox>(
+        new CuLinkBox{state},
+        [](CuLinkBox *b) {
+            // cuLinkDestroy takes CUlinkState by value (not pointer).
+            GILReleaseGuard gil;
+            pw_cuLinkDestroy(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     return CuLinkHandle(box, &box->resource);
 }
 

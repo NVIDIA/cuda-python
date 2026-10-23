@@ -53,10 +53,7 @@ invoke_in_context(const ContextHandle &h_context, Fn &&operation, Args &&...args
 template <typename Fn, typename Undo>
 CUresult
 invoke_in_context_or_undo(
-    const ContextHandle &h_context,
-    Fn &&operation,
-    Undo &&undo,
-    bool undo_requires_target_context
+    const ContextHandle &h_context, Fn &&operation, Undo &&undo, bool undo_requires_target_context
 ) noexcept
 {
     ASSERT_NOTHROW_INVOCABLE(Fn &&);
@@ -149,8 +146,7 @@ template <typename Fn>
 CUresult
 cleanup_in_context(const ContextHandle &h_context, const char *name, unsigned long long handle, Fn &&operation) noexcept
 {
-    return cleanup_in_context(h_context, name, handle, std::forward<Fn>(operation), []() noexcept {
-    });
+    return cleanup_in_context(h_context, name, handle, std::forward<Fn>(operation), []() noexcept {});
 }
 
 #undef ASSERT_NOTHROW_INVOCABLE

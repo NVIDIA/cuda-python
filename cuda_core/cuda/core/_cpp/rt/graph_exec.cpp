@@ -239,10 +239,7 @@ graph_exec_update(const GraphExecHandle &h_exec, const GraphHandle &h_source, CU
 
 CUresult
 graph_prepare_exec_attachment(
-    const GraphExecHandle &h_exec,
-    OpaqueHandle owner0,
-    OpaqueHandle owner1,
-    PreparedExecAttachment *out_prepared
+    const GraphExecHandle &h_exec, OpaqueHandle owner0, OpaqueHandle owner1, PreparedExecAttachment *out_prepared
 )
 {
     if (!out_prepared) {

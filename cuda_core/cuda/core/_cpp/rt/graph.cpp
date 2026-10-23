@@ -30,10 +30,7 @@ using namespace detail;
 // restoration failure recorded as its detail and *restore_status is CUDA_SUCCESS.
 CUresult
 graph_node_set_params(
-    CUgraphNode node,
-    CUgraphNodeParams *params,
-    const ContextHandle &h_context,
-    CUresult *restore_status
+    CUgraphNode node, CUgraphNodeParams *params, const ContextHandle &h_context, CUresult *restore_status
 ) noexcept
 {
     *restore_status = CUDA_SUCCESS;
@@ -87,10 +84,7 @@ struct GraphBox : GraphBoxBase {
     HandleRegistry<CUgraphNode, GraphNodeHandle> node_handles;
 
     GraphBox(
-        CUgraph resource_,
-        GraphHierarchy *hierarchy_,
-        GraphBox *parent_ = nullptr,
-        CUgraphNode owner_node_ = nullptr
+        CUgraph resource_, GraphHierarchy *hierarchy_, GraphBox *parent_ = nullptr, CUgraphNode owner_node_ = nullptr
     ) noexcept
         : GraphBoxBase{resource_}, hierarchy(hierarchy_), parent(parent_), owner_node(owner_node_)
     {
@@ -289,10 +283,7 @@ struct PreparedChildGraphUpdateState {
     std::vector<GraphHandle> handles;
 
     PreparedChildGraphUpdateState(
-        GraphHandle h_parent_,
-        GraphHandle h_source_,
-        GraphBox *old_root_,
-        CUgraphNode owner_node_
+        GraphHandle h_parent_, GraphHandle h_source_, GraphBox *old_root_, CUgraphNode owner_node_
     )
         : h_parent(std::move(h_parent_)), h_source(std::move(h_source_)), old_root(old_root_), owner_node(owner_node_)
     {
@@ -307,20 +298,25 @@ create_graph_handle(CUgraph graph)
         return {};
     }
 
-    auto hierarchy = std::shared_ptr<GraphHierarchy>(new GraphHierarchy{}, [](GraphHierarchy *hierarchy) {
-        for (const GraphBox &box : hierarchy->graphs) {
-            if (box.resource) {
-                graph_registry.unregister_handle(box.resource);
+    // clang-format off
+    auto hierarchy = std::shared_ptr<GraphHierarchy>(
+        new GraphHierarchy{},
+        [](GraphHierarchy *hierarchy) {
+            for (const GraphBox& box : hierarchy->graphs) {
+                if (box.resource) {
+                    graph_registry.unregister_handle(box.resource);
+                }
             }
+            GraphBox *root = hierarchy->root();
+            if (root && root->resource) {
+                GILReleaseGuard gil;
+                pw_cuGraphDestroy(root->resource);
+            }
+            retry_deferred_cleanup();
+            delete hierarchy;
         }
-        GraphBox *root = hierarchy->root();
-        if (root && root->resource) {
-            GILReleaseGuard gil;
-            pw_cuGraphDestroy(root->resource);
-        }
-        retry_deferred_cleanup();
-        delete hierarchy;
-    });
+    );
+    // clang-format on
     GraphBox &root = hierarchy->graphs.emplace_back(graph, hierarchy.get());
 
     GraphHandle h_graph(hierarchy, &root.resource);
@@ -473,10 +469,7 @@ graph_get_attachment(const GraphHandle &h_graph, CUgraphNode node, OpaqueHandle 
 
 CUresult
 graph_prepare_attachment(
-    const GraphHandle &h_graph,
-    OpaqueHandle owner0,
-    OpaqueHandle owner1,
-    PreparedAttachment *out_prepared
+    const GraphHandle &h_graph, OpaqueHandle owner0, OpaqueHandle owner1, PreparedAttachment *out_prepared
 )
 {
     if (!out_prepared) {

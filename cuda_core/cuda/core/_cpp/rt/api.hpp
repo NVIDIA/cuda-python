@@ -71,10 +71,7 @@ context_get_device(const ContextHandle &h_context, CUdevice *device) noexcept;
 // Implemented in graph.cpp
 CUresult
 graph_node_set_params(
-    CUgraphNode node,
-    CUgraphNodeParams *params,
-    const ContextHandle &h_context,
-    CUresult *restore_status
+    CUgraphNode node, CUgraphNodeParams *params, const ContextHandle &h_context, CUresult *restore_status
 ) noexcept;
 
 // ============================================================================
@@ -253,9 +250,7 @@ deviceptr_create_ref(CUdeviceptr ptr);
 // own handle is released.
 DevicePtrHandle
 deviceptr_create_mapped_graphics(
-    CUdeviceptr ptr,
-    const GraphicsResourceHandle &h_resource,
-    const StreamHandle &h_stream
+    CUdeviceptr ptr, const GraphicsResourceHandle &h_resource, const StreamHandle &h_stream
 );
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
@@ -317,11 +312,7 @@ mem_allocation_is_imported(const MemAllocationHandle &h) noexcept;
 // calls cuMemRelease. Returns empty handle on error (caller must check).
 MemAllocationHandle
 import_mem_allocation_handle(
-    void *os_handle,
-    CUmemAllocationHandleType handle_type,
-    size_t size,
-    const CUmemAccessDesc *descs,
-    size_t count
+    void *os_handle, CUmemAllocationHandleType handle_type, size_t size, const CUmemAccessDesc *descs, size_t count
 );
 
 // Reserve an address range via cuMemAddressReserve. Pass alignment 0 for the
@@ -475,10 +466,7 @@ graph_get_attachment(const GraphHandle &h_graph, CUgraphNode node, OpaqueHandle 
 // Destruction rolls the prepared attachment back unless it is committed.
 CUresult
 graph_prepare_attachment(
-    const GraphHandle &h_graph,
-    OpaqueHandle owner0,
-    OpaqueHandle owner1,
-    PreparedAttachment *out_prepared
+    const GraphHandle &h_graph, OpaqueHandle owner0, OpaqueHandle owner1, PreparedAttachment *out_prepared
 );
 
 // Publish a prepared attachment after the CUDA mutation succeeds. A null node
@@ -544,10 +532,7 @@ graph_exec_update(const GraphExecHandle &h_exec, const GraphHandle &h_source, CU
 // to its original size.
 CUresult
 graph_prepare_exec_attachment(
-    const GraphExecHandle &h_exec,
-    OpaqueHandle owner0,
-    OpaqueHandle owner1,
-    PreparedExecAttachment *out_prepared
+    const GraphExecHandle &h_exec, OpaqueHandle owner0, OpaqueHandle owner1, PreparedExecAttachment *out_prepared
 );
 
 // Keep the owners added by graph_prepare_exec_attachment.
@@ -699,9 +684,7 @@ create_array_level_handle(const MipmappedArrayHandle &h_mip, unsigned int level)
 // Returns empty handle on error (caller must check).
 MipmappedArrayHandle
 create_mipmapped_array_handle(
-    const ContextHandle &h_context,
-    const CUDA_ARRAY3D_DESCRIPTOR &desc,
-    unsigned int num_levels
+    const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTOR &desc, unsigned int num_levels
 );
 
 // Return the context dependency associated with a mipmapped array, if known.
@@ -739,9 +722,7 @@ create_tex_object_handle_linear(
 // deleter. Returns empty handle on error (caller must check).
 SurfObjectHandle
 create_surf_object_handle(
-    const ContextHandle &h_context,
-    const CUDA_RESOURCE_DESC &res,
-    const OpaqueArrayHandle &h_backing
+    const ContextHandle &h_context, const CUDA_RESOURCE_DESC &res, const OpaqueArrayHandle &h_backing
 );
 
 }  // namespace cuda_core::rt

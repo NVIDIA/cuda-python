@@ -91,9 +91,7 @@ CUresult
 context_synchronize(const ContextHandle &h_context) noexcept
 {
     GILReleaseGuard gil;
-    return invoke_in_context(h_context, []() noexcept {
-        return DRIVER_FN(cuCtxSynchronize)();
-    });
+    return invoke_in_context(h_context, []() noexcept { return DRIVER_FN(cuCtxSynchronize)(); });
 }
 
 // Query the stream priority range for the provided context.
@@ -110,9 +108,7 @@ context_get_stream_priority_range(const ContextHandle &h_context, int *least_pri
 CUresult
 context_get_device(const ContextHandle &h_context, CUdevice *device) noexcept
 {
-    return invoke_in_context(h_context, [&]() noexcept {
-        return DRIVER_CALL(cuCtxGetDevice, device);
-    });
+    return invoke_in_context(h_context, [&]() noexcept { return DRIVER_CALL(cuCtxGetDevice, device); });
 }
 
 // ============================================================================
@@ -149,10 +145,15 @@ create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
     if (auto h = context_registry.lookup(ctx)) {
         return h;
     }
-    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx, std::move(h_green_ctx)}, [](const ContextBox *b) {
-        context_registry.unregister_handle(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox{ctx, std::move(h_green_ctx)},
+        [](const ContextBox *b) {
+            context_registry.unregister_handle(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     ContextHandle h(box, &box->resource);
     context_registry.register_handle(ctx, h);
     return h;
@@ -203,11 +204,16 @@ create_green_ctx_handle(CUdevResource *resources, unsigned int nbResources, CUde
         return {};
     }
 
-    auto box = std::shared_ptr<const GreenCtxBox>(new GreenCtxBox{green_ctx}, [](const GreenCtxBox *b) {
-        GILReleaseGuard gil;
-        pw_cuGreenCtxDestroy(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const GreenCtxBox>(
+        new GreenCtxBox{green_ctx},
+        [](const GreenCtxBox *b) {
+            GILReleaseGuard gil;
+            pw_cuGreenCtxDestroy(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     return GreenCtxHandle(box, &box->resource);
 }
 
@@ -241,17 +247,22 @@ get_primary_context(int device_id)
         return {};
     }
 
-    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx, {}}, [device_id](const ContextBox *b) {
-        context_registry.unregister_handle(b->resource);
-        // During interpreter shutdown, leave primary-context cleanup to
-        // process teardown. An unavailable table entry would need Python
-        // to report itself.
-        if (Py_IsInitialized() && !py_is_finalizing()) {
-            GILReleaseGuard gil;
-            DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);
+    // clang-format off
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox{ctx, {}},
+        [device_id](const ContextBox *b) {
+            context_registry.unregister_handle(b->resource);
+            // During interpreter shutdown, leave primary-context cleanup to
+            // process teardown. An unavailable table entry would need Python
+            // to report itself.
+            if (Py_IsInitialized() && !py_is_finalizing()) {
+                GILReleaseGuard gil;
+                DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);
+            }
+            delete b;
         }
-        delete b;
-    });
+    );
+    // clang-format on
     auto h = ContextHandle(box, &box->resource);
     context_registry.register_handle(ctx, h);
 

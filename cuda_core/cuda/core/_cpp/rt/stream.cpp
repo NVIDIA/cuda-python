@@ -82,12 +82,8 @@ create_stream_handle(const ContextHandle &h_ctx, unsigned int flags, int priorit
     else {
         err = invoke_in_context_or_undo(
             h_ctx,
-            [&]() noexcept {
-                return DRIVER_CALL(cuStreamCreateWithPriority, &stream, flags, priority);
-            },
-            [&]() noexcept {
-                pw_cuStreamDestroy(stream);
-            },
+            [&]() noexcept { return DRIVER_CALL(cuStreamCreateWithPriority, &stream, flags, priority); },
+            [&]() noexcept { pw_cuStreamDestroy(stream); },
             /*undo_requires_target_context=*/false
         );
     }
@@ -95,12 +91,17 @@ create_stream_handle(const ContextHandle &h_ctx, unsigned int flags, int priorit
         return {};
     }
 
-    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, h_ctx}, [](const StreamBox *b) {
-        stream_registry.unregister_handle(b->resource);
-        GILReleaseGuard gil;
-        pw_cuStreamDestroy(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const StreamBox>(
+        new StreamBox{stream, h_ctx},
+        [](const StreamBox *b) {
+            stream_registry.unregister_handle(b->resource);
+            GILReleaseGuard gil;
+            pw_cuStreamDestroy(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     StreamHandle h(box, &box->resource);
     stream_registry.register_handle(stream, h);
     return h;
@@ -112,10 +113,15 @@ create_stream_handle_ref(CUstream stream)
     if (auto h = stream_registry.lookup(stream)) {
         return h;
     }
-    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, {}}, [](const StreamBox *b) {
-        stream_registry.unregister_handle(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const StreamBox>(
+        new StreamBox{stream, {}},
+        [](const StreamBox *b) {
+            stream_registry.unregister_handle(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     StreamHandle h(box, &box->resource);
     stream_registry.register_handle(stream, h);
     return h;
@@ -144,13 +150,18 @@ create_stream_handle_with_owner(CUstream stream, PyObject *owner)
     // Owner-backed handles are NOT registered in the stream registry to avoid
     // corruption when multiple owners wrap the same CUstream (each stacks its
     // own Py_INCREF/Py_DECREF independently).
-    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, {}}, [owner](const StreamBox *b) {
-        GILAcquireGuard gil;
-        if (gil.acquired()) {
-            Py_DECREF(owner);
+    // clang-format off
+    auto box = std::shared_ptr<const StreamBox>(
+        new StreamBox{stream, {}},
+        [owner](const StreamBox *b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                Py_DECREF(owner);
+            }
+            delete b;
         }
-        delete b;
-    });
+    );
+    // clang-format on
     return StreamHandle(box, &box->resource);
 }
 

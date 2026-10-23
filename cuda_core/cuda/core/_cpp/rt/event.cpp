@@ -86,18 +86,15 @@ create_event_handle(
     CUevent event = nullptr;
     err = invoke_in_context_or_undo(
         h_ctx,
-        [&]() noexcept {
-            return DRIVER_CALL(cuEventCreate, &event, flags);
-        },
-        [&]() noexcept {
-            pw_cuEventDestroy(event);
-        },
+        [&]() noexcept { return DRIVER_CALL(cuEventCreate, &event, flags); },
+        [&]() noexcept { pw_cuEventDestroy(event); },
         /*undo_requires_target_context=*/false
     );
     if (err != CUDA_SUCCESS) {
         return {};
     }
 
+    // clang-format off
     auto box = std::shared_ptr<const EventBox>(
         new EventBox{event, timing_enabled, is_blocking_sync, ipc_enabled, device_id, h_ctx},
         [](const EventBox *b) {
@@ -107,6 +104,7 @@ create_event_handle(
             delete b;
         }
     );
+    // clang-format on
     EventHandle h(box, &box->resource);
     event_registry.register_handle(event, h);
     return h;
@@ -152,6 +150,7 @@ create_event_handle_ipc(const CUipcEventHandle &ipc_handle, bool is_blocking_syn
         return {};
     }
 
+    // clang-format off
     auto box = std::shared_ptr<const EventBox>(
         new EventBox{event, false, is_blocking_sync, true, -1, {}},
         [](const EventBox *b) {
@@ -161,6 +160,7 @@ create_event_handle_ipc(const CUipcEventHandle &ipc_handle, bool is_blocking_syn
             delete b;
         }
     );
+    // clang-format on
     EventHandle h(box, &box->resource);
     event_registry.register_handle(event, h);
     return h;

@@ -43,9 +43,7 @@ main(int argc, char **argv)
     // Drain the persistent stream after calibration for completeness.
     // stream_create_destroy uses a local stream, but stream_query/synchronize
     // observe the persistent one.
-    suite.set_post_calibrate([&]() {
-        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
-    });
+    suite.set_post_calibrate([&]() { check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed"); });
 
     // --- stream_create_destroy ---
     {

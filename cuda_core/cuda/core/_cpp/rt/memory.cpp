@@ -82,13 +82,18 @@ wrap_mempool_owned(CUmemoryPool pool, int owner_device)
     // Count before constructing the shared_ptr: if its control-block allocation
     // throws, it runs the deleter on raw, whose decrement then balances this.
     g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
-    auto box = std::shared_ptr<const MemoryPoolBox>(raw, [owner_device](const MemoryPoolBox *b) {
-        GILReleaseGuard gil;
-        clear_mempool_peer_access(b->resource, owner_device);
-        pw_cuMemPoolDestroy(b->resource);
-        g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const MemoryPoolBox>(
+        raw,
+        [owner_device](const MemoryPoolBox *b) {
+            GILReleaseGuard gil;
+            clear_mempool_peer_access(b->resource, owner_device);
+            pw_cuMemPoolDestroy(b->resource);
+            g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
+            delete b;
+        }
+    );
+    // clang-format on
     return MemoryPoolHandle(box, &box->resource);
 }
 
@@ -216,14 +221,22 @@ deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle &h_pool, const Str
         return {};
     }
 
-    auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, std::move(ds)}, [h_pool](DevicePtrBox *b) {
-        GILReleaseGuard gil;
-        const DeallocationStream &stream = b->deallocation;
-        cleanup_in_context(deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource), [&]() noexcept {
-            return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream));
-        });
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, std::move(ds)},
+        [h_pool](DevicePtrBox *b) {
+            GILReleaseGuard gil;
+            const DeallocationStream& stream = b->deallocation;
+            cleanup_in_context(
+                deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
+                [&]() noexcept {
+                    return DRIVER_CALL(cuMemFreeAsync,
+                        b->resource, as_cu(stream.h_stream));
+                });
+            delete b;
+        }
+    );
+    // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -242,14 +255,22 @@ deviceptr_alloc_async(size_t size, const StreamHandle &h_stream)
         return {};
     }
 
-    auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, std::move(ds)}, [](DevicePtrBox *b) {
-        GILReleaseGuard gil;
-        const DeallocationStream &stream = b->deallocation;
-        cleanup_in_context(deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource), [&]() noexcept {
-            return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream));
-        });
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, std::move(ds)},
+        [](DevicePtrBox *b) {
+            GILReleaseGuard gil;
+            const DeallocationStream& stream = b->deallocation;
+            cleanup_in_context(
+                deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
+                [&]() noexcept {
+                    return DRIVER_CALL(cuMemFreeAsync,
+                        b->resource, as_cu(stream.h_stream));
+                });
+            delete b;
+        }
+    );
+    // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -260,12 +281,8 @@ deviceptr_alloc_raw(CUdeviceptr *ptr, size_t size, const ContextHandle &h_contex
     GILReleaseGuard gil;
     return invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept {
-            return DRIVER_CALL(cuMemAlloc, ptr, size);
-        },
-        [&]() noexcept {
-            pw_cuMemFree(*ptr);
-        },
+        [&]() noexcept { return DRIVER_CALL(cuMemAlloc, ptr, size); },
+        [&]() noexcept { pw_cuMemFree(*ptr); },
         /*undo_requires_target_context=*/false
     );
 }
@@ -279,6 +296,7 @@ deviceptr_alloc_host(size_t size)
         return {};
     }
 
+    // clang-format off
     auto box = std::shared_ptr<DevicePtrBox>(
         new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), DeallocationStream{}},
         [](DevicePtrBox *b) {
@@ -287,6 +305,7 @@ deviceptr_alloc_host(size_t size)
             delete b;
         }
     );
+    // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -310,41 +329,47 @@ deviceptr_create_with_owner(CUdeviceptr ptr, PyObject *owner)
         return deviceptr_create_ref(ptr);
     }
     Py_INCREF(owner);
-    auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, DeallocationStream{}}, [owner](DevicePtrBox *b) {
-        GILAcquireGuard gil;
-        if (gil.acquired()) {
-            Py_DECREF(owner);
+    // clang-format off
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, DeallocationStream{}},
+        [owner](DevicePtrBox *b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                Py_DECREF(owner);
+            }
+            delete b;
         }
-        delete b;
-    });
+    );
+    // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
 
 DevicePtrHandle
 deviceptr_create_mapped_graphics(
-    CUdeviceptr ptr,
-    const GraphicsResourceHandle &h_resource,
-    const StreamHandle &h_stream
+    CUdeviceptr ptr, const GraphicsResourceHandle &h_resource, const StreamHandle &h_stream
 )
 {
     DeallocationStream ds;
     if (!make_deallocation_stream(h_stream, ds)) {
         return {};
     }
-    auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, std::move(ds)}, [h_resource](DevicePtrBox *b) {
-        GILReleaseGuard gil;
-        CUgraphicsResource resource = as_cu(h_resource);
-        const DeallocationStream &stream = b->deallocation;
-        cleanup_in_context(
-            deallocation_context(stream),
-            "cuGraphicsUnmapResources",
-            handle_bits(resource),
-            [&]() noexcept {
-                return DRIVER_CALL(cuGraphicsUnmapResources, 1, &resource, as_cu(stream.h_stream));
-            }
-        );
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, std::move(ds)},
+        [h_resource](DevicePtrBox *b) {
+            GILReleaseGuard gil;
+            CUgraphicsResource resource = as_cu(h_resource);
+            const DeallocationStream& stream = b->deallocation;
+            cleanup_in_context(
+                deallocation_context(stream), "cuGraphicsUnmapResources", handle_bits(resource),
+                [&]() noexcept {
+                    return DRIVER_CALL(cuGraphicsUnmapResources,
+                        1, &resource, as_cu(stream.h_stream));
+                });
+            delete b;
+        }
+    );
+    // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -359,6 +384,7 @@ deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle &range)
         err = CUDA_ERROR_INVALID_VALUE;
         return {};
     }
+    // clang-format off
     auto box = std::shared_ptr<VmmDevicePtrBox>(
         new VmmDevicePtrBox{{base, DeallocationStream{}}, range},
         [](VmmDevicePtrBox *b) {
@@ -371,6 +397,7 @@ deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle &range)
             delete b;
         }
     );
+    // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -406,29 +433,31 @@ deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject *mr)
         return deviceptr_create_ref(ptr);
     }
     Py_INCREF(mr);
-    auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, DeallocationStream{}}, [mr, size](DevicePtrBox *b) {
-        GILAcquireGuard gil;
-        if (gil.acquired()) {
-            // The last reference may go while an exception propagates
-            // through the releasing caller; deallocate() must run with a
-            // clean error state and leave that exception in place.
-            PendingExceptionGuard pending;
-            if (mr_dealloc_cb) {
-                const DeallocationStream &stream = b->deallocation;
-                cleanup_in_context(
-                    deallocation_context(stream),
-                    "MemoryResource.deallocate",
-                    handle_bits(b->resource),
-                    [&]() noexcept {
-                        mr_dealloc_cb(mr, b->resource, size, stream.h_stream);
-                        return CUDA_SUCCESS;
-                    }
-                );
+    // clang-format off
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, DeallocationStream{}},
+        [mr, size](DevicePtrBox *b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                // The last reference may go while an exception propagates
+                // through the releasing caller; deallocate() must run with a
+                // clean error state and leave that exception in place.
+                PendingExceptionGuard pending;
+                if (mr_dealloc_cb) {
+                    const DeallocationStream& stream = b->deallocation;
+                    cleanup_in_context(
+                        deallocation_context(stream), "MemoryResource.deallocate", handle_bits(b->resource),
+                        [&]() noexcept {
+                            mr_dealloc_cb(mr, b->resource, size, stream.h_stream);
+                            return CUDA_SUCCESS;
+                        });
+                }
+                Py_DECREF(mr);
             }
-            Py_DECREF(mr);
+            delete b;
         }
-        delete b;
-    });
+    );
+    // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
 
@@ -536,8 +565,10 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
 
             DeallocationStream ds;
             if (make_deallocation_stream(h_stream, ds)) {
-                auto box =
-                    std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, std::move(ds)}, [h_pool, key](DevicePtrBox *b) {
+                // clang-format off
+                auto box = std::shared_ptr<DevicePtrBox>(
+                    new DevicePtrBox{ptr, std::move(ds)},
+                    [h_pool, key](DevicePtrBox *b) {
                         // Release the GIL first (the GIL is the outermost lock), then hold the
                         // mutex across unregister + free: a concurrent import that finds this
                         // entry expired must wait until the mapping is gone, or it re-imports
@@ -546,26 +577,20 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                         // deallocation context is resolved before the lock (it may report) and
                         // the lock is released as soon as the cleanup is done.
                         GILReleaseGuard gil;
-                        const DeallocationStream &stream = b->deallocation;
+                        const DeallocationStream& stream = b->deallocation;
                         ContextHandle h_dealloc = deallocation_context(stream);
                         std::unique_lock<std::mutex> lock(ipc_import_mutex);
                         ipc_ptr_cache.unregister_handle(key);
                         cleanup_in_context(
-                            h_dealloc,
-                            "cuMemFreeAsync",
-                            handle_bits(b->resource),
+                            h_dealloc, "cuMemFreeAsync", handle_bits(b->resource),
                             [&]() noexcept {
-                                return p_cuMemFreeAsync(  // raw: under ipc_import_mutex
-                                    b->resource,
-                                    as_cu(stream.h_stream)
-                                );
+                                return p_cuMemFreeAsync(b->resource, as_cu(stream.h_stream));  // raw: under ipc_import_mutex
                             },
-                            [&]() noexcept {
-                                lock.unlock();
-                            }
-                        );
+                            [&]() noexcept { lock.unlock(); });
                         delete b;
-                    });
+                    }
+                );
+                // clang-format on
                 DevicePtrHandle h(box, &box->resource);
                 ipc_ptr_cache.register_handle(key, h);
                 return h;
@@ -601,19 +626,22 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
             return {};
         }
 
-        auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, std::move(ds)}, [h_pool](DevicePtrBox *b) {
-            GILReleaseGuard gil;
-            const DeallocationStream &stream = b->deallocation;
-            cleanup_in_context(
-                deallocation_context(stream),
-                "cuMemFreeAsync",
-                handle_bits(b->resource),
-                [&]() noexcept {
-                    return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream));
-                }
-            );
-            delete b;
-        });
+        // clang-format off
+        auto box = std::shared_ptr<DevicePtrBox>(
+            new DevicePtrBox{ptr, std::move(ds)},
+            [h_pool](DevicePtrBox *b) {
+                GILReleaseGuard gil;
+                const DeallocationStream& stream = b->deallocation;
+                cleanup_in_context(
+                    deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
+                    [&]() noexcept {
+                        return DRIVER_CALL(cuMemFreeAsync,
+                            b->resource, as_cu(stream.h_stream));
+                    });
+                delete b;
+            }
+        );
+        // clang-format on
         return DevicePtrHandle(box, &box->resource);
     }
 }
@@ -628,12 +656,17 @@ create_fd_handle(int fd)
 #ifdef _WIN32
     throw std::runtime_error("create_fd_handle is not supported on Windows");
 #else
-    return FileDescriptorHandle(new int(fd), [](const int *p) {
-        if (::close(*p) != 0) {
-            report_message("close() failed for an IPC file descriptor; the descriptor may have leaked");
+    // clang-format off
+    return FileDescriptorHandle(
+        new int(fd),
+        [](const int *p) {
+            if (::close(*p) != 0) {
+                report_message("close() failed for an IPC file descriptor; the descriptor may have leaked");
+            }
+            delete p;
         }
-        delete p;
-    });
+    );
+    // clang-format on
 #endif
 }
 

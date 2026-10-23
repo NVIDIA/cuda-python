@@ -287,10 +287,7 @@ json_str(const std::string &s)
 
 inline void
 write_pyperf_json(
-    const std::string &output_path,
-    const std::string &name,
-    std::uint64_t loops,
-    const std::vector<RunResult> &results
+    const std::string &output_path, const std::string &name, std::uint64_t loops, const std::vector<RunResult> &results
 )
 {
     std::ofstream out(output_path);
@@ -431,10 +428,7 @@ class BenchmarkSuite {
     template <typename Fn>
     std::uint64_t
     calibrate_and_warn(
-        const std::string &name,
-        const Options &calib_opts,
-        Fn &&fn,
-        const std::function<void()> &post_calibrate
+        const std::string &name, const Options &calib_opts, Fn &&fn, const std::function<void()> &post_calibrate
     ) const
     {
         bool capped = false;

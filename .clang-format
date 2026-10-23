@@ -37,7 +37,3 @@ BreakBeforeCloseBracketIf: true
 PackArguments: {BinPack: OnePerLine}
 PackParameters: {BinPack: OnePerLine}
 AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
-
-# Don't put short lambdas on a single line.
-AllowShortLambdasOnASingleLine: None

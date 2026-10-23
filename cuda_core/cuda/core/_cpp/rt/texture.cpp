@@ -29,13 +29,17 @@ struct GraphicsResourceBox {
 GraphicsResourceHandle
 create_graphics_resource_handle(CUgraphicsResource resource)
 {
+    // clang-format off
     ensure_fn_table(FnTable::driver);  // the deleter calls the driver: resolve the table before it can run
-    auto box =
-        std::shared_ptr<const GraphicsResourceBox>(new GraphicsResourceBox{resource}, [](const GraphicsResourceBox *b) {
+    auto box = std::shared_ptr<const GraphicsResourceBox>(
+        new GraphicsResourceBox{resource},
+        [](const GraphicsResourceBox *b) {
             GILReleaseGuard gil;
             pw_cuGraphicsUnregisterResource(b->resource);
             delete b;
-        });
+        }
+    );
+    // clang-format on
     return GraphicsResourceHandle(box, &box->resource);
 }
 
@@ -100,11 +104,16 @@ get_box(const MipmappedArrayHandle &h) noexcept
 static OpaqueArrayHandle
 wrap_array_owned(CUarray arr, ContextHandle h_context)
 {
-    auto box = std::shared_ptr<const ArrayBox>(new ArrayBox{arr, {}, std::move(h_context)}, [](const ArrayBox *b) {
-        GILReleaseGuard gil;
-        pw_cuArrayDestroy(b->resource);
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const ArrayBox>(
+        new ArrayBox{arr, {}, std::move(h_context)},
+        [](const ArrayBox *b) {
+            GILReleaseGuard gil;
+            pw_cuArrayDestroy(b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
     return OpaqueArrayHandle(box, &box->resource);
 }
 
@@ -117,12 +126,8 @@ create_array_handle(const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTO
     CUarray arr = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept {
-            return DRIVER_CALL(cuArray3DCreate, &arr, &desc);
-        },
-        [&]() noexcept {
-            pw_cuArrayDestroy(arr);
-        },
+        [&]() noexcept { return DRIVER_CALL(cuArray3DCreate, &arr, &desc); },
+        [&]() noexcept { pw_cuArrayDestroy(arr); },
         /*undo_requires_target_context=*/false
     );
     if (err != CUDA_SUCCESS) {
@@ -169,40 +174,41 @@ create_array_level_handle(const MipmappedArrayHandle &h_mip, unsigned int level)
     }
     // Non-owning level view: storage belongs to the mipmap. Embed the mipmap
     // handle so the parent outlives this level; the deleter does not destroy.
-    auto box = std::shared_ptr<const ArrayBox>(new ArrayBox{arr, h_mip, h_context}, [](const ArrayBox *b) {
-        delete b;
-    });
+    // clang-format off
+    auto box = std::shared_ptr<const ArrayBox>(
+        new ArrayBox{arr, h_mip, h_context},
+        [](const ArrayBox *b) { delete b; }
+    );
+    // clang-format on
     return OpaqueArrayHandle(box, &box->resource);
 }
 
 MipmappedArrayHandle
 create_mipmapped_array_handle(
-    const ContextHandle &h_context,
-    const CUDA_ARRAY3D_DESCRIPTOR &desc,
-    unsigned int num_levels
+    const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTOR &desc, unsigned int num_levels
 )
 {
     GILReleaseGuard gil;
     CUmipmappedArray mip = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept {
-            return DRIVER_CALL(cuMipmappedArrayCreate, &mip, &desc, num_levels);
-        },
-        [&]() noexcept {
-            pw_cuMipmappedArrayDestroy(mip);
-        },
+        [&]() noexcept { return DRIVER_CALL(cuMipmappedArrayCreate, &mip, &desc, num_levels); },
+        [&]() noexcept { pw_cuMipmappedArrayDestroy(mip); },
         /*undo_requires_target_context=*/false
     );
     if (err != CUDA_SUCCESS) {
         return {};
     }
-    auto box =
-        std::shared_ptr<const MipmappedArrayBox>(new MipmappedArrayBox{mip, h_context}, [](const MipmappedArrayBox *b) {
+    // clang-format off
+    auto box = std::shared_ptr<const MipmappedArrayBox>(
+        new MipmappedArrayBox{mip, h_context},
+        [](const MipmappedArrayBox *b) {
             GILReleaseGuard gil;
             pw_cuMipmappedArrayDestroy(b->resource);
             delete b;
-        });
+        }
+    );
+    // clang-format on
     return MipmappedArrayHandle(box, &box->resource);
 }
 
@@ -226,17 +232,14 @@ make_tex_object_handle(
     CUtexObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept {
-            return DRIVER_CALL(cuTexObjectCreate, &obj, &res, &tex, nullptr);
-        },
-        [&]() noexcept {
-            pw_cuTexObjectDestroy(obj);
-        },
+        [&]() noexcept { return DRIVER_CALL(cuTexObjectCreate, &obj, &res, &tex, nullptr); },
+        [&]() noexcept { pw_cuTexObjectDestroy(obj); },
         /*undo_requires_target_context=*/true
     );
     if (err != CUDA_SUCCESS) {
         return {};
     }
+    // clang-format off
     auto box = std::shared_ptr<const TexObjectBox>(
         new TexObjectBox{TexObjectValue{obj}, std::move(h_backing), h_context},
         [](const TexObjectBox *b) {
@@ -247,6 +250,7 @@ make_tex_object_handle(
             delete b;
         }
     );
+    // clang-format on
     return TexObjectHandle(box, &box->resource);
 }
 }  // namespace
@@ -286,26 +290,21 @@ create_tex_object_handle_linear(
 
 SurfObjectHandle
 create_surf_object_handle(
-    const ContextHandle &h_context,
-    const CUDA_RESOURCE_DESC &res,
-    const OpaqueArrayHandle &h_backing
+    const ContextHandle &h_context, const CUDA_RESOURCE_DESC &res, const OpaqueArrayHandle &h_backing
 )
 {
     GILReleaseGuard gil;
     CUsurfObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
-        [&]() noexcept {
-            return DRIVER_CALL(cuSurfObjectCreate, &obj, &res);
-        },
-        [&]() noexcept {
-            pw_cuSurfObjectDestroy(obj);
-        },
+        [&]() noexcept { return DRIVER_CALL(cuSurfObjectCreate, &obj, &res); },
+        [&]() noexcept { pw_cuSurfObjectDestroy(obj); },
         /*undo_requires_target_context=*/true
     );
     if (err != CUDA_SUCCESS) {
         return {};
     }
+    // clang-format off
     auto box = std::shared_ptr<const SurfObjectBox>(
         new SurfObjectBox{SurfObjectValue{obj}, h_backing, h_context},
         [](const SurfObjectBox *b) {
@@ -316,6 +315,7 @@ create_surf_object_handle(
             delete b;
         }
     );
+    // clang-format on
     return SurfObjectHandle(box, &box->resource);
 }
 
