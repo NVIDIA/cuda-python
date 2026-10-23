@@ -26,21 +26,11 @@ of `ci/tools/check_release_notes.py` that writes `version=<VERSION>` to
 `GITHUB_OUTPUT`. The release-notes job rejects an empty version before
 documentation, asset uploads, or package publication can start. Pathfinder
 package publication also requires successful draft metadata preparation.
-Use the retained legacy Pathfinder workflow for older tags without version
-output support during the transition; do not move existing tags to add the
-updated checker.
 
 The default `dry-run` action validates preparation, builds docs, and
 collects release artifacts without creating a GitHub Release or publishing
 packages. It can be dispatched from a development branch; use
 `dry-run-docs-branch` only when a preview deployment is needed.
-
-Before the first Pathfinder release through this workflow, its trusted
-publishers on **both PyPI and TestPyPI** must authorize `release.yml`.
-Until that migration is complete, `release-cuda-pathfinder.yml` remains
-available. Keep its existing publisher
-registrations during the transition; retire the old workflow and its
-registrations after the consolidated workflow is authorized on both indexes.
 
 Each section below provides detailed guidance for a step in the
 [Release Checklist](ISSUE_TEMPLATE/release_checklist.yml). To start a

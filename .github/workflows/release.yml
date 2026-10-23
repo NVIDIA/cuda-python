@@ -9,8 +9,6 @@ name: "CI: Release"
 # to TestPyPI followed by PyPI. The dry-run mode validates the release path
 # without publishing to external release surfaces.
 # Pathfinder additionally prepares metadata, verifies both indexes, and publishes its draft.
-# Before retiring the dedicated Pathfinder workflow, authorize release.yml in
-# its PyPI and TestPyPI trusted publishers; see .github/RELEASE-core.md.
 #
 # Maintenance note: non-trivial changes to this workflow should be validated
 # with dry-run workflow_dispatch runs before merging. Suggested focused matrix:
