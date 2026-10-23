@@ -4,9 +4,10 @@
 
 """Tests for GraphMemoryResource allocation and attributes during graph capture."""
 
+import threading
+
 import pytest
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer, thread_unsafe_on_windows
-from helpers.memory import xfail_on_graph_mempool_oom
 
 from cuda.core import (
     Device,
@@ -72,9 +73,8 @@ class GraphMemoryTestManager:
     def alloc(self, num, nbytes):
         """Allocate num buffers of size nbytes from graph memory."""
         gb = self.device.create_graph_builder().begin_building(self.mode)
-        with xfail_on_graph_mempool_oom(self.device):
-            buffers = [self.gmr.allocate(nbytes, stream=gb) for _ in range(num)]
-            graph = gb.end_building().complete()
+        buffers = [self.gmr.allocate(nbytes, stream=gb) for _ in range(num)]
+        graph = gb.end_building().complete()
         graph.upload(self.stream)
         graph.launch(self.stream)
         self.stream.sync()
@@ -139,9 +139,8 @@ def test_graph_alloc(mempool_device, mode, action):
     else:
         # Capture work, then upload and launch.
         gb = stream.create_graph_builder().begin_building(mode)
-        with xfail_on_graph_mempool_oom(device):
-            apply_kernels(mr=gmr, stream=gb, out=out)
-            graph = gb.end_building().complete()
+        apply_kernels(mr=gmr, stream=gb, out=out)
+        graph = gb.end_building().complete()
 
         # First launch.
         graph.upload(stream)
@@ -178,17 +177,16 @@ def test_graph_alloc_with_output(mempool_device, mode):
     # buffer allocated within the graph.  The auto_free_on_launch option
     # is required to properly use the output buffer.
     gb = stream.create_graph_builder().begin_building(mode)
-    with xfail_on_graph_mempool_oom(device):
-        out = gmr.allocate(NBYTES, stream=gb)
-        out.copy_from(in_, stream=gb)
-        launch(gb, LaunchConfig(grid=1, block=1), add_one, out, NBYTES)
-        options = GraphCompleteOptions(auto_free_on_launch=True)
-        try:
-            graph = gb.end_building().complete(options)
-        except CUDAError as exc:
-            if "CUDA_ERROR_INVALID_VALUE" in str(exc):
-                pytest.skip("auto_free_on_launch not supported on this platform")
-            raise
+    out = gmr.allocate(NBYTES, stream=gb)
+    out.copy_from(in_, stream=gb)
+    launch(gb, LaunchConfig(grid=1, block=1), add_one, out, NBYTES)
+    options = GraphCompleteOptions(auto_free_on_launch=True)
+    try:
+        graph = gb.end_building().complete(options)
+    except CUDAError as exc:
+        if "CUDA_ERROR_INVALID_VALUE" in str(exc):
+            pytest.skip("auto_free_on_launch not supported on this platform")
+        raise
 
     # Launch the graph. The output buffer is allocated and set to one.
     graph.upload(stream)
@@ -211,9 +209,8 @@ def test_graph_mem_alloc_zero(mempool_device, mode):
     gb = device.create_graph_builder().begin_building(mode)
     stream = device.create_stream()
     gmr = GraphMemoryResource(device)
-    with xfail_on_graph_mempool_oom(device):
-        buffer = gmr.allocate(0, stream=gb)
-        graph = gb.end_building().complete()
+    buffer = gmr.allocate(0, stream=gb)
+    graph = gb.end_building().complete()
     graph.upload(stream)
     graph.launch(stream)
     stream.sync()
@@ -296,9 +293,8 @@ def test_gmr_check_capture_state(mempool_device, mode):
 
     # Capturing
     gb = stream.create_graph_builder().begin_building(mode=mode)
-    with xfail_on_graph_mempool_oom(device):
-        gmr.allocate(1, stream=gb)  # no error
-        gb.end_building().complete()
+    gmr.allocate(1, stream=gb)  # no error
+    gb.end_building().complete()
 
 
 def test_graph_memory_resource_attributes_direct_init_raises():
@@ -353,3 +349,69 @@ def test_dmr_check_capture_state(mempool_device, mode):
     ):
         dmr.allocate(1, stream=gb)
     gb.end_building().complete()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("mode", _GRAPH_MODES)
+def test_dmr_init_under_capture_keeps_capture_valid(mempool_device, mode):
+    """Wrapping the driver's pool while this thread is capturing is legal in every mode.
+
+    The constructor applies its release-threshold policy with pool attribute
+    calls that the driver refuses under a global or thread-local capture. It
+    makes them in relaxed capture mode, so the capture stays valid (#2834).
+    """
+    device = mempool_device
+    gb = device.create_stream().create_graph_builder().begin_building(mode=mode)
+    dmr = DeviceMemoryResource(device)
+    assert gb.is_building  # the capture was not invalidated
+    gb.end_building().complete()
+    # The policy was applied for real: the attribute write executed immediately.
+    assert dmr.attributes.release_threshold != 0
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("mode", _GRAPH_MODES)
+def test_device_memory_resource_first_touch_under_capture(mempool_device, mode):
+    """The lazy Device.memory_resource construction is legal under capture too.
+
+    Device objects are per thread, so a new thread starts without a cached
+    memory resource and its first access constructs one (#2834).
+    """
+    device_id = mempool_device.device_id
+    result = {}
+
+    def worker():
+        try:
+            device = Device(device_id)
+            device.set_current()
+            gb = device.create_stream().create_graph_builder().begin_building(mode=mode)
+            device.memory_resource  # noqa: B018 - first touch on this thread constructs the resource
+            result["building"] = gb.is_building
+            gb.end_building().complete()
+        except BaseException as exc:
+            result["error"] = exc
+
+    thread = threading.Thread(target=worker)
+    thread.start()
+    thread.join()
+    if "error" in result:
+        raise result["error"]
+    assert result["building"] is True
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("mode", _GRAPH_MODES[:2])  # the non-relaxed modes
+def test_dmr_init_restores_capture_mode(mempool_device, mode):
+    """After construction the thread is back in its previous capture mode.
+
+    Had the constructor left the thread in relaxed mode, this pool attribute
+    read would be accepted. Instead the driver refuses it and invalidates the
+    capture, which end_building() then ends and reports (#2834).
+    """
+    device = mempool_device
+    gb = device.create_stream().create_graph_builder().begin_building(mode=mode)
+    dmr = DeviceMemoryResource(device)
+    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED"):
+        dmr.attributes.release_threshold  # noqa: B018 - the read itself is the probe
+    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_INVALIDATED"):
+        gb.end_building()

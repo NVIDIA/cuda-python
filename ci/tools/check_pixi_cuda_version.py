@@ -6,18 +6,18 @@
 from __future__ import annotations
 
 import sys
+import tomllib
 from pathlib import Path
 
-import tomllib
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 VERSIONS_FILE_PATH = ROOT / "ci" / "versions.yml"
-PIXI_FILES = [ROOT / d / "pixi.toml" for d in ("cuda_bindings", "cuda_core")]
+PIXI_FILES = [ROOT / d / "pixi.toml" for d in ("cuda_bindings_13", "cuda_core")]
 
 
 def main() -> int:
-    """Verify cuda_bindings/cuda_core pixi pins match ci/versions.yml."""
+    """Verify cuda_bindings_13/cuda_core pixi pins match ci/versions.yml."""
     if not VERSIONS_FILE_PATH.is_file():
         print(f"error: {VERSIONS_FILE_PATH} not found", file=sys.stderr)
         return 2
@@ -69,7 +69,7 @@ def main() -> int:
 
     if errors:
         print(
-            f"error: cuda_bindings/cuda_core pixi cuda-version pins out of sync with "
+            f"error: cuda_bindings_13/cuda_core pixi cuda-version pins out of sync with "
             f"ci/versions.yml cuda.build.version={build_version!r} "
             f"(expected pin {expected!r}):",
             file=sys.stderr,

@@ -4,10 +4,12 @@
 
 #pragma once
 
+#include "versions.hpp"
 #include <cuda.h>
 #include <nvrtc.h>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 // Forward declaration for NVVM - avoids nvvm.h dependency
 // Use void* to match cuda.bindings.cynvvm's typedef
@@ -43,6 +45,13 @@ using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
 using TexObjectValue = TaggedHandle<CUtexObject, 2>;
 using SurfObjectValue = TaggedHandle<CUsurfObject, 3>;
 
+// Virtual memory management (VMM_DESIGN.md). CUmemGenericAllocationHandle is
+// also `unsigned long long`, and the reservation and mapping handles carry a
+// CUdeviceptr each, so all three are tagged for the same reason.
+using MemAllocationValue = TaggedHandle<CUmemGenericAllocationHandle, 4>;
+using VaReservationValue = TaggedHandle<CUdeviceptr, 5>;
+using VaMappingValue = TaggedHandle<CUdeviceptr, 6>;
+
 // ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
@@ -67,6 +76,17 @@ using OpaqueArrayHandle = std::shared_ptr<const CUarray>;
 using MipmappedArrayHandle = std::shared_ptr<const CUmipmappedArray>;
 using TexObjectHandle = std::shared_ptr<const TexObjectValue>;
 using SurfObjectHandle = std::shared_ptr<const SurfObjectValue>;
+
+// Virtual memory management: a physical allocation (cuMemCreate), an address
+// reservation (cuMemAddressReserve), one mapping of a whole allocation into a
+// reservation (cuMemMap), and the range of mappings a buffer owns. A range is
+// the buffer's mappings in ascending, contiguous order; it is immutable once
+// built, and a grow builds a new one for its result (VMM_DESIGN.md).
+using MemAllocationHandle = std::shared_ptr<const MemAllocationValue>;
+using VaReservationHandle = std::shared_ptr<const VaReservationValue>;
+using VaMappingHandle = std::shared_ptr<const VaMappingValue>;
+using VmmRange = std::vector<VaMappingHandle>;
+using VmmRangeHandle = std::shared_ptr<const VmmRange>;
 
 using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
 
@@ -201,6 +221,18 @@ inline CUsurfObject as_cu(const SurfObjectHandle& h) noexcept {
     return h ? h->raw : 0;
 }
 
+inline CUmemGenericAllocationHandle as_cu(const MemAllocationHandle& h) noexcept {
+    return h ? h->raw : 0;
+}
+
+inline CUdeviceptr as_cu(const VaReservationHandle& h) noexcept {
+    return h ? h->raw : 0;
+}
+
+inline CUdeviceptr as_cu(const VaMappingHandle& h) noexcept {
+    return h ? h->raw : 0;
+}
+
 // as_intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
 inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
@@ -288,6 +320,18 @@ inline std::intptr_t as_intptr(const TexObjectHandle& h) noexcept {
 }
 
 inline std::intptr_t as_intptr(const SurfObjectHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const MemAllocationHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const VaReservationHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t as_intptr(const VaMappingHandle& h) noexcept {
     return static_cast<std::intptr_t>(as_cu(h));
 }
 

@@ -4,7 +4,7 @@
 import multiprocessing as mp
 
 import pytest
-from helpers.buffers import compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import compare_equal_buffers, make_scratch_buffer, prefix_view
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
@@ -16,8 +16,9 @@ CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 
 
-# these tetss spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
@@ -56,7 +57,7 @@ class TestEventIpc:
         log("enqueuing latch kernel on stream1")
         latch.launch(stream1)
         log("enqueuing copy on stream1")
-        buffer.copy_from(ones, stream=stream1)
+        prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
 
         ipc_event_options = EventOptions(ipc_enabled=True)
         e = stream1.record(options=ipc_event_options)
@@ -78,7 +79,7 @@ class TestEventIpc:
         log("done")
 
         # Finish up.
-        target.copy_from(buffer, stream=stream1)
+        target.copy_from(prefix_view(buffer, NBYTES), stream=stream1)
         stream1.sync()
         assert compare_equal_buffers(target, twos)
 
@@ -95,7 +96,7 @@ class TestEventIpc:
         log(f"got event ({hex(e.handle)})")
         stream2.wait(e)
         log("enqueuing copy on stream2")
-        buffer.copy_from(twos, stream=stream2)
+        prefix_view(buffer, NBYTES).copy_from(twos, stream=stream2)
         log("signaling parent")
         q_out.put(None)
         log("waiting")

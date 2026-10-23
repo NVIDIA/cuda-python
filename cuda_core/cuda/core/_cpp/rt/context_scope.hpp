@@ -65,7 +65,7 @@ CUresult invoke_in_context_or_undo(const ContextHandle& h_context, Fn&& operatio
         bool undo_ok = true;
         if (undo_requires_target_context) {
             CUcontext current = nullptr;
-            undo_ok = p_cuCtxGetCurrent(&current) == CUDA_SUCCESS
+            undo_ok = DRIVER_CALL(cuCtxGetCurrent, &current) == CUDA_SUCCESS
                       && current == as_cu(h_context);
         }
         if (undo_ok) {

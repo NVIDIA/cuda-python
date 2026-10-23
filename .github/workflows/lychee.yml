@@ -1,0 +1,98 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Warm authored and rendered link caches through the configured pre-commit
+# hooks. Ordinary PRs reuse authored results; full docs CI reuses rendered
+# results. Nightly and manual dispatches with refresh-cache=true start afresh,
+# report unresolved links as warnings, and can produce both shared baselines.
+
+name: "CI: Lychee checks and caches"
+
+on:
+  workflow_call:
+    inputs:
+      concurrency-suffix:
+        description: "Keep a caller's test mode separate from its full run"
+        type: string
+        default: full
+      refresh-cache:
+        description: "Check links afresh and publish a new cache baseline"
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      refresh-cache:
+        description: "Check links afresh and publish a new cache baseline"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ inputs.refresh-cache || false }}-${{ inputs.concurrency-suffix || 'full' }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+env:
+  # Build with the committed docs environment without resolving other environments.
+  PIXI_FROZEN: "true"
+
+jobs:
+  links:
+    name: Lychee (${{ matrix.kind }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        kind: [authored, rendered]
+    env:
+      PYTHONUTF8: "1"
+      # Reuse the same minor version for Python setup and cache fallback.
+      PYTHON_VERSION: "3.14"
+    steps:
+      - name: Checkout checked revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # Keep SCM history/tags without downloading historical source blobs.
+          filter: blob:none
+          persist-credentials: false
+          # Rendered docs build cuda.core against the pinned CCCL headers.
+          submodules: ${{ matrix.kind == 'rendered' }}
+
+      - name: Set up Python
+        id: python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set pre-commit cache location
+        run: echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
+
+      - name: Restore pre-commit environments
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ env.PRE_COMMIT_HOME }}
+          key: pre-commit-${{ runner.os }}-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: pre-commit-${{ runner.os }}-py${{ env.PYTHON_VERSION }}
+
+      - name: Setup pixi
+        if: ${{ matrix.kind == 'rendered' }}
+        uses: ./.github/actions/setup-pixi
+
+      - name: Build all documentation from sources
+        if: ${{ matrix.kind == 'rendered' }}
+        run: pixi run --manifest-path cuda_core/pixi.toml -e docs docs-build-all-latest
+
+      - name: Check documentation links through pre-commit
+        uses: ./.github/actions/lychee-links
+        with:
+          kind: ${{ matrix.kind }}
+          policy: ${{ inputs.refresh-cache && 'cache-warm' || 'check' }}
+          refresh: ${{ inputs.refresh-cache || false }}

@@ -47,6 +47,6 @@ behavior:
 ```python
 a = g.empty()
 a.succ = {b}
-b2, = a.succ     # queries driver, gets back CUgraphNode for b
-assert b2 is b   # fails without Level 2 registry
+(b2,) = a.succ  # queries driver, gets back CUgraphNode for b
+assert b2 is b  # fails without Level 2 registry
 ```
