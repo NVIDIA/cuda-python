@@ -94,7 +94,7 @@ The ``cuda.bindings._v2.driver`` module replaces ``cuda.bindings.driver``. The d
 Functions
 ---------
 
-Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module exposes only the unsuffixed name, while the new module keeps the suffix, so one legacy function can map to several new ones. Only changes to parameters and return values beyond the general rules above are noted. Renamed parameters are not listed.
+Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module generally exposes only the unsuffixed name, while the new module keeps the suffix, so one legacy function can map to several new ones. A few legacy functions (``cuCtxGetDevice_v2`` and similar) already carry the suffix. They have their own rows and map to the new function of the same name. Only changes to parameters and return values beyond the general rules above are noted. Renamed parameters are not listed.
 
 .. list-table::
    :header-rows: 1
@@ -205,6 +205,9 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuCtxGetDevice``
      - ``ctx_get_device_v2``
      - Parameters added: ``ctx``.
+   * - ``cuCtxGetDevice_v2``
+     - ``ctx_get_device_v2``
+     -
    * - ``cuCtxGetExecAffinity``
      - ``ctx_get_exec_affinity``
      -
@@ -250,6 +253,9 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuCtxSynchronize``
      - ``ctx_synchronize_v2``
      - Parameters added: ``ctx``.
+   * - ``cuCtxSynchronize_v2``
+     - ``ctx_synchronize_v2``
+     -
    * - ``cuCtxWaitEvent``
      - ``ctx_wait_event``
      -
@@ -520,6 +526,9 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuGraphAddNode``
      - ``graph_add_node_v3``
      -
+   * - ``cuGraphAddNode_v3``
+     - ``graph_add_node_v3``
+     -
    * - ``cuGraphBatchMemOpNodeGetParams``
      - ``graph_batch_mem_op_node_get_params``
      -
@@ -721,6 +730,9 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuGraphNodeSetParams``
      - ``graph_node_set_params_v2``
      -
+   * - ``cuGraphNodeSetParams_v2``
+     - ``graph_node_set_params_v2``
+     -
    * - ``cuGraphReleaseUserObject``
      - ``graph_release_user_object``
      -
@@ -853,6 +865,9 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuLaunchHostFunc``
      - ``launch_host_func_v2``
      - Parameters added: ``sync_mode``.
+   * - ``cuLaunchHostFunc_v2``
+     - ``launch_host_func_v2``
+     -
    * - ``cuLaunchKernel``
      - ``launch_kernel``
      -
@@ -1294,12 +1309,18 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuMulticastBindAddr``
      - ``multicast_bind_addr_v2``
      - Parameters added: ``dev``.
+   * - ``cuMulticastBindAddr_v2``
+     - ``multicast_bind_addr_v2``
+     -
    * - ``cuMulticastBindMem``
      - ``multicast_bind_mem``
      -
    * - ``cuMulticastBindMem``
      - ``multicast_bind_mem_v2``
      - Parameters added: ``dev``.
+   * - ``cuMulticastBindMem_v2``
+     - ``multicast_bind_mem_v2``
+     -
    * - ``cuMulticastCreate``
      - ``multicast_create``
      -
@@ -1402,6 +1423,9 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuStreamGetCtx``
      - ``stream_get_ctx_v2``
      - Returns a 2-tuple ``(ctx, green_ctx)``. The legacy function returned only the context.
+   * - ``cuStreamGetCtx_v2``
+     - ``stream_get_ctx_v2``
+     -
    * - ``cuStreamGetDevResource``
      - ``stream_get_dev_resource``
      -
