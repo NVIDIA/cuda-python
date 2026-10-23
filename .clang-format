@@ -6,7 +6,7 @@
 # return type on its own line), except that the column limit is 120 rather than 79.
 # Based on https://gist.github.com/pganssle/0e3a5f828b4d07d79447f6ced8e7e4db
 BasedOnStyle: Google
-BreakAfterReturnType: All
+BreakAfterReturnType: AllDefinitions
 AllowShortIfStatementsOnASingleLine: Never
 BreakBeforeBraces: Stroustrup
 ColumnLimit: 120

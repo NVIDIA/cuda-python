@@ -15,14 +15,11 @@
 namespace cuda_core::rt::detail {
 
 // Implemented in context.cpp
-CUresult
-enter_context(const ContextHandle &h_context, CUcontext *previous, int *changed) noexcept;
+CUresult enter_context(const ContextHandle &h_context, CUcontext *previous, int *changed) noexcept;
 // Implemented in context.cpp
-CUresult
-restore_context(CUcontext previous) noexcept;
+CUresult restore_context(CUcontext previous) noexcept;
 // Implemented in context.cpp
-CUresult
-exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept;
+CUresult exit_context(CUcontext previous, int changed, CUresult operation_status) noexcept;
 
 // Require a callable to be invocable without throwing.
 #define ASSERT_NOTHROW_INVOCABLE(...) \

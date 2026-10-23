@@ -12,8 +12,7 @@
 namespace cuda_core::rt {
 
 #if PY_VERSION_HEX < 0x030D0000
-extern "C" int
-_Py_IsFinalizing(void);
+extern "C" int _Py_IsFinalizing(void);
 #endif
 
 // Best-effort probe for interpreter shutdown.
@@ -63,8 +62,7 @@ class GILReleaseGuard {
     }
 
     GILReleaseGuard(const GILReleaseGuard &) = delete;
-    GILReleaseGuard &
-    operator=(const GILReleaseGuard &) = delete;
+    GILReleaseGuard &operator=(const GILReleaseGuard &) = delete;
 
    private:
     PyThreadState *tstate_ = nullptr;
@@ -99,8 +97,7 @@ class GILAcquireGuard {
 
     // Non-copyable, non-movable
     GILAcquireGuard(const GILAcquireGuard &) = delete;
-    GILAcquireGuard &
-    operator=(const GILAcquireGuard &) = delete;
+    GILAcquireGuard &operator=(const GILAcquireGuard &) = delete;
 
    private:
     PyGILState_STATE gstate_;
@@ -136,8 +133,7 @@ class PendingExceptionGuard {
     }
 
     PendingExceptionGuard(const PendingExceptionGuard &) = delete;
-    PendingExceptionGuard &
-    operator=(const PendingExceptionGuard &) = delete;
+    PendingExceptionGuard &operator=(const PendingExceptionGuard &) = delete;
 
    private:
 #if PY_VERSION_HEX >= 0x030C0000
@@ -332,23 +328,20 @@ as_py(const VaMappingHandle &h) noexcept
 
 // Register the Python warning category used by report_* (cuda.core.CUDAWarning).
 // Implemented in py_report.cpp
-void
-register_warning_category(PyObject *category) noexcept;
+void register_warning_category(PyObject *category) noexcept;
 
 // Create a non-owning stream handle that prevents a Python owner from being GC'd.
 // The owner's refcount is incremented; decremented when handle is released.
 // The owner is responsible for keeping the stream's context alive.
 // Implemented in stream.cpp
-StreamHandle
-create_stream_handle_with_owner(CUstream stream, PyObject *owner);
+StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject *owner);
 
 // Create a non-owning device pointer handle that prevents a Python owner from being GC'd.
 // The owner's refcount is incremented; decremented when handle is released.
 // The pointer will NOT be freed when the handle is released.
 // If owner is nullptr, equivalent to deviceptr_create_ref.
 // Implemented in memory.cpp
-DevicePtrHandle
-deviceptr_create_with_owner(CUdeviceptr ptr, PyObject *owner);
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject *owner);
 
 // Callback type for MemoryResource deallocation.
 // Called from the shared_ptr deleter when a handle created via
@@ -359,21 +352,18 @@ using MRDeallocCallback = void (*)(PyObject *mr, CUdeviceptr ptr, size_t size, c
 
 // Register the MR deallocation callback.
 // Implemented in memory.cpp
-void
-register_mr_dealloc_callback(MRDeallocCallback cb);
+void register_mr_dealloc_callback(MRDeallocCallback cb);
 
 // Create a device pointer handle whose destructor calls mr.deallocate()
 // via the registered callback.  The mr's refcount is incremented and
 // decremented when the handle is released.
 // If mr is nullptr, equivalent to deviceptr_create_ref.
 // Implemented in memory.cpp
-DevicePtrHandle
-deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject *mr);
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject *mr);
 
 // Build an OpaqueHandle from a Python object: increments its refcount now and
 // decrements it (under the GIL) on release. The caller must hold the GIL.
 // Implemented in graph.cpp
-OpaqueHandle
-make_opaque_py(PyObject *obj);
+OpaqueHandle make_opaque_py(PyObject *obj);
 
 }  // namespace cuda_core::rt

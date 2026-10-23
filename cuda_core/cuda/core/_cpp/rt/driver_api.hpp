@@ -171,12 +171,10 @@ struct FnEntry {
 };
 
 // The entries of a table. Implemented in driver_api.cpp.
-const FnEntry *
-fn_table_entries(FnTable table, std::size_t *count) noexcept;
+const FnEntry *fn_table_entries(FnTable table, std::size_t *count) noexcept;
 
 // Whether a table is filled. An acquire load: a true result orders the slots.
-bool
-fn_table_ready(FnTable table) noexcept;
+bool fn_table_ready(FnTable table) noexcept;
 
 // Fill a table from cuda-bindings if it is not ready. The fill acquires the
 // GIL, imports cuda.bindings._internal.<lib>, calls
@@ -191,21 +189,18 @@ fn_table_ready(FnTable table) noexcept;
 // A failed fill is latched: later calls return false at once and do not
 // retry. The fill preserves a pending Python exception and never leaves one
 // set. Implemented in py_driver_fns.cpp.
-bool
-ensure_fn_table(FnTable table) noexcept;
+bool ensure_fn_table(FnTable table) noexcept;
 
 // Copy the reason the fill of `table` failed into `buffer`. Return false if
 // it did not fail. Implemented in py_driver_fns.cpp.
-bool
-fn_table_error(FnTable table, char *buffer, std::size_t size) noexcept;
+bool fn_table_error(FnTable table, char *buffer, std::size_t size) noexcept;
 
 // Record a call to `name` while it is unavailable. After a failed fill, this
 // function attaches the fill's reason to the error the caller raises. The fill
 // reported that reason when it failed. A null entry in a filled table is a gate
 // bug, which this function reports once per table. Implemented in
 // py_driver_fns.cpp.
-void
-report_unavailable_fn(FnTable table, const char *name) noexcept;
+void report_unavailable_fn(FnTable table, const char *name) noexcept;
 
 namespace detail {
 

@@ -21,14 +21,11 @@
 namespace cuda_core::rt::detail {
 
 // Implemented in error.cpp
-void
-format_cuda_error(char *buffer, size_t size, const char *operation, CUresult status, const char *detail) noexcept;
+void format_cuda_error(char *buffer, size_t size, const char *operation, CUresult status, const char *detail) noexcept;
 // Implemented in error.cpp
-void
-note_context_not_restored(CUcontext previous, CUresult operation_status, CUresult restore_status) noexcept;
+void note_context_not_restored(CUcontext previous, CUresult operation_status, CUresult restore_status) noexcept;
 // Implemented in error.cpp
-void
-format_operation(char *buffer, size_t size, const char *operation, unsigned long long handle) noexcept;
+void format_operation(char *buffer, size_t size, const char *operation, unsigned long long handle) noexcept;
 
 // Bits of a resource handle for diagnostics: a pointer as its address, an
 // integer handle (CUdeviceptr, CUtexObject, ...) as its value, and a pointer
@@ -63,18 +60,15 @@ struct DeallocationStream {
 };
 
 // Implemented in stream.cpp
-ContextHandle
-deallocation_context(const DeallocationStream &stream) noexcept;
+ContextHandle deallocation_context(const DeallocationStream &stream) noexcept;
 // Implemented in stream.cpp
-bool
-make_deallocation_stream(const StreamHandle &h, DeallocationStream &out) noexcept;
+bool make_deallocation_stream(const StreamHandle &h, DeallocationStream &out) noexcept;
 
 // Implemented in virtual_memory.cpp. Synchronize the stream a VMM buffer
 // recorded before its mappings are released. Skips the sync, with a report
 // when a capture is the reason, if no stream was recorded, the interpreter is
 // finalizing, or the sync would disturb a graph capture (VMM_DESIGN.md).
-void
-vmm_sync_before_release(const DeallocationStream &stream) noexcept;
+void vmm_sync_before_release(const DeallocationStream &stream) noexcept;
 
 // Decorate a status-returning cleanup call to report whenever it fails. CUDA
 // calls (CUresult) are reported with the error name and description; NVRTC,
@@ -168,11 +162,9 @@ struct DeferredCleanupItem {
 };
 
 // Implemented in py_deferred_cleanup.cpp
-void
-ensure_deferred_cleanup_ready();
+void ensure_deferred_cleanup_ready();
 // Implemented in py_deferred_cleanup.cpp
-void
-enqueue_cleanup(void *item) noexcept;
+void enqueue_cleanup(void *item) noexcept;
 
 // ============================================================================
 // Handle reverse-lookup registry
