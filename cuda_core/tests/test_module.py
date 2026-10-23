@@ -16,7 +16,7 @@ import cuda.core
 from cuda.core import Device, Kernel, Linker, LinkerOptions, ObjectCode, Program, ProgramOptions
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import driver_version
 
 try:
     import numba
@@ -65,7 +65,7 @@ nvfatbin_available = pytest.mark.skipif(not _is_nvfatbin_available(), reason="nv
 
 @pytest.fixture(scope="module")
 def cuda12_4_prerequisite_check():
-    return binding_version() >= (12, 0, 0) and driver_version() >= (12, 4, 0)
+    return driver_version() >= (12, 4, 0)
 
 
 @pytest.fixture(name="convert_path", params=[str, lambda p: p], ids=["str", "path"])
@@ -902,3 +902,17 @@ def test_kernel_keeps_library_alive(init_cuda):
     stream.sync()
 
     assert result[0] == 42, f"Expected 42, got {result[0]}"
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_kernel_equality_hash_and_repr(get_saxpy_kernel_cubin):
+    """Kernel identity follows the underlying CUkernel handle."""
+    kernel, objcode = get_saxpy_kernel_cubin
+    same = Kernel.from_handle(int(kernel.handle), objcode)
+    other = objcode.get_kernel("saxpy<double>")
+
+    assert kernel == same
+    assert hash(kernel) == hash(same)
+    assert kernel != other
+    assert kernel != object()
+    assert repr(kernel).startswith("<Kernel handle=")

@@ -28,7 +28,7 @@ struct LibraryBox {
 LibraryHandle create_library_handle_from_file(const char* path) {
     GILReleaseGuard gil;
     CUlibrary library;
-    if (CUDA_SUCCESS != (err = p_cuLibraryLoadFromFile(&library, path, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuLibraryLoadFromFile, &library, path, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
         return {};
     }
 
@@ -47,7 +47,7 @@ LibraryHandle create_library_handle_from_file(const char* path) {
 LibraryHandle create_library_handle_from_data(const void* data) {
     GILReleaseGuard gil;
     CUlibrary library;
-    if (CUDA_SUCCESS != (err = p_cuLibraryLoadData(&library, data, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuLibraryLoadData, &library, data, nullptr, nullptr, 0, nullptr, nullptr, 0))) {
         return {};
     }
 
@@ -92,7 +92,7 @@ static HandleRegistry<CUkernel, KernelHandle> kernel_registry;
 KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name) {
     GILReleaseGuard gil;
     CUkernel kernel;
-    if (CUDA_SUCCESS != (err = p_cuLibraryGetKernel(&kernel, *h_library, name))) {
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuLibraryGetKernel, &kernel, *h_library, name))) {
         return {};
     }
 
@@ -126,15 +126,16 @@ struct NvrtcProgramBox {
 }  // namespace
 
 NvrtcProgramHandle create_nvrtc_program_handle(nvrtcProgram prog) {
+    // Resolve the table now, while the library that created `prog` is loaded,
+    // so that the deleter never triggers a fill.
+    ensure_fn_table(FnTable::nvrtc);
     auto box = std::shared_ptr<NvrtcProgramBox>(
         new NvrtcProgramBox{prog},
         [](NvrtcProgramBox* b) {
             // Note: nvrtcDestroyProgram takes nvrtcProgram* and nulls it,
             // but we're deleting the box anyway so nulling is harmless.
-            if (p_nvrtcDestroyProgram) {
-                GILReleaseGuard gil;
-                pw_nvrtcDestroyProgram(&b->resource);
-            }
+            GILReleaseGuard gil;
+            pw_nvrtcDestroyProgram(&b->resource);
             delete b;
         }
     );
@@ -157,16 +158,14 @@ struct NvvmProgramBox {
 }  // namespace
 
 NvvmProgramHandle create_nvvm_program_handle(nvvmProgram prog) {
+    ensure_fn_table(FnTable::nvvm);
     auto box = std::shared_ptr<NvvmProgramBox>(
         new NvvmProgramBox{{prog}},
         [](NvvmProgramBox* b) {
             // Note: nvvmDestroyProgram takes nvvmProgram* and nulls it,
             // but we're deleting the box anyway so nulling is harmless.
-            // If NVVM is not available, the function pointer is null.
-            if (p_nvvmDestroyProgram) {
-                GILReleaseGuard gil;
-                pw_nvvmDestroyProgram(&b->resource.raw);
-            }
+            GILReleaseGuard gil;
+            pw_nvvmDestroyProgram(&b->resource.raw);
             delete b;
         }
     );
@@ -189,16 +188,14 @@ struct NvJitLinkBox {
 }  // namespace
 
 NvJitLinkHandle create_nvjitlink_handle(nvJitLink_t handle) {
+    ensure_fn_table(FnTable::nvjitlink);
     auto box = std::shared_ptr<NvJitLinkBox>(
         new NvJitLinkBox{{handle}},
         [](NvJitLinkBox* b) {
             // Note: nvJitLinkDestroy takes nvJitLinkHandle* and nulls it,
             // but we're deleting the box anyway so nulling is harmless.
-            // If nvJitLink is not available, the function pointer is null.
-            if (p_nvJitLinkDestroy) {
-                GILReleaseGuard gil;
-                pw_nvJitLinkDestroy(&b->resource.raw);
-            }
+            GILReleaseGuard gil;
+            pw_nvJitLinkDestroy(&b->resource.raw);
             delete b;
         }
     );
@@ -221,14 +218,13 @@ struct CuLinkBox {
 }  // namespace
 
 CuLinkHandle create_culink_handle(CUlinkState state) {
+    ensure_fn_table(FnTable::driver);
     auto box = std::shared_ptr<CuLinkBox>(
         new CuLinkBox{state},
         [](CuLinkBox* b) {
             // cuLinkDestroy takes CUlinkState by value (not pointer).
-            if (p_cuLinkDestroy) {
-                GILReleaseGuard gil;
-                pw_cuLinkDestroy(b->resource);
-            }
+            GILReleaseGuard gil;
+            pw_cuLinkDestroy(b->resource);
             delete b;
         }
     );

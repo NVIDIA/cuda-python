@@ -101,7 +101,9 @@ class DeviceMemoryResource(_MemPool):
 
     For greater efficiency when transferring many buffers, one may also send
     MRs and buffers separately. When an MR is sent via :mod:`multiprocessing`,
-    an MMR is created and registered in the receiving process. Subsequently,
+    an MMR is created and registered in the receiving process, for the device
+    with the same UUID as the MR's device, whatever its ordinal is there; if
+    that device is not visible, unpickling raises ``RuntimeError``. Subsequently,
     buffers may be serialized and transferred using ordinary :mod:`pickle`
     methods.  The reconstruction procedure uses the registry to find the
     associated MMR. Unpickling a :class:`Buffer` performs an IPC import from
@@ -212,3 +214,4 @@ def DMR_mempool_get_access(dmr: DeviceMemoryResource, device_id: int) -> str:
         Access permissions: "rw" for read-write, "r" for read-only, "" for no access.
     """
 def _deep_reduce_device_memory_resource(mr) -> tuple[object, ...]: ...
+def _reconstruct_device_memory_resource(cls: type, device_uuid: str, alloc_handle: IPCAllocationHandle) -> DeviceMemoryResource: ...

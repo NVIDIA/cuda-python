@@ -8,10 +8,10 @@ from __future__ import annotations
 import argparse
 import sys
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 
-class Classification(str, Enum):
+class Classification(StrEnum):
     """Possible attributions for a stale candidate lockfile."""
 
     PR_INDUCED = "pr-induced"

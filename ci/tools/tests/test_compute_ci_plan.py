@@ -46,7 +46,7 @@ class ComputeWorkplanTest(unittest.TestCase):
     def test_path_impacts(self) -> None:
         cases = {
             "cuda_pathfinder/cuda/pathfinder/_loader.py": (ALL_MODULES, ALL_MODULES, False),
-            "cuda_bindings/cuda/bindings/driver.pyx": (
+            "cuda_bindings_13/cuda/bindings/driver.pyx": (
                 {"bindings", "core", "python"},
                 {"bindings", "core", "python"},
                 False,
@@ -55,8 +55,8 @@ class ComputeWorkplanTest(unittest.TestCase):
             "cuda_core/cuda/core/examples/demo.py": ({"core"}, {"core", "python"}, True),
             "cuda_python/pyproject.toml": ({"bindings", "python"}, {"python"}, False),
             "cuda_pathfinder/tests/test_loader.py": (set(), {"pathfinder"}, False),
-            "cuda_bindings/examples/0_Introduction/vectorAddDrv.py": (set(), {"bindings"}, False),
-            "cuda_bindings/tests/README.md": (set(), {"bindings"}, False),
+            "cuda_bindings_13/examples/0_Introduction/vectorAddDrv.py": (set(), {"bindings"}, False),
+            "cuda_bindings_13/tests/README.md": (set(), {"bindings"}, False),
             "cuda_core/pytest.ini": (set(), {"core"}, False),
             "cuda_python/tests/test_import.py": (set(), {"python"}, False),
             "cuda_python_test_helpers/cuda_python_test_helpers/cuda_utils.py": (
@@ -114,7 +114,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             "benchmarks/cuda_bindings/pixi.toml",
             "benchmarks/cuda_bindings/AGENTS.md",
             "cuda_core/cuda/core/_cpp/rt/DESIGN.md",
-            "cuda_bindings/README.md",
+            "cuda_bindings_13/README.md",
             "cuda_core/README.md",
             "new-area/pixi.toml",
             "notes.md",
@@ -134,7 +134,6 @@ class ComputeWorkplanTest(unittest.TestCase):
             plan_for("new-area/config.toml"),
             plan_for(".github/workflows/new-main-ci-workflow.yml"),
             plan_for(".github/actions/doc_preview/action.yml"),
-            plan_for("ci/ci-pipeline.svg"),
             plan_for("cuda_core/docs/index.rst", baseline=False),
             compute_workplan([], merge_base="", baseline_run_id="123"),
         ):

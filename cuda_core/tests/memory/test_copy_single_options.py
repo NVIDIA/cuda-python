@@ -10,7 +10,7 @@ from helpers.memory import create_managed_memory_resource_or_skip
 
 from cuda.core import Device, Host, LegacyPinnedMemoryResource
 from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.utils import CopyOptions, MemcpyOverlapMode, MemcpySrcAccessOrder
 
 SIZE = 4096
@@ -19,12 +19,12 @@ SIZE = 4096
 def _options_honored():
     """True when cuMemcpyWithAttributesAsync will actually be used for options.
 
-    Mirrors _with_attributes_available() in _buffer.pyx. CI runs a matrix
-    that includes pre-CUDA-13.2 driver/bindings combinations (see
-    ci/test-matrix.yml), where this is False and the DURING_API_CALL tests
-    below must expect a RuntimeError instead of a successful copy.
+    Mirrors _with_attributes_available() in _copy_attributes.pxd. The CI
+    matrix in ci/test-matrix.yml includes CUDA 12 builds and pre-13.2
+    drivers. On those runs this returns False, and the DURING_API_CALL
+    tests below must expect a RuntimeError instead of a successful copy.
     """
-    return driver_version() >= (13, 2, 0) and binding_version() >= (13, 2, 0)
+    return BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 2, 0)
 
 
 @pytest.fixture
@@ -44,6 +44,17 @@ def single_copy_stream(single_copy_device):
 @pytest.fixture
 def pinned_mr():
     return LegacyPinnedMemoryResource()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_copy_from_rejects_none_src(single_copy_device, single_copy_stream, pinned_mr):
+    """copy_from(None) raises TypeError instead of dereferencing a null source."""
+    dst = pinned_mr.allocate(SIZE)
+
+    with pytest.raises(TypeError):
+        dst.copy_from(None, stream=single_copy_stream)
+
+    dst.close()
 
 
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")

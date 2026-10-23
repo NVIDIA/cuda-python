@@ -148,10 +148,11 @@ def merge_wheels(wheels: list[Path], output_dir: Path, show_wheel_contents: bool
 
         print("\n=== Removing files from cuda/core/ directory ===", file=sys.stderr)
         # Only what cuda/core/__init__.py uses before it rewrites __path__ to the
-        # versioned subpackage stays at top level: it imports _version, then
-        # redirects every later import into the versioned tree. Anything else
-        # left at top level is a dead copy that nothing imports.
-        items_to_keep = {"__init__.py", "_version.py", *versioned_dirs}
+        # versioned subpackage stays at top level: it imports _version and the
+        # build-independent floor logic in _bindings_floor, then redirects every
+        # later import into the versioned tree. Anything else left at top level
+        # is a dead copy that nothing imports.
+        items_to_keep = {"__init__.py", "_version.py", "_bindings_floor.py", *versioned_dirs}
         all_items = os.scandir(base_wheel / base_dir)
         removed_count = 0
         for f in all_items:

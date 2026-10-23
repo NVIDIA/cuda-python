@@ -467,8 +467,8 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
     DescriptorSpec(
         name="cudss",
         packaged_with="other",
-        linux_sonames=("libcudss.so.0",),
-        windows_dlls=("cudss64_0.dll",),
+        linux_sonames=("libcudss.so.1", "libcudss.so.0"),
+        windows_dlls=("cudss64_1.dll", "cudss64_0.dll"),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cu12/lib"),
         site_packages_windows=WindowsSearchDirs(
@@ -476,12 +476,13 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
             arm64=("nvidia/cu13/bin", "nvidia/cu12/bin"),
         ),
         dependencies=("cublas", "cublasLt"),
+        optional_dependencies=("nvrtc",),
     ),
     DescriptorSpec(
         name="cusparseLt",
         packaged_with="other",
         linux_sonames=("libcusparseLt.so.0",),
-        windows_dlls=("cusparseLt.dll",),
+        windows_dlls=("cusparseLt_13.dll", "cusparseLt.dll"),
         supported_windows_arch=("x64", "arm64"),
         site_packages_linux=("nvidia/cu13/lib", "nvidia/cusparselt/lib"),
         site_packages_windows=WindowsSearchDirs(

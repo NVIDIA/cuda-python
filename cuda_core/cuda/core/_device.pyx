@@ -30,7 +30,6 @@ from cuda.core._rt cimport (
 )
 
 from cuda.core._stream import IsStreamType, Stream, StreamOptions
-from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
@@ -1057,13 +1056,6 @@ class Device:
         cuda.core.system.Device
             The corresponding system-level device instance used for NVML access.
         """
-        from cuda.core.system._system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
-
-        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-            raise RuntimeError(
-                "cuda.core.system.Device requires cuda-bindings 12.9.6+ for CUDA 12.x, or cuda-bindings 13.2.0+ for CUDA 13.x"
-            )
-
         from cuda.core.system import Device as SystemDevice
         return SystemDevice(uuid=self.uuid)
 
@@ -1215,9 +1207,7 @@ class Device:
         return self._memory_resource
 
     @memory_resource.setter
-    def memory_resource(self, mr: MemoryResource) -> None:
-        from cuda.core._memory import MemoryResource
-        assert_type(mr, MemoryResource)
+    def memory_resource(self, MemoryResource mr not None: MemoryResource) -> None:
         self._memory_resource = mr
 
     @property
@@ -1254,7 +1244,7 @@ class Device:
     def __reduce__(self) -> tuple[object, ...]:
         return Device, (self.device_id,)
 
-    def set_current(self, ctx: Context | None = None) -> Context | None:
+    def set_current(self, Context ctx: Context | None = None) -> Context | None:
         """Set device to be used for GPU executions.
 
         Initializes CUDA and sets the calling thread to a valid CUDA
@@ -1298,8 +1288,6 @@ class Device:
         cdef Context prev_owned = None
 
         if ctx is not None:
-            # TODO: revisit once Context is cythonized
-            assert_type(ctx, Context)
             Context_check_open(ctx)
             if ctx._device_id != self._device_id:
                 # The CUDA context stack is per-thread, not per-Device-object,
@@ -1640,6 +1628,29 @@ class Device:
             resource, self._context, self._device_id)
 
 
+def _device_from_uuid(device_uuid: str) -> Device:
+    """Return the visible device whose :attr:`Device.uuid` is ``device_uuid``.
+
+    Device ordinals are per process (``CUDA_VISIBLE_DEVICES`` can renumber
+    devices), so objects that cross a process boundary name their devices by
+    UUID, and the receiving process maps each UUID back with this function.
+
+    Raises
+    ------
+    RuntimeError
+        If no device visible to this process has the UUID.
+    """
+    devices = Device.get_all_devices()
+    for device in devices:
+        if device.uuid == device_uuid:
+            return device
+    visible = ", ".join(f"{device.device_id} ({device.uuid})" for device in devices) or "none"
+    raise RuntimeError(
+        f"no CUDA device visible to this process has UUID {device_uuid}; the visible devices are: "
+        f"{visible}. Make the device visible to this process, for example through CUDA_VISIBLE_DEVICES."
+    )
+
+
 cdef inline int Device_ensure_cuda_initialized() except? -1:
     """Initialize CUDA driver and check version compatibility (once per process)."""
     global _is_cuInit
@@ -1647,11 +1658,9 @@ cdef inline int Device_ensure_cuda_initialized() except? -1:
         with _lock, nogil:
             HANDLE_RETURN(cydriver.cuInit(0))
             _is_cuInit = True
-        try:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            # cuda-bindings 13.3 added this function. The 12.x line does not have it.
             from cuda.bindings.utils import warn_if_cuda_major_version_mismatch
-        except ImportError:
-            pass
-        else:
             warn_if_cuda_major_version_mismatch()
     return 0
 

@@ -137,9 +137,10 @@ class MemsetNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` may
         only accompany a raw-address ``dst``.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -186,11 +187,12 @@ class MemcpyNode(GraphNode):
         Omitted parameters preserve their current values. ``dst_owner`` and
         ``src_owner`` may only accompany their corresponding raw addresses.
         Multidimensional, pitched, offset, and array-backed memcpy nodes are
-        not supported.
+        not supported. Nodes recorded by stream capture are supported.
 
-        With CUDA 12.2 through 13.1, the node's intended CUDA context must be
-        current when this method is called. CUDA driver and ``cuda.bindings``
-        versions 13.2 and newer preserve the recorded context automatically.
+        With drivers from CUDA 12.2 through 13.1, the node's intended CUDA
+        context must be current when this method runs. With the CUDA 13 build
+        of ``cuda.core`` and a driver of CUDA 13.2 or newer, this method
+        preserves the recorded context.
 
         .. warning::
 
@@ -395,7 +397,10 @@ class ExecutableMemsetNode(ExecutableGraphNode):
 class ExecutableMemcpyNode(ExecutableGraphNode):
     """An executable memcpy-node view."""
     def update(self, *, dst: Buffer | int, src: Buffer | int, size: int) -> None:
-        """Replace all one-dimensional memcpy parameters for future launches."""
+        """Replace all one-dimensional memcpy parameters for future launches.
+
+        Nodes recorded by stream capture are supported.
+        """
     @property
     def is_enabled(self) -> bool:
         """Whether this node is enabled in the executable graph."""
