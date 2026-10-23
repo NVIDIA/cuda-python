@@ -1816,8 +1816,7 @@ def test_get_bar_size_in_kb():
 
     # Verify BAR size is a reasonable value
     assert isinstance(bar_size_kb, int), "BAR size should be an integer"
-    err, integrated = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_INTEGRATED, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    integrated = cuda.device_get_attribute(cuda.DeviceAttribute.INTEGRATED, 0)
     # Integrated GPUs (including GB10 and Tegra) need not expose PCIe BAR memory.
     min_bar_size = 0 if integrated else 1
     assert bar_size_kb >= min_bar_size, f"BAR size should be >= {min_bar_size}"
