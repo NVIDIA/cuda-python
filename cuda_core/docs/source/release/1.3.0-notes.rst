@@ -118,6 +118,7 @@ Fixes and enhancements
   named the device by ordinal, which names a different device when
   ``CUDA_VISIBLE_DEVICES`` differs between the processes. Unpickling raises
   ``RuntimeError`` when the device is not visible in the receiving process.
+  The pickled form is for processes on the same machine.
   (`#3196 <https://github.com/NVIDIA/cuda-python/issues/3196>`__)
 
 - Fixed a ``TypeError`` in :meth:`Program.compile` when retrying after PCH

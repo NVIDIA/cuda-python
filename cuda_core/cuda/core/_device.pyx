@@ -986,7 +986,7 @@ class Device:
     A pickled :obj:`~_device.Device` names its device by UUID. Unpickling
     returns the device with that UUID in the receiving process, whatever its
     ordinal is there, and raises ``RuntimeError`` if that device is not
-    visible.
+    visible. The pickled form is for processes on the same machine.
 
     Note
     ----
