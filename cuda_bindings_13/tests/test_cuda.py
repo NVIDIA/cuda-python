@@ -553,10 +553,11 @@ def test_cuda_coredump_attr():
 def test_coredump_bool_uses_single_byte_storage():
     # Round-trip a bool-valued setting in both directions; a getter that read
     # more than one byte of the storage would be affected by stale high bytes.
-    driver.coredump_set_attribute_global(driver.CoredumpSettings.TRIGGER_HOST, True)
-    assert driver.coredump_get_attribute_global(driver.CoredumpSettings.TRIGGER_HOST) is True
-    driver.coredump_set_attribute_global(driver.CoredumpSettings.TRIGGER_HOST, False)
-    assert driver.coredump_get_attribute_global(driver.CoredumpSettings.TRIGGER_HOST) is False
+    # LIGHTWEIGHT is used because the Windows driver does not round-trip TRIGGER_HOST.
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT, True)
+    assert driver.coredump_get_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT) is True
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT, False)
+    assert driver.coredump_get_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT) is False
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
