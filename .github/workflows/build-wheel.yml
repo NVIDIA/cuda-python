@@ -59,6 +59,9 @@ jobs:
           # see https://github.com/actions/setup-python/issues/871
           python-version: "3.12"
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
@@ -112,7 +115,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299  # v4.3.1
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -155,7 +158,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299  # v4.3.1
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -230,6 +233,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           # TODO: remove allow-prereleases once 3.15 is officially supported
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.15') }}
+
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
 
       - name: verify free-threaded build
         if: endsWith(matrix.python-verison, 't')
