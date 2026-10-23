@@ -50,8 +50,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Install build tools
-        run: python -m pip install "pip>=25.3" build
+        run: python -m pip install build
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
