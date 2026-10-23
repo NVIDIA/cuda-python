@@ -40,8 +40,10 @@ Naming
 - Functions use ``snake_case`` with the ``cu``/``nvrtc`` prefix removed
   (``cuStreamCreate`` becomes ``stream_create``). Driver functions keep the version suffix of
   the C symbol (``mem_alloc_v2``), whereas the legacy module drops it.
-- Parameters and struct members use ``snake_case``. Names that would clash with a Python keyword or
-  builtin, or with a name reserved by the generated classes, get a trailing underscore (``input_``, ``flags_``).
+- Parameters and struct members use ``snake_case``. A parameter that is a Python keyword gets a
+  trailing underscore (``from_``). Python builtin names such as ``type`` and ``object`` are kept as they are.
+  A struct member whose name would shadow an attribute of the class (``ptr``) or of the NumPy array that backs
+  struct arrays (``data``, ``flags``, ``size``, ``device``) also gets a trailing underscore (``flags_``, ``data_``).
 - Enumeration classes and structs use ``CamelCase`` with the ``CU``/``nvrtc`` prefix removed.
   Structs keep their C version suffix (``MemLocation_v1``) and there is a single class per
   versioned C type instead of several aliases.
