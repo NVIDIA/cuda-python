@@ -3459,13 +3459,13 @@ Functions
      -
    * - ``nvrtcInstallBundledHeaders``
      - ``install_bundled_headers``
-     - ``flags`` takes ``InstallHeadersFlag`` values. Returns the optional error message (``bytes`` or ``None``).
+     - ``flags`` takes ``InstallHeadersFlag`` values. Returns the optional error message as ``bytes``, empty (``b""``) when there is none.
    * - ``nvrtcGetBundledHeadersInfo``
      - ``get_bundled_headers_info``
-     - Returns ``(BundledHeadersInfo, error_log)`` as a tuple, with ``error_log`` set to ``None`` on success.
+     - Returns ``(BundledHeadersInfo, error_log)`` as a tuple, with ``error_log`` empty (``b""``) when there is no error message.
    * - ``nvrtcRemoveBundledHeaders``
      - ``remove_bundled_headers``
-     - Returns the optional error message (``bytes`` or ``None``).
+     - Returns the optional error message as ``bytes``, empty (``b""``) when there is none.
    * - ``nvrtcGetErrorString``
      - ``get_error_string``
      - Takes the result code as an ``int``. Returns ``str`` (legacy returned ``bytes``).
