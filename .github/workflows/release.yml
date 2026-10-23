@@ -344,10 +344,19 @@ jobs:
       EXTRA_INDEX_URL: https://pypi.org/simple/
       INDEX_NAME: TestPyPI
     steps: &verify-pathfinder-steps
-      - name: Install Pathfinder from index and verify
+      - name: Create verification environment
         run: |
           [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
           python3 -m venv "${RUNNER_TEMP}/verify"
+
+      - name: Harden pip
+        # These jobs have no checkout; $/ loads the action from the workflow's commit.
+        uses: $/.github/actions/harden-pip
+        with:
+          python: ${{ runner.temp }}/verify/bin/python
+
+      - name: Install Pathfinder from index and verify
+        run: |
           source "${RUNNER_TEMP}/verify/bin/activate"
           index_args=()
           if [[ -n "$INDEX_URL" ]]; then
