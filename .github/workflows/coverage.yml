@@ -581,7 +581,11 @@ jobs:
     # GitHub discards prerequisite artifacts on a new run attempt. If only this
     # job fails, use "Re-run all jobs" so coverage recreates its payload.
     needs: combine-and-deploy
-    if: ${{ needs.combine-and-deploy.result == 'success' && github.repository_owner == 'nvidia' }}
+    # Manual runs on PR mirror branches should not publish over main's report.
+    if: >-
+      needs.combine-and-deploy.result == 'success' &&
+      github.repository_owner == 'nvidia' &&
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
