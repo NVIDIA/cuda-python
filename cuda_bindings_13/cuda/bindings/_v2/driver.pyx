@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e84c1fe79d03709871d5a37c4970bfec7d3eec5ce9ba6297e03bf63721011166
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cc1ac70b43586bcc18fa53eaf2741642b15689e14a6882e41062b817f36e80ab
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -120,7 +120,7 @@ cimport cython  # NOQA
 from cpython.buffer cimport (Py_buffer, PyObject_GetBuffer, PyBuffer_Release,
                               PyBUF_ANY_CONTIGUOUS, PyObject_CheckBuffer,
                               PyBUF_SIMPLE)
-from libc.string cimport memcpy, memset
+from libc.string cimport memcpy as c_memcpy, memset
 
 from cpython.mem cimport PyMem_Calloc, PyMem_Free
 
@@ -26737,7 +26737,7 @@ cdef int _pack_argument(void** ptr, char* slot, object value, object ctype) exce
             value = ctype(value)
         size = <size_t>_ctypes.sizeof(ctype)
         addr = <void*><intptr_t>_ctypes.addressof(value)
-        memcpy(slot, addr, size)
+        c_memcpy(slot, addr, size)
         return 0
     elif ctype is _ctypes.c_void_p:
         if isinstance(value, (int, _ctypes.c_void_p)):
@@ -29477,8 +29477,8 @@ cpdef intptr_t mem_alloc_host_v2(size_t bytesize) except? 0:
     Allocates ``bytesize`` bytes of host memory that is page-locked and accessible
     to the device. The driver tracks the virtual memory ranges allocated with this
     function and automatically accelerates calls to functions such as
-    :func:`cu_memcpy`. Since the memory can be accessed directly by the device, it
-    can be read or written with much higher bandwidth than pageable memory obtained
+    :func:`memcpy`. Since the memory can be accessed directly by the device, it can
+    be read or written with much higher bandwidth than pageable memory obtained
     with functions such as ``malloc()``.
     On systems where
     ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS_USES_HOST_PAGE_TABLES`` is true,
@@ -30133,7 +30133,7 @@ cpdef mem_host_unregister(p):
     check_status(__status__)
 
 
-cpdef cu_memcpy(uint64_t dst, uint64_t src, size_t byte_count):
+cpdef memcpy(uint64_t dst, uint64_t src, size_t byte_count):
     """Copies memory.
 
     Copies data between two pointers. ``dst`` and ``src`` are base pointers of the

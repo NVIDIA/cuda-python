@@ -1133,7 +1133,7 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
      - ``mem_unmap``
      -
    * - ``cuMemcpy``
-     - ``cu_memcpy``
+     - ``memcpy``
      -
    * - ``cuMemcpy2D``
      - ``memcpy_2d_v2``

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f9f2c83efd71c87778422f6fa62fa737eb43ec0c437102501f821a8426d1b78b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6fcf904a35d5aa857ef919763d56c49656afa5977ed8be2f91f7cad840af7ed6
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -335,7 +335,7 @@ cpdef uint64_t ipc_open_mem_handle_v2(handle, unsigned int flags) except? 0
 cpdef ipc_close_mem_handle(uint64_t dptr)
 cpdef mem_host_register_v2(p, size_t bytesize, unsigned int flags)
 cpdef mem_host_unregister(p)
-cpdef cu_memcpy(uint64_t dst, uint64_t src, size_t byte_count)
+cpdef memcpy(uint64_t dst, uint64_t src, size_t byte_count)
 cpdef memcpy_peer(uint64_t dst_device, intptr_t dst_context, uint64_t src_device, intptr_t src_context, size_t byte_count)
 cpdef memcpy_htod_v2(uint64_t dst_device, src_host, size_t byte_count)
 cpdef memcpy_dtoh_v2(dst_host, uint64_t src_device, size_t byte_count)
