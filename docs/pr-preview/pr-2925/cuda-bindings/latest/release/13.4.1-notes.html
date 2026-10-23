@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=601cee39"></script>
+    <script src="../_static/documentation_options.js?v=0fedfaed"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -538,6 +538,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.3-notes.html">13.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">13.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.4.0-notes.html">13.4.0</a></li>
@@ -550,6 +551,7 @@
 <li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.9-notes.html">12.9.9</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.8-notes.html">12.9.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.7-notes.html">12.9.7</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.6-notes.html">12.9.6</a></li>
@@ -1407,6 +1409,64 @@
 <li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">nvml.event_set_get_context_data_v1()</span></code></p></li>
 </ul>
 </section>
+<section id="breaking-changes">
+<h2>Breaking changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
+<p>Members of <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> classes that represent memory for use by future
+versions of the CUDA API were incorrectly exposed to Python.  These have been
+removed and are no longer exposed.  These members have names like <code class="docutils literal notranslate"><span class="pre">reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">internal</span></code>, <code class="docutils literal notranslate"><span class="pre">padding</span></code> and <code class="docutils literal notranslate"><span class="pre">unused</span></code> (sometimes with a numeric suffix).  The
+C++ CUDA documentation may sometimes say that these members “must be zeroed”,
+but that is not required with the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> Python interface (it happens
+automatically).</p>
+<p>This affects the following fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">driver</span></code>: <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY_MEMORY_REQUIREMENTS_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY_SPARSE_PROPERTIES_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_SEMAPHONE_SIGNAL_PARAMS_st.nvSciSync.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.nvSciSync.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_MEMCPY3D_st.reserved0</span></code>, <code class="docutils literal notranslate"><span class="pre">CUDA_MEMCPY3D_st.reserved1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_MEMCPY_NODE_PARAMS_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">CUDA_RESOURCE_DESC_st.res.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUDA_RESOURCE_VIEW_DESC_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">CUDA_TEXTURE_DESC_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUcheckpointLockArgs_st.reserved0</span></code>, <code class="docutils literal notranslate"><span class="pre">CUcheckpointLockArgs_st.reserved1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUcheckpointRestoreArgs_st.padding0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUcheckpointRestoreArgs_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">CUcheckpointUnlockArgs_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUdevWorkqueueResource_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">CUgraphEdgeData_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUgraphNodeParams_st.reserved0</span></code>, <code class="docutils literal notranslate"><span class="pre">CUgraphNodeParams_st.reserved1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUgraphNodeParams_st.reserved2</span></code>, <code class="docutils literal notranslate"><span class="pre">CUipcEventHandle_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUipcMemHandle_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp_st.allocFlags.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUmemDecompressParams_st.padding</span></code>, <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolPtrExportData_st.reserved</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml</span></code>: <code class="docutils literal notranslate"><span class="pre">AccountingStats.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">VgpuMetadata.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">VgpuPgpuMetadata.reserved</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runtime</span></code>: <code class="docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaArraySparseProperties.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupParams_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueResource.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryBufferDesc.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleDesc.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryMipmappedArrayDesc.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreHandleDesc.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalParams.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitParams.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFuncAttributes.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaGraphEdgeData_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams.reserved0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams.reserved1</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams.reserved2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemPoolProps.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyNodeParams.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaPointerAttributes.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaPointerAttributes.unused</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaResourceViewDesc.reserved</span></code></p></li>
+</ul>
+<p>It is no longer possible to get or set these bytes directly.  To create a
+wrapped struct from a buffer (for example, for pickling), see
+<a class="reference internal" href="../tips_and_tricks.html#tips-setting-raw-struct-bytes"><span class="std std-ref">Setting raw bytes of structs</span></a>.</p>
+</section>
 <section id="bugfixes">
 <h2>Bugfixes<a class="headerlink" href="#bugfixes" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -1506,6 +1566,7 @@ still experimental and subject to change.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-apis">New APIs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecation-notices">Deprecation Notices</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preview-feature">Preview feature</a></li>

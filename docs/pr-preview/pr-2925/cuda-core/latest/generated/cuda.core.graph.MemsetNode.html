@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2ae6a4c6"></script>
+    <script src="../_static/documentation_options.js?v=e4bc8419"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev113';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev258';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -602,6 +602,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.WorkqueueResourceOptions.html">cuda.core.WorkqueueResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedBuffer.html">cuda.core.ManagedBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryBuffer.html">cuda.core.VirtualMemoryBuffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
@@ -705,6 +706,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.3.0-notes.html">1.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.1.1-notes.html">1.1.1</a></li>
@@ -818,7 +820,7 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">Device</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">memory_type:</span> <span class="pre">GraphMemoryType</span> <span class="pre">=</span> <span class="pre">GraphMemoryType.DEVICE</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">list</span> <span class="pre">peer_access:</span> <span class="pre">list[Device</span> <span class="pre">|</span> <span class="pre">int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">peer_access:</span> <span class="pre">list[Device</span> <span class="pre">|</span> <span class="pre">int]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode" title="cuda.core.graph.AllocNode"><span class="pre">AllocNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemsetNode.allocate" title="Link to this definition">#</a></dt>
@@ -913,7 +915,7 @@ copied and its lifetime is tied to the graph.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.MemsetNode.deallocate">
-<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">dptr:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode"><span class="pre">FreeNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemsetNode.deallocate" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode" title="cuda.core.graph.FreeNode"><span class="pre">FreeNode</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemsetNode.deallocate" title="Link to this definition">#</a></dt>
 <dd><p>Add a memory free node depending on this node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1237,22 +1239,23 @@ value is out of range, no branch executes.</p>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">value=None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">width:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">height:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">pitch:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">dst_owner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.graph.MemsetNode.update" title="Link to this definition">#</a></dt>
 <dd><p>Replace selected memset parameters.</p>
 <p>Omitted parameters preserve their current values. <code class="docutils literal notranslate"><span class="pre">dst_owner</span></code> may
 only accompany a raw-address <code class="docutils literal notranslate"><span class="pre">dst</span></code>.</p>
-<p>With CUDA 12.2 through 13.1, the node’s intended CUDA context must be
-current when this method is called. CUDA driver and <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
-versions 13.2 and newer preserve the recorded context automatically.</p>
+<p>With drivers from CUDA 12.2 through 13.1, the node’s intended CUDA
+context must be current when this method runs. With the CUDA 13 build
+of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and a driver of CUDA 13.2 or newer, this method
+preserves the recorded context.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Use caution when a retained operand owner directly or indirectly
