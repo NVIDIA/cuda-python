@@ -303,6 +303,11 @@ jobs:
         with:
           python-version: ${{ matrix.PY_VER }}
 
+      - name: Harden pip
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/harden-pip
+
       - name: Enable Scientific Python Nightly Wheels for Python 3.15
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
                 startsWith(matrix.PY_VER, '3.15') }}
