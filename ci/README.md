@@ -197,7 +197,10 @@ Necessary dependency changes require manual review and validation of the
 affected manifests and lockfiles. Real source builds and tests continue using
 `PIXI_FROZEN=true`, including nested `pixi run` calls, to build the checkout's
 source packages against the committed dependency solution. The pinned Pixi
-version and committed lockfiles are unchanged.
+version was raised to v0.82.1 and the affected certificate-related packages
+(`certifi`, `pip`, `uv`, `ca-certificates`) were updated individually in the
+committed lockfiles to address the eMudhra/emSign CA incident; no general
+lockfile refresh was performed.
 
 Re-enable maintenance only after a released Pixi passes both upstream issue
 reproducers and repeated byte-stable update/lock/check cycles across all six

@@ -85,8 +85,11 @@ jobs:
           restore-keys: |
             pre-commit-${{ runner.os }}-py${{ env.PYTHON_VERSION }}
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Install pre-commit
-        run: python -m pip install --upgrade pip pre-commit
+        run: python -m pip install pre-commit
 
       # Keep this offline hook smoke check before network-dependent Lychee steps,
       # so hook setup and invocation failures surface before link-check retries.

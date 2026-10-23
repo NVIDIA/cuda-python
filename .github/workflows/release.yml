@@ -9,8 +9,6 @@ name: "CI: Release"
 # to TestPyPI followed by PyPI. The dry-run mode validates the release path
 # without publishing to external release surfaces.
 # Pathfinder additionally prepares metadata, verifies both indexes, and publishes its draft.
-# Before retiring the dedicated Pathfinder workflow, authorize release.yml in
-# its PyPI and TestPyPI trusted publishers; see .github/RELEASE-core.md.
 #
 # Maintenance note: non-trivial changes to this workflow should be validated
 # with dry-run workflow_dispatch runs before merging. Suggested focused matrix:
@@ -328,7 +326,7 @@ jobs:
           ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "dist"
 
       - name: Publish package distributions to TestPyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
         with:
           repository-url: https://test.pypi.org/legacy/
 
@@ -344,10 +342,19 @@ jobs:
       EXTRA_INDEX_URL: https://pypi.org/simple/
       INDEX_NAME: TestPyPI
     steps: &verify-pathfinder-steps
-      - name: Install Pathfinder from index and verify
+      - name: Create verification environment
         run: |
           [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
           python3 -m venv "${RUNNER_TEMP}/verify"
+
+      - name: Harden pip
+        # These jobs have no checkout; $/ loads the action from the workflow's commit.
+        uses: $/.github/actions/harden-pip
+        with:
+          python: ${{ runner.temp }}/verify/bin/python
+
+      - name: Install Pathfinder from index and verify
+        run: |
           source "${RUNNER_TEMP}/verify/bin/activate"
           index_args=()
           if [[ -n "$INDEX_URL" ]]; then
@@ -405,7 +412,7 @@ jobs:
           ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "dist"
 
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
 
   verify-pypi:
     name: Verify Pathfinder on PyPI

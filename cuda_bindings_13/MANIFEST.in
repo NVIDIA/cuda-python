@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 recursive-include cuda/ *.pyx *.pxd *.pxi *.pyx.in *.pxd.in *.pxi.in *.h
+include build_hooks.py
 # at least with setuptools 75.0.0 this folder was added erroneously
 # to the payload, causing file copying to the build environment failed
 exclude cuda/bindings cuda?bindings

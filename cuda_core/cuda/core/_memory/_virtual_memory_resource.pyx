@@ -1147,7 +1147,9 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
         try:
             handle = IPCAllocationHandle._init(fd, None)
         except:  # noqa: E722  rollback-then-raise: the fd is not owned yet
-            os.close(fd)
+            # nvbug 6977893: an Orin driver can return a negative fd despite success.
+            if fd >= 0:
+                os.close(fd)
             raise
         # The handle owns the fd now; if append fails, the handle closes it once.
         handles.append(handle)
