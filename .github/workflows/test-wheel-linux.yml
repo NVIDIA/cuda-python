@@ -333,7 +333,9 @@ jobs:
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Harden pip
-        uses: ./.github/actions/harden-pip
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/harden-pip
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}

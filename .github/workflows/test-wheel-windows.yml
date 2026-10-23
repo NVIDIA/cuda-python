@@ -312,7 +312,9 @@ jobs:
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.16') }}
 
       - name: Harden pip
-        uses: ./.github/actions/harden-pip
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/harden-pip
 
       - name: Verify LongPathsEnabled
         run: |
