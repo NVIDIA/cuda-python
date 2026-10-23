@@ -440,7 +440,7 @@ jobs:
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
       # Cython linetrace under coverage on Windows needs more stack than the
-      # default 1 MB thread size.  The helper runs pytest on an 8 MB thread.
+      # default 1 MB. The helper runs pytest on the main thread with 8 MB.
       - name: Run cuda.bindings tests (with 8MB stack)
         continue-on-error: true
         run: |
