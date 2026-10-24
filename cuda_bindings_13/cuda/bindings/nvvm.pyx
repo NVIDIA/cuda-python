@@ -3,12 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=92a06aa55bccfabc1d5bb1216489bb147dfb71d6e628480128fee207b8f3794f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d8933fb727fe70e6c790346a9c502409553a5f982b92288b6044a85229e6ce48
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
+from cuda.bindings._internal.utils cimport (
+    get_nested_resource_ptr as _cyb_get_nested_resource_ptr,
+    nested_resource as _cyb_nested_resource,
+)
 from libc.stdint cimport intptr_t
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
@@ -29,13 +33,12 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
             if size != -1:
                 assert view.len == size
-            assert view.ndim == 1
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
                 "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a 1D contiguous {adj}"
-                f"buffer, of size {size}"
+                f"address to a valid buffer, or a contiguous {adj}"
+                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
             ) from e
         else:
             ptr = <intptr_t>view.buf
@@ -333,8 +336,8 @@ cpdef compile_program(intptr_t prog, int num_options, options):
 
     .. seealso:: `nvvmCompileProgram`
     """
-    cdef nested_resource[ char ] _options_
-    get_nested_resource_ptr[char](_options_, options, <char*>NULL)
+    cdef _cyb_nested_resource[ char ] _options_
+    _cyb_get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     with nogil:
         __status__ = nvvmCompileProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
     check_status(__status__)
@@ -358,8 +361,8 @@ cpdef verify_program(intptr_t prog, int num_options, options):
 
     .. seealso:: `nvvmVerifyProgram`
     """
-    cdef nested_resource[ char ] _options_
-    get_nested_resource_ptr[char](_options_, options, <char*>NULL)
+    cdef _cyb_nested_resource[ char ] _options_
+    _cyb_get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     with nogil:
         __status__ = nvvmVerifyProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
     check_status(__status__)

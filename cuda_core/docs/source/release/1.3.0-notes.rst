@@ -312,3 +312,13 @@ Fixes and enhancements
   while operands from plain ``cuMemAlloc`` allocations accept it. The node's
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
+
+Deprecations
+------------
+
+- Two ``cuda.core.system`` exception classes were renamed so that they no longer have the same name as a Python builtin
+  exception. Code that did ``from cuda.core.system import *``
+  replaced the builtin ``TimeoutError`` and ``MemoryError`` in its namespace. Update code that refers to the old names:
+
+  - ``TimeoutError`` is now ``NvmlTimeoutError``.
+  - ``MemoryError`` is now ``NvmlMemoryError``.

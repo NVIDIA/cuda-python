@@ -4,8 +4,8 @@
 import numpy as np
 import pytest
 
-import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+from cuda.bindings._v2 import driver
 
 # Cap for the memory pool created by test_interop_memPool. Touching the device's
 # default pool (e.g. via cuDeviceGetDefaultMemPool, cudaDeviceGetDefaultMemPool,
@@ -13,6 +13,9 @@ import cuda.bindings.runtime as cudart
 # reserves virtual address space of about twice the device memory, which
 # cannot be satisfied in a 39-bit address space.
 POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
+
+# NULL dependency array: the node has no dependencies.
+NO_DEPS = 0
 
 
 def supportsMemoryPool():
@@ -22,61 +25,52 @@ def supportsMemoryPool():
 
 def test_interop_stream():
     # DRV to RT
-    err_dr, stream = cuda.cuStreamCreate(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    stream = driver.stream_create(0)
     (err_rt,) = cudart.cudaStreamDestroy(stream)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, stream = cudart.cudaStreamCreate()
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuStreamDestroy(stream)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    driver.stream_destroy_v2(int(stream))
 
 
 def test_interop_event():
     # DRV to RT
-    err_dr, event = cuda.cuEventCreate(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    event = driver.event_create(0)
     (err_rt,) = cudart.cudaEventDestroy(event)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, event = cudart.cudaEventCreate()
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuEventDestroy(event)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    driver.event_destroy_v2(int(event))
 
 
 def test_interop_graph():
     # DRV to RT
-    err_dr, graph = cuda.cuGraphCreate(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, graph = cudart.cudaGraphCreate(0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuGraphDestroy(graph)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_destroy(int(graph))
 
 
 def test_interop_graphNode():
-    err_dr, graph = cuda.cuGraphCreate(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
     # DRV to RT
-    err_dr, node = cuda.cuGraphAddEmptyNode(graph, [], 0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
     (err_rt,) = cudart.cudaGraphDestroyNode(node)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, node = cudart.cudaGraphAddEmptyNode(graph, [], 0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuGraphDestroyNode(node)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_destroy_node(int(node))
 
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
@@ -97,14 +91,13 @@ def test_interop_memPool():
     # Use a small, capped pool instead of the device's default pool. The pool
     # must be set before it is queried below because the getters create (and
     # reserve address space for) the default pool if none has been set.
-    props = cuda.CUmemPoolProps()
-    props.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-    props.handleTypes = cuda.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-    props.location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    props = driver.MemPoolProps_v1()
+    props.alloc_type = driver.MemAllocationType.PINNED
+    props.handle_types = driver.MemAllocationHandleType.NONE
+    props.location.type = driver.MemLocationType.DEVICE
     props.location.id = 0
-    props.maxSize = POOL_SIZE
-    err_dr, pool = cuda.cuMemPoolCreate(props)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    props.max_size = POOL_SIZE
+    pool = driver.mem_pool_create(props)
 
     try:
         # DRV to RT
@@ -114,31 +107,25 @@ def test_interop_memPool():
         # RT to DRV
         err_rt, rt_pool = cudart.cudaDeviceGetMemPool(0)
         assert err_rt == cudart.cudaError_t.cudaSuccess
-        assert int(rt_pool) == int(pool)
-        (err_dr,) = cuda.cuDeviceSetMemPool(0, rt_pool)
-        assert err_dr == cuda.CUresult.CUDA_SUCCESS
+        assert int(rt_pool) == pool
+        driver.device_set_mem_pool(0, int(rt_pool))
     finally:
-        (err_dr,) = cuda.cuMemPoolDestroy(pool)
-        assert err_dr == cuda.CUresult.CUDA_SUCCESS
+        driver.mem_pool_destroy(pool)
 
 
 def test_interop_graphExec():
-    err_dr, graph = cuda.cuGraphCreate(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, node = cuda.cuGraphAddEmptyNode(graph, [], 0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
+    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
 
     # DRV to RT
-    err_dr, graphExec = cuda.cuGraphInstantiate(graph, 0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    graphExec = driver.graph_instantiate(graph, 0)
     (err_rt,) = cudart.cudaGraphExecDestroy(graphExec)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
     # RT to DRV
     err_rt, graphExec = cudart.cudaGraphInstantiate(graph, 0)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuGraphExecDestroy(graphExec)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_exec_destroy(int(graphExec))
 
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
@@ -147,8 +134,7 @@ def test_interop_graphExec():
 def test_interop_deviceptr():
     # Allocate dev memory
     size = 1024 * np.uint8().itemsize
-    err_dr, dptr = cuda.cuMemAlloc(size)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    dptr = driver.mem_alloc_v2(size)
 
     # Allocate host memory
     h1 = np.full(size, 1).astype(np.uint8)
@@ -167,5 +153,4 @@ def test_interop_deviceptr():
     assert np.array_equal(h1, h2)
 
     # Cleanup
-    (err_dr,) = cuda.cuMemFree(dptr)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+    driver.mem_free_v2(dptr)
