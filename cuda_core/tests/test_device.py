@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import pickle
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -550,6 +551,13 @@ def test_device_inequality_different_id_hash(init_cuda):
     except (ValueError, Exception):
         # Test is skipped if only one device available
         pytest.skip("Test requires at least 2 CUDA devices")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_device_pickle_round_trip(init_cuda):
+    """Unpickling a Device in the same process and thread returns the same singleton."""
+    for device in Device.get_all_devices():
+        assert pickle.loads(pickle.dumps(device)) is device  # noqa: S301
 
 
 def test_device_dict_key(init_cuda):
