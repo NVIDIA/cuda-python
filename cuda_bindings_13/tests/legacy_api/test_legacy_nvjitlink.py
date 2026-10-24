@@ -20,8 +20,8 @@ def nvjitlink_session(num_options, options):
 
 
 # Establish a handful of compatible architectures and PTX versions to test with
-ARCHITECTURES = ["sm_75", "sm_80", "sm_90", "sm_100"]
-PTX_VERSIONS = ["6.4", "7.0", "8.5", "8.8"]
+ARCHITECTURES = ["sm_75", "sm_80", "sm_90", "sm_90a", "sm_100", "sm_103", "sm_103a"]
+PTX_VERSIONS = ["6.4", "7.0", "8.5", "8.0", "8.8", "8.8", "8.8"]
 
 
 PTX_HEADER = """\
