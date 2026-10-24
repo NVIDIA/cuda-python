@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.graph\_destroy\_node
-==============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: graph_destroy_node

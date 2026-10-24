@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.graphics\_vdpau\_register\_video\_surface
-===================================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: graphics_vdpau_register_video_surface

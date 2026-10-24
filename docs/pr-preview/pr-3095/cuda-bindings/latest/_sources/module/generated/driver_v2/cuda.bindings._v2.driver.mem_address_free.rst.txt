@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.mem\_address\_free
-============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: mem_address_free

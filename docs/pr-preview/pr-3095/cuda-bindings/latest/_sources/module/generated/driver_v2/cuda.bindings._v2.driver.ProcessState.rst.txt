@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.ProcessState
-======================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoenum:: ProcessState
