@@ -213,7 +213,7 @@ cpdef int _check_runtime_error(error) except?-1:
     raise CUDAError(f"{name}: {desc}")
 
 
-cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
+cpdef int _check_nvrtc_error(error, handle=None) except?-1:
     if error == _NVRTC_SUCCESS:
         return 0
     err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
