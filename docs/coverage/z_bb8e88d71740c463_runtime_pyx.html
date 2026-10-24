@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/runtime.pyx: 29.44%</title>
+    <title>Coverage for cuda/bindings/runtime.pyx: 29.36%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -104,17 +104,16 @@
   "fb": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol_numpy|run",
   "gb": "tests/test_kernelParams.py::test_kernelParams_struct_custom|run",
   "hb": "tests/test_cudart.py::test_cudart_hostRegister|run",
-  "ib": "tests/test_build_hooks.py::TestCudaHeaderCheck::test_the_build_checks_the_header_before_it_touches_the_tree|run",
-  "jb": "tests/test_cuda_utils.py::test_check_runtime_error_attaches_explanation|run",
-  "kb": "tests/system/test_system_device.py::test_to_cuda_device|run",
-  "lb": "tests/test_device.py::test_pci_bus_id|run",
-  "mb": "tests/test_device.py::test_to_system_device|run",
-  "nb": "tests/test_device.py::test_compute_capability|run",
-  "ob": "tests/test_cudart.py::test_profiler|run",
-  "pb": "tests/test_device.py::test_device_id|run",
-  "qb": "tests/test_cudart.py::test_cudart_both_type|run",
-  "rb": "tests/test_cuda_utils.py::test_check_runtime_error|run",
-  "sb": "tests/test_cudart.py::test_getLocalRuntimeVersion|run"
+  "ib": "tests/test_cuda_utils.py::test_check_runtime_error_attaches_explanation|run",
+  "jb": "tests/system/test_system_device.py::test_to_cuda_device|run",
+  "kb": "tests/test_device.py::test_pci_bus_id|run",
+  "lb": "tests/test_device.py::test_to_system_device|run",
+  "mb": "tests/test_device.py::test_compute_capability|run",
+  "nb": "tests/test_cudart.py::test_profiler|run",
+  "ob": "tests/test_device.py::test_device_id|run",
+  "pb": "tests/test_cudart.py::test_cudart_both_type|run",
+  "qb": "tests/test_cuda_utils.py::test_check_runtime_error|run",
+  "rb": "tests/test_cudart.py::test_getLocalRuntimeVersion|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -124,7 +123,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>runtime.pyx</b>:
-            <span class="pc_cov">29.44%</span>
+            <span class="pc_cov">29.36%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -167,8 +166,8 @@
         </aside>
         <h2>
             <span class="text">11208 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">3300<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">7908<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">3291<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">7917<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -177,7 +176,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-23 01:25 +0000
+            created at 2026-10-24 01:15 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -15601,7 +15600,7 @@
     <p class="pln"><span class="n"><a id="t15407" href="#t15407">15407</a></span><span class="t"><span class="txt">    def __init__(self, void_ptr _ptr = 0):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15408" href="#t15408">15408</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs15408"><span class="r"><label for="ctxs15408" class="ctx">7 ctx</label></span><span class="ctxs">1LKwXOsM</span></p>
     <p class="pln"><span class="n"><a id="t15409" href="#t15409">15409</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15410" href="#t15410">15410</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs15410"><span class="r"><label for="ctxs15410" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15410" href="#t15410">15410</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15411" href="#t15411">15411</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs15411" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15412" href="#t15412">15412</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15413" href="#t15413">15413</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -15713,7 +15712,7 @@
     <p class="pln"><span class="n"><a id="t15519" href="#t15519">15519</a></span><span class="t"><span class="txt">    def __init__(self, void_ptr _ptr = 0):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15520" href="#t15520">15520</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs15520"><span class="r"><label for="ctxs15520" class="ctx">7 ctx</label></span><span class="ctxs">1LKwXOsM</span></p>
     <p class="pln"><span class="n"><a id="t15521" href="#t15521">15521</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15522" href="#t15522">15522</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs15522"><span class="r"><label for="ctxs15522" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15522" href="#t15522">15522</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15523" href="#t15523">15523</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs15523" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15524" href="#t15524">15524</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15525" href="#t15525">15525</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -15782,7 +15781,7 @@
     <p class="pln"><span class="n"><a id="t15588" href="#t15588">15588</a></span><span class="t"><span class="txt">    def __init__(self, void_ptr _ptr = 0):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15589" href="#t15589">15589</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs15589"><span class="r"><label for="ctxs15589" class="ctx">7 ctx</label></span><span class="ctxs">1LKwXOsM</span></p>
     <p class="pln"><span class="n"><a id="t15590" href="#t15590">15590</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15591" href="#t15591">15591</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><input type="checkbox" id="ctxs15591"><span class="r"><label for="ctxs15591" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15591" href="#t15591">15591</a></span><span class="t"><span class="txt">        pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15592" href="#t15592">15592</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs15592" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15593" href="#t15593">15593</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15594" href="#t15594">15594</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -15986,14 +15985,14 @@
     <p class="run"><span class="n"><a id="t15792" href="#t15792">15792</a></span><span class="t"><span class="txt">        self._wq = cudaDevWorkqueueResource(_ptr=&lt;void_ptr&gt;&amp;self._pvt_ptr[0].wq)</span>&nbsp;</span><input type="checkbox" id="ctxs15792"><span class="r"><label for="ctxs15792" class="ctx">7 ctx</label></span><span class="ctxs">1LKwXOsM</span></p>
     <p class="run"><span class="n"><a id="t15793" href="#t15793">15793</a></span><span class="t"><span class="txt">        self._wq._owner = self</span>&nbsp;</span><input type="checkbox" id="ctxs15793"><span class="r"><label for="ctxs15793" class="ctx">7 ctx</label></span><span class="ctxs">1LKwXOsM</span></p>
     <p class="pln"><span class="n"><a id="t15794" href="#t15794">15794</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15795" href="#t15795">15795</a></span><span class="t"><span class="txt">        self._sm = None</span>&nbsp;</span><input type="checkbox" id="ctxs15795"><span class="r"><label for="ctxs15795" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
-    <p class="run"><span class="n"><a id="t15796" href="#t15796">15796</a></span><span class="t"><span class="txt">        self._wqConfig = None</span>&nbsp;</span><input type="checkbox" id="ctxs15796"><span class="r"><label for="ctxs15796" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
-    <p class="run"><span class="n"><a id="t15797" href="#t15797">15797</a></span><span class="t"><span class="txt">        self._wq = None</span>&nbsp;</span><input type="checkbox" id="ctxs15797"><span class="r"><label for="ctxs15797" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
-    <p class="run"><span class="n"><a id="t15798" href="#t15798">15798</a></span><span class="t"><span class="txt">        if self._nextResource is not NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs15798"><span class="r"><label for="ctxs15798" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15795" href="#t15795">15795</a></span><span class="t"><span class="txt">        self._sm = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15796" href="#t15796">15796</a></span><span class="t"><span class="txt">        self._wqConfig = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15797" href="#t15797">15797</a></span><span class="t"><span class="txt">        self._wq = None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15798" href="#t15798">15798</a></span><span class="t"><span class="txt">        if self._nextResource is not NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15799" href="#t15799">15799</a></span><span class="t"><span class="txt">            free(self._nextResource)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15800" href="#t15800">15800</a></span><span class="t"><span class="txt">            self._pvt_ptr[0].nextResource = NULL</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15801" href="#t15801">15801</a></span><span class="t"><span class="txt">        if self._val_ptr is not NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs15801"><span class="r"><label for="ctxs15801" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
-    <p class="run"><span class="n"><a id="t15802" href="#t15802">15802</a></span><span class="t"><span class="txt">            free(self._val_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs15802"><span class="r"><label for="ctxs15802" class="ctx">1 ctx</label></span><span class="ctxs">2ib</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15801" href="#t15801">15801</a></span><span class="t"><span class="txt">        if self._val_ptr is not NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t15802" href="#t15802">15802</a></span><span class="t"><span class="txt">            free(self._val_ptr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15803" href="#t15803">15803</a></span><span class="t"><span class="txt">    def getPtr(self):</span>&nbsp;</span><span class="r"><label for="ctxs15803" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15804" href="#t15804">15804</a></span><span class="t"><span class="txt">        return &lt;void_ptr&gt;self._pvt_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15805" href="#t15805">15805</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -21032,13 +21031,13 @@
     <p class="pln"><span class="n"><a id="t20838" href="#t20838">20838</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t20839" href="#t20839">20839</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaDeviceGetByPCIBusId`, :py:obj:`~.cuDeviceGetPCIBusId`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t20840" href="#t20840">20840</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t20841" href="#t20841">20841</a></span><span class="t"><span class="txt">    pypciBusId = b&quot; &quot; * length</span>&nbsp;</span><input type="checkbox" id="ctxs20841"><span class="r"><label for="ctxs20841" class="ctx">3 ctx</label></span><span class="ctxs">2kblbmb</span></p>
-    <p class="run"><span class="n"><a id="t20842" href="#t20842">20842</a></span><span class="t"><span class="txt">    cdef char* pciBusId = pypciBusId</span>&nbsp;</span><input type="checkbox" id="ctxs20842"><span class="r"><label for="ctxs20842" class="ctx">3 ctx</label></span><span class="ctxs">2kblbmb</span></p>
-    <p class="run"><span class="n"><a id="t20843" href="#t20843">20843</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs20843"><span class="r"><label for="ctxs20843" class="ctx">3 ctx</label></span><span class="ctxs">2kblbmb</span></p>
-    <p class="run"><span class="n"><a id="t20844" href="#t20844">20844</a></span><span class="t"><span class="txt">        err = cyruntime.cudaDeviceGetPCIBusId(pciBusId, length, device)</span>&nbsp;</span><input type="checkbox" id="ctxs20844"><span class="r"><label for="ctxs20844" class="ctx">3 ctx</label></span><span class="ctxs">2kblbmb</span></p>
-    <p class="run"><span class="n"><a id="t20845" href="#t20845">20845</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs20845"><span class="r"><label for="ctxs20845" class="ctx">3 ctx</label></span><span class="ctxs">2kblbmb</span></p>
+    <p class="run"><span class="n"><a id="t20841" href="#t20841">20841</a></span><span class="t"><span class="txt">    pypciBusId = b&quot; &quot; * length</span>&nbsp;</span><input type="checkbox" id="ctxs20841"><span class="r"><label for="ctxs20841" class="ctx">3 ctx</label></span><span class="ctxs">2jbkblb</span></p>
+    <p class="run"><span class="n"><a id="t20842" href="#t20842">20842</a></span><span class="t"><span class="txt">    cdef char* pciBusId = pypciBusId</span>&nbsp;</span><input type="checkbox" id="ctxs20842"><span class="r"><label for="ctxs20842" class="ctx">3 ctx</label></span><span class="ctxs">2jbkblb</span></p>
+    <p class="run"><span class="n"><a id="t20843" href="#t20843">20843</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs20843"><span class="r"><label for="ctxs20843" class="ctx">3 ctx</label></span><span class="ctxs">2jbkblb</span></p>
+    <p class="run"><span class="n"><a id="t20844" href="#t20844">20844</a></span><span class="t"><span class="txt">        err = cyruntime.cudaDeviceGetPCIBusId(pciBusId, length, device)</span>&nbsp;</span><input type="checkbox" id="ctxs20844"><span class="r"><label for="ctxs20844" class="ctx">3 ctx</label></span><span class="ctxs">2jbkblb</span></p>
+    <p class="run"><span class="n"><a id="t20845" href="#t20845">20845</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs20845"><span class="r"><label for="ctxs20845" class="ctx">3 ctx</label></span><span class="ctxs">2jbkblb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t20846" href="#t20846">20846</a></span><span class="t"><span class="txt">        return (_cudaError_t(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t20847" href="#t20847">20847</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, pypciBusId)</span>&nbsp;</span><input type="checkbox" id="ctxs20847"><span class="r"><label for="ctxs20847" class="ctx">3 ctx</label></span><span class="ctxs">2kblbmb</span></p>
+    <p class="run"><span class="n"><a id="t20847" href="#t20847">20847</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, pypciBusId)</span>&nbsp;</span><input type="checkbox" id="ctxs20847"><span class="r"><label for="ctxs20847" class="ctx">3 ctx</label></span><span class="ctxs">2jbkblb</span></p>
     <p class="pln"><span class="n"><a id="t20848" href="#t20848">20848</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20849" href="#t20849">20849</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs20849" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t20850" href="#t20850">20850</a></span><span class="t"><span class="txt">def cudaIpcGetEventHandle(event):</span>&nbsp;</span><span class="r"></span></p>
@@ -21638,10 +21637,10 @@
     <p class="pln"><span class="n"><a id="t21444" href="#t21444">21444</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21445" href="#t21445">21445</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaGetErrorString`, :py:obj:`~.cudaGetLastError`, :py:obj:`~.cudaPeekAtLastError`, :py:obj:`~.cudaError`, :py:obj:`~.cuGetErrorName`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21446" href="#t21446">21446</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21447" href="#t21447">21447</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaError_t cyerror = int(error)</span>&nbsp;</span><input type="checkbox" id="ctxs21447"><span class="r"><label for="ctxs21447" class="ctx">4 ctx</label></span><span class="ctxs">2jbA B Q </span></p>
-    <p class="run"><span class="n"><a id="t21448" href="#t21448">21448</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs21448"><span class="r"><label for="ctxs21448" class="ctx">4 ctx</label></span><span class="ctxs">2jbA B Q </span></p>
-    <p class="run"><span class="n"><a id="t21449" href="#t21449">21449</a></span><span class="t"><span class="txt">        err = cyruntime.cudaGetErrorName(cyerror)</span>&nbsp;</span><input type="checkbox" id="ctxs21449"><span class="r"><label for="ctxs21449" class="ctx">4 ctx</label></span><span class="ctxs">2jbA B Q </span></p>
-    <p class="run"><span class="n"><a id="t21450" href="#t21450">21450</a></span><span class="t"><span class="txt">    return (cudaError_t.cudaSuccess, err)</span>&nbsp;</span><input type="checkbox" id="ctxs21450"><span class="r"><label for="ctxs21450" class="ctx">4 ctx</label></span><span class="ctxs">2jbA B Q </span></p>
+    <p class="run"><span class="n"><a id="t21447" href="#t21447">21447</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaError_t cyerror = int(error)</span>&nbsp;</span><input type="checkbox" id="ctxs21447"><span class="r"><label for="ctxs21447" class="ctx">4 ctx</label></span><span class="ctxs">2ibA B Q </span></p>
+    <p class="run"><span class="n"><a id="t21448" href="#t21448">21448</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs21448"><span class="r"><label for="ctxs21448" class="ctx">4 ctx</label></span><span class="ctxs">2ibA B Q </span></p>
+    <p class="run"><span class="n"><a id="t21449" href="#t21449">21449</a></span><span class="t"><span class="txt">        err = cyruntime.cudaGetErrorName(cyerror)</span>&nbsp;</span><input type="checkbox" id="ctxs21449"><span class="r"><label for="ctxs21449" class="ctx">4 ctx</label></span><span class="ctxs">2ibA B Q </span></p>
+    <p class="run"><span class="n"><a id="t21450" href="#t21450">21450</a></span><span class="t"><span class="txt">    return (cudaError_t.cudaSuccess, err)</span>&nbsp;</span><input type="checkbox" id="ctxs21450"><span class="r"><label for="ctxs21450" class="ctx">4 ctx</label></span><span class="ctxs">2ibA B Q </span></p>
     <p class="pln"><span class="n"><a id="t21451" href="#t21451">21451</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t21452" href="#t21452">21452</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs21452" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t21453" href="#t21453">21453</a></span><span class="t"><span class="txt">def cudaGetErrorString(error not None : cudaError_t):</span>&nbsp;</span><span class="r"></span></p>
@@ -21666,10 +21665,10 @@
     <p class="pln"><span class="n"><a id="t21472" href="#t21472">21472</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21473" href="#t21473">21473</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaGetErrorName`, :py:obj:`~.cudaGetLastError`, :py:obj:`~.cudaPeekAtLastError`, :py:obj:`~.cudaError`, :py:obj:`~.cuGetErrorString`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21474" href="#t21474">21474</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21475" href="#t21475">21475</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaError_t cyerror = int(error)</span>&nbsp;</span><input type="checkbox" id="ctxs21475"><span class="r"><label for="ctxs21475" class="ctx">3 ctx</label></span><span class="ctxs">2jbrbQ </span></p>
-    <p class="run"><span class="n"><a id="t21476" href="#t21476">21476</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs21476"><span class="r"><label for="ctxs21476" class="ctx">3 ctx</label></span><span class="ctxs">2jbrbQ </span></p>
-    <p class="run"><span class="n"><a id="t21477" href="#t21477">21477</a></span><span class="t"><span class="txt">        err = cyruntime.cudaGetErrorString(cyerror)</span>&nbsp;</span><input type="checkbox" id="ctxs21477"><span class="r"><label for="ctxs21477" class="ctx">3 ctx</label></span><span class="ctxs">2jbrbQ </span></p>
-    <p class="run"><span class="n"><a id="t21478" href="#t21478">21478</a></span><span class="t"><span class="txt">    return (cudaError_t.cudaSuccess, err)</span>&nbsp;</span><input type="checkbox" id="ctxs21478"><span class="r"><label for="ctxs21478" class="ctx">3 ctx</label></span><span class="ctxs">2jbrbQ </span></p>
+    <p class="run"><span class="n"><a id="t21475" href="#t21475">21475</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaError_t cyerror = int(error)</span>&nbsp;</span><input type="checkbox" id="ctxs21475"><span class="r"><label for="ctxs21475" class="ctx">3 ctx</label></span><span class="ctxs">2ibqbQ </span></p>
+    <p class="run"><span class="n"><a id="t21476" href="#t21476">21476</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs21476"><span class="r"><label for="ctxs21476" class="ctx">3 ctx</label></span><span class="ctxs">2ibqbQ </span></p>
+    <p class="run"><span class="n"><a id="t21477" href="#t21477">21477</a></span><span class="t"><span class="txt">        err = cyruntime.cudaGetErrorString(cyerror)</span>&nbsp;</span><input type="checkbox" id="ctxs21477"><span class="r"><label for="ctxs21477" class="ctx">3 ctx</label></span><span class="ctxs">2ibqbQ </span></p>
+    <p class="run"><span class="n"><a id="t21478" href="#t21478">21478</a></span><span class="t"><span class="txt">    return (cudaError_t.cudaSuccess, err)</span>&nbsp;</span><input type="checkbox" id="ctxs21478"><span class="r"><label for="ctxs21478" class="ctx">3 ctx</label></span><span class="ctxs">2ibqbQ </span></p>
     <p class="pln"><span class="n"><a id="t21479" href="#t21479">21479</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t21480" href="#t21480">21480</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs21480" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t21481" href="#t21481">21481</a></span><span class="t"><span class="txt">def cudaGetDeviceCount():</span>&nbsp;</span><span class="r"></span></p>
@@ -21751,13 +21750,13 @@
     <p class="pln"><span class="n"><a id="t21557" href="#t21557">21557</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21558" href="#t21558">21558</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaGetDeviceCount`, :py:obj:`~.cudaGetDevice`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaChooseDevice`, :py:obj:`~.cudaGetDeviceProperties`, :py:obj:`~.cudaInitDevice`, :py:obj:`~.cuDeviceGetAttribute`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21559" href="#t21559">21559</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21560" href="#t21560">21560</a></span><span class="t"><span class="txt">    cdef int value = 0</span>&nbsp;</span><input type="checkbox" id="ctxs21560"><span class="r"><label for="ctxs21560" class="ctx">28 ctx</label></span><span class="ctxs">2a nb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
-    <p class="run"><span class="n"><a id="t21561" href="#t21561">21561</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaDeviceAttr cyattr = int(attr)</span>&nbsp;</span><input type="checkbox" id="ctxs21561"><span class="r"><label for="ctxs21561" class="ctx">28 ctx</label></span><span class="ctxs">2a nb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
-    <p class="run"><span class="n"><a id="t21562" href="#t21562">21562</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs21562"><span class="r"><label for="ctxs21562" class="ctx">28 ctx</label></span><span class="ctxs">2a nb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
-    <p class="run"><span class="n"><a id="t21563" href="#t21563">21563</a></span><span class="t"><span class="txt">        err = cyruntime.cudaDeviceGetAttribute(&amp;value, cyattr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs21563"><span class="r"><label for="ctxs21563" class="ctx">28 ctx</label></span><span class="ctxs">2a nb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
-    <p class="run"><span class="n"><a id="t21564" href="#t21564">21564</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs21564"><span class="r"><label for="ctxs21564" class="ctx">28 ctx</label></span><span class="ctxs">2a nb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t21560" href="#t21560">21560</a></span><span class="t"><span class="txt">    cdef int value = 0</span>&nbsp;</span><input type="checkbox" id="ctxs21560"><span class="r"><label for="ctxs21560" class="ctx">28 ctx</label></span><span class="ctxs">2a mb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t21561" href="#t21561">21561</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaDeviceAttr cyattr = int(attr)</span>&nbsp;</span><input type="checkbox" id="ctxs21561"><span class="r"><label for="ctxs21561" class="ctx">28 ctx</label></span><span class="ctxs">2a mb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t21562" href="#t21562">21562</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs21562"><span class="r"><label for="ctxs21562" class="ctx">28 ctx</label></span><span class="ctxs">2a mb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t21563" href="#t21563">21563</a></span><span class="t"><span class="txt">        err = cyruntime.cudaDeviceGetAttribute(&amp;value, cyattr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs21563"><span class="r"><label for="ctxs21563" class="ctx">28 ctx</label></span><span class="ctxs">2a mb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t21564" href="#t21564">21564</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs21564"><span class="r"><label for="ctxs21564" class="ctx">28 ctx</label></span><span class="ctxs">2a mb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
     <p class="mis show_mis"><span class="n"><a id="t21565" href="#t21565">21565</a></span><span class="t"><span class="txt">        return (_cudaError_t(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21566" href="#t21566">21566</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, value)</span>&nbsp;</span><input type="checkbox" id="ctxs21566"><span class="r"><label for="ctxs21566" class="ctx">28 ctx</label></span><span class="ctxs">2a nb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t21566" href="#t21566">21566</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, value)</span>&nbsp;</span><input type="checkbox" id="ctxs21566"><span class="r"><label for="ctxs21566" class="ctx">28 ctx</label></span><span class="ctxs">2a mb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
     <p class="pln"><span class="n"><a id="t21567" href="#t21567">21567</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t21568" href="#t21568">21568</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs21568" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t21569" href="#t21569">21569</a></span><span class="t"><span class="txt">def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOperation] | list[cudaAtomicOperation]], unsigned int count, int device):</span>&nbsp;</span><span class="r"></span></p>
@@ -22276,12 +22275,12 @@
     <p class="pln"><span class="n"><a id="t22082" href="#t22082">22082</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t22083" href="#t22083">22083</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaGetDeviceCount`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaGetDeviceProperties`, :py:obj:`~.cudaChooseDevice`, :py:obj:`~.cuCtxGetCurrent`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t22084" href="#t22084">22084</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22085" href="#t22085">22085</a></span><span class="t"><span class="txt">    cdef int device = 0</span>&nbsp;</span><input type="checkbox" id="ctxs22085"><span class="r"><label for="ctxs22085" class="ctx">27 ctx</label></span><span class="ctxs">2pb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
-    <p class="run"><span class="n"><a id="t22086" href="#t22086">22086</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs22086"><span class="r"><label for="ctxs22086" class="ctx">27 ctx</label></span><span class="ctxs">2pb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
-    <p class="run"><span class="n"><a id="t22087" href="#t22087">22087</a></span><span class="t"><span class="txt">        err = cyruntime.cudaGetDevice(&amp;device)</span>&nbsp;</span><input type="checkbox" id="ctxs22087"><span class="r"><label for="ctxs22087" class="ctx">27 ctx</label></span><span class="ctxs">2pb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
-    <p class="run"><span class="n"><a id="t22088" href="#t22088">22088</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs22088"><span class="r"><label for="ctxs22088" class="ctx">27 ctx</label></span><span class="ctxs">2pb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t22085" href="#t22085">22085</a></span><span class="t"><span class="txt">    cdef int device = 0</span>&nbsp;</span><input type="checkbox" id="ctxs22085"><span class="r"><label for="ctxs22085" class="ctx">27 ctx</label></span><span class="ctxs">2ob# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t22086" href="#t22086">22086</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs22086"><span class="r"><label for="ctxs22086" class="ctx">27 ctx</label></span><span class="ctxs">2ob# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t22087" href="#t22087">22087</a></span><span class="t"><span class="txt">        err = cyruntime.cudaGetDevice(&amp;device)</span>&nbsp;</span><input type="checkbox" id="ctxs22087"><span class="r"><label for="ctxs22087" class="ctx">27 ctx</label></span><span class="ctxs">2ob# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t22088" href="#t22088">22088</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs22088"><span class="r"><label for="ctxs22088" class="ctx">27 ctx</label></span><span class="ctxs">2ob# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
     <p class="mis show_mis"><span class="n"><a id="t22089" href="#t22089">22089</a></span><span class="t"><span class="txt">        return (_cudaError_t(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22090" href="#t22090">22090</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, device)</span>&nbsp;</span><input type="checkbox" id="ctxs22090"><span class="r"><label for="ctxs22090" class="ctx">27 ctx</label></span><span class="ctxs">2pb# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
+    <p class="run"><span class="n"><a id="t22090" href="#t22090">22090</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, device)</span>&nbsp;</span><input type="checkbox" id="ctxs22090"><span class="r"><label for="ctxs22090" class="ctx">27 ctx</label></span><span class="ctxs">2ob# $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | A B </span></p>
     <p class="pln"><span class="n"><a id="t22091" href="#t22091">22091</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t22092" href="#t22092">22092</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs22092" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t22093" href="#t22093">22093</a></span><span class="t"><span class="txt">def cudaSetDeviceFlags(unsigned int flags):</span>&nbsp;</span><span class="r"></span></p>
@@ -23535,12 +23534,12 @@
     <p class="pln"><span class="n"><a id="t23341" href="#t23341">23341</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23342" href="#t23342">23342</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaStreamBeginCapture`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23343" href="#t23343">23343</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23344" href="#t23344">23344</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaStreamCaptureMode cymode = int(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs23344"><span class="r"><label for="ctxs23344" class="ctx">1 ctx</label></span><span class="ctxs">2qb</span></p>
-    <p class="run"><span class="n"><a id="t23345" href="#t23345">23345</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs23345"><span class="r"><label for="ctxs23345" class="ctx">1 ctx</label></span><span class="ctxs">2qb</span></p>
-    <p class="run"><span class="n"><a id="t23346" href="#t23346">23346</a></span><span class="t"><span class="txt">        err = cyruntime.cudaThreadExchangeStreamCaptureMode(&amp;cymode)</span>&nbsp;</span><input type="checkbox" id="ctxs23346"><span class="r"><label for="ctxs23346" class="ctx">1 ctx</label></span><span class="ctxs">2qb</span></p>
-    <p class="run"><span class="n"><a id="t23347" href="#t23347">23347</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs23347"><span class="r"><label for="ctxs23347" class="ctx">1 ctx</label></span><span class="ctxs">2qb</span></p>
+    <p class="run"><span class="n"><a id="t23344" href="#t23344">23344</a></span><span class="t"><span class="txt">    cdef cyruntime.cudaStreamCaptureMode cymode = int(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs23344"><span class="r"><label for="ctxs23344" class="ctx">1 ctx</label></span><span class="ctxs">2pb</span></p>
+    <p class="run"><span class="n"><a id="t23345" href="#t23345">23345</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs23345"><span class="r"><label for="ctxs23345" class="ctx">1 ctx</label></span><span class="ctxs">2pb</span></p>
+    <p class="run"><span class="n"><a id="t23346" href="#t23346">23346</a></span><span class="t"><span class="txt">        err = cyruntime.cudaThreadExchangeStreamCaptureMode(&amp;cymode)</span>&nbsp;</span><input type="checkbox" id="ctxs23346"><span class="r"><label for="ctxs23346" class="ctx">1 ctx</label></span><span class="ctxs">2pb</span></p>
+    <p class="run"><span class="n"><a id="t23347" href="#t23347">23347</a></span><span class="t"><span class="txt">    if err != cyruntime.cudaSuccess:</span>&nbsp;</span><input type="checkbox" id="ctxs23347"><span class="r"><label for="ctxs23347" class="ctx">1 ctx</label></span><span class="ctxs">2pb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t23348" href="#t23348">23348</a></span><span class="t"><span class="txt">        return (_cudaError_t(err), None)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23349" href="#t23349">23349</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, cudaStreamCaptureMode(cymode))</span>&nbsp;</span><input type="checkbox" id="ctxs23349"><span class="r"><label for="ctxs23349" class="ctx">1 ctx</label></span><span class="ctxs">2qb</span></p>
+    <p class="run"><span class="n"><a id="t23349" href="#t23349">23349</a></span><span class="t"><span class="txt">    return (_cudaError_t_SUCCESS, cudaStreamCaptureMode(cymode))</span>&nbsp;</span><input type="checkbox" id="ctxs23349"><span class="r"><label for="ctxs23349" class="ctx">1 ctx</label></span><span class="ctxs">2pb</span></p>
     <p class="pln"><span class="n"><a id="t23350" href="#t23350">23350</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t23351" href="#t23351">23351</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs23351" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t23352" href="#t23352">23352</a></span><span class="t"><span class="txt">def cudaStreamEndCapture(stream):</span>&nbsp;</span><span class="r"></span></p>
@@ -39962,9 +39961,9 @@
     <p class="pln"><span class="n"><a id="t39768" href="#t39768">39768</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39769" href="#t39769">39769</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaProfilerStop`, :py:obj:`~.cuProfilerStart`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39770" href="#t39770">39770</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39771" href="#t39771">39771</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs39771"><span class="r"><label for="ctxs39771" class="ctx">1 ctx</label></span><span class="ctxs">2ob</span></p>
-    <p class="run"><span class="n"><a id="t39772" href="#t39772">39772</a></span><span class="t"><span class="txt">        err = cyruntime.cudaProfilerStart()</span>&nbsp;</span><input type="checkbox" id="ctxs39772"><span class="r"><label for="ctxs39772" class="ctx">1 ctx</label></span><span class="ctxs">2ob</span></p>
-    <p class="run"><span class="n"><a id="t39773" href="#t39773">39773</a></span><span class="t"><span class="txt">    return (_cudaError_t(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs39773"><span class="r"><label for="ctxs39773" class="ctx">1 ctx</label></span><span class="ctxs">2ob</span></p>
+    <p class="run"><span class="n"><a id="t39771" href="#t39771">39771</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs39771"><span class="r"><label for="ctxs39771" class="ctx">1 ctx</label></span><span class="ctxs">2nb</span></p>
+    <p class="run"><span class="n"><a id="t39772" href="#t39772">39772</a></span><span class="t"><span class="txt">        err = cyruntime.cudaProfilerStart()</span>&nbsp;</span><input type="checkbox" id="ctxs39772"><span class="r"><label for="ctxs39772" class="ctx">1 ctx</label></span><span class="ctxs">2nb</span></p>
+    <p class="run"><span class="n"><a id="t39773" href="#t39773">39773</a></span><span class="t"><span class="txt">    return (_cudaError_t(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs39773"><span class="r"><label for="ctxs39773" class="ctx">1 ctx</label></span><span class="ctxs">2nb</span></p>
     <p class="pln"><span class="n"><a id="t39774" href="#t39774">39774</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39775" href="#t39775">39775</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs39775" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t39776" href="#t39776">39776</a></span><span class="t"><span class="txt">def cudaProfilerStop():</span>&nbsp;</span><span class="r"></span></p>
@@ -39987,9 +39986,9 @@
     <p class="pln"><span class="n"><a id="t39793" href="#t39793">39793</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39794" href="#t39794">39794</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaProfilerStart`, :py:obj:`~.cuProfilerStop`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39795" href="#t39795">39795</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39796" href="#t39796">39796</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs39796"><span class="r"><label for="ctxs39796" class="ctx">1 ctx</label></span><span class="ctxs">2ob</span></p>
-    <p class="run"><span class="n"><a id="t39797" href="#t39797">39797</a></span><span class="t"><span class="txt">        err = cyruntime.cudaProfilerStop()</span>&nbsp;</span><input type="checkbox" id="ctxs39797"><span class="r"><label for="ctxs39797" class="ctx">1 ctx</label></span><span class="ctxs">2ob</span></p>
-    <p class="run"><span class="n"><a id="t39798" href="#t39798">39798</a></span><span class="t"><span class="txt">    return (_cudaError_t(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs39798"><span class="r"><label for="ctxs39798" class="ctx">1 ctx</label></span><span class="ctxs">2ob</span></p>
+    <p class="run"><span class="n"><a id="t39796" href="#t39796">39796</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs39796"><span class="r"><label for="ctxs39796" class="ctx">1 ctx</label></span><span class="ctxs">2nb</span></p>
+    <p class="run"><span class="n"><a id="t39797" href="#t39797">39797</a></span><span class="t"><span class="txt">        err = cyruntime.cudaProfilerStop()</span>&nbsp;</span><input type="checkbox" id="ctxs39797"><span class="r"><label for="ctxs39797" class="ctx">1 ctx</label></span><span class="ctxs">2nb</span></p>
+    <p class="run"><span class="n"><a id="t39798" href="#t39798">39798</a></span><span class="t"><span class="txt">    return (_cudaError_t(err),)</span>&nbsp;</span><input type="checkbox" id="ctxs39798"><span class="r"><label for="ctxs39798" class="ctx">1 ctx</label></span><span class="ctxs">2nb</span></p>
     <p class="pln"><span class="n"><a id="t39799" href="#t39799">39799</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39800" href="#t39800">39800</a></span><span class="t"><span class="txt">@cython.embedsignature(True)</span>&nbsp;</span><span class="r"><label for="ctxs39800" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t39801" href="#t39801">39801</a></span><span class="t"><span class="txt">def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLDeviceList):</span>&nbsp;</span><span class="r"></span></p>
@@ -40450,9 +40449,9 @@
     <p class="pln"><span class="n"><a id="t40256" href="#t40256">40256</a></span><span class="t"><span class="txt">    --------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40257" href="#t40257">40257</a></span><span class="t"><span class="txt">    :py:obj:`~.cudaDriverGetVersion`, :py:obj:`~.cuDriverGetVersion`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40258" href="#t40258">40258</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t40259" href="#t40259">40259</a></span><span class="t"><span class="txt">    cdef int runtimeVersion = 0</span>&nbsp;</span><input type="checkbox" id="ctxs40259"><span class="r"><label for="ctxs40259" class="ctx">1 ctx</label></span><span class="ctxs">2sb</span></p>
-    <p class="run"><span class="n"><a id="t40260" href="#t40260">40260</a></span><span class="t"><span class="txt">    err = cyruntime.getLocalRuntimeVersion(&amp;runtimeVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs40260"><span class="r"><label for="ctxs40260" class="ctx">1 ctx</label></span><span class="ctxs">2sb</span></p>
-    <p class="run"><span class="n"><a id="t40261" href="#t40261">40261</a></span><span class="t"><span class="txt">    return (cudaError_t(err), runtimeVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs40261"><span class="r"><label for="ctxs40261" class="ctx">1 ctx</label></span><span class="ctxs">2sb</span></p>
+    <p class="run"><span class="n"><a id="t40259" href="#t40259">40259</a></span><span class="t"><span class="txt">    cdef int runtimeVersion = 0</span>&nbsp;</span><input type="checkbox" id="ctxs40259"><span class="r"><label for="ctxs40259" class="ctx">1 ctx</label></span><span class="ctxs">2rb</span></p>
+    <p class="run"><span class="n"><a id="t40260" href="#t40260">40260</a></span><span class="t"><span class="txt">    err = cyruntime.getLocalRuntimeVersion(&amp;runtimeVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs40260"><span class="r"><label for="ctxs40260" class="ctx">1 ctx</label></span><span class="ctxs">2rb</span></p>
+    <p class="run"><span class="n"><a id="t40261" href="#t40261">40261</a></span><span class="t"><span class="txt">    return (cudaError_t(err), runtimeVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs40261"><span class="r"><label for="ctxs40261" class="ctx">1 ctx</label></span><span class="ctxs">2rb</span></p>
     <p class="pln"><span class="n"><a id="t40262" href="#t40262">40262</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40263" href="#t40263">40263</a></span><span class="t"><span class="txt">cdef class cudaBindingsRuntimeGlobal:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40264" href="#t40264">40264</a></span><span class="t"><span class="txt">    cdef map[void_ptr, void*] _allocated</span>&nbsp;</span><span class="r"></span></p>
@@ -40984,7 +40983,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-23 01:25 +0000
+            created at 2026-10-24 01:15 +0000
         </p>
     </div>
 </footer>
