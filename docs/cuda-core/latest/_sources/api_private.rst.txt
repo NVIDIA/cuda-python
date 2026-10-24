@@ -138,6 +138,7 @@ NVML
    system.InsufficientSizeError
    system.InsufficientPowerError
    system.DriverNotLoadedError
+   system.NvmlTimeoutError
    system.TimeoutError
    system.IrqIssueError
    system.LibraryNotFoundError
@@ -148,6 +149,7 @@ NVML
    system.OperatingSystemError
    system.LibRmVersionMismatchError
    system.InUseError
+   system.NvmlMemoryError
    system.MemoryError
    system.NoDataError
    system.VgpuEccNotSupportedError

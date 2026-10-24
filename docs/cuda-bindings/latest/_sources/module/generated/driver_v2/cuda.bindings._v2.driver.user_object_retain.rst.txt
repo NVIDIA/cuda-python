@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.user\_object\_retain
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: user_object_retain

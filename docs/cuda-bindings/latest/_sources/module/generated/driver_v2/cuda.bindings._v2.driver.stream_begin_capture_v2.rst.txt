@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.stream\_begin\_capture\_v2
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: stream_begin_capture_v2

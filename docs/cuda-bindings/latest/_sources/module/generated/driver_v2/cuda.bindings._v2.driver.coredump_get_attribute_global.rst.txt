@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.coredump\_get\_attribute\_global
+==========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: coredump_get_attribute_global
