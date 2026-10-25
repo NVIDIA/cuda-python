@@ -95,6 +95,11 @@ jobs:
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+        with:
+          python: python3
+
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci
 
@@ -271,6 +276,11 @@ jobs:
           filter: blob:none
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
+
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+        with:
+          python: python3
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci
