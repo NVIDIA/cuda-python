@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.stream\_deregister
-=======================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: stream_deregister

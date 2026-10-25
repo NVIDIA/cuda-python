@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_persistence\_mode
-=================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_persistence_mode
