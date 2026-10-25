@@ -45,7 +45,6 @@ try:
         Program,
         ProgramOptions,
         launch,
-        system,
     )
 except ImportError as e:
     print(f"Error: Required package not found: {e}")
@@ -99,8 +98,8 @@ def run(num_elements=1024 * 1024 * 16):
 
     # Check for multiple GPUs
     print("\nChecking for multiple GPUs...")
-    num_devices = system.get_num_devices()
-    print(f"CUDA-capable device count: {num_devices}")
+    num_devices = len(Device.get_all_devices())
+    print(f"CUDA-visible device count: {num_devices}")
 
     if num_devices < 2:
         print("Two or more GPUs with Peer-to-Peer access capability are required, waiving this sample.")

@@ -77,7 +77,6 @@ try:
         Program,
         ProgramOptions,
         launch,
-        system,
     )
 except ImportError as e:
     print(f"Error: Required package not found: {e}")
@@ -103,7 +102,7 @@ def init_device(rank: int):
     tuple[Device, Stream]
         CUDA device object and stream object.
     """
-    num_gpus = system.get_num_devices()
+    num_gpus = len(Device.get_all_devices())
     if num_gpus == 0:
         raise RuntimeError("No CUDA devices available")
 

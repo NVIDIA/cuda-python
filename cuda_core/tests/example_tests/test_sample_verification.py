@@ -99,6 +99,22 @@ def test_unsupported_core_sample_paths_return_waiver(
     assert len(waiver_returns) == 1
 
 
+@pytest.mark.parametrize("sample_name", ("simpleP2P", "simpleMultiGpu", "multiGPUGradientAverage"))
+@pytest.mark.agent_authored(model="gpt-6")
+def test_multi_gpu_samples_count_cuda_visible_devices(sample_name: str) -> None:
+    sample_path = REPO_ROOT / "samples" / "cuda_core" / sample_name / f"{sample_name}.py"
+    tree = ast.parse(sample_path.read_text(encoding="utf-8"), filename=str(sample_path))
+    expected_count = ast.parse("len(Device.get_all_devices())", mode="eval").body
+
+    assert any(ast.dump(node) == ast.dump(expected_count) for node in ast.walk(tree))
+    assert not any(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "get_num_devices"
+        for node in ast.walk(tree)
+    )
+
+
 @pytest.mark.agent_authored(model="gpt-5")
 def test_verify_array_result_or_raise_enforces_match(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.syspath_prepend(str(UTILITIES_DIR))
