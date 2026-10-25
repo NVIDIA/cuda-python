@@ -78,6 +78,12 @@ jobs:
           ref: ${{ github.sha }}
           path: .ci-control
 
+      - name: Harden pip
+        # The release checkout can predate this action; use the workflow revision.
+        uses: $/.github/actions/harden-pip
+        with:
+          python: python3
+
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./.ci-control/ci
 
