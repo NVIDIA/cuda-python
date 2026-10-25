@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/bindings/_internal/utils.pyx: 43.02%</title>
+    <title>Coverage for cuda/bindings/_internal/utils.pyx: 51.16%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -184,7 +184,18 @@
   "{b": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options0]|run",
   "|b": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options0]|run",
   "}b": "tests/test_utils.py::test_check_nvvm_compiler_options_empty|run",
-  "~b": "tests/test_utils.py::test_get_c_compiler|run"
+  "~b": "tests/test_cuda.py::test_cuGraphGetEdges_edgeData_outlives_call|run",
+  "ac": "tests/test_cuda.py::test_cuGraphNodeGetDependencies_edgeData_outlives_call|run",
+  "bc": "tests/test_cuda.py::test_conditional|run",
+  "cc": "tests/test_cuda.py::test_cuGraphExecGetId|run",
+  "dc": "tests/test_cuda.py::test_cuGraphNodeGetContainingGraph|run",
+  "ec": "tests/test_cuda.py::test_cuGraphNodeGetLocalId|run",
+  "fc": "tests/test_cuda.py::test_cuGraphNodeGetToolsId|run",
+  "gc": "tests/test_cuda.py::test_cuda_graphMem_attr|run",
+  "hc": "tests/test_cuda.py::test_graph_poly|run",
+  "ic": "tests/test_interoperability.py::test_interop_graphExec|run",
+  "jc": "tests/test_interoperability.py::test_interop_graphNode|run",
+  "kc": "tests/test_utils.py::test_get_c_compiler|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -194,7 +205,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>bindings<span class="sep">/</span>_internal<span class="sep">/</span>utils.pyx</b>:
-            <span class="pc_cov">43.02%</span>
+            <span class="pc_cov">51.16%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -237,17 +248,17 @@
         </aside>
         <h2>
             <span class="text">86 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">37<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">49<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">44<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">42<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_1c6fa6fde3f60f5e_runtime_ptds_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_455c44172918477c_nvrtc_pyx.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_455c44172918477c_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-24 01:15 +0000
+            created at 2026-10-25 02:55 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -291,7 +302,7 @@
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">    Returns a string describing the C compiler used to build cuda.bindings</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">    return _COMPILER_VERSION.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">1 ctx</label></span><span class="ctxs">2~b</span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">    return _COMPILER_VERSION.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">1 ctx</label></span><span class="ctxs">2kc</span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef bint is_nested_sequence(data):</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
@@ -354,16 +365,16 @@
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">cdef int get_resource_ptrs(nullable_unique_ptr[ vector[PtrT*] ] &amp;in_out_ptr, object obj, PtrT* __unused) except 1:</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    if cpython.PySequence_Check(obj):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        vec = new vector[PtrT*](len(obj))</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    if cpython.PySequence_Check(obj):</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">11 ctx</label></span><span class="ctxs">2bccc~bdcacecfcgchcicjc</span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        vec = new vector[PtrT*](len(obj))</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        # set the ownership immediately to avoid leaking the `vec` memory in</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        # case of exception in the following loop</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        in_out_ptr.reset(vec, True)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        for i in range(len(obj)):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            deref(vec)[i] = &lt;PtrT*&gt;&lt;intptr_t&gt;(obj[i])</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        in_out_ptr.reset(vec, True)</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        for i in range(len(obj)):</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            deref(vec)[i] = &lt;PtrT*&gt;&lt;intptr_t&gt;(obj[i])</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        in_out_ptr.reset(&lt;vector[PtrT*]*&gt;&lt;intptr_t&gt;obj, False)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        in_out_ptr.reset(&lt;vector[PtrT*]*&gt;&lt;intptr_t&gt;obj, False)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">10 ctx</label></span><span class="ctxs">2bccc~bdcecfcgchcicjc</span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">11 ctx</label></span><span class="ctxs">2bccc~bdcacecfcgchcicjc</span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">cdef int get_nested_resource_ptr(nested_resource[ResT] &amp;in_out_ptr, object obj, ResT* __unused) except 1:</span>&nbsp;</span><span class="r"><label for="ctxs105" class="ctx">(empty)</label></span></p>
@@ -426,10 +437,10 @@
         <p>
             <a class="nav" href="z_1c6fa6fde3f60f5e_runtime_ptds_pyx.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_455c44172918477c_nvrtc_pyx.html">&#xbb; next</a>
+            <a class="nav" href="z_455c44172918477c_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-24 01:15 +0000
+            created at 2026-10-25 02:55 +0000
         </p>
     </div>
 </footer>

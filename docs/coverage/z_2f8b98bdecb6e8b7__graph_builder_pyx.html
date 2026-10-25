@@ -272,7 +272,7 @@
   "`c": "tests/graph/test_graph_builder.py::test_graph_instantiation_rejects_closed_upload_stream|run",
   "{c": "tests/graph/test_graph_builder.py::test_join_rejects_non_builder|run",
   "|c": "tests/graph/test_graph_builder.py::test_graph_builder_and_graph_cannot_be_constructed_directly|run",
-  "}c": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_releases_branch_attachments[if]|run"
+  "}c": "tests/graph/test_graph_definition_lifetime.py::test_kernel_node_keeps_kernel_alive|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -335,7 +335,7 @@
             <a id="nextFileLink" class="nav" href="z_2f8b98bdecb6e8b7__graph_definition_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-24 01:15 +0000
+            created at 2026-10-25 02:55 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1442,7 +1442,7 @@
     <p class="run"><span class="n"><a id="t1090" href="#t1090">1090</a></span><span class="t"><span class="txt">    cdef cydriver.CUresult err = cydriver.CUDA_SUCCESS</span>&nbsp;</span><input type="checkbox" id="ctxs1090"><span class="r"><label for="ctxs1090" class="ctx">138 ctx</label></span><span class="ctxs">2)c-cN zbkbXb[cmblbF ibfbgb_cPb|cnbwbJ K L M ~ H . 9 x Q z ob.cEbX pb1 jbTby 4bAbG R S / ^c3 : 4 hb{c2 b c d e f g h i j k l m n o p q A r s t u v B C D E I }c` [ ^ db| abUbSb{ ] _ eb} bb) 5 ! * 6 # Y T U + 7 $ , 8 % 0 P O V W - w Z ' ; @ Dbcb( a qbxbrbsb= *c+cCbBbtbubvbyb,c? </span></p>
     <p class="pln"><span class="n"><a id="t1091" href="#t1091">1091</a></span><span class="t"><span class="txt">    cdef cydriver.CUstream c_stream</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1092" href="#t1092">1092</a></span><span class="t"><span class="txt">    if not gb._h_stream or gb._state != CAPTURING or gb._kind == FORKED:</span>&nbsp;</span><input type="checkbox" id="ctxs1092"><span class="r"><label for="ctxs1092" class="ctx">138 ctx</label></span><span class="ctxs">2)c-cN zbkbXb[cmblbF ibfbgb_cPb|cnbwbJ K L M ~ H . 9 x Q z ob.cEbX pb1 jbTby 4bAbG R S / ^c3 : 4 hb{c2 b c d e f g h i j k l m n o p q A r s t u v B C D E I }c` [ ^ db| abUbSb{ ] _ eb} bb) 5 ! * 6 # Y T U + 7 $ , 8 % 0 P O V W - w Z ' ; @ Dbcb( a qbxbrbsb= *c+cCbBbtbubvbyb,c? </span></p>
-    <p class="run"><span class="n"><a id="t1093" href="#t1093">1093</a></span><span class="t"><span class="txt">        return err</span>&nbsp;</span><input type="checkbox" id="ctxs1093"><span class="r"><label for="ctxs1093" class="ctx">136 ctx</label></span><span class="ctxs">2)c-cN zbkb[cmblbF ibfbgb_cPb|cnbwbJ K L M ~ H . 9 x Q z ob.cEbX pb1 jbTby AbG R S / ^c3 : 4 hb{c2 b c d e f g h i j k l m n o p q A r s t u v B C D E I }c` [ ^ db| abUbSb{ ] _ eb} bb) 5 ! * 6 # Y T U + 7 $ , 8 % 0 P O V W - w Z ' ; @ Dbcb( a qbxbrbsb= *c+cCbBbtbubvbyb,c? </span></p>
+    <p class="run"><span class="n"><a id="t1093" href="#t1093">1093</a></span><span class="t"><span class="txt">        return err</span>&nbsp;</span><input type="checkbox" id="ctxs1093"><span class="r"><label for="ctxs1093" class="ctx">137 ctx</label></span><span class="ctxs">2)c-cN zbkbXb[cmblbF ibfbgb_cPb|cnbwbJ K L M ~ H . 9 x Q z ob.cEbX pb1 jbTby AbG R S / ^c3 : 4 hb{c2 b c d e f g h i j k l m n o p q A r s t u v B C D E I }c` [ ^ db| abUbSb{ ] _ eb} bb) 5 ! * 6 # Y T U + 7 $ , 8 % 0 P O V W - w Z ' ; @ Dbcb( a qbxbrbsb= *c+cCbBbtbubvbyb,c? </span></p>
     <p class="run"><span class="n"><a id="t1094" href="#t1094">1094</a></span><span class="t"><span class="txt">    c_stream = as_cu(gb._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs1094"><span class="r"><label for="ctxs1094" class="ctx">125 ctx</label></span><span class="ctxs">2N zbXbmblbF ibfbgbPbnbwbJ K L M ~ H . 9 x Q z obEbX pb1 jbTby 4bAbG R S / 3 : 4 hb2 b c d e f g h i j k l m n o p q A r s t u v B C D E I ` [ ^ db| abUbSb{ ] _ eb} bb) 5 ! * 6 # Y T U + 7 $ , 8 % 0 P O V W - w Z ' ; @ Dbcb( a qbxbrbsb= CbBbtbubvbyb? </span></p>
     <p class="run"><span class="n"><a id="t1095" href="#t1095">1095</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs1095"><span class="r"><label for="ctxs1095" class="ctx">125 ctx</label></span><span class="ctxs">2N zbXbmblbF ibfbgbPbnbwbJ K L M ~ H . 9 x Q z obEbX pb1 jbTby 4bAbG R S / 3 : 4 hb2 b c d e f g h i j k l m n o p q A r s t u v B C D E I ` [ ^ db| abUbSb{ ] _ eb} bb) 5 ! * 6 # Y T U + 7 $ , 8 % 0 P O V W - w Z ' ; @ Dbcb( a qbxbrbsb= CbBbtbubvbyb? </span></p>
     <p class="run"><span class="n"><a id="t1096" href="#t1096">1096</a></span><span class="t"><span class="txt">        err = cydriver.cuStreamEndCapture(c_stream, &amp;c_graph)</span>&nbsp;</span><input type="checkbox" id="ctxs1096"><span class="r"><label for="ctxs1096" class="ctx">125 ctx</label></span><span class="ctxs">2N zbXbmblbF ibfbgbPbnbwbJ K L M ~ H . 9 x Q z obEbX pb1 jbTby 4bAbG R S / 3 : 4 hb2 b c d e f g h i j k l m n o p q A r s t u v B C D E I ` [ ^ db| abUbSb{ ] _ eb} bb) 5 ! * 6 # Y T U + 7 $ , 8 % 0 P O V W - w Z ' ; @ Dbcb( a qbxbrbsb= CbBbtbubvbyb? </span></p>
@@ -1727,7 +1727,7 @@
             <a class="nav" href="z_2f8b98bdecb6e8b7__graph_definition_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-24 01:15 +0000
+            created at 2026-10-25 02:55 +0000
         </p>
     </div>
 </footer>
