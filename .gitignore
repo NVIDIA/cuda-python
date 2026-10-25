@@ -16,7 +16,7 @@ __pycache__/
 .benchmarks/
 *.cpp
 !*_impl.cpp
-!cuda_bindings/cuda/bindings/_bindings/loader.cpp
+!cuda_bindings_13/cuda/bindings/_bindings/loader.cpp
 !cuda_core/cuda/core/_cpp/**/*.cpp
 cache_driver
 cache_runtime
@@ -28,17 +28,36 @@ cuda_core/tests/test_binaries/*.a
 cuda_core/tests/test_binaries/*.lib
 
 # CUDA Python specific (auto-generated)
-cuda_bindings/cuda/bindings/_internal/cudla.pyx
-cuda_bindings/cuda/bindings/_internal/driver.pyx
-cuda_bindings/cuda/bindings/_internal/nvrtc.pyx
-cuda_bindings/cuda/bindings/_internal/cufile.pyx
-cuda_bindings/cuda/bindings/_internal/nvfatbin.pyx
-cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
-cuda_bindings/cuda/bindings/_internal/nvml.pyx
-cuda_bindings/cuda/bindings/_internal/nvvm.pyx
-cuda_bindings/cuda/bindings/_internal/runtime.pyx
-cuda_bindings/cuda/bindings/_internal/runtime_ptds.pyx
-cuda_bindings/cuda/bindings/utils/_get_handle.pyx
+cuda_bindings_13/cuda/bindings/_internal/cudla.pyx
+cuda_bindings_13/cuda/bindings/_internal/driver.pyx
+cuda_bindings_13/cuda/bindings/_internal/nvrtc.pyx
+cuda_bindings_13/cuda/bindings/_internal/cufile.pyx
+cuda_bindings_13/cuda/bindings/_internal/nvfatbin.pyx
+cuda_bindings_13/cuda/bindings/_internal/nvjitlink.pyx
+cuda_bindings_13/cuda/bindings/_internal/nvml.pyx
+cuda_bindings_13/cuda/bindings/_internal/nvvm.pyx
+cuda_bindings_13/cuda/bindings/_internal/runtime.pyx
+cuda_bindings_13/cuda/bindings/_internal/runtime_ptds.pyx
+cuda_bindings_13/cuda/bindings/utils/_get_handle.pyx
+
+# CUDA 12 bindings source generation
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime.pxd
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime.pyx
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime_ptds.pxd
+cuda_bindings_12/cuda/bindings/_bindings/cyruntime_ptds.pyx
+cuda_bindings_12/cuda/bindings/_internal/cufile.pyx
+cuda_bindings_12/cuda/bindings/_internal/driver.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvfatbin.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvjitlink.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvml.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvrtc.pyx
+cuda_bindings_12/cuda/bindings/_internal/nvvm.pyx
+cuda_bindings_12/cuda/bindings/cyruntime.pxd
+cuda_bindings_12/cuda/bindings/cyruntime.pyx
+cuda_bindings_12/cuda/bindings/cyruntime_functions.pxi
+cuda_bindings_12/cuda/bindings/cyruntime_types.pxi
+cuda_bindings_12/cuda/bindings/runtime.pxd
+cuda_bindings_12/cuda/bindings/runtime.pyx
 
 # Version files from setuptools_scm
 _version.py
@@ -179,7 +198,7 @@ cython_debug/
 # Dont ignore
 !.github/actions/build/
 # pixi environments
-# Per-workspace commands such as `pixi lock --manifest-path cuda_bindings`
+# Per-workspace commands such as `pixi lock --manifest-path cuda_bindings_13`
 # create a .pixi/ next to that manifest, so match at any depth.
 **/.pixi/*
 !**/.pixi/config.toml

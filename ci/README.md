@@ -197,11 +197,14 @@ Necessary dependency changes require manual review and validation of the
 affected manifests and lockfiles. Real source builds and tests continue using
 `PIXI_FROZEN=true`, including nested `pixi run` calls, to build the checkout's
 source packages against the committed dependency solution. The pinned Pixi
-version and committed lockfiles are unchanged.
+version was raised to v0.82.1 and the affected certificate-related packages
+(`certifi`, `pip`, `uv`, `ca-certificates`) were updated individually in the
+committed lockfiles to address the eMudhra/emSign CA incident; no general
+lockfile refresh was performed.
 
 Re-enable maintenance only after a released Pixi passes both upstream issue
 reproducers and repeated byte-stable update/lock/check cycles across all six
-workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings`, `cuda_core`,
+workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings_13`, `cuda_core`,
 `benchmarks/cuda_bindings`, and `benchmarks/cuda_core`. Verify both `pixi update
 --no-install` and `pixi lock`, followed by repeated `pixi lock --check` commands,
 converge to unchanged lockfile bytes. Then restore strict freshness checks,

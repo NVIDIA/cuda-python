@@ -326,7 +326,7 @@ The repository contains documentation and metadata symlinks, including
 `CLAUDE.md`, `cuda_python/README.md`, and the per-package `.git_archival.txt`
 files. It also currently tracks the build-critical
 `cuda_core/_build_shared.py` as a symlink to the canonical
-`cuda_bindings/_build_shared.py`. The core path may instead be maintained as a
+`cuda_bindings_13/_build_shared.py`. The core path may instead be maintained as a
 byte-for-byte identical copy, but the current tree uses a symlink. With
 `core.symlinks=false`, Git checks it out as a plain text file containing the
 target path, and `cuda-core` source builds and tests fail.
