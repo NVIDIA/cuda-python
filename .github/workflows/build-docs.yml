@@ -80,7 +80,7 @@ jobs:
 
       - name: Harden pip
         # The release checkout can predate this action; use the workflow revision.
-        uses: $/.github/actions/harden-pip
+        uses: ./.ci-control/.github/actions/harden-pip
         with:
           python: python3
 
