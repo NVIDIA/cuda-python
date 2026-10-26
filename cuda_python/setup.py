@@ -3,17 +3,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import tomllib
+from pathlib import Path
 
 from packaging.version import Version
 from setuptools import setup
 from setuptools_scm import get_version
 
-# The standalone metapackage sdist has neither ci/versions.yml nor the
-# sibling bindings pyprojects. CI tests keep these selectors in sync with them.
-SCM_DESCRIBE_MATCH_BY_MAJOR = {
-    "12": "v12.9.*",
-    "13": "v13.4.*",
-}
+# The selector table ships with standalone sdists, which have neither the
+# CI registry nor sibling bindings packages. The metadata hook checks drift.
+with Path(__file__).with_name("pyproject.toml").open("rb") as stream:
+    scm_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
 
 # Preserve the current-major default for ordinary source builds. CI selects
 # a major explicitly when building either metapackage.
@@ -33,7 +33,7 @@ version_options = {
         "--tags",
         "--long",
         "--match",
-        SCM_DESCRIBE_MATCH_BY_MAJOR[build_major],
+        scm_selectors[build_major],
     ],
 }
 
@@ -51,7 +51,7 @@ else:
     matcher = "=="
 
 install_requires = [f"cuda-bindings{matcher}{version}"]
-if build_major == "13":
+if int(build_major) >= 13:
     install_requires.extend(
         [
             # Bump this with every cuda-core release and release the current-major

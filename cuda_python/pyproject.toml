@@ -42,6 +42,9 @@ documentation = "https://nvidia.github.io/cuda-python/"
 repository = "https://github.com/NVIDIA/cuda-python/"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
-# The [tool.setuptools_scm] section is handled in setup.py since we need to
-# dynamically set the dependency to cuda_bindings based on the dynamically
-# determinded version
+# setup.py selects one bindings line and derives the matching dependency
+# from its SCM version. Keep these selectors aligned with the bindings roots;
+# check-bindings-config verifies them against ci/versions.yml.
+[tool.cuda-python.scm-describe-match-by-major]
+"12" = "v12.9.*"
+"13" = "v13.4.*"
