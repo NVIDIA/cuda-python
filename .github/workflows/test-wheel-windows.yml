@@ -211,6 +211,9 @@ jobs:
           # TODO: remove allow-prereleases once 3.15 is officially supported
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Verify LongPathsEnabled
         run: |
           $val = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled').LongPathsEnabled
