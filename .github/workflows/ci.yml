@@ -66,7 +66,7 @@ jobs:
   #
   # Dependency graph (verified in pyproject.toml files):
   #   cuda_pathfinder   -> (no internal deps)
-  #   each registered cuda.bindings package -> cuda_pathfinder
+  #   cuda.bindings (both versions) -> cuda_pathfinder
   #   cuda_core         -> cuda_pathfinder, cuda_bindings
   #   cuda_python       -> cuda_pathfinder, cuda_bindings, cuda_core (meta package)
   #
@@ -112,7 +112,7 @@ jobs:
       - name: Install CI tool test dependencies
         run: python3 -m pip install -e './ci[test]'
 
-      - name: Resolve registered build platforms
+      - name: Read bindings configuration and select supported build platforms
         id: registry
         run: |
           set -euo pipefail
