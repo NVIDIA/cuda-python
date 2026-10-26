@@ -271,6 +271,7 @@ cdef int _raise_last_error_noting(str detail) except -1:
     except Exception as exc:
         _attach_note(exc, detail)
         raise
+    return 0
 
 
 cdef int _raise_allocation_error(const cydriver.CUmemAllocationProp* prop) except -1:
@@ -282,7 +283,6 @@ cdef int _raise_allocation_error(const cydriver.CUmemAllocationProp* prop) excep
             "has the channel device node) while the allocation is refused"
         )
     return _raise_last_error()
-    return 0
 
 
 cdef int _check_noting(cydriver.CUresult status, str detail) except -1:
