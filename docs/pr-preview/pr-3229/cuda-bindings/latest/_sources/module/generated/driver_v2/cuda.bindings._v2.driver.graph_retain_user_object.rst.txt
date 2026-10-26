@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_retain\_user\_object
+=====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_retain_user_object

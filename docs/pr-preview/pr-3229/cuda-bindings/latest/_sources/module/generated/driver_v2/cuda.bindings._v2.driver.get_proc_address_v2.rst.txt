@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.get\_proc\_address\_v2
+================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: get_proc_address_v2

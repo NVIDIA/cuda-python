@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_bank\_remapper\_status\_v1
+==========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_bank_remapper_status_v1

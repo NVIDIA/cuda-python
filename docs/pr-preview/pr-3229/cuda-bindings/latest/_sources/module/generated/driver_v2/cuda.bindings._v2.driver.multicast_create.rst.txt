@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.multicast\_create
+===========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: multicast_create
