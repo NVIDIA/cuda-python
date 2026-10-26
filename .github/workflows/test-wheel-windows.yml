@@ -70,6 +70,15 @@ jobs:
         with:
           ref: ${{ inputs.sha || github.sha }}
 
+      - name: Checkout CI matrix helper
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # Artifact sources can predate this helper; use the workflow's revision.
+          ref: ${{ github.sha }}
+          path: .ci-control
+          sparse-checkout: ci/tools/select_test_matrix.py
+          sparse-checkout-cone-mode: false
+
       - name: Validate Test Type
         run: |
           if [[ "$BUILD_TYPE" != "pull-request" ]] && [[ "$BUILD_TYPE" != "nightly" ]] && [[ "$BUILD_TYPE" != "branch" ]]; then
@@ -91,7 +100,7 @@ jobs:
           # Keep the caller's free-form jq filter; shared Python code handles
           # source selection, test suites, runner routing, and coverage checks.
           MATRIX=$(jq -c '${{ inputs.matrix_filter }}' <<< "$TEST_MATRIX" \
-            | python3 -m ci.tools.select_test_matrix --platform windows)
+            | python3 .ci-control/ci/tools/select_test_matrix.py --platform windows)
 
           {
             echo '### Selected wheel test coverage'
