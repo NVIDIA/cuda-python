@@ -58,7 +58,6 @@ ignore = [
   "UP035",  # deprecated-import from typing
 
   # security rules too strict for this project
-  "S101",   # asserts
   "S311",   # allow random.* (not cryptographic)
   "S404",   # allow subprocess imports
 
@@ -81,6 +80,8 @@ known-first-party = ["cuda", "_build_shared"]
 inline-quotes = "double"
 
 [lint.per-file-ignores]
+# cuda.core library code raises explicit errors; `python -O` strips asserts.
+"!cuda_core/cuda/core/**" = ["S101"]
 "__init__.py" = ["F401", "E402", "F403", "F405"]
 "setup.py" = ["F401"]
 

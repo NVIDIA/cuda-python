@@ -478,6 +478,12 @@ def test_field_value_decodes_signed_long_long():
     assert type(value) is int
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_field_value_rejects_multiple_values():
+    with pytest.raises(ValueError, match="exactly one field value, got 2"):
+        _device.FieldValue(nvml.FieldValue(2))
+
+
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_get_all_devices_with_cpu_affinity(subtests):
     for i in range(multiprocessing.cpu_count()):

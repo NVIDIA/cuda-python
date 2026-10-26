@@ -1151,6 +1151,19 @@ def test_managed_memory_resource_buffer_dlpack_device_type(init_cuda):
     assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_managed_memory_resource_allocate_rejects_graph_builder(init_cuda):
+    device = init_cuda
+    skip_if_managed_memory_unsupported(device)
+    mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
+    gb = device.create_graph_builder()
+    try:
+        with pytest.raises(TypeError, match="Only Stream is supported .*got GraphBuilder"):
+            mr.allocate(64, stream=gb)
+    finally:
+        gb.close()
+
+
 @pytest.mark.parametrize("mr_kind", ["device", "pinned"])
 def test_non_managed_resources_report_not_managed(init_cuda, mr_kind):
     """Non-managed memory resources must report is_managed=False."""

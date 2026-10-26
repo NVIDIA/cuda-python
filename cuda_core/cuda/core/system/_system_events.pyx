@@ -40,7 +40,8 @@ cdef class SystemEvent:
     cdef object _event_data
 
     def __init__(self, event_data not None: nvml.SystemEventData_v1):
-        assert len(event_data) == 1
+        if len(event_data) != 1:
+            raise ValueError(f"SystemEvent expects exactly one event, got {len(event_data)}")
         self._event_data = event_data
 
     @property

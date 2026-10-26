@@ -1040,14 +1040,17 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         stream_ptr = int(stream_ptr)
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
-        assert device_id == 0
+        if device_id != 0:
+            raise ValueError(f"__dlpack_device__() reported device_id {device_id} for a kDLCPU tensor; expected 0")
         device_id = -1
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
         elif stream_ptr == -1:
             stream_ptr = None
     elif dldevice == _kDLCUDA:
-        assert device_id >= 0
+        if device_id < 0:
+            raise ValueError(
+                f"__dlpack_device__() reported device_id {device_id} for a kDLCUDA tensor; expected 0 or more")
         is_device_accessible = True
         # no need to check other stream values, it's a pass-through
         if stream_ptr is None:
@@ -1090,7 +1093,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         is_readonly = False
         used_name = DLPACK_TENSOR_USED_NAME
     else:
-        assert False
+        raise ValueError(f"__dlpack__() returned {capsule!r}, not an unconsumed DLPack capsule")
 
     cpython.PyCapsule_SetName(capsule, used_name)
 
@@ -1214,7 +1217,9 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
         if stream is not None:
             producer_s = <intptr_t>(stream)
             consumer_s = <intptr_t>(stream_ptr)
-            assert producer_s > 0
+            if producer_s <= 0:
+                raise ValueError(
+                    f"__cuda_array_interface__ reported stream {stream}; expected None or a positive stream handle")
             # establish stream order
             if producer_s != consumer_s:
                 with nogil:
