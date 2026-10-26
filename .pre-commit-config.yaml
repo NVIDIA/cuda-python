@@ -83,7 +83,7 @@ repos:
         entry: python -m ci.tools.bindings_config --check-package-metadata
         language: python
         additional_dependencies: [packaging==26.0, pyyaml==6.0.3]
-        files: '^(ci/versions\.yml|cuda_bindings_(?:12|13)/(pyproject|pixi)\.toml|cuda_python/setup\.py|cuda_core/pyproject\.toml|cuda_core/cuda/core/_bindings_floor\.py)$'
+        files: '^(ci/versions\.yml|cuda_bindings_(?:12|13)/(pyproject|pixi)\.toml|cuda_python/(?:pyproject\.toml|setup\.py)|cuda_core/pyproject\.toml|cuda_core/cuda/core/_bindings_floor\.py)$'
         pass_filenames: false
 
       - id: check-pixi-cuda-version

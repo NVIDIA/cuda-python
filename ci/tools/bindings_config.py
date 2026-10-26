@@ -10,7 +10,6 @@ selectors, the metapackage, and cuda.core's minimum bindings requirements.
 
 from __future__ import annotations
 
-import ast
 import importlib.util
 import json
 import re
@@ -222,21 +221,14 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
         if "fallback_version" in scm:
             raise ValueError(f"{path} bindings root must not declare fallback_version")
 
-    setup_path = repo_root / "cuda_python" / "setup.py"
-    names = {"SCM_DESCRIBE_MATCH_BY_MAJOR"}
+    path = repo_root / "cuda_python" / "pyproject.toml"
     try:
-        tree = ast.parse(setup_path.read_text(encoding="utf-8"))
-        metadata = {
-            target.id: ast.literal_eval(node.value)
-            for node in tree.body
-            if isinstance(node, ast.Assign)
-            for target in node.targets
-            if isinstance(target, ast.Name) and target.id in names
-        }
-    except (OSError, SyntaxError, ValueError) as error:
-        raise ValueError(f"could not read literal build metadata from {setup_path}: {error}") from error
-    if metadata.get("SCM_DESCRIBE_MATCH_BY_MAJOR") != selectors:
-        raise ValueError(f"{setup_path} SCM_DESCRIBE_MATCH_BY_MAJOR must match the bindings package selectors")
+        with path.open("rb") as stream:
+            meta_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise ValueError(f"could not read SCM selectors from {path}: {error}") from error
+    if meta_selectors != selectors:
+        raise ValueError(f"{path} scm-describe-match-by-major must match the bindings package selectors")
 
 
 def resolve_release_bindings_package(
