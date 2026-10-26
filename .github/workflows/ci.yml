@@ -138,7 +138,8 @@ jobs:
 
           # CUDA 13 introduced Windows ARM64 mid-release-line, so there is no
           # CUDA 12 Windows ARM64 toolkit. Once current advances to CUDA 14,
-          # CUDA 13 can be built as the maintenance major on this platform.
+          # CUDA 13 can be built as the maintenance major on this platform;
+          # keep this equality so CUDA 14 does not exclude that supported line.
           if [[ "$current_cuda_major" == "13" ]]; then
             windows_arm64_single_cuda_major=true
           else

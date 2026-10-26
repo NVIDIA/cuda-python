@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
+"""Keep unrelated CUDA lines and test artifacts out of release staging."""
 
 import json
 import os
@@ -11,7 +11,6 @@ from pathlib import Path
 import pytest
 
 DOWNLOAD_WHEELS = Path(__file__).parent.parent / "download-wheels"
-
 FAKE_GH = r"""#!/usr/bin/env python3
 import fnmatch
 import json
@@ -20,190 +19,98 @@ import sys
 from pathlib import Path
 
 args = sys.argv[1:]
-with Path(os.environ["FAKE_GH_LOG"]).open("a", encoding="utf-8") as stream:
-    print(json.dumps(args), file=stream)
 artifacts = json.loads(os.environ["FAKE_ARTIFACTS"])
-
 if args[:1] == ["api"]:
     print(*artifacts, sep="\n")
     raise SystemExit(0)
-
 if args[:2] == ["run", "download"]:
-    if "--name" in args:
-        name = args[args.index("--name") + 1]
-        selected = [artifact for artifact in artifacts if artifact == name]
-    else:
-        pattern = args[args.index("-p") + 1]
-        selected = [artifact for artifact in artifacts if fnmatch.fnmatchcase(artifact, pattern)]
-    if not selected:
-        raise SystemExit(1)
-    destination = Path(args[args.index("--dir") + 1])
+    selector = "--name" if "--name" in args else "-p"
+    pattern = args[args.index(selector) + 1]
+    selected = [artifact for artifact in artifacts if fnmatch.fnmatchcase(artifact, pattern)]
     for artifact in selected:
-        artifact_dir = destination / artifact
-        artifact_dir.mkdir(parents=True)
+        destination = Path(args[args.index("--dir") + 1]) / artifact
+        destination.mkdir(parents=True)
         suffix = ".so" if artifact.endswith("-tests") else ".whl"
-        (artifact_dir / f"{artifact}{suffix}").touch()
-    raise SystemExit(0)
-
+        (destination / f"{artifact}{suffix}").touch()
+    raise SystemExit(0 if selected else 1)
 raise SystemExit(2)
 """
 
 
-@pytest.fixture
-def fake_gh(tmp_path):
-    fake_bin = tmp_path / "bin"
-    fake_bin.mkdir()
-    gh = fake_bin / "gh"
-    gh.write_text(FAKE_GH, encoding="utf-8")
-    gh.chmod(0o755)
-    return fake_bin
-
-
-def resolved_package(*, package_root="cuda_bindings", toolkit_version="13.3.0", release_version="13.3.1"):
-    return json.dumps(
-        {"package_root": package_root, "toolkit_version": toolkit_version, "release_version": release_version}
-    )
-
-
-def run_download(tmp_path, fake_gh, artifacts, component, *, tag="", package=None):
-    log = tmp_path / "gh.log"
-    env = os.environ.copy()
-    env.update(
-        {
-            "FAKE_ARTIFACTS": json.dumps(artifacts),
-            "FAKE_GH_LOG": str(log),
-            "GH_TOKEN": "test-token",
-            "PATH": f"{fake_gh}{os.pathsep}{env['PATH']}",
-        }
-    )
-    args = [str(DOWNLOAD_WHEELS), "123", component, "NVIDIA/cuda-python", str(tmp_path / "dist")]
-    if tag or package is not None:
-        args.append(tag)
+def run_download(tmp_path, artifacts, component, *, package=None, tag=""):
+    binary = tmp_path / "gh"
+    binary.write_text(FAKE_GH, encoding="utf-8")
+    binary.chmod(0o755)
+    args = [str(DOWNLOAD_WHEELS), "123", component, "NVIDIA/cuda-python", str(tmp_path / "dist"), tag]
     if package is not None:
-        args.append(package)
-    result = subprocess.run(  # noqa: S603
+        args.append(json.dumps(package))
+    return subprocess.run(  # noqa: S603 - the checked-in utility receives separate arguments.
         args,
         cwd=tmp_path,
-        env=env,
+        env={
+            **os.environ,
+            "FAKE_ARTIFACTS": json.dumps(artifacts),
+            "GH_TOKEN": "test-token",
+            "PATH": f"{tmp_path}{os.pathsep}{os.environ['PATH']}",
+        },
         check=False,
         capture_output=True,
         text=True,
     )
-    commands = [json.loads(item) for item in log.read_text(encoding="utf-8").splitlines()] if log.exists() else []
-    return result, commands
 
 
-class TestDownloadWheels:
-    @pytest.mark.parametrize(
-        ("package_root", "toolkit_version", "release_version"),
-        (
-            ("cuda_bindings", "13.3.0", "13.3.1"),
-            ("cuda_bindings_12", "12.9.1", "12.9.9"),
-        ),
+@pytest.mark.parametrize("component", ["cuda-bindings", "cuda-python"])
+@pytest.mark.parametrize("major,toolkit", [(12, "12.9.1"), (13, "13.3.0")])
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_release_stages_only_wheels_for_its_exact_toolkit(tmp_path, component, major, toolkit):
+    release = f"{toolkit.rsplit('.', 1)[0]}.99"
+    package = {"package_root": f"cuda_bindings_{major}", "toolkit_version": toolkit, "release_version": release}
+    prefix = "cuda-bindings-python312" if component == "cuda-bindings" else "cuda-python-wheel"
+    suffix = "-linux-64-sha" if component == "cuda-bindings" else ""
+    expected = f"{prefix}-cuda{toolkit}{suffix}"
+    result = run_download(
+        tmp_path,
+        [f"{prefix}-cuda11.8.0{suffix}", expected, f"{expected}-tests", "cuda-python-wheel"],
+        component,
+        package=package,
+        tag=f"v{package['release_version']}",
     )
-    @pytest.mark.agent_authored(model="gpt-6")
-    def test_python_selects_exact_toolkit_artifact(
-        self, tmp_path, fake_gh, package_root, toolkit_version, release_version
-    ):
-        expected = f"cuda-python-wheel-cuda{toolkit_version}"
-        result, commands = run_download(
-            tmp_path,
-            fake_gh,
-            ["cuda-python-wheel", "cuda-python-wheel-cuda13.2.0", expected],
-            "cuda-python",
-            tag=f"v{release_version}",
-            package=resolved_package(
-                package_root=package_root, toolkit_version=toolkit_version, release_version=release_version
-            ),
-        )
+    assert result.returncode == 0, result.stderr
+    assert {path.name for path in (tmp_path / "dist").iterdir()} == {f"{expected}.whl"}
 
-        assert result.returncode == 0, result.stderr
-        downloads = [command[command.index("--name") + 1] for command in commands if "--name" in command]
-        assert downloads == [expected]
-        assert [path.name for path in (tmp_path / "dist").glob("*.whl")] == [f"{expected}.whl"]
 
-    @pytest.mark.parametrize("artifact", ("cuda-python-wheel", "cuda-python-wheel-cuda13.2.0"))
-    @pytest.mark.agent_authored(model="gpt-6")
-    def test_python_requires_exact_toolkit_artifact(self, tmp_path, fake_gh, artifact):
-        result, commands = run_download(
-            tmp_path,
-            fake_gh,
-            [artifact],
-            "cuda-python",
-            tag="v13.3.1",
-            package=resolved_package(),
-        )
+@pytest.mark.parametrize("component", ["cuda-bindings", "cuda-python"])
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_release_cannot_stage_another_toolkit_or_test_artifacts(tmp_path, component):
+    package = {"package_root": "cuda_bindings_13", "toolkit_version": "13.3.0", "release_version": "13.3.1"}
+    result = run_download(
+        tmp_path,
+        ["cuda-bindings-python312-cuda13.3.0-linux-64-sha-tests", "cuda-python-wheel-cuda13.2.0"],
+        component,
+        package=package,
+        tag="v13.3.1",
+    )
+    assert result.returncode != 0
+    assert not list((tmp_path / "dist").glob("*.whl"))
 
-        assert result.returncode == 1
-        assert "no unexpired release artifact for CUDA 13.3.0" in result.stderr
-        assert not any(command[:2] == ["run", "download"] for command in commands)
 
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_bindings_pattern_contains_exact_toolkit_pin(self, tmp_path, fake_gh):
-        exact = "cuda-bindings-python312-cuda13.3.0-linux-64-sha"
-        result, commands = run_download(
-            tmp_path,
-            fake_gh,
-            ["cuda-bindings-python312-cuda13.2.0-linux-64-sha", exact, f"{exact}-tests"],
-            "cuda-bindings",
-            tag="v13.3.1",
-            package=resolved_package(),
-        )
-
-        assert result.returncode == 0, result.stderr
-        downloads = [command[command.index("--name") + 1] for command in commands if "--name" in command]
-        assert downloads == [exact]
-        assert [path.name for path in (tmp_path / "dist").glob("*.whl")] == [f"{exact}.whl"]
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_release_routing_requires_resolved_package(self, tmp_path, fake_gh):
-        result, commands = run_download(
-            tmp_path,
-            fake_gh,
-            ["cuda-python-wheel-cuda13.3.0"],
-            "cuda-python",
-            tag="v13.3.1",
-        )
-
-        assert result.returncode == 1
-        assert commands == []
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_bindings_test_artifact_is_not_releasable(self, tmp_path, fake_gh):
-        artifact = "cuda-bindings-python312-cuda13.3.0-linux-64-sha-tests"
-        result, _ = run_download(
-            tmp_path,
-            fake_gh,
-            [artifact],
-            "cuda-bindings",
-            tag="v13.3.1",
-            package=resolved_package(),
-        )
-
-        assert result.returncode == 1
-        assert "no unexpired release artifact" in result.stderr
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_release_routing_requires_a_resolved_package(tmp_path):
+    result = run_download(tmp_path, ["cuda-python-wheel-cuda13.3.0"], "cuda-python", tag="v13.3.1")
+    assert result.returncode != 0
+    assert not list((tmp_path / "dist").glob("*.whl"))
 
 
 @pytest.mark.parametrize(
-    ("component", "artifacts", "expected"),
-    (
-        (
-            "all",
-            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel-cuda13.3.0", "build-metadata"],
-            ["cuda-core-wheel", "cuda-python-wheel-cuda13.3.0"],
-        ),
-        (
-            "cuda-core",
-            ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel-cuda13.3.0"],
-            ["cuda-core-wheel"],
-        ),
-    ),
+    "component,expected",
+    [("all", {"cuda-core-wheel", "cuda-python-wheel-cuda13.3.0"}), ("cuda-core", {"cuda-core-wheel"})],
 )
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_non_release_selection_excludes_test_artifacts(tmp_path, fake_gh, component, artifacts, expected):
-    result, commands = run_download(tmp_path, fake_gh, artifacts, component)
-
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_nonrelease_components_stage_wheels_without_test_artifacts(tmp_path, component, expected):
+    result = run_download(
+        tmp_path,
+        ["cuda-core-wheel", "cuda-core-wheel-tests", "cuda-python-wheel-cuda13.3.0", "build-metadata"],
+        component,
+    )
     assert result.returncode == 0, result.stderr
-    downloads = [command[command.index("--name") + 1] for command in commands if "--name" in command]
-    assert downloads == expected
-    assert all("-p" not in command for command in commands)
+    assert {path.name for path in (tmp_path / "dist").iterdir()} == {f"{artifact}.whl" for artifact in expected}

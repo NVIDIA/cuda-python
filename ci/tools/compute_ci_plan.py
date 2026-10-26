@@ -12,7 +12,7 @@ import argparse
 import json
 import subprocess
 from pathlib import Path, PurePosixPath
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from .bindings_config import load_config
 
@@ -308,33 +308,6 @@ def compute_workplan(
     }
 
 
-def format_workplan_summary(plan: dict[str, Any], config: BindingsConfig) -> str:
-    """Describe selected work and exact artifact reuse without hiding exclusions."""
-    modules = plan["modules"]
-    baseline = plan["baseline"]
-    rows = [("cuda-pathfinder", "shared", modules["pathfinder"])]
-    for package in config.package_roots:
-        for module, name in (("bindings", "cuda-bindings"), ("python", "cuda-python")):
-            rows.append((name, package.cuda_major, modules[module]["package_roots"][package.package_root]))
-        rows.append(("cuda-core", package.cuda_major, modules["core"]["cuda_majors"][package.cuda_variant]))
-    lines = [
-        "### CI workplan",
-        "",
-        "| Component | CUDA major | Wheel | Tests |",
-        "| --- | --- | --- | --- |",
-    ]
-    for component, major, flags in rows:
-        wheel = "build" if flags["needs_build"] else "reuse exact baseline" if baseline["run_id"] else "excluded"
-        tests = "required" if flags["needs_test"] else "excluded by plan"
-        lines.append(f"| {component} | {major} | {wheel} | {tests} |")
-    if baseline["run_id"]:
-        lines.extend(("", f"Reusable artifacts: run `{baseline['run_id']}` at `{baseline['sha']}`."))
-    if plan["sources"]["pathfinder"] == "published":
-        lines.extend(("", "Focused bindings release: tests install published cuda-pathfinder; cuda-core is excluded."))
-    lines.extend(("", "Windows ARM64 builds only supported toolkit majors; CUDA 12 has no Windows ARM64 toolkit.", ""))
-    return "\n".join(lines)
-
-
 def _git_output(*args: str) -> bytes:
     return subprocess.check_output(  # noqa: S603 - argv is passed directly without a shell.
         ["git", *args],  # noqa: S607
@@ -384,7 +357,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--github-step-summary",
         type=Path,
-        help="append a formatted workplan to this GitHub step summary file",
+        help="append the workplan JSON to this GitHub step summary file",
     )
     args = parser.parse_args(argv)
     if args.github_step_summary is not None and args.github_output is None:
@@ -419,9 +392,8 @@ def main(argv: list[str] | None = None) -> None:
     if args.github_step_summary is not None:
         formatted = json.dumps(plan, indent=2, sort_keys=True)
         with args.github_step_summary.open("a", encoding="utf-8") as summary:
-            summary.write(format_workplan_summary(plan, config))
             summary.write(
-                f"\n<details><summary>Full workplan JSON</summary>\n\n```json\n{formatted}\n```\n</details>\n"
+                f"### CI workplan\n\n<details><summary>Workplan JSON</summary>\n\n```json\n{formatted}\n```\n</details>\n"
             )
 
 
