@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_alloc\_async
+===========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_alloc_async
