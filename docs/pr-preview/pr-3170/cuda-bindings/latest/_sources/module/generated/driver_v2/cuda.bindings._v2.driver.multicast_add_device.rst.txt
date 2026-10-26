@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.multicast\_add\_device
+================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: multicast_add_device

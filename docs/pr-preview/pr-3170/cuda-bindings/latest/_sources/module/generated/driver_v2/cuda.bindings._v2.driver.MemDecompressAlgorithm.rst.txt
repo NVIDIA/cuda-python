@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.MemDecompressAlgorithm
+================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: MemDecompressAlgorithm

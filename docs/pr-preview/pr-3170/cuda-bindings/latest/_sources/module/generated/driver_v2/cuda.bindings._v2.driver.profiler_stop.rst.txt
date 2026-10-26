@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.profiler\_stop
+========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: profiler_stop

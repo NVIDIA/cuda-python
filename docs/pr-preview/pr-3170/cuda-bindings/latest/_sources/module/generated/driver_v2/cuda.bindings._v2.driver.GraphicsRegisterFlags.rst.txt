@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.GraphicsRegisterFlags
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: GraphicsRegisterFlags

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_destroy
+========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_destroy
