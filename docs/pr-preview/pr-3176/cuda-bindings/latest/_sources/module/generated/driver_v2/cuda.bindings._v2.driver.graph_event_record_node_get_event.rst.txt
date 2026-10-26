@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_event\_record\_node\_get\_event
+================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_event_record_node_get_event

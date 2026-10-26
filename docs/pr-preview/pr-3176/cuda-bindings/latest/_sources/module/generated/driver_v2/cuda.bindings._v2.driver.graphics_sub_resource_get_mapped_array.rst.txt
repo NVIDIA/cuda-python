@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graphics\_sub\_resource\_get\_mapped\_array
+=====================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graphics_sub_resource_get_mapped_array
