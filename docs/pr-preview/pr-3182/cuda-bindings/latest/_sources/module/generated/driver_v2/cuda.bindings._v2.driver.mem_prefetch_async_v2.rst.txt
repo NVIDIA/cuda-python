@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_prefetch\_async\_v2
+==================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_prefetch_async_v2

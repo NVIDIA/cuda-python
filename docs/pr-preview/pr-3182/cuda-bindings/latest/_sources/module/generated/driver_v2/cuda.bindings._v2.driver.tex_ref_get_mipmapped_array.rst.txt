@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.tex\_ref\_get\_mipmapped\_array
+=========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: tex_ref_get_mipmapped_array

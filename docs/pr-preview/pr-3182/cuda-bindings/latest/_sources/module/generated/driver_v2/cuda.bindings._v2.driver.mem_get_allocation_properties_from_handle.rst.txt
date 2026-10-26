@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_get\_allocation\_properties\_from\_handle
+========================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_get_allocation_properties_from_handle

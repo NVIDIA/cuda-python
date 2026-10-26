@@ -1,0 +1,41 @@
+﻿cuda.bindings.\_v2.driver.LaunchConfig
+======================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: LaunchConfig
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LaunchConfig.__init__
+      ~LaunchConfig.from_buffer
+      ~LaunchConfig.from_data
+      ~LaunchConfig.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LaunchConfig.attrs
+      ~LaunchConfig.block_dim_x
+      ~LaunchConfig.block_dim_y
+      ~LaunchConfig.block_dim_z
+      ~LaunchConfig.grid_dim_x
+      ~LaunchConfig.grid_dim_y
+      ~LaunchConfig.grid_dim_z
+      ~LaunchConfig.h_stream
+      ~LaunchConfig.num_attrs
+      ~LaunchConfig.ptr
+      ~LaunchConfig.shared_mem_bytes
+   
+   

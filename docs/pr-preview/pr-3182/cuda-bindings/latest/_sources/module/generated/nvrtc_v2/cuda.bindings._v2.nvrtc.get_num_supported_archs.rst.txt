@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.get\_num\_supported\_archs
+===================================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autofunction:: get_num_supported_archs

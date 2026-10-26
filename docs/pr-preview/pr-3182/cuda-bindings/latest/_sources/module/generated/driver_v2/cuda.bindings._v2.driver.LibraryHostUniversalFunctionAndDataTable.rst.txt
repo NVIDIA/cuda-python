@@ -1,0 +1,35 @@
+﻿cuda.bindings.\_v2.driver.LibraryHostUniversalFunctionAndDataTable
+==================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: LibraryHostUniversalFunctionAndDataTable
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LibraryHostUniversalFunctionAndDataTable.__init__
+      ~LibraryHostUniversalFunctionAndDataTable.from_buffer
+      ~LibraryHostUniversalFunctionAndDataTable.from_data
+      ~LibraryHostUniversalFunctionAndDataTable.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LibraryHostUniversalFunctionAndDataTable.data_table
+      ~LibraryHostUniversalFunctionAndDataTable.data_window_size
+      ~LibraryHostUniversalFunctionAndDataTable.function_table
+      ~LibraryHostUniversalFunctionAndDataTable.function_window_size
+      ~LibraryHostUniversalFunctionAndDataTable.ptr
+   
+   

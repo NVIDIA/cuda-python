@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_kernel\_node\_set\_attribute
+=============================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_kernel_node_set_attribute

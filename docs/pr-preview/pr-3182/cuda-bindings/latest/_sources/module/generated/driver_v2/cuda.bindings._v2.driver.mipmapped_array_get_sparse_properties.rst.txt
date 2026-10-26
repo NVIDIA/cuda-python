@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mipmapped\_array\_get\_sparse\_properties
+===================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mipmapped_array_get_sparse_properties

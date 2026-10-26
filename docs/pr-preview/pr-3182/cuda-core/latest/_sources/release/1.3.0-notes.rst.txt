@@ -104,6 +104,23 @@ New features
 Fixes and enhancements
 ----------------------
 
+- A :class:`~_memory.DeviceMemoryResource` or a :class:`VirtualMemoryResource`
+  sent through ``multiprocessing`` now names its device, and the
+  ``VirtualMemoryResource`` ``peers``, by UUID. The receiving process maps
+  each UUID to its own device ordinal. Before, the receiver used the sender's
+  ordinals, which name different devices when ``CUDA_VISIBLE_DEVICES``
+  differs between the processes. Unpickling now raises ``RuntimeError`` when
+  one of the devices is not visible in the receiving process.
+  (`#3097 <https://github.com/NVIDIA/cuda-python/issues/3097>`__)
+
+- A pickled :class:`Device` now names its device by UUID, and unpickling
+  returns the device with that UUID in the receiving process. Before, it
+  named the device by ordinal, which names a different device when
+  ``CUDA_VISIBLE_DEVICES`` differs between the processes. Unpickling raises
+  ``RuntimeError`` when the device is not visible in the receiving process.
+  The pickled form is for processes on the same machine.
+  (`#3196 <https://github.com/NVIDIA/cuda-python/issues/3196>`__)
+
 - Fixed a ``TypeError`` in :meth:`Program.compile` when retrying after PCH
   heap exhaustion.
 
@@ -303,3 +320,13 @@ Fixes and enhancements
   while operands from plain ``cuMemAlloc`` allocations accept it. The node's
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
+
+Deprecations
+------------
+
+- Two ``cuda.core.system`` exception classes were renamed so that they no longer have the same name as a Python builtin
+  exception. Code that did ``from cuda.core.system import *``
+  replaced the builtin ``TimeoutError`` and ``MemoryError`` in its namespace. Update code that refers to the old names:
+
+  - ``TimeoutError`` is now ``NvmlTimeoutError``.
+  - ``MemoryError`` is now ``NvmlMemoryError``.

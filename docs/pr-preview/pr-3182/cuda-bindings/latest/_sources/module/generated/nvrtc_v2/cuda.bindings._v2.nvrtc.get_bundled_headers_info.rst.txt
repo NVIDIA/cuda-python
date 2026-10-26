@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.get\_bundled\_headers\_info
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autofunction:: get_bundled_headers_info

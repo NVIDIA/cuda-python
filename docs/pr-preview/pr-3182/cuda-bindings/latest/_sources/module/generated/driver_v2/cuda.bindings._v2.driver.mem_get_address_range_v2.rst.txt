@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_get\_address\_range\_v2
+======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_get_address_range_v2
