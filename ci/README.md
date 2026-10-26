@@ -203,12 +203,12 @@ committed lockfiles to address the eMudhra/emSign CA incident; no general
 lockfile refresh was performed.
 
 Re-enable maintenance only after a released Pixi passes both upstream issue
-reproducers and repeated byte-stable update/lock/check cycles across all six
-workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings_13`, `cuda_core`,
-`benchmarks/cuda_bindings`, and `benchmarks/cuda_core`. Verify both `pixi update
---no-install` and `pixi lock`, followed by repeated `pixi lock --check` commands,
-converge to unchanged lockfile bytes. Then restore strict freshness checks,
-scheduled refreshes, and `PIXI_LOCKED=true` in source-build CI.
+reproducers and repeated byte-stable update/lock/check cycles across every
+workspace reported by `python ci/tools/list_pixi_workspaces.py`, including both
+bindings roots. Verify `pixi update --no-install` and `pixi lock`, followed by
+repeated `pixi lock --check` commands, converge to unchanged lockfile bytes.
+Then restore strict freshness checks, scheduled refreshes, and `PIXI_LOCKED=true`
+in source-build CI.
 
 ## Repository Customizations
 
@@ -335,3 +335,43 @@ a plausible but wrong `0.1.dev...` version. The maintenance bootstrap does not
 automatically establish milestones for the current-major root. Use the same
 local-preview safeguards while preparing the new source and confirm the
 resolved version and `git describe` output before retaining its milestone.
+
+## Reading CI Jobs and Summaries
+
+A name such as `pathfinder+bindings12+core12+meta12 / py3.11, CTK12.9.1
+(wheels; bindings PR)` identifies the enabled test suites, Python version,
+and toolkit. `meta12` means the CUDA 12 `cuda-python` metapackage; `core12`
+means Core tested with CUDA 12. The corresponding CUDA 13 suites use `13`.
+`pathfinder` is shared across majors.
+
+The two source descriptions answer different questions:
+
+- `wheels` or `local CTK` describes how the toolkit libraries are supplied.
+- `bindings PR` uses the selected root's artifact from this CI run. Unaffected
+  packages can reuse exact-baseline wheels, so this label alone does not mean
+  the bindings were rebuilt for the PR.
+- `bindings floor` uses the oldest published bindings supported by the Core
+  wheel for that CUDA major, as declared in its metadata. These rows test Core
+  or the selected nightly integration against published bindings, without
+  running the bindings or metapackage suites.
+
+Open the change-detection job's **CI workplan** summary and expand its JSON.
+The component build/test flags identify selected work; the baseline records
+the original run and exact source SHA for reusable artifacts. Reuse requires a
+successful push CI run for the exact merge-base commit on the PR's base branch,
+with the complete required artifact set. If that baseline is unavailable, CI
+builds and tests everything. A bindings-only change reuses the unchanged
+merged Core wheel while testing Core against the affected bindings major.
+
+The platform matrix-setup jobs' **Selected wheel test coverage** summaries
+show the final suites, toolkit source, bindings root or published floor, and
+GPU. Shared infrastructure changes, regular branch runs, and scheduled CI
+cover both majors; a bindings tag deliberately selects one bindings/metapackage
+line and published Pathfinder. Windows ARM64 omits CUDA 12 because that toolkit
+has no Windows ARM64 build.
+
+`ci/tools/select_test_matrix.py` applies the shared selection and local-wheel
+coverage rules after each platform reads its source matrix and applies an
+optional jq filter. Matrix data comes from the artifact source revision; the
+helper comes from the workflow control revision so older artifact sources do
+not need to contain newly introduced CI tooling.
