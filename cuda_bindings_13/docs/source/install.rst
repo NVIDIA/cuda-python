@@ -18,7 +18,11 @@ Runtime Requirements
 
    The optional CUDA Toolkit components are now installed via the ``cuda-toolkit`` metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit `Windows <https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html>`_ and `Linux <https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html>`_ Installation Guides).
 
-Starting from v12.8.0, ``cuda-python`` becomes a meta package which currently depends only on ``cuda-bindings``; in the future more sub-packages will be added to ``cuda-python``. In the instructions below, we still use ``cuda-python`` as example to serve existing users, but everything is applicable to ``cuda-bindings`` as well.
+The CUDA 13 releases of ``cuda-python`` are a metapackage that installs
+``cuda-bindings``, ``cuda-core``, and ``cuda-pathfinder``. The examples below use
+``cuda-python`` for existing users; install ``cuda-bindings`` directly if you
+only need the low-level interfaces. Its ``all`` extra installs the optional
+Toolkit components listed below.
 
 
 Free-threading Build Support
@@ -133,8 +137,10 @@ Requirements
 [^2]: The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
 
 [^3]: The version is derived from git tags via ``setuptools-scm``, so the clone
-must include tags reaching back to at least the latest ``v*`` tag. Do not use
-``--depth`` or ``--no-tags``: a clone without reachable tags can build with a
+must include a reachable tag matching the release line configured in this
+package's ``pyproject.toml`` (currently ``v13.4.*``). A tag from the other CUDA
+major does not determine this package's version. Do not use ``--depth`` or
+``--no-tags``: a clone without matching reachable tags can build with a
 bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository
 <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#cloning-the-repository>`_
 for details.
