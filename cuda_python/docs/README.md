@@ -4,7 +4,11 @@
 2. Build the docs with `./build_docs.sh`.
 3. The html artifacts should be available under both `./build/html/latest` and `./build/html/<version>`.
 
-Alternatively, we can build all the docs at once by running [`./build_all_docs.sh`](./build_all_docs.sh).
+[`./build_all_docs.sh`](./build_all_docs.sh) builds the metapackage, current
+CUDA 13 bindings, Core, and Pathfinder documentation together. It does not
+build the [CUDA 12 maintenance documentation](../../cuda_bindings_12/docs/README.md).
+Build that separately in its own environment: both bindings roots install the
+same `cuda-bindings` distribution and `cuda.bindings` namespace.
 
 When building the docs, some (but not all) of the urls can be rendered/examined locally by setting the environment
 variable `CUDA_PYTHON_DOMAIN` as follows:
