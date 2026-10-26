@@ -14,7 +14,7 @@ import subprocess
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any
 
-from .bindings_config import BindingsConfigError, load_config
+from .bindings_config import load_config
 
 if TYPE_CHECKING:
     from .bindings_config import BindingsConfig
@@ -69,16 +69,18 @@ def compute_workplan(
     release_tag: str,
 ) -> dict[str, object]:
     """Return the final CI decisions for the supplied changed paths."""
-    packages = bindings_config.package_roots
-    package_roots = tuple(package.package_root for package in packages)
-    cuda_variants = tuple(package.cuda_variant for package in packages)
+    bindings_packages = bindings_config.package_roots
+    package_roots = tuple(package.package_root for package in bindings_packages)
+    cuda_variants = tuple(package.cuda_variant for package in bindings_packages)
 
     bindings_targets = frozenset(("bindings", package_root) for package_root in package_roots)
     core_targets = frozenset(("core", variant) for variant in cuda_variants)
     python_targets = frozenset(("python", package_root) for package_root in package_roots)
     all_targets = frozenset({("pathfinder", None), *bindings_targets, *core_targets, *python_targets})
 
-    package_targets = {PurePosixPath(package.package_root): ("bindings", package.package_root) for package in packages}
+    package_targets = {
+        PurePosixPath(package.package_root): ("bindings", package.package_root) for package in bindings_packages
+    }
     package_targets.update((PurePosixPath(source_dir), target) for source_dir, target in PACKAGE_TARGETS.items())
 
     # Source changes have different build/test consumers. Core-only changes can
@@ -110,7 +112,7 @@ def compute_workplan(
                 ),
                 frozenset({package.package_root}),
             )
-            for package in packages
+            for package in bindings_packages
         },
     }
 
@@ -119,7 +121,7 @@ def compute_workplan(
     test_platforms: set[str] = set()
     release_package = bindings_config.match_tag(release_tag) if release_tag else None
     if release_tag.startswith("v") and release_package is None:
-        raise BindingsConfigError(f"no configured CUDA bindings package root matches release tag: {release_tag!r}")
+        raise ValueError(f"no configured CUDA bindings package root matches release tag: {release_tag!r}")
     force_all = release_package is None and (bool(release_tag) or not merge_base or not baseline_run_id)
 
     if release_package is None and not force_all:
@@ -224,7 +226,9 @@ def compute_workplan(
 
     modules: dict[str, dict[str, object]] = {"pathfinder": flags("pathfinder", (None,))}
     for module in ("bindings", "python"):
-        package_decisions = {package.package_root: flags(module, (package.package_root,)) for package in packages}
+        package_decisions = {
+            package.package_root: flags(module, (package.package_root,)) for package in bindings_packages
+        }
         modules[module] = {
             **flags(module, package_roots),
             "package_roots": package_decisions,
@@ -239,7 +243,7 @@ def compute_workplan(
     pathfinder_test = ("pathfinder", None) in tests
     test_cuda_variants = {
         package.cuda_variant
-        for package in packages
+        for package in bindings_packages
         if pathfinder_test
         or ("core", package.cuda_variant) in tests
         or any((module, package.package_root) in tests for module in ("bindings", "python"))
@@ -253,7 +257,7 @@ def compute_workplan(
             component_label = "meta" if module == "python" else module
             if module == "python" and not universal:
                 continue
-            for package in packages:
+            for package in bindings_packages:
                 if current_only and package.release_status != "current":
                     continue
                 selector = package.cuda_variant if module == "core" else package.package_root
@@ -261,27 +265,25 @@ def compute_workplan(
                     labels.append(f"{component_label}{package.cuda_major}")
         return "+".join(labels) or "baseline wheels and test extensions"
 
+    sdist_labels = {}
+    for package in bindings_packages:
+        labels = []
+        if ("pathfinder", None) in builds:
+            labels.append("pathfinder")
+        if ("bindings", package.package_root) in builds:
+            labels.append(f"bindings{package.cuda_major}")
+        if ("core", package.cuda_variant) in builds:
+            labels.append(f"core{package.cuda_major}")
+        if ("python", package.package_root) in builds:
+            labels.append(f"meta{package.cuda_major}")
+        sdist_labels[package.package_root] = "+".join(labels) or "excluded"
+
     return {
         "labels": {
             "build": build_label(universal=True),
             "build_platform": build_label(universal=False),
             "build_current": build_label(universal=False, current_only=True),
-            "sdist": {
-                package.package_root: "+".join(
-                    [
-                        name
-                        for selected, name in (
-                            (("pathfinder", None) in builds, "pathfinder"),
-                            (("bindings", package.package_root) in builds, f"bindings{package.cuda_major}"),
-                            (("core", package.cuda_variant) in builds, f"core{package.cuda_major}"),
-                            (("python", package.package_root) in builds, f"meta{package.cuda_major}"),
-                        )
-                        if selected
-                    ]
-                )
-                or "excluded"
-                for package in packages
-            },
+            "sdist": sdist_labels,
         },
         "modules": modules,
         "sources": {
@@ -296,7 +298,7 @@ def compute_workplan(
             or any(
                 int(package.cuda_major) >= 13
                 and (("bindings", package.package_root) in builds or ("core", package.cuda_variant) in builds)
-                for package in packages
+                for package in bindings_packages
             ),
             "core_api_checks": force_all or ("core", None) in source_changes,
             "test_cuda_majors": {variant: variant in test_cuda_variants for variant in cuda_variants},
@@ -406,7 +408,7 @@ def main(argv: list[str] | None = None) -> None:
             baseline_run_id=args.baseline_run_id,
             release_tag=args.release_tag,
         )
-    except BindingsConfigError as error:
+    except ValueError as error:
         parser.error(str(error))
     workplan = json.dumps(plan, separators=(",", ":"), sort_keys=True)
     if args.github_output is None:
