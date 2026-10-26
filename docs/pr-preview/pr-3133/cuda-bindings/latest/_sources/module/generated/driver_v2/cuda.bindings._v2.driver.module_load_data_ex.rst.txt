@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.module\_load\_data\_ex
+================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: module_load_data_ex

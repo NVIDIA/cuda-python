@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.checkpoint\_process\_get\_restore\_thread\_id
+=======================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: checkpoint_process_get_restore_thread_id

@@ -1,0 +1,33 @@
+﻿cuda.bindings.\_v2.driver.MemCpy3dOperand\_v1
+=============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: MemCpy3dOperand_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MemCpy3dOperand_v1.__init__
+      ~MemCpy3dOperand_v1.from_buffer
+      ~MemCpy3dOperand_v1.from_data
+      ~MemCpy3dOperand_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MemCpy3dOperand_v1.op
+      ~MemCpy3dOperand_v1.ptr
+      ~MemCpy3dOperand_v1.type
+   
+   

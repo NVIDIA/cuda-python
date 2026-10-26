@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.tensor\_map\_encode\_im2col\_wide
+===========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: tensor_map_encode_im2col_wide

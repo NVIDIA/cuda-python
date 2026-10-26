@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.JitCompilationDisabledError
+=====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: JitCompilationDisabledError
