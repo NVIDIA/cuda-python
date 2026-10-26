@@ -14,7 +14,7 @@ from typing import Callable
 import pytest
 from helpers.graph_kernels import compile_common_kernels
 
-from cuda.core import Device, DeviceMemoryResource, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import Device, DeviceMemoryResource, EventOptions, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._utils._weak_handles import weak_handle
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
@@ -96,36 +96,27 @@ def _update_executable_case(graph, case):
 
 
 def _event_record_case(device):
-    """Keep the selected event pending to identify each exec's record target."""
-    original = device.create_event()
-    replacement = device.create_event()
-    invalid_replacement = device.create_event()
+    """Identify each exec's record target after completion."""
+    event_options = EventOptions(timing_enabled=True)
+    original = device.create_event(options=event_options)
+    replacement = device.create_event(options=event_options)
+    invalid_replacement = device.create_event(options=event_options)
     invalid_replacement.close()
 
-    callback_started = threading.Event()
-    callback_release = threading.Event()
-
-    def blocking_callback():
-        callback_started.set()
-        callback_release.wait(timeout=30)
-
     graph_def = GraphDefinition()
-    callback_node = graph_def.callback(blocking_callback)
-    node = callback_node.record(original)
+    node = graph_def.record(original)
 
     def assert_exec_uses(graph, expected):
-        callback_started.clear()
-        callback_release.clear()
         stream = device.create_stream()
+        reference = stream.record(options=event_options)
+        stream.sync()
+
+        with pytest.raises(RuntimeError, match=r"^Both Events must be recorded"):
+            expected - reference
+
         graph.launch(stream)
-        try:
-            assert callback_started.wait(timeout=5)
-            _wait_until(lambda: expected.is_done is False)
-            unexpected = replacement if expected is original else original
-            assert unexpected.is_done is True
-        finally:
-            callback_release.set()
-            stream.sync()
+        stream.sync()
+        assert isinstance(expected - reference, float)
 
     return _DefinitionUpdateCase(
         graph_def=graph_def,
