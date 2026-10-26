@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.egl\_stream\_producer\_present\_frame
+===============================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: egl_stream_producer_present_frame

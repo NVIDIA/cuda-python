@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_add\_empty\_node
+=================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_add_empty_node

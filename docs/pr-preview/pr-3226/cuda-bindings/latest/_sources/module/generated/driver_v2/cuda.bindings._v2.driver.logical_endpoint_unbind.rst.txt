@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.logical\_endpoint\_unbind
+===================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: logical_endpoint_unbind

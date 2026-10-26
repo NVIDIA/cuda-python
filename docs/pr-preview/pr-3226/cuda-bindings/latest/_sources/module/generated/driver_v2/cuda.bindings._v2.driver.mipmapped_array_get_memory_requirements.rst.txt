@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mipmapped\_array\_get\_memory\_requirements
+=====================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mipmapped_array_get_memory_requirements

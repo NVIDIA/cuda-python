@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.get\_export\_table
+============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: get_export_table

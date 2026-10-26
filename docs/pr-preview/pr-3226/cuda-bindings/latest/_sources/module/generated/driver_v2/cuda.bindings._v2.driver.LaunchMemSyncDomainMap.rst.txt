@@ -1,0 +1,33 @@
+﻿cuda.bindings.\_v2.driver.LaunchMemSyncDomainMap
+================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: LaunchMemSyncDomainMap
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LaunchMemSyncDomainMap.__init__
+      ~LaunchMemSyncDomainMap.from_buffer
+      ~LaunchMemSyncDomainMap.from_data
+      ~LaunchMemSyncDomainMap.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LaunchMemSyncDomainMap.default_
+      ~LaunchMemSyncDomainMap.ptr
+      ~LaunchMemSyncDomainMap.remote
+   
+   
