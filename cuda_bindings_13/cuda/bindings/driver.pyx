@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=548b03ca3d3021957ab650d666fcd33a16d9af80a5004254c2733f807836679b
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=348b02f0a76a3a271fbb11535f02d660d811d3c21a877e46bfc070bbabf43e76
 from typing import Any, Optional
 import cython
 import ctypes
@@ -26427,9 +26427,9 @@ def cuDeviceSetMemPool(dev, pool):
     Parameters
     ----------
     dev : :py:obj:`~.CUdevice`
-        None
+        Device to set the current memory pool for
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        Memory pool to use as the device's current memory pool
 
     Returns
     -------
@@ -26477,14 +26477,14 @@ def cuDeviceGetMemPool(dev):
     Parameters
     ----------
     dev : :py:obj:`~.CUdevice`
-        None
+        Device for which to query the current memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
     pool : :py:obj:`~.CUmemoryPool`
-        None
+        Returned current memory pool of the device
 
     See Also
     --------
@@ -26515,14 +26515,14 @@ def cuDeviceGetDefaultMemPool(dev):
     Parameters
     ----------
     dev : :py:obj:`~.CUdevice`
-        None
+        Device for which to query the default memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool_out : :py:obj:`~.CUmemoryPool`
-        None
+        Returned default memory pool of the device
 
     See Also
     --------
@@ -36311,14 +36311,14 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     Parameters
     ----------
     poolProps : :py:obj:`~.CUmemPoolProps`
-        None
+        Memory pool properties
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool : :py:obj:`~.CUmemoryPool`
-        None
+        Returned memory pool
 
     See Also
     --------
@@ -36354,7 +36354,7 @@ def cuMemPoolDestroy(pool):
     Parameters
     ----------
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        Memory pool to destroy
 
     Returns
     -------
@@ -36401,16 +36401,17 @@ def cuMemGetDefaultMemPool(location : Optional[CUmemLocation], typename not None
     Parameters
     ----------
     location : :py:obj:`~.CUmemLocation`
-        None
+        Memory location for which to query the default memory pool
     typename : :py:obj:`~.CUmemAllocationType`
-        None
+        Allocation type for which to query the default memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool_out : :py:obj:`~.CUmemoryPool`
-        None
+        Returned default memory pool for the given location and allocation
+        type
 
     See Also
     --------
@@ -36455,16 +36456,17 @@ def cuMemGetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     Parameters
     ----------
     location : :py:obj:`~.CUmemLocation`
-        None
+        Memory location for which to query the current memory pool
     typename : :py:obj:`~.CUmemAllocationType`
-        None
+        Allocation type for which to query the current memory pool
 
     Returns
     -------
     CUresult
         :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
     pool : :py:obj:`~.CUmemoryPool`
-        None
+        Returned current memory pool for the given location and allocation
+        type
 
     See Also
     --------
@@ -36510,11 +36512,12 @@ def cuMemSetMemPool(location : Optional[CUmemLocation], typename not None : CUme
     Parameters
     ----------
     location : :py:obj:`~.CUmemLocation`
-        None
+        Memory location for which to set the current memory pool
     typename : :py:obj:`~.CUmemAllocationType`
-        None
+        Allocation type for which to set the current memory pool
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
-        None
+        Memory pool to use as the current memory pool for the given
+        location and allocation type
 
     Returns
     -------

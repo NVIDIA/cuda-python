@@ -11,7 +11,8 @@ from contextlib import contextmanager
 
 import pytest
 
-import cuda.bindings.driver as cuda
+import cuda.bindings.driver as legacy_driver
+from cuda.bindings._v2 import driver
 
 # BEGIN SYNCED PYTEST PLUGIN BOOTSTRAP
 # Keep every block with this marker byte-for-byte identical.
@@ -59,41 +60,46 @@ class _ThreadContextPool:
     The worker threads of a test now run at the same time. Do not add a
     synchronizing call between tests here: while another thread captures a
     stream in global mode, such a call fails and breaks that capture.
+
+    Subclasses implement the driver calls, so that the objects passed to the
+    tests have the types those tests expect.
     """
 
     def __init__(self):
         self._lock = threading.Lock()
         self._idle = []
 
-    @staticmethod
-    def _create():
-        err, device = cuda.cuDeviceGet(0)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        # cuCtxCreate makes the new context current; pop it so that context()
-        # can push and pop it like a reused one.
-        err, ctx = cuda.cuCtxCreate(None, 0, device)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        err, _ = cuda.cuCtxPopCurrent()
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        return device, ctx
+    def _create(self):
+        """Return ``(device, ctx)``; ``ctx`` must not be left current."""
+        raise NotImplementedError
+
+    def _push(self, ctx):
+        raise NotImplementedError
+
+    def _pop(self):
+        raise NotImplementedError
+
+    def _destroy(self, ctx):
+        raise NotImplementedError
 
     @contextmanager
     def context(self):
         with self._lock:
-            entry = self._idle.pop() if self._idle else None
+            if self._idle:
+                entry = self._idle.pop()
+            else:
+                entry = None
         if entry is None:
             entry = self._create()
         device, ctx = entry
-        (err,) = cuda.cuCtxPushCurrent(ctx)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        self._push(ctx)
         try:
             yield device, ctx
         finally:
             # Pop rather than unset, so that the context that was current
             # before the test (on the main thread, for tests that are not run
             # in parallel) is current again.
-            err, _ = cuda.cuCtxPopCurrent()
-            assert err == cuda.CUresult.CUDA_SUCCESS
+            self._pop()
             with self._lock:
                 self._idle.append(entry)
 
@@ -102,14 +108,58 @@ class _ThreadContextPool:
         with self._lock:
             entries, self._idle = self._idle, []
         for _, ctx in entries:
-            (err,) = cuda.cuCtxDestroy(ctx)
-            assert err == cuda.CUresult.CUDA_SUCCESS
+            self._destroy(ctx)
 
 
-_thread_contexts = _ThreadContextPool()
+class _V2ThreadContextPool(_ThreadContextPool):
+    def _create(self):
+        device = driver.device_get(0)
+        # ctx_create_v4 makes the new context current; pop it so that
+        # context() can push and pop it like a reused one.
+        ctx = driver.ctx_create_v4(None, 0, device)
+        driver.ctx_pop_current_v2()
+        return device, ctx
+
+    def _push(self, ctx):
+        driver.ctx_push_current_v2(ctx)
+
+    def _pop(self):
+        driver.ctx_pop_current_v2()
+
+    def _destroy(self, ctx):
+        driver.ctx_destroy_v2(ctx)
 
 
-def _wrap_worker_cuda_test(func):
+class _LegacyThreadContextPool(_ThreadContextPool):
+    # Uses the legacy API so that the objects passed to tests/legacy_api have
+    # the types those tests expect.
+    def _create(self):
+        err, device = legacy_driver.cuDeviceGet(0)
+        assert err == legacy_driver.CUresult.CUDA_SUCCESS
+        err, ctx = legacy_driver.cuCtxCreate(None, 0, device)
+        assert err == legacy_driver.CUresult.CUDA_SUCCESS
+        err, _ = legacy_driver.cuCtxPopCurrent()
+        assert err == legacy_driver.CUresult.CUDA_SUCCESS
+        return device, ctx
+
+    def _push(self, ctx):
+        (err,) = legacy_driver.cuCtxPushCurrent(ctx)
+        assert err == legacy_driver.CUresult.CUDA_SUCCESS
+
+    def _pop(self):
+        err, _ = legacy_driver.cuCtxPopCurrent()
+        assert err == legacy_driver.CUresult.CUDA_SUCCESS
+
+    def _destroy(self, ctx):
+        (err,) = legacy_driver.cuCtxDestroy(ctx)
+        assert err == legacy_driver.CUresult.CUDA_SUCCESS
+
+
+_thread_contexts = _V2ThreadContextPool()
+_legacy_thread_contexts = _LegacyThreadContextPool()
+
+
+def _wrap_worker_cuda_test(func, thread_contexts):
     if getattr(func, "_cuda_bindings_worker_cuda_wrapped", False):
         return func
 
@@ -120,7 +170,7 @@ def _wrap_worker_cuda_test(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         kwargs = dict(kwargs)  # copy before mutating
-        with _thread_contexts.context() as (device, ctx):
+        with thread_contexts.context() as (device, ctx):
             # device is None when reusing an existing context (defensive path);
             # keep whatever the fixture provided in kwargs as-is.
             if wants_device and device is not None:
@@ -158,7 +208,11 @@ class _CudaBindingsParallelPlugin:
     def pytest_collection_modifyitems(self, config, items):
         for item in items:
             if _item_needs_thread_ctx(item):
-                item.obj = _wrap_worker_cuda_test(item.obj)
+                if "legacy_api" in item.path.parts:
+                    thread_contexts = _legacy_thread_contexts
+                else:
+                    thread_contexts = _thread_contexts
+                item.obj = _wrap_worker_cuda_test(item.obj, thread_contexts)
 
     @pytest.hookimpl(trylast=True)
     def pytest_runtest_teardown(self, item, nextitem):
@@ -166,26 +220,22 @@ class _CudaBindingsParallelPlugin:
         # contexts when the next test is in another module, or there is none.
         if nextitem is None or getattr(nextitem, "module", None) is not getattr(item, "module", None):
             _thread_contexts.clear()
+            _legacy_thread_contexts.clear()
 
 
 @pytest.fixture(scope="module")
 def cuda_driver():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.init(0)
 
 
 @pytest.fixture(scope="module")
 def device(cuda_driver):
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    return device
+    return driver.device_get(0)
 
 
 @pytest.fixture(scope="module", autouse=True)
 def ctx(device):
     # Construct context
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    ctx = driver.ctx_create_v4(None, 0, device)
     yield ctx
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.ctx_destroy_v2(ctx)

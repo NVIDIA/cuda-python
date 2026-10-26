@@ -15,6 +15,7 @@ NotFoundError = nvml.NotFoundError
 InsufficientSizeError = nvml.InsufficientSizeError
 InsufficientPowerError = nvml.InsufficientPowerError
 DriverNotLoadedError = nvml.DriverNotLoadedError
+NvmlTimeoutError = nvml.TimeoutError
 TimeoutError = nvml.TimeoutError
 IrqIssueError = nvml.IrqIssueError
 LibraryNotFoundError = nvml.LibraryNotFoundError
@@ -25,6 +26,7 @@ ResetRequiredError = nvml.ResetRequiredError
 OperatingSystemError = nvml.OperatingSystemError
 LibRmVersionMismatchError = nvml.LibRmVersionMismatchError
 InUseError = nvml.InUseError
+NvmlMemoryError = nvml.MemoryError
 MemoryError = nvml.MemoryError
 NoDataError = nvml.NoDataError
 VgpuEccNotSupportedError = nvml.VgpuEccNotSupportedError
@@ -65,6 +67,8 @@ __all__ = [
     "NotReadyError",
     "NotSupportedError",
     "NvmlError",
+    "NvmlMemoryError",
+    "NvmlTimeoutError",
     "OperatingSystemError",
     "ResetRequiredError",
     "ResetTypeNotSupportedError",
