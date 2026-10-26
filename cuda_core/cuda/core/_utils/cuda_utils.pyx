@@ -171,7 +171,7 @@ cdef inline void _attach_detail(exc, str detail):
     exc.add_note(detail)
 
 
-cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
+cpdef int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
     if error == cydriver.CUresult.CUDA_SUCCESS:
         return 0
     cdef const char* name
@@ -197,7 +197,7 @@ cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
         raise exc
 
 
-cpdef inline int _check_runtime_error(error) except?-1:
+cpdef int _check_runtime_error(error) except?-1:
     if error == _RUNTIME_SUCCESS:
         return 0
     # `_check_error()` reaches this path only for `runtime.cudaError_t` values.
@@ -213,7 +213,7 @@ cpdef inline int _check_runtime_error(error) except?-1:
     raise CUDAError(f"{name}: {desc}")
 
 
-cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
+cpdef int _check_nvrtc_error(error, handle=None) except?-1:
     if error == _NVRTC_SUCCESS:
         return 0
     err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"

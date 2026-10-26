@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3ad6204c7b246450b2e3435a0d69234211002cc179ccacdc65342f8554aebc7f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5c3afec4f14f03303533c7e373c24a624243ebed2e91d50bf9617d546d0297bc
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2960,7 +2960,7 @@ class InsufficientPowerError(NvmlError):
     pass
 class DriverNotLoadedError(NvmlError):
     pass
-class TimeoutError(NvmlError):
+class NvmlTimeoutError(NvmlError):
     pass
 class IrqIssueError(NvmlError):
     pass
@@ -2980,7 +2980,7 @@ class LibRmVersionMismatchError(NvmlError):
     pass
 class InUseError(NvmlError):
     pass
-class MemoryError(NvmlError):
+class NvmlMemoryError(NvmlError):
     pass
 class NoDataError(NvmlError):
     pass
@@ -3025,7 +3025,7 @@ cdef object _nvml_error_factory(int status):
     elif status == 9:
         return DriverNotLoadedError(pystatus)
     elif status == 10:
-        return TimeoutError(pystatus)
+        return NvmlTimeoutError(pystatus)
     elif status == 11:
         return IrqIssueError(pystatus)
     elif status == 12:
@@ -3045,7 +3045,7 @@ cdef object _nvml_error_factory(int status):
     elif status == 19:
         return InUseError(pystatus)
     elif status == 20:
-        return MemoryError(pystatus)
+        return NvmlMemoryError(pystatus)
     elif status == 21:
         return NoDataError(pystatus)
     elif status == 22:
@@ -4172,7 +4172,7 @@ cdef class ProcessInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_info_dtype)
+        arr = _numpy.zeros(size, dtype=process_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessInfo_t) }"
@@ -4222,6 +4222,8 @@ cdef class ProcessInfo:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.pid = val
 
     @property
@@ -4233,6 +4235,8 @@ cdef class ProcessInfo:
 
     @used_gpu_memory.setter
     def used_gpu_memory(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.used_gpu_memory = val
 
     @property
@@ -4244,6 +4248,8 @@ cdef class ProcessInfo:
 
     @gpu_instance_id.setter
     def gpu_instance_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.gpu_instance_id = val
 
     @property
@@ -4255,6 +4261,8 @@ cdef class ProcessInfo:
 
     @compute_instance_id.setter
     def compute_instance_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
         self._data.compute_instance_id = val
 
     def __getitem__(self, key):
@@ -4355,7 +4363,7 @@ cdef class ProcessDetail_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_detail_v1_dtype)
+        arr = _numpy.zeros(size, dtype=process_detail_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessDetail_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessDetail_v1_t) }"
@@ -4405,6 +4413,8 @@ cdef class ProcessDetail_v1:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.pid = val
 
     @property
@@ -4416,6 +4426,8 @@ cdef class ProcessDetail_v1:
 
     @used_gpu_memory.setter
     def used_gpu_memory(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.used_gpu_memory = val
 
     @property
@@ -4427,6 +4439,8 @@ cdef class ProcessDetail_v1:
 
     @gpu_instance_id.setter
     def gpu_instance_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.gpu_instance_id = val
 
     @property
@@ -4438,6 +4452,8 @@ cdef class ProcessDetail_v1:
 
     @compute_instance_id.setter
     def compute_instance_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.compute_instance_id = val
 
     @property
@@ -4449,6 +4465,8 @@ cdef class ProcessDetail_v1:
 
     @used_gpu_cc_protected_memory.setter
     def used_gpu_cc_protected_memory(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
         self._data.used_gpu_cc_protected_memory = val
 
     def __getitem__(self, key):
@@ -5065,7 +5083,7 @@ cdef class BridgeChipInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=bridge_chip_info_dtype)
+        arr = _numpy.zeros(size, dtype=bridge_chip_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlBridgeChipInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlBridgeChipInfo_t) }"
@@ -5115,6 +5133,8 @@ cdef class BridgeChipInfo:
 
     @type.setter
     def type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This BridgeChipInfo instance is read-only")
         self._data.type = val
 
     @property
@@ -5126,6 +5146,8 @@ cdef class BridgeChipInfo:
 
     @fw_version.setter
     def fw_version(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This BridgeChipInfo instance is read-only")
         self._data.fw_version = val
 
     def __getitem__(self, key):
@@ -5435,7 +5457,7 @@ cdef class _py_anon_pod0:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod0_dtype)
+        arr = _numpy.zeros(size, dtype=_py_anon_pod0_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod0), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod0) }"
@@ -5485,6 +5507,8 @@ cdef class _py_anon_pod0:
 
     @controller.setter
     def controller(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.controller = val
 
     @property
@@ -5496,6 +5520,8 @@ cdef class _py_anon_pod0:
 
     @default_min_temp.setter
     def default_min_temp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.default_min_temp = val
 
     @property
@@ -5507,6 +5533,8 @@ cdef class _py_anon_pod0:
 
     @default_max_temp.setter
     def default_max_temp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.default_max_temp = val
 
     @property
@@ -5518,6 +5546,8 @@ cdef class _py_anon_pod0:
 
     @current_temp.setter
     def current_temp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.current_temp = val
 
     @property
@@ -5529,6 +5559,8 @@ cdef class _py_anon_pod0:
 
     @target.setter
     def target(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
         self._data.target = val
 
     def __getitem__(self, key):
@@ -5787,7 +5819,7 @@ cdef class ClkMonFaultInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=clk_mon_fault_info_dtype)
+        arr = _numpy.zeros(size, dtype=clk_mon_fault_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlClkMonFaultInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlClkMonFaultInfo_t) }"
@@ -5837,6 +5869,8 @@ cdef class ClkMonFaultInfo:
 
     @clk_api_domain.setter
     def clk_api_domain(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ClkMonFaultInfo instance is read-only")
         self._data.clk_api_domain = val
 
     @property
@@ -5848,6 +5882,8 @@ cdef class ClkMonFaultInfo:
 
     @clk_domain_fault_mask.setter
     def clk_domain_fault_mask(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ClkMonFaultInfo instance is read-only")
         self._data.clk_domain_fault_mask = val
 
     def __getitem__(self, key):
@@ -6134,7 +6170,7 @@ cdef class ProcessUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_sample_dtype)
+        arr = _numpy.zeros(size, dtype=process_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationSample_t) }"
@@ -6184,6 +6220,8 @@ cdef class ProcessUtilizationSample:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.pid = val
 
     @property
@@ -6195,6 +6233,8 @@ cdef class ProcessUtilizationSample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -6206,6 +6246,8 @@ cdef class ProcessUtilizationSample:
 
     @sm_util.setter
     def sm_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -6217,6 +6259,8 @@ cdef class ProcessUtilizationSample:
 
     @mem_util.setter
     def mem_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -6228,6 +6272,8 @@ cdef class ProcessUtilizationSample:
 
     @enc_util.setter
     def enc_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -6239,6 +6285,8 @@ cdef class ProcessUtilizationSample:
 
     @dec_util.setter
     def dec_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
         self._data.dec_util = val
 
     def __getitem__(self, key):
@@ -6342,7 +6390,7 @@ cdef class ProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_info_v1_dtype)
+        arr = _numpy.zeros(size, dtype=process_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationInfo_v1_t) }"
@@ -6392,6 +6440,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -6403,6 +6453,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.pid = val
 
     @property
@@ -6414,6 +6466,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @sm_util.setter
     def sm_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -6425,6 +6479,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @mem_util.setter
     def mem_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -6436,6 +6492,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @enc_util.setter
     def enc_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -6447,6 +6505,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @dec_util.setter
     def dec_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.dec_util = val
 
     @property
@@ -6458,6 +6518,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @jpg_util.setter
     def jpg_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.jpg_util = val
 
     @property
@@ -6469,6 +6531,8 @@ cdef class ProcessUtilizationInfo_v1:
 
     @ofa_util.setter
     def ofa_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
         self._data.ofa_util = val
 
     def __getitem__(self, key):
@@ -7279,7 +7343,7 @@ cdef class _py_anon_pod1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod1_dtype)
+        arr = _numpy.zeros(size, dtype=_py_anon_pod1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod1) }"
@@ -7329,6 +7393,8 @@ cdef class _py_anon_pod1:
 
     @b_is_present.setter
     def b_is_present(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.b_is_present = val
 
     @property
@@ -7340,6 +7406,8 @@ cdef class _py_anon_pod1:
 
     @percentage.setter
     def percentage(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.percentage = val
 
     @property
@@ -7351,6 +7419,8 @@ cdef class _py_anon_pod1:
 
     @inc_threshold.setter
     def inc_threshold(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.inc_threshold = val
 
     @property
@@ -7362,6 +7432,8 @@ cdef class _py_anon_pod1:
 
     @dec_threshold.setter
     def dec_threshold(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
         self._data.dec_threshold = val
 
     def __getitem__(self, key):
@@ -7775,7 +7847,7 @@ cdef class VgpuProcessUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_process_utilization_sample_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_process_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationSample_t) }"
@@ -7825,6 +7897,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -7836,6 +7910,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.pid = val
 
     @property
@@ -7845,6 +7921,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @process_name.setter
     def process_name(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.process_name = val
 
     @property
@@ -7856,6 +7934,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -7867,6 +7947,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @sm_util.setter
     def sm_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -7878,6 +7960,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @mem_util.setter
     def mem_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -7889,6 +7973,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @enc_util.setter
     def enc_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -7900,6 +7986,8 @@ cdef class VgpuProcessUtilizationSample:
 
     @dec_util.setter
     def dec_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
         self._data.dec_util = val
 
     def __getitem__(self, key):
@@ -8005,7 +8093,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_process_utilization_info_v1_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_process_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationInfo_v1_t) }"
@@ -8053,6 +8141,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @process_name.setter
     def process_name(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.process_name = val
 
     @property
@@ -8064,6 +8154,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -8075,6 +8167,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -8086,6 +8180,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.pid = val
 
     @property
@@ -8097,6 +8193,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @sm_util.setter
     def sm_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -8108,6 +8206,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @mem_util.setter
     def mem_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -8119,6 +8219,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @enc_util.setter
     def enc_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -8130,6 +8232,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @dec_util.setter
     def dec_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.dec_util = val
 
     @property
@@ -8141,6 +8245,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @jpg_util.setter
     def jpg_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.jpg_util = val
 
     @property
@@ -8152,6 +8258,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
     @ofa_util.setter
     def ofa_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
         self._data.ofa_util = val
 
     def __getitem__(self, key):
@@ -8539,7 +8647,7 @@ cdef class VgpuSchedulerLogEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_t) }"
@@ -8589,6 +8697,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @timestamp.setter
     def timestamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.timestamp = val
 
     @property
@@ -8600,6 +8710,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @time_run_total.setter
     def time_run_total(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.time_run_total = val
 
     @property
@@ -8611,6 +8723,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @time_run.setter
     def time_run(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.time_run = val
 
     @property
@@ -8622,6 +8736,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @sw_runlist_id.setter
     def sw_runlist_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.sw_runlist_id = val
 
     @property
@@ -8633,6 +8749,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @target_time_slice.setter
     def target_time_slice(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.target_time_slice = val
 
     @property
@@ -8644,6 +8762,8 @@ cdef class VgpuSchedulerLogEntry:
 
     @cumulative_preemption_time.setter
     def cumulative_preemption_time(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
         self._data.cumulative_preemption_time = val
 
     def __getitem__(self, key):
@@ -10131,7 +10251,7 @@ cdef class HwbcEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=hwbc_entry_dtype)
+        arr = _numpy.zeros(size, dtype=hwbc_entry_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlHwbcEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlHwbcEntry_t) }"
@@ -10181,6 +10301,8 @@ cdef class HwbcEntry:
 
     @hwbc_id.setter
     def hwbc_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This HwbcEntry instance is read-only")
         self._data.hwbc_id = val
 
     @property
@@ -10190,6 +10312,8 @@ cdef class HwbcEntry:
 
     @firmware_version.setter
     def firmware_version(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This HwbcEntry instance is read-only")
         self._data.firmware_version = val
 
     def __getitem__(self, key):
@@ -10770,7 +10894,7 @@ cdef class UnitFanInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=unit_fan_info_dtype)
+        arr = _numpy.zeros(size, dtype=unit_fan_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlUnitFanInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlUnitFanInfo_t) }"
@@ -10820,6 +10944,8 @@ cdef class UnitFanInfo:
 
     @speed.setter
     def speed(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This UnitFanInfo instance is read-only")
         self._data.speed = val
 
     @property
@@ -10831,6 +10957,8 @@ cdef class UnitFanInfo:
 
     @state.setter
     def state(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This UnitFanInfo instance is read-only")
         self._data.state = val
 
     def __getitem__(self, key):
@@ -11101,7 +11229,7 @@ cdef class SystemEventData_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=system_event_data_v1_dtype)
+        arr = _numpy.zeros(size, dtype=system_event_data_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlSystemEventData_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSystemEventData_v1_t) }"
@@ -11151,6 +11279,8 @@ cdef class SystemEventData_v1:
 
     @event_type.setter
     def event_type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This SystemEventData_v1 instance is read-only")
         self._data.event_type = val
 
     @property
@@ -11162,6 +11292,8 @@ cdef class SystemEventData_v1:
 
     @gpu_id.setter
     def gpu_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This SystemEventData_v1 instance is read-only")
         self._data.gpu_id = val
 
     def __getitem__(self, key):
@@ -11451,7 +11583,7 @@ cdef class EncoderSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=encoder_session_info_dtype)
+        arr = _numpy.zeros(size, dtype=encoder_session_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlEncoderSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEncoderSessionInfo_t) }"
@@ -11501,6 +11633,8 @@ cdef class EncoderSessionInfo:
 
     @session_id.setter
     def session_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.session_id = val
 
     @property
@@ -11512,6 +11646,8 @@ cdef class EncoderSessionInfo:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.pid = val
 
     @property
@@ -11523,6 +11659,8 @@ cdef class EncoderSessionInfo:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -11534,6 +11672,8 @@ cdef class EncoderSessionInfo:
 
     @codec_type.setter
     def codec_type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.codec_type = val
 
     @property
@@ -11545,6 +11685,8 @@ cdef class EncoderSessionInfo:
 
     @h_resolution.setter
     def h_resolution(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.h_resolution = val
 
     @property
@@ -11556,6 +11698,8 @@ cdef class EncoderSessionInfo:
 
     @v_resolution.setter
     def v_resolution(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.v_resolution = val
 
     @property
@@ -11567,6 +11711,8 @@ cdef class EncoderSessionInfo:
 
     @average_fps.setter
     def average_fps(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.average_fps = val
 
     @property
@@ -11578,6 +11724,8 @@ cdef class EncoderSessionInfo:
 
     @average_latency.setter
     def average_latency(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
         self._data.average_latency = val
 
     def __getitem__(self, key):
@@ -11834,7 +11982,7 @@ cdef class FBCSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=fbc_session_info_dtype)
+        arr = _numpy.zeros(size, dtype=fbc_session_info_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlFBCSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFBCSessionInfo_t) }"
@@ -11884,6 +12032,8 @@ cdef class FBCSessionInfo:
 
     @session_id.setter
     def session_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.session_id = val
 
     @property
@@ -11895,6 +12045,8 @@ cdef class FBCSessionInfo:
 
     @pid.setter
     def pid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.pid = val
 
     @property
@@ -11906,6 +12058,8 @@ cdef class FBCSessionInfo:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -11917,6 +12071,8 @@ cdef class FBCSessionInfo:
 
     @display_ordinal.setter
     def display_ordinal(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.display_ordinal = val
 
     @property
@@ -11928,6 +12084,8 @@ cdef class FBCSessionInfo:
 
     @session_type.setter
     def session_type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.session_type = val
 
     @property
@@ -11939,6 +12097,8 @@ cdef class FBCSessionInfo:
 
     @session_flags.setter
     def session_flags(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.session_flags = val
 
     @property
@@ -11950,6 +12110,8 @@ cdef class FBCSessionInfo:
 
     @h_max_resolution.setter
     def h_max_resolution(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.h_max_resolution = val
 
     @property
@@ -11961,6 +12123,8 @@ cdef class FBCSessionInfo:
 
     @v_max_resolution.setter
     def v_max_resolution(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.v_max_resolution = val
 
     @property
@@ -11972,6 +12136,8 @@ cdef class FBCSessionInfo:
 
     @h_resolution.setter
     def h_resolution(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.h_resolution = val
 
     @property
@@ -11983,6 +12149,8 @@ cdef class FBCSessionInfo:
 
     @v_resolution.setter
     def v_resolution(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.v_resolution = val
 
     @property
@@ -11994,6 +12162,8 @@ cdef class FBCSessionInfo:
 
     @average_fps.setter
     def average_fps(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.average_fps = val
 
     @property
@@ -12005,6 +12175,8 @@ cdef class FBCSessionInfo:
 
     @average_latency.setter
     def average_latency(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
         self._data.average_latency = val
 
     def __getitem__(self, key):
@@ -14208,7 +14380,7 @@ cdef class GpuInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=gpu_instance_placement_dtype)
+        arr = _numpy.zeros(size, dtype=gpu_instance_placement_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlGpuInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGpuInstancePlacement_t) }"
@@ -14258,6 +14430,8 @@ cdef class GpuInstancePlacement:
 
     @start.setter
     def start(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GpuInstancePlacement instance is read-only")
         self._data.start = val
 
     @property
@@ -14269,6 +14443,8 @@ cdef class GpuInstancePlacement:
 
     @size_.setter
     def size_(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GpuInstancePlacement instance is read-only")
         self._data.size_ = val
 
     def __getitem__(self, key):
@@ -14639,7 +14815,7 @@ cdef class ComputeInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=compute_instance_placement_dtype)
+        arr = _numpy.zeros(size, dtype=compute_instance_placement_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlComputeInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlComputeInstancePlacement_t) }"
@@ -14689,6 +14865,8 @@ cdef class ComputeInstancePlacement:
 
     @start.setter
     def start(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ComputeInstancePlacement instance is read-only")
         self._data.start = val
 
     @property
@@ -14700,6 +14878,8 @@ cdef class ComputeInstancePlacement:
 
     @size_.setter
     def size_(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ComputeInstancePlacement instance is read-only")
         self._data.size_ = val
 
     def __getitem__(self, key):
@@ -15747,7 +15927,7 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
+        arr = _numpy.zeros(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) }"
@@ -15797,6 +15977,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @unit.setter
     def unit(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.unit = val
 
     @property
@@ -15808,6 +15990,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @location.setter
     def location(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.location = val
 
     @property
@@ -15819,6 +16003,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @sublocation.setter
     def sublocation(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.sublocation = val
 
     @property
@@ -15830,6 +16016,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @extlocation.setter
     def extlocation(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.extlocation = val
 
     @property
@@ -15841,6 +16029,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @address.setter
     def address(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.address = val
 
     @property
@@ -15852,6 +16042,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @is_parity.setter
     def is_parity(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.is_parity = val
 
     @property
@@ -15863,6 +16055,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
     @count.setter
     def count(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
         self._data.count = val
 
     def __getitem__(self, key):
@@ -16302,7 +16496,7 @@ cdef class NvlinkFirmwareVersion:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=nvlink_firmware_version_dtype)
+        arr = _numpy.zeros(size, dtype=nvlink_firmware_version_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlNvlinkFirmwareVersion_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkFirmwareVersion_t) }"
@@ -16352,6 +16546,8 @@ cdef class NvlinkFirmwareVersion:
 
     @ucode_type.setter
     def ucode_type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.ucode_type = val
 
     @property
@@ -16363,6 +16559,8 @@ cdef class NvlinkFirmwareVersion:
 
     @major.setter
     def major(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.major = val
 
     @property
@@ -16374,6 +16572,8 @@ cdef class NvlinkFirmwareVersion:
 
     @minor.setter
     def minor(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.minor = val
 
     @property
@@ -16385,6 +16585,8 @@ cdef class NvlinkFirmwareVersion:
 
     @sub_minor.setter
     def sub_minor(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
         self._data.sub_minor = val
 
     def __getitem__(self, key):
@@ -16785,7 +16987,7 @@ cdef class VgpuSchedulerLogEntry_v2:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_v2_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_v2_t) }"
@@ -16835,6 +17037,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @timestamp.setter
     def timestamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.timestamp = val
 
     @property
@@ -16846,6 +17050,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @time_run_total.setter
     def time_run_total(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.time_run_total = val
 
     @property
@@ -16857,6 +17063,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @time_run.setter
     def time_run(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.time_run = val
 
     @property
@@ -16868,6 +17076,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @sw_runlist_id.setter
     def sw_runlist_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.sw_runlist_id = val
 
     @property
@@ -16879,6 +17089,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @target_time_slice.setter
     def target_time_slice(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.target_time_slice = val
 
     @property
@@ -16890,6 +17102,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @cumulative_preemption_time.setter
     def cumulative_preemption_time(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.cumulative_preemption_time = val
 
     @property
@@ -16901,6 +17115,8 @@ cdef class VgpuSchedulerLogEntry_v2:
 
     @weight.setter
     def weight(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
         self._data.weight = val
 
     def __getitem__(self, key):
@@ -18194,7 +18410,7 @@ cdef class PmgrPwrTuple:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pmgr_pwr_tuple_dtype)
+        arr = _numpy.zeros(size, dtype=pmgr_pwr_tuple_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPmgrPwrTuple_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPmgrPwrTuple_t) }"
@@ -18244,6 +18460,8 @@ cdef class PmgrPwrTuple:
 
     @pwrm_w.setter
     def pwrm_w(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PmgrPwrTuple instance is read-only")
         self._data.pwrm_w = val
 
     def __getitem__(self, key):
@@ -18341,7 +18559,7 @@ cdef class RailMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=rail_metrics_dtype)
+        arr = _numpy.zeros(size, dtype=rail_metrics_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlRailMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlRailMetrics_t) }"
@@ -18391,6 +18609,8 @@ cdef class RailMetrics:
 
     @freqk_hz.setter
     def freqk_hz(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This RailMetrics instance is read-only")
         self._data.freqk_hz = val
 
     @property
@@ -18402,6 +18622,8 @@ cdef class RailMetrics:
 
     @util_pct.setter
     def util_pct(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This RailMetrics instance is read-only")
         self._data.util_pct = val
 
     def __getitem__(self, key):
@@ -18498,7 +18720,7 @@ cdef class PwrModelMetricsDlppm1xPerf:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xPerf_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xPerf_t) }"
@@ -18548,6 +18770,8 @@ cdef class PwrModelMetricsDlppm1xPerf:
 
     @perfms.setter
     def perfms(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1xPerf instance is read-only")
         self._data.perfms = val
 
     def __getitem__(self, key):
@@ -18645,7 +18869,7 @@ cdef class PwrModelMetricsSamplePfpp1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsSamplePfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsSamplePfpp1x_t) }"
@@ -18693,6 +18917,8 @@ cdef class PwrModelMetricsSamplePfpp1x:
 
     @freqk_hz.setter
     def freqk_hz(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsSamplePfpp1x instance is read-only")
         self._data.freqk_hz = val
 
     @property
@@ -18704,6 +18930,8 @@ cdef class PwrModelMetricsSamplePfpp1x:
 
     @est_tgp_pwrm_w.setter
     def est_tgp_pwrm_w(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsSamplePfpp1x instance is read-only")
         self._data.est_tgp_pwrm_w = val
 
     def __getitem__(self, key):
@@ -18801,7 +19029,7 @@ cdef class PwrModelOperatingPointPfpp1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_operating_point_pfpp1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_operating_point_pfpp1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelOperatingPointPfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelOperatingPointPfpp1x_t) }"
@@ -18851,6 +19079,8 @@ cdef class PwrModelOperatingPointPfpp1x:
 
     @freqk_hz.setter
     def freqk_hz(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelOperatingPointPfpp1x instance is read-only")
         self._data.freqk_hz = val
 
     @property
@@ -18862,6 +19092,8 @@ cdef class PwrModelOperatingPointPfpp1x:
 
     @pwrm_w.setter
     def pwrm_w(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelOperatingPointPfpp1x instance is read-only")
         self._data.pwrm_w = val
 
     def __getitem__(self, key):
@@ -20442,7 +20674,7 @@ cdef class NvlinkTelemetrySample_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=nvlink_telemetry_sample_v1_dtype)
+        arr = _numpy.zeros(size, dtype=nvlink_telemetry_sample_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlNvlinkTelemetrySample_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkTelemetrySample_v1_t) }"
@@ -20492,6 +20724,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @link_id.setter
     def link_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.link_id = val
 
     @property
@@ -20503,6 +20737,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @sample_type.setter
     def sample_type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.sample_type = val
 
     @property
@@ -20514,6 +20750,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @sample_count.setter
     def sample_count(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.sample_count = val
 
     @property
@@ -20525,6 +20763,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @samples.setter
     def samples(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.samples = val
 
     @property
@@ -20536,6 +20776,8 @@ cdef class NvlinkTelemetrySample_v1:
 
     @nvml_return.setter
     def nvml_return(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
         self._data.nvml_return = val
 
     def __getitem__(self, key):
@@ -21228,7 +21470,7 @@ cdef class Sample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=sample_dtype)
+        arr = _numpy.zeros(size, dtype=sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSample_t) }"
@@ -21278,6 +21520,8 @@ cdef class Sample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This Sample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -21287,6 +21531,8 @@ cdef class Sample:
 
     @sample_value.setter
     def sample_value(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This Sample instance is read-only")
         self._data.sample_value = val
 
     def __getitem__(self, key):
@@ -21388,7 +21634,7 @@ cdef class VgpuInstanceUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_sample_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_instance_utilization_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationSample_t) }"
@@ -21438,6 +21684,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -21449,6 +21697,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -21458,6 +21708,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @sm_util.setter
     def sm_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -21467,6 +21719,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @mem_util.setter
     def mem_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -21476,6 +21730,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @enc_util.setter
     def enc_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -21485,6 +21741,8 @@ cdef class VgpuInstanceUtilizationSample:
 
     @dec_util.setter
     def dec_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
         self._data.dec_util = val
 
     def __getitem__(self, key):
@@ -21588,7 +21846,7 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_info_v1_dtype)
+        arr = _numpy.zeros(size, dtype=vgpu_instance_utilization_info_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t) }"
@@ -21638,6 +21896,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @time_stamp.setter
     def time_stamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.time_stamp = val
 
     @property
@@ -21649,6 +21909,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.vgpu_instance = val
 
     @property
@@ -21658,6 +21920,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @sm_util.setter
     def sm_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.sm_util = val
 
     @property
@@ -21667,6 +21931,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @mem_util.setter
     def mem_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.mem_util = val
 
     @property
@@ -21676,6 +21942,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @enc_util.setter
     def enc_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.enc_util = val
 
     @property
@@ -21685,6 +21953,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @dec_util.setter
     def dec_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.dec_util = val
 
     @property
@@ -21694,6 +21964,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @jpg_util.setter
     def jpg_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.jpg_util = val
 
     @property
@@ -21703,6 +21975,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
     @ofa_util.setter
     def ofa_util(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
         self._data.ofa_util = val
 
     def __getitem__(self, key):
@@ -21805,7 +22079,7 @@ cdef class FieldValue:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=field_value_dtype)
+        arr = _numpy.zeros(size, dtype=field_value_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlFieldValue_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFieldValue_t) }"
@@ -21855,6 +22129,8 @@ cdef class FieldValue:
 
     @field_id.setter
     def field_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.field_id = val
 
     @property
@@ -21866,6 +22142,8 @@ cdef class FieldValue:
 
     @scope_id.setter
     def scope_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.scope_id = val
 
     @property
@@ -21877,6 +22155,8 @@ cdef class FieldValue:
 
     @timestamp.setter
     def timestamp(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.timestamp = val
 
     @property
@@ -21888,6 +22168,8 @@ cdef class FieldValue:
 
     @latency_usec.setter
     def latency_usec(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.latency_usec = val
 
     @property
@@ -21899,6 +22181,8 @@ cdef class FieldValue:
 
     @value_type.setter
     def value_type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.value_type = val
 
     @property
@@ -21910,6 +22194,8 @@ cdef class FieldValue:
 
     @nvml_return.setter
     def nvml_return(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.nvml_return = val
 
     @property
@@ -21919,6 +22205,8 @@ cdef class FieldValue:
 
     @value.setter
     def value(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
         self._data.value = val
 
     def __getitem__(self, key):
@@ -23423,7 +23711,7 @@ cdef class GridLicensableFeature:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=grid_licensable_feature_dtype)
+        arr = _numpy.zeros(size, dtype=grid_licensable_feature_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlGridLicensableFeature_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGridLicensableFeature_t) }"
@@ -23473,6 +23761,8 @@ cdef class GridLicensableFeature:
 
     @feature_code.setter
     def feature_code(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.feature_code = val
 
     @property
@@ -23484,6 +23774,8 @@ cdef class GridLicensableFeature:
 
     @feature_state.setter
     def feature_state(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.feature_state = val
 
     @property
@@ -23493,6 +23785,8 @@ cdef class GridLicensableFeature:
 
     @license_info.setter
     def license_info(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.license_info = val
 
     @property
@@ -23502,6 +23796,8 @@ cdef class GridLicensableFeature:
 
     @product_name.setter
     def product_name(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.product_name = val
 
     @property
@@ -23513,6 +23809,8 @@ cdef class GridLicensableFeature:
 
     @feature_enabled.setter
     def feature_enabled(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.feature_enabled = val
 
     @property
@@ -23522,6 +23820,8 @@ cdef class GridLicensableFeature:
 
     @license_expiry.setter
     def license_expiry(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
         self._data.license_expiry = val
 
     def __getitem__(self, key):
@@ -24967,7 +25267,7 @@ cdef class CoreRailMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=core_rail_metrics_dtype)
+        arr = _numpy.zeros(size, dtype=core_rail_metrics_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlCoreRailMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlCoreRailMetrics_t) }"
@@ -25015,6 +25315,8 @@ cdef class CoreRailMetrics:
 
     @rails.setter
     def rails(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This CoreRailMetrics instance is read-only")
         self._data.rails = val
 
     def __getitem__(self, key):
@@ -25117,10 +25419,18 @@ cdef class PwrModelMetricsPfpp1x:
         readonly tuple _estimated_metrics
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_pfpp1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_pfpp1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsPfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsPfpp1x_t) }"
+        obj = self
+        estimated_metrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_vf_points[i])
+            estimated_metrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -25174,6 +25484,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @b_valid.setter
     def b_valid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.b_valid = val
 
     @property
@@ -25183,6 +25495,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @max_perf_per_watt_point.setter
     def max_perf_per_watt_point(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.max_perf_per_watt_point = val
 
     @property
@@ -25192,6 +25506,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @fmax_at_vmax_point.setter
     def fmax_at_vmax_point(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.fmax_at_vmax_point = val
 
     @property
@@ -25203,6 +25519,8 @@ cdef class PwrModelMetricsPfpp1x:
 
     @tgp_headroomm_w.setter
     def tgp_headroomm_w(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
         self._data.tgp_headroomm_w = val
 
     def __getitem__(self, key):
@@ -26005,7 +26323,7 @@ cdef class PRMCounter_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=prm_counter_v1_dtype)
+        arr = _numpy.zeros(size, dtype=prm_counter_v1_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPRMCounter_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPRMCounter_v1_t) }"
@@ -26055,6 +26373,8 @@ cdef class PRMCounter_v1:
 
     @counter_id.setter
     def counter_id(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
         self._data.counter_id = val
 
     @property
@@ -26064,6 +26384,8 @@ cdef class PRMCounter_v1:
 
     @in_data.setter
     def in_data(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
         self._data.in_data = val
 
     @property
@@ -26073,6 +26395,8 @@ cdef class PRMCounter_v1:
 
     @counter_value.setter
     def counter_value(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
         self._data.counter_value = val
 
     def __getitem__(self, key):
@@ -27394,7 +27718,7 @@ cdef class PwrModelMetricsDlppm1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1x_t) }"
@@ -27444,6 +27768,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @b_valid.setter
     def b_valid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.b_valid = val
 
     @property
@@ -27453,6 +27779,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @core_rail.setter
     def core_rail(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.core_rail = val
 
     @property
@@ -27462,6 +27790,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @fb_rail.setter
     def fb_rail(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.fb_rail = val
 
     @property
@@ -27471,6 +27801,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @tgp_pwr_tuple.setter
     def tgp_pwr_tuple(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.tgp_pwr_tuple = val
 
     @property
@@ -27480,6 +27812,8 @@ cdef class PwrModelMetricsDlppm1x:
 
     @perf_metrics.setter
     def perf_metrics(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
         self._data.perf_metrics = val
 
     def __getitem__(self, key):
@@ -27576,7 +27910,7 @@ cdef class PerfMetricsPfpp1xSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_pfpp1x_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metrics_pfpp1x_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsPfpp1xSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsPfpp1xSample_t) }"
@@ -27624,6 +27958,8 @@ cdef class PerfMetricsPfpp1xSample:
 
     @estimated_metrics.setter
     def estimated_metrics(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricsPfpp1xSample instance is read-only")
         self._data.estimated_metrics = val
 
     def __getitem__(self, key):
@@ -27722,10 +28058,18 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         readonly tuple _estimated_metrics
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
+        arr = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t) }"
+        obj = self
+        estimated_metrics_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.estimated_metrics[i].__array_interface__['data'][0]
+            n = int(obj._data.num_estimated_metrics[i])
+            estimated_metrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
+            estimated_metrics_list.append(estimated_metrics_obj)
+        obj._estimated_metrics = tuple(estimated_metrics_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -27883,7 +28227,7 @@ cdef class ObservedMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=observed_metrics_dtype)
+        arr = _numpy.zeros(size, dtype=observed_metrics_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlObservedMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlObservedMetrics_t) }"
@@ -27931,6 +28275,8 @@ cdef class ObservedMetrics:
 
     @initial_dramclk_est.setter
     def initial_dramclk_est(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.initial_dramclk_est = val
 
     @property
@@ -27942,6 +28288,8 @@ cdef class ObservedMetrics:
 
     @b_valid.setter
     def b_valid(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.b_valid = val
 
     @property
@@ -27951,6 +28299,8 @@ cdef class ObservedMetrics:
 
     @core_rail.setter
     def core_rail(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.core_rail = val
 
     @property
@@ -27960,6 +28310,8 @@ cdef class ObservedMetrics:
 
     @fb_rail.setter
     def fb_rail(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.fb_rail = val
 
     @property
@@ -27969,6 +28321,8 @@ cdef class ObservedMetrics:
 
     @tgp_pwr_tuple.setter
     def tgp_pwr_tuple(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.tgp_pwr_tuple = val
 
     @property
@@ -27978,6 +28332,8 @@ cdef class ObservedMetrics:
 
     @perf_metrics.setter
     def perf_metrics(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
         self._data.perf_metrics = val
 
     def __getitem__(self, key):
@@ -28074,7 +28430,7 @@ cdef class PerfMetricsDlppc2xSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_dlppc2x_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metrics_dlppc2x_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsDlppc2xSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsDlppc2xSample_t) }"
@@ -28122,6 +28478,8 @@ cdef class PerfMetricsDlppc2xSample:
 
     @observed_metrics.setter
     def observed_metrics(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricsDlppc2xSample instance is read-only")
         self._data.observed_metrics = val
 
     def __getitem__(self, key):
@@ -28380,7 +28738,7 @@ cdef class PerfMetricControllerSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metric_controller_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metric_controller_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricControllerSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricControllerSample_t) }"
@@ -28430,6 +28788,8 @@ cdef class PerfMetricControllerSample:
 
     @controller_type.setter
     def controller_type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricControllerSample instance is read-only")
         self._data.controller_type = val
 
     @property
@@ -28439,6 +28799,8 @@ cdef class PerfMetricControllerSample:
 
     @data_.setter
     def data_(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricControllerSample instance is read-only")
         self._data.data_ = val
 
     def __getitem__(self, key):
@@ -28537,10 +28899,18 @@ cdef class PerfMetricsSample:
         readonly tuple _controller_data
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_sample_dtype)
+        arr = _numpy.zeros(size, dtype=perf_metrics_sample_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsSample_t) }"
+        obj = self
+        controller_data_list = list()
+        for i in range(obj._data.size):
+            addr = obj._data.controller_data[i].__array_interface__['data'][0]
+            n = int(obj._data.num_controller_data[i])
+            controller_data_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
+            controller_data_list.append(controller_data_obj)
+        obj._controller_data = tuple(controller_data_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -28898,7 +29268,7 @@ cpdef str system_get_driver_version():
     nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
 
     Returns:
-        char: Reference in which to return the version identifier.
+        str: Reference in which to return the version identifier.
 
     .. seealso:: `nvmlSystemGetDriverVersion`
     """
@@ -28919,7 +29289,7 @@ cpdef str system_get_nvml_version():
     nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
 
     Returns:
-        char: Reference in which to return the version identifier.
+        str: Reference in which to return the version identifier.
 
     .. seealso:: `nvmlSystemGetNVMLVersion`
     """
@@ -28980,7 +29350,7 @@ cpdef str system_get_process_name(unsigned int pid):
         pid (unsigned int): The identifier of the process.
 
     Returns:
-        char: Reference in which to return the process name.
+        str: Reference in which to return the process name.
 
     .. seealso:: `nvmlSystemGetProcessName`
     """
@@ -29431,7 +29801,7 @@ cpdef str device_get_name(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the product name.
+        str: Reference in which to return the product name.
 
     .. seealso:: `nvmlDeviceGetName`
     """
@@ -29510,7 +29880,7 @@ cpdef str device_get_serial(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the board/module serial number.
+        str: Reference in which to return the board/module serial number.
 
     .. seealso:: `nvmlDeviceGetSerial`
     """
@@ -29788,7 +30158,7 @@ cpdef str device_get_uuid(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the GPU UUID.
+        str: Reference in which to return the GPU UUID.
 
     .. seealso:: `nvmlDeviceGetUUID`
     """
@@ -29830,7 +30200,7 @@ cpdef str device_get_board_part_number(intptr_t device):
         device (intptr_t): Identifier of the target device.
 
     Returns:
-        char: Reference to the buffer to return.
+        str: Reference to the buffer to return.
 
     .. seealso:: `nvmlDeviceGetBoardPartNumber`
     """
@@ -29858,7 +30228,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
         object (InforomObject): The target infoROM object.
 
     Returns:
-        char: Reference in which to return the infoROM version.
+        str: Reference in which to return the infoROM version.
 
     .. seealso:: `nvmlDeviceGetInforomVersion`
     """
@@ -29884,7 +30254,7 @@ cpdef str device_get_inforom_image_version(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the infoROM image version.
+        str: Reference in which to return the infoROM image version.
 
     .. seealso:: `nvmlDeviceGetInforomImageVersion`
     """
@@ -30858,7 +31228,7 @@ cpdef device_set_clock_offsets(intptr_t device, info):
 
     .. seealso:: `nvmlDeviceSetClockOffsets`
     """
-    cdef intptr_t _info_ptr_ = int(info)
+    cdef intptr_t _info_ptr_ = 0 if info is None else int(info)
     with nogil:
         __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>_info_ptr_)
     check_status(__status__)
@@ -31624,7 +31994,7 @@ cpdef str device_get_vbios_version(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference to which to return the VBIOS version.
+        str: Reference to which to return the VBIOS version.
 
     .. seealso:: `nvmlDeviceGetVbiosVersion`
     """
@@ -33407,7 +33777,7 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, set_bw_mode):
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
-    cdef intptr_t _set_bw_mode_ptr_ = int(set_bw_mode)
+    cdef intptr_t _set_bw_mode_ptr_ = 0 if set_bw_mode is None else int(set_bw_mode)
     set_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSetBwMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>_set_bw_mode_ptr_)
@@ -33550,7 +33920,7 @@ cpdef device_modify_drain_state(pci_info, int new_state):
 
     .. seealso:: `nvmlDeviceModifyDrainState`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceModifyDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, <_EnableState>new_state)
     check_status(__status__)
@@ -33571,7 +33941,7 @@ cpdef int device_query_drain_state(pci_info) except? -1:
 
     .. seealso:: `nvmlDeviceQueryDrainState`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     cdef _EnableState current_state
     with nogil:
         __status__ = nvmlDeviceQueryDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, &current_state)
@@ -33598,7 +33968,7 @@ cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state):
 
     .. seealso:: `nvmlDeviceRemoveGpu_v2`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceRemoveGpu_v2(<nvmlPciInfo_t*>_pci_info_ptr_, <_DetachGpuState>gpu_state, <_PcieLinkState>link_state)
     check_status(__status__)
@@ -33619,7 +33989,7 @@ cpdef device_discover_gpus(pci_info):
 
     .. seealso:: `nvmlDeviceDiscoverGpus`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceDiscoverGpus(<nvmlPciInfo_t*>_pci_info_ptr_)
     check_status(__status__)
@@ -33909,7 +34279,7 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        char: Pointer to string array to return class in.
+        str: Pointer to string array to return class in.
 
     .. seealso:: `nvmlVgpuTypeGetClass`
     """
@@ -34052,7 +34422,7 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        char: Pointer to buffer to return license info.
+        str: Pointer to buffer to return license info.
 
     .. seealso:: `nvmlVgpuTypeGetLicense`
     """
@@ -34204,7 +34574,7 @@ cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
 
     Returns:
         A 2-tuple containing:
-        - char: Pointer to caller-supplied buffer to hold VM ID.
+        - str: Pointer to caller-supplied buffer to hold VM ID.
         - int: Pointer to hold VM ID type.
 
     .. seealso:: `nvmlVgpuInstanceGetVmID`
@@ -34232,7 +34602,7 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Pointer to caller-supplied buffer to hold vGPU UUID.
+        str: Pointer to caller-supplied buffer to hold vGPU UUID.
 
     .. seealso:: `nvmlVgpuInstanceGetUUID`
     """
@@ -34262,7 +34632,7 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Caller-supplied buffer to return driver version string.
+        str: Caller-supplied buffer to return driver version string.
 
     .. seealso:: `nvmlVgpuInstanceGetVmDriverVersion`
     """
@@ -34589,7 +34959,7 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Caller-supplied buffer to return vGPU PCI Id string.
+        str: Caller-supplied buffer to return vGPU PCI Id string.
 
     .. seealso:: `nvmlVgpuInstanceGetGpuPciId`
     """
@@ -34643,7 +35013,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Pointer to caller-supplied buffer to hold MDEV UUID.
+        str: Pointer to caller-supplied buffer to hold MDEV UUID.
 
     .. seealso:: `nvmlVgpuInstanceGetMdevUUID`
     """
@@ -34673,7 +35043,9 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
-    cdef intptr_t _p_scheduler_ptr_ = int(p_scheduler)
+    cdef intptr_t _p_scheduler_ptr_ = 0 if p_scheduler is None else int(p_scheduler)
+    if _p_scheduler_ptr_ == 0:
+        raise ValueError("p_scheduler must not be None")
     (<nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_)
@@ -34739,7 +35111,7 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Pointer to caller-supplied buffer into which
+        str: Pointer to caller-supplied buffer into which
             ``pgpu_metadata`` is written.
 
     .. seealso:: `nvmlDeviceGetPgpuMetadataString`
@@ -34899,7 +35271,7 @@ cpdef set_vgpu_version(vgpu_version):
         the NVIDIA vGPU Manager supports. Otherwise, an error is returned.
     .. seealso:: `nvmlSetVgpuVersion`
     """
-    cdef intptr_t _vgpu_version_ptr_ = int(vgpu_version)
+    cdef intptr_t _vgpu_version_ptr_ = 0 if vgpu_version is None else int(vgpu_version)
     with nogil:
         __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>_vgpu_version_ptr_)
     check_status(__status__)
@@ -35382,7 +35754,7 @@ cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsign
 
     .. seealso:: `nvmlDeviceCreateGpuInstanceWithPlacement`
     """
-    cdef intptr_t _placement_ptr_ = int(placement)
+    cdef intptr_t _placement_ptr_ = 0 if placement is None else int(placement)
     cdef GpuInstance gpu_instance
     with nogil:
         __status__ = nvmlDeviceCreateGpuInstanceWithPlacement(<Device>device, profile_id, <const nvmlGpuInstancePlacement_t*>_placement_ptr_, &gpu_instance)
@@ -35590,7 +35962,7 @@ cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_
 
     .. seealso:: `nvmlGpuInstanceCreateComputeInstanceWithPlacement`
     """
-    cdef intptr_t _placement_ptr_ = int(placement)
+    cdef intptr_t _placement_ptr_ = 0 if placement is None else int(placement)
     cdef ComputeInstance compute_instance
     with nogil:
         __status__ = nvmlGpuInstanceCreateComputeInstanceWithPlacement(<GpuInstance>gpu_instance, profile_id, <const nvmlComputeInstancePlacement_t*>_placement_ptr_, &compute_instance)
@@ -35931,7 +36303,7 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, power_mizer_mode):
 
     .. seealso:: `nvmlDeviceSetPowerMizerMode_v1`
     """
-    cdef intptr_t _power_mizer_mode_ptr_ = int(power_mizer_mode)
+    cdef intptr_t _power_mizer_mode_ptr_ = 0 if power_mizer_mode is None else int(power_mizer_mode)
     with nogil:
         __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>_power_mizer_mode_ptr_)
     check_status(__status__)
@@ -36064,7 +36436,7 @@ cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, p_scheduler_state):
 
     .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
     """
-    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
+    cdef intptr_t _p_scheduler_state_ptr_ = 0 if p_scheduler_state is None else int(p_scheduler_state)
     with nogil:
         __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
@@ -36086,7 +36458,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, p_schedule
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState_v2`
     """
-    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
+    cdef intptr_t _p_scheduler_state_ptr_ = 0 if p_scheduler_state is None else int(p_scheduler_state)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
@@ -36279,7 +36651,7 @@ cpdef device_set_memory_limits_v1(intptr_t device, limits):
         MIG handles are not supported.
     .. seealso:: `nvmlDeviceSetMemoryLimits_v1`
     """
-    cdef intptr_t _limits_ptr_ = int(limits)
+    cdef intptr_t _limits_ptr_ = 0 if limits is None else int(limits)
     with nogil:
         __status__ = nvmlDeviceSetMemoryLimits_v1(<Device>device, <nvmlSetMemoryLimits_v1_t*>_limits_ptr_)
     check_status(__status__)
@@ -36440,7 +36812,7 @@ cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, config):
 
     .. seealso:: `nvmlEventSetRegisterGpuOperationalEvents_v1`
     """
-    cdef intptr_t _config_ptr_ = int(config)
+    cdef intptr_t _config_ptr_ = 0 if config is None else int(config)
     with nogil:
         __status__ = nvmlEventSetRegisterGpuOperationalEvents_v1(<EventSet>event_set, <const nvmlGpuOperationalEventConfig_v1_t*>_config_ptr_)
     check_status(__status__)
@@ -38029,4 +38401,8 @@ cpdef bytes event_set_get_context_data_v1(intptr_t set, unsigned int index):
         __status__ = nvmlEventSetGetContextData_v1(<EventSet>set, &params)
     check_status(__status__)
     return data
+
+
+TimeoutError = NvmlTimeoutError
+MemoryError = NvmlMemoryError
 del _cyb_FastEnum

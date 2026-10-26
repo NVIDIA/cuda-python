@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7a208273ab596a5fc3e4ce5ca2f4cd474a4d3e649aa06b78bc8e5564fe2cebfd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=50159aaec5737fc94f227c703c6abe29874cd8022b8f545b46498e9c5862c4e6
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -86,13 +86,12 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
             if size != -1:
                 assert view.len == size
-            assert view.ndim == 1
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
                 "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a 1D contiguous {adj}"
-                f"buffer, of size {size}"
+                f"address to a valid buffer, or a contiguous {adj}"
+                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
             ) from e
         else:
             ptr = <intptr_t>view.buf
@@ -1773,7 +1772,7 @@ cpdef module_unload(intptr_t h_module, uint32_t flags):
 
 
 cpdef submit_task(intptr_t dev_handle, ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags):
-    cdef intptr_t _ptr_to_tasks_ptr_ = int(ptr_to_tasks)
+    cdef intptr_t _ptr_to_tasks_ptr_ = 0 if ptr_to_tasks is None else int(ptr_to_tasks)
     with nogil:
         __status__ = cudlaSubmitTask(<const DevHandle>dev_handle, <const cudlaTask* const>_ptr_to_tasks_ptr_, <const uint32_t>num_tasks, <void* const>stream, <const uint32_t>flags)
     check_status(__status__)
