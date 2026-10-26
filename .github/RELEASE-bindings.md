@@ -71,9 +71,22 @@ See the [shared maintenance policy](../ci/README.md#maintaining-both-bindings-ro
 5. Review the dry runs, then separately approve and run `full-release` for
    each component under the team's release procedure. A successful candidate
    rehearsal or ordinary branch CI is not a substitute for exact-tag CI.
-6. Finish post-release QA and announcements, return every applicable fix to
+6. After both component releases succeed, review and publish the shared
+   `vX.Y.Z` GitHub Release draft. Check its release notes, versioned
+   documentation links, source archive, checksum, and wheels. These component
+   workflows leave the draft for the release owner to publish.
+7. Finish post-release QA and announcements, return every applicable fix to
    `main`, and close the stabilization effort. Retain immutable tags and the
    branch history needed for diagnosis.
+
+For either bindings line, add the released version to
+[`cuda_bindings_13/docs/nv-versions.json`](../cuda_bindings_13/docs/nv-versions.json)
+and its matching metapackage version to
+[`cuda_python/docs/nv-versions.json`](../cuda_python/docs/nv-versions.json)
+on `main`. Documentation deployments from `main` own these shared version
+selectors. Release deployments publish versioned pages without replacing the
+selectors or shared `latest` pages; updating a selector only on a stabilization
+branch will not update the public selector.
 
 The workflow revision used for a release is its **control revision**; the
 tagged commit is its **source revision**. Record both and the artifact CI run
@@ -84,11 +97,11 @@ Core and Pathfinder releases. Tags from before this registry was introduced
 require compatible historical tooling; the current workflow configuration
 cannot supply missing tagged configuration. Published releases remain unchanged.
 
-In **CI: Release**, normal releases require each component's exact-version,
-nonempty release notes in the tagged source. The `cuda-python` metapackage requires its own notes.
-Notes from the workflow control revision or a different component cannot fill
-a gap. Preserve the existing exemption for `.postN` releases, which do not
-require new notes.
+In **CI: Release**, normal bindings and metapackage releases each require
+their own exact-version, nonempty release notes in the tagged source. Notes
+from the workflow control revision or a different component cannot fill a gap.
+Preserve their existing exemption for `.postN` releases, which do not require
+new notes.
 
 Local synthetic tags used in publication-incapable rehearsals must remain local;
 they do not authorize publishing a package, creating a remote tag, or moving
