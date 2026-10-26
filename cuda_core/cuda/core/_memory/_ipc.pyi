@@ -58,7 +58,19 @@ class IPCAllocationHandle:
     @property
     def uuid(self) -> uuid.UUID: ...
 
-class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
+class _VirtualMemoryDescriptor(IPCBufferDescriptor):
+    """Common allocation layout and driver-handle interface for VMM descriptors."""
+    _handle_type: int
+    _chunk_sizes: tuple[Any, ...]
+
+    @property
+    def handle_type(self) -> VirtualMemoryHandleType:
+        """The export handle type; the importing resource must use the same type."""
+    @property
+    def sizes(self) -> tuple[int, ...]:
+        """Size of each physical allocation, in address order; the sum is at least ``size``."""
+
+class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
     """Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.
 
     The descriptor holds one exported POSIX file descriptor per physical
@@ -66,8 +78,7 @@ class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
     :class:`IPCAllocationHandle` that the descriptor owns and closes when it
     is released), with each allocation's size (``sizes``) and the buffer's
     size (``size``, which may be smaller than their sum). ``handle_type`` is
-    ``"posix_fd"``, the only handle type cuda.core shares today; the rules
-    below describe file descriptors.
+    ``"posix_fd"``; the rules below describe file descriptors.
 
     A descriptor pins the physical memory while it exists, in every process
     that holds one, and nothing else does: the exporting buffer keeps no
@@ -92,8 +103,6 @@ class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
     which checks what it can and fails instead of mapping a size the driver
     rejects.
     """
-    _handle_type: int
-    _chunk_sizes: tuple[Any, ...]
     _handles: tuple[Any, ...]
 
     @staticmethod
@@ -133,12 +142,6 @@ class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
             If an ``int`` is not an open file descriptor.
         """
     @property
-    def handle_type(self) -> VirtualMemoryHandleType:
-        """The handle type the exporter used; the importing resource must be configured with the same."""
-    @property
-    def sizes(self) -> tuple[int, ...]:
-        """Size of each physical allocation, in address order; the sum is at least ``size``."""
-    @property
     def handles(self) -> tuple[IPCAllocationHandle, ...]:
         """The exported handles, one :class:`IPCAllocationHandle` per allocation, in address order.
 
@@ -154,6 +157,59 @@ class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
         from ``buf.ipc_descriptor.fds`` alone may already be closed.
         """
     def __reduce__(self) -> tuple[object, ...]: ...
+
+class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
+    """Plain-data descriptor of a :class:`VirtualMemoryBuffer` exported with fabric handles.
+
+    Each physical allocation contributes one opaque 64-byte handle, in address
+    order. Plain ``pickle``, ``multiprocessing``, or a transport of your own
+    can carry these bytes. Use :meth:`from_handles` to rebuild a descriptor
+    received outside cuda.core, then :meth:`Buffer.from_ipc_descriptor` to
+    import it. ``handle_type`` is always ``"fabric"``.
+
+    Nothing is pinned: unlike a file descriptor, a fabric descriptor parked
+    in a queue does not retain the memory. The exporter must keep the buffer
+    alive until every importer has imported it. After import, the imported
+    allocation holds its own driver references and is independent of the
+    exporter. Importing a stale or forged handle fails with a driver error.
+
+    Sharing is supported on one node; multi-node sharing is untested. Fabric
+    handles require an NVLink fabric and an accessible IMEX channel. Treat
+    handles and sizes received from another process as untrusted and import
+    only through :meth:`Buffer.from_ipc_descriptor`.
+    """
+    @staticmethod
+    def _from_exports(sizes: tuple[int, ...], handles: tuple[bytes, ...], size: int, owner_uuid: str | None) -> VirtualMemoryFabricBufferDescriptor: ...
+    @classmethod
+    def from_handles(cls, handles: Iterable[bytes], sizes: Iterable[int], *, size: int | None=None, owner_uuid: str | None=None) -> VirtualMemoryFabricBufferDescriptor:
+        """Build a descriptor from fabric handles received through a transport of your own.
+
+        Parameters
+        ----------
+        handles : Iterable[bytes]
+            One opaque 64-byte handle per physical allocation, in address order.
+        sizes : Iterable[int]
+            One positive allocation size per handle, in the same order.
+        size : int, optional
+            Buffer size, between zero and the sum of ``sizes``; the sum by default.
+        owner_uuid : str, optional
+            Exporting device's UUID, used to identify the owner in error messages.
+
+        Raises
+        ------
+        ValueError
+            If counts differ, a handle is not 64 bytes, an allocation size is
+            not a positive integer, or the buffer size is outside the allocation sizes.
+        """
+    @property
+    def handles(self) -> tuple[bytes, ...]:
+        """One opaque 64-byte fabric handle per allocation, in address order."""
+    @property
+    def owner_uuid(self) -> str | None:
+        """The exporting device's UUID, if supplied by the exporter."""
+    def __reduce__(self) -> tuple[object, ...]: ...
+    def __eq__(self, other) -> bool: ...
+    def __hash__(self) -> int: ...
 
 def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]: ...
 def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None) -> IPCAllocationHandle: ...

@@ -425,6 +425,39 @@ def vmm_ipc_device_x2(device_x2):
         yield devices
 
 
+def _require_vmm_fabric_device(device):
+    """Return a VMM device with fabric handles and an accessible IMEX channel, or skip."""
+    from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
+
+    if IS_WINDOWS or IS_WSL:
+        pytest.skip("Sharing fabric handles requires Linux")
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    if not device.properties.handle_type_fabric_supported:
+        pytest.skip("Fabric handles need an NVLink fabric and an accessible IMEX channel")
+    return device
+
+
+@pytest.fixture
+def vmm_fabric_device(init_cuda):
+    """A fabric-capable VMM device, tracking spawned children for teardown."""
+    from helpers.child_processes import track_child_processes
+
+    device = _require_vmm_fabric_device(init_cuda)
+    with track_child_processes():
+        yield device
+
+
+@pytest.fixture
+def vmm_fabric_device_x2(device_x2):
+    """Two fabric-capable VMM devices, tracking spawned children for teardown."""
+    from helpers.child_processes import track_child_processes
+
+    devices = tuple(_require_vmm_fabric_device(device) for device in device_x2)
+    with track_child_processes():
+        yield devices
+
+
 def _make_ipc_memory_resource(kind, device):
     """Create an IPC-enabled memory resource of the given kind, or skip when the device cannot."""
     if kind == "device":
