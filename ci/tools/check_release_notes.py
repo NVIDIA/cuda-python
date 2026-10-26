@@ -44,13 +44,11 @@ def _resolved_bindings_target(data: Mapping[str, object], git_tag: str) -> tuple
     package_root = bindings_config.parse_package_root(data.get("package_root"), "resolved package_root")
     raw_version = data.get("release_version")
     if not isinstance(raw_version, str):
-        raise bindings_config.BindingsConfigError("resolved CUDA bindings package has no release_version")
-    version = bindings_config.parse_pep440_version(raw_version, "resolved release_version")
+        raise ValueError("resolved CUDA bindings package has no release_version")
+    version = Version(raw_version)
     tag_version = bindings_config.parse_prefixed_version(git_tag, "v")
     if tag_version != version:
-        raise bindings_config.BindingsConfigError(
-            f"resolved CUDA bindings package does not match release tag {git_tag!r}"
-        )
+        raise ValueError(f"resolved CUDA bindings package does not match release tag {git_tag!r}")
     return package_root, version
 
 
@@ -96,7 +94,7 @@ def parse_version_from_tag(
 
 
 def is_post_release(version: str) -> bool:
-    return bindings_config.parse_pep440_version(version, "release version").post is not None
+    return Version(version).post is not None
 
 
 def notes_path(package: str, version: str) -> Path:
@@ -169,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
         if bindings_package is not None and not isinstance(bindings_package, dict):
             raise ValueError("resolved CUDA bindings package must be a JSON object")
         target = _release_target_from_tag(args.git_tag, args.component, bindings_package)
-    except (bindings_config.BindingsConfigError, json.JSONDecodeError, ValueError) as error:
+    except ValueError as error:
         print(f"ERROR: invalid CUDA bindings configuration: {error}", file=sys.stderr)
         return 2
     if target is None:
