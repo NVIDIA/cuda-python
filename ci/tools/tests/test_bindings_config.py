@@ -55,7 +55,7 @@ def _copy_package_metadata(root: Path) -> None:
         "cuda_bindings_13/pyproject.toml",
         "cuda_bindings_12/pyproject.toml",
         "cuda_bindings_12/pixi.toml",
-        "cuda_python/setup.py",
+        "cuda_python/pyproject.toml",
         "cuda_core/pyproject.toml",
         "cuda_core/cuda/core/_bindings_floor.py",
     ):
@@ -190,7 +190,7 @@ def test_config_loader_reports_invalid_yaml(tmp_path):
             '[tool.setuptools_scm]\nfallback_version = "13.4.0.dev0"',
             "bindings root must not declare fallback_version",
         ),
-        ("cuda_python/setup.py", "v13.4.*", "v13.5.*", "SCM_DESCRIBE_MATCH_BY_MAJOR must match"),
+        ("cuda_python/pyproject.toml", "v13.4.*", "v13.5.*", "scm-describe-match-by-major must match"),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-6")
@@ -220,7 +220,7 @@ def test_metadata_check_rejects_selectors_changed_together(tmp_path, capsys, pac
     args = ["--config", str(tmp_path / "ci" / "versions.yml"), "--check-package-metadata"]
     assert main(args) == 0
 
-    for relative in (f"{package_root}/pyproject.toml", "cuda_python/setup.py"):
+    for relative in (f"{package_root}/pyproject.toml", "cuda_python/pyproject.toml"):
         changed = tmp_path / relative
         content = changed.read_text(encoding="utf-8")
         assert before in content
