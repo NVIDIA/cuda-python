@@ -101,10 +101,10 @@ obtain the most recent build, use the following commands:
    $ # Install the downloaded wheel:
    $ pip install cuda-core-python312-linux-64-*/cuda_core*.whl[cu13]
 
-Replace ``python312`` with your Python version (e.g. ``python310``, ``python311``,
-``python313``, ``python314``, ``python314t``). For aarch64, replace ``linux-64``
-with ``linux-aarch64``; for Windows, use ``win-64``. Replace ``cu13`` with
-``cu12`` for CUDA 12.x environments.
+Replace ``python312`` with your Python version (e.g. ``python311``,
+``python313``, ``python314``, ``python314t``, ``python315``, ``python315t``).
+For aarch64, replace ``linux-64`` with ``linux-aarch64``; for Windows, use
+``win-64``. Replace ``cu13`` with ``cu12`` for CUDA 12.x environments.
 
 .. _cuda-core-source-install:
 

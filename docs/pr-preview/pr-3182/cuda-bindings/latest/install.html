@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=f0f50714"></script>
+    <script src="_static/documentation_options.js?v=da4ec0ce"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4.dev408';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4.dev431';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2292,7 +2292,11 @@
 <p class="admonition-title">Note</p>
 <p>The optional CUDA Toolkit components are now installed via the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html">Windows</a> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">Linux</a> Installation Guides).</p>
 </div>
-<p>Starting from v12.8.0, <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> becomes a meta package which currently depends only on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>; in the future more sub-packages will be added to <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>. In the instructions below, we still use <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> as example to serve existing users, but everything is applicable to <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> as well.</p>
+<p>The CUDA 13 releases of <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> are a metapackage that installs
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code>, and <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code>. The examples below use
+<code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> for existing users; install <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> directly if you
+only need the low-level interfaces. Its <code class="docutils literal notranslate"><span class="pre">all</span></code> extra installs the optional
+Toolkit components listed below.</p>
 <section id="free-threading-build-support">
 <h3>Free-threading Build Support<a class="headerlink" href="#free-threading-build-support" title="Link to this heading">#</a></h3>
 <p>As of cuda-bindings 13.0.2 and 12.9.3, <strong>experimental</strong> packages for the <a class="reference external" href="https://docs.python.org/3/howto/free-threading-python.html">free-threaded interpreter</a> are shipped.</p>
@@ -2384,8 +2388,10 @@ updates for development.</p>
 <p>[^1]: User projects that <code class="docutils literal notranslate"><span class="pre">cimport</span></code> CUDA symbols in Cython must also use CUDA Toolkit (CTK) types as provided by the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> major.minor version. This results in CTK headers becoming a transitive dependency of downstream projects through CUDA Python.</p>
 <p>[^2]: The CUDA Runtime static library (<code class="docutils literal notranslate"><span class="pre">libcudart_static.a</span></code> on Linux, <code class="docutils literal notranslate"><span class="pre">cudart_static.lib</span></code> on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the <code class="docutils literal notranslate"><span class="pre">cuda-cudart-static</span></code> package.</p>
 <p>[^3]: The version is derived from git tags via <code class="docutils literal notranslate"><span class="pre">setuptools-scm</span></code>, so the clone
-must include tags reaching back to at least the latest <code class="docutils literal notranslate"><span class="pre">v*</span></code> tag. Do not use
-<code class="docutils literal notranslate"><span class="pre">--depth</span></code> or <code class="docutils literal notranslate"><span class="pre">--no-tags</span></code>: a clone without reachable tags can build with a
+must include a reachable tag matching the release line configured in this
+package’s <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> (currently <code class="docutils literal notranslate"><span class="pre">v13.4.*</span></code>). A tag from the other CUDA
+major does not determine this package’s version. Do not use <code class="docutils literal notranslate"><span class="pre">--depth</span></code> or
+<code class="docutils literal notranslate"><span class="pre">--no-tags</span></code>: a clone without matching reachable tags can build with a
 bogus version such as <code class="docutils literal notranslate"><span class="pre">0.1.dev1+g0d22cb444</span></code>. See <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#cloning-the-repository">Cloning the repository</a>
 for details.</p>
 <p>Source builds require that the provided CUDA headers are of the same major.minor version as the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> you’re trying to build. Despite this requirement, note that the minor version compatibility is still maintained. The build checks the header before it compiles anything. A mismatch stops the build with a message that names the <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> it found and the version this source tree needs. Use the <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>) environment variable to specify the location of your headers. If both are set, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> takes precedence. For example, if your headers are located in <code class="docutils literal notranslate"><span class="pre">/usr/local/cuda/include</span></code>, then you should set <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> with:</p>
