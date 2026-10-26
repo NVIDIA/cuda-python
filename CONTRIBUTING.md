@@ -238,6 +238,15 @@ between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` will print a visible warning
 reminding you to run `pre-commit install`.
 
+C, C++ and CUDA sources are formatted with `clang-format` using the
+[`.clang-format`](.clang-format) at the repository root, which follows PEP 7
+except for a 120-column limit. The
+pre-commit hook installs its own pinned `clang-format` (from PyPI) into the
+hook environment, so no system-wide installation is required. Vendored code
+(for example `dlpack.h` and `cuda_core/third_party/`) is excluded in
+`.pre-commit-config.yaml`. To format in your editor, install the same version
+with `pip install clang-format==23.1.3`.
+
 ## CodeRabbit
 
 This section explains how to use CodeRabbit for CUDA Python pull request review.
