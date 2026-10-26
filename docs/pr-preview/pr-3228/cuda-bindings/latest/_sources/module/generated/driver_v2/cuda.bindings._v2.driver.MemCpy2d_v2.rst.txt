@@ -1,0 +1,47 @@
+﻿cuda.bindings.\_v2.driver.MemCpy2d\_v2
+======================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: MemCpy2d_v2
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MemCpy2d_v2.__init__
+      ~MemCpy2d_v2.from_buffer
+      ~MemCpy2d_v2.from_data
+      ~MemCpy2d_v2.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MemCpy2d_v2.dst_array
+      ~MemCpy2d_v2.dst_device
+      ~MemCpy2d_v2.dst_host
+      ~MemCpy2d_v2.dst_memory_type
+      ~MemCpy2d_v2.dst_pitch
+      ~MemCpy2d_v2.dst_x_in_bytes
+      ~MemCpy2d_v2.dst_y
+      ~MemCpy2d_v2.height
+      ~MemCpy2d_v2.ptr
+      ~MemCpy2d_v2.src_array
+      ~MemCpy2d_v2.src_device
+      ~MemCpy2d_v2.src_host
+      ~MemCpy2d_v2.src_memory_type
+      ~MemCpy2d_v2.src_pitch
+      ~MemCpy2d_v2.src_x_in_bytes
+      ~MemCpy2d_v2.src_y
+      ~MemCpy2d_v2.width_in_bytes
+   
+   

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.TensorMapSwizzle
+==========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: TensorMapSwizzle

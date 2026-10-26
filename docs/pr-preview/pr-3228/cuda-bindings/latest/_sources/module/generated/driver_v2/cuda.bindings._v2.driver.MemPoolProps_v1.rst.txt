@@ -1,0 +1,38 @@
+﻿cuda.bindings.\_v2.driver.MemPoolProps\_v1
+==========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: MemPoolProps_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MemPoolProps_v1.__init__
+      ~MemPoolProps_v1.from_buffer
+      ~MemPoolProps_v1.from_data
+      ~MemPoolProps_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MemPoolProps_v1.alloc_type
+      ~MemPoolProps_v1.gpu_direct_rdma_capable
+      ~MemPoolProps_v1.handle_types
+      ~MemPoolProps_v1.location
+      ~MemPoolProps_v1.max_size
+      ~MemPoolProps_v1.ptr
+      ~MemPoolProps_v1.usage
+      ~MemPoolProps_v1.win32security_attributes
+   
+   

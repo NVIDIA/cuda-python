@@ -1,0 +1,43 @@
+﻿cuda.bindings.\_v2.driver.KernelNodeParams\_v3
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: KernelNodeParams_v3
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~KernelNodeParams_v3.__init__
+      ~KernelNodeParams_v3.from_buffer
+      ~KernelNodeParams_v3.from_data
+      ~KernelNodeParams_v3.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~KernelNodeParams_v3.block_dim_x
+      ~KernelNodeParams_v3.block_dim_y
+      ~KernelNodeParams_v3.block_dim_z
+      ~KernelNodeParams_v3.ctx
+      ~KernelNodeParams_v3.extra
+      ~KernelNodeParams_v3.func
+      ~KernelNodeParams_v3.grid_dim_x
+      ~KernelNodeParams_v3.grid_dim_y
+      ~KernelNodeParams_v3.grid_dim_z
+      ~KernelNodeParams_v3.kern
+      ~KernelNodeParams_v3.kernel_params
+      ~KernelNodeParams_v3.ptr
+      ~KernelNodeParams_v3.shared_mem_bytes
+   
+   

@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.Return
+=========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: Return

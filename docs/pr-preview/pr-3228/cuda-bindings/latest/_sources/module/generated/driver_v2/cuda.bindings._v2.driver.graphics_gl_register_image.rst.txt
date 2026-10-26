@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graphics\_gl\_register\_image
+=======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graphics_gl_register_image

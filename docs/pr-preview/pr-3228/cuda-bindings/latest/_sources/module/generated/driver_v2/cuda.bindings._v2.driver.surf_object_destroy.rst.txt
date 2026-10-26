@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.surf\_object\_destroy
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: surf_object_destroy

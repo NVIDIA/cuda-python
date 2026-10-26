@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.AtomicOperationCapability
+===================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: AtomicOperationCapability
