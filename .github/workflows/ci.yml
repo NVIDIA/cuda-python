@@ -71,8 +71,9 @@ jobs:
   #   cuda_python       -> cuda_pathfinder, cuda_bindings, cuda_core (meta package)
   #
   # A change to cuda_pathfinder (or shared infra) forces a rebuild of every
-  # downstream module. A change to either bindings package rebuilds cuda_core
-  # against both majors, but rebuilds only the matching bindings package.
+  # downstream module. A bindings-only change rebuilds its bindings and
+  # metapackage, then tests them with the unchanged Core wheel from the baseline.
+  # Core source changes rebuild both CUDA variants.
   # A change to cuda_core alone skips rebuilding/retesting cuda_bindings and
   # cuda_pathfinder, but still retests the downstream cuda-python metapackage.
   # Shared build/orchestration changes run the full pipeline; test-only CI
