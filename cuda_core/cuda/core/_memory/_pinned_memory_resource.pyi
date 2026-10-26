@@ -98,8 +98,7 @@ class PinnedMemoryResource(_MemPool):
         Returns
         -------
         Buffer
-            The allocated buffer object, which is accessible from the host and
-            from the device that the stream belongs to.
+            The allocated buffer object, which is accessible from the host.
 
         Raises
         ------
