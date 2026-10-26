@@ -144,14 +144,14 @@ class ComputeWorkplanTest(unittest.TestCase):
         cases = (
             (
                 ("cuda_bindings_12/cuda/bindings/driver.pyx",),
-                {"bindings": {"cu12"}, "core": CUDA_VARIANTS, "python": {"cu12"}},
+                {"bindings": {"cu12"}, "python": {"cu12"}},
                 {"bindings": {"cu12"}, "core": {"cu12"}, "python": {"cu12"}},
                 {"cu12"},
                 {"cu12"},
             ),
             (
                 ("cuda_bindings_13/cuda/bindings/driver.pyx",),
-                {"bindings": {"cu13"}, "core": CUDA_VARIANTS, "python": {"cu13"}},
+                {"bindings": {"cu13"}, "python": {"cu13"}},
                 {"bindings": {"cu13"}, "core": {"cu13"}, "python": {"cu13"}},
                 {"cu13"},
                 {"cu13"},
@@ -196,7 +196,7 @@ class ComputeWorkplanTest(unittest.TestCase):
                     "cuda_bindings_12/cuda/bindings/driver.pyx",
                     "cuda_bindings_13/cuda/bindings/runtime.pyx",
                 ),
-                all_variant_modules,
+                {"bindings": CUDA_VARIANTS, "python": CUDA_VARIANTS},
                 all_variant_modules,
                 CUDA_VARIANTS,
                 CUDA_VARIANTS,
@@ -434,7 +434,7 @@ class ComputeWorkplanTest(unittest.TestCase):
 
         assert selected_package_roots(plan, "bindings", "needs_build") == {package_12.package_root}
         assert selected_package_roots(plan, "python", "needs_build") == {package_12.package_root}
-        assert selected_core_majors(plan, "needs_build") == {"cu11", "cu12"}
+        assert selected_core_majors(plan, "needs_build") == set()
         assert selected_core_majors(plan, "needs_test") == {"cu12"}
         assert selected_cuda_majors(plan, "test_cuda_majors") == {"cu12"}
         assert selected_sdist_variants(plan) == {"cu12"}
@@ -498,15 +498,24 @@ def test_workplan_labels_and_summary_show_component_majors_and_exclusions() -> N
     assert "CUDA 12 has no Windows ARM64 toolkit" in summary
 
 
+@pytest.mark.parametrize("major", ["12", "13"])
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_workplan_labels_keep_both_core_majors_for_a_bindings_change() -> None:
-    plan = plan_for("cuda_bindings_12/cuda/bindings/driver.pyx")
-    assert plan["labels"]["build_platform"] == "bindings12+core12+core13"
-    assert plan["labels"]["build_current"] == "core13"
-    assert plan["jobs"]["windows_arm64_build"] is True
+def test_bindings_changes_reuse_core_and_test_the_matching_major(major: str) -> None:
+    plan = plan_for(f"cuda_bindings_{major}/cuda/bindings/driver.pyx")
+    assert plan["labels"]["build_platform"] == f"bindings{major}"
+    assert plan["labels"]["build_current"] == ("bindings13" if major == "13" else "baseline wheels and test extensions")
+    assert not selected_core_majors(plan, "needs_build")
+    assert selected_core_majors(plan, "needs_test") == {f"cu{major}"}
+    assert plan["baseline"] == {"run_id": "123", "sha": "base"}
     summary = format_workplan_summary(plan, DEFAULT_BINDINGS_CONFIG)
-    assert "| cuda-bindings | 13 | reuse exact baseline | excluded by plan |" in summary
+    assert f"| cuda-core | {major} | reuse exact baseline | required |" in summary
+    other_major = "13" if major == "12" else "12"
+    assert f"| cuda-core | {other_major} | reuse exact baseline | excluded by plan |" in summary
     assert "Reusable artifacts: run `123` at `base`." in summary
+
+    # A missing exact baseline still requires a complete rebuild.
+    cold_plan = plan_for(f"cuda_bindings_{major}/cuda/bindings/driver.pyx", baseline=False)
+    assert selected_core_majors(cold_plan, "needs_build") == CUDA_VARIANTS
 
 
 @pytest.mark.parametrize("platform", ["linux", "windows"])
