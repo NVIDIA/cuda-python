@@ -1,0 +1,41 @@
+﻿cuda.bindings.\_v2.driver.LaunchParams\_v1
+==========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: LaunchParams_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LaunchParams_v1.__init__
+      ~LaunchParams_v1.from_buffer
+      ~LaunchParams_v1.from_data
+      ~LaunchParams_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LaunchParams_v1.block_dim_x
+      ~LaunchParams_v1.block_dim_y
+      ~LaunchParams_v1.block_dim_z
+      ~LaunchParams_v1.function
+      ~LaunchParams_v1.grid_dim_x
+      ~LaunchParams_v1.grid_dim_y
+      ~LaunchParams_v1.grid_dim_z
+      ~LaunchParams_v1.h_stream
+      ~LaunchParams_v1.kernel_params
+      ~LaunchParams_v1.ptr
+      ~LaunchParams_v1.shared_mem_bytes
+   
+   

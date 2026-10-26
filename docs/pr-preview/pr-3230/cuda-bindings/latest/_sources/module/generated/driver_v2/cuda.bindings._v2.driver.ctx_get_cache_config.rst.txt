@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ctx\_get\_cache\_config
+=================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: ctx_get_cache_config

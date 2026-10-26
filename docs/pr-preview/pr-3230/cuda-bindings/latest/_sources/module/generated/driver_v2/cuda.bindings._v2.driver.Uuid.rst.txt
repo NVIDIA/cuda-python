@@ -1,0 +1,32 @@
+﻿cuda.bindings.\_v2.driver.Uuid
+==============================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: Uuid
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Uuid.__init__
+      ~Uuid.from_buffer
+      ~Uuid.from_data
+      ~Uuid.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Uuid.bytes
+      ~Uuid.ptr
+   
+   
