@@ -253,8 +253,8 @@ actionable and whether a pull request has adequate tests and CI coverage.
 ### Pull Request Reviews
 
 Automatic reviews may be disabled or restricted by the repository
-configuration. Maintainers can always request review explicitly from a pull
-request comment:
+configuration. PR authors and maintainers can request a review explicitly by
+posting a comment on the pull request:
 
 ```text
 @coderabbitai review

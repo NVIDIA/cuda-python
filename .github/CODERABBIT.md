@@ -10,8 +10,10 @@ For complete product documentation, see the
 [CodeRabbit documentation](https://docs.coderabbit.ai/).
 
 CUDA Python configures CodeRabbit through [`.coderabbit.yaml`](../.coderabbit.yaml)
-in the repository root. The configuration in the pull request branch is used
-for that review.
+in the repository root. For pull requests from a branch in the same repository,
+the configuration in that branch is used for the review. Pull requests from
+forks use the target branch's configuration instead, so changes to
+`.coderabbit.yaml` in a fork do not affect that review.
 
 When setting up or updating CodeRabbit:
 
