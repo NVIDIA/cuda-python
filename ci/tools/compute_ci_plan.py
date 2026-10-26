@@ -83,6 +83,8 @@ def compute_workplan(
 
     # Source changes have different build/test consumers. Core-only changes can
     # reuse baseline cuda-python wheels; cuda-python changes cannot reuse bindings.
+    # Bindings-only changes reuse the unchanged Core wheel and test it against
+    # the changed bindings major; Core source or shared changes rebuild both halves.
     source_impacts: dict[Target, tuple[frozenset[Target], frozenset[Target], frozenset[str]]] = {
         ("pathfinder", None): (all_targets, all_targets, frozenset(package_roots)),
         ("core", None): (core_targets, frozenset({*core_targets, *python_targets}), frozenset(package_roots)),
@@ -97,7 +99,6 @@ def compute_workplan(
                     {
                         ("bindings", package.package_root),
                         ("python", package.package_root),
-                        *core_targets,
                     }
                 ),
                 frozenset(
