@@ -1,7 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Load and validate the CUDA bindings package-root registry."""
+"""Read the CUDA bindings roots and toolkit pins in ci/versions.yml for CI.
+
+The check-bindings-config pre-commit hook also runs this module with
+--check-package-metadata to catch drift between the registry, package SCM
+selectors, the metapackage, and cuda.core's minimum bindings requirements.
+"""
 
 from __future__ import annotations
 
@@ -25,27 +30,9 @@ SCHEMA_VERSION = 2
 RELEASE_STATUSES = frozenset({"current", "maintenance"})
 _DEPENDENT_RELEASE_TAG_PREFIXES = ("cuda-core-v", "cuda-pathfinder-v")
 
-_NAME_PATTERN = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*")
+# Validate strings again at JSON-to-path/environment boundaries.
 _PACKAGE_ROOT_PATTERN = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*")
 _TOOLKIT_VERSION_PATTERN = re.compile(r"[1-9][0-9]*\.[0-9]+\.[0-9]+")
-_RELEASE_VERSION_PATTERN = re.compile(
-    r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
-    r"(?:(?:a|b|rc)(?:0|[1-9][0-9]*))?"
-    r"(?:\.post(?:0|[1-9][0-9]*))?"
-    r"(?:\.dev(?:0|[1-9][0-9]*))?"
-)
-
-
-class BindingsConfigError(ValueError):
-    """The CUDA bindings package-root registry is invalid."""
-
-
-def parse_pep440_version(value: str, label: str = "version") -> Version:
-    """Parse a PEP 440 version and give configuration errors useful context."""
-    try:
-        return Version(value)
-    except InvalidVersion as error:
-        raise BindingsConfigError(f"{label} is not a valid PEP 440 version: {value!r}") from error
 
 
 def parse_prefixed_version(tag: str, prefix: str) -> Version | None:
@@ -53,31 +40,32 @@ def parse_prefixed_version(tag: str, prefix: str) -> Version | None:
     if not tag.startswith(prefix):
         return None
     value = tag.removeprefix(prefix)
-    # Keep one canonical spelling for every accepted release version while
-    # delegating PEP 440 interpretation and comparison to packaging.
-    if _RELEASE_VERSION_PATTERN.fullmatch(value) is None:
-        return None
     try:
-        version = parse_pep440_version(value, "release tag version")
-    except BindingsConfigError:
+        version = Version(value)
+    except InvalidVersion:
         return None
-    return None if version.local is not None else version
+    if str(version) != value or len(version.release) != 3 or version.epoch != 0 or version.local is not None:
+        return None
+    return version
 
 
 @dataclass(frozen=True)
 class BindingsPackage:
     package_root: str
-    toolkit_version: str
+    toolkit: tuple[int, int, int]
     release_status: str
 
     @property
+    def toolkit_version(self) -> str:
+        return ".".join(map(str, self.toolkit))
+
+    @property
     def ctk_target(self) -> str:
-        major, minor, _ = self.toolkit_version.split(".", maxsplit=2)
-        return f"{major}.{minor}"
+        return f"{self.toolkit[0]}.{self.toolkit[1]}"
 
     @property
     def cuda_major(self) -> str:
-        return self.ctk_target.partition(".")[0]
+        return str(self.toolkit[0])
 
     @property
     def cuda_variant(self) -> str:
@@ -86,7 +74,7 @@ class BindingsPackage:
     def version_from_tag(self, tag: str) -> Version | None:
         """Return a matching release version for this configured package root."""
         version = parse_prefixed_version(tag, "v")
-        if version is None or f"{version.release[0]}.{version.release[1]}" != self.ctk_target:
+        if version is None or version.release[:2] != self.toolkit[:2]:
             return None
         return version
 
@@ -113,7 +101,7 @@ class BindingsConfig:
     def get_package(self, package_root: str) -> BindingsPackage:
         package = next((package for package in self.package_roots if package.package_root == package_root), None)
         if package is None:
-            raise BindingsConfigError(f"unknown CUDA bindings package root: {package_root!r}")
+            raise ValueError(f"unknown CUDA bindings package root: {package_root!r}")
         return package
 
     def package_for_release_status(self, release_status: str) -> BindingsPackage:
@@ -133,105 +121,48 @@ class BindingsConfig:
         return json.dumps(self.to_dict(), separators=(",", ":"), sort_keys=True)
 
 
-def _mapping(value: Any, label: str, keys: set[str] | None = None) -> Mapping[str, Any]:
-    if not isinstance(value, dict) or not all(isinstance(key, str) for key in value):
-        raise BindingsConfigError(f"{label} must be a mapping with string keys")
-    if keys is not None and set(value) != keys:
-        raise BindingsConfigError(f"{label} must contain exactly: {', '.join(sorted(keys))}")
-    return value
-
-
-def _text(value: Any, label: str, pattern: re.Pattern[str]) -> str:
-    if not isinstance(value, str) or not value or value != value.strip():
-        raise BindingsConfigError(f"{label} must be a non-empty, trimmed string")
-    if pattern.fullmatch(value) is None:
-        raise BindingsConfigError(f"{label} has invalid format: {value!r}")
-    return value
-
-
 def parse_package_root(value: Any, label: str = "package_root") -> str:
-    """Validate a repository-relative package root."""
-    package_root = _text(value, label, _PACKAGE_ROOT_PATTERN)
-    if any(part in (".", "..") for part in package_root.split("/")):
-        raise BindingsConfigError(f"{label} must be a normalized repository-relative POSIX path: {package_root!r}")
-    return package_root
+    """Validate a package path received through the release JSON interface."""
+    if (
+        not isinstance(value, str)
+        or _PACKAGE_ROOT_PATTERN.fullmatch(value) is None
+        or any(part in (".", "..") for part in value.split("/"))
+    ):
+        raise ValueError(f"{label} must be a normalized repository-relative POSIX path: {value!r}")
+    return value
 
 
-def _package(package_root: str, raw: Any) -> BindingsPackage:
-    package_root = parse_package_root(package_root, "CUDA bindings package root")
-    data = _mapping(
-        raw,
-        f"CUDA bindings package root {package_root!r}",
-        {"toolkit_version", "release_status"},
-    )
-    return BindingsPackage(
-        package_root=package_root,
-        toolkit_version=_text(
-            data["toolkit_version"],
-            f"{package_root}.toolkit_version",
-            _TOOLKIT_VERSION_PATTERN,
-        ),
-        release_status=_text(
-            data["release_status"],
-            f"{package_root}.release_status",
-            _NAME_PATTERN,
-        ),
-    )
-
-
-def _validate_release_statuses(packages: tuple[BindingsPackage, ...]) -> None:
-    release_statuses = [package.release_status for package in packages]
-    if len(packages) != 2 or set(release_statuses) != RELEASE_STATUSES:
-        raise BindingsConfigError(
+def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
+    """Read the repository-owned layout, retaining release-routing invariants."""
+    if raw.get("schema_version") != SCHEMA_VERSION:
+        raise ValueError(f"schema_version must be {SCHEMA_VERSION}")
+    packages = []
+    for package_root, data in raw["cuda"]["bindings"]["package_roots"].items():
+        major, minor, patch = map(int, data["toolkit_version"].split("."))
+        packages.append(BindingsPackage(package_root, (major, minor, patch), data["release_status"]))
+    if len(packages) != 2 or {package.release_status for package in packages} != RELEASE_STATUSES:
+        raise ValueError(
             "cuda.bindings.package_roots must contain exactly one current and one maintenance release status"
         )
-
-
-def validate_config(raw: Any) -> BindingsConfig:
-    root = _mapping(raw, "versions configuration")
-    root_keys = {"schema_version", "cuda", "python"}
-    if "backport_branch" in root:
-        root_keys.add("backport_branch")
-    _mapping(root, "versions configuration", root_keys)
-    if type(root["schema_version"]) is not int or root["schema_version"] != SCHEMA_VERSION:
-        raise BindingsConfigError(f"schema_version must be {SCHEMA_VERSION}")
-    cuda = _mapping(root["cuda"], "cuda", {"bindings"})
-    bindings = _mapping(cuda["bindings"], "cuda.bindings", {"package_roots"})
-    raw_package_roots = _mapping(bindings["package_roots"], "cuda.bindings.package_roots")
-    packages = tuple(_package(package_root, value) for package_root, value in raw_package_roots.items())
-    _validate_release_statuses(packages)
-    if "backport_branch" in root:
+    if len({package.toolkit[0] for package in packages}) != len(packages):
+        raise ValueError("CUDA bindings cuda_major values must be unique")
+    if "backport_branch" in raw:
         maintenance = next(package for package in packages if package.release_status == "maintenance")
         expected_branch = f"{maintenance.ctk_target}.x"
-        if root["backport_branch"] != expected_branch:
-            raise BindingsConfigError(f"backport_branch must match maintenance CUDA line {expected_branch!r}")
-    cuda_majors = [package.cuda_major for package in packages]
-    if len(set(cuda_majors)) != len(cuda_majors):
-        raise BindingsConfigError("CUDA bindings cuda_major values must be unique")
-    python = _mapping(root["python"], "python", {"supported"})
-    supported = python["supported"]
-    if (
-        not isinstance(supported, list)
-        or not supported
-        or any(
-            not isinstance(version, str) or re.fullmatch(r"3\.[1-9][0-9]*t?", version) is None for version in supported
-        )
-        or len(set(supported)) != len(supported)
-    ):
-        raise BindingsConfigError("python.supported must contain unique Python 3 versions, optionally ending in t")
+        if raw["backport_branch"] != expected_branch:
+            raise ValueError(f"backport_branch must match maintenance CUDA line {expected_branch!r}")
     return BindingsConfig(
-        python_supported=tuple(supported),
         schema_version=SCHEMA_VERSION,
-        package_roots=packages,
+        package_roots=tuple(packages),
+        python_supported=tuple(raw["python"]["supported"]),
     )
 
 
 def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     try:
-        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as error:
-        raise BindingsConfigError(f"could not read {path}: {error}") from error
-    return validate_config(raw)
+        return parse_config(yaml.safe_load(path.read_text(encoding="utf-8")))
+    except (OSError, yaml.YAMLError, KeyError, TypeError, ValueError) as error:
+        raise ValueError(f"could not read {path}: {error}") from error
 
 
 def check_core_toolkit_floors(config: BindingsConfig, repo_root: Path) -> None:
@@ -246,14 +177,14 @@ def check_core_toolkit_floors(config: BindingsConfig, repo_root: Path) -> None:
             extras = tomllib.load(stream)["project"]["optional-dependencies"]
         floors = module.floors_from_extras(extras)
     except (OSError, ValueError, KeyError, TypeError) as error:
-        raise BindingsConfigError(f"could not read core bindings floors from {core}: {error}") from error
+        raise ValueError(f"could not read core bindings floors from {core}: {error}") from error
     pins = {int(package.cuda_major): package for package in config.package_roots}
     if pins.keys() != floors.keys():
-        raise BindingsConfigError("registered CUDA majors must match cuda_core's cu<N> extras")
+        raise ValueError("registered CUDA majors must match cuda_core's cu<N> extras")
     for major, floor in floors.items():
         package = pins[major]
-        if tuple(map(int, package.ctk_target.split("."))) < floor[:2]:
-            raise BindingsConfigError(
+        if package.toolkit[:2] < floor[:2]:
+            raise ValueError(
                 f"{package.package_root} toolkit {package.toolkit_version} is below "
                 f"the CUDA {major} bindings floor {'.'.join(map(str, floor))}"
             )
@@ -269,9 +200,9 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
             with path.open("rb") as stream:
                 scm = tomllib.load(stream)["tool"]["setuptools_scm"]
         except (OSError, tomllib.TOMLDecodeError, KeyError, TypeError) as error:
-            raise BindingsConfigError(f"could not read SCM metadata from {path}: {error}") from error
+            raise ValueError(f"could not read SCM metadata from {path}: {error}") from error
         if not isinstance(scm, dict) or "tag_regex" in scm:
-            raise BindingsConfigError(f"{path} must use setuptools-scm's default tag parser")
+            raise ValueError(f"{path} must use setuptools-scm's default tag parser")
         command = scm.get("git_describe_command")
         if (
             not isinstance(command, list)
@@ -279,17 +210,17 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
             or command.count("--match") != 1
             or command[-1] == "--match"
         ):
-            raise BindingsConfigError(f"{path} must specify one git_describe_command --match selector")
+            raise ValueError(f"{path} must specify one git_describe_command --match selector")
         selector = command[command.index("--match") + 1]
         expected_selector = f"v{package.ctk_target}.*"
         if selector != expected_selector:
-            raise BindingsConfigError(
+            raise ValueError(
                 f"{path} --match must select registered CUDA {package.ctk_target} "
                 f"using {expected_selector!r} for the {package.release_status} root, got {selector!r}"
             )
         selectors[package.cuda_major] = selector
         if "fallback_version" in scm:
-            raise BindingsConfigError(f"{path} bindings root must not declare fallback_version")
+            raise ValueError(f"{path} bindings root must not declare fallback_version")
 
     setup_path = repo_root / "cuda_python" / "setup.py"
     names = {"SCM_DESCRIBE_MATCH_BY_MAJOR"}
@@ -303,9 +234,9 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
             if isinstance(target, ast.Name) and target.id in names
         }
     except (OSError, SyntaxError, ValueError) as error:
-        raise BindingsConfigError(f"could not read literal build metadata from {setup_path}: {error}") from error
+        raise ValueError(f"could not read literal build metadata from {setup_path}: {error}") from error
     if metadata.get("SCM_DESCRIBE_MATCH_BY_MAJOR") != selectors:
-        raise BindingsConfigError(f"{setup_path} SCM_DESCRIBE_MATCH_BY_MAJOR must match the bindings package selectors")
+        raise ValueError(f"{setup_path} SCM_DESCRIBE_MATCH_BY_MAJOR must match the bindings package selectors")
 
 
 def resolve_release_bindings_package(
@@ -314,13 +245,13 @@ def resolve_release_bindings_package(
 ) -> dict[str, object]:
     """Resolve a release using only the schema-2 registry in its tagged source."""
     if not release_source_root.is_dir():
-        raise BindingsConfigError(f"release source root is not a directory: {release_source_root}")
+        raise ValueError(f"release source root is not a directory: {release_source_root}")
 
     config_path = release_source_root / "ci" / "versions.yml"
     try:
         config = load_config(config_path)
-    except BindingsConfigError as error:
-        raise BindingsConfigError(
+    except ValueError as error:
+        raise ValueError(
             f"release source requires a valid schema-{SCHEMA_VERSION} registry at {config_path}: {error}. "
             "For pre-registry tags, use compatible historical release tooling."
         ) from error
@@ -329,11 +260,11 @@ def resolve_release_bindings_package(
         parse_prefixed_version(release_tag, prefix) is not None for prefix in _DEPENDENT_RELEASE_TAG_PREFIXES
     )
     if bindings_version is None and not is_dependent_release:
-        raise BindingsConfigError(f"unsupported release tag: {release_tag!r}")
+        raise ValueError(f"unsupported release tag: {release_tag!r}")
 
     package = config.package_for_release_status("current") if is_dependent_release else config.match_tag(release_tag)
     if package is None:
-        raise BindingsConfigError(
+        raise ValueError(
             f"no CUDA bindings package root in tagged config {config_path} matches release tag: {release_tag!r}"
         )
 
@@ -349,11 +280,9 @@ def resolve_release_bindings_package(
 def write_github_env(data: Mapping[str, object], path: Path) -> None:
     """Append the bindings build environment consumed by documentation jobs."""
     package_root = parse_package_root(data.get("package_root"), "resolved package_root")
-    toolkit_version = _text(
-        data.get("toolkit_version"),
-        "resolved toolkit_version",
-        _TOOLKIT_VERSION_PATTERN,
-    )
+    toolkit_version = data.get("toolkit_version")
+    if not isinstance(toolkit_version, str) or _TOOLKIT_VERSION_PATTERN.fullmatch(toolkit_version) is None:
+        raise ValueError(f"resolved toolkit_version must have major.minor.patch format: {toolkit_version!r}")
     with path.open("a", encoding="utf-8") as stream:
         stream.write(f"BUILD_CTK_VER={toolkit_version}\n")
         stream.write(f"BINDINGS_PACKAGE_ROOT={package_root}\n")
@@ -397,7 +326,7 @@ def main(argv: list[str] | None = None) -> int:
                 parser.error("write-github-env does not accept registry selectors")
             value = json.load(sys.stdin)
             if not isinstance(value, dict):
-                raise BindingsConfigError("stdin for write-github-env must contain a JSON object")
+                raise ValueError("stdin for write-github-env must contain a JSON object")
             write_github_env(value, args.github_env)
             return 0
         if args.release_tag:
@@ -422,7 +351,7 @@ def main(argv: list[str] | None = None) -> int:
                 value = config.to_dict()
         print(json.dumps(value, separators=(",", ":"), sort_keys=True))
         return 0
-    except (BindingsConfigError, json.JSONDecodeError) as error:
+    except ValueError as error:
         parser.error(str(error))
 
 

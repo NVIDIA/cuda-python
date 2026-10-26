@@ -50,7 +50,7 @@ repos:
         verbose: true
 
       - id: check-cuda-core-bindings-floor
-        name: Check the cuda-bindings floor against ci/versions.yml and the docs
+        name: Check cuda-core bindings floor declarations and documentation
         entry: python ./toolshed/check_cuda_core_bindings_floor.py
         language: python
         files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
