@@ -123,8 +123,8 @@ sdist retains its version and dependency major without requiring this variable.
 The selectors are recorded in the bindings roots' `pyproject.toml` files and
 the metapackage's `pyproject.toml`; the metadata check keeps them aligned with
 `ci/versions.yml`. All packages read versions from the *repository root*,
-rather than their package directory. A working build therefore needs all of
-the following:
+rather than their package directory. Builds from a Git checkout therefore
+need all of the following:
 
 1. **A real git clone.** Source zips and GitHub "Download ZIP" archives have no
    git metadata and the build fails outright. Tarballs produced by
