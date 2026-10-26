@@ -82,7 +82,7 @@ def main() -> int:
     """Verify bindings and core pixi pins match all packages in ci/versions.yml."""
     try:
         config = bindings_config.load_config()
-    except bindings_config.BindingsConfigError as error:
+    except ValueError as error:
         print(f"error: invalid CUDA bindings configuration: {error}", file=sys.stderr)
         return 2
 

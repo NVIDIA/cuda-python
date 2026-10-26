@@ -112,7 +112,7 @@ def test_main_reports_core_variant_pin_drift(tmp_path, monkeypatch, capsys):
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_main_reports_invalid_bindings_config(monkeypatch, capsys):
     def fail_to_load():
-        raise check_pixi_cuda_version.bindings_config.BindingsConfigError("broken registry")
+        raise ValueError("broken registry")
 
     monkeypatch.setattr(check_pixi_cuda_version.bindings_config, "load_config", fail_to_load)
 
