@@ -108,9 +108,7 @@ def test_multi_gpu_samples_count_cuda_visible_devices(sample_name: str) -> None:
 
     assert any(ast.dump(node) == ast.dump(expected_count) for node in ast.walk(tree))
     assert not any(
-        isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Attribute)
-        and node.func.attr == "get_num_devices"
+        isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "get_num_devices"
         for node in ast.walk(tree)
     )
 
