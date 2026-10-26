@@ -234,7 +234,7 @@ jobs:
           ls -la dist
 
       - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
         with:
           repository-url: https://test.pypi.org/legacy/
 
@@ -247,9 +247,17 @@ jobs:
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
     steps:
+      - name: Create verification environment
+        run: python3 -m venv /tmp/verify
+
+      - name: Harden pip
+        # These jobs have no checkout; $/ loads the action from the workflow's commit.
+        uses: $/.github/actions/harden-pip
+        with:
+          python: /tmp/verify/bin/python
+
       - name: Install from TestPyPI and verify
         run: |
-          python3 -m venv /tmp/verify
           source /tmp/verify/bin/activate
           max_attempts=6
           retry_seconds=30
@@ -311,7 +319,7 @@ jobs:
           ls -la dist
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
 
   # --------------------------------------------------------------------------
   # Verify the PyPI package installs and imports correctly.
@@ -322,9 +330,17 @@ jobs:
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
     steps:
+      - name: Create verification environment
+        run: python3 -m venv /tmp/verify
+
+      - name: Harden pip
+        # These jobs have no checkout; $/ loads the action from the workflow's commit.
+        uses: $/.github/actions/harden-pip
+        with:
+          python: /tmp/verify/bin/python
+
       - name: Install from PyPI and verify
         run: |
-          python3 -m venv /tmp/verify
           source /tmp/verify/bin/activate
           max_attempts=6
           retry_seconds=30

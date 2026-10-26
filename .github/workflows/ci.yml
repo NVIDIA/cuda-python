@@ -644,11 +644,14 @@ jobs:
         with:
           python-version: '3.13'
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Install pre-commit
         shell: bash
         run: |
           set -euxo pipefail
-          python -m pip install --upgrade pip pre-commit
+          python -m pip install pre-commit
 
       - name: Run pre-commit
         shell: bash

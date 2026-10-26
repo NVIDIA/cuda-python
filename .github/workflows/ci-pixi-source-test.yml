@@ -61,7 +61,7 @@ env:
   # older pixi re-ran the editable source build on every `pixi run`, recompiling
   # all Cython extensions (#2138). The fix (content-addressed source-build cache,
   # prefix-dev/pixi#6285 + #6123) also bumps the pixi.lock format to v7.
-  PIXI_VERSION: "v0.73.0"
+  PIXI_VERSION: "v0.82.1"
 
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
