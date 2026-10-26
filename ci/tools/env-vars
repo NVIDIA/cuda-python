@@ -59,43 +59,10 @@ if [[ "${BUILD_MODE}" == "build" ]]; then
     exit 1
   fi
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-${CIBW_PLATFORM_TAG}" >> "$GITHUB_ENV"
-  # Native jq on Windows emits CRLF, so treat CR as an input delimiter too.
-  IFS=$'\t\r' read -r \
-    CURRENT_BINDINGS_ROOT CURRENT_CUDA_VERSION CURRENT_CUDA_MAJOR CURRENT_CUDA_VARIANT \
-    MAINTENANCE_BINDINGS_ROOT MAINTENANCE_CUDA_VERSION MAINTENANCE_CUDA_MAJOR MAINTENANCE_CUDA_VARIANT < <(
-      python -m ci.tools.bindings_config --package-roots \
-        | jq -er '
-          (.[] | select(.release_status == "current")) as $current
-          | (.[] | select(.release_status == "maintenance")) as $maintenance
-          | [$current.package_root, $current.toolkit_version, $current.cuda_major, $current.cuda_variant,
-             $maintenance.package_root, $maintenance.toolkit_version, $maintenance.cuda_major,
-             $maintenance.cuda_variant]
-          | @tsv
-        '
-    )
-  CURRENT_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CURRENT_CUDA_VERSION}-${HOST_PLATFORM}"
-  MAINTENANCE_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${MAINTENANCE_CUDA_VERSION}-${HOST_PLATFORM}"
+  python -m ci.tools.bindings_config write-build-env "$GITHUB_ENV" \
+    --repo-root "$REPO_DIR" --python-version "$PY_VER" \
+    --host-platform "$HOST_PLATFORM" --sha "$SHA"
 
-  {
-    echo "CURRENT_BINDINGS_ROOT=${CURRENT_BINDINGS_ROOT}"
-    echo "CURRENT_CUDA_VERSION=${CURRENT_CUDA_VERSION}"
-    echo "CURRENT_CUDA_MAJOR=${CURRENT_CUDA_MAJOR}"
-    echo "CURRENT_CUDA_VARIANT=${CURRENT_CUDA_VARIANT}"
-    echo "MAINTENANCE_BINDINGS_ROOT=${MAINTENANCE_BINDINGS_ROOT}"
-    echo "MAINTENANCE_CUDA_VERSION=${MAINTENANCE_CUDA_VERSION}"
-    echo "MAINTENANCE_CUDA_MAJOR=${MAINTENANCE_CUDA_MAJOR}"
-    echo "MAINTENANCE_CUDA_VARIANT=${MAINTENANCE_CUDA_VARIANT}"
-    echo "CURRENT_BINDINGS_ARTIFACT_BASENAME=${CURRENT_BINDINGS_ARTIFACT_BASENAME}"
-    echo "CURRENT_BINDINGS_ARTIFACT_NAME=${CURRENT_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
-    echo "CURRENT_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/dist")"
-    echo "CURRENT_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${CURRENT_BINDINGS_ROOT}/tests/cython")"
-    echo "MAINTENANCE_BINDINGS_ARTIFACT_BASENAME=${MAINTENANCE_BINDINGS_ARTIFACT_BASENAME}"
-    echo "MAINTENANCE_BINDINGS_ARTIFACT_NAME=${MAINTENANCE_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
-    echo "MAINTENANCE_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${MAINTENANCE_BINDINGS_ROOT}/dist")"
-    echo "MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${MAINTENANCE_BINDINGS_ROOT}/tests/cython")"
-    echo "CURRENT_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${CURRENT_CUDA_VERSION}"
-    echo "MAINTENANCE_PYTHON_ARTIFACT_NAME=cuda-python-wheel-cuda${MAINTENANCE_CUDA_VERSION}"
-  } >> $GITHUB_ENV
 else
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
 
