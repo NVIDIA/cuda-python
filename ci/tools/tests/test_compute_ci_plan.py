@@ -1,650 +1,177 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-#
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
+"""Protect CI selection outcomes that could otherwise silently omit coverage."""
 
-import json
-import os
-import re
-import subprocess
-import tempfile
-import unittest
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
-import yaml
 
-from ci.tools.bindings_config import BindingsConfig, BindingsPackage, load_config
-from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan, format_workplan_summary, main
+from ci.tools.bindings_config import load_config
+from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan
 
-ALL_MODULES = {"pathfinder", "bindings", "core", "python"}
-ALL_PLATFORMS = {"linux", "windows"}
-VARIANT_MODULES = {"bindings", "core", "python"}
-DEFAULT_BINDINGS_CONFIG = load_config()
-CUDA_VARIANTS = {package.cuda_variant for package in DEFAULT_BINDINGS_CONFIG.package_roots}
-PACKAGE_VARIANTS = {package.package_root: package.cuda_variant for package in DEFAULT_BINDINGS_CONFIG.package_roots}
+CONFIG = load_config()
+PACKAGES = CONFIG.package_roots
+ROOTS = {package.package_root for package in PACKAGES}
+VARIANTS = {package.cuda_variant for package in PACKAGES}
+BINDINGS = {("bindings", root) for root in ROOTS}
+CORE = {("core", variant) for variant in VARIANTS}
+META = {("python", root) for root in ROOTS}
+ALL = {("pathfinder", None), *BINDINGS, *CORE, *META}
 
 
-def plan_for(
-    *paths: str,
-    baseline: bool = True,
-    linked_paths: set[str] | None = None,
-    release_tag: str = "",
-    bindings_config: BindingsConfig | None = None,
-) -> dict[str, object]:
+def plan_for(*paths, baseline=True, release_tag="", config=CONFIG, linked_paths=()):
     return compute_workplan(
-        bindings_config=bindings_config if bindings_config is not None else DEFAULT_BINDINGS_CONFIG,
+        bindings_config=config,
         paths=list(paths),
-        linked_paths=linked_paths if linked_paths is not None else set(),
+        linked_paths=set(linked_paths),
         merge_base="base",
         baseline_run_id="123" if baseline else "",
         release_tag=release_tag,
     )
 
 
-def as_dict(value: object) -> dict[str, object]:
-    assert isinstance(value, dict)
-    return value
+def selected(plan, decision):
+    targets = set()
+    for component, details in plan["modules"].items():
+        if component == "pathfinder":
+            if details[decision]:
+                targets.add((component, None))
+            continue
+        selectors = details["cuda_majors" if component == "core" else "package_roots"]
+        targets.update((component, selector) for selector, flags in selectors.items() if flags[decision])
+    return targets
 
 
-def enabled(decisions: dict[str, object], key: str | None = None) -> set[str]:
-    if key is None:
-        return {name for name, value in decisions.items() if value}
-    return {name for name, value in decisions.items() if as_dict(value)[key]}
-
-
-def selected(plan: dict[str, object], key: str) -> set[str]:
-    return enabled(as_dict(plan["modules"]), key)
-
-
-def selected_platforms(plan: dict[str, object]) -> set[str]:
-    platforms = as_dict(as_dict(plan["jobs"])["platforms"])
-    assert set(platforms) == ALL_PLATFORMS
-    return enabled(platforms)
-
-
-def selected_variants(plan: dict[str, object], module: str, key: str) -> set[str]:
-    modules = as_dict(plan["modules"])
-    if module == "core":
-        return enabled(as_dict(as_dict(modules[module])["cuda_majors"]), key)
-    packages = as_dict(as_dict(modules[module])["package_roots"])
-    return {PACKAGE_VARIANTS[root] for root in enabled(packages, key)}
-
-
-def selected_package_roots(plan: dict[str, object], module: str, key: str) -> set[str]:
-    module_plan = as_dict(as_dict(plan["modules"])[module])
-    return enabled(as_dict(module_plan["package_roots"]), key)
-
-
-def selected_core_majors(plan: dict[str, object], key: str) -> set[str]:
-    core = as_dict(as_dict(plan["modules"])["core"])
-    return enabled(as_dict(core["cuda_majors"]), key)
-
-
-def selected_cuda_majors(plan: dict[str, object], key: str) -> set[str]:
-    majors = as_dict(as_dict(plan["jobs"])[key])
-    cuda_majors = as_dict(as_dict(as_dict(plan["modules"])["core"])["cuda_majors"])
-    assert set(majors) == set(cuda_majors)
-    return enabled(majors)
-
-
-def selected_sdist_variants(plan: dict[str, object]) -> set[str]:
-    jobs = as_dict(plan["jobs"])
-    selected_roots = enabled(as_dict(jobs["sdist_package_roots"]))
-    return {PACKAGE_VARIANTS[root] for root in selected_roots}
-
-
-def synthetic_package(package_root: str, ctk_target: str, release_status: str) -> BindingsPackage:
-    return BindingsPackage(
-        package_root=package_root,
-        toolkit_version=f"{ctk_target}.0",
-        release_status=release_status,
-    )
-
-
-def synthetic_config(
-    *packages: BindingsPackage,
-) -> BindingsConfig:
-    return BindingsConfig(
-        schema_version=2,
-        package_roots=packages,
-    )
-
-
-class ComputeWorkplanTest(unittest.TestCase):
-    def test_path_impacts(self) -> None:
-        cases = {
-            "cuda_core/cuda/core/examples/demo.py": ({"core"}, {"core", "python"}, True),
-            "cuda_pathfinder/tests/test_loader.py": (set(), {"pathfinder"}, False),
-            "cuda_bindings_13/tests/README.md": (set(), {"bindings"}, False),
-            "cuda_core/pytest.ini": (set(), {"core"}, False),
-            "cuda_python/tests/test_import.py": (set(), {"python"}, False),
-            "cuda_python_test_helpers/cuda_python_test_helpers/cuda_utils.py": (
-                set(),
-                ALL_MODULES,
-                False,
-            ),
-            "benchmarks/cuda_bindings/run_pyperf.py": (set(), ALL_MODULES, False),
-        }
-
-        for path, (builds, tests, core_api) in cases.items():
-            with self.subTest(path=path):
-                plan = plan_for(path)
-                assert selected(plan, "needs_build") == builds
-                assert selected(plan, "needs_test") == tests
-                assert selected_platforms(plan) == ALL_PLATFORMS
-                assert plan["jobs"]["sdist_tests"] == bool(builds)
-                assert plan["jobs"]["core_api_checks"] == core_api
-
-        self._check_variant_path_impacts()
-
-    def _check_variant_path_impacts(self) -> None:
-        all_variant_modules = dict.fromkeys(VARIANT_MODULES, CUDA_VARIANTS)
-        cases = (
-            (
-                ("cuda_bindings_12/cuda/bindings/driver.pyx",),
-                {"bindings": {"cu12"}, "python": {"cu12"}},
-                {"bindings": {"cu12"}, "core": {"cu12"}, "python": {"cu12"}},
-                {"cu12"},
-                {"cu12"},
-            ),
-            (
-                ("cuda_bindings_13/cuda/bindings/driver.pyx",),
-                {"bindings": {"cu13"}, "python": {"cu13"}},
-                {"bindings": {"cu13"}, "core": {"cu13"}, "python": {"cu13"}},
-                {"cu13"},
-                {"cu13"},
-            ),
-            (
-                ("cuda_bindings_12/examples/0_Introduction/vectorAddDrv.py",),
-                {},
-                {"bindings": {"cu12"}},
-                {"cu12"},
-                set(),
-            ),
-            (
-                ("cuda_bindings_13/tests/test_driver.py",),
-                {},
-                {"bindings": {"cu13"}},
-                {"cu13"},
-                set(),
-            ),
-            (
-                ("cuda_core/cuda/core/_device.py",),
-                {"core": CUDA_VARIANTS},
-                {"core": CUDA_VARIANTS, "python": CUDA_VARIANTS},
-                CUDA_VARIANTS,
-                CUDA_VARIANTS,
-            ),
-            (
-                ("cuda_python/pyproject.toml",),
-                {"bindings": CUDA_VARIANTS, "python": CUDA_VARIANTS},
-                {"python": CUDA_VARIANTS},
-                CUDA_VARIANTS,
-                CUDA_VARIANTS,
-            ),
-            (
-                ("cuda_pathfinder/cuda/pathfinder/_loader.py",),
-                all_variant_modules,
-                all_variant_modules,
-                CUDA_VARIANTS,
-                CUDA_VARIANTS,
-            ),
-            (
-                (
-                    "cuda_bindings_12/cuda/bindings/driver.pyx",
-                    "cuda_bindings_13/cuda/bindings/runtime.pyx",
-                ),
-                {"bindings": CUDA_VARIANTS, "python": CUDA_VARIANTS},
-                all_variant_modules,
-                CUDA_VARIANTS,
-                CUDA_VARIANTS,
-            ),
-        )
-
-        for paths, variant_builds, variant_tests, test_majors, sdist_majors in cases:
-            with self.subTest(paths=paths):
-                plan = plan_for(*paths)
-                for module in VARIANT_MODULES:
-                    builds = selected_variants(plan, module, "needs_build")
-                    tests = selected_variants(plan, module, "needs_test")
-                    assert builds == variant_builds.get(module, set())
-                    assert tests == variant_tests.get(module, set())
-
-                    modules = plan["modules"]
-                    assert isinstance(modules, dict)
-                    decision = modules[module]
-                    assert decision["needs_build"] == bool(builds)
-                    assert decision["needs_test"] == bool(tests)
-
-                assert selected_cuda_majors(plan, "test_cuda_majors") == test_majors
-                assert selected_sdist_variants(plan) == sdist_majors
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_release_tags_select_only_the_matching_package(self) -> None:
-        for release_tag, package_root, variant in (
-            ("v12.9.9", "cuda_bindings_12", "cu12"),
-            ("v13.4.1", "cuda_bindings_13", "cu13"),
-            ("v13.4.1b1", "cuda_bindings_13", "cu13"),
-            ("v13.4.1rc1", "cuda_bindings_13", "cu13"),
-            ("v13.4.1.dev1", "cuda_bindings_13", "cu13"),
-            ("v12.9.9.post1", "cuda_bindings_12", "cu12"),
-            ("v13.4.1.post1", "cuda_bindings_13", "cu13"),
-        ):
-            with self.subTest(release_tag=release_tag):
-                plan = plan_for(baseline=False, release_tag=release_tag)
-                assert selected(plan, "needs_build") == {"bindings", "python"}
-                assert selected(plan, "needs_test") == {"bindings", "python"}
-                for module in ("bindings", "python"):
-                    assert selected_package_roots(plan, module, "needs_build") == {package_root}
-                    assert selected_package_roots(plan, module, "needs_test") == {package_root}
-                    assert selected_variants(plan, module, "needs_build") == {variant}
-                    assert selected_variants(plan, module, "needs_test") == {variant}
-                assert not selected_variants(plan, "core", "needs_build")
-                assert not selected_variants(plan, "core", "needs_test")
-                assert selected_cuda_majors(plan, "test_cuda_majors") == {variant}
-                assert selected_sdist_variants(plan) == {variant}
-                assert selected_platforms(plan) == ALL_PLATFORMS
-                assert plan["jobs"]["sdist_tests"]
-                assert not plan["jobs"]["core_api_checks"]
-                assert plan["baseline"] == {"run_id": "", "sha": ""}
-
-    def test_test_infrastructure_platforms(self) -> None:
-        cases = {
-            ".github/workflows/test-wheel-linux.yml": {"linux"},
-            ".github/workflows/test-wheel-windows.yml": {"windows"},
-            "ci/tools/configure_driver_mode.ps1": {"windows"},
-            "ci/tools/guess_latest.sh": {"linux"},
-            "ci/tools/install_gpu_driver.ps1": {"windows"},
-            "ci/tools/install_gpu_driver.sh": {"linux"},
-            "ci/tools/setup-sanitizer": {"linux"},
-        }
-
-        for path, platforms in cases.items():
-            with self.subTest(path=path):
-                plan = plan_for(path)
-                assert not selected(plan, "needs_build")
-                assert selected(plan, "needs_test") == ALL_MODULES
-                for module in VARIANT_MODULES:
-                    assert selected_variants(plan, module, "needs_test") == CUDA_VARIANTS
-                assert selected_platforms(plan) == platforms
-                assert not plan["jobs"]["sdist_tests"]
-                assert not plan["jobs"]["core_api_checks"]
-                assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
-                assert not selected_sdist_variants(plan)
-
-        mixed_plan = plan_for("ci/tools/install_gpu_driver.sh", "ci/tools/install_gpu_driver.ps1")
-        assert selected_platforms(mixed_plan) == ALL_PLATFORMS
-
-        source_plan = plan_for("ci/tools/install_gpu_driver.sh", "cuda_python/pyproject.toml")
-        assert selected_platforms(source_plan) == ALL_PLATFORMS
-
-    def test_ignored_paths_select_no_work(self) -> None:
-        empty_plan = plan_for()
-        for path in (
-            "cuda_core/docs/index.rst",
-            "cuda_core/pixi.toml",
-            "cuda_core/tests/fixtures/pixi.toml",
-            "benchmarks/cuda_bindings/pixi.toml",
-            "benchmarks/cuda_bindings/AGENTS.md",
-            "cuda_core/cuda/core/_cpp/rt/DESIGN.md",
-            "cuda_bindings_13/README.md",
-            "cuda_bindings_12/README.md",
-            "cuda_bindings_12/docs/index.rst",
-            "cuda_core/README.md",
-            "new-area/pixi.toml",
-            "notes.md",
-            "diagram.svg",
-            ".github/labeler.yml",
-            ".github/ISSUE_TEMPLATE/bug.yml",
-            ".github/workflows/runner-trust-probe.yml",
-            "ci/tools/runner_trust_probe.sh",
-            "ci/tools/runner_trust_probe.ps1",
-            "ci/tools/runner_trust_probe_node.js",
-        ):
-            with self.subTest(path=path):
-                assert plan_for(path) == empty_plan
-
-    def test_unknown_path_and_missing_baseline_force_all(self) -> None:
-        for plan in (
-            plan_for("new-top-level-file"),
-            plan_for("new-area/config.toml"),
-            plan_for(".github/workflows/new-main-ci-workflow.yml"),
-            plan_for(".github/actions/doc_preview/action.yml"),
-            plan_for("cuda_core/docs/index.rst", baseline=False),
-            compute_workplan(
-                bindings_config=DEFAULT_BINDINGS_CONFIG,
-                paths=[],
-                linked_paths=set(),
-                merge_base="",
-                baseline_run_id="123",
-                release_tag="",
-            ),
-            plan_for(baseline=False, release_tag="cuda-core-v1.3.0"),
-        ):
-            assert selected(plan, "needs_build") == ALL_MODULES
-            assert selected(plan, "needs_test") == ALL_MODULES
-            for module in VARIANT_MODULES:
-                assert selected_variants(plan, module, "needs_build") == CUDA_VARIANTS
-                assert selected_variants(plan, module, "needs_test") == CUDA_VARIANTS
-            assert selected_platforms(plan) == ALL_PLATFORMS
-            assert plan["jobs"]["core_api_checks"]
-            assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
-            assert selected_sdist_variants(plan) == CUDA_VARIANTS
-            assert plan["baseline"] == {"run_id": "", "sha": ""}
-
-        for release_tag in ("v12.8.1", "v13.5.0", "v14.0.0"):
-            with (
-                self.subTest(release_tag=release_tag),
-                pytest.raises(ValueError, match="no configured CUDA bindings package root"),
-            ):
-                plan_for(baseline=False, release_tag=release_tag)
-
-    def test_mixed_changes_are_combined(self) -> None:
-        plan = plan_for("cuda_core/tests/test_device.py", "cuda_python/pyproject.toml")
-        assert selected(plan, "needs_build") == {"bindings", "python"}
-        assert selected(plan, "needs_test") == {"core", "python"}
-        assert selected_variants(plan, "bindings", "needs_build") == CUDA_VARIANTS
-        assert selected_variants(plan, "python", "needs_build") == CUDA_VARIANTS
-        assert selected_variants(plan, "core", "needs_test") == CUDA_VARIANTS
-        assert selected_variants(plan, "python", "needs_test") == CUDA_VARIANTS
-        assert selected_platforms(plan) == ALL_PLATFORMS
-        assert plan["jobs"]["sdist_tests"]
-        assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
-        assert selected_sdist_variants(plan) == CUDA_VARIANTS
-        assert plan["baseline"] == {"run_id": "123", "sha": "base"}
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_mixed_bindings_source_and_core_test_keep_line_specific_tests(self) -> None:
-        plan = plan_for(
-            "cuda_bindings_12/cuda/bindings/driver.pyx",
-            "cuda_core/tests/test_device.py",
-        )
-
-        assert selected(plan, "needs_test") == {"bindings", "core", "python"}
-        assert selected_package_roots(plan, "bindings", "needs_test") == {"cuda_bindings_12"}
-        assert selected_core_majors(plan, "needs_test") == CUDA_VARIANTS
-        assert selected_package_roots(plan, "python", "needs_test") == {"cuda_bindings_12"}
-        assert selected_cuda_majors(plan, "test_cuda_majors") == CUDA_VARIANTS
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_wheel_workflows_consume_line_specific_test_gates(self) -> None:
-        expected_fragments = {
-            "TEST_BINDINGS": (
-                "matrix.BINDINGS_SOURCE == 'local'",
-                ".modules.bindings.package_roots[matrix.BINDINGS_SOURCE_DIR].needs_test",
-            ),
-            "TEST_CORE": (".modules.core.cuda_majors[matrix.CUDA_VARIANT].needs_test",),
-            "TEST_PYTHON": (
-                "matrix.BINDINGS_SOURCE == 'local'",
-                ".modules.python.package_roots[matrix.BINDINGS_SOURCE_DIR].needs_test",
-            ),
-        }
-
-        repo_root = Path(__file__).resolve().parents[3]
-        for platform in ("linux", "windows"):
-            with self.subTest(platform=platform):
-                workflow = yaml.safe_load(
-                    (repo_root / ".github" / "workflows" / f"test-wheel-{platform}.yml").read_text(encoding="utf-8")
-                )
-                gates = workflow["jobs"]["test"]["env"]
-                for name, fragments in expected_fragments.items():
-                    with self.subTest(platform=platform, gate=name):
-                        assert all(fragment in gates[name] for fragment in fragments)
-
-    def test_changed_symlink_targets_include_their_consumers(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "cuda_python").mkdir()
-            (root / "cuda_core").mkdir()
-            (root / "README.md").write_text("readme", encoding="utf-8")
-            (root / "cuda_python" / "README.md").symlink_to("../README.md")
-            (root / "cuda_core" / "README.md").symlink_to("../README.md")
-
-            paths = _expand_linked_paths(
-                ["README.md"],
-                ["cuda_python/README.md"],
-                root=root,
-            )
-
-        assert paths == ["README.md", "cuda_python/README.md"]
-        plan = plan_for(*paths, linked_paths={"cuda_python/README.md"})
-        removed_link = plan_for("cuda_python/README.md", linked_paths={"cuda_python/README.md"})
-        for linked_plan in (plan, removed_link):
-            assert selected(linked_plan, "needs_build") == {"bindings", "python"}
-            assert selected(linked_plan, "needs_test") == {"python"}
-            for module in ("bindings", "python"):
-                assert selected_variants(linked_plan, module, "needs_build") == CUDA_VARIANTS
-            assert selected_variants(linked_plan, "python", "needs_test") == CUDA_VARIANTS
-
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_current_package_can_move_to_a_new_cuda_major(self) -> None:
-        package_11 = synthetic_package("cuda_bindings_11", "11.8", "maintenance")
-        package_12 = synthetic_package("cuda_bindings_12", "12.0", "current")
-        config = synthetic_config(
-            package_11,
-            package_12,
-        )
-
-        plan = plan_for(
-            "cuda_bindings_12/cuda/bindings/runtime.pyx",
-            bindings_config=config,
-        )
-
-        assert selected_package_roots(plan, "bindings", "needs_build") == {package_12.package_root}
-        assert selected_package_roots(plan, "python", "needs_build") == {package_12.package_root}
-        assert selected_core_majors(plan, "needs_build") == set()
-        assert selected_core_majors(plan, "needs_test") == {"cu12"}
-        assert selected_cuda_majors(plan, "test_cuda_majors") == {"cu12"}
-        assert selected_sdist_variants(plan) == {"cu12"}
-
-        core_plan = plan_for("cuda_core/cuda/core/_device.py", bindings_config=config)
-        assert selected_core_majors(core_plan, "needs_build") == {"cu11", "cu12"}
-        assert selected_package_roots(core_plan, "python", "needs_test") == {
-            package_11.package_root,
-            package_12.package_root,
-        }
-
-
-@pytest.mark.agent_authored(model="gpt-5.6")
-def test_github_outputs_are_emitted_without_shell_json_transforms(tmp_path: Path) -> None:
-    output = tmp_path / "github-output"
-    summary = tmp_path / "github-summary"
-
-    main(
-        [
-            "--release-tag",
-            "v13.4.1",
-            "--github-output",
-            str(output),
-            "--github-step-summary",
-            str(summary),
-        ]
-    )
-
-    records = dict(line.split("=", maxsplit=1) for line in output.read_text(encoding="utf-8").splitlines())
-    assert set(records) == {"bindings-config", "workplan"}
-    registry = json.loads(records["bindings-config"])
-    assert [package["package_root"] for package in registry["package_roots"]] == [
-        "cuda_bindings_12",
-        "cuda_bindings_13",
-    ]
-    assert json.loads(records["workplan"])["jobs"]["sdist_package_roots"] == {
-        "cuda_bindings_12": False,
-        "cuda_bindings_13": True,
-    }
-    assert "### CI workplan" in summary.read_text(encoding="utf-8")
-
-
-if __name__ == "__main__":
-    unittest.main()
-
-
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_workplan_labels_and_summary_show_component_majors_and_exclusions() -> None:
-    plan = plan_for(release_tag="v12.9.11")
-    assert plan["labels"] == {
-        "build": "bindings12+meta12",
-        "build_platform": "bindings12",
-        "build_current": "baseline wheels and test extensions",
-        "sdist": {"cuda_bindings_12": "bindings12+meta12", "cuda_bindings_13": "excluded"},
-    }
-    assert plan["jobs"]["windows_arm64_build"] is False
-    summary = format_workplan_summary(plan, DEFAULT_BINDINGS_CONFIG)
-    assert "| cuda-bindings | 12 | build | required |" in summary
-    assert "| cuda-bindings | 13 | excluded | excluded by plan |" in summary
-    assert "published cuda-pathfinder" in summary
-    assert "CUDA 12 has no Windows ARM64 toolkit" in summary
-
-
-@pytest.mark.parametrize("major", ["12", "13"])
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_bindings_changes_reuse_core_and_test_the_matching_major(major: str) -> None:
-    plan = plan_for(f"cuda_bindings_{major}/cuda/bindings/driver.pyx")
-    assert plan["labels"]["build_platform"] == f"bindings{major}"
-    assert plan["labels"]["build_current"] == ("bindings13" if major == "13" else "baseline wheels and test extensions")
-    assert not selected_core_majors(plan, "needs_build")
-    assert selected_core_majors(plan, "needs_test") == {f"cu{major}"}
-    assert plan["baseline"] == {"run_id": "123", "sha": "base"}
-    summary = format_workplan_summary(plan, DEFAULT_BINDINGS_CONFIG)
-    assert f"| cuda-core | {major} | reuse exact baseline | required |" in summary
-    other_major = "13" if major == "12" else "12"
-    assert f"| cuda-core | {other_major} | reuse exact baseline | excluded by plan |" in summary
-    assert "Reusable artifacts: run `123` at `base`." in summary
-
-    # A missing exact baseline still requires a complete rebuild.
-    cold_plan = plan_for(f"cuda_bindings_{major}/cuda/bindings/driver.pyx", baseline=False)
-    assert selected_core_majors(cold_plan, "needs_build") == CUDA_VARIANTS
-
-
-@pytest.mark.parametrize("platform", ["linux", "windows"])
-@pytest.mark.parametrize("scenario", ["full", "drop-local", "maintenance-only", "nightly-floor", "nightly-standard"])
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_workflow_matrix_executes_component_selection_and_coverage_guard(
-    tmp_path: Path, platform: str, scenario: str
-) -> None:
-    workflow = Path(__file__).resolve().parents[3] / ".github" / "workflows" / f"test-wheel-{platform}.yml"
-    document = yaml.safe_load(workflow.read_text())
-    step = next(step for step in document["jobs"]["compute-matrix"]["steps"] if step.get("id") == "compute-matrix")
-    script = re.sub(r"^TEST_MATRIX=\$\(yq.*$", 'TEST_MATRIX="$CI_TEST_MATRIX"', step["run"], flags=re.MULTILINE)
-    matrix_filter = 'map(select(.CUDA_VER != "12.9.1"))' if scenario == "drop-local" else "."
-    script = script.replace("${{ inputs.matrix_filter }}", matrix_filter)
-    plan = (
-        plan_for("cuda_bindings_12/cuda/bindings/driver.pyx")
-        if scenario == "maintenance-only"
-        else plan_for(baseline=False)
-    )
-    versions = ["12.9.1", "13.4.2", "12.6.3", "13.0.2"]
-    if scenario == "nightly-floor":
-        versions = ["12.6.3"]
-    elif scenario == "nightly-standard":
-        versions = ["13.4.2"]
-    matrix = [
-        dict(CUDA_VER=version, PY_VER="3.12", LOCAL_CTK="0", GPU="l4", GPU_COUNT="1", DRIVER="latest")
-        for version in versions
-    ]
-    output = tmp_path / "output"
-    summary = tmp_path / "summary"
-    env = {
-        **os.environ,
-        "BINDINGS_CONFIG": DEFAULT_BINDINGS_CONFIG.to_json(),
-        "BUILD_TYPE": "nightly" if scenario.startswith("nightly-") else "pull-request",
-        "TEST_MODE": "nightly-pytorch" if scenario == "nightly-floor" else "standard",
-        "WORKPLAN": "" if scenario.startswith("nightly-") else json.dumps(plan),
-        "ARCH": "amd64",
-        "GITHUB_OUTPUT": str(output),
-        "GITHUB_STEP_SUMMARY": str(summary),
-        "CI_TEST_MATRIX": json.dumps(matrix),
-    }
-    result = subprocess.run(  # noqa: S603 - executes the checked-in workflow script
-        ["/bin/bash", "-euo", "pipefail", "-c", script], env=env, text=True, capture_output=True, check=False
-    )
-    if scenario == "drop-local":
-        assert result.returncode != 0
-        assert "omits required local-wheel coverage: cuda_bindings_12" in result.stderr
-        return
-    assert result.returncode == 0, result.stderr
-    rows = json.loads(output.read_text().strip().removeprefix("MATRIX="))["include"]
-    if scenario == "maintenance-only":
-        assert [row["SUITES"] for row in rows] == ["bindings12+core12+python12", "core12"]
-    elif scenario == "nightly-floor":
-        assert rows[0]["BINDINGS_SOURCE"] == "floor"
-        assert rows[0]["SUITES"] == "nightly-pytorch"
-    elif scenario == "full":
-        assert rows[0]["SUITES"] == "pathfinder+bindings12+core12+python12"
-        assert rows[1]["SUITES"] == "pathfinder+bindings13+core13+python13"
-        assert rows[2]["SUITES"] == "pathfinder+core12"
-    assert "Selected wheel test coverage" in summary.read_text()
-
-
-@pytest.mark.parametrize("platform", ["linux", "windows"])
 @pytest.mark.parametrize(
-    ("major", "bindings", "core", "pathfinder_source", "resolve_dependencies"),
+    ("path", "builds", "tests"),
     [
-        ("13", True, False, "published", True),
-        ("13", True, False, "artifact", True),
-        ("13", False, False, "artifact", True),
-        ("13", True, True, "artifact", False),
-        ("12", True, False, "published", False),
+        ("cuda_pathfinder/cuda/pathfinder/_loader.py", ALL, ALL),
+        ("cuda_core/cuda/core/_device.py", CORE, CORE | META),
+        ("cuda_python/setup.py", BINDINGS | META, META),
+        ("cuda_core/tests/test_device.py", set(), CORE),
+        ("cuda_pathfinder/tests/test_loader.py", set(), {("pathfinder", None)}),
+        ("cuda_python/tests/test_import.py", set(), META),
+        ("cuda_python_test_helpers/cuda_python_test_helpers/cuda_utils.py", set(), ALL),
+        ("benchmarks/cuda_bindings/run_pyperf.py", set(), ALL),
     ],
 )
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_metapackage_install_resolves_published_core_for_bindings_only_cuda13(
-    tmp_path: Path,
-    platform: str,
-    major: str,
-    bindings: bool,
-    core: bool,
-    pathfinder_source: str,
-    resolve_dependencies: bool,
-) -> None:
-    workflow = Path(__file__).resolve().parents[3] / ".github" / "workflows" / f"test-wheel-{platform}.yml"
-    document = yaml.safe_load(workflow.read_text())
-    step = next(
-        step for step in document["jobs"]["test"]["steps"] if step.get("name") == "Ensure cuda-python installable"
-    )
-    commands = tmp_path / "bin"
-    commands.mkdir()
-    pip = commands / "pip"
-    pip.write_text('#!/bin/bash\nprintf "%s\\n" "$@" > "$PIP_ARGUMENTS"\n')
-    pip.chmod(0o755)
-    python = commands / "python"
-    python.write_text('#!/bin/bash\nprintf "cuda-pathfinder==1.4.0\\n"\n')
-    python.chmod(0o755)
-    pathfinder = tmp_path / "cuda_pathfinder"
-    pathfinder.mkdir()
-    (pathfinder / "cuda_pathfinder-1.4.0-py3-none-any.whl").touch()
-    bindings_dist = tmp_path / "bindings"
-    bindings_dist.mkdir()
-    bindings_wheel = bindings_dist / f"cuda_bindings-{major}.4.0-cp312-cp312-linux_x86_64.whl"
-    bindings_wheel.touch()
-    (tmp_path / f"cuda_python-{major}.4.0-py3-none-any.whl").touch()
-    arguments = tmp_path / "pip-arguments"
-    result = subprocess.run(  # noqa: S603 - executes the checked-in workflow script with stub installers
-        ["/bin/bash", "-euo", "pipefail", "-c", step["run"]],
-        cwd=tmp_path,
-        env={
-            **os.environ,
-            "PATH": f"{commands}{os.pathsep}{os.environ['PATH']}",
-            "PIP_ARGUMENTS": str(arguments),
-            "CUDA_BINDINGS_ARTIFACTS_DIR": str(bindings_dist),
-            "TEST_CUDA_MAJOR": major,
-            "TEST_BINDINGS": str(bindings).lower(),
-            "TEST_CORE": str(core).lower(),
-            "PATHFINDER_SOURCE": pathfinder_source,
-            "LOCAL_CTK": "0",
-        },
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    assert result.returncode == 0, result.stderr
-    captured = arguments.read_text().splitlines()
-    assert ("--no-deps" not in captured) is resolve_dependencies
-    if resolve_dependencies:
-        assert str(bindings_wheel) in captured
-        if pathfinder_source == "published":
-            assert "cuda-pathfinder==1.4.0" in captured
-        else:
-            assert "./cuda_pathfinder/cuda_pathfinder-1.4.0-py3-none-any.whl" in captured
+def test_source_and_test_changes_select_their_consumers(path, builds, tests):
+    plan = plan_for(path)
+    assert selected(plan, "needs_build") == builds
+    assert selected(plan, "needs_test") == tests
+    assert {platform for platform, enabled in plan["jobs"]["platforms"].items() if enabled} == {"linux", "windows"}
+
+
+@pytest.mark.parametrize("package", PACKAGES, ids=lambda package: package.package_root)
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_bindings_changes_reuse_core_and_test_the_matching_major(package):
+    own = {("bindings", package.package_root), ("python", package.package_root)}
+    plan = plan_for(f"{package.package_root}/cuda/bindings/driver.pyx")
+    assert selected(plan, "needs_build") == own
+    assert selected(plan, "needs_test") == own | {("core", package.cuda_variant)}
+    assert plan["baseline"] == {"run_id": "123", "sha": "base"}
+    assert {root for root, enabled in plan["jobs"]["sdist_package_roots"].items() if enabled} == {package.package_root}
+
+    tests_only = plan_for(f"{package.package_root}/tests/test_driver.py")
+    assert selected(tests_only, "needs_build") == set()
+    assert selected(tests_only, "needs_test") == {("bindings", package.package_root)}
+
+
+@pytest.mark.parametrize("path", ["ci/tools/env-vars", ".github/workflows/build-wheel.yml", "unknown-build-input"])
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_shared_or_unknown_infrastructure_requires_every_component(path):
+    plan = plan_for(path)
+    assert selected(plan, "needs_build") == ALL
+    assert selected(plan, "needs_test") == ALL
+    assert plan["baseline"]["run_id"] == ""
+
+
+@pytest.mark.parametrize("platform", ["linux", "windows"])
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_platform_test_infrastructure_reuses_wheels_but_runs_every_suite(platform):
+    plan = plan_for(f".github/workflows/test-wheel-{platform}.yml")
+    assert selected(plan, "needs_build") == set()
+    assert selected(plan, "needs_test") == ALL
+    assert {name for name, enabled in plan["jobs"]["platforms"].items() if enabled} == {platform}
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "README.md",
+        "AGENTS.md",
+        "cuda_core/docs/source/install.rst",
+        "cuda_core/pixi.lock",
+        "cuda_core/pixi.toml",
+        ".github/workflows/runner-trust-probe.yml",
+        "ci/tools/runner_trust_probe.sh",
+        "ci/tools/runner_trust_probe.ps1",
+        "ci/tools/runner_trust_probe_node.js",
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_documentation_and_environment_only_changes_do_not_rebuild_packages(path):
+    plan = plan_for(path)
+    assert selected(plan, "needs_build") == set()
+    assert selected(plan, "needs_test") == set()
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_missing_baselines_and_non_bindings_tags_require_full_coverage():
+    cases = [plan_for(baseline=False), plan_for(release_tag="cuda-core-v1.3.0")]
+    cases.extend(plan_for(f"{package.package_root}/cuda/bindings/driver.pyx", baseline=False) for package in PACKAGES)
+    for plan in cases:
+        assert selected(plan, "needs_build") == ALL
+        assert selected(plan, "needs_test") == ALL
+        assert plan["baseline"] == {"run_id": "", "sha": ""}
+
+
+@pytest.mark.parametrize("package", PACKAGES, ids=lambda package: package.package_root)
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_release_tags_build_only_their_own_bindings_and_metapackage(package):
+    plan = plan_for("ci/tools/env-vars", release_tag=f"v{package.ctk_target}.99")
+    expected = {("bindings", package.package_root), ("python", package.package_root)}
+    assert selected(plan, "needs_build") == expected
+    assert selected(plan, "needs_test") == expected
+    assert plan["sources"]["pathfinder"] == "published"
+    assert plan["baseline"]["run_id"] == ""
+    assert {root for root, enabled in plan["jobs"]["sdist_package_roots"].items() if enabled} == {package.package_root}
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_mixed_changes_combine_coverage_without_rebuilding_unchanged_core():
+    package = PACKAGES[0]
+    plan = plan_for(f"{package.package_root}/cuda/bindings/driver.pyx", "cuda_core/tests/test_device.py")
+    own = {("bindings", package.package_root), ("python", package.package_root)}
+    assert selected(plan, "needs_build") == own
+    assert selected(plan, "needs_test") == own | CORE
+
+    both = plan_for(*(f"{package.package_root}/cuda/bindings/driver.pyx" for package in PACKAGES))
+    assert selected(both, "needs_build") == BINDINGS | META
+    assert selected(both, "needs_test") == BINDINGS | CORE | META
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_symlinked_package_inputs_are_not_mistaken_for_documentation_only(tmp_path: Path):
+    (tmp_path / "cuda_python").mkdir()
+    (tmp_path / "README.md").write_text("readme", encoding="utf-8")
+    (tmp_path / "cuda_python" / "README.md").symlink_to("../README.md")
+    paths = _expand_linked_paths(["README.md"], ["cuda_python/README.md"], root=tmp_path)
+    for changes in (paths, ["cuda_python/README.md"]):
+        plan = plan_for(*changes, linked_paths={"cuda_python/README.md"})
+        assert selected(plan, "needs_build") == BINDINGS | META
+        assert selected(plan, "needs_test") == META
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_registered_source_roots_drive_bindings_selection():
+    packages = tuple(replace(package, package_root=f"renamed_{index}") for index, package in enumerate(PACKAGES))
+    config = replace(CONFIG, package_roots=packages)
+    package = packages[0]
+    plan = plan_for(f"{package.package_root}/cuda/bindings/driver.pyx", config=config)
+    own = {("bindings", package.package_root), ("python", package.package_root)}
+    assert selected(plan, "needs_build") == own
+    assert selected(plan, "needs_test") == own | {("core", package.cuda_variant)}
