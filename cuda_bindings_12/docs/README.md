@@ -16,7 +16,7 @@ To document APIs changed in the checkout, install the matching source build
 in your documentation environment before running `./build_docs.sh`.
 
 `build/html/latest` is for local preview only. Follow the selected branch's
-release procedure for publication. Maintenance publication must exclude `latest`
+[bindings release guide](../../.github/RELEASE-bindings.md) for publication. Maintenance publication must exclude `latest`
 and the shared version-selector files so it cannot overwrite the current-major
 site. Keep older versioned pages intact; do not publish the entire local build
 directory over the shared site.
