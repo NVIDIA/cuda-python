@@ -29,9 +29,8 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
   - [CodeRabbit](#coderabbit)
-    - [Configuration](#configuration)
-    - [Pull Request Reviews](#pull-request-reviews)
     - [Review Guidance](#review-guidance)
+    - [Pull Request Reviews](#pull-request-reviews)
   - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
@@ -241,35 +240,15 @@ reminding you to run `pre-commit install`.
 
 ## CodeRabbit
 
-This page explains how to configure and use CodeRabbit for CUDA Python pull
-request review. For the complete product documentation, see the
+This section explains how to use CodeRabbit for CUDA Python pull request review.
+For complete product documentation, see the
 [CodeRabbit documentation](https://docs.coderabbit.ai/).
 
-### Configuration
+### Review Guidance
 
-CUDA Python configures CodeRabbit through `.coderabbit.yaml` in the repository
-root. The configuration in the pull request branch is used for that review.
-Pull requests from forks are an exception: they use the target branch's
-configuration, so changes to `.coderabbit.yaml` in a fork do not affect that
-review.
-
-When setting up or updating CodeRabbit:
-
-1. Keep repository-specific settings in `.coderabbit.yaml`.
-2. Use `@coderabbitai configuration` on a pull request to inspect the resolved
-   configuration. This is useful when checking whether CodeRabbit is using the
-   expected repository settings for that pull request.
-3. Use `@coderabbitai generate configuration` to export the resolved
-   configuration if a new baseline is needed. This is useful when moving
-   settings into a reviewable repository configuration file.
-4. Keep configuration changes small and reviewable.
-5. Use `reviews.path_instructions` for path-specific review guidance.
-6. Use `knowledge_base.code_guidelines.filePatterns` for CUDA Python guidance
-   files that CodeRabbit should read as review context.
-
-The CUDA Python configuration should keep comments focused on correctness, API
-stability, performance, security, and other high-impact issues. Avoid enabling
-features that add noisy generated comments or code by default.
+We treat CodeRabbit feedback as review assistance, not as a merge requirement by
+itself. Maintainers remain responsible for deciding whether comments are
+actionable and whether a pull request has adequate tests and CI coverage.
 
 ### Pull Request Reviews
 
@@ -298,12 +277,6 @@ Other useful commands:
   frequently and should not be reviewed again until it is ready.
 - `@coderabbitai ignore` can be placed in the pull request description to
   disable automatic reviews.
-
-### Review Guidance
-
-Treat CodeRabbit feedback as review assistance, not as a merge requirement by
-itself. Maintainers remain responsible for deciding whether comments are
-actionable and whether a pull request has adequate tests and CI coverage.
 
 ## Pixi lockfiles
 
