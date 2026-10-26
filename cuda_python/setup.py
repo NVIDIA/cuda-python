@@ -40,7 +40,8 @@ version_options = {
 version = get_version(**version_options)
 
 
-base_version = Version(version).base_version
+resolved_version = Version(version)
+base_version = resolved_version.base_version
 
 
 if base_version == version:
@@ -51,7 +52,9 @@ else:
     matcher = "=="
 
 install_requires = [f"cuda-bindings{matcher}{version}"]
-if int(build_major) >= 13:
+# An sdist recovers its fixed version without Git; its dependency set must
+# follow that version even when the checkout selector defaults to CUDA 13.
+if resolved_version.major >= 13:
     install_requires.extend(
         [
             # Bump this with every cuda-core release and release the current-major
