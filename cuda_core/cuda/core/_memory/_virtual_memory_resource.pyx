@@ -18,7 +18,7 @@ from cuda.core._memory._buffer cimport (
 from cuda.core._memory._ipc cimport (
     IPCAllocationHandle,
     IPCDataForBuffer,
-    VirtualMemoryIPCBufferDescriptor,
+    VirtualMemoryFdBufferDescriptor,
 )
 from cuda.core._rt cimport (
     ContextHandle,
@@ -296,7 +296,7 @@ cdef class VirtualMemoryBuffer(Buffer):
     """
 
     @property
-    def ipc_descriptor(self) -> VirtualMemoryIPCBufferDescriptor:
+    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor:
         """A new descriptor for sharing this buffer with other processes.
 
         Every access exports the physical allocations that back the buffer
@@ -439,7 +439,7 @@ cdef class VirtualMemoryResource(MemoryResource):
     is not visible. Plain ``pickle`` cannot carry the file descriptors; a
     process with its own file descriptor passing sends the descriptor's
     ``fds``, ``sizes``, and ``size`` and rebuilds it with
-    ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The importing resource
+    ``VirtualMemoryFdBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
     it exists, in every process that holds one, and nothing else does. A
@@ -916,7 +916,7 @@ cdef class VirtualMemoryResource(MemoryResource):
             and self.config.location_type not in _HOST_LOCATION_TYPES
         )
 
-    def _import_ipc_buffer(self, VirtualMemoryIPCBufferDescriptor desc not None, stream) -> VirtualMemoryBuffer:
+    def _import_ipc_buffer(self, VirtualMemoryFdBufferDescriptor desc not None, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
@@ -1092,7 +1092,7 @@ def _reconstruct_virtual_memory_resource(
     return cls(device, replace(config, peers=peers))
 
 
-cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
+cdef VirtualMemoryFdBufferDescriptor _export_ipc_descriptor(Buffer buf):
     """Export the allocations that back ``buf`` as shareable handles, in address order.
 
     Only the allocations that cover ``buf.size`` are exported; a buffer's size
@@ -1154,4 +1154,4 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
         # The handle owns the fd now; if append fails, the handle closes it once.
         handles.append(handle)
         sizes.append(chunk)
-    return VirtualMemoryIPCBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)
+    return VirtualMemoryFdBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)

@@ -6,7 +6,7 @@ from typing import Iterable
 
 from cuda.core._device import Device
 from cuda.core._memory._buffer import Buffer, MemoryResource
-from cuda.core._memory._ipc import VirtualMemoryIPCBufferDescriptor
+from cuda.core._memory._ipc import VirtualMemoryFdBufferDescriptor
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph import GraphBuilder
@@ -98,7 +98,7 @@ class VirtualMemoryBuffer(Buffer):
     freed when the last buffer that maps it closes.
     """
     @property
-    def ipc_descriptor(self) -> VirtualMemoryIPCBufferDescriptor:
+    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor:
         """A new descriptor for sharing this buffer with other processes.
 
         Every access exports the physical allocations that back the buffer
@@ -205,7 +205,7 @@ class VirtualMemoryResource(MemoryResource):
     is not visible. Plain ``pickle`` cannot carry the file descriptors; a
     process with its own file descriptor passing sends the descriptor's
     ``fds``, ``sizes``, and ``size`` and rebuilds it with
-    ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The importing resource
+    ``VirtualMemoryFdBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
     it exists, in every process that holds one, and nothing else does. A
@@ -346,7 +346,7 @@ class VirtualMemoryResource(MemoryResource):
         (``location_type`` ``"host"``, ``"host_numa"``, or
         ``"host_numa_current"``) is not shared yet.
         """
-    def _import_ipc_buffer(self, desc: VirtualMemoryIPCBufferDescriptor, stream) -> VirtualMemoryBuffer:
+    def _import_ipc_buffer(self, desc: VirtualMemoryFdBufferDescriptor, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
