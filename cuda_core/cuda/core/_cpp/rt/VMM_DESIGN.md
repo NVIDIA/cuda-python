@@ -299,8 +299,10 @@ chunk of a buffer must be exportable the same way.
 
 Fabric handles. `CU_MEM_HANDLE_TYPE_FABRIC` exports a `CUmemFabricHandle`, 64
 opaque bytes cached by the driver at `cuMemCreate`. Repeated exports of one
-allocation return the same bytes; export creates no OS object and takes no
-reference. `VirtualMemoryFabricBufferDescriptor` carries one `bytes` per
+allocation return the same bytes once the handle struct is zeroed before the
+export (the driver fills its fields and leaves the padding, which otherwise
+made two exports of one buffer compare unequal on B300); export creates no OS
+object and takes no reference. `VirtualMemoryFabricBufferDescriptor` carries one `bytes` per
 allocation, its size, the buffer size, and the owner's device UUID. It
 compares and hashes by (sizes, handles, size); the UUID is diagnostic metadata.
 `from_handles()` validates externally transported handles and sizes. Plain

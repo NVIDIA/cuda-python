@@ -43,7 +43,10 @@ class VirtualMemoryResourceOptions:
         is supported on one node; multi-node sharing is untested. Fabric needs
         an NVLink fabric and an accessible IMEX channel
         (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
-        ``RuntimeError`` if the device reports no fabric handle support.
+        ``RuntimeError`` if the device reports no fabric handle support. A
+        device can report support inside a container that has the channel
+        device node while the GPU has no fabric; the allocation then fails
+        with a driver error that says so.
         Use `None` if you don't need an exportable handle.
         ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
@@ -231,7 +234,10 @@ class VirtualMemoryResource(MemoryResource):
     supported on one node; multi-node sharing is untested. It requires a device
     on an NVLink fabric and an accessible IMEX channel
     (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
-    ``RuntimeError`` when the device reports no fabric handle support.
+    ``RuntimeError`` when the device reports no fabric handle support. A device
+    can report support inside a container that has the channel device node
+    while the GPU has no fabric; the allocation then fails with a driver error
+    that says so.
     Fabric-handle sharing was validated on NVIDIA internal hardware and is not
     covered by the project's CI in this release.
     A buffer that contains imported memory (an import, or anything

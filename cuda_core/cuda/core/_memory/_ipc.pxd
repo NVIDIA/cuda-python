@@ -67,7 +67,7 @@ cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
 
 
 cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
-    cdef tuple _handles
+    cdef readonly tuple _handles
     cdef object _owner_uuid
 
 

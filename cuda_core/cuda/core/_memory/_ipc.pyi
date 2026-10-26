@@ -178,6 +178,8 @@ class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
     handles and sizes received from another process as untrusted and import
     only through :meth:`Buffer.from_ipc_descriptor`.
     """
+    _handles: tuple[Any, ...]
+
     @staticmethod
     def _from_exports(sizes: tuple[int, ...], handles: tuple[bytes, ...], size: int, owner_uuid: str | None) -> VirtualMemoryFabricBufferDescriptor: ...
     @classmethod

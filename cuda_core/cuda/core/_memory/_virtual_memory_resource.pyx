@@ -116,7 +116,10 @@ class VirtualMemoryResourceOptions:
         is supported on one node; multi-node sharing is untested. Fabric needs
         an NVLink fabric and an accessible IMEX channel
         (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
-        ``RuntimeError`` if the device reports no fabric handle support.
+        ``RuntimeError`` if the device reports no fabric handle support. A
+        device can report support inside a container that has the channel
+        device node while the GPU has no fabric; the allocation then fails
+        with a driver error that says so.
         Use `None` if you don't need an exportable handle.
         ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
@@ -268,6 +271,17 @@ cdef int _raise_last_error_noting(str detail) except -1:
     except Exception as exc:
         _attach_note(exc, detail)
         raise
+
+
+cdef int _raise_allocation_error(const cydriver.CUmemAllocationProp* prop) except -1:
+    """Raise the status of a failed physical allocation; a fabric resource gets the IMEX note."""
+    if prop.requestedHandleTypes == cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
+        _raise_last_error_noting(
+            "while creating a physical allocation with a fabric handle; fabric handles need an NVLink fabric "
+            "and an accessible IMEX channel, and a device can report support (for example in a container that "
+            "has the channel device node) while the allocation is refused"
+        )
+    return _raise_last_error()
     return 0
 
 
@@ -471,7 +485,10 @@ cdef class VirtualMemoryResource(MemoryResource):
     supported on one node; multi-node sharing is untested. It requires a device
     on an NVLink fabric and an accessible IMEX channel
     (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
-    ``RuntimeError`` when the device reports no fabric handle support.
+    ``RuntimeError`` when the device reports no fabric handle support. A device
+    can report support inside a container that has the channel device node
+    while the GPU has no fabric; the allocation then fails with a driver error
+    that says so.
     Fabric-handle sharing was validated on NVIDIA internal hardware and is not
     covered by the project's CI in this release.
     A buffer that contains imported memory (an import, or anything
@@ -686,7 +703,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         with nogil:
             h_alloc = create_mem_allocation_handle(aligned, prop, descs.data(), descs.size())
         if not h_alloc:
-            _raise_last_error()
+            _raise_allocation_error(&prop)
         with nogil:
             h_res = create_va_reservation_handle(aligned, addr_align, hint)
         if not h_res:
@@ -839,7 +856,7 @@ cdef class VirtualMemoryResource(MemoryResource):
             with nogil:
                 h_alloc = create_mem_allocation_handle(add, prop, descs.data(), descs.size())
             if not h_alloc:
-                _raise_last_error()
+                _raise_allocation_error(&prop)
             with nogil:
                 h_map = create_va_mapping_handle(base + total, h_alloc, h_res)
             if not h_map:
@@ -872,7 +889,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         with nogil:
             h_alloc = create_mem_allocation_handle(add, prop, descs.data(), descs.size())
         if not h_alloc:
-            _raise_last_error()
+            _raise_allocation_error(&prop)
         with nogil:
             m2 = create_va_mapping_handle(base_new + offset, h_alloc, h_res_new)
         if not m2:
@@ -1055,16 +1072,18 @@ cdef class VirtualMemoryResource(MemoryResource):
                     os_handle, <cydriver.CUmemAllocationHandleType>handle_type, chunk, descs.data(), descs.size())
             if not h_alloc:
                 if handle_type == <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
-                    _raise_last_error_noting(
+                    note = (
                         f"while importing chunk {i + 1} of {n} of a fabric buffer descriptor; the handle may be "
                         "stale (the exporting buffer was closed), forged, or exported on a different IMEX channel"
                     )
-                _raise_last_error_noting(
-                    f"while importing chunk {i + 1} of {n} of a VirtualMemoryResource buffer descriptor; either "
-                    "the shared handle does not refer to a CUDA allocation exported with "
-                    f"handle_type={str(cfg.handle_type)!r}, or the device that owns the memory is not usable in "
-                    "this process (for example, CUDA_VISIBLE_DEVICES hides it)"
-                )
+                else:
+                    note = (
+                        f"while importing chunk {i + 1} of {n} of a VirtualMemoryResource buffer descriptor; either "
+                        "the shared handle does not refer to a CUDA allocation exported with "
+                        f"handle_type={str(cfg.handle_type)!r}, or the device that owns the memory is not usable in "
+                        "this process (for example, CUDA_VISIBLE_DEVICES hides it)"
+                    )
+                _raise_last_error_noting(note)
             # The exporter chose where the memory lives. This resource must map
             # memory of that kind on that device, or its access descriptors
             # would describe the wrong location.
@@ -1196,6 +1215,9 @@ cdef _VirtualMemoryDescriptor _export_ipc_descriptor(Buffer buf):
         h_alloc = allocs[i]
         chunk = mem_allocation_size(h_alloc)
         if handle_type == <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
+            # The driver fills its fields of the 64 bytes and leaves the padding; zero it first so that two
+            # exports of one allocation carry the same bytes and no stack bytes travel in a descriptor.
+            memset(&fh, 0, sizeof(fh))
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemExportToShareableHandle(
                     <void*>&fh, as_cu(h_alloc), <cydriver.CUmemAllocationHandleType>handle_type, 0))

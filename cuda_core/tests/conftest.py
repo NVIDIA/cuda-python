@@ -425,6 +425,9 @@ def vmm_ipc_device_x2(device_x2):
         yield devices
 
 
+_fabric_allocation_error = {}  # device ordinal -> "" when a fabric allocation works there, else the error
+
+
 def _require_vmm_fabric_device(device):
     """Return a VMM device with fabric handles and an accessible IMEX channel, or skip."""
     from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
@@ -435,6 +438,27 @@ def _require_vmm_fabric_device(device):
         pytest.skip("Virtual memory management is not supported on this device")
     if not device.properties.handle_type_fabric_supported:
         pytest.skip("Fabric handles need an NVLink fabric and an accessible IMEX channel")
+    # The attribute is also true in a container that has the IMEX channel device node while the GPU
+    # has no fabric (the CI runners); there the allocation itself is refused. Probe once per device.
+    if device.device_id not in _fabric_allocation_error:
+        from cuda.core import Device, VirtualMemoryResource, VirtualMemoryResourceOptions
+        from cuda.core._utils.cuda_utils import CUDAError
+
+        current = Device()
+        device.set_current()
+        try:
+            mr = VirtualMemoryResource(device, VirtualMemoryResourceOptions(handle_type="fabric"))
+            mr.allocate(1).close()
+            _fabric_allocation_error[device.device_id] = ""
+        except CUDAError as exc:
+            _fabric_allocation_error[device.device_id] = str(exc).splitlines()[0]
+        finally:
+            current.set_current()
+    if _fabric_allocation_error[device.device_id]:
+        pytest.skip(
+            "The device reports fabric handle support, but a fabric allocation is refused here: "
+            + _fabric_allocation_error[device.device_id]
+        )
     return device
 
 
