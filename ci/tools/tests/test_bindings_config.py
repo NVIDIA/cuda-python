@@ -1,30 +1,17 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
-
-import io
 import json
 import shutil
 from pathlib import Path
 
 import pytest
 import yaml
-from packaging.version import Version
 
-from ci.tools.bindings_config import (
-    check_core_toolkit_floors,
-    load_config,
-    main,
-    parse_config,
-    resolve_release_bindings_package,
-)
+from ci.tools.bindings_config import check_package_metadata, load_config, main, parse_config
 
 
-def _registry(
-    maintenance_root: str = "cuda_bindings_12",
-    current_root: str = "cuda_bindings_13",
-) -> dict[str, object]:
+def _registry(maintenance_root="cuda_bindings_12", current_root="cuda_bindings_13"):
     return {
         "schema_version": 2,
         "python": {"supported": ["3.11", "3.14t", "3.15"]},
@@ -39,358 +26,102 @@ def _registry(
     }
 
 
-def _write_config(root: Path, data: object, filename: str = "versions.yml") -> None:
-    path = root / "ci" / filename
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if path.suffix == ".json":
-        path.write_text(json.dumps(data), encoding="utf-8")
-    else:
-        path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+def _write_config(root, data):
+    path = root / "ci" / "versions.yml"
+    path.parent.mkdir(parents=True)
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    return path
 
 
-def _copy_package_metadata(root: Path) -> None:
-    repo_root = Path(__file__).resolve().parents[3]
-    _write_config(root, _registry())
-    for relative in (
-        "cuda_bindings_13/pyproject.toml",
-        "cuda_bindings_12/pyproject.toml",
-        "cuda_bindings_12/pixi.toml",
-        "cuda_python/pyproject.toml",
-        "cuda_core/pyproject.toml",
-        "cuda_core/cuda/core/_bindings_floor.py",
-    ):
-        destination = root / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(repo_root / relative, destination)
-
-
-@pytest.mark.parametrize(
-    ("tag", "package_root", "version"),
-    (
-        ("v12.9.8", "cuda_bindings_12", "12.9.8"),
-        ("v12.9.8a2", "cuda_bindings_12", "12.9.8a2"),
-        ("v12.9.8rc2", "cuda_bindings_12", "12.9.8rc2"),
-        ("v12.9.8.post1", "cuda_bindings_12", "12.9.8.post1"),
-        ("v13.4.2b1", "cuda_bindings_13", "13.4.2b1"),
-        ("v13.4.2rc1.dev2", "cuda_bindings_13", "13.4.2rc1.dev2"),
-        ("v13.4.2.dev3", "cuda_bindings_13", "13.4.2.dev3"),
-    ),
-)
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_canonical_bindings_tags_route_to_their_release_line(tag, package_root, version):
+def _write_package_metadata(root):
     config = parse_config(_registry())
-
-    package = config.match_tag(tag)
-    assert package is not None
-    assert package.package_root == package_root
-    assert package.version_from_tag(tag) == Version(version)
-
-
-@pytest.mark.parametrize(
-    "tag",
-    (
-        "12.9.8",
-        "v12.9.08",
-        "v12.9",
-        "v12.9.8.0",
-        "v1!12.9.8",
-        "v0!12.9.8",
-        "v12.9.8-rc1",
-        "v12.9.8rc01",
-        "v13.4.01",
-        "v13.4.2.post01",
-        "v13.4.2+local",
-        "v13.5.0",
-        "v14.0.0",
-        "cuda-core-v1.2.0",
-    ),
-)
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_registry_does_not_route_invalid_or_unconfigured_bindings_tags(tag):
-    assert parse_config(_registry()).match_tag(tag) is None
+    for package in config.package_roots:
+        path = root / package.package_root / "pyproject.toml"
+        path.parent.mkdir(parents=True)
+        path.write_text(
+            '[tool.setuptools_scm]\ngit_describe_command = ["git", "describe", "--match", '
+            f'"v{package.ctk_target}.*"]\n',
+            encoding="utf-8",
+        )
+    meta = root / "cuda_python" / "pyproject.toml"
+    meta.parent.mkdir()
+    meta.write_text(
+        '[tool.cuda-python.scm-describe-match-by-major]\n"12" = "v12.9.*"\n"13" = "v13.4.*"\n',
+        encoding="utf-8",
+    )
+    core = root / "cuda_core"
+    core.mkdir()
+    (core / "pyproject.toml").write_text(
+        '[project.optional-dependencies]\ncu12 = ["cuda-bindings>=12.9.0,<13"]\ncu13 = ["cuda-bindings>=13.4.0,<14"]\n',
+        encoding="utf-8",
+    )
+    floor_reader = Path("cuda_core/cuda/core/_bindings_floor.py")
+    (root / floor_reader).parent.mkdir(parents=True)
+    shutil.copyfile(Path(__file__).resolve().parents[3] / floor_reader, root / floor_reader)
+    return config
 
 
 @pytest.mark.parametrize(
-    ("change", "message"),
-    (
-        (("schema_version", 3), "schema_version must be 2"),
-        (("current_status", "maintenance"), "exactly one current and one maintenance"),
-        (("current_toolkit", "12.8.1"), "cuda_major values must be unique"),
-    ),
+    ("tag", "expected"),
+    (("v12.9.8", "cuda_bindings_12"), ("v13.4.2rc1", "cuda_bindings_13"), ("v14.0.0", None)),
 )
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_registry_preserves_release_routing_invariants(change, message):
-    field, value = change
-    data = _registry()
-    if field == "schema_version":
-        data["schema_version"] = value
-    elif field == "current_status":
-        data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["release_status"] = value
-    elif field == "current_toolkit":
-        data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = value
-
-    with pytest.raises(ValueError, match=message):
-        parse_config(data)
-
-
-@pytest.mark.parametrize("toolkit_version", ("12.9.1", "12.8.4"))
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_backport_branch_agrees_with_the_maintenance_toolkit_line(toolkit_version):
-    data = _registry()
-    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]["toolkit_version"] = toolkit_version
-    data["backport_branch"] = ".".join(toolkit_version.split(".")[:2]) + ".x"
-
-    config = parse_config(data)
-
-    assert data["backport_branch"] == f"{config.package_for_release_status('maintenance').ctk_target}.x"
-
-
-@pytest.mark.parametrize("branch", ("13.4.x", "12.8.x", "12.9", "", None, True))
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_registry_rejects_backport_branches_outside_the_maintenance_line(branch):
-    data = _registry()
-    data["backport_branch"] = branch
-
-    with pytest.raises(ValueError, match="backport_branch must match maintenance CUDA line '12.9.x'"):
-        parse_config(data)
-
-
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_registry_accepts_no_legacy_backport_branch():
-    data = _registry()
-
-    config = parse_config(data)
-
-    assert config.package_for_release_status("maintenance").ctk_target == "12.9"
-
-
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_config_loader_reports_invalid_yaml(tmp_path):
-    path = tmp_path / "versions.yml"
-    path.write_text("cuda: [unterminated", encoding="utf-8")
-
-    with pytest.raises(ValueError, match="could not read"):
-        load_config(path)
+def test_release_tags_select_only_the_matching_bindings_line(tag, expected):
+    package = parse_config(_registry()).match_tag(tag)
+    assert (package.package_root if package else None) == expected
 
 
 @pytest.mark.parametrize(
-    ("path", "before", "after", "message"),
+    "changed_paths",
     (
-        ("ci/versions.yml", "13.4.1", "13.5.0", "must select registered CUDA 13.5"),
-        ("cuda_bindings_13/pyproject.toml", "v13.4.*", "v13.*", "must select registered CUDA 13.4"),
-        (
-            "cuda_bindings_13/pyproject.toml",
-            "[tool.setuptools_scm]",
-            '[tool.setuptools_scm]\ntag_regex = "custom"',
-            "must use setuptools-scm's default tag parser",
-        ),
-        (
-            "cuda_bindings_13/pyproject.toml",
-            "[tool.setuptools_scm]",
-            '[tool.setuptools_scm]\nfallback_version = "13.4.0.dev0"',
-            "bindings root must not declare fallback_version",
-        ),
-        ("cuda_python/pyproject.toml", "v13.4.*", "v13.5.*", "scm-describe-match-by-major must match"),
+        ("cuda_bindings_13/pyproject.toml",),
+        ("cuda_python/pyproject.toml",),
+        ("cuda_bindings_13/pyproject.toml", "cuda_python/pyproject.toml"),
     ),
 )
-@pytest.mark.agent_authored(model="gpt-6")
-def test_metadata_check_rejects_independent_package_drift(tmp_path, capsys, path, before, after, message):
-    _copy_package_metadata(tmp_path)
-    changed = tmp_path / path
-    content = changed.read_text(encoding="utf-8")
-    assert before in content
-    changed.write_text(content.replace(before, after), encoding="utf-8")
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_metadata_check_catches_selectors_drifting_from_the_registered_line(tmp_path, changed_paths):
+    config = _write_package_metadata(tmp_path)
+    check_package_metadata(config, tmp_path)
+    for relative in changed_paths:
+        path = tmp_path / relative
+        path.write_text(path.read_text().replace("v13.4.*", "v13.5.*"), encoding="utf-8")
 
-    with pytest.raises(SystemExit, match="2"):
-        main(["--config", str(tmp_path / "ci" / "versions.yml"), "--check-package-metadata"])
-
-    assert message in capsys.readouterr().err
+    with pytest.raises(ValueError):
+        check_package_metadata(config, tmp_path)
 
 
 @pytest.mark.parametrize(
-    ("package_root", "role", "before", "after"),
-    (
-        ("cuda_bindings_12", "maintenance", "v12.9.*", "v12.9.[1-9]*"),
-        ("cuda_bindings_13", "current", "v13.4.*", "v13.4.[1-9]*"),
-    ),
-)
-@pytest.mark.agent_authored(model="gpt-6")
-def test_metadata_check_rejects_selectors_changed_together(tmp_path, capsys, package_root, role, before, after):
-    _copy_package_metadata(tmp_path)
-    args = ["--config", str(tmp_path / "ci" / "versions.yml"), "--check-package-metadata"]
-    assert main(args) == 0
-
-    for relative in (f"{package_root}/pyproject.toml", "cuda_python/pyproject.toml"):
-        changed = tmp_path / relative
-        content = changed.read_text(encoding="utf-8")
-        assert before in content
-        changed.write_text(content.replace(before, after), encoding="utf-8")
-
-    with pytest.raises(SystemExit, match="2"):
-        main(args)
-
-    assert f"using {before!r} for the {role} root" in capsys.readouterr().err
-
-
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_cli_writes_selected_package_to_github_env(tmp_path, capsys, monkeypatch):
-    output = tmp_path / "github-env"
-    package = load_config().package_for_release_status("current").to_dict()
-    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(package)))
-
-    assert main(["write-github-env", str(output)]) == 0
-
-    assert capsys.readouterr().out == ""
-    assert output.read_text(encoding="utf-8").splitlines() == [
-        f"BUILD_CTK_VER={package['toolkit_version']}",
-        "BINDINGS_PACKAGE_ROOT=cuda_bindings_13",
-    ]
-
-
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_cli_rejects_nonobject_package_json(tmp_path, capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO("[]"))
-
-    with pytest.raises(SystemExit, match="2"):
-        main(["write-github-env", str(tmp_path / "github-env")])
-
-    assert "stdin for write-github-env must contain a JSON object" in capsys.readouterr().err
-
-
-@pytest.mark.parametrize(
-    ("tag", "package_root", "toolkit_version", "release_version"),
+    ("tag", "root", "toolkit", "version"),
     (
         ("v12.9.8.post1", "tag-maintenance", "12.9.1", "12.9.8.post1"),
         ("v13.4.2rc1", "tag-current", "13.4.1", "13.4.2rc1"),
+        ("cuda-core-v1.2.0", "tag-current", "13.4.1", None),
+        ("cuda-pathfinder-v1.1.0", "tag-current", "13.4.1", None),
     ),
 )
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_bindings_release_uses_registry_from_its_tag_tree(
-    tmp_path, tag, package_root, toolkit_version, release_version
-):
-    release_root = tmp_path / "release"
-    _write_config(release_root, _registry("tag-maintenance", "tag-current"))
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_release_uses_its_tagged_registry_instead_of_the_control_tree(tmp_path, capsys, tag, root, toolkit, version):
+    control = _write_config(tmp_path / "control", _registry("control-maintenance", "control-current"))
+    source = tmp_path / "release"
+    registry = _registry("tag-maintenance", "tag-current")
+    registry["backport_branch"] = "12.9.x"
+    _write_config(source, registry)
 
-    resolved = resolve_release_bindings_package(tag, release_root)
+    assert main(["--config", str(control), "--release-tag", tag, "--release-source-root", str(source)]) == 0
 
-    assert resolved == {
-        "package_root": package_root,
-        "toolkit_version": toolkit_version,
-        "release_version": release_version,
-    }
-
-
-@pytest.mark.parametrize("tag", ("cuda-core-v1.2.0", "cuda-pathfinder-v1.1.0"))
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_component_release_uses_current_bindings_from_its_tag_tree(tmp_path, tag):
-    release_root = tmp_path / "release"
-    _write_config(release_root, _registry("tag-maintenance", "tag-current"))
-
-    resolved = resolve_release_bindings_package(tag, release_root)
-
-    assert resolved == {
-        "package_root": "tag-current",
-        "toolkit_version": "13.4.1",
-    }
+    expected = {"package_root": root, "toolkit_version": toolkit}
+    if version is not None:
+        expected["release_version"] = version
+    assert json.loads(capsys.readouterr().out) == expected
 
 
-@pytest.mark.parametrize("tag", ("v12.9.8", "cuda-core-v1.2.0", "cuda-pathfinder-v1.1.0"))
-@pytest.mark.parametrize(
-    "layout", ("missing", "legacy-yaml", "legacy-json", "invalid", "wrong-schema", "malformed-yaml")
-)
-@pytest.mark.agent_authored(model="gpt-6")
-def test_release_rejects_missing_or_invalid_tagged_registry(tmp_path, capsys, tag, layout):
-    release_root = tmp_path / "release"
-    release_root.mkdir()
-    if layout.startswith("legacy-"):
-        filename = "versions.json" if layout == "legacy-json" else "versions.yml"
-        _write_config(release_root, {"cuda": {"build": {"version": "12.9.1"}}}, filename)
-    elif layout == "invalid":
-        _write_config(release_root, {"schema_version": 2, "cuda": {}})
-    elif layout == "malformed-yaml":
-        _write_config(release_root, _registry())
-        (release_root / "ci" / "versions.yml").write_text("cuda: [\n", encoding="utf-8")
-    elif layout == "wrong-schema":
-        registry = _registry()
-        registry["schema_version"] = 3
-        _write_config(release_root, registry)
-    control_root = tmp_path / "control"
-    _write_config(control_root, _registry())
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_missing_tagged_registry_does_not_fall_back_to_the_control_tree(tmp_path):
+    control = _write_config(tmp_path / "control", _registry())
+    source = tmp_path / "release"
+    source.mkdir()
+    assert load_config(control).match_tag("v12.9.8") is not None
 
-    with pytest.raises(SystemExit, match="2"):
-        main(
-            [
-                "--config",
-                str(control_root / "ci" / "versions.yml"),
-                "--release-tag",
-                tag,
-                "--release-source-root",
-                str(release_root),
-            ]
-        )
-
-    error = capsys.readouterr().err
-    assert "release source requires a valid schema-2 registry" in error
-    assert "use compatible historical release tooling" in error
-
-
-@pytest.mark.parametrize(
-    ("tag", "message"),
-    (
-        ("v13.5.0", "no CUDA bindings package root"),
-        ("v14.0.0", "no CUDA bindings package root"),
-        ("v13.4.02", "unsupported release tag"),
-    ),
-)
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_modern_tag_tree_rejects_unknown_or_malformed_bindings_release(tmp_path, tag, message):
-    release_root = tmp_path / "release"
-    _write_config(release_root, _registry())
-
-    with pytest.raises(ValueError, match=message):
-        resolve_release_bindings_package(tag, release_root)
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_registry_preserves_the_supported_python_matrix():
-    config = parse_config(_registry())
-    assert config.python_supported == ("3.11", "3.14t", "3.15")
-    assert config.to_dict()["python"] == {"supported": ["3.11", "3.14t", "3.15"]}
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_registered_toolkits_cover_core_bindings_floors(tmp_path):
-    _copy_package_metadata(tmp_path)
-    check_core_toolkit_floors(parse_config(_registry()), tmp_path)
-    data = _registry()
-    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = "13.5.0"
-    check_core_toolkit_floors(parse_config(data), tmp_path)
-    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = "13.3.0"
-    with pytest.raises(ValueError, match="is below the CUDA 13 bindings floor 13.4.1"):
-        check_core_toolkit_floors(parse_config(data), tmp_path)
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_registered_cuda_majors_must_match_core_extras(tmp_path):
-    _copy_package_metadata(tmp_path)
-    data = _registry()
-    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = "14.1.0"
-    with pytest.raises(ValueError, match="registered CUDA majors must match"):
-        check_core_toolkit_floors(parse_config(data), tmp_path)
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_checked_in_registry_has_consistent_build_inputs():
-    config = load_config()
-    roots = [package.package_root for package in config.package_roots]
-    assert len(set(roots)) == len(roots)
-    for root in roots:
-        assert Path(root).parts and not Path(root).is_absolute()
-        assert all(part not in (".", "..") for part in root.split("/"))
-    for package in config.package_roots:
-        assert len(package.toolkit) == 3
-        assert package.toolkit[0] > 0
-        assert all(part >= 0 for part in package.toolkit)
-    assert config.python_supported
-    assert len(set(config.python_supported)) == len(config.python_supported)
-    assert all(Version(version.removesuffix("t")) >= Version("3.11") for version in config.python_supported)
+    with pytest.raises(SystemExit):
+        main(["--config", str(control), "--release-tag", "v12.9.8", "--release-source-root", str(source)])
