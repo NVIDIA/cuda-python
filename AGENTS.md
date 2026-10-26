@@ -8,9 +8,37 @@ guide for package-specific conventions and workflows.
 ## Package map
 
 - `cuda_pathfinder/`: Pure-Python library discovery and loading utilities.
-- `cuda_bindings_13/`: Low-level CUDA host API bindings (Cython-heavy).
+- `cuda_bindings_12/`: CUDA 12.9 maintenance bindings (Cython-heavy).
+- `cuda_bindings_13/`: Current CUDA 13 bindings (Cython-heavy).
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
+
+## Changes across bindings majors
+
+Both `cuda_bindings_12/` and `cuda_bindings_13/` are maintained on `main`.
+When implementing or reviewing a change in either root, inspect the other
+root's corresponding implementation, tests, and relevant build, packaging,
+or documentation files, including files absent from the diff. Check shared
+instructions and configuration affected by the change too. Apply this check
+in both directions, and when changing shared build helpers, generation
+inputs, CI selection, or release routing.
+
+- Make matching changes where the affected behavior applies to both roots.
+  Preserve intentional differences in supported APIs, toolkit inputs, source
+  layout, and compatibility behavior. Do not copy changes mechanically or add an unsupported API to make the roots match.
+- Follow each package's generation instructions: change the generation source
+  and regenerate each affected root against its own inputs. Do not hand-edit
+  generated output.
+- In the implementation or review summary, name the counterpart files inspected
+  and identify the matching changes or explain concretely why none are needed.
+  Reviewers must verify that assessment and flag omitted applicable changes;
+  absence from the diff is not evidence that the other root is unaffected.
+- For transferring handwritten fixes between roots, use the path-relative
+  patch procedure in [CONTRIBUTING.md](CONTRIBUTING.md#transferring-fixes-between-bindings-roots),
+  then inspect and test both results. Regenerate generated bindings instead.
+- For marked SYNCED blocks and package-local copies of shared helpers, also
+  enforce their byte-for-byte invariants. Semantic differences elsewhere do
+  not relax those requirements.
 
 # Git-derived version lifecycle
 

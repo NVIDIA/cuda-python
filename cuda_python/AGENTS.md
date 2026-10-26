@@ -5,7 +5,7 @@ monorepo.
 
 - `cuda_python` is primarily packaging and documentation glue.
 - It does not host substantial runtime APIs like `cuda_core`,
-  `cuda_bindings_13`, or `cuda_pathfinder`.
+  `cuda_bindings_12`, `cuda_bindings_13`, or `cuda_pathfinder`.
 
 ## Main files to edit
 
@@ -20,10 +20,15 @@ monorepo.
   component packages rather than here.
 - Be careful when changing dependency/version logic in `setup.py`; preserve
   compatibility between metapackage versioning and subpackage constraints.
+- Git source builds default to CUDA 13; set `CUDA_PYTHON_BUILD_MAJOR=12` to
+  select CUDA 12. Selectors live in `pyproject.toml`. Standalone sdists retain
+  their fixed version, which also determines their dependency major. Check
+  default CUDA 13, explicit CUDA 12, and CUDA 12 sdist rebuilds when changing
+  this shared packaging logic.
 
 ## Release coupling
 
-- `setup.py` pins `cuda-core` to a minor series (`cuda-core~=X.Y.0`). Every
+- For the current-major metapackage, `setup.py` pins `cuda-core` to a minor series (`cuda-core~=X.Y.0`). Every
   `cuda-core` release must bump that pin, and a `cuda-python` release should
   follow right after, so that `pip install cuda-python` resolves to the new
   `cuda-core`. The `cuda-core` release checklist (`.github/RELEASE-core.md`)
