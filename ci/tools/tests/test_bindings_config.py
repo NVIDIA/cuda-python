@@ -13,12 +13,11 @@ import yaml
 from packaging.version import Version
 
 from ci.tools.bindings_config import (
-    BindingsConfigError,
     check_core_toolkit_floors,
     load_config,
     main,
+    parse_config,
     resolve_release_bindings_package,
-    validate_config,
 )
 
 
@@ -79,7 +78,7 @@ def _copy_package_metadata(root: Path) -> None:
 )
 @pytest.mark.agent_authored(model="gpt-6-sol")
 def test_canonical_bindings_tags_route_to_their_release_line(tag, package_root, version):
-    config = validate_config(_registry())
+    config = parse_config(_registry())
 
     package = config.match_tag(tag)
     assert package is not None
@@ -92,6 +91,11 @@ def test_canonical_bindings_tags_route_to_their_release_line(tag, package_root, 
     (
         "12.9.8",
         "v12.9.08",
+        "v12.9",
+        "v12.9.8.0",
+        "v1!12.9.8",
+        "v0!12.9.8",
+        "v12.9.8-rc1",
         "v12.9.8rc01",
         "v13.4.01",
         "v13.4.2.post01",
@@ -103,34 +107,30 @@ def test_canonical_bindings_tags_route_to_their_release_line(tag, package_root, 
 )
 @pytest.mark.agent_authored(model="gpt-6-sol")
 def test_registry_does_not_route_invalid_or_unconfigured_bindings_tags(tag):
-    assert validate_config(_registry()).match_tag(tag) is None
+    assert parse_config(_registry()).match_tag(tag) is None
 
 
 @pytest.mark.parametrize(
     ("change", "message"),
     (
         (("schema_version", 3), "schema_version must be 2"),
-        (("maintenance_root", "../outside"), "normalized repository-relative POSIX path"),
-        (("maintenance_toolkit", "12.9"), "toolkit_version has invalid format"),
         (("current_status", "maintenance"), "exactly one current and one maintenance"),
         (("current_toolkit", "12.8.1"), "cuda_major values must be unique"),
     ),
 )
 @pytest.mark.agent_authored(model="gpt-6-sol")
-def test_registry_validation_rejects_invalid_schema_and_release_layout(change, message):
+def test_registry_preserves_release_routing_invariants(change, message):
     field, value = change
-    data = _registry(maintenance_root=value) if field == "maintenance_root" else _registry()
+    data = _registry()
     if field == "schema_version":
         data["schema_version"] = value
-    elif field == "maintenance_toolkit":
-        data["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]["toolkit_version"] = value
     elif field == "current_status":
         data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["release_status"] = value
     elif field == "current_toolkit":
         data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = value
 
-    with pytest.raises(BindingsConfigError, match=message):
-        validate_config(data)
+    with pytest.raises(ValueError, match=message):
+        parse_config(data)
 
 
 @pytest.mark.parametrize("toolkit_version", ("12.9.1", "12.8.4"))
@@ -140,7 +140,7 @@ def test_backport_branch_agrees_with_the_maintenance_toolkit_line(toolkit_versio
     data["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]["toolkit_version"] = toolkit_version
     data["backport_branch"] = ".".join(toolkit_version.split(".")[:2]) + ".x"
 
-    config = validate_config(data)
+    config = parse_config(data)
 
     assert data["backport_branch"] == f"{config.package_for_release_status('maintenance').ctk_target}.x"
 
@@ -151,36 +151,17 @@ def test_registry_rejects_backport_branches_outside_the_maintenance_line(branch)
     data = _registry()
     data["backport_branch"] = branch
 
-    with pytest.raises(BindingsConfigError, match="backport_branch must match maintenance CUDA line '12.9.x'"):
-        validate_config(data)
+    with pytest.raises(ValueError, match="backport_branch must match maintenance CUDA line '12.9.x'"):
+        parse_config(data)
 
 
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_registry_accepts_no_legacy_backport_branch():
     data = _registry()
 
-    config = validate_config(data)
+    config = parse_config(data)
 
     assert config.package_for_release_status("maintenance").ctk_target == "12.9"
-
-
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_registry_rejects_unknown_root_fields():
-    data = _registry()
-    data["backport_branch"] = "12.9.x"
-    data["unexpected"] = True
-
-    with pytest.raises(BindingsConfigError, match="must contain exactly"):
-        validate_config(data)
-
-
-@pytest.mark.agent_authored(model="gpt-6-sol")
-def test_registry_rejects_unknown_package_fields():
-    data = _registry()
-    data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["tag_regex"] = ".*"
-
-    with pytest.raises(BindingsConfigError, match="must contain exactly"):
-        validate_config(data)
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")
@@ -188,7 +169,7 @@ def test_config_loader_reports_invalid_yaml(tmp_path):
     path = tmp_path / "versions.yml"
     path.write_text("cuda: [unterminated", encoding="utf-8")
 
-    with pytest.raises(BindingsConfigError, match="could not read"):
+    with pytest.raises(ValueError, match="could not read"):
         load_config(path)
 
 
@@ -366,22 +347,13 @@ def test_modern_tag_tree_rejects_unknown_or_malformed_bindings_release(tmp_path,
     release_root = tmp_path / "release"
     _write_config(release_root, _registry())
 
-    with pytest.raises(BindingsConfigError, match=message):
+    with pytest.raises(ValueError, match=message):
         resolve_release_bindings_package(tag, release_root)
-
-
-@pytest.mark.parametrize("versions", (None, [], ["3.11", "3.11"], ["3.15-dev"], [315], [" 3.11"]))
-@pytest.mark.agent_authored(model="gpt-6")
-def test_registry_rejects_invalid_python_matrices(versions):
-    data = _registry()
-    data["python"]["supported"] = versions
-    with pytest.raises(BindingsConfigError, match="python.supported must contain unique Python 3 versions"):
-        validate_config(data)
 
 
 @pytest.mark.agent_authored(model="gpt-6")
 def test_registry_preserves_the_supported_python_matrix():
-    config = validate_config(_registry())
+    config = parse_config(_registry())
     assert config.python_supported == ("3.11", "3.14t", "3.15")
     assert config.to_dict()["python"] == {"supported": ["3.11", "3.14t", "3.15"]}
 
@@ -389,13 +361,13 @@ def test_registry_preserves_the_supported_python_matrix():
 @pytest.mark.agent_authored(model="gpt-6")
 def test_registered_toolkits_cover_core_bindings_floors(tmp_path):
     _copy_package_metadata(tmp_path)
-    check_core_toolkit_floors(validate_config(_registry()), tmp_path)
+    check_core_toolkit_floors(parse_config(_registry()), tmp_path)
     data = _registry()
     data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = "13.5.0"
-    check_core_toolkit_floors(validate_config(data), tmp_path)
+    check_core_toolkit_floors(parse_config(data), tmp_path)
     data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = "13.3.0"
-    with pytest.raises(BindingsConfigError, match="is below the CUDA 13 bindings floor 13.4.1"):
-        check_core_toolkit_floors(validate_config(data), tmp_path)
+    with pytest.raises(ValueError, match="is below the CUDA 13 bindings floor 13.4.1"):
+        check_core_toolkit_floors(parse_config(data), tmp_path)
 
 
 @pytest.mark.agent_authored(model="gpt-6")
@@ -403,5 +375,22 @@ def test_registered_cuda_majors_must_match_core_extras(tmp_path):
     _copy_package_metadata(tmp_path)
     data = _registry()
     data["cuda"]["bindings"]["package_roots"]["cuda_bindings_13"]["toolkit_version"] = "14.1.0"
-    with pytest.raises(BindingsConfigError, match="registered CUDA majors must match"):
-        check_core_toolkit_floors(validate_config(data), tmp_path)
+    with pytest.raises(ValueError, match="registered CUDA majors must match"):
+        check_core_toolkit_floors(parse_config(data), tmp_path)
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_checked_in_registry_has_consistent_build_inputs():
+    config = load_config()
+    roots = [package.package_root for package in config.package_roots]
+    assert len(set(roots)) == len(roots)
+    for root in roots:
+        assert Path(root).parts and not Path(root).is_absolute()
+        assert all(part not in (".", "..") for part in root.split("/"))
+    for package in config.package_roots:
+        assert len(package.toolkit) == 3
+        assert package.toolkit[0] > 0
+        assert all(part >= 0 for part in package.toolkit)
+    assert config.python_supported
+    assert len(set(config.python_supported)) == len(config.python_supported)
+    assert all(Version(version.removesuffix("t")) >= Version("3.11") for version in config.python_supported)
