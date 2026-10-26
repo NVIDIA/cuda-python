@@ -451,7 +451,7 @@ for package/major names, local versus published bindings, and reuse details.
 
 - **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
 - **GitHub-hosted runners**: Used for Windows builds and general tasks
-- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
+- **Artifact retention**: Set per workflow for wheels, documentation, and test results
 - **Cache retention**: GitHub Cache for build dependencies and environments
 - **Security**: All commits must be signed, untrusted code blocked
 - **Parallel execution**: Matrix builds across Python versions and platforms
