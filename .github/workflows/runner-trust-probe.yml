@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# Report-only probe of OS and bundled Node.js certificate stores across hosted
-# and self-hosted runner labels for the eMudhra/emSign CA incident.
+# Temporary, report-only probe of OS and bundled Node.js certificate stores
+# across hosted and self-hosted runner labels for the eMudhra/emSign CA
+# incident. Delete this workflow and ci/tools/runner_trust_probe* once all
+# runner labels pass and the rollout is complete.
 
 name: "CI: Runner trust probe"
 
@@ -39,6 +41,7 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          filter: blob:none
           persist-credentials: false
 
       - name: Compute runner labels
@@ -89,6 +92,7 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          filter: blob:none
           persist-credentials: false
 
       - name: Probe Linux OS trust store
@@ -147,6 +151,7 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          filter: blob:none
           persist-credentials: false
 
       - name: Setup proxy cache

@@ -48,8 +48,8 @@ if ((-not $inRoot) -or $inDisallowed) {
 $progTmp = $ProgressPreference
 $ProgressPreference = 'SilentlyContinue'
 try {
-    $null = Invoke-WebRequest -Uri $TestEndpoint -UseBasicParsing -TimeoutSec 15
-    Record-Check 'Invoke-WebRequest rejects test endpoint' 'FAIL' "Connection to ``$TestEndpoint`` succeeded (certificate was trusted)"
+    $res = Invoke-WebRequest -Uri $TestEndpoint -UseBasicParsing -SkipHttpErrorCheck -TimeoutSec 15
+    Record-Check 'Invoke-WebRequest rejects test endpoint' 'FAIL' "Connection to ``$TestEndpoint`` succeeded with HTTP $($res.StatusCode) (certificate was trusted)"
     $GatingFailures++
 } catch {
     $certRejected = $false
