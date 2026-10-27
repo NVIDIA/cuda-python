@@ -1,0 +1,441 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Report-only probe of OS and bundled Node.js certificate stores across hosted
+# and self-hosted runner labels for the eMudhra/emSign CA incident.
+
+name: "CI: Runner trust probe"
+
+on:
+  schedule:
+    # Weekly on Mondays at 06:23 UTC
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      label-filter:
+        description: "Optional regex to filter runner labels (e.g. '^(ubuntu-latest|linux-amd64-cpu8)$'; empty probes all)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+jobs:
+  compute-matrix:
+    name: Compute runner label sets
+    if: ${{ github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      linux_host: ${{ steps.compute.outputs.linux_host }}
+      linux_gpu: ${{ steps.compute.outputs.linux_gpu }}
+      windows: ${{ steps.compute.outputs.windows }}
+      has_linux_host: ${{ steps.compute.outputs.has_linux_host }}
+      has_linux_gpu: ${{ steps.compute.outputs.has_linux_gpu }}
+      has_windows: ${{ steps.compute.outputs.has_windows }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Compute runner labels
+        id: compute
+        env:
+          LABEL_FILTER: ${{ inputs.label-filter || '' }}
+        run: |
+          matrix_json="$(yq -o json '.' ci/test-matrix.yml)"
+
+          linux_host="$(jq -cn --arg filter "${LABEL_FILTER}" '
+            [
+              "ubuntu-latest",
+              "linux-amd64-cpu8",
+              "linux-arm64-cpu8",
+              "linux-amd64-cpu4"
+            ]
+            | unique
+            | if $filter != "" then map(select(test($filter))) else . end
+          ')"
+
+          linux_gpu="$(jq -cn --argjson m "${matrix_json}" --arg filter "${LABEL_FILTER}" '
+            [
+              ($m.linux["pull-request"][]?, $m.linux["nightly"][]?)
+              | "\(.FLAVOR // "linux")-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
+            ]
+            | unique
+            | if $filter != "" then map(select(test($filter))) else . end
+          ')"
+
+          windows="$(jq -cn --argjson m "${matrix_json}" --arg filter "${LABEL_FILTER}" '
+            (
+              [
+                "windows-latest",
+                "windows-2022",
+                "windows-11-arm"
+              ] + [
+                ($m.windows["pull-request"][]?, $m.windows["nightly"][]?)
+                | "windows-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
+              ]
+            )
+            | unique
+            | if $filter != "" then map(select(test($filter))) else . end
+          ')"
+
+          echo "linux_host=${linux_host}" | tee -a "${GITHUB_OUTPUT}"
+          echo "linux_gpu=${linux_gpu}" | tee -a "${GITHUB_OUTPUT}"
+          echo "windows=${windows}" | tee -a "${GITHUB_OUTPUT}"
+          echo "has_linux_host=$(jq 'length > 0' <<< "${linux_host}")" | tee -a "${GITHUB_OUTPUT}"
+          echo "has_linux_gpu=$(jq 'length > 0' <<< "${linux_gpu}")" | tee -a "${GITHUB_OUTPUT}"
+          echo "has_windows=$(jq 'length > 0' <<< "${windows}")" | tee -a "${GITHUB_OUTPUT}"
+
+  probe-linux-host:
+    name: Probe (${{ matrix.label }})
+    needs: compute-matrix
+    if: ${{ github.repository_owner == 'nvidia' && needs.compute-matrix.outputs.has_linux_host == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ${{ fromJSON(needs.compute-matrix.outputs.linux_host) }}
+    runs-on: ${{ matrix.label }}
+    timeout-minutes: 15
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Probe OS trust store
+        id: os-probe
+        continue-on-error: ${{ matrix.label == 'ubuntu-latest' }}
+        env:
+          TRUST_PROBE_LABEL: "${{ matrix.label == 'ubuntu-latest' && 'OS trust store (before ca-certificates upgrade)' || 'OS trust store' }}"
+        run: ./ci/tools/runner_trust_probe.sh
+
+      - name: Probe OS trust store after ca-certificates upgrade (ubuntu-latest)
+        id: os-probe-upgraded
+        if: ${{ always() && matrix.label == 'ubuntu-latest' }}
+        continue-on-error: true
+        env:
+          TRUST_PROBE_LABEL: "OS trust store (after ca-certificates upgrade)"
+        run: |
+          sudo apt-get update
+          sudo apt-get install --only-upgrade -y ca-certificates
+          ./ci/tools/runner_trust_probe.sh
+
+      - name: Probe Node 20 action runtime (informational)
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
+        with:
+          script: |
+            const msg = `Node 20 action runtime resolved to \`${process.version}\` (\`${process.execPath}\`)`;
+            core.info(msg);
+            await core.summary
+              .addHeading('Node 20 action runtime (informational)', 3)
+              .addRaw(msg + '\n\n')
+              .write();
+
+      - name: Probe bundled Node runtime and trust store
+        id: node-probe
+        if: ${{ always() }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const https = require('https');
+            const version = process.version;
+            const execPath = process.execPath;
+            const nodeOptions = process.env.NODE_OPTIONS || '';
+            const extraCa = process.env.NODE_EXTRA_CA_CERTS || '';
+            const useSystemCa = process.env.NODE_USE_SYSTEM_CA || '';
+
+            const m = /^v(\d+)\.(\d+)\.(\d+)/.exec(version);
+            const [major, minor, patch] = m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
+            const versionOk = major === 24 && (minor > 22 || (minor === 22 && patch >= 1));
+
+            const endpoint = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
+            const probeEndpoint = () => new Promise((resolve) => {
+              const req = https.get(endpoint, { timeout: 15000 }, (res) => {
+                res.resume();
+                resolve({ status: 'FAIL', detail: `Connected with HTTP ${res.statusCode} (certificate was trusted)` });
+              });
+              req.on('timeout', () => {
+                req.destroy(new Error('Request timed out'));
+              });
+              req.on('error', (err) => {
+                const code = err.code || '';
+                const msg = `${code} ${err.message || ''}`.trim();
+                if (/CERT|UNABLE_TO_VERIFY|SELF_SIGNED|DEPTH_ZERO|SSL|TLS/i.test(msg)) {
+                  resolve({ status: 'PASS', detail: `Rejected with certificate error (${msg})` });
+                } else {
+                  resolve({ status: 'INCONCLUSIVE', detail: `Network/DNS or non-certificate error (${msg})` });
+                }
+              });
+            });
+
+            const tlsResult = await probeEndpoint();
+            const rows = [
+              ['Node version', versionOk ? '**PASS**' : '**FAIL**', `\`${version}\` (require \`>= v24.22.1\` on Node 24; \`execPath=${execPath}\`)`],
+              ['Node env overrides', '**INFO**', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
+              ['Node rejects test endpoint', `**${tlsResult.status}**`, tlsResult.detail],
+            ];
+
+            await core.summary
+              .addHeading('Node runtime trust store', 3)
+              .addTable([
+                [{ data: 'Check', header: true }, { data: 'Status', header: true }, { data: 'Details', header: true }],
+                ...rows,
+              ])
+              .write();
+
+            if (!versionOk || tlsResult.status === 'FAIL') {
+              core.setFailed(`Node trust probe failed (version=${version}, endpoint=${tlsResult.status})`);
+            }
+
+      - name: Check probe outcomes
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
+            echo "::error::Initial OS trust store probe failed" >&2
+            exit 1
+          fi
+          if [[ "${{ matrix.label }}" == "ubuntu-latest" && "${{ steps.os-probe-upgraded.outcome }}" != "success" ]]; then
+            echo "::error::Post-upgrade OS trust store probe failed on ubuntu-latest" >&2
+            exit 1
+          fi
+          if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
+            echo "::error::Node runtime trust store probe failed" >&2
+            exit 1
+          fi
+
+  probe-linux-gpu:
+    name: Probe (${{ matrix.label }})
+    needs: compute-matrix
+    if: ${{ github.repository_owner == 'nvidia' && needs.compute-matrix.outputs.has_linux_gpu == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ${{ fromJSON(needs.compute-matrix.outputs.linux_gpu) }}
+    runs-on: ${{ matrix.label }}
+    timeout-minutes: 15
+    # Match test-wheel-linux.yml container setup so the probe inspects the exact
+    # container environment that Linux GPU test jobs see.
+    container:
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+      image: ubuntu:24.04
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+
+      - name: Install container CA certificates and probe tools
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          dependencies: "ca-certificates curl openssl"
+          dependent_exes: "curl openssl"
+
+      - name: Probe container OS trust store
+        id: os-probe
+        continue-on-error: true
+        env:
+          TRUST_PROBE_LABEL: "Container OS trust store (ubuntu:24.04)"
+        run: ./ci/tools/runner_trust_probe.sh
+
+      - name: Probe Node 20 action runtime (informational)
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
+        with:
+          script: |
+            const msg = `Node 20 action runtime resolved to \`${process.version}\` (\`${process.execPath}\`)`;
+            core.info(msg);
+            await core.summary
+              .addHeading('Node 20 action runtime (informational)', 3)
+              .addRaw(msg + '\n\n')
+              .write();
+
+      - name: Probe bundled Node runtime and trust store
+        id: node-probe
+        if: ${{ always() }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const https = require('https');
+            const version = process.version;
+            const execPath = process.execPath;
+            const nodeOptions = process.env.NODE_OPTIONS || '';
+            const extraCa = process.env.NODE_EXTRA_CA_CERTS || '';
+            const useSystemCa = process.env.NODE_USE_SYSTEM_CA || '';
+
+            const m = /^v(\d+)\.(\d+)\.(\d+)/.exec(version);
+            const [major, minor, patch] = m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
+            const versionOk = major === 24 && (minor > 22 || (minor === 22 && patch >= 1));
+
+            const endpoint = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
+            const probeEndpoint = () => new Promise((resolve) => {
+              const req = https.get(endpoint, { timeout: 15000 }, (res) => {
+                res.resume();
+                resolve({ status: 'FAIL', detail: `Connected with HTTP ${res.statusCode} (certificate was trusted)` });
+              });
+              req.on('timeout', () => {
+                req.destroy(new Error('Request timed out'));
+              });
+              req.on('error', (err) => {
+                const code = err.code || '';
+                const msg = `${code} ${err.message || ''}`.trim();
+                if (/CERT|UNABLE_TO_VERIFY|SELF_SIGNED|DEPTH_ZERO|SSL|TLS/i.test(msg)) {
+                  resolve({ status: 'PASS', detail: `Rejected with certificate error (${msg})` });
+                } else {
+                  resolve({ status: 'INCONCLUSIVE', detail: `Network/DNS or non-certificate error (${msg})` });
+                }
+              });
+            });
+
+            const tlsResult = await probeEndpoint();
+            const rows = [
+              ['Node version', versionOk ? '**PASS**' : '**FAIL**', `\`${version}\` (require \`>= v24.22.1\` on Node 24; \`execPath=${execPath}\`)`],
+              ['Node env overrides', '**INFO**', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
+              ['Node rejects test endpoint', `**${tlsResult.status}**`, tlsResult.detail],
+            ];
+
+            await core.summary
+              .addHeading('Node runtime trust store', 3)
+              .addTable([
+                [{ data: 'Check', header: true }, { data: 'Status', header: true }, { data: 'Details', header: true }],
+                ...rows,
+              ])
+              .write();
+
+            if (!versionOk || tlsResult.status === 'FAIL') {
+              core.setFailed(`Node trust probe failed (version=${version}, endpoint=${tlsResult.status})`);
+            }
+
+      - name: Check probe outcomes
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
+            echo "::error::Container OS trust store probe failed" >&2
+            exit 1
+          fi
+          if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
+            echo "::error::Node runtime trust store probe failed" >&2
+            exit 1
+          fi
+
+  probe-windows:
+    name: Probe (${{ matrix.label }})
+    needs: compute-matrix
+    if: ${{ github.repository_owner == 'nvidia' && needs.compute-matrix.outputs.has_windows == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ${{ fromJSON(needs.compute-matrix.outputs.windows) }}
+    runs-on: ${{ matrix.label }}
+    timeout-minutes: 15
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Probe Windows OS trust store
+        id: os-probe
+        continue-on-error: true
+        shell: pwsh
+        run: ./ci/tools/runner_trust_probe.ps1
+
+      - name: Probe Node 20 action runtime (informational)
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
+        with:
+          script: |
+            const msg = `Node 20 action runtime resolved to \`${process.version}\` (\`${process.execPath}\`)`;
+            core.info(msg);
+            await core.summary
+              .addHeading('Node 20 action runtime (informational)', 3)
+              .addRaw(msg + '\n\n')
+              .write();
+
+      - name: Probe bundled Node runtime and trust store
+        id: node-probe
+        if: ${{ always() }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const https = require('https');
+            const version = process.version;
+            const execPath = process.execPath;
+            const nodeOptions = process.env.NODE_OPTIONS || '';
+            const extraCa = process.env.NODE_EXTRA_CA_CERTS || '';
+            const useSystemCa = process.env.NODE_USE_SYSTEM_CA || '';
+
+            const m = /^v(\d+)\.(\d+)\.(\d+)/.exec(version);
+            const [major, minor, patch] = m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
+            const versionOk = major === 24 && (minor > 22 || (minor === 22 && patch >= 1));
+
+            const endpoint = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
+            const probeEndpoint = () => new Promise((resolve) => {
+              const req = https.get(endpoint, { timeout: 15000 }, (res) => {
+                res.resume();
+                resolve({ status: 'FAIL', detail: `Connected with HTTP ${res.statusCode} (certificate was trusted)` });
+              });
+              req.on('timeout', () => {
+                req.destroy(new Error('Request timed out'));
+              });
+              req.on('error', (err) => {
+                const code = err.code || '';
+                const msg = `${code} ${err.message || ''}`.trim();
+                if (/CERT|UNABLE_TO_VERIFY|SELF_SIGNED|DEPTH_ZERO|SSL|TLS/i.test(msg)) {
+                  resolve({ status: 'PASS', detail: `Rejected with certificate error (${msg})` });
+                } else {
+                  resolve({ status: 'INCONCLUSIVE', detail: `Network/DNS or non-certificate error (${msg})` });
+                }
+              });
+            });
+
+            const tlsResult = await probeEndpoint();
+            const rows = [
+              ['Node version', versionOk ? '**PASS**' : '**FAIL**', `\`${version}\` (require \`>= v24.22.1\` on Node 24; \`execPath=${execPath}\`)`],
+              ['Node env overrides', '**INFO**', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
+              ['Node rejects test endpoint', `**${tlsResult.status}**`, tlsResult.detail],
+            ];
+
+            await core.summary
+              .addHeading('Node runtime trust store', 3)
+              .addTable([
+                [{ data: 'Check', header: true }, { data: 'Status', header: true }, { data: 'Details', header: true }],
+                ...rows,
+              ])
+              .write();
+
+            if (!versionOk || tlsResult.status === 'FAIL') {
+              core.setFailed(`Node trust probe failed (version=${version}, endpoint=${tlsResult.status})`);
+            }
+
+      - name: Check probe outcomes
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
+            echo "::error::Windows OS trust store probe failed" >&2
+            exit 1
+          fi
+          if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
+            echo "::error::Node runtime trust store probe failed" >&2
+            exit 1
+          fi

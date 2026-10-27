@@ -121,6 +121,10 @@ class ComputeWorkplanTest(unittest.TestCase):
             "diagram.svg",
             ".github/labeler.yml",
             ".github/ISSUE_TEMPLATE/bug.yml",
+            ".github/workflows/runner-trust-probe.yml",
+            "ci/tools/runner_trust_probe.sh",
+            "ci/tools/runner_trust_probe.ps1",
+            "ci/tools/tests/test_runner_trust_probe.py",
         ):
             with self.subTest(path=path):
                 plan = plan_for(path)
