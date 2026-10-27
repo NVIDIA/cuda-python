@@ -21,7 +21,6 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
@@ -110,12 +109,33 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    @cython.annotation_typing(False)
     def __init__(self, options: PinnedMemoryResourceOptions | None = None) -> None:
         _PMR_init(self, options)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
-        """Allocate a host-pinned buffer asynchronously on the supplied stream."""
+        """Allocate a host-pinned buffer asynchronously on the supplied stream.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
+
+        Returns
+        -------
+        Buffer
+            The allocated buffer object, which is accessible from the host.
+
+        Raises
+        ------
+        RuntimeError
+            If the stream's device does not support the requested host memory
+            pool. Use :class:`LegacyPinnedMemoryResource` when stream-ordered
+            allocation is not required.
+        """
         MP_check_open(self)
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")

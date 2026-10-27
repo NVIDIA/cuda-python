@@ -41,6 +41,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: Implementation :: CPython",
     "Environment :: GPU :: NVIDIA CUDA",
     "Environment :: GPU :: NVIDIA CUDA :: 12",
@@ -73,16 +74,16 @@ test = [
     # CI: one GitHub annotation per failed test; inert outside GitHub Actions.
     "pytest-github-actions-annotate-failures==0.4.2",
     "cloudpickle==3.1.2",
-    "psutil==7.2.2",
+    # psutil has no cp315t wheel yet, so 3.15t builds it from source. Windows CI
+    # has no compiler, so skip it there. Tests skip when psutil is missing.
+    "psutil==7.2.2; sys_platform != 'win32' or python_version < '3.15'",
     "packaging>=24",
     "docutils==0.23",
-    # Required by tests/test_graphics.py; pinned to match cuda_bindings.
+    # Required by tests/test_graphics.py; pinned to match cuda-bindings.
     "pyglet==2.1.14",
-    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
-    "cffi==2.0.0; python_version < '3.15'",
+    "cffi==2.1.1",
 ]
-# TODO: drop the Windows 3.15 guard once ml-dtypes publishes cp315 Windows wheels
-ml-dtypes = ["ml-dtypes>=0.5.4,<0.6.0; sys_platform != 'win32' or python_version < '3.15'"]
+ml-dtypes = ["ml-dtypes>=0.5.4"]
 test-ft = ["pytest-run-parallel==0.10.0"]
 test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.15'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.15'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
@@ -102,7 +103,7 @@ conflicts = [
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
 documentation = "https://nvidia.github.io/cuda-python/cuda-core/"
-repository = "https://github.com/NVIDIA/cuda-python/tree/main/cuda_core"
+repository = "https://github.com/NVIDIA/cuda-python"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
 [tool.setuptools.packages.find]

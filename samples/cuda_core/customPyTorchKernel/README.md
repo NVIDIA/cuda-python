@@ -8,7 +8,7 @@ This sample demonstrates how to add a custom GPU operation to PyTorch using the 
 
 - NVIDIA GPU with Compute Capability 7.0+
 - CUDA Toolkit 13.0+
-- Python 3.10+
+- Python 3.11+
 - PyTorch 2.0+
 - cuda-python >= 13.0.0
 - cuda-core >=1.0.0

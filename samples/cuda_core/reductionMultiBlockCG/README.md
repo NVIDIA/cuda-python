@@ -22,7 +22,7 @@ Single-kernel, two-stage reduction using **Cooperative Groups** and `grid.sync()
 
 ## Requirements
 
-- NVIDIA GPU, **Pascal or newer**; **CUDA Toolkit 13+**; **Python 3.10+**
+- NVIDIA GPU, **Pascal or newer**; **CUDA Toolkit 13+**; **Python 3.11+**
 - NVRTC must see **`cooperative_groups.h`** and **CCCL** headers (`cuda/std/*`)
 
 ```bash

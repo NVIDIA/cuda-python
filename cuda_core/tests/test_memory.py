@@ -1378,7 +1378,8 @@ def test_vmm_allocator_basic_allocation(init_cuda, use_device_object, handle_typ
     assert buffer.size >= 4096  # May be aligned up
     assert buffer.device_id == device.device_id
     assert buffer.memory_resource == vmm_mr
-    assert vmm_mr.is_ipc_enabled is False
+    # POSIX file descriptors can be shared; Win32 KMT handles have no transport.
+    assert vmm_mr.is_ipc_enabled is (handle_type == "posix_fd")
 
     # Test deallocation
     buffer.close()
@@ -3113,6 +3114,13 @@ def test_vmm_options_handle_type_win32_raises():
     """_handle_type_to_driver raises NotImplementedError for 'win32'."""
     with pytest.raises(NotImplementedError, match="win32 is currently not supported"):
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_vmm_options_store_peers_as_tuple():
+    """The options store a one-shot peers iterable as a tuple, so every reader sees all the peers."""
+    options = VirtualMemoryResourceOptions(peers=(peer for peer in (1, 2)))
+    assert options.peers == (1, 2)
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")

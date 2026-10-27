@@ -10,7 +10,7 @@ on:
   push:
     # PR events cover draft and fork PRs without also checking copy-pr-bot's
     # pull-request/N mirrors. Only the default branch needs a push check, and
-    # it is the only ref that refreshes the saved cache (see the save step).
+    # it is the only ref that saves the pre-commit environment cache.
     branches:
       - "main"
       - "ctk-next"
@@ -22,6 +22,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 defaults:
   run:
@@ -41,9 +42,10 @@ jobs:
           - name: Windows
             os: windows-latest
     env:
-      # Full-CI docs builds and nightly check links. The installation reminder
-      # is for developer machines; CI does not install a Git commit hook.
-      SKIP: lychee,check-precommit-installed
+      # The installation reminder is for developer machines; CI does not
+      # install a Git commit hook. All other hooks, including Lychee, run.
+      SKIP: check-precommit-installed
+      PYTHONUTF8: "1"
       # Minor version used by setup-python and as the cache restore-key prefix.
       PYTHON_VERSION: "3.14"
     steps:
@@ -51,10 +53,11 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.symlinks true
 
+      # PR workflows run from the merge revision; check out that same revision
+      # so their helper scripts and configuration stay in sync.
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           persist-credentials: false
 
@@ -82,10 +85,86 @@ jobs:
           restore-keys: |
             pre-commit-${{ runner.os }}-py${{ env.PYTHON_VERSION }}
 
+      - name: Harden pip
+        uses: ./.github/actions/harden-pip
+
       - name: Install pre-commit
-        run: python -m pip install --upgrade pip pre-commit
+        run: python -m pip install pre-commit
+
+      # Keep this offline hook smoke check before network-dependent Lychee steps,
+      # so hook setup and invocation failures surface before link-check retries.
+      # Invoke pre-commit directly to cover each shell's command lookup and quoting.
+      # Each runner's shells reuse one offline configuration and hook environment.
+      - name: Prepare offline Lychee configuration
+        id: lychee-smoke
+        # pre-commit needs the config on the checkout's drive; spaces exercise quoting.
+        run: |
+          directory="$(mktemp -d 'lychee offline smoke XXXXXX')"
+          echo "directory=$directory" >> "${GITHUB_OUTPUT}"
+          python ci/tools/smoke_test_lychee_precommit.py --prepare "$directory"
+
+      - name: Smoke-test Lychee in ${{ runner.os == 'Windows' && 'Git Bash' || 'Bash' }}
+        if: ${{ !cancelled() && steps.lychee-smoke.outcome == 'success' }}
+        shell: bash
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+          SKIP: ""
+          PYTHONUTF8: "1"
+        run: |
+          status=0
+          pre-commit run lychee --config "$LYCHEE_SMOKE_DIR/pre-commit.yaml" --files README.md --verbose > "$LYCHEE_SMOKE_DIR/bash.log" 2>&1 || status=$?
+          python ci/tools/smoke_test_lychee_precommit.py --verify "$LYCHEE_SMOKE_DIR/bash.log" "$status"
+
+      - name: Smoke-test Lychee in PowerShell (Windows)
+        if: ${{ !cancelled() && runner.os == 'Windows' && steps.lychee-smoke.outcome == 'success' }}
+        shell: pwsh
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+          SKIP: ""
+          PYTHONUTF8: "1"
+        run: |
+          pre-commit run lychee --config "$env:LYCHEE_SMOKE_DIR/pre-commit.yaml" --files README.md --verbose > "$env:LYCHEE_SMOKE_DIR/pwsh.log" 2>&1
+          python ci/tools/smoke_test_lychee_precommit.py --verify "$env:LYCHEE_SMOKE_DIR/pwsh.log" $LASTEXITCODE
+
+      - name: Smoke-test Lychee in cmd (Windows)
+        if: ${{ !cancelled() && runner.os == 'Windows' && steps.lychee-smoke.outcome == 'success' }}
+        shell: cmd
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+          SKIP: ""
+          PYTHONUTF8: "1"
+        run: |
+          pre-commit run lychee --config "%LYCHEE_SMOKE_DIR%\pre-commit.yaml" --files README.md --verbose > "%LYCHEE_SMOKE_DIR%\cmd.log" 2>&1
+          python ci/tools/smoke_test_lychee_precommit.py --verify "%LYCHEE_SMOKE_DIR%\cmd.log" %ERRORLEVEL%
+
+      - name: Remove offline Lychee configuration
+        if: ${{ always() && steps.lychee-smoke.outputs.directory != '' }}
+        env:
+          LYCHEE_SMOKE_DIR: ${{ steps.lychee-smoke.outputs.directory }}
+        run: python ci/tools/smoke_test_lychee_precommit.py --cleanup "$LYCHEE_SMOKE_DIR"
+
+      # Warm only Lychee from the shared nightly baseline, retaining successful
+      # checks between up to three attempts. The full suite below runs once:
+      # formatter changes must remain failures. A missing baseline is supported;
+      # the first pass then checks afresh. With the maintainer label, this is
+      # also the final 429-only link gate.
+      - name: Warm the Lychee cache
+        id: lychee-check
+        uses: ./.github/actions/lychee-links
+        with:
+          kind: authored
+          policy: cache-warm
+          pr-number: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || '' }}
 
       - name: Run pre-commit
+        # Run the remaining hooks even if the override's link gate fails.
+        # That earlier failure still makes the job fail.
+        if: ${{ !cancelled() && (success() || (steps.lychee-check.outputs.allow-429 == 'true' && steps.lychee-check.outcome == 'failure')) }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          # The override uses the reported link result above. All other hooks
+          # still run once; normal runs also invoke Lychee in the full suite.
+          SKIP: ${{ steps.lychee-check.outputs.allow-429 == 'true' && 'check-precommit-installed,lychee' || 'check-precommit-installed' }}
         run: pre-commit run --all-files --show-diff-on-failure
 
       - name: Save pre-commit cache

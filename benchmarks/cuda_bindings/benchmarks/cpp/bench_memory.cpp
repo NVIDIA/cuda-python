@@ -11,22 +11,23 @@
 #include <cstring>
 #include <iostream>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-
 static constexpr size_t ALLOC_SIZE = 1024;
 static constexpr size_t COPY_SIZE = 8;
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup
@@ -54,9 +55,7 @@ int main(int argc, char** argv) {
     bench::BenchmarkSuite suite(options);
     // Drain the persistent stream after calibration so async benchmarks
     // (mem_alloc_async_free_async) don't start measurement on a backlogged stream.
-    suite.set_post_calibrate([&]() {
-        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
-    });
+    suite.set_post_calibrate([&]() { check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed"); });
 
     // --- mem_alloc_free ---
     {

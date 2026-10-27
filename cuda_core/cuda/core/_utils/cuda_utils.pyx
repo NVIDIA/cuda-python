@@ -167,16 +167,11 @@ cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
 cdef inline void _attach_detail(exc, str detail):
-    # PEP 678 notes (Python 3.11+) keep the detail separable from the message;
-    # older interpreters get it appended to the message instead.
-    add_note = getattr(exc, "add_note", None)
-    if add_note is not None:
-        add_note(detail)
-    else:
-        exc.args = (f"{exc.args[0]} ({detail})", *exc.args[1:])
+    # PEP 678 notes keep the detail separable from the message.
+    exc.add_note(detail)
 
 
-cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
+cpdef int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
     if error == cydriver.CUresult.CUDA_SUCCESS:
         return 0
     cdef const char* name
@@ -202,7 +197,7 @@ cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
         raise exc
 
 
-cpdef inline int _check_runtime_error(error) except?-1:
+cpdef int _check_runtime_error(error) except?-1:
     if error == _RUNTIME_SUCCESS:
         return 0
     # `_check_error()` reaches this path only for `runtime.cudaError_t` values.
@@ -218,7 +213,7 @@ cpdef inline int _check_runtime_error(error) except?-1:
     raise CUDAError(f"{name}: {desc}")
 
 
-cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
+cpdef int _check_nvrtc_error(error, handle=None) except?-1:
     if error == _NVRTC_SUCCESS:
         return 0
     err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"

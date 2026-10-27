@@ -30,7 +30,6 @@ from cuda.core._rt cimport (
 )
 
 from cuda.core._stream import IsStreamType, Stream, StreamOptions
-from cuda.core._utils.clear_error_support import assert_type
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
@@ -984,6 +983,11 @@ class Device:
     Newly returned :obj:`~_device.Device` objects are thread-local singletons
     for a specified device.
 
+    A pickled :obj:`~_device.Device` names its device by UUID. Unpickling
+    returns the device with that UUID in the receiving process, whatever its
+    ordinal is there, and raises ``RuntimeError`` if that device is not
+    visible. The pickled form is for processes on the same machine.
+
     Note
     ----
     Will not initialize the GPU.
@@ -1208,9 +1212,7 @@ class Device:
         return self._memory_resource
 
     @memory_resource.setter
-    def memory_resource(self, mr: MemoryResource) -> None:
-        from cuda.core._memory import MemoryResource
-        assert_type(mr, MemoryResource)
+    def memory_resource(self, MemoryResource mr not None: MemoryResource) -> None:
         self._memory_resource = mr
 
     @property
@@ -1245,9 +1247,10 @@ class Device:
         return self._device_id == other._device_id
 
     def __reduce__(self) -> tuple[object, ...]:
-        return Device, (self.device_id,)
+        # Device ordinals are per process; the receiver maps the UUID to its own device.
+        return _device_from_uuid, (self.uuid,)
 
-    def set_current(self, ctx: Context | None = None) -> Context | None:
+    def set_current(self, Context ctx: Context | None = None) -> Context | None:
         """Set device to be used for GPU executions.
 
         Initializes CUDA and sets the calling thread to a valid CUDA
@@ -1291,8 +1294,6 @@ class Device:
         cdef Context prev_owned = None
 
         if ctx is not None:
-            # TODO: revisit once Context is cythonized
-            assert_type(ctx, Context)
             Context_check_open(ctx)
             if ctx._device_id != self._device_id:
                 # The CUDA context stack is per-thread, not per-Device-object,
@@ -1631,6 +1632,29 @@ class Device:
         self._check_context_initialized()
         return _create_surface_object(
             resource, self._context, self._device_id)
+
+
+def _device_from_uuid(device_uuid: str) -> Device:
+    """Return the visible device whose :attr:`Device.uuid` is ``device_uuid``.
+
+    Device ordinals are per process (``CUDA_VISIBLE_DEVICES`` can renumber
+    devices), so objects that cross a process boundary name their devices by
+    UUID, and the receiving process maps each UUID back with this function.
+
+    Raises
+    ------
+    RuntimeError
+        If no device visible to this process has the UUID.
+    """
+    devices = Device.get_all_devices()
+    for device in devices:
+        if device.uuid == device_uuid:
+            return device
+    visible = ", ".join(f"{device.device_id} ({device.uuid})" for device in devices) or "none"
+    raise RuntimeError(
+        f"no CUDA device visible to this process has UUID {device_uuid}; the visible devices are: "
+        f"{visible}. Make the device visible to this process, for example through CUDA_VISIBLE_DEVICES."
+    )
 
 
 cdef inline int Device_ensure_cuda_initialized() except? -1:

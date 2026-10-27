@@ -30,7 +30,7 @@ packaging = "*"
 cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
 
 [feature.local-deps.dependencies]
-cuda-bindings = { path = "../cuda_bindings" }
+cuda-bindings = { path = "../cuda_bindings_13" }
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 
 [feature.samples.dependencies]
@@ -292,11 +292,6 @@ cuda-version = "*"
 numpy = "*"
 cuda-bindings = "*"
 cuda-pathfinder = "*"
-# Conda-forge ships per-Python variants of backports.strenum (real impl on
-# <3.11, no-op stub on >=3.12); pixi-build doesn't accept PEP 508-style
-# `python_version` selectors in [package.target.<X>], so list it
-# unconditionally and let the solver pick the right variant.
-"backports.strenum" = "*"
 
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]

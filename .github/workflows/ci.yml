@@ -496,7 +496,7 @@ jobs:
     secrets: inherit
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
-  # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
+  # so platform-specific sources (e.g. cuda_bindings_13/*_windows.pyx selected by
   # build_hooks.py) are exercised on their target OS. Keep these job definitions
   # textually identical except for:
   #   - host-platform value
