@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# A clang-format style derived from Python's PEP 7 (4-space indent, Stroustrup braces,
+# return type on its own line), except that the column limit is 120 rather than 79.
+# Based on https://gist.github.com/pganssle/0e3a5f828b4d07d79447f6ced8e7e4db
+BasedOnStyle: Google
+BreakAfterReturnType: AllDefinitions
+AllowShortIfStatementsOnASingleLine: Never
+BreakBeforeBraces: Stroustrup
+ColumnLimit: 120
+DerivePointerAlignment: false
+IndentWidth: 4
+Language: Cpp
+PointerAlignment: Right
+ReflowComments: Always
+SpaceBeforeParens: ControlStatements
+SpacesInParens: Never
+TabWidth: 4
+UseTab: Never
+
+# Keep include order as written; reordering can break order-sensitive builds.
+SortIncludes: {Enabled: false}
+
+# Ruff-like wrapping: break after "(", indent arguments, put ")" on its own line.
+# This does not contradict PEP7, but extends it to the consistent style where
+# calls either fit on a single line or they are broken across multiple lines with
+# one argument per line (indented).
+AlignAfterOpenBracket: true
+BreakAfterOpenBracketBracedList: true
+BreakAfterOpenBracketFunction: true
+BreakAfterOpenBracketIf: true
+BreakBeforeCloseBracketBracedList: true
+BreakBeforeCloseBracketFunction: true
+BreakBeforeCloseBracketIf: true
+PackArguments: {BinPack: OnePerLine}
+PackParameters: {BinPack: OnePerLine}
+AllowAllArgumentsOnNextLine: false

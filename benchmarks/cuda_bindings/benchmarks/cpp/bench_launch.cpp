@@ -14,36 +14,47 @@
 #include <string>
 #include <vector>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-static void check_nvrtc(nvrtcResult status, const char* message) {
+static void
+check_nvrtc(nvrtcResult status, const char *message)
+{
     if (status != NVRTC_SUCCESS) {
         std::cerr << message << ": " << nvrtcGetErrorString(status) << '\n';
         std::exit(1);
     }
 }
 
-static CUmodule compile_and_load(const char* source, CUdevice device) {
+static CUmodule
+compile_and_load(const char *source, CUdevice device)
+{
     int major = 0, minor = 0;
-    check_cu(cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device),
-             "cuDeviceGetAttribute failed");
-    check_cu(cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device),
-             "cuDeviceGetAttribute failed");
+    check_cu(
+        cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device),
+        "cuDeviceGetAttribute failed"
+    );
+    check_cu(
+        cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device),
+        "cuDeviceGetAttribute failed"
+    );
 
     nvrtcProgram prog;
-    check_nvrtc(nvrtcCreateProgram(&prog, source, "benchmark_kernel.cu", 0, nullptr, nullptr),
-                "nvrtcCreateProgram failed");
+    check_nvrtc(
+        nvrtcCreateProgram(&prog, source, "benchmark_kernel.cu", 0, nullptr, nullptr),
+        "nvrtcCreateProgram failed"
+    );
 
     std::string arch = "--gpu-architecture=sm_" + std::to_string(major) + std::to_string(minor);
-    const char* opts[] = {"--fmad=false", arch.c_str()};
+    const char *opts[] = {"--fmad=false", arch.c_str()};
     nvrtcResult compile_result = nvrtcCompileProgram(prog, 2, opts);
 
     if (compile_result != NVRTC_SUCCESS) {
@@ -66,8 +77,7 @@ static CUmodule compile_and_load(const char* source, CUdevice device) {
     return module;
 }
 
-
-static const char* KERNEL_SOURCE = R"(
+static const char *KERNEL_SOURCE = R"(
 extern "C" __global__ void empty_kernel() { return; }
 extern "C" __global__ void small_kernel(float *f) { *f = 0.0f; }
 
@@ -152,8 +162,9 @@ extern "C" __global__
 void small_kernel_2048B(KernelFunctionParam<2048> param) {}
 )";
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup
@@ -169,23 +180,23 @@ int main(int argc, char** argv) {
     CUmodule module = compile_and_load(KERNEL_SOURCE, device);
 
     // Get all kernel handles
-    auto get_func = [&](const char* name) {
+    auto get_func = [&](const char *name) {
         CUfunction f;
         check_cu(cuModuleGetFunction(&f, module, name), "GetFunction failed");
         return f;
     };
 
-    CUfunction empty_kernel      = get_func("empty_kernel");
-    CUfunction small_kernel      = get_func("small_kernel");
-    CUfunction kernel_16_args    = get_func("small_kernel_16_args");
-    CUfunction kernel_256_args   = get_func("small_kernel_256_args");
-    CUfunction kernel_512_args   = get_func("small_kernel_512_args");
-    CUfunction kernel_512_bools  = get_func("small_kernel_512_bools");
-    CUfunction kernel_512_ints   = get_func("small_kernel_512_ints");
+    CUfunction empty_kernel = get_func("empty_kernel");
+    CUfunction small_kernel = get_func("small_kernel");
+    CUfunction kernel_16_args = get_func("small_kernel_16_args");
+    CUfunction kernel_256_args = get_func("small_kernel_256_args");
+    CUfunction kernel_512_args = get_func("small_kernel_512_args");
+    CUfunction kernel_512_bools = get_func("small_kernel_512_bools");
+    CUfunction kernel_512_ints = get_func("small_kernel_512_ints");
     CUfunction kernel_512_doubles = get_func("small_kernel_512_doubles");
-    CUfunction kernel_512_chars  = get_func("small_kernel_512_chars");
+    CUfunction kernel_512_chars = get_func("small_kernel_512_chars");
     CUfunction kernel_512_longlongs = get_func("small_kernel_512_longlongs");
-    CUfunction kernel_2048B      = get_func("small_kernel_2048B");
+    CUfunction kernel_2048B = get_func("small_kernel_2048B");
 
     CUstream stream;
     check_cu(cuStreamCreate(&stream, CU_STREAM_NON_BLOCKING), "cuStreamCreate failed");
@@ -200,129 +211,170 @@ int main(int argc, char** argv) {
     }
 
     // Pre-pack pointer params
-    void* packed_16[16];
-    for (int i = 0; i < 16; ++i)
+    void *packed_16[16];
+    for (int i = 0; i < 16; ++i) {
         packed_16[i] = &int_ptrs[i];
+    }
 
-    void* packed_256[256];
-    for (int i = 0; i < 256; ++i)
+    void *packed_256[256];
+    for (int i = 0; i < 256; ++i) {
         packed_256[i] = &int_ptrs[i];
+    }
 
-    void* packed_512[512];
-    for (int i = 0; i < 512; ++i)
+    void *packed_512[512];
+    for (int i = 0; i < 512; ++i) {
         packed_512[i] = &int_ptrs[i];
+    }
 
     // Typed args for 512-arg benchmarks
     bool bool_args[512];
-    void* bool_params[512];
-    for (int i = 0; i < 512; ++i) { bool_args[i] = true; bool_params[i] = &bool_args[i]; }
+    void *bool_params[512];
+    for (int i = 0; i < 512; ++i) {
+        bool_args[i] = true;
+        bool_params[i] = &bool_args[i];
+    }
 
     int int_args[512];
-    void* int_params[512];
-    for (int i = 0; i < 512; ++i) { int_args[i] = 123; int_params[i] = &int_args[i]; }
+    void *int_params[512];
+    for (int i = 0; i < 512; ++i) {
+        int_args[i] = 123;
+        int_params[i] = &int_args[i];
+    }
 
     double double_args[512];
-    void* double_params[512];
-    for (int i = 0; i < 512; ++i) { double_args[i] = 1.2345; double_params[i] = &double_args[i]; }
+    void *double_params[512];
+    for (int i = 0; i < 512; ++i) {
+        double_args[i] = 1.2345;
+        double_params[i] = &double_args[i];
+    }
 
     char char_args[512];
-    void* char_params[512];
-    for (int i = 0; i < 512; ++i) { char_args[i] = 127; char_params[i] = &char_args[i]; }
+    void *char_params[512];
+    for (int i = 0; i < 512; ++i) {
+        char_args[i] = 127;
+        char_params[i] = &char_args[i];
+    }
 
     long long ll_args[512];
-    void* ll_params[512];
-    for (int i = 0; i < 512; ++i) { ll_args[i] = 9223372036854775806LL; ll_params[i] = &ll_args[i]; }
+    void *ll_params[512];
+    for (int i = 0; i < 512; ++i) {
+        ll_args[i] = 9223372036854775806LL;
+        ll_params[i] = &ll_args[i];
+    }
 
     // 2048-byte struct
-    struct alignas(8) Struct2048B { unsigned char p[2048]; } struct_2048B = {};
-    void* struct_params[] = {&struct_2048B};
+    struct alignas(8) Struct2048B {
+        unsigned char p[2048];
+    } struct_2048B = {};
+    void *struct_params[] = {&struct_2048B};
 
     bench::BenchmarkSuite suite(options);
     // After calibration, drain the persistent stream so the first measured
     // sample does not start on a backlogged stream. Calibration for enqueue-
     // style ops (kernel launches) may queue many thousands of operations.
-    suite.set_post_calibrate([&]() {
-        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
-    });
+    suite.set_post_calibrate([&]() { check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed"); });
 
     suite.run("launch.launch_empty_kernel", [&]() {
-        check_cu(cuLaunchKernel(empty_kernel, 1, 1, 1, 1, 1, 1, 0, stream, nullptr, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(cuLaunchKernel(empty_kernel, 1, 1, 1, 1, 1, 1, 0, stream, nullptr, nullptr), "cuLaunchKernel failed");
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     {
-        void* params[] = {&float_ptr};
+        void *params[] = {&float_ptr};
         suite.run("launch.launch_small_kernel", [&]() {
-            check_cu(cuLaunchKernel(small_kernel, 1, 1, 1, 1, 1, 1, 0, stream, params, nullptr),
-                     "cuLaunchKernel failed");
+            check_cu(
+                cuLaunchKernel(small_kernel, 1, 1, 1, 1, 1, 1, 0, stream, params, nullptr),
+                "cuLaunchKernel failed"
+            );
         });
     }
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_16_args", [&]() {
-        check_cu(cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_16_args_pre_packed", [&]() {
-        check_cu(cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_16_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_16, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_256_args", [&]() {
-        check_cu(cuLaunchKernel(kernel_256_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_256, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_256_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_256, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_512_args", [&]() {
-        check_cu(cuLaunchKernel(kernel_512_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_512, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_512_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_512, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_512_args_pre_packed", [&]() {
-        check_cu(cuLaunchKernel(kernel_512_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_512, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_512_args, 1, 1, 1, 1, 1, 1, 0, stream, packed_512, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_512_bools", [&]() {
-        check_cu(cuLaunchKernel(kernel_512_bools, 1, 1, 1, 1, 1, 1, 0, stream, bool_params, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_512_bools, 1, 1, 1, 1, 1, 1, 0, stream, bool_params, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_512_ints", [&]() {
-        check_cu(cuLaunchKernel(kernel_512_ints, 1, 1, 1, 1, 1, 1, 0, stream, int_params, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_512_ints, 1, 1, 1, 1, 1, 1, 0, stream, int_params, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_512_doubles", [&]() {
-        check_cu(cuLaunchKernel(kernel_512_doubles, 1, 1, 1, 1, 1, 1, 0, stream, double_params, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_512_doubles, 1, 1, 1, 1, 1, 1, 0, stream, double_params, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_512_bytes", [&]() {
-        check_cu(cuLaunchKernel(kernel_512_chars, 1, 1, 1, 1, 1, 1, 0, stream, char_params, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_512_chars, 1, 1, 1, 1, 1, 1, 0, stream, char_params, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_512_longlongs", [&]() {
-        check_cu(cuLaunchKernel(kernel_512_longlongs, 1, 1, 1, 1, 1, 1, 0, stream, ll_params, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_512_longlongs, 1, 1, 1, 1, 1, 1, 0, stream, ll_params, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
     suite.run("launch.launch_2048b", [&]() {
-        check_cu(cuLaunchKernel(kernel_2048B, 1, 1, 1, 1, 1, 1, 0, stream, struct_params, nullptr),
-                 "cuLaunchKernel failed");
+        check_cu(
+            cuLaunchKernel(kernel_2048B, 1, 1, 1, 1, 1, 1, 0, stream, struct_params, nullptr),
+            "cuLaunchKernel failed"
+        );
     });
     check_cu(cuStreamSynchronize(stream), "sync");
 
