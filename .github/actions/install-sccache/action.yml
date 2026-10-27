@@ -12,13 +12,17 @@ description: Download, verify, and install a pinned rapidsai/sccache binary on L
 # Cross-check against the `.sha256` files published on the GitHub release.
 #
 # Security note (eMudhra/emSign CA incident):
-# - Every version bump MUST repeat the embedded-roots check on the downloaded
-#   binaries (confirming either no embedded `webpki-roots` root list -- deferring
-#   to the OS trust store via `rustls-platform-verifier` -- or an embedded
-#   `webpki-roots` list at 1.0.10 or later that excludes `emSign ECC Root CA - G3`).
+# - Every version bump MUST repeat the embedded-roots check on the extracted
+#   `sccache` binary:
+#     grep -ac 'ISRG Root X1' sccache  # >0 means a root list is embedded
+#     grep -ac 'emSign' sccache        # must be 0
+#   Pass criteria: either no embedded root list (both return 0; binary defers
+#   to the OS trust store via `rustls-platform-verifier`, as verified for
+#   `rapidsai/sccache` v0.18.0-rapids.7), or an embedded `webpki-roots` list
+#   at 1.0.10+ where `ISRG Root X1` matches and `emSign` returns 0.
 # - Do NOT switch to or bump `mozilla/sccache` to v0.19.0 (or later without
 #   repeating the roots check): `mozilla/sccache` v0.19.0 re-embeds
-#   `webpki-roots` 1.0.5, which still trusts the affected eMudhra root.
+#   `webpki-roots` 1.0.5, which still trusts `emSign ECC Root CA - G3`.
 
 runs:
   using: composite
