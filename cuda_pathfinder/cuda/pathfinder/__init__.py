@@ -11,6 +11,11 @@ from cuda.pathfinder._binaries.find_nvidia_binary_utility import (
     find_nvidia_binary_utility as find_nvidia_binary_utility,
 )
 from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARIES as _SUPPORTED_BINARIES
+from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import LocatedDynamicLib as LocatedDynamicLib
+from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import find_nvidia_dynamic_lib as find_nvidia_dynamic_lib
+from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import (
+    locate_nvidia_dynamic_lib as locate_nvidia_dynamic_lib,
+)
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
     DynamicLibNotAvailableError as DynamicLibNotAvailableError,
 )
@@ -76,8 +81,8 @@ SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
 SUPPORTED_BINARY_UTILITIES = _SUPPORTED_BINARIES
 
 #: Tuple of CUDA Toolkit dynamic library names supported by
-#: :func:`load_nvidia_dynamic_lib` for the current operating system and
-#: interpreter architecture.
+#: :func:`load_nvidia_dynamic_lib` and :func:`locate_nvidia_dynamic_lib` for
+#: the current operating system and interpreter architecture.
 SUPPORTED_NVIDIA_LIBNAMES = _SUPPORTED_NVIDIA_LIBNAMES
 
 #: Tuple of supported bitcode library names that can be resolved

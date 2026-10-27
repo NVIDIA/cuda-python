@@ -6,8 +6,8 @@
 ``cuda.pathfinder`` API Reference
 =================================
 
-The ``cuda.pathfinder`` module provides utilities for loading NVIDIA dynamic libraries,
-locating NVIDIA C/C++ header directories, finding CUDA binary utilities, and locating
+The ``cuda.pathfinder`` module provides utilities for loading and locating NVIDIA dynamic
+libraries, locating NVIDIA C/C++ header directories, finding CUDA binary utilities, and locating
 CUDA bitcode and static libraries.
 
 .. NOTE: The source of truth for public APIs is cuda_pathfinder/cuda/pathfinder/__init__.py.
@@ -21,6 +21,9 @@ CUDA bitcode and static libraries.
    SUPPORTED_NVIDIA_LIBNAMES
    load_nvidia_dynamic_lib
    LoadedDL
+   find_nvidia_dynamic_lib
+   locate_nvidia_dynamic_lib
+   LocatedDynamicLib
    DynamicLibNotFoundError
    DynamicLibUnknownError
    DynamicLibNotAvailableError
