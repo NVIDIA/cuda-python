@@ -321,6 +321,13 @@ Fixes and enhancements
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
 
+- A :class:`Stream` over the NULL stream (handle 0), such as
+  ``Stream.from_handle(0)``, no longer caches the first context and device it
+  observes. Like ``LEGACY_DEFAULT_STREAM`` and ``PER_THREAD_DEFAULT_STREAM``
+  since 1.2.0, it now resolves ``Stream.context``, ``Stream.device``,
+  ``Stream.resources`` and ``Stream.record()`` against the current context.
+  (`#3242 <https://github.com/NVIDIA/cuda-python/issues/3242>`__)
+
 Deprecations
 ------------
 
