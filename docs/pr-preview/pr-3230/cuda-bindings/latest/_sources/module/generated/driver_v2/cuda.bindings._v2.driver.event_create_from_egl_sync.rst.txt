@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.event\_create\_from\_egl\_sync
-========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: event_create_from_egl_sync

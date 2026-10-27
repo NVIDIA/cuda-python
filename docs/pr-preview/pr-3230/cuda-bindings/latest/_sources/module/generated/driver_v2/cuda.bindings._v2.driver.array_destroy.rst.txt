@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.array\_destroy
-========================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: array_destroy

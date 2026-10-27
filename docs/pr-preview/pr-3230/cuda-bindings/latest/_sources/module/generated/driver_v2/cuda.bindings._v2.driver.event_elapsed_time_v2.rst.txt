@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.event\_elapsed\_time\_v2
-==================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: event_elapsed_time_v2

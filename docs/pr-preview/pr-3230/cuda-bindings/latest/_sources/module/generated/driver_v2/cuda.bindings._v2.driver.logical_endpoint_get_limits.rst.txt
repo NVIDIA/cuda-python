@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.logical\_endpoint\_get\_limits
-========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: logical_endpoint_get_limits

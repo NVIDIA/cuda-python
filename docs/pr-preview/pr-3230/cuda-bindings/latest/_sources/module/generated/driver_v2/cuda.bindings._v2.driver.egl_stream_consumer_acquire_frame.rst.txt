@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.egl\_stream\_consumer\_acquire\_frame
-===============================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: egl_stream_consumer_acquire_frame
