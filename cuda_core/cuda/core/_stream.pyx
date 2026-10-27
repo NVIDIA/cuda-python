@@ -522,13 +522,14 @@ cdef inline bint Stream_handle_is_default_token(cydriver.CUstream s) noexcept no
 
     These tokens carry no context of their own; they refer to whatever context
     is current, so nothing resolved from one may be cached on the object.
+    The NULL stream (handle 0) is such a token too.
     """
     cdef uintptr_t h = <uintptr_t>s
-    return h == <uintptr_t>cydriver.CU_STREAM_LEGACY or h == <uintptr_t>cydriver.CU_STREAM_PER_THREAD
+    return h == 0 or h == <uintptr_t>cydriver.CU_STREAM_LEGACY or h == <uintptr_t>cydriver.CU_STREAM_PER_THREAD
 
 
 cdef inline bint Stream_is_default_token(Stream self) noexcept nogil:
-    """Return True when this stream is CU_STREAM_LEGACY or CU_STREAM_PER_THREAD."""
+    """Return True when this stream is the NULL stream, CU_STREAM_LEGACY or CU_STREAM_PER_THREAD."""
     return Stream_handle_is_default_token(as_cu(self._h_stream))
 
 

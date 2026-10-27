@@ -15,6 +15,7 @@ from cuda.core import (
     ProgramOptions,
     SMResource,
     SMResourceOptions,
+    Stream,
     WorkqueueResource,
     WorkqueueResourceOptions,
     launch,
@@ -559,6 +560,17 @@ class TestGreenContextLifecycle:
         assert event.context == green_ctx
         stream.sync()
         event.sync()
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_null_stream_follows_current_context(self, init_cuda, green_ctx):
+        stream = Stream.from_handle(0)
+        assert stream.context == init_cuda.context
+
+        with use_context(init_cuda, green_ctx):
+            assert stream.context == green_ctx
+            assert stream.record().context == green_ctx
+
+        assert stream.context == init_cuda.context
 
     @pytest.mark.agent_authored(model="gpt-5.6")
     def test_device_receiver_targets_stored_green_context(self, init_cuda, green_ctx):
