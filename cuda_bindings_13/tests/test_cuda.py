@@ -524,6 +524,7 @@ def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
     or not supportsCudaAPI("coredump_get_attribute_global"),
     reason="Coredump API not present",
 )
+@pytest.mark.thread_unsafe(reason="coredump settings are process-global")
 def test_cuda_coredump_attr():
     attr_list = [None] * 6
 
@@ -549,6 +550,7 @@ def test_cuda_coredump_attr():
     assert attr_list[3] is True
 
 
+@pytest.mark.thread_unsafe(reason="coredump settings are process-global")
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_coredump_bool_uses_single_byte_storage():
     # Round-trip a bool-valued setting in both directions; a getter that read
@@ -639,6 +641,7 @@ def test_ffi_coverage_new_mem_range_attributes():
         driver.mem_free_v2(ptr)
 
 
+@pytest.mark.thread_unsafe(reason="coredump settings are process-global")
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
 def test_ffi_coverage_coredump_generation_flags():
     """CoredumpSettings.GENERATION_FLAGS is an unsigned int bitmask."""
