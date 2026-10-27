@@ -41,6 +41,14 @@ repos:
 
   - repo: local
     hooks:
+      # cuda.h and nvrtc.h come from pinned nvidia-cuda-* wheels, so no local CUDA Toolkit is needed.
+      - id: clang-tidy
+        name: clang-tidy
+        entry: python ./toolshed/run_clang_tidy.py --cuda-wheel
+        language: python
+        files: ^cuda_core/cuda/core/_cpp/.*\.cpp$
+        additional_dependencies: [clang-tidy==22.1.8, nvidia-cuda-runtime==13.4.92, nvidia-cuda-nvrtc==13.4.92]
+
       - id: check-precommit-installed
         name: Warn if the pre-commit git hook is not installed
         entry: python ./toolshed/check_precommit_installed.py

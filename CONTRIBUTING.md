@@ -32,6 +32,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Review Guidance](#review-guidance)
     - [Pull Request Reviews](#pull-request-reviews)
   - [Pixi lockfiles](#pixi-lockfiles)
+  - [Secret Scanning](#secret-scanning)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -246,6 +247,12 @@ hook environment, so no system-wide installation is required. Vendored code
 (for example `dlpack.h` and `cuda_core/third_party/`) is excluded in
 `.pre-commit-config.yaml`. To format in your editor, install the same version
 with `pip install clang-format==23.1.3`.
+
+`cuda_core`'s C++ sources are also checked with `clang-tidy`, configured by
+[`.clang-tidy`](.clang-tidy).  To apply automatic fixes, run the script directly
+with clang-tidy's `--fix` option (without `--cuda-wheel` it uses `CUDA_PATH` or
+`CUDA_HOME`) and then run clang-format on the result: `python
+toolshed/run_clang_tidy.py --fix <files>`.
 
 ## CodeRabbit
 
