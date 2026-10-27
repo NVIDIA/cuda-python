@@ -425,7 +425,11 @@ def vmm_ipc_device_x2(device_x2):
         yield devices
 
 
-_fabric_allocation_error = {}  # device ordinal -> "" when a fabric allocation works there, else the error
+_fabric_allocation_error = {}  # device ordinal -> "" when a fabric allocation works there, else the status
+# The statuses with which cuMemCreate refuses a fabric allocation on a device without a usable fabric
+# (NOT_PERMITTED on the CI runners, INVALID_VALUE on an H200 without an IMEX channel). Any other
+# failure of the probe is a real error and propagates.
+_FABRIC_REFUSED = ("CUDA_ERROR_NOT_PERMITTED", "CUDA_ERROR_NOT_SUPPORTED", "CUDA_ERROR_INVALID_VALUE")
 
 
 def _require_vmm_fabric_device(device):
@@ -451,7 +455,10 @@ def _require_vmm_fabric_device(device):
             mr.allocate(1).close()
             _fabric_allocation_error[device.device_id] = ""
         except CUDAError as exc:
-            _fabric_allocation_error[device.device_id] = str(exc).splitlines()[0]
+            status = str(exc).split(":", 1)[0]
+            if status not in _FABRIC_REFUSED:
+                raise
+            _fabric_allocation_error[device.device_id] = status
         finally:
             current.set_current()
     if _fabric_allocation_error[device.device_id]:
