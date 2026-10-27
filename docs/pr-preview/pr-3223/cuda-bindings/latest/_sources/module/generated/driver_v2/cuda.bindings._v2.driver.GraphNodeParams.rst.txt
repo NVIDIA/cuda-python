@@ -1,0 +1,46 @@
+﻿cuda.bindings.\_v2.driver.GraphNodeParams
+=========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: GraphNodeParams
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GraphNodeParams.__init__
+      ~GraphNodeParams.from_buffer
+      ~GraphNodeParams.from_data
+      ~GraphNodeParams.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GraphNodeParams.alloc
+      ~GraphNodeParams.as_bytes
+      ~GraphNodeParams.conditional
+      ~GraphNodeParams.event_record
+      ~GraphNodeParams.event_wait
+      ~GraphNodeParams.ext_sem_signal
+      ~GraphNodeParams.ext_sem_wait
+      ~GraphNodeParams.free
+      ~GraphNodeParams.graph
+      ~GraphNodeParams.host
+      ~GraphNodeParams.kernel
+      ~GraphNodeParams.mem_op
+      ~GraphNodeParams.memcpy
+      ~GraphNodeParams.memset
+      ~GraphNodeParams.ptr
+      ~GraphNodeParams.type
+   
+   

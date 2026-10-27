@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.NotMappedAsArrayError
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: NotMappedAsArrayError
