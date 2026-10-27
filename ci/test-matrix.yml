@@ -21,8 +21,15 @@
 #                    or ci/tools/install_gpu_driver.ps1 (Windows) at the start of the
 #                    job. The matrix row is routed to the 'latest' runner image (the
 #                    install scripts swap the driver themselves). A version-string
-#                    row must also set DRIVER_SHA256 (regenerate with:
-#                    `curl -fsSL <installer-url> | sha256sum`).
+#                    row must also set DRIVER_SHA256: the SHA-256 of the exact
+#                    installer the script downloads (see the URL construction in
+#                    install_gpu_driver.sh / .ps1; Windows data-center and desktop
+#                    installers differ). Whoever changes DRIVER owns this value:
+#                    compute it on a machine with an up-to-date trust store, e.g.
+#                    `curl -fsSL <installer-url> | sha256sum`, and state in the PR
+#                    how it was obtained; reviewers should recompute it. Treat a
+#                    CI hash mismatch as possible tampering -- never copy the
+#                    "got" value from a job log into this file.
 # - DRIVER: 'earliest' does not work with CUDA 12.9.1
 # - DRIVER: a custom version is not supported with FLAVOR=wsl on Linux.
 # - ENV: optional map of extra environment variables to inject into the test
