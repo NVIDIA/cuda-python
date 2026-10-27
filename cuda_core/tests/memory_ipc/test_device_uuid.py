@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Resources sent to another process keep their devices when the ordinals differ (issue #3097).
+"""Devices and resources sent to another process keep their devices when the ordinals differ.
 
 The child process sees the parent's two devices in reversed order, so each
-ordinal names the other device there. The child must still rebuild the
-resource for the device that owns the memory, and the peers of a
-``VirtualMemoryResource`` must name the same devices as in the parent.
+ordinal names the other device there. A ``Device`` must arrive as the device
+with the same UUID (issue #3196), the child must rebuild a resource for the
+device that owns the memory, and the peers of a ``VirtualMemoryResource`` must
+name the same devices as in the parent (issue #3097).
 """
 
 import contextlib
@@ -78,7 +79,9 @@ def _child_main(inbox, outbox):
 
 
 def _receive(obj):
-    """Describe the received buffer in terms of device UUIDs, which do not depend on the ordinals."""
+    """Describe the received object in terms of device UUIDs, which do not depend on the ordinals."""
+    if isinstance(obj, Device):
+        return {"device_id": obj.device_id, "device_uuid": obj.uuid}
     if not isinstance(obj, Buffer):
         return {"received": type(obj).__name__}
     mr = obj.memory_resource
@@ -121,19 +124,42 @@ def _check_report(report, owner):
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 @pytest.mark.thread_unsafe(reason="sets CUDA_VISIBLE_DEVICES, which is process-global")
+def test_device(device_x2):
+    """A Device arrives as the device with the same UUID, not the device with the same ordinal."""
+    dev0, dev1 = device_x2
+    report = _send_to_child(dev0, visible=(dev1, dev0))
+    assert "error" not in report, f"the child could not receive the device: {report}"
+    assert report["device_id"] != dev0.device_id, "CUDA_VISIBLE_DEVICES did not reorder the devices in the child"
+    assert report["device_uuid"] == dev0.uuid
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.thread_unsafe(reason="sets CUDA_VISIBLE_DEVICES, which is process-global")
+def test_device_not_visible(device_x2):
+    """A child that cannot see the device refuses it and names the missing UUID."""
+    dev0, dev1 = device_x2
+    report = _send_to_child(dev0, visible=(dev1,))
+    assert report["error"] == "RuntimeError", report
+    assert f"no CUDA device visible to this process has UUID {dev0.uuid}" in report["message"]
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.thread_unsafe(reason="sets CUDA_VISIBLE_DEVICES, which is process-global")
 def test_device_memory_resource_buffer(ipc_mempool_device_x2):
     """A pool-backed buffer comes back on the device that owns it, not on the device with the same ordinal."""
     dev0, dev1 = ipc_mempool_device_x2
     mr = DeviceMemoryResource(dev0, options=DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
-    buf = mr.allocate(NBYTES, stream=dev0.default_stream)
-    _fill(dev0, buf)
-
-    report = _send_to_child(buf, visible=(dev1, dev0))
-    _check_report(report, dev0)
-
-    buf.close()
-    dev0.sync()
-    mr.close()
+    buf = None
+    try:
+        buf = mr.allocate(NBYTES, stream=dev0.default_stream)
+        _fill(dev0, buf)
+        report = _send_to_child(buf, visible=(dev1, dev0))
+        _check_report(report, dev0)
+    finally:
+        if buf is not None:
+            buf.close()
+        dev0.sync()
+        mr.close()
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
@@ -143,14 +169,14 @@ def test_virtual_memory_resource_buffer(vmm_ipc_device_x2):
     dev0, dev1 = vmm_ipc_device_x2
     mr = _vmm_resource(dev0)
     buf = mr.allocate(NBYTES)
-    _fill(dev0, buf)
-
-    report = _send_to_child(buf, visible=(dev1, dev0))
-    _check_report(report, dev0)
-    assert report["peer_uuids"] == []
-
-    buf.close()
-    dev0.sync()
+    try:
+        _fill(dev0, buf)
+        report = _send_to_child(buf, visible=(dev1, dev0))
+        _check_report(report, dev0)
+        assert report["peer_uuids"] == []
+    finally:
+        buf.close()
+        dev0.sync()
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
@@ -162,15 +188,15 @@ def test_virtual_memory_resource_peers(vmm_ipc_device_x2):
         pytest.skip("Test requires peer access from the second device to the first")
     mr = _vmm_resource(dev0, peers=(dev1.device_id,))
     buf = mr.allocate(NBYTES)
-    _fill(dev0, buf)
-
-    report = _send_to_child(buf, visible=(dev1, dev0))
-    _check_report(report, dev0)
-    assert report["peer_uuids"] == [dev1.uuid]
-    assert report["peer_access"] == [3]
-
-    buf.close()
-    dev0.sync()
+    try:
+        _fill(dev0, buf)
+        report = _send_to_child(buf, visible=(dev1, dev0))
+        _check_report(report, dev0)
+        assert report["peer_uuids"] == [dev1.uuid]
+        assert report["peer_access"] == [3]
+    finally:
+        buf.close()
+        dev0.sync()
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
@@ -183,18 +209,18 @@ def test_virtual_memory_resource_peers_from_generator(vmm_ipc_device_x2):
     mr = _vmm_resource(dev0, peers=(peer for peer in (dev1.device_id,)))
     first = mr.allocate(NBYTES)
     buf = mr.allocate(NBYTES)
-    _fill(dev0, buf)
-    assert _access_flags(first, dev1.device_id) == 3
-    assert _access_flags(buf, dev1.device_id) == 3
-
-    report = _send_to_child(buf, visible=(dev1, dev0))
-    _check_report(report, dev0)
-    assert report["peer_uuids"] == [dev1.uuid]
-    assert report["peer_access"] == [3]
-
-    first.close()
-    buf.close()
-    dev0.sync()
+    try:
+        _fill(dev0, buf)
+        assert _access_flags(first, dev1.device_id) == 3
+        assert _access_flags(buf, dev1.device_id) == 3
+        report = _send_to_child(buf, visible=(dev1, dev0))
+        _check_report(report, dev0)
+        assert report["peer_uuids"] == [dev1.uuid]
+        assert report["peer_access"] == [3]
+    finally:
+        first.close()
+        buf.close()
+        dev0.sync()
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")

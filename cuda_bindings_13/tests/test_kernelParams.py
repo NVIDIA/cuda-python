@@ -7,15 +7,12 @@ import numpy as np
 import pytest
 
 import cuda.bindings._v2.nvrtc as nvrtc
-import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+from cuda.bindings._v2 import driver
 
 
 def ASSERT_DRV(err):
-    if isinstance(err, cuda.CUresult):
-        if err != cuda.CUresult.CUDA_SUCCESS:
-            raise RuntimeError(f"Cuda Error: {err}")
-    elif isinstance(err, cudart.cudaError_t):
+    if isinstance(err, cudart.cudaError_t):
         if err != cudart.cudaError_t.cudaSuccess:
             raise RuntimeError(f"Cudart Error: {err}")
     else:
@@ -23,10 +20,8 @@ def ASSERT_DRV(err):
 
 
 def common_nvrtc(allKernelStrings, dev):
-    err, major = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, dev)
-    ASSERT_DRV(err)
-    err, minor = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, dev)
-    ASSERT_DRV(err)
+    major = driver.device_get_attribute(driver.DeviceAttribute.COMPUTE_CAPABILITY_MAJOR, dev)
+    minor = driver.device_get_attribute(driver.DeviceAttribute.COMPUTE_CAPABILITY_MINOR, dev)
     _, nvrtc_minor = nvrtc.version()
     use_cubin = nvrtc_minor >= 1
     prefix = "sm" if use_cubin else "compute"
@@ -46,8 +41,7 @@ def common_nvrtc(allKernelStrings, dev):
     else:
         data = nvrtc.get_ptx(prog)
 
-    err, module = cuda.cuModuleLoadData(np.char.array(data))
-    ASSERT_DRV(err)
+    module = driver.module_load_data(np.char.array(data))
 
     return module
 
@@ -66,13 +60,11 @@ def test_kernelParams_empty(device):
     module = common_nvrtc(kernelString, device)
 
     # cudaStructs kernel
-    err, kernel = cuda.cuModuleGetFunction(module, b"empty_kernel")
-    ASSERT_DRV(err)
+    kernel = driver.module_get_function(module, b"empty_kernel")
 
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    stream = driver.stream_create(0)
 
-    (err,) = cuda.cuLaunchKernel(
+    driver.launch_kernel(
         kernel,
         1,
         1,
@@ -85,8 +77,7 @@ def test_kernelParams_empty(device):
         ((), ()),
         0,
     )  # arguments
-    ASSERT_DRV(err)
-    (err,) = cuda.cuLaunchKernel(
+    driver.launch_kernel(
         kernel,
         1,
         1,
@@ -99,23 +90,30 @@ def test_kernelParams_empty(device):
         None,
         0,
     )  # arguments
-    ASSERT_DRV(err)
 
     # Retrieve global and validate
     isDone_host = ctypes.c_bool()
-    err, isDonePtr_device, isDonePtr_device_size = cuda.cuModuleGetGlobal(module, b"isDone")
-    ASSERT_DRV(err)
+    isDonePtr_device, isDonePtr_device_size = driver.module_get_global_v2(module, b"isDone")
     assert isDonePtr_device_size == ctypes.sizeof(ctypes.c_bool)
-    (err,) = cuda.cuMemcpyDtoHAsync(isDone_host, isDonePtr_device, ctypes.sizeof(ctypes.c_bool), stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    driver.memcpy_dtoh_async_v2(ctypes.addressof(isDone_host), isDonePtr_device, ctypes.sizeof(ctypes.c_bool), stream)
+    driver.stream_synchronize(stream)
     assert isDone_host.value is True
 
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    driver.stream_destroy_v2(stream)
+    driver.module_unload(module)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_module_get_function_errors(device):
+    module = common_nvrtc('extern "C" __global__ void empty_kernel() {}', device)
+    try:
+        # Symbol names are `bytes`, as in the legacy API; a `str` is not encoded implicitly.
+        with pytest.raises(driver.NotFoundError):
+            driver.module_get_function(module, b"no_such_kernel")
+        with pytest.raises(ValueError):
+            driver.module_get_function(module, "empty_kernel")
+    finally:
+        driver.module_unload(module)
 
 
 @pytest.mark.parametrize("use_ctypes_as_values", [False, True], ids=["no-ctypes", "ctypes"])
@@ -254,69 +252,51 @@ def test_kernelParams(use_ctypes_as_values, device):
 
     module = common_nvrtc(basicKernelString, device)
 
-    err, kernel = cuda.cuModuleGetFunction(module, b"basic")
-    ASSERT_DRV(err)
+    kernel = driver.module_get_function(module, b"basic")
 
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    stream = driver.stream_create(0)
 
     # Prepare kernel
-    err, pb = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_bool))
-    ASSERT_DRV(err)
-    err, pc = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_char))
-    ASSERT_DRV(err)
-    err, pwc = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_wchar))
-    ASSERT_DRV(err)
-    err, pbyte = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_byte))
-    ASSERT_DRV(err)
-    err, pubyte = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_ubyte))
-    ASSERT_DRV(err)
-    err, ps = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_short))
-    ASSERT_DRV(err)
-    err, pus = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_ushort))
-    ASSERT_DRV(err)
-    err, pi = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_int))
-    ASSERT_DRV(err)
-    err, pui = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_uint))
-    ASSERT_DRV(err)
-    err, pl = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_long))
-    ASSERT_DRV(err)
-    err, pul = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_ulong))
-    ASSERT_DRV(err)
-    err, pll = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_longlong))
-    ASSERT_DRV(err)
-    err, pull = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_ulonglong))
-    ASSERT_DRV(err)
-    err, psize = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_size_t))
-    ASSERT_DRV(err)
-    err, pf = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_float))
-    ASSERT_DRV(err)
-    err, pd = cuda.cuMemAlloc(ctypes.sizeof(ctypes.c_double))
-    ASSERT_DRV(err)
+    pb = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_bool))
+    pc = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_char))
+    pwc = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_wchar))
+    pbyte = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_byte))
+    pubyte = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_ubyte))
+    ps = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_short))
+    pus = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_ushort))
+    pi = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_int))
+    pui = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_uint))
+    pl = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_long))
+    pul = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_ulong))
+    pll = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_longlong))
+    pull = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_ulonglong))
+    psize = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_size_t))
+    pf = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_float))
+    pd = driver.mem_alloc_v2(ctypes.sizeof(ctypes.c_double))
 
     assertValues_device = (pb, pc, pwc, pbyte, pubyte, ps, pus, pi, pui, pl, pul, pll, pull, psize, pf, pd)
     assertTypes_device = (
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
     )
 
     basicKernelValues = assertValues_host + assertValues_device
     basicKernelTypes = assertTypes_host + assertTypes_device
-    (err,) = cuda.cuLaunchKernel(
+    driver.launch_kernel(
         kernel,
         1,
         1,
@@ -329,19 +309,16 @@ def test_kernelParams(use_ctypes_as_values, device):
         (basicKernelValues, basicKernelTypes),
         0,
     )  # arguments
-    ASSERT_DRV(err)
 
     # Retrieve each dptr
     host_params = tuple([valueType() for valueType in assertTypes_host[:-1]])
     for i in range(len(host_params)):
-        (err,) = cuda.cuMemcpyDtoHAsync(
-            host_params[i], assertValues_device[i], ctypes.sizeof(assertTypes_host[i]), stream
+        driver.memcpy_dtoh_async_v2(
+            ctypes.addressof(host_params[i]), assertValues_device[i], ctypes.sizeof(assertTypes_host[i]), stream
         )
-        ASSERT_DRV(err)
 
     # Validate retrieved values
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    driver.stream_synchronize(stream)
     for i in range(len(host_params)):
         val = basicKernelValues[i].value if use_ctypes_as_values else basicKernelValues[i]
         if basicKernelTypes[i] == ctypes.c_float:
@@ -352,49 +329,28 @@ def test_kernelParams(use_ctypes_as_values, device):
         else:
             assert val == host_params[i].value
 
-    (err,) = cuda.cuMemFree(pb)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pc)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pwc)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pbyte)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pubyte)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(ps)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pus)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pi)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pui)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pl)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pul)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pll)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pull)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(psize)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pf)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuMemFree(pd)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    driver.mem_free_v2(pb)
+    driver.mem_free_v2(pc)
+    driver.mem_free_v2(pwc)
+    driver.mem_free_v2(pbyte)
+    driver.mem_free_v2(pubyte)
+    driver.mem_free_v2(ps)
+    driver.mem_free_v2(pus)
+    driver.mem_free_v2(pi)
+    driver.mem_free_v2(pui)
+    driver.mem_free_v2(pl)
+    driver.mem_free_v2(pul)
+    driver.mem_free_v2(pll)
+    driver.mem_free_v2(pull)
+    driver.mem_free_v2(psize)
+    driver.mem_free_v2(pf)
+    driver.mem_free_v2(pd)
+    driver.stream_destroy_v2(stream)
+    driver.module_unload(module)
 
 
 def test_kernelParams_types_cuda(device):
-    err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
-    )
-    ASSERT_DRV(err)
+    uvaSupported = driver.device_get_attribute(driver.DeviceAttribute.UNIFIED_ADDRESSING, device)
 
     err, perr = cudart.cudaMalloc(ctypes.sizeof(ctypes.c_int))
     ASSERT_DRV(err)
@@ -448,13 +404,11 @@ def test_kernelParams_types_cuda(device):
     module = common_nvrtc(kernelString, device)
 
     # cudaStructs kernel
-    err, kernel = cuda.cuModuleGetFunction(module, b"structsCuda")
-    ASSERT_DRV(err)
+    kernel = driver.module_get_function(module, b"structsCuda")
 
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    stream = driver.stream_create(0)
 
-    (err,) = cuda.cuLaunchKernel(
+    driver.launch_kernel(
         kernel,
         1,
         1,
@@ -467,7 +421,6 @@ def test_kernelParams_types_cuda(device):
         (kernelValues, kernelTypes),
         0,
     )  # arguments
-    ASSERT_DRV(err)
 
     # Retrieve each dptr
     host_err = ctypes.c_int()
@@ -481,8 +434,7 @@ def test_kernelParams_types_cuda(device):
     ASSERT_DRV(err)
 
     # Validate kernel values
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    driver.stream_synchronize(stream)
     cuda_err = cudart.cudaError_t(host_err.value)
 
     if uvaSupported:
@@ -506,17 +458,12 @@ def test_kernelParams_types_cuda(device):
     ASSERT_DRV(err)
     (err,) = cudart.cudaFreeHost(pDim3_host)
     ASSERT_DRV(err)
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    driver.stream_destroy_v2(stream)
+    driver.module_unload(module)
 
 
 def test_kernelParams_struct_custom(device):
-    err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
-    )
-    ASSERT_DRV(err)
+    uvaSupported = driver.device_get_attribute(driver.DeviceAttribute.UNIFIED_ADDRESSING, device)
 
     kernelString = """\
     struct testStruct {
@@ -532,11 +479,9 @@ def test_kernelParams_struct_custom(device):
 
     module = common_nvrtc(kernelString, device)
 
-    err, kernel = cuda.cuModuleGetFunction(module, b"structCustom")
-    ASSERT_DRV(err)
+    kernel = driver.module_get_function(module, b"structCustom")
 
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    stream = driver.stream_create(0)
 
     # structCustom kernel
     class testStruct(ctypes.Structure):
@@ -554,7 +499,7 @@ def test_kernelParams_struct_custom(device):
         kernelValues = (testStruct(5), pStruct_device)
     kernelTypes = (None, ctypes.c_void_p)
 
-    (err,) = cuda.cuLaunchKernel(
+    driver.launch_kernel(
         kernel,
         1,
         1,
@@ -567,28 +512,21 @@ def test_kernelParams_struct_custom(device):
         (kernelValues, kernelTypes),
         0,
     )  # arguments
-    ASSERT_DRV(err)
 
     # Validate kernel values
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    driver.stream_synchronize(stream)
     struct_shared = testStruct.from_address(pStruct_host)
     assert kernelValues[0].value == struct_shared.value
 
     (err,) = cudart.cudaFreeHost(pStruct_host)
     ASSERT_DRV(err)
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    driver.stream_destroy_v2(stream)
+    driver.module_unload(module)
 
 
 @pytest.mark.parametrize("pass_by_address", [False, True], ids=["by-address", "not-by-address"])
 def test_kernelParams_buffer_protocol(pass_by_address, device):
-    err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
-    )
-    ASSERT_DRV(err)
+    uvaSupported = driver.device_get_attribute(driver.DeviceAttribute.UNIFIED_ADDRESSING, device)
 
     kernelString = """\
     struct testStruct {
@@ -607,11 +545,9 @@ def test_kernelParams_buffer_protocol(pass_by_address, device):
 
     module = common_nvrtc(kernelString, device)
 
-    err, kernel = cuda.cuModuleGetFunction(module, b"testkernel")
-    ASSERT_DRV(err)
+    kernel = driver.module_get_function(module, b"testkernel")
 
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    stream = driver.stream_create(0)
 
     # testkernel kernel
     class testStruct(ctypes.Structure):
@@ -653,7 +589,7 @@ def test_kernelParams_buffer_protocol(pass_by_address, device):
     packagedParams = (ctypes.c_void_p * len(kernelValues))()
     for idx in range(len(packagedParams)):
         packagedParams[idx] = ctypes.addressof(kernelValues[idx])
-    (err,) = cuda.cuLaunchKernel(
+    driver.launch_kernel(
         kernel,
         1,
         1,
@@ -666,28 +602,21 @@ def test_kernelParams_buffer_protocol(pass_by_address, device):
         ctypes.addressof(packagedParams) if pass_by_address else packagedParams,
         0,
     )  # arguments
-    ASSERT_DRV(err)
 
     # Validate kernel values
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    driver.stream_synchronize(stream)
     assert kernelValues[0].value == ctypes.c_int.from_address(pInt_host).value
     assert kernelValues[2].value == ctypes.c_float.from_address(pFloat_host).value
     assert kernelValues[4].value == testStruct.from_address(pStruct_host).value
 
     (err,) = cudart.cudaFreeHost(pStruct_host)
     ASSERT_DRV(err)
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    driver.stream_destroy_v2(stream)
+    driver.module_unload(module)
 
 
 def test_kernelParams_buffer_protocol_numpy(device):
-    err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
-    )
-    ASSERT_DRV(err)
+    uvaSupported = driver.device_get_attribute(driver.DeviceAttribute.UNIFIED_ADDRESSING, device)
 
     kernelString = """\
     struct testStruct {
@@ -706,11 +635,9 @@ def test_kernelParams_buffer_protocol_numpy(device):
 
     module = common_nvrtc(kernelString, device)
 
-    err, kernel = cuda.cuModuleGetFunction(module, b"testkernel")
-    ASSERT_DRV(err)
+    kernel = driver.module_get_function(module, b"testkernel")
 
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    stream = driver.stream_create(0)
 
     # testkernel kernel
     testStruct = np.dtype([("value", np.int32)])
@@ -749,7 +676,7 @@ def test_kernelParams_buffer_protocol_numpy(device):
         )
 
     packagedParams = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.uint64)
-    (err,) = cuda.cuLaunchKernel(
+    driver.launch_kernel(
         kernel,
         1,
         1,
@@ -762,11 +689,9 @@ def test_kernelParams_buffer_protocol_numpy(device):
         packagedParams,
         0,
     )  # arguments
-    ASSERT_DRV(err)
 
     # Validate kernel values
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
+    driver.stream_synchronize(stream)
 
     class numpy_address_wrapper:
         def __init__(self, address, typestr):
@@ -778,10 +703,8 @@ def test_kernelParams_buffer_protocol_numpy(device):
 
     (err,) = cudart.cudaFreeHost(pStruct_host)
     ASSERT_DRV(err)
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    driver.stream_destroy_v2(stream)
+    driver.module_unload(module)
 
 
 def test_kernelParams_c_int_out_of_range_raises(device):
@@ -791,25 +714,19 @@ def test_kernelParams_c_int_out_of_range_raises(device):
     extern "C" __global__ void take_int(int i) {}
     """
     module = common_nvrtc(kernelString, device)
-    err, kernel = cuda.cuModuleGetFunction(module, b"take_int")
-    ASSERT_DRV(err)
-    err, stream = cuda.cuStreamCreate(0)
-    ASSERT_DRV(err)
+    kernel = driver.module_get_function(module, b"take_int")
+    stream = driver.stream_create(0)
 
     # An in-range value still packs and launches fine.
-    (err,) = cuda.cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((5,), (ctypes.c_int,)), 0)
-    ASSERT_DRV(err)
+    driver.launch_kernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((5,), (ctypes.c_int,)), 0)
 
     # Out-of-range values now raise OverflowError during packing (previously the
     # high bits were silently dropped, so the kernel saw a different value).
     with pytest.raises(OverflowError):
-        cuda.cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((2**32 + 5,), (ctypes.c_int,)), 0)
+        driver.launch_kernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((2**32 + 5,), (ctypes.c_int,)), 0)
     with pytest.raises(OverflowError):
-        cuda.cuLaunchKernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((200,), (ctypes.c_byte,)), 0)
+        driver.launch_kernel(kernel, 1, 1, 1, 1, 1, 1, 0, stream, ((200,), (ctypes.c_byte,)), 0)
 
-    (err,) = cuda.cuStreamSynchronize(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuStreamDestroy(stream)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
+    driver.stream_synchronize(stream)
+    driver.stream_destroy_v2(stream)
+    driver.module_unload(module)
