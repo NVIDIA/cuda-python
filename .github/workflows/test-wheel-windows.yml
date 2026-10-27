@@ -126,6 +126,7 @@ jobs:
           ref: ${{ github.sha }}
           path: .driver-tools
           sparse-checkout: ci/tools
+          persist-credentials: false
 
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}

@@ -31,8 +31,8 @@ def test_test_matrix_custom_drivers_have_valid_consistent_sha256() -> None:
                     continue
                 custom_rows += 1
                 sha256 = row.get("DRIVER_SHA256", "")
-                assert SHA256_RE.match(sha256), f"{platform}.{section_name}[{index}] has invalid DRIVER_SHA256"
-                key = (platform, str(row["ARCH"]), str(row["GPU"]), str(driver))
+                assert SHA256_RE.fullmatch(sha256), f"{platform}.{section_name}[{index}] has invalid DRIVER_SHA256"
+                key = (platform, str(row["ARCH"]), "" if platform == "linux" else str(row["GPU"]), str(driver))
                 assert seen_hashes.setdefault(key, sha256) == sha256, f"Conflicting DRIVER_SHA256 for {key}"
 
     assert custom_rows > 0
