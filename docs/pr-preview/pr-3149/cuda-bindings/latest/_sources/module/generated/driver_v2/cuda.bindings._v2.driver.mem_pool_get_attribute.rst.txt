@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_pool\_get\_attribute
+===================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_pool_get_attribute

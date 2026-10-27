@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_set\_mem\_pool
+=============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_set_mem_pool

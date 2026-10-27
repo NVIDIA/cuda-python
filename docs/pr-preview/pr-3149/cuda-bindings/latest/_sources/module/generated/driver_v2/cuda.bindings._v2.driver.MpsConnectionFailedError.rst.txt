@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.MpsConnectionFailedError
+==================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: MpsConnectionFailedError

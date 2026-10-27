@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_exec\_event\_record\_node\_set\_event
+======================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_exec_event_record_node_set_event
