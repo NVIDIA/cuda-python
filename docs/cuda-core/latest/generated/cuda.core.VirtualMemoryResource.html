@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=960edd7d"></script>
+    <script src="../_static/documentation_options.js?v=32765964"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev264';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev265';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -838,7 +838,7 @@ their ordinals are there; it raises <code class="docutils literal notranslate"><
 is not visible. Plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry the file descriptors; a
 process with its own file descriptor passing sends the descriptor’s
 <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, and <code class="docutils literal notranslate"><span class="pre">size</span></code> and rebuilds it with
-<code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.from_fds()</span></code>. The importing resource
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryFdBufferDescriptor.from_fds()</span></code>. The importing resource
 maps the memory for its device and the devices in its <code class="docutils literal notranslate"><span class="pre">peers</span></code> option,
 with its own access options. A descriptor pins the physical memory while
 it exists, in every process that holds one, and nothing else does. A

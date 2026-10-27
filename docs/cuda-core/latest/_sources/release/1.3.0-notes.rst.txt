@@ -97,7 +97,7 @@ New features
   physical allocation and pins the memory while it exists; nothing else does.
   A buffer that contains imported memory cannot be exported again. For a
   transport of your own, the descriptor exposes ``fds``, ``sizes``, and
-  ``size``, and ``VirtualMemoryIPCBufferDescriptor.from_fds()`` rebuilds it
+  ``size``, and ``VirtualMemoryFdBufferDescriptor.from_fds()`` rebuilds it
   in the receiver. Fabric handles are not shared yet.
   (`#2980 <https://github.com/NVIDIA/cuda-python/issues/2980>`__)
 
