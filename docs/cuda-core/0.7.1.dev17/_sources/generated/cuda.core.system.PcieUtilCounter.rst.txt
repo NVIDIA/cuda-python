@@ -1,6 +1,0 @@
-﻿cuda.core.system.PcieUtilCounter
-================================
-
-.. currentmodule:: cuda.core.system
-
-.. autoenum:: PcieUtilCounter

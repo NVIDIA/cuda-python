@@ -1,6 +1,0 @@
-﻿cuda.core.\_memory.\_virtual\_memory\_resource.VirtualMemoryLocationTypeT
-=========================================================================
-
-.. currentmodule:: cuda.core._memory._virtual_memory_resource
-
-.. autodata:: VirtualMemoryLocationTypeT
