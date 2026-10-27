@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ctx\_record\_event
+============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: ctx_record_event

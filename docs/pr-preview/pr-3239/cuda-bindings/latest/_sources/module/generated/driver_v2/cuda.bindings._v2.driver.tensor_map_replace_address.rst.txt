@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.tensor\_map\_replace\_address
+=======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: tensor_map_replace_address
