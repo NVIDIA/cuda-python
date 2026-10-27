@@ -129,3 +129,6 @@ def get_ptx_ver(ptx: str) -> str:
         return m.group(1)
     else:
         raise ValueError("No .version directive found in PTX source. Is it a valid PTX?")
+
+
+# Hosted CI artifact-reuse rehearsal: CUDA 12 source selection.
