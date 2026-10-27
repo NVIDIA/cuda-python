@@ -202,9 +202,10 @@ if [ -z "${_NVDRV_NSENTERED:-}" ] && in_container; then
   # ours lives in the GH workspace mount (container-only), so we pipe the
   # script body in via stdin instead -- the `< "$0"` fd is opened before
   # nsenter and stays valid across the namespace switch. Env vars (DRIVER,
-  # GPU_TYPE, _NVDRV_NSENTERED) are inherited by the host-side bash.
+  # DRIVER_SHA256, GPU_TYPE, _NVDRV_NSENTERED) are inherited by the
+  # host-side bash.
   _NVDRV_NSENTERED=1 nsenter -t 1 -m -p -n -i -u -- bash -s < "$0" \
-    || { echo "::error::container needs 'options: --privileged --pid=host'" >&2; exit 1; }
+    || { echo "::error::host-side driver install failed (see output above; also check container has 'options: --privileged --pid=host')" >&2; exit 1; }
   refresh_container_libs
 
   # Re-bind /run/nvidia-persistenced from the host. The container's
