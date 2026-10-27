@@ -1,6 +1,0 @@
-﻿cuda.bindings.utils.get\_cuda\_native\_handle
-=============================================
-
-.. currentmodule:: cuda.bindings.utils
-
-.. autofunction:: get_cuda_native_handle

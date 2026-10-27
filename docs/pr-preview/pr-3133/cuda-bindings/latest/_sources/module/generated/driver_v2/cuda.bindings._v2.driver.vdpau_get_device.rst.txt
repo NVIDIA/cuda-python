@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.vdpau\_get\_device
-============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: vdpau_get_device

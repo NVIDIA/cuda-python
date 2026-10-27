@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.get\_error\_string
-===========================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autofunction:: get_error_string

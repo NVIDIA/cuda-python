@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.wait\_external\_semaphores\_async
-===========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: wait_external_semaphores_async

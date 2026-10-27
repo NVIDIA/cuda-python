@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.flush\_gpu\_direct\_rdma\_writes
-==========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: flush_gpu_direct_rdma_writes

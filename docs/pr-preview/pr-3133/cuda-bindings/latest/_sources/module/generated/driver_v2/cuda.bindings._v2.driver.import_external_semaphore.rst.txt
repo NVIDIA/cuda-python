@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.import\_external\_semaphore
-=====================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: import_external_semaphore

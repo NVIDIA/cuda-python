@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.library\_get\_kernel
-==============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: library_get_kernel

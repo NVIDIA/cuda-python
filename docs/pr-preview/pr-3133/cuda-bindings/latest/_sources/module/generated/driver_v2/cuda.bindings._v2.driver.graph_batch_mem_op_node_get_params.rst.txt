@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.graph\_batch\_mem\_op\_node\_get\_params
-==================================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: graph_batch_mem_op_node_get_params
