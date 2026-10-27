@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.logical\_endpoint\_import
+===================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: logical_endpoint_import

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graphics\_vdpau\_register\_output\_surface
+====================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graphics_vdpau_register_output_surface

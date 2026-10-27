@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.occupancy\_max\_potential\_block\_size
+================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: occupancy_max_potential_block_size
