@@ -727,6 +727,12 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     assert objcode.code_type == result.code_type
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_module_unpickle_rejects_unknown_code_type():
+    with pytest.raises(ValueError, match="code_type='bogus' is not supported"):
+        ObjectCode._reduce_helper(b"", "bogus", "", None)
+
+
 def test_kernel_from_handle(get_saxpy_kernel_cubin):
     """Test Kernel.from_handle() with a valid handle"""
     original_kernel, objcode = get_saxpy_kernel_cubin

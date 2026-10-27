@@ -321,6 +321,25 @@ Fixes and enhancements
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
 
+- Checks that were ``assert`` statements now raise exceptions, so they also
+  run under ``python -O``, which strips asserts from Python and Cython code.
+  :meth:`~utils.StridedMemoryView.from_dlpack` raises ``ValueError`` when
+  ``__dlpack_device__()`` reports a negative device ID for a CUDA tensor or a
+  nonzero one for a CPU tensor, or when ``__dlpack__()`` returns anything
+  other than an unconsumed DLPack capsule.
+  :meth:`~utils.StridedMemoryView.from_cuda_array_interface` raises
+  ``ValueError`` when the producer's ``stream`` is 0 or negative.
+  :meth:`ManagedMemoryResource.allocate` raises ``TypeError`` when ``stream``
+  is not a :class:`Stream`. Unpickling an :class:`ObjectCode` with an unknown
+  code type raises ``ValueError``, as do :class:`~system._device.FieldValue`
+  and :class:`~system._system_events.SystemEvent` when the NVML data does not
+  hold exactly one entry, and :attr:`system.Device.performance_state` when
+  NVML reports a P-state outside 0 to 15. Before, these raised
+  ``AssertionError``, or nothing under ``python -O``. A failed internal check
+  now raises ``RuntimeError`` with a message that starts with "internal
+  cuda.core error, please report".
+  (`#3202 <https://github.com/NVIDIA/cuda-python/issues/3202>`__)
+
 Deprecations
 ------------
 

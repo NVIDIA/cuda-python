@@ -36,6 +36,12 @@ def test_system_events_wraps_event_data():
     assert event.gpu_id == 0x0000_0200
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_system_event_rejects_multiple_events():
+    with pytest.raises(ValueError, match="exactly one event, got 2"):
+        SystemEvent(nvml.SystemEventData_v1(2))
+
+
 @pytest.mark.agent_authored(model="claude-opus-4.7")
 @pytest.mark.parametrize(
     ("gpu_id", "expected"),
