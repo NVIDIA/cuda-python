@@ -1155,13 +1155,18 @@ def test_managed_memory_resource_buffer_dlpack_device_type(init_cuda):
 def test_managed_memory_resource_allocate_rejects_graph_builder(init_cuda):
     device = init_cuda
     skip_if_managed_memory_unsupported(device)
-    mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
-    gb = device.create_graph_builder()
+    mr = None
+    gb = None
     try:
+        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
+        gb = device.create_graph_builder()
         with pytest.raises(TypeError, match="Only Stream is supported .*got GraphBuilder"):
             mr.allocate(64, stream=gb)
     finally:
-        gb.close()
+        if gb is not None:
+            gb.close()
+        if mr is not None:
+            mr.close()
 
 
 @pytest.mark.parametrize("mr_kind", ["device", "pinned"])
