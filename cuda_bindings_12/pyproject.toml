@@ -80,6 +80,8 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 [tool.setuptools.packages.find]
 include = ["cuda*"]
 
+# Keep implementation sources and generation templates in sdists, while wheels
+# retain Cython declarations/includes and required headers for downstream builds.
 [tool.setuptools]
 include-package-data = false
 
