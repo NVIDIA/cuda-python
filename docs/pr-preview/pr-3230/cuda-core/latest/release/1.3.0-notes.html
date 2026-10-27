@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=39489df4"></script>
+    <script src="../_static/documentation_options.js?v=c5398753"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev273';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev277';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -820,7 +820,7 @@ no longer surface as <code class="docutils literal notranslate"><span class="pre
 </section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
-<ul class="simple">
+<ul>
 <li><p>Added incremental linking to <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> through
 <code class="docutils literal notranslate"><span class="pre">LinkerOptions(incremental=True)</span></code> on nvJitLink 13.2 or newer. A partial
 native result is returned as a CUBIN and can be passed directly to another
@@ -855,32 +855,38 @@ cannot be captured. A release ordered on a default stream that would
 disturb a capture in its context is reported as a <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>
 and proceeds without the synchronization.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> buffers can now be shared with other
-processes the way pool-backed buffers are. <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a>
-exports every physical allocation that backs a <a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a>
-as a POSIX file descriptor, <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> imports the
-descriptor with a <code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process for the
-device that owns the memory, and a buffer or its descriptor can be sent
-through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> directly (plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry file
-descriptors). <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code> when
-the resource’s <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;fabric&quot;</span></code> on Linux and the memory
-lives on a device; host-located virtual memory is not shared yet. A grown buffer
-imports as one contiguous range. A POSIX fd descriptor holds one file descriptor
-per physical allocation and pins the memory while it exists; nothing else does.
-A buffer that contains imported memory cannot be exported again. For a
-transport of your own, the descriptor exposes <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">size</span></code>, and <code class="docutils literal notranslate"><span class="pre">VirtualMemoryFdBufferDescriptor.from_fds()</span></code> rebuilds it
-in the receiver. Fabric handles support plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> and pin nothing:
-keep the exporting buffer alive until every importer has imported it;
-sharing is supported on one node and multi-node sharing is untested.
-Fabric requires an NVLink fabric and an accessible IMEX channel
-(<code class="docutils literal notranslate"><span class="pre">/dev/nvidia-caps-imex-channels/channel*</span></code>); resource construction raises
-<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> when the device reports no fabric handle support. A device
-can report support inside a container that has the channel device node while
-the GPU has no fabric; the allocation then fails with a driver error that
-says so.
-Fabric-handle sharing was validated on NVIDIA internal hardware and is not
-covered by the project’s CI in this release.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2980">#2980</a>)</p></li>
+processes the way pool-backed buffers are, through two transports chosen
+by the resource’s <code class="docutils literal notranslate"><span class="pre">handle_type</span></code>. <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.ipc_descriptor" title="cuda.core.Buffer.ipc_descriptor"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.ipc_descriptor</span></code></a> exports
+every physical allocation that backs a <a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_ipc_descriptor" title="cuda.core.Buffer.from_ipc_descriptor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a> imports the descriptor with a
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> of the receiving process for the device that owns
+the memory, and <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code>
+when <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;fabric&quot;</span></code> on Linux and the
+memory lives on a device; host-located virtual memory is not shared yet. A
+grown buffer imports as one contiguous range, and a buffer that contains
+imported memory cannot be exported again.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code>, each allocation is exported as a POSIX file
+descriptor; a buffer or its descriptor travels through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>
+directly (plain <code class="docutils literal notranslate"><span class="pre">pickle</span></code> cannot carry file descriptors). The descriptor
+holds one file descriptor per physical allocation and pins the memory while
+it exists; nothing else does. For a transport of your own, it exposes
+<code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, and <code class="docutils literal notranslate"><span class="pre">size</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryFdBufferDescriptor.from_fds()</span></code> rebuilds it in the receiver.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">&quot;fabric&quot;</span></code>, each allocation is exported as a 64-byte fabric handle;
+the descriptor is plain data that <code class="docutils literal notranslate"><span class="pre">pickle</span></code> carries, and it pins nothing:
+keep the exporting buffer alive until every importer has imported it.
+<code class="docutils literal notranslate"><span class="pre">VirtualMemoryFabricBufferDescriptor.from_handles()</span></code> rebuilds a descriptor
+received through a transport of your own. Sharing is supported on one node;
+multi-node sharing is untested. Fabric requires an NVLink fabric and an
+accessible IMEX channel (<code class="docutils literal notranslate"><span class="pre">/dev/nvidia-caps-imex-channels/channel*</span></code>);
+resource construction raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> when the device reports no
+fabric handle support. A device can report support inside a container that
+has the channel device node while the GPU has no fabric; the allocation
+then fails with a driver error that says so. Fabric-handle sharing was
+validated on NVIDIA internal hardware and is not covered by the project’s
+CI in this release.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2980">#2980</a>)</p>
+</li>
 </ul>
 </section>
 <section id="fixes-and-enhancements">
@@ -1081,6 +1087,16 @@ pool-backed and virtual-memory operands and rejects the change for them,
 while operands from plain <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> allocations accept it. The node’s
 <code class="docutils literal notranslate"><span class="pre">repr</span></code> now shows <code class="docutils literal notranslate"><span class="pre">U</span></code> for unified operands.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2649">#2649</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> can now allocate with
+<code class="docutils literal notranslate"><span class="pre">location_type=&quot;host_numa&quot;</span></code>. Every such allocation failed with
+<code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>, because the driver received <code class="docutils literal notranslate"><span class="pre">-1</span></code> as the NUMA
+node. <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a> has a new <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> field that
+names the node. It is required for <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code> and rejected for every
+other location type; <code class="docutils literal notranslate"><span class="pre">Device.properties.host_numa_id</span></code> gives the node
+closest to a device. <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host_numa_current&quot;</span></code> now raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> at construction, because the driver does not accept it for
+physical allocations.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2694">#2694</a>)</p></li>
 </ul>
 </section>
 <section id="deprecations">
