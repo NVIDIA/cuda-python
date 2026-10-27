@@ -13,6 +13,8 @@ class _MemPoolAttributes:
 
     Setting an attribute changes the memory pool itself, which other memory
     resources that share the pool, such as a device's default pool, also see.
+    Reading or setting an attribute does not affect a stream capture in
+    progress on any thread.
     """
     def __init__(self, *args, **kwargs) -> None: ...
     def __repr__(self) -> str: ...
@@ -114,7 +116,8 @@ class _MemPool(MemoryResource):
 
         Memory that backs live allocations is not released, nor is memory
         freed on a stream until the host has observed the free through a
-        synchronization.
+        synchronization. Trimming does not affect a stream capture in progress
+        on any thread.
 
         Parameters
         ----------

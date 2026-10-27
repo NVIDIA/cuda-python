@@ -82,6 +82,10 @@ New features
   value, and ``reserved_mem_high`` and ``used_mem_high`` can be set to zero to
   reset the watermark, as for :class:`GraphMemoryResource`. The new
   ``trim(min_bytes_to_keep=0)`` method returns unused pool memory to the OS.
+  Reading or setting a pool attribute, and ``trim()``, no longer fail with
+  ``CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`` and invalidate a stream capture
+  that is in progress in global mode on any thread, or in thread-local mode
+  on the calling thread.
 
 - Added :class:`VirtualMemoryBuffer`, the :class:`Buffer` subclass that
   :class:`VirtualMemoryResource` returns. Closing it on a capturing stream

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import concurrent.futures
 import ctypes
 import gc
 import multiprocessing as mp
@@ -2863,6 +2864,43 @@ def test_mempool_trim(memory_resource_factory):
 
     with pytest.raises(RuntimeError, match="has been closed"):
         mr.trim()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize("caller", ["same_thread", "other_thread"])
+@pytest.mark.parametrize("mode", ["global", "thread_local"])
+def test_mempool_calls_during_capture_keep_capture_valid(memory_resource_factory, mode, caller):
+    """Pool attribute reads, writes and trim() run in relaxed capture mode.
+
+    The driver refuses these calls, and invalidates the capture, while a
+    global-mode capture is active on any thread or a thread-local one on the
+    calling thread.
+    """
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+
+    def use_pool():
+        device.set_current()
+        attributes = mr.attributes
+        attributes.release_threshold = attributes.release_threshold
+        attributes.reuse_allow_opportunistic = attributes.reuse_allow_opportunistic
+        attributes.used_mem_high = 0
+        mr.trim()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    try:
+        if caller == "same_thread":
+            use_pool()
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(use_pool).result()
+    finally:
+        # Raises if a pool call invalidated the capture.
+        gb.end_building()
+        gb.close()
+        mr.close()
 
 
 def test_mempool_attributes_repr(memory_resource_factory):
