@@ -255,10 +255,6 @@ jobs:
           while IFS= read -r python_version; do
             python=${python_version//./}
             while IFS= read -r platform; do
-              # CPython 3.10 has no official Windows ARM64 build.
-              if [[ "$platform" == "win-arm64" && "$python_version" == "3.10" ]]; then
-                continue
-              fi
               for version in "${cuda_versions[@]}"; do
                 if [[ "$platform" == "win-arm64" &&
                       "$WINDOWS_ARM64_SINGLE_CUDA_MAJOR" == "true" &&
