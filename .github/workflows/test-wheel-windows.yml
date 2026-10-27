@@ -123,6 +123,7 @@ jobs:
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         env:
           DRIVER: ${{ matrix.DRIVER }}
+          DRIVER_SHA256: ${{ matrix.DRIVER_SHA256 }}
           GPU_TYPE: ${{ matrix.GPU }}
         run: |
           ci/tools/install_gpu_driver.ps1

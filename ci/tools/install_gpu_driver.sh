@@ -13,13 +13,15 @@
 # bind-mount refresh) and may cause issues.
 #
 # Inputs (env):
-#   DRIVER    Driver version, e.g. "580.65.06". Must NOT be 'latest' or
-#             'earliest' -- those are runner-pre-installed and the
-#             workflow is expected to skip this script for them.
-#   GPU_TYPE  Lower-case GPU label from the matrix (e.g. "v100", "l4",
-#             "h100"). Used only to pick the kernel module flavor
-#             (Volta needs the proprietary/legacy module; everything
-#             newer can use the open module).
+#   DRIVER         Driver version, e.g. "580.65.06". Must NOT be 'latest' or
+#                  'earliest' -- those are runner-pre-installed and the
+#                  workflow is expected to skip this script for them.
+#   DRIVER_SHA256  Expected lowercase SHA-256 hex digest of the downloaded
+#                  driver installer.
+#   GPU_TYPE       Lower-case GPU label from the matrix (e.g. "v100", "l4",
+#                  "h100"). Used only to pick the kernel module flavor
+#                  (Volta needs the proprietary/legacy module; everything
+#                  newer can use the open module).
 #
 # Arch is detected from `uname -m`.
 #
@@ -32,6 +34,7 @@
 set -euo pipefail
 
 : "${DRIVER:?DRIVER env var is required (e.g. 580.65.06)}"
+: "${DRIVER_SHA256:?DRIVER_SHA256 env var is required (64-char sha256 of the installer)}"
 : "${GPU_TYPE:?GPU_TYPE env var is required (e.g. l4)}"
 
 case "$DRIVER" in
@@ -70,7 +73,7 @@ URL="https://us.download.nvidia.com/XFree86/${ARCH_DIR}/${VERSION}/NVIDIA-Linux-
 
 # Re-elevate to root if needed (sudo is preinstalled on the runner image).
 if [ "$(id -u)" != 0 ]; then
-  exec sudo -E DRIVER="$DRIVER" GPU_TYPE="$GPU_TYPE" "$0" "$@"
+  exec sudo -E DRIVER="$DRIVER" DRIVER_SHA256="$DRIVER_SHA256" GPU_TYPE="$GPU_TYPE" "$0" "$@"
 fi
 
 echo "install_gpu_driver.sh is ALPHA -- it performs live modifications to the host driver stack and may cause issues" >&2
@@ -111,6 +114,7 @@ host_install() {
   d=$(mktemp -d)
   ( cd "$d" \
     && wget -q -O installer.run "$URL" \
+    && echo "${DRIVER_SHA256}  installer.run" | sha256sum --check --strict - \
     && sh installer.run --silent --dkms --no-questions \
          --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" )
   modprobe nvidia nvidia_uvm nvidia_modeset
