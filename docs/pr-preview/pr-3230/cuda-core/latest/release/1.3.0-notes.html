@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5398753"></script>
+    <script src="../_static/documentation_options.js?v=7b32aea1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev277';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev280';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -880,9 +880,10 @@ received through a transport of your own. Sharing is supported on one node;
 multi-node sharing is untested. Fabric requires an NVLink fabric and an
 accessible IMEX channel (<code class="docutils literal notranslate"><span class="pre">/dev/nvidia-caps-imex-channels/channel*</span></code>);
 resource construction raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> when the device reports no
-fabric handle support. A device can report support inside a container that
-has the channel device node while the GPU has no fabric; the allocation
-then fails with a driver error that says so. Fabric-handle sharing was
+fabric handle support. A device can report support while the allocation is
+refused, because the attribute does not check for an NVLink fabric and
+older drivers do not check for an IMEX channel; the allocation then fails
+with a driver error that says so. Fabric-handle sharing was
 validated on NVIDIA internal hardware and is not covered by the project’s
 CI in this release.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2980">#2980</a>)</p>
