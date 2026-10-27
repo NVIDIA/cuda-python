@@ -127,6 +127,9 @@ deleters call CUDA or run Python finalizers.
 destructor callback only adds the attachment to the process-lifetime
 `DeferredCleanupQueue` and requests a `Py_AddPendingCall`.
 
+The host launch record of `host_launch.cpp` is the queue's second producer;
+its trampoline enqueues the record after the user function returns.
+
 One pending call drains all queued attachments from Python's main thread. The
 queue coalesces work because CPython's pending-call queue is bounded, and there
 could be many more deferred cleanup items than allowed pending calls. If
