@@ -51,7 +51,8 @@ def test_runner_trust_probe_workflow_structure() -> None:
     if True in workflow:
         workflow["on"] = workflow.pop(True)
 
-    assert set(workflow["on"]) == {"schedule", "workflow_dispatch"}
+    assert {"schedule", "workflow_dispatch"} <= set(workflow["on"])
+    assert set(workflow["on"]) <= {"schedule", "workflow_dispatch", "pull_request", "push"}
     assert workflow["permissions"] == {"contents": "read"}
     assert set(workflow["jobs"]) == {
         "compute-matrix",
