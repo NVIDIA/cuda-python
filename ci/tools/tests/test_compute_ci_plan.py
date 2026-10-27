@@ -124,7 +124,7 @@ class ComputeWorkplanTest(unittest.TestCase):
             ".github/workflows/runner-trust-probe.yml",
             "ci/tools/runner_trust_probe.sh",
             "ci/tools/runner_trust_probe.ps1",
-            "ci/tools/tests/test_runner_trust_probe.py",
+            "ci/tools/runner_trust_probe_node.js",
         ):
             with self.subTest(path=path):
                 plan = plan_for(path)

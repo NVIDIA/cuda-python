@@ -53,6 +53,8 @@ jobs:
         run: |
           matrix_json="$(yq -o json '.' ci/test-matrix.yml)"
 
+          # Hosted and self-hosted CPU labels are listed explicitly; GPU labels
+          # are derived from ci/test-matrix.yml.
           linux_host="$(jq -cn --arg filter "${LABEL_FILTER}" '
             [
               "ubuntu-latest",
@@ -114,7 +116,6 @@ jobs:
 
       - name: Probe OS trust store
         id: os-probe
-        continue-on-error: ${{ matrix.label == 'ubuntu-latest' }}
         env:
           TRUST_PROBE_LABEL: "${{ matrix.label == 'ubuntu-latest' && 'OS trust store (before ca-certificates upgrade)' || 'OS trust store' }}"
         run: ./ci/tools/runner_trust_probe.sh
@@ -122,7 +123,6 @@ jobs:
       - name: Probe OS trust store after ca-certificates upgrade (ubuntu-latest)
         id: os-probe-upgraded
         if: ${{ always() && matrix.label == 'ubuntu-latest' }}
-        continue-on-error: true
         env:
           TRUST_PROBE_LABEL: "OS trust store (after ca-certificates upgrade)"
         run: |
@@ -149,71 +149,26 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         with:
           script: |
-            const https = require('https');
-            const version = process.version;
-            const execPath = process.execPath;
-            const nodeOptions = process.env.NODE_OPTIONS || '';
-            const extraCa = process.env.NODE_EXTRA_CA_CERTS || '';
-            const useSystemCa = process.env.NODE_USE_SYSTEM_CA || '';
-
-            const m = /^v(\d+)\.(\d+)\.(\d+)/.exec(version);
-            const [major, minor, patch] = m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
-            const versionOk = major === 24 && (minor > 22 || (minor === 22 && patch >= 1));
-
-            const endpoint = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
-            const probeEndpoint = () => new Promise((resolve) => {
-              const req = https.get(endpoint, { timeout: 15000 }, (res) => {
-                res.resume();
-                resolve({ status: 'FAIL', detail: `Connected with HTTP ${res.statusCode} (certificate was trusted)` });
-              });
-              req.on('timeout', () => {
-                req.destroy(new Error('Request timed out'));
-              });
-              req.on('error', (err) => {
-                const code = err.code || '';
-                const msg = `${code} ${err.message || ''}`.trim();
-                if (/CERT|UNABLE_TO_VERIFY|SELF_SIGNED|DEPTH_ZERO|SSL|TLS/i.test(msg)) {
-                  resolve({ status: 'PASS', detail: `Rejected with certificate error (${msg})` });
-                } else {
-                  resolve({ status: 'INCONCLUSIVE', detail: `Network/DNS or non-certificate error (${msg})` });
-                }
-              });
-            });
-
-            const tlsResult = await probeEndpoint();
-            const rows = [
-              ['Node version', versionOk ? '**PASS**' : '**FAIL**', `\`${version}\` (require \`>= v24.22.1\` on Node 24; \`execPath=${execPath}\`)`],
-              ['Node env overrides', '**INFO**', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
-              ['Node rejects test endpoint', `**${tlsResult.status}**`, tlsResult.detail],
-            ];
-
-            await core.summary
-              .addHeading('Node runtime trust store', 3)
-              .addTable([
-                [{ data: 'Check', header: true }, { data: 'Status', header: true }, { data: 'Details', header: true }],
-                ...rows,
-              ])
-              .write();
-
-            if (!versionOk || tlsResult.status === 'FAIL') {
-              core.setFailed(`Node trust probe failed (version=${version}, endpoint=${tlsResult.status})`);
-            }
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core });
 
       - name: Check probe outcomes
         if: ${{ always() }}
         run: |
+          failed=0
           if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
             echo "::error::Initial OS trust store probe failed" >&2
-            exit 1
+            failed=1
           fi
           if [[ "${{ matrix.label }}" == "ubuntu-latest" && "${{ steps.os-probe-upgraded.outcome }}" != "success" ]]; then
             echo "::error::Post-upgrade OS trust store probe failed on ubuntu-latest" >&2
-            exit 1
+            failed=1
           fi
           if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
             echo "::error::Node runtime trust store probe failed" >&2
-            exit 1
+            failed=1
           fi
+          exit "${failed}"
 
   probe-linux-gpu:
     name: Probe (${{ matrix.label }})
@@ -250,7 +205,6 @@ jobs:
 
       - name: Probe container OS trust store
         id: os-probe
-        continue-on-error: true
         env:
           TRUST_PROBE_LABEL: "Container OS trust store (ubuntu:24.04)"
         run: ./ci/tools/runner_trust_probe.sh
@@ -274,67 +228,22 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         with:
           script: |
-            const https = require('https');
-            const version = process.version;
-            const execPath = process.execPath;
-            const nodeOptions = process.env.NODE_OPTIONS || '';
-            const extraCa = process.env.NODE_EXTRA_CA_CERTS || '';
-            const useSystemCa = process.env.NODE_USE_SYSTEM_CA || '';
-
-            const m = /^v(\d+)\.(\d+)\.(\d+)/.exec(version);
-            const [major, minor, patch] = m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
-            const versionOk = major === 24 && (minor > 22 || (minor === 22 && patch >= 1));
-
-            const endpoint = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
-            const probeEndpoint = () => new Promise((resolve) => {
-              const req = https.get(endpoint, { timeout: 15000 }, (res) => {
-                res.resume();
-                resolve({ status: 'FAIL', detail: `Connected with HTTP ${res.statusCode} (certificate was trusted)` });
-              });
-              req.on('timeout', () => {
-                req.destroy(new Error('Request timed out'));
-              });
-              req.on('error', (err) => {
-                const code = err.code || '';
-                const msg = `${code} ${err.message || ''}`.trim();
-                if (/CERT|UNABLE_TO_VERIFY|SELF_SIGNED|DEPTH_ZERO|SSL|TLS/i.test(msg)) {
-                  resolve({ status: 'PASS', detail: `Rejected with certificate error (${msg})` });
-                } else {
-                  resolve({ status: 'INCONCLUSIVE', detail: `Network/DNS or non-certificate error (${msg})` });
-                }
-              });
-            });
-
-            const tlsResult = await probeEndpoint();
-            const rows = [
-              ['Node version', versionOk ? '**PASS**' : '**FAIL**', `\`${version}\` (require \`>= v24.22.1\` on Node 24; \`execPath=${execPath}\`)`],
-              ['Node env overrides', '**INFO**', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
-              ['Node rejects test endpoint', `**${tlsResult.status}**`, tlsResult.detail],
-            ];
-
-            await core.summary
-              .addHeading('Node runtime trust store', 3)
-              .addTable([
-                [{ data: 'Check', header: true }, { data: 'Status', header: true }, { data: 'Details', header: true }],
-                ...rows,
-              ])
-              .write();
-
-            if (!versionOk || tlsResult.status === 'FAIL') {
-              core.setFailed(`Node trust probe failed (version=${version}, endpoint=${tlsResult.status})`);
-            }
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core });
 
       - name: Check probe outcomes
         if: ${{ always() }}
         run: |
+          failed=0
           if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
             echo "::error::Container OS trust store probe failed" >&2
-            exit 1
+            failed=1
           fi
           if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
             echo "::error::Node runtime trust store probe failed" >&2
-            exit 1
+            failed=1
           fi
+          exit "${failed}"
 
   probe-windows:
     name: Probe (${{ matrix.label }})
@@ -355,7 +264,6 @@ jobs:
 
       - name: Probe Windows OS trust store
         id: os-probe
-        continue-on-error: true
         shell: pwsh
         run: ./ci/tools/runner_trust_probe.ps1
 
@@ -378,64 +286,19 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         with:
           script: |
-            const https = require('https');
-            const version = process.version;
-            const execPath = process.execPath;
-            const nodeOptions = process.env.NODE_OPTIONS || '';
-            const extraCa = process.env.NODE_EXTRA_CA_CERTS || '';
-            const useSystemCa = process.env.NODE_USE_SYSTEM_CA || '';
-
-            const m = /^v(\d+)\.(\d+)\.(\d+)/.exec(version);
-            const [major, minor, patch] = m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
-            const versionOk = major === 24 && (minor > 22 || (minor === 22 && patch >= 1));
-
-            const endpoint = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
-            const probeEndpoint = () => new Promise((resolve) => {
-              const req = https.get(endpoint, { timeout: 15000 }, (res) => {
-                res.resume();
-                resolve({ status: 'FAIL', detail: `Connected with HTTP ${res.statusCode} (certificate was trusted)` });
-              });
-              req.on('timeout', () => {
-                req.destroy(new Error('Request timed out'));
-              });
-              req.on('error', (err) => {
-                const code = err.code || '';
-                const msg = `${code} ${err.message || ''}`.trim();
-                if (/CERT|UNABLE_TO_VERIFY|SELF_SIGNED|DEPTH_ZERO|SSL|TLS/i.test(msg)) {
-                  resolve({ status: 'PASS', detail: `Rejected with certificate error (${msg})` });
-                } else {
-                  resolve({ status: 'INCONCLUSIVE', detail: `Network/DNS or non-certificate error (${msg})` });
-                }
-              });
-            });
-
-            const tlsResult = await probeEndpoint();
-            const rows = [
-              ['Node version', versionOk ? '**PASS**' : '**FAIL**', `\`${version}\` (require \`>= v24.22.1\` on Node 24; \`execPath=${execPath}\`)`],
-              ['Node env overrides', '**INFO**', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
-              ['Node rejects test endpoint', `**${tlsResult.status}**`, tlsResult.detail],
-            ];
-
-            await core.summary
-              .addHeading('Node runtime trust store', 3)
-              .addTable([
-                [{ data: 'Check', header: true }, { data: 'Status', header: true }, { data: 'Details', header: true }],
-                ...rows,
-              ])
-              .write();
-
-            if (!versionOk || tlsResult.status === 'FAIL') {
-              core.setFailed(`Node trust probe failed (version=${version}, endpoint=${tlsResult.status})`);
-            }
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core });
 
       - name: Check probe outcomes
         if: ${{ always() }}
         run: |
+          failed=0
           if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
             echo "::error::Windows OS trust store probe failed" >&2
-            exit 1
+            failed=1
           fi
           if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
             echo "::error::Node runtime trust store probe failed" >&2
-            exit 1
+            failed=1
           fi
+          exit "${failed}"

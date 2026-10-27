@@ -44,7 +44,7 @@ IGNORED_PATHS = {
     "LICENSE",
     "ci/tools/runner_trust_probe.ps1",
     "ci/tools/runner_trust_probe.sh",
-    "ci/tools/tests/test_runner_trust_probe.py",
+    "ci/tools/runner_trust_probe_node.js",
     "context7.json",
     "greptile.json",
     "ruff.toml",

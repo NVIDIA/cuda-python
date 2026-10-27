@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-EMSIGN_G3_SHA256="${TRUST_PROBE_TARGET_SHA256:-86:A1:EC:BA:08:9C:4A:8D:3B:BE:27:34:C6:12:BA:34:1D:81:3E:04:3C:F9:E8:A8:62:CD:5C:57:A3:6B:BE:6B}"
+EMSIGN_G3_SHA256="86:A1:EC:BA:08:9C:4A:8D:3B:BE:27:34:C6:12:BA:34:1D:81:3E:04:3C:F9:E8:A8:62:CD:5C:57:A3:6B:BE:6B"
 CA_BUNDLE="${TRUST_PROBE_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}"
 TEST_ENDPOINT="${TRUST_PROBE_TEST_ENDPOINT:-https://dv-g3b-emudhra.we-have-a-problem.com/}"
 PROBE_LABEL="${TRUST_PROBE_LABEL:-Linux OS trust store}"
@@ -94,21 +94,20 @@ if [[ -f /etc/os-release ]]; then
   distro_ver="${VERSION_ID:-unknown}"
 fi
 
+case "${distro_id}:${distro_ver}" in
+  ubuntu:22.04) expected_min="20260816ubuntu0.22.04.1" ;;
+  ubuntu:24.04) expected_min="20260816ubuntu0.24.04.1" ;;
+  ubuntu:26.04) expected_min="20260816ubuntu0.26.04.1" ;;
+  *)            expected_min="" ;;
+esac
+
 if [[ "${ca_pkg_ver}" == "not-installed" ]]; then
   record_check "ca-certificates version" "INFO" "Package not installed (distro: \`${distro_id} ${distro_ver}\`)"
-elif [[ "${distro_id}" == "ubuntu" && "${distro_ver}" == "22.04" ]]; then
-  expected_min="20260816ubuntu0.22.04.1"
+elif [[ -n "${expected_min}" ]]; then
   if dpkg --compare-versions "${ca_pkg_ver}" ge "${expected_min}"; then
-    record_check "ca-certificates version" "INFO (OK)" "\`${ca_pkg_ver}\` >= \`${expected_min}\` (Ubuntu 22.04)"
+    record_check "ca-certificates version" "INFO (OK)" "\`${ca_pkg_ver}\` >= \`${expected_min}\` (Ubuntu ${distro_ver})"
   else
-    record_check "ca-certificates version" "INFO (STALE)" "\`${ca_pkg_ver}\` < \`${expected_min}\` (Ubuntu 22.04)"
-  fi
-elif [[ "${distro_id}" == "ubuntu" && "${distro_ver}" == "24.04" ]]; then
-  expected_min="20260816ubuntu0.24.04.1"
-  if dpkg --compare-versions "${ca_pkg_ver}" ge "${expected_min}"; then
-    record_check "ca-certificates version" "INFO (OK)" "\`${ca_pkg_ver}\` >= \`${expected_min}\` (Ubuntu 24.04)"
-  else
-    record_check "ca-certificates version" "INFO (STALE)" "\`${ca_pkg_ver}\` < \`${expected_min}\` (Ubuntu 24.04)"
+    record_check "ca-certificates version" "INFO (STALE)" "\`${ca_pkg_ver}\` < \`${expected_min}\` (Ubuntu ${distro_ver})"
   fi
 else
   record_check "ca-certificates version" "INFO" "\`${ca_pkg_ver}\` on \`${distro_id} ${distro_ver}\`"

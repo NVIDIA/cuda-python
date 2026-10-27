@@ -84,11 +84,23 @@ if ([string]::IsNullOrEmpty($TestEndpoint)) {
         Record-Check 'Invoke-WebRequest rejects test endpoint' 'FAIL' "Connection to ``$TestEndpoint`` succeeded (certificate was trusted)"
         $GatingFailures++
     } catch {
-        $msg = ($_.Exception.ToString() -replace '[\r\n]+', ' ' -replace '\|', '\|')
-        if ($msg -match 'AuthenticationException|TrustFailure|SSL|TLS|certificate|Cert| remote party') {
-            Record-Check 'Invoke-WebRequest rejects test endpoint' 'PASS' "Rejected with TLS/certificate error"
+        $certRejected = $false
+        $ex = $_.Exception
+        while ($null -ne $ex) {
+            if (
+                ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'remote certificate|certificate chain|UntrustedRoot|RemoteCertificateChainErrors') -or
+                ($ex -is [System.Net.WebException] -and $ex.Status -eq [System.Net.WebExceptionStatus]::TrustFailure)
+            ) {
+                $certRejected = $true
+                break
+            }
+            $ex = $ex.InnerException
+        }
+        $cleanMsg = ($_.Exception.Message -replace '[\r\n]+', ' ' -replace '\|', '\|')
+        if ($certRejected) {
+            Record-Check 'Invoke-WebRequest rejects test endpoint' 'PASS' "Rejected with certificate validation error ($cleanMsg)"
         } else {
-            Record-Check 'Invoke-WebRequest rejects test endpoint' 'INCONCLUSIVE' "Non-TLS or network error: $($_.Exception.Message -replace '[\r\n]+', ' ' -replace '\|', '\|')"
+            Record-Check 'Invoke-WebRequest rejects test endpoint' 'INCONCLUSIVE' "Non-certificate or network error ($cleanMsg)"
         }
     } finally {
         $ProgressPreference = $progTmp
