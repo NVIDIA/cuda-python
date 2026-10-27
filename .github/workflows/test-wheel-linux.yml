@@ -565,3 +565,5 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
           retention-days: 14
+
+# Hosted CI artifact-reuse rehearsal: Linux test infrastructure selection.
