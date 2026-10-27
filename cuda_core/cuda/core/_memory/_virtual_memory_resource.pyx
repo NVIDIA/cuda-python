@@ -119,9 +119,10 @@ class VirtualMemoryResourceOptions:
         an NVLink fabric and an accessible IMEX channel
         (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
         ``RuntimeError`` if the device reports no fabric handle support. A
-        device can report support inside a container that has the channel
-        device node while the GPU has no fabric; the allocation then fails
-        with a driver error that says so.
+        device can report support while the allocation is refused, because
+        the attribute does not check for an NVLink fabric and older drivers
+        do not check for an IMEX channel; the allocation then fails with a
+        driver error that says so.
         Use `None` if you don't need an exportable handle.
         ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
@@ -288,8 +289,9 @@ cdef int _raise_allocation_error(const cydriver.CUmemAllocationProp* prop) excep
     if prop.requestedHandleTypes == cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
         _raise_last_error_noting(
             "while creating a physical allocation with a fabric handle; fabric handles need an NVLink fabric "
-            "and an accessible IMEX channel, and a device can report support (for example in a container that "
-            "has the channel device node) while the allocation is refused"
+            "and an accessible IMEX channel, and a device can report support while the allocation is refused "
+            "(the attribute does not check for an NVLink fabric, and older drivers do not check for an IMEX "
+            "channel)"
         )
     return _raise_last_error()
 
@@ -495,9 +497,9 @@ cdef class VirtualMemoryResource(MemoryResource):
     on an NVLink fabric and an accessible IMEX channel
     (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
     ``RuntimeError`` when the device reports no fabric handle support. A device
-    can report support inside a container that has the channel device node
-    while the GPU has no fabric; the allocation then fails with a driver error
-    that says so.
+    can report support while the allocation is refused, because the attribute
+    does not check for an NVLink fabric and older drivers do not check for an
+    IMEX channel; the allocation then fails with a driver error that says so.
     Fabric-handle sharing was validated on NVIDIA internal hardware and is not
     covered by the project's CI in this release.
     A buffer that contains imported memory (an import, or anything
