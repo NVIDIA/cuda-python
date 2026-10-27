@@ -79,12 +79,9 @@ jobs:
         # the job level instead of linking into the diff.
         run: echo "::add-matcher::.github/matchers/compiler.json"
 
-      - name: Install latest rapidsai/sccache
+      - name: Install rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
-        run: |
-          curl -fsSL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
-            | sudo tar -C /usr/local/bin -xvzf - --wildcards --strip-components=1 -x '*/sccache'
-          echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
+        uses: ./.github/actions/install-sccache
 
       # The runner only exposes these values to actions, not to `run:` steps or
       # the cibuildwheel container, so re-export them for sccache's GHA backend.
