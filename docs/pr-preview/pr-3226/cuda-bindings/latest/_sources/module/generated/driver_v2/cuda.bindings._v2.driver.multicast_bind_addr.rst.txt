@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.multicast\_bind\_addr
-===============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: multicast_bind_addr

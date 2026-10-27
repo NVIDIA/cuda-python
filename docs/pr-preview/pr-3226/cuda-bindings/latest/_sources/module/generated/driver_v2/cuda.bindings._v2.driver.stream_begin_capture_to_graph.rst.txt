@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.stream\_begin\_capture\_to\_graph
-===========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: stream_begin_capture_to_graph

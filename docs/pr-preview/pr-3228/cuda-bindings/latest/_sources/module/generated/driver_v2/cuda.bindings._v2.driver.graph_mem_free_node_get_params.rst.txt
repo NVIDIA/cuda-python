@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.graph\_mem\_free\_node\_get\_params
-=============================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: graph_mem_free_node_get_params

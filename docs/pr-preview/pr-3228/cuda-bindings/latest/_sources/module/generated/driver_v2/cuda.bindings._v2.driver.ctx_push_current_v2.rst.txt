@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.ctx\_push\_current\_v2
-================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: ctx_push_current_v2

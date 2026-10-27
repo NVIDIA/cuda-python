@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.ctx\_get\_device\_v2
-==============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: ctx_get_device_v2

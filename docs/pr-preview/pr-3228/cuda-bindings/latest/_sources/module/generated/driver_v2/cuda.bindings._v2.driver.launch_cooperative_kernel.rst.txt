@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.launch\_cooperative\_kernel
-=====================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: launch_cooperative_kernel

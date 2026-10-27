@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.stream\_copy\_attributes
-==================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: stream_copy_attributes

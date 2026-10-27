@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.TensorMapIm2ColWideMode
-=================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoenum:: TensorMapIm2ColWideMode

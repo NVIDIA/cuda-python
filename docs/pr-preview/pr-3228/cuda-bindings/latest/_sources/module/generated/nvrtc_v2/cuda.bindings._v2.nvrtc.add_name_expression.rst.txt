@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.add\_name\_expression
-==============================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autofunction:: add_name_expression

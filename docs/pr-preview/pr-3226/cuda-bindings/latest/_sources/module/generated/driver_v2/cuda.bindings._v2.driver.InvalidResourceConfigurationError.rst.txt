@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.InvalidResourceConfigurationError
-===========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoexception:: InvalidResourceConfigurationError
