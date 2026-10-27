@@ -326,6 +326,7 @@ reported as a warning instead.
    :toctree: generated/
 
    CUDAError
+   CUDAOutOfMemoryError
    NVRTCError
    CUDAWarning
 

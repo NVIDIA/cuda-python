@@ -76,6 +76,12 @@ New features
   top-level ``cuda.core`` namespace, alongside :class:`CUDAWarning`. Previously
   they were only available from a private module.
 
+- Added :class:`CUDAOutOfMemoryError`, raised for ``CUDA_ERROR_OUT_OF_MEMORY``
+  and ``cudaErrorMemoryAllocation``. It derives from both :class:`CUDAError`
+  and :class:`MemoryError`, so ``except MemoryError`` catches an allocation
+  that fails in ``cuda.core`` as it does in CuPy, RMM and NumPy. Code that
+  catches :class:`CUDAError` is unaffected.
+
 - Added :class:`VirtualMemoryBuffer`, the :class:`Buffer` subclass that
   :class:`VirtualMemoryResource` returns. Closing it on a capturing stream
   other than a default stream raises, because virtual memory deallocation

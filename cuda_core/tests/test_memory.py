@@ -44,6 +44,7 @@ from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import (
     Buffer,
+    CUDAOutOfMemoryError,
     CUDAWarning,
     Device,
     DeviceMemoryResource,
@@ -2221,6 +2222,30 @@ def test_vmm_host_location_grow_and_close(init_cuda):
         grown.close()
         moved.close()
         assert moved.size == 0
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_device_memory_resource_out_of_memory_is_memory_error(init_cuda):
+    device = Device()
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    device.set_current()
+
+    mr = DeviceMemoryResource(device, options=DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    try:
+        # Larger than any device, and than the pool's max_size, which the
+        # driver rounds up to its allocation granularity.
+        with pytest.raises(MemoryError) as e:
+            mr.allocate(1 << 46, stream=device.default_stream)
+        assert isinstance(e.value, CUDAOutOfMemoryError)
+        assert isinstance(e.value, CUDAError)
+        assert "CUDA_ERROR_OUT_OF_MEMORY" in str(e.value)
+
+        # The failed request leaves the pool usable.
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+    finally:
+        mr.close()
 
 
 def test_device_memory_resource_with_options(init_cuda):
