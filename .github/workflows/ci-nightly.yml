@@ -121,8 +121,11 @@ jobs:
           snapshot=$(mktemp -d)
           trap 'rm -rf -- "$snapshot"' EXIT
           git archive "$HEAD_SHA" | tar -x -C "$snapshot"
-          BINDINGS_CONFIG=$(python -m ci.tools.bindings_config \
-            --config "$snapshot/ci/versions.yml")
+          if ! BINDINGS_CONFIG=$(python -m ci.tools.bindings_config \
+            --config "$snapshot/ci/versions.yml"); then
+            echo "::error::CI run $RUN_ID ($HEAD_SHA) has no bindings registry compatible with this nightly workflow. Wait for a successful main CI run with the current registry, or dispatch ci-nightly.yml with a compatible run-id. See ci/README.md#nightly-artifact-sources-and-rollout."
+            exit 1
+          fi
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT

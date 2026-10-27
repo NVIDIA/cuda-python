@@ -336,6 +336,33 @@ automatically establish milestones for the current-major root. Use the same
 local-preview safeguards while preparing the new source and confirm the
 resolved version and `git describe` output before retaining its milestone.
 
+## Nightly Artifact Sources And Rollout
+
+`ci-nightly.yml` downloads wheels from the latest successful main CI run and
+reads the bindings registry from that run's source commit. The source registry
+must be compatible with the nightly workflow; the current workflow requires
+schema 2. It does not translate an older registry into the new layout.
+
+After multi-root CI lands on `main`, wait for the first successful, complete
+main CI run containing the new registry and both bindings majors before using
+it as the nightly artifact source. Until that run succeeds, auto-detection can
+still select an older successful run; the nightly job then reports the
+incompatible source and stops. PR CI builds and tests everything when it has
+no complete, compatible artifact baseline.
+
+To test the nightly workflow before that main run is available, supply the ID
+of a successful CI run built with the compatible registry and required wheel
+artifacts, such as a validated PR run:
+
+```console
+gh workflow run ci-nightly.yml --repo NVIDIA/cuda-python --ref main -f 'run-id=<compatible-ci-run-id>'
+```
+
+The override selects both the wheel artifacts and their source revision. It
+does not convert old artifacts or change the default selection for later
+nightly runs. Once a compatible main run succeeds, ordinary nightly dispatches
+can leave `run-id` empty.
+
 ## Reading CI Jobs and Summaries
 
 A name such as `pathfinder+bindings12+core12+meta12 / py3.11, CTK12.9.1
@@ -375,3 +402,30 @@ coverage rules after each platform reads its source matrix and applies an
 optional jq filter. Matrix data comes from the artifact source revision; the
 helper comes from the workflow control revision so older artifact sources do
 not need to contain newly introduced CI tooling.
+
+## Historical Release And Documentation Reruns
+
+Current release and documentation workflows read package paths and toolkit
+settings from the schema-2 registry committed with the release tag. For tags
+that predate that registry, dispatch compatible historical tooling instead.
+In particular, CUDA 13.4 releases from `13.4.x` use the release workflow on
+that branch, including when rebuilding their documentation.
+
+For example, validate the existing `v13.4.4` release and rebuild its docs with:
+
+```console
+gh workflow run release.yml --repo NVIDIA/cuda-python --ref 13.4.x \
+  -f component=cuda-bindings -f release-action=dry-run \
+  -f git-tag=v13.4.4 -f 'backport-git-tag=not planned'
+```
+
+Here `--ref 13.4.x` selects the workflow and its reusable documentation
+workflow; `git-tag` selects the immutable release source. Leave `run-id` empty
+to find that tag's successful CI run, or supply its validated artifact run ID
+if needed. The artifacts must still exist. A dry run validates artifacts and
+builds docs without publishing a release; its documentation is retained as a
+workflow artifact. Optionally add `-f dry-run-docs-branch=gh-pages-dry-run` to
+deploy the documentation to that preview branch. Run once per component when
+validating more than one package; use `component=cuda-python` for the matching
+metapackage documentation. Other historical release lines likewise need
+tooling compatible with their tagged layout.
