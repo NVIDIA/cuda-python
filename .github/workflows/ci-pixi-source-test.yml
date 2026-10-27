@@ -345,10 +345,11 @@ jobs:
         run: |
           apt-get update
           # ca-certificates + git for checkout; libgl1/libegl1 for pyglet
-          # (pulled in by the test env). PyYAML and packaging drive the
-          # bindings registry resolver; pixi itself is installed by setup-pixi.
+          # (pulled in by the test env). Python packages support the bindings
+          # registry and maintenance SCM preparation; setup-pixi installs pixi.
           apt-get install -y --no-install-recommends \
-            ca-certificates git jq libgl1 libegl1 python3 python3-packaging python3-yaml
+            ca-certificates git jq libgl1 libegl1 python3 \
+            python3-packaging python3-setuptools-scm python3-yaml
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -361,22 +362,27 @@ jobs:
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
 
-      - name: Select CUDA environment
+      - name: Prepare selected CUDA environment
         env:
           REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
           if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
             bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
-            if ! jq -e --arg cuda_env "${REQUESTED_CUDA_ENV}" \
-              'any(.[]; .cuda_variant == $cuda_env)' <<< "${bindings_packages}" > /dev/null; then
+            bindings_package=$(jq -c --arg cuda_env "${REQUESTED_CUDA_ENV}" \
+              '.[] | select(.cuda_variant == $cuda_env)' <<< "${bindings_packages}")
+            if [[ -z "${bindings_package}" ]]; then
               registered_envs=$(jq -r '[.[].cuda_variant] | join(", ")' <<< "${bindings_packages}")
               echo "::error::cuda-env must be a registered pixi environment: ${registered_envs}"
               exit 1
             fi
-            cuda_env="${REQUESTED_CUDA_ENV}"
           else
-            current_package=$(python3 -m ci.tools.bindings_config --release-status current)
-            cuda_env=$(jq -r '.cuda_variant' <<< "${current_package}")
+            bindings_package=$(python3 -m ci.tools.bindings_config --release-status current)
+          fi
+          cuda_env=$(jq -r '.cuda_variant' <<< "${bindings_package}")
+          if [[ $(jq -r '.release_status' <<< "${bindings_package}") == maintenance ]]; then
+            bindings_root=$(jq -r '.package_root' <<< "${bindings_package}")
+            # Match build-smoke's version preparation before any pixi source build.
+            python3 -m ci.tools.bindings_scm_version --package-root "${bindings_root}" --sha "$GITHUB_SHA"
           fi
           echo "CUDA_ENV=${cuda_env}" | tee -a "$GITHUB_ENV"
 
