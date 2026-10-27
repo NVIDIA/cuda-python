@@ -53,7 +53,7 @@ repos:
         name: Check cuda-core bindings floor declarations and documentation
         entry: python ./toolshed/check_cuda_core_bindings_floor.py
         language: python
-        files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
+        files: ^(cuda_core/pyproject\.toml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
         pass_filenames: false
 
       - id: check-spdx
@@ -170,7 +170,7 @@ repos:
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
-      exclude: '^(?:cuda_bindings_(?:12|13)/(?:cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx)|pixi\.lock)|cuda_bindings_13/cuda/bindings/_v2/driver\.pyx)$'
+      exclude: '^(?:cuda_bindings_13/cuda/bindings/(?:nvml\.pyx|_v2/driver\.pyx)|cuda_bindings_12/cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx)|cuda_bindings_(?:12|13)/pixi\.lock)$'
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
