@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=7106daa5"></script>
+    <script src="_static/documentation_options.js?v=58a19dae"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev233';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev288';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -706,6 +706,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="release/1.3.0-notes.html">1.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.1.1-notes.html">1.1.1</a></li>
@@ -846,8 +847,8 @@ that installs it.</p>
 </section>
 <section id="development-environment">
 <h2>Development environment<a class="headerlink" href="#development-environment" title="Link to this heading">#</a></h2>
-<p>The sections above cover end-user installation. The section below focuses on
-a repeatable <em>development</em> workflow (editable installs and running tests).</p>
+<p>The sections below cover nightly builds, source installation, and repeatable
+development workflows with editable installs and tests.</p>
 <section id="installing-the-latest-nightly-top-of-tree-builds">
 <h3>Installing the latest nightly (top-of-tree builds)<a class="headerlink" href="#installing-the-latest-nightly-top-of-tree-builds" title="Link to this heading">#</a></h3>
 <p>These are useful for users looking to test new features or bug fixes prior to
@@ -869,11 +870,52 @@ obtain the most recent build, use the following commands:</p>
 with <code class="docutils literal notranslate"><span class="pre">linux-aarch64</span></code>; for Windows, use <code class="docutils literal notranslate"><span class="pre">win-64</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">cu13</span></code> with
 <code class="docutils literal notranslate"><span class="pre">cu12</span></code> for CUDA 12.x environments.</p>
 </section>
+<section id="installing-from-source">
+<span id="cuda-core-source-install"></span><h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h3>
+<p>A source build has two requirements. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.x or 13.x at or above the release’s floor for that major. An isolated
+build, the default for <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>, installs a <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> no newer than the
+toolkit’s minor. Other builds must provide it.</p></li>
+<li><p>A CUDA Toolkit, located through <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, whose <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> has the same
+major.minor as the header that <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was generated from. If the versions differ,
+the build fails early. To build against a specific <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> in an isolated build,
+constrain it with <code class="docutils literal notranslate"><span class="pre">PIP_CONSTRAINT</span></code>. A build with <code class="docutils literal notranslate"><span class="pre">--no-build-isolation</span></code> uses the installed
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>.</p></li>
+</ul>
+<p>Use the repository’s <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone">Recommended clone</a>
+recipe below. On native Windows outside WSL, complete its Windows setup
+<em>before</em> cloning so Git can create the build-critical
+<code class="docutils literal notranslate"><span class="pre">cuda_core/_build_shared.py</span></code> symlink.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">--recurse-submodules</span></code> is required: the build compiles against the CCCL
+headers pinned in the <code class="docutils literal notranslate"><span class="pre">cuda_core/third_party/cccl</span></code> submodule, and fails
+without them. For a clone that already exists, run the following from the
+repository root:
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">cuda_core/third_party/cccl</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The version is derived from git tags via <code class="docutils literal notranslate"><span class="pre">setuptools-scm</span></code>, so the clone
+must include tags reaching back to at least the latest <code class="docutils literal notranslate"><span class="pre">cuda-core-v*</span></code> tag.
+Do not use <code class="docutils literal notranslate"><span class="pre">--depth</span></code> or <code class="docutils literal notranslate"><span class="pre">--no-tags</span></code>: a shallow clone builds without
+error but produces a bogus version such as <code class="docutils literal notranslate"><span class="pre">0.1.dev1+g0d22cb444</span></code>. See
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md">Cloning the repository</a>
+for details.</p>
+</div>
+</section>
 <section id="development-with-uv">
 <h3>Development with uv<a class="headerlink" href="#development-with-uv" title="Link to this heading">#</a></h3>
-<p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> is a fast Python package and project manager. For example, to work on
-<code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> against CUDA 13:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
+<p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> is a fast Python package and project manager. Before cloning, check the
+<a class="reference internal" href="#cuda-core-source-install"><span class="std std-ref">source-build prerequisites</span></a>.
+For example, to work on <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> against CUDA 13:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
 <span class="gp">$ </span>uv<span class="w"> </span>venv
 <span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">   </span><span class="c1"># On Windows: .venv\Scripts\activate</span>
@@ -888,8 +930,9 @@ with <code class="docutils literal notranslate"><span class="pre">linux-aarch64<
 <section id="development-with-pixi">
 <h3>Development with pixi<a class="headerlink" href="#development-with-pixi" title="Link to this heading">#</a></h3>
 <p><a class="reference external" href="https://pixi.sh/">pixi</a> provides a reproducible development environment across the repository.
-From the repository root:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
+Before cloning, check the <a class="reference internal" href="#cuda-core-source-install"><span class="std std-ref">source-build prerequisites</span></a>.
+For example, to work against CUDA 13:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python
 <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>cu13<span class="w"> </span>test-core
 </pre></div>
@@ -899,41 +942,6 @@ From the repository root:</p>
 </pre></div>
 </div>
 <p>Use <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">cu12</span></code> to test against CUDA 12 instead.</p>
-</section>
-<section id="installing-from-source">
-<h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
-<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
-<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-<p>A source build has two requirements. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.x or 13.x at or above the release’s floor for that major. An isolated
-build, the default for <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>, installs a <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> no newer than the
-toolkit’s minor. Other builds must provide it.</p></li>
-<li><p>A CUDA Toolkit, located through <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, whose <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> has the same
-major.minor as the header that <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was generated from. If the versions differ,
-the build fails early. To build against a specific <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> in an isolated build,
-constrain it with <code class="docutils literal notranslate"><span class="pre">PIP_CONSTRAINT</span></code>. A build with <code class="docutils literal notranslate"><span class="pre">--no-build-isolation</span></code> uses the installed
-<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>.</p></li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">--recurse-submodules</span></code> is required: the build compiles against the CCCL
-headers pinned in the <code class="docutils literal notranslate"><span class="pre">cuda_core/third_party/cccl</span></code> submodule, and fails
-without them. For a clone that already exists, run
-<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">cuda_core/third_party/cccl</span></code>.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The version is derived from git tags via <code class="docutils literal notranslate"><span class="pre">setuptools-scm</span></code>, so the clone
-must include tags reaching back to at least the latest <code class="docutils literal notranslate"><span class="pre">cuda-core-v*</span></code> tag.
-Do not use <code class="docutils literal notranslate"><span class="pre">--depth</span></code> or <code class="docutils literal notranslate"><span class="pre">--no-tags</span></code>: a shallow clone builds without
-error but produces a bogus version such as <code class="docutils literal notranslate"><span class="pre">0.1.dev1+g0d22cb444</span></code>. See
-<a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md">Cloning the repository</a>
-for details and recovery steps.</p>
-</div>
 </section>
 </section>
 </section>
@@ -995,9 +1003,9 @@ for details and recovery steps.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-conda-conda-forge">Installing from Conda (conda-forge)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-environment">Development environment</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-latest-nightly-top-of-tree-builds">Installing the latest nightly (top-of-tree builds)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-with-uv">Development with uv</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-with-pixi">Development with pixi</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a></li>
 </ul>
 </li>
 </ul>

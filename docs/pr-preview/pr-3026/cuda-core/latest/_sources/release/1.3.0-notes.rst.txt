@@ -83,8 +83,46 @@ New features
   disturb a capture in its context is reported as a :class:`CUDAWarning`
   and proceeds without the synchronization.
 
+- :class:`VirtualMemoryResource` buffers can now be shared with other
+  processes the way pool-backed buffers are. :attr:`Buffer.ipc_descriptor`
+  exports every physical allocation that backs a :class:`VirtualMemoryBuffer`
+  as a POSIX file descriptor, :meth:`Buffer.from_ipc_descriptor` imports the
+  descriptor with a ``VirtualMemoryResource`` of the receiving process for the
+  device that owns the memory, and a buffer or its descriptor can be sent
+  through ``multiprocessing`` directly (plain ``pickle`` cannot carry file
+  descriptors). :attr:`VirtualMemoryResource.is_ipc_enabled` is ``True`` when
+  the resource's ``handle_type`` is ``"posix_fd"`` on Linux and the memory
+  lives on a device; host-located virtual memory is not shared yet. A grown buffer
+  imports as one contiguous range. A descriptor holds one file descriptor per
+  physical allocation and pins the memory while it exists; nothing else does.
+  A buffer that contains imported memory cannot be exported again. For a
+  transport of your own, the descriptor exposes ``fds``, ``sizes``, and
+  ``size``, and ``VirtualMemoryFdBufferDescriptor.from_fds()`` rebuilds it
+  in the receiver. Fabric handles are not shared yet.
+  (`#2980 <https://github.com/NVIDIA/cuda-python/issues/2980>`__)
+
 Fixes and enhancements
 ----------------------
+
+- A :class:`~_memory.DeviceMemoryResource` or a :class:`VirtualMemoryResource`
+  sent through ``multiprocessing`` now names its device, and the
+  ``VirtualMemoryResource`` ``peers``, by UUID. The receiving process maps
+  each UUID to its own device ordinal. Before, the receiver used the sender's
+  ordinals, which name different devices when ``CUDA_VISIBLE_DEVICES``
+  differs between the processes. Unpickling now raises ``RuntimeError`` when
+  one of the devices is not visible in the receiving process.
+  (`#3097 <https://github.com/NVIDIA/cuda-python/issues/3097>`__)
+
+- A pickled :class:`Device` now names its device by UUID, and unpickling
+  returns the device with that UUID in the receiving process. Before, it
+  named the device by ordinal, which names a different device when
+  ``CUDA_VISIBLE_DEVICES`` differs between the processes. Unpickling raises
+  ``RuntimeError`` when the device is not visible in the receiving process.
+  The pickled form is for processes on the same machine.
+  (`#3196 <https://github.com/NVIDIA/cuda-python/issues/3196>`__)
+
+- Fixed a ``TypeError`` in :meth:`Program.compile` when retrying after PCH
+  heap exhaustion.
 
 - :attr:`system.Device.uuid_without_prefix` preserves UUIDs that NVML already
   reports without a prefix, such as on Orin. This also allows
@@ -245,8 +283,11 @@ Fixes and enhancements
   :attr:`Buffer.size` after a grow is the aligned total. The ``config``
   argument applies to the chunk that call adds and is no longer stored on the
   resource (`#2909 <https://github.com/NVIDIA/cuda-python/issues/2909>`__);
-  it must keep the resource's location and passes the constructor's option
-  checks. It never changes the access of memory that is already mapped, so a
+  it must keep the resource's location and ``handle_type`` and passes the
+  constructor's option checks. Every chunk of a buffer must be exportable
+  the same way, so a resource created with ``handle_type=None`` needs
+  ``handle_type=None`` in a per-call ``config`` as well. It never changes
+  the access of memory that is already mapped, so a
   request the buffer already covers has no effect even with ``config``.
   Buffers from ``allocate()`` free themselves when they close and no longer
   call :meth:`VirtualMemoryResource.deallocate`, which now serves pointers
@@ -279,3 +320,13 @@ Fixes and enhancements
   while operands from plain ``cuMemAlloc`` allocations accept it. The node's
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
+
+Deprecations
+------------
+
+- Two ``cuda.core.system`` exception classes were renamed so that they no longer have the same name as a Python builtin
+  exception. Code that did ``from cuda.core.system import *``
+  replaced the builtin ``TimeoutError`` and ``MemoryError`` in its namespace. Update code that refers to the old names:
+
+  - ``TimeoutError`` is now ``NvmlTimeoutError``.
+  - ``MemoryError`` is now ``NvmlMemoryError``.

@@ -300,6 +300,10 @@ Enhancements
 - The following functions now accept ``None`` for their buffer-like pointer argument (an integer address or an object supporting the buffer protocol), which is treated as ``NULL``.
 
   - ``cudla.module_load_from_memory`` (``p_module``)
+  - ``cudla.submit_task`` (``ptr_to_tasks``)
+  - ``cufile.handle_register`` (``descr``)
+  - ``cufile.batch_io_submit``, ``cufile.batch_io_get_status`` (``iocbp``)
+  - ``cufile.get_stats_l1``, ``cufile.get_stats_l2``, ``cufile.get_stats_l3`` (``stats``)
   - ``nvfatbin.add_cubin``, ``nvfatbin.add_index``, ``nvfatbin.add_ltoir``, ``nvfatbin.add_ptx``, ``nvfatbin.add_reloc``, ``nvfatbin.add_tile_ir`` (``code``)
   - ``nvfatbin.get`` (``buffer``)
   - ``nvjitlink.add_data`` (``data``)
@@ -307,7 +311,19 @@ Enhancements
   - ``nvjitlink.get_linked_cubin`` (``cubin``)
   - ``nvjitlink.get_linked_ltoir`` (``ltoir``)
   - ``nvjitlink.get_linked_ptx`` (``ptx``)
+  - ``nvml.device_set_clock_offsets`` (``info``)
+  - ``nvml.device_set_nvlink_bw_mode`` (``set_bw_mode``)
+  - ``nvml.device_modify_drain_state``, ``nvml.device_query_drain_state``, ``nvml.device_remove_gpu_v2``, ``nvml.device_discover_gpus`` (``pci_info``)
+  - ``nvml.gpu_instance_set_vgpu_scheduler_state`` (``p_scheduler``)
+  - ``nvml.set_vgpu_version`` (``vgpu_version``)
+  - ``nvml.device_create_gpu_instance_with_placement``, ``nvml.gpu_instance_create_compute_instance_with_placement`` (``placement``)
+  - ``nvml.device_set_power_mizer_mode_v1`` (``power_mizer_mode``)
+  - ``nvml.device_set_vgpu_scheduler_state_v2``, ``nvml.gpu_instance_set_vgpu_scheduler_state_v2`` (``p_scheduler_state``)
+  - ``nvml.device_set_memory_limits_v1`` (``limits``)
+  - ``nvml.event_set_register_gpu_operational_events_v1`` (``config``)
   - ``nvvm.add_module_to_program``, ``nvvm.lazy_add_module_to_program``, ``nvvm.get_compiled_result``, ``nvvm.get_program_log`` (``buffer``)
+- Buffer-like pointer arguments in ``cudla``, ``nvfatbin``, ``nvjitlink`` and ``nvvm`` are no longer required to be 1D. Any contiguous buffer
+  (a ctypes object, NumPy array of any shape, ``bytes``, ...) is accepted, and the error message for an invalid buffer says so.
 - For all ``cuda-bindings`` APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the ``.ptr`` property.
 - Creating class instances in ``cuda-bindings`` should now be faster in most cases, because it requires 1 heap allocation rather than 2.
 - Before a source build compiles anything, it now checks that the CUDA Toolkit's ``cuda.h`` has the major.minor the source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. Previously a mismatch surfaced as a long list of C++ redefinition errors.
@@ -317,20 +333,50 @@ Behavior changes
 
 - Passing a ``None`` to ``nvvm.add_module_to_program`` or ``nvvm.lazy_add_module_to_program`` will now raise a ``nvvm.nvvmError`` (``INVALID_INPUT``) rather than a ``ValueError``.
 
+Deprecations
+------------
+
+- Two ``cuda.bindings.nvml`` exception classes were renamed so that they no longer have the same name as a Python builtin
+  exception. Code that did ``from cuda.bindings.nvml import *`` (or ``from cuda.bindings.nvml import TimeoutError``)
+  replaced the builtin ``TimeoutError`` and ``MemoryError`` in its namespace. Update code that refers to the old names:
+
+  - ``nvml.TimeoutError`` is now ``nvml.NvmlTimeoutError``.
+  - ``nvml.MemoryError`` is now ``nvml.NvmlMemoryError``.
+
+  They are still subclasses of ``nvml.NvmlError``, and the error codes they represent
+  (``ERROR_TIMEOUT`` and ``ERROR_MEMORY``) are unchanged, so ``except nvml.NvmlError`` is not affected.
+
 Bugfixes
 --------
 
 - A number of incorrect docstrings have been corrected.
 - Setting a ``cuda_bindings`` class instance to itself (``obj = cuda_bindings.driver.Class(); obj[0] = obj``) will no longer crash or use garbage values.
 - Fix a potential use-after-free error in the destructors of classes in ``driver`` and ``runtime``.
+- ``driver.cuLaunchHostFunc`` and ``runtime.cudaLaunchHostFunc`` now pass the host
+  function and its user data to CUDA unchanged. They used to route the call through
+  an internal trampoline that freed its state after the first invocation, so a host
+  function captured into a CUDA graph crashed on the second launch of that graph.
+  (`Issue #790 <https://github.com/NVIDIA/cuda-python/issues/790>`_)
+  Callers must retain the callback object and user data storage for the lifetime
+  of the graph and its executables, including pending launches; see
+  :ref:`host-function-lifetime`.
+- ``cufile`` and ``nvml`` struct array wrappers (for example ``nvml.ProcessInfo`` and ``cufile.IOParams``) are now zero-initialized when
+  created with a given size. Previously they were allocated with uninitialized memory, so unset fields held garbage values.
+- Assigning to a member of a read-only ``cufile`` or ``nvml`` struct array wrapper now raises ``ValueError`` ("This <Class> instance is
+  read-only"). Previously no such check was made.
+- ``nvml.PwrModelMetricsPfpp1x`` and ``nvml.PwrModelMetricsDlppm1x`` array wrappers now populate their nested ``estimated_metrics`` member
+  with one array per element, sized by ``num_vf_points`` and ``num_estimated_metrics`` respectively.
 
 Prerelease feature
 ------------------
 
-A new version of the ``nvrtc`` API is available as ``cuda.bindings._v2.nvrtc``.  The
-primary improvements are: (1) raising exceptions rather than returning error
-codes, (2) uses PEP8-compliant naming, and (3) more performance.  This API is
-still experimental and subject to change.
+A new version of the ``nvrtc`` and ``driver`` APIs is available as
+``cuda.bindings._v2.nvrtc`` and ``cuda.bindings._v2.driver``.  The primary
+improvements are: (1) raising exceptions rather than returning error codes, (2)
+uses PEP8-compliant naming, and (3) more performance.  This API is still
+experimental and subject to change.
+
+See the :ref:`v2 migration guide <v2-migration>` for details on migrating to new API.
 
 Known issues
 ------------
