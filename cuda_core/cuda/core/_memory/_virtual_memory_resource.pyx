@@ -105,7 +105,9 @@ class VirtualMemoryResourceOptions:
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
         Controls the type of allocation.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
-        Controls the location of the allocation.
+        Controls the location of the allocation. ``"host_numa"`` requires
+        ``numa_id``. ``"host_numa_current"`` is rejected because the driver
+        does not accept it for physical allocations.
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
@@ -137,6 +139,12 @@ class VirtualMemoryResourceOptions:
         Access flags for the owning device.
     peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for peers.
+    numa_id: int | None
+        Host NUMA node of the allocation. Required for
+        ``location_type="host_numa"`` and rejected for every other location
+        type. Must be >= 0; ``Device.properties.host_numa_id`` is the node
+        closest to a device. On a system without NUMA, ``host_numa_id`` is -1
+        and the driver expects ``numa_id=0``.
     """
 
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
@@ -149,6 +157,7 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
     peer_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
+    numa_id: int | None = None
 
     _a = driver.CUmemAccess_flags
     _access_flags = {  # noqa: RUF012
@@ -541,6 +550,29 @@ cdef class VirtualMemoryResource(MemoryResource):
                 f"config.location_type {str(cfg.location_type)!r} does not match the resource's "
                 f"{str(self.config.location_type)!r}; the location of a buffer cannot change"
             )
+        if cfg.numa_id != self.config.numa_id:
+            raise ValueError(
+                f"config.numa_id {cfg.numa_id!r} does not match the resource's "
+                f"{self.config.numa_id!r}; the location of a buffer cannot change"
+            )
+        if cfg.location_type == VirtualMemoryLocationType.HOST_NUMA_CURRENT:
+            raise ValueError(
+                'location_type="host_numa_current" is not supported: the driver does not accept it '
+                'for physical allocations; use location_type="host_numa" with numa_id'
+            )
+        if cfg.location_type == VirtualMemoryLocationType.HOST_NUMA:
+            if cfg.numa_id is None:
+                raise ValueError(
+                    'location_type="host_numa" requires numa_id; pass numa_id=<host NUMA node id>, '
+                    "e.g. device.properties.host_numa_id"
+                )
+            if cfg.numa_id < 0:
+                raise ValueError(f"numa_id must be >= 0, got {cfg.numa_id}")
+        elif cfg.numa_id is not None:
+            raise ValueError(
+                'numa_id is only valid with location_type="host_numa", '
+                f"got location_type={str(cfg.location_type)!r}"
+            )
         # The driver rejects an exportable handle type for HOST memory only;
         # the NUMA location types may carry one.
         if cfg.location_type == VirtualMemoryLocationType.HOST and cfg.handle_type is not None:
@@ -568,7 +600,10 @@ cdef class VirtualMemoryResource(MemoryResource):
         memset(prop, 0, sizeof(cydriver.CUmemAllocationProp))
         prop.type = <cydriver.CUmemAllocationType>alloc_type
         prop.location.type = <cydriver.CUmemLocationType>loc_type
-        prop.location.id = self.device.device_id if self.device is not None else -1
+        if self.config.location_type == VirtualMemoryLocationType.HOST_NUMA:
+            prop.location.id = self.config.numa_id
+        else:
+            prop.location.id = self.device.device_id if self.device is not None else -1
         prop.allocFlags.gpuDirectRDMACapable = 1 if cfg.gpu_direct_rdma else 0
         prop.requestedHandleTypes = <cydriver.CUmemAllocationHandleType>handle_type
         prop.win32HandleMetaData = NULL

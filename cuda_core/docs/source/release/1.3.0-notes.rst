@@ -338,6 +338,17 @@ Fixes and enhancements
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
 
+- :class:`VirtualMemoryResource` can now allocate with
+  ``location_type="host_numa"``. Every such allocation failed with
+  ``CUDA_ERROR_INVALID_VALUE``, because the driver received ``-1`` as the NUMA
+  node. :class:`VirtualMemoryResourceOptions` has a new ``numa_id`` field that
+  names the node. It is required for ``"host_numa"`` and rejected for every
+  other location type; ``Device.properties.host_numa_id`` gives the node
+  closest to a device. ``location_type="host_numa_current"`` now raises
+  ``ValueError`` at construction, because the driver does not accept it for
+  physical allocations.
+  (`#2694 <https://github.com/NVIDIA/cuda-python/issues/2694>`__)
+
 Deprecations
 ------------
 
