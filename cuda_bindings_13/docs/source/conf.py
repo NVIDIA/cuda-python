@@ -64,6 +64,9 @@ extensions = [
     "enum_documenter",
 ]
 
+# PR previews skip the (very large) autosummary-generated stub pages to save space.
+autosummary_generate = not int(os.environ.get("BUILD_PREVIEW", 0))
+
 nb_execution_mode = "off"
 numfig = True
 
@@ -106,7 +109,10 @@ if os.environ.get("CI"):
     if int(os.environ.get("BUILD_PREVIEW", 0)):
         PR_NUMBER = f"{os.environ['PR_NUMBER']}"
         PR_TEXT = f'<a href="https://github.com/NVIDIA/cuda-python/pull/{PR_NUMBER}">PR {PR_NUMBER}</a>'
-        html_theme_options["announcement"] = f"<em>Warning</em>: This documentation is only a preview for {PR_TEXT}!"
+        html_theme_options["announcement"] = (
+            f"<em>Warning</em>: This documentation is only a preview for {PR_TEXT}! "
+            "To keep previews small, the `autosummary`-generated API pages are omitted."
+        )
     elif int(os.environ.get("BUILD_LATEST", 0)):
         html_theme_options["announcement"] = (
             "<em>Warning</em>: This documentation is built from the development branch!"
