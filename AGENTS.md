@@ -64,6 +64,20 @@ For each package tag namespace and target release `X.Y.Z`:
   existing history.
 - Treat pushed tags as immutable. Correct an unsuitable tagged state with a
   new versioned milestone rather than moving or replacing the existing tag.
+- Reserve a new preview target from the next globally unused release number,
+  checking canonical tags and coordinating releases on every maintenance or
+  stabilization branch. A release on another branch consumes that number even
+  when its tag is not reachable from `main`. Update `scm-bootstrap-release`
+  before another build if such a release consumes its target; do not bump the
+  field per PR or use it to override suitable reachable tags.
+- Moving a package's SCM selector to a new toolkit minor also needs a matching
+  reachable milestone. Updating the selector alone can produce an incorrect
+  placeholder version. Validate previews with local tags in an independent
+  disposable clone until the release history supplies the right milestone.
+- For a newly integrated maintenance root, create its first retained internal
+  milestone only after the integration group has landed and been validated on
+  `main`. Retained tag creation requires an explicit maintainer decision;
+  preparation of a PR stack does not authorize creating or pushing it.
 
 Use the package's established tag namespace, such as `vX.Y.Z...` for
 `cuda-bindings` and `cuda-python`, `cuda-core-vX.Y.Z...` for `cuda-core`, and
