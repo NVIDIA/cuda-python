@@ -7,7 +7,7 @@ import functools
 import struct
 import subprocess
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import (
@@ -66,10 +66,25 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
         return loaded
+    raise_driver_lib_not_found(desc)
+
+
+def raise_driver_lib_not_found(desc: LibDescriptor) -> NoReturn:
     raise DynamicLibNotFoundError(
         f'"{desc.name}" is an NVIDIA driver library and can only be found via'
         f" system search. Ensure the NVIDIA display driver is installed."
     )
+
+
+def check_libname(libname: str) -> None:
+    """Raise if ``libname`` is unknown or not available on this platform."""
+    if libname not in _ALL_KNOWN_LIBNAMES:
+        raise DynamicLibUnknownError(f"Unknown library name: {libname!r}. Known names: {sorted(_ALL_KNOWN_LIBNAMES)}")
+    if libname not in ALL_AVAILABLE_LIBNAMES:
+        raise DynamicLibNotAvailableError(
+            f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
+            f"Supported names on {_PLATFORM_NAME}: {sorted(ALL_AVAILABLE_LIBNAMES)}"
+        )
 
 
 def _coerce_subprocess_output(output: str | bytes | None) -> str:
@@ -320,11 +335,5 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f" Currently running: {pointer_size_bits}-bit Python"
             f" {sys.version_info.major}.{sys.version_info.minor}"
         )
-    if libname not in _ALL_KNOWN_LIBNAMES:
-        raise DynamicLibUnknownError(f"Unknown library name: {libname!r}. Known names: {sorted(_ALL_KNOWN_LIBNAMES)}")
-    if libname not in ALL_AVAILABLE_LIBNAMES:
-        raise DynamicLibNotAvailableError(
-            f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
-            f"Supported names on {_PLATFORM_NAME}: {sorted(ALL_AVAILABLE_LIBNAMES)}"
-        )
+    check_libname(libname)
     return _load_lib_no_cache(libname)
