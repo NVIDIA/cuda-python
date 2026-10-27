@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.kernel\_set\_cache\_config
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: kernel_set_cache_config

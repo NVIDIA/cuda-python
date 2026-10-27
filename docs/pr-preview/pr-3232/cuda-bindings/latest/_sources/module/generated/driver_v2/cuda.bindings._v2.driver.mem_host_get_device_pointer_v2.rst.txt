@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_host\_get\_device\_pointer\_v2
+=============================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_host_get_device_pointer_v2

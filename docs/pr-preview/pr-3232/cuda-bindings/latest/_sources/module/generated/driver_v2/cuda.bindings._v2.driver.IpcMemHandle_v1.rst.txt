@@ -1,0 +1,31 @@
+﻿cuda.bindings.\_v2.driver.IpcMemHandle\_v1
+==========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: IpcMemHandle_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IpcMemHandle_v1.__init__
+      ~IpcMemHandle_v1.from_buffer
+      ~IpcMemHandle_v1.from_data
+      ~IpcMemHandle_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IpcMemHandle_v1.ptr
+   
+   

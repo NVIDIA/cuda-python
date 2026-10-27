@@ -1,0 +1,31 @@
+﻿cuda.bindings.\_v2.driver.IpcEventHandle\_v1
+============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: IpcEventHandle_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IpcEventHandle_v1.__init__
+      ~IpcEventHandle_v1.from_buffer
+      ~IpcEventHandle_v1.from_data
+      ~IpcEventHandle_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IpcEventHandle_v1.ptr
+   
+   

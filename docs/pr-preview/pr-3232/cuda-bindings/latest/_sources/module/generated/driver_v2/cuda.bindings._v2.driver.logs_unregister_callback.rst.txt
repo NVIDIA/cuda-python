@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.logs\_unregister\_callback
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: logs_unregister_callback
