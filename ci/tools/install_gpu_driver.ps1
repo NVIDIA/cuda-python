@@ -28,6 +28,11 @@ function Install-Driver {
         exit 1
     }
 
+    if (-not $env:DRIVER_SHA256) {
+        Write-Error "DRIVER_SHA256 env var is required to verify the driver installer."
+        exit 1
+    }
+
     # Get GPU type from environment variable
     $gpu_type = $env:GPU_TYPE
 
@@ -70,10 +75,6 @@ function Install-Driver {
     $ProgressPreference = $ProgressPreference_tmp
     Write-Output 'Download complete!'
 
-    if (-not $env:DRIVER_SHA256) {
-        Write-Error "DRIVER_SHA256 env var is required to verify the driver installer."
-        exit 1
-    }
     $actual_sha256 = (Get-FileHash -Algorithm SHA256 -Path $filepath).Hash
     if ($actual_sha256 -ne $env:DRIVER_SHA256) {
         Write-Error "SHA256 mismatch for ${filepath}: expected $($env:DRIVER_SHA256), got $actual_sha256"

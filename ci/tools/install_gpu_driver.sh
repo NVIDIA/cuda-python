@@ -92,6 +92,15 @@ in_container() {
 host_install() {
   apt-get -y install build-essential dkms "linux-headers-$(uname -r)" psmisc kmod
 
+  # Download and verify the installer before tearing down the existing
+  # host driver so a download failure or SHA-256 mismatch leaves the
+  # runner's current driver intact.
+  local d
+  d=$(mktemp -d)
+  ( cd "$d" \
+    && wget -q -O installer.run "$URL" \
+    && echo "${DRIVER_SHA256}  installer.run" | sha256sum --check --strict - )
+
   systemctl stop nvidia-persistenced dcgm-exporter || true
   # if-test instead of `fuser ... || true` so a kill failure surfaces
   # (fuser exits 1 when nothing holds the device, which is the happy path).
@@ -110,11 +119,7 @@ host_install() {
     | awk -v re="$KEEP_RE" '$0 !~ re' \
     | xargs -r apt-get -y remove --purge || true
 
-  local d
-  d=$(mktemp -d)
   ( cd "$d" \
-    && wget -q -O installer.run "$URL" \
-    && echo "${DRIVER_SHA256}  installer.run" | sha256sum --check --strict - \
     && sh installer.run --silent --dkms --no-questions \
          --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" )
   modprobe nvidia nvidia_uvm nvidia_modeset
