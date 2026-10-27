@@ -8,24 +8,6 @@
 name: "CI: Runner trust probe"
 
 on:
-  # Temporary triggers for pre-merge PR verification (revert before merging):
-  # - pull_request exercises GitHub-hosted labels immediately on the PR.
-  # - push on pull-request/[0-9]+ exercises all labels (including self-hosted
-  #   CPU and GPU runners) when synced by copy-pr-bot.
-  pull_request:
-    paths:
-      - ".github/workflows/runner-trust-probe.yml"
-      - "ci/tools/runner_trust_probe.sh"
-      - "ci/tools/runner_trust_probe.ps1"
-      - "ci/tools/runner_trust_probe_node.js"
-  push:
-    branches:
-      - "pull-request/[0-9]+"
-    paths:
-      - ".github/workflows/runner-trust-probe.yml"
-      - "ci/tools/runner_trust_probe.sh"
-      - "ci/tools/runner_trust_probe.ps1"
-      - "ci/tools/runner_trust_probe_node.js"
   schedule:
     # Weekly on Mondays at 06:23 UTC
     - cron: "23 6 * * 1"
@@ -67,11 +49,7 @@ jobs:
       - name: Compute runner labels
         id: compute
         env:
-          # On fork pull_request events self-hosted runners do not pick up jobs;
-          # limit pull_request runs to GitHub-hosted labels, while push to
-          # pull-request/[0-9]+ (copy-pr-bot) and schedule/workflow_dispatch
-          # probe the full fleet.
-          LABEL_FILTER: ${{ inputs.label-filter || (github.event_name == 'pull_request' && '^(ubuntu-latest|windows-latest|windows-2022|windows-11-arm)$') || '' }}
+          LABEL_FILTER: ${{ inputs.label-filter || '' }}
         run: |
           matrix_json="$(yq -o json '.' ci/test-matrix.yml)"
 
