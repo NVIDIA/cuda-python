@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graphics\_resource\_set\_map\_flags\_v2
+=================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graphics_resource_set_map_flags_v2

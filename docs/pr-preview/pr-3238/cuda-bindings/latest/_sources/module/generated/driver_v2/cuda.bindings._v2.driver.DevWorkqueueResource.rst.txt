@@ -1,0 +1,31 @@
+﻿cuda.bindings.\_v2.driver.DevWorkqueueResource
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: DevWorkqueueResource
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DevWorkqueueResource.__init__
+      ~DevWorkqueueResource.from_buffer
+      ~DevWorkqueueResource.from_data
+      ~DevWorkqueueResource.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DevWorkqueueResource.ptr
+   
+   

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_host\_unregister
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_host_unregister

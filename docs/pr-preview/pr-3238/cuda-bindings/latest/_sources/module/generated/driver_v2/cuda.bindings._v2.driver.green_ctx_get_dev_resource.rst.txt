@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.green\_ctx\_get\_dev\_resource
+========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: green_ctx_get_dev_resource
