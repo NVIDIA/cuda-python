@@ -49,12 +49,14 @@
 
 #ifdef CUDA_CORE_MIN_CUDA_VERSION
 #if CUDA_VERSION < CUDA_CORE_MIN_CUDA_VERSION
-#error "cuda.h is older than the floor of this cuda.core release for its CUDA major series (see the cuda.core support policy)"
+#error \
+    "cuda.h is older than the floor of this cuda.core release for its CUDA major series (see the cuda.core support policy)"
 #endif
 #endif
 
 #ifdef CUDA_CORE_BINDINGS_CUDA_VERSION
 #if (CUDA_VERSION / 10) != (CUDA_CORE_BINDINGS_CUDA_VERSION / 10)
-#error "the cuda.h the compiler resolved is not of the major.minor that the installed cuda-bindings was generated from (check CUDA_PATH, CUDA_HOME and the compiler's include path)"
+#error \
+    "the cuda.h the compiler resolved is not of the major.minor that the installed cuda-bindings was generated from (check CUDA_PATH, CUDA_HOME and the compiler's include path)"
 #endif
 #endif

@@ -28,6 +28,9 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Enabling git symlinks](#enabling-git-symlinks)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+  - [CodeRabbit](#coderabbit)
+    - [Review Guidance](#review-guidance)
+    - [Pull Request Reviews](#pull-request-reviews)
   - [Pixi lockfiles](#pixi-lockfiles)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
@@ -234,6 +237,55 @@ keep the tree consistent if they run on *every* commit. Relying on manual
 between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` will print a visible warning
 reminding you to run `pre-commit install`.
+
+C, C++ and CUDA sources are formatted with `clang-format` using the
+[`.clang-format`](.clang-format) at the repository root, which follows PEP 7
+except for a 120-column limit. The
+pre-commit hook installs its own pinned `clang-format` (from PyPI) into the
+hook environment, so no system-wide installation is required. Vendored code
+(for example `dlpack.h` and `cuda_core/third_party/`) is excluded in
+`.pre-commit-config.yaml`. To format in your editor, install the same version
+with `pip install clang-format==23.1.3`.
+
+## CodeRabbit
+
+This section explains how to use CodeRabbit for CUDA Python pull request review.
+For complete product documentation, see the
+[CodeRabbit documentation](https://docs.coderabbit.ai/).
+
+### Review Guidance
+
+We treat CodeRabbit feedback as review assistance, not as a merge requirement by
+itself. Maintainers remain responsible for deciding whether comments are
+actionable and whether a pull request has adequate tests and CI coverage.
+
+### Pull Request Reviews
+
+Automatic reviews may be disabled or restricted by the repository
+configuration. PR authors and maintainers can request a review explicitly by
+posting a comment on the pull request:
+
+```text
+@coderabbitai review
+```
+
+Use a full review when the pull request should be reviewed again from scratch:
+
+```text
+@coderabbitai full review
+```
+
+Other useful commands:
+
+- `@coderabbitai help` shows the current command reference.
+- `@coderabbitai configuration` shows the active configuration.
+- `@coderabbitai summary` can be placed in the pull request description as a
+  placeholder for the generated summary.
+- `@coderabbitai pause` and `@coderabbitai resume` pause or resume automatic
+  review behavior. This is useful when a pull request is still being updated
+  frequently and should not be reviewed again until it is ready.
+- `@coderabbitai ignore` can be placed in the pull request description to
+  disable automatic reviews.
 
 ## Pixi lockfiles
 
