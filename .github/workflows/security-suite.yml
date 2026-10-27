@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# CI security scanning via the NVIDIA/security-workflows suite: Pulse secret scan + CodeQL SAST.
+# CI security scanning via the NVIDIA/security-workflows suite: Pulse secret scan,
+# Pulse OSS vulnerability scan (SCA), Pulse malware scan, and CodeQL SAST.
 # Pulse runs on Linux nv-gha-runners (Docker image + OIDC/Vault) — Linux-only by design.
 # The local secret-scan-trufflehog pre-commit hook is cross-platform (Linux/macOS/Windows).
 # Pinned to a reviewed commit SHA.
+# The vulnerability and malware scans cross a Charon tunnel; see ci/README.md.
 
 name: Security Suite (Pulse + CodeQL)
 
@@ -36,9 +38,11 @@ jobs:
     if: >-
       github.repository == 'NVIDIA/cuda-python' ||
       vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true'
-    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@c736f0454dc99764a66af6b906adfcdfbf621985  # v0.4.0
+    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@2194c521256bb3a7bf6fa36add89d9ce3db17c9a  # test/vuln-malware-onboarding
     with:
       enable-secret-scan: true
+      enable-vuln-scan: true
+      enable-malware-scan: true
       enable-sast-scan: true
       secret-runs-on: linux-amd64-cpu4
       # Set failure_policy explicitly so enforcement can't drift with upstream defaults.
@@ -48,3 +52,14 @@ jobs:
       secret-failure-policy: unverified
       # Same analysis the retired codeql.yml performed: python, build-mode none, security-extended.
       sast-languages: '["python"]'
+      # Must be a repository Actions variable, not a secret — a reusable workflow's inputs cannot
+      # read the secrets context. Empty degrades to an unregistered rapid scan: findings are still
+      # reported, but nothing is recorded against the nSpect program.
+      nspect-id: ${{ vars.NSPECT_ID }}
+      vuln-runs-on: linux-amd64-cpu4
+      # report-only (default) — findings warn; fail-on-vulnerability — any finding fails. Errors always fail.
+      vuln-failure-policy: report-only
+      vuln-upload-report: true
+      malware-runs-on: linux-amd64-cpu4
+      # strict (default) — SUSPICIOUS fails too; malicious-only — it only warns. MALICIOUS always fails.
+      malware-failure-policy: strict
