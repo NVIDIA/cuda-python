@@ -606,6 +606,7 @@ def test_cuda_graphMem_attr():
     or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
     reason="Coredump API not present",
 )
+@pytest.mark.thread_unsafe(reason="coredump settings are process-global")
 def test_cuda_coredump_attr():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
