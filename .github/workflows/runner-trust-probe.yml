@@ -33,17 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      linux_host: ${{ steps.compute.outputs.linux_host }}
+      host: ${{ steps.compute.outputs.host }}
       linux_gpu: ${{ steps.compute.outputs.linux_gpu }}
-      windows: ${{ steps.compute.outputs.windows }}
-      has_linux_host: ${{ steps.compute.outputs.has_linux_host }}
-      has_linux_gpu: ${{ steps.compute.outputs.has_linux_gpu }}
-      has_windows: ${{ steps.compute.outputs.has_windows }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 1
           persist-credentials: false
 
       - name: Compute runner labels
@@ -51,77 +46,58 @@ jobs:
         env:
           LABEL_FILTER: ${{ inputs.label-filter || '' }}
         run: |
-          matrix_json="$(yq -o json '.' ci/test-matrix.yml)"
-
           # Hosted and self-hosted CPU labels are listed explicitly; GPU labels
           # are derived from ci/test-matrix.yml.
-          linux_host="$(jq -cn --arg filter "${LABEL_FILTER}" '
-            [
-              "ubuntu-latest",
-              "linux-amd64-cpu8",
-              "linux-arm64-cpu8",
-              "linux-amd64-cpu4"
-            ]
-            | unique
-            | if $filter != "" then map(select(test($filter))) else . end
-          ')"
-
-          linux_gpu="$(jq -cn --argjson m "${matrix_json}" --arg filter "${LABEL_FILTER}" '
-            [
-              ($m.linux["pull-request"][]?, $m.linux["nightly"][]?)
-              | "\(.FLAVOR // "linux")-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
-            ]
-            | unique
-            | if $filter != "" then map(select(test($filter))) else . end
-          ')"
-
-          windows="$(jq -cn --argjson m "${matrix_json}" --arg filter "${LABEL_FILTER}" '
-            (
-              [
-                "windows-latest",
-                "windows-2022",
-                "windows-11-arm"
-              ] + [
-                ($m.windows["pull-request"][]?, $m.windows["nightly"][]?)
-                | "windows-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
+          labels_json="$(yq -o json '.' ci/test-matrix.yml | jq -c --arg filter "${LABEL_FILTER}" '
+            {
+              host: (
+                [
+                  "ubuntu-latest",
+                  "linux-amd64-cpu8",
+                  "linux-arm64-cpu8",
+                  "linux-amd64-cpu4",
+                  "windows-latest",
+                  "windows-2022",
+                  "windows-11-arm"
+                ] + [
+                  (.windows["pull-request"][]?, .windows["nightly"][]?)
+                  | "windows-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
+                ]
+              ),
+              linux_gpu: [
+                (.linux["pull-request"][]?, .linux["nightly"][]?)
+                | "\(.FLAVOR // "linux")-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
               ]
-            )
-            | unique
-            | if $filter != "" then map(select(test($filter))) else . end
+            }
+            | map_values(unique | if $filter != "" then map(select(test($filter))) else . end)
           ')"
 
-          echo "linux_host=${linux_host}" | tee -a "${GITHUB_OUTPUT}"
-          echo "linux_gpu=${linux_gpu}" | tee -a "${GITHUB_OUTPUT}"
-          echo "windows=${windows}" | tee -a "${GITHUB_OUTPUT}"
-          echo "has_linux_host=$(jq 'length > 0' <<< "${linux_host}")" | tee -a "${GITHUB_OUTPUT}"
-          echo "has_linux_gpu=$(jq 'length > 0' <<< "${linux_gpu}")" | tee -a "${GITHUB_OUTPUT}"
-          echo "has_windows=$(jq 'length > 0' <<< "${windows}")" | tee -a "${GITHUB_OUTPUT}"
+          echo "host=$(jq -c '.host' <<< "${labels_json}")" | tee -a "${GITHUB_OUTPUT}"
+          echo "linux_gpu=$(jq -c '.linux_gpu' <<< "${labels_json}")" | tee -a "${GITHUB_OUTPUT}"
 
-  probe-linux-host:
+  probe-host:
     name: Probe (${{ matrix.label }})
     needs: compute-matrix
-    if: ${{ github.repository_owner == 'nvidia' && needs.compute-matrix.outputs.has_linux_host == 'true' }}
+    if: ${{ needs.compute-matrix.outputs.host != '[]' }}
     strategy:
       fail-fast: false
       matrix:
-        label: ${{ fromJSON(needs.compute-matrix.outputs.linux_host) }}
+        label: ${{ fromJSON(needs.compute-matrix.outputs.host) }}
     runs-on: ${{ matrix.label }}
     timeout-minutes: 15
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 1
           persist-credentials: false
 
-      - name: Probe OS trust store
-        id: os-probe
+      - name: Probe Linux OS trust store
+        if: ${{ runner.os != 'Windows' }}
         env:
           TRUST_PROBE_LABEL: "${{ matrix.label == 'ubuntu-latest' && 'OS trust store (before ca-certificates upgrade)' || 'OS trust store' }}"
         run: ./ci/tools/runner_trust_probe.sh
 
-      - name: Probe OS trust store after ca-certificates upgrade (ubuntu-latest)
-        id: os-probe-upgraded
+      - name: Probe Linux OS trust store after ca-certificates upgrade (ubuntu-latest)
         if: ${{ always() && matrix.label == 'ubuntu-latest' }}
         env:
           TRUST_PROBE_LABEL: "OS trust store (after ca-certificates upgrade)"
@@ -130,21 +106,21 @@ jobs:
           sudo apt-get install --only-upgrade -y ca-certificates
           ./ci/tools/runner_trust_probe.sh
 
+      - name: Probe Windows OS trust store
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: ./ci/tools/runner_trust_probe.ps1
+
       - name: Probe Node 20 action runtime (informational)
         if: ${{ always() }}
         continue-on-error: true
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
         with:
           script: |
-            const msg = `Node 20 action runtime resolved to \`${process.version}\` (\`${process.execPath}\`)`;
-            core.info(msg);
-            await core.summary
-              .addHeading('Node 20 action runtime (informational)', 3)
-              .addRaw(msg + '\n\n')
-              .write();
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core, heading: 'Node 20 action runtime (informational)', gating: false });
 
       - name: Probe bundled Node runtime and trust store
-        id: node-probe
         if: ${{ always() }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         with:
@@ -152,28 +128,10 @@ jobs:
             const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
             await probe({ core });
 
-      - name: Check probe outcomes
-        if: ${{ always() }}
-        run: |
-          failed=0
-          if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
-            echo "::error::Initial OS trust store probe failed" >&2
-            failed=1
-          fi
-          if [[ "${{ matrix.label }}" == "ubuntu-latest" && "${{ steps.os-probe-upgraded.outcome }}" != "success" ]]; then
-            echo "::error::Post-upgrade OS trust store probe failed on ubuntu-latest" >&2
-            failed=1
-          fi
-          if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
-            echo "::error::Node runtime trust store probe failed" >&2
-            failed=1
-          fi
-          exit "${failed}"
-
   probe-linux-gpu:
     name: Probe (${{ matrix.label }})
     needs: compute-matrix
-    if: ${{ github.repository_owner == 'nvidia' && needs.compute-matrix.outputs.has_linux_gpu == 'true' }}
+    if: ${{ needs.compute-matrix.outputs.linux_gpu != '[]' }}
     strategy:
       fail-fast: false
       matrix:
@@ -189,7 +147,6 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 1
           persist-credentials: false
 
       - name: Setup proxy cache
@@ -198,13 +155,11 @@ jobs:
 
       - name: Install container CA certificates and probe tools
         uses: ./.github/actions/install_unix_deps
-        continue-on-error: false
         with:
           dependencies: "ca-certificates curl openssl"
           dependent_exes: "curl openssl"
 
       - name: Probe container OS trust store
-        id: os-probe
         env:
           TRUST_PROBE_LABEL: "Container OS trust store (ubuntu:24.04)"
         run: ./ci/tools/runner_trust_probe.sh
@@ -215,90 +170,13 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
         with:
           script: |
-            const msg = `Node 20 action runtime resolved to \`${process.version}\` (\`${process.execPath}\`)`;
-            core.info(msg);
-            await core.summary
-              .addHeading('Node 20 action runtime (informational)', 3)
-              .addRaw(msg + '\n\n')
-              .write();
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core, heading: 'Node 20 action runtime (informational)', gating: false });
 
       - name: Probe bundled Node runtime and trust store
-        id: node-probe
         if: ${{ always() }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         with:
           script: |
             const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
             await probe({ core });
-
-      - name: Check probe outcomes
-        if: ${{ always() }}
-        run: |
-          failed=0
-          if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
-            echo "::error::Container OS trust store probe failed" >&2
-            failed=1
-          fi
-          if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
-            echo "::error::Node runtime trust store probe failed" >&2
-            failed=1
-          fi
-          exit "${failed}"
-
-  probe-windows:
-    name: Probe (${{ matrix.label }})
-    needs: compute-matrix
-    if: ${{ github.repository_owner == 'nvidia' && needs.compute-matrix.outputs.has_windows == 'true' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        label: ${{ fromJSON(needs.compute-matrix.outputs.windows) }}
-    runs-on: ${{ matrix.label }}
-    timeout-minutes: 15
-    steps:
-      - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Probe Windows OS trust store
-        id: os-probe
-        shell: pwsh
-        run: ./ci/tools/runner_trust_probe.ps1
-
-      - name: Probe Node 20 action runtime (informational)
-        if: ${{ always() }}
-        continue-on-error: true
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
-        with:
-          script: |
-            const msg = `Node 20 action runtime resolved to \`${process.version}\` (\`${process.execPath}\`)`;
-            core.info(msg);
-            await core.summary
-              .addHeading('Node 20 action runtime (informational)', 3)
-              .addRaw(msg + '\n\n')
-              .write();
-
-      - name: Probe bundled Node runtime and trust store
-        id: node-probe
-        if: ${{ always() }}
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
-        with:
-          script: |
-            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
-            await probe({ core });
-
-      - name: Check probe outcomes
-        if: ${{ always() }}
-        run: |
-          failed=0
-          if [[ "${{ steps.os-probe.outcome }}" != "success" ]]; then
-            echo "::error::Windows OS trust store probe failed" >&2
-            failed=1
-          fi
-          if [[ "${{ steps.node-probe.outcome }}" != "success" ]]; then
-            echo "::error::Node runtime trust store probe failed" >&2
-            failed=1
-          fi
-          exit "${failed}"

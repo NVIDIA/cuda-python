@@ -6,16 +6,14 @@
 # runner_trust_probe.sh -- probe the OS certificate store on a Linux runner
 # for the compromised eMudhra/emSign root anchor (emSign ECC Root CA - G3).
 #
-# Optional environment overrides for local testing:
-#   TRUST_PROBE_CA_BUNDLE       Path to CA bundle (default: /etc/ssl/certs/ca-certificates.crt)
-#   TRUST_PROBE_TEST_ENDPOINT   HTTPS endpoint to test (default: https://dv-g3b-emudhra.we-have-a-problem.com/)
-#   TRUST_PROBE_LABEL           Heading label for GITHUB_STEP_SUMMARY
+# Optional environment variable:
+#   TRUST_PROBE_LABEL   Heading label for GITHUB_STEP_SUMMARY
 
 set -euo pipefail
 
 EMSIGN_G3_SHA256="86:A1:EC:BA:08:9C:4A:8D:3B:BE:27:34:C6:12:BA:34:1D:81:3E:04:3C:F9:E8:A8:62:CD:5C:57:A3:6B:BE:6B"
-CA_BUNDLE="${TRUST_PROBE_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}"
-TEST_ENDPOINT="${TRUST_PROBE_TEST_ENDPOINT:-https://dv-g3b-emudhra.we-have-a-problem.com/}"
+CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
+TEST_ENDPOINT="https://dv-g3b-emudhra.we-have-a-problem.com/"
 PROBE_LABEL="${TRUST_PROBE_LABEL:-Linux OS trust store}"
 
 summary_file="${GITHUB_STEP_SUMMARY:-}"
@@ -48,75 +46,34 @@ elif ! command -v openssl >/dev/null 2>&1; then
   record_check "Root anchor absent" "FAIL" "\`openssl\` not found on PATH"
   gating_failures=$((gating_failures + 1))
 else
-  tmp_dir="$(mktemp -d)"
-  trap 'rm -rf "${tmp_dir}"' EXIT
+  fingerprints="$(awk '
+    /-----BEGIN CERTIFICATE-----/ { cert = "" }
+    { cert = cert $0 "\n" }
+    /-----END CERTIFICATE-----/   {
+      cmd = "openssl x509 -noout -fingerprint -sha256 2>/dev/null"
+      printf "%s", cert | cmd
+      close(cmd)
+    }
+  ' "${CA_BUNDLE}")"
+  cert_count="$(grep -c . <<< "${fingerprints}" || true)"
 
-  awk -v dir="${tmp_dir}" '
-    /-----BEGIN CERTIFICATE-----/ { in_cert = 1; idx++; file = sprintf("%s/cert-%04d.pem", dir, idx) }
-    in_cert { print > file }
-    /-----END CERTIFICATE-----/   { in_cert = 0; close(file) }
-  ' "${CA_BUNDLE}"
-
-  shopt -s nullglob
-  cert_files=("${tmp_dir}"/cert-*.pem)
-  shopt -u nullglob
-
-  if (( ${#cert_files[@]} == 0 )); then
+  if (( cert_count == 0 )); then
     record_check "Root anchor absent" "FAIL" "No certificates parsed from \`${CA_BUNDLE}\`"
     gating_failures=$((gating_failures + 1))
+  elif grep -qiF "${EMSIGN_G3_SHA256}" <<< "${fingerprints}"; then
+    record_check "Root anchor absent" "FAIL" "Found \`emSign ECC Root CA - G3\` (\`${EMSIGN_G3_SHA256}\`) in \`${CA_BUNDLE}\` (${cert_count} certs checked)"
+    gating_failures=$((gating_failures + 1))
   else
-    found_emsign=0
-    for cert_file in "${cert_files[@]}"; do
-      fp="$(openssl x509 -in "${cert_file}" -noout -fingerprint -sha256 2>/dev/null | sed 's/^.*=//; s/[[:space:]]//g' | tr '[:lower:]' '[:upper:]')"
-      if [[ "${fp}" == "${EMSIGN_G3_SHA256}" ]]; then
-        found_emsign=1
-        break
-      fi
-    done
-
-    if (( found_emsign == 1 )); then
-      record_check "Root anchor absent" "FAIL" "Found \`emSign ECC Root CA - G3\` (\`${EMSIGN_G3_SHA256}\`) in \`${CA_BUNDLE}\` (${#cert_files[@]} certs checked)"
-      gating_failures=$((gating_failures + 1))
-    else
-      record_check "Root anchor absent" "PASS" "Absent from \`${CA_BUNDLE}\` (${#cert_files[@]} certs checked)"
-    fi
+    record_check "Root anchor absent" "PASS" "Absent from \`${CA_BUNDLE}\` (${cert_count} certs checked)"
   fi
 fi
 
 # 2. ca-certificates package version (informational)
 ca_pkg_ver="$(dpkg-query -W -f='${Version}' ca-certificates 2>/dev/null || echo 'not-installed')"
-distro_id="unknown"
-distro_ver="unknown"
-if [[ -f /etc/os-release ]]; then
-  # shellcheck disable=SC1091
-  source /etc/os-release
-  distro_id="${ID:-unknown}"
-  distro_ver="${VERSION_ID:-unknown}"
-fi
-
-case "${distro_id}:${distro_ver}" in
-  ubuntu:22.04) expected_min="20260816ubuntu0.22.04.1" ;;
-  ubuntu:24.04) expected_min="20260816ubuntu0.24.04.1" ;;
-  ubuntu:26.04) expected_min="20260816ubuntu0.26.04.1" ;;
-  *)            expected_min="" ;;
-esac
-
-if [[ "${ca_pkg_ver}" == "not-installed" ]]; then
-  record_check "ca-certificates version" "INFO" "Package not installed (distro: \`${distro_id} ${distro_ver}\`)"
-elif [[ -n "${expected_min}" ]]; then
-  if dpkg --compare-versions "${ca_pkg_ver}" ge "${expected_min}"; then
-    record_check "ca-certificates version" "INFO (OK)" "\`${ca_pkg_ver}\` >= \`${expected_min}\` (Ubuntu ${distro_ver})"
-  else
-    record_check "ca-certificates version" "INFO (STALE)" "\`${ca_pkg_ver}\` < \`${expected_min}\` (Ubuntu ${distro_ver})"
-  fi
-else
-  record_check "ca-certificates version" "INFO" "\`${ca_pkg_ver}\` on \`${distro_id} ${distro_ver}\`"
-fi
+record_check "ca-certificates version" "INFO" "\`${ca_pkg_ver}\`"
 
 # 3. OS-store client (curl) rejects the test endpoint (only a successful TLS connection fails the job)
-if [[ -z "${TEST_ENDPOINT}" ]]; then
-  record_check "curl rejects test endpoint" "SKIP" "Skipped via empty \`TRUST_PROBE_TEST_ENDPOINT\`"
-elif ! command -v curl >/dev/null 2>&1; then
+if ! command -v curl >/dev/null 2>&1; then
   record_check "curl rejects test endpoint" "INCONCLUSIVE" "\`curl\` not found on PATH"
 else
   curl_rc=0

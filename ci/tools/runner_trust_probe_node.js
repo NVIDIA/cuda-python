@@ -9,7 +9,11 @@
 
 const https = require('https');
 
-module.exports = async function runNodeTrustProbe({ core }) {
+module.exports = async function runNodeTrustProbe({
+  core,
+  heading = 'Node runtime trust store',
+  gating = true,
+}) {
   const version = process.version;
   const execPath = process.execPath;
   const nodeOptions = process.env.NODE_OPTIONS || '';
@@ -20,7 +24,7 @@ module.exports = async function runNodeTrustProbe({ core }) {
   const [major, minor, patch] = m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [0, 0, 0];
   const versionOk = major === 24 && (minor > 22 || (minor === 22 && patch >= 1));
 
-  const endpoint = process.env.TRUST_PROBE_TEST_ENDPOINT || 'https://dv-g3b-emudhra.we-have-a-problem.com/';
+  const endpoint = 'https://dv-g3b-emudhra.we-have-a-problem.com/';
   const probeEndpoint = () => new Promise((resolve) => {
     const req = https.get(endpoint, { timeout: 15000 }, (res) => {
       res.resume();
@@ -50,14 +54,14 @@ module.exports = async function runNodeTrustProbe({ core }) {
   ];
 
   await core.summary
-    .addHeading('Node runtime trust store', 3)
+    .addHeading(heading, 3)
     .addTable([
       [{ data: 'Check', header: true }, { data: 'Status', header: true }, { data: 'Details', header: true }],
       ...rows,
     ])
     .write();
 
-  if (!versionOk || tlsResult.status === 'FAIL') {
+  if (gating && (!versionOk || tlsResult.status === 'FAIL')) {
     core.setFailed(`Node trust probe failed (version=${version}, endpoint=${tlsResult.status})`);
   }
 };
