@@ -54,6 +54,12 @@ def _locate_lib(libname: str) -> FindResult:
 
     ctx = SearchContext(desc)
     find = run_find_steps(ctx, EARLY_FIND_STEPS)
+
+    # load_nvidia_dynamic_lib loads the required dependencies at this point and
+    # fails if one of them cannot be found.
+    for dep in desc.dependencies:
+        locate_nvidia_dynamic_lib(dep)
+
     if find is not None:
         return find
 
@@ -79,6 +85,9 @@ def locate_nvidia_dynamic_lib(libname: str) -> LocatedDynamicLib:
     Returns the file that :func:`load_nvidia_dynamic_lib` would load in a fresh
     process. Use it where a path is needed but the library must not be loaded
     into the current process, for example to pass a library to a build system.
+
+    Like :func:`load_nvidia_dynamic_lib`, it fails if a library that ``libname``
+    requires cannot be found. Optional dependencies are not checked.
 
     Args:
         libname (str): The short name of the library to locate (e.g.,
@@ -114,7 +123,12 @@ def locate_nvidia_dynamic_lib(libname: str) -> LocatedDynamicLib:
         The result can differ from what :func:`load_nvidia_dynamic_lib` returns
         in the current process when another component has already loaded the
         library, or influences the native loader search (for example through
-        its ``RPATH``).
+        its ``RPATH``). A file that is found but fails to load is still
+        returned, since nothing is loaded.
+
+        The result of the native loader search (step 3) is cached for the life
+        of the process and shared with the CTK root canary probe, because each
+        search starts a Python subprocess.
     """
     check_libname(libname)
     find = _locate_lib(libname)

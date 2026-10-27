@@ -178,6 +178,59 @@ def test_driver_lib_not_found_raises(mocker):
         locate_nvidia_dynamic_lib("cuda")
 
 
+def _patch_early_find_by_libname(mocker, tmp_path, found):
+    """Early find steps hit for the libnames in ``found``; everything else misses."""
+
+    def run_find_steps(ctx, steps):
+        if steps is EARLY_FIND_STEPS and ctx.libname in found:
+            return FindResult(str(tmp_path / f"lib{ctx.libname}.so"), "site-packages")
+        return None
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=run_find_steps)
+    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
+    mocker.patch(f"{_MODULE}._try_ctk_root_canary", return_value=None)
+
+
+@pytest.mark.usefixtures("no_in_process_loading")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_missing_required_dependency_raises(mocker, tmp_path):
+    _patch_early_find_by_libname(mocker, tmp_path, {"cublas"})
+
+    with pytest.raises(DynamicLibNotFoundError, match="cublasLt"):
+        locate_nvidia_dynamic_lib("cublas")
+
+
+@pytest.mark.usefixtures("no_in_process_loading")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_required_dependencies_are_checked_transitively(mocker, tmp_path):
+    # cusolver requires cublas, which requires cublasLt.
+    _patch_early_find_by_libname(mocker, tmp_path, {"cusolver", "nvJitLink", "cusparse", "cublas"})
+
+    with pytest.raises(DynamicLibNotFoundError, match="cublasLt"):
+        locate_nvidia_dynamic_lib("cusolver")
+
+
+@pytest.mark.usefixtures("no_in_process_loading")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_present_dependencies_do_not_change_the_result(mocker, tmp_path):
+    _patch_early_find_by_libname(mocker, tmp_path, {"cublas", "cublasLt"})
+
+    located = locate_nvidia_dynamic_lib("cublas")
+
+    assert located.abs_path == str(tmp_path / "libcublas.so")
+    assert located.found_via == "site-packages"
+
+
+@pytest.mark.usefixtures("no_in_process_loading")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_optional_dependencies_are_not_required(mocker, tmp_path):
+    desc = load_mod.LIB_DESCRIPTORS["cudss"]
+    assert desc.optional_dependencies
+    _patch_early_find_by_libname(mocker, tmp_path, {"cudss", *desc.dependencies})
+
+    assert locate_nvidia_dynamic_lib("cudss").abs_path == str(tmp_path / "libcudss.so")
+
+
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 def test_find_is_cached(mocker, tmp_path):
     lib = tmp_path / "libcudart.so.13"
