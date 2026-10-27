@@ -426,10 +426,6 @@ def vmm_ipc_device_x2(device_x2):
 
 
 _fabric_allocation_error = {}  # device ordinal -> "" when a fabric allocation works there, else the status
-# The statuses with which cuMemCreate refuses a fabric allocation on a device without a usable fabric
-# (NOT_PERMITTED on the CI runners, INVALID_VALUE on an H200 without an IMEX channel). Any other
-# failure of the probe is a real error and propagates.
-_FABRIC_REFUSED = ("CUDA_ERROR_NOT_PERMITTED", "CUDA_ERROR_NOT_SUPPORTED", "CUDA_ERROR_INVALID_VALUE")
 
 
 def _require_vmm_fabric_device(device):
@@ -455,10 +451,13 @@ def _require_vmm_fabric_device(device):
             mr.allocate(1).close()
             _fabric_allocation_error[device.device_id] = ""
         except CUDAError as exc:
-            status = str(exc).split(":", 1)[0]
-            if status not in _FABRIC_REFUSED:
+            # Only a refused physical allocation means "no fabric here" (NOT_PERMITTED on the CI runners,
+            # INVALID_VALUE on an H200 without an IMEX channel). VirtualMemoryResource attaches its note about
+            # the fabric and IMEX requirements at that stage alone (on Python 3.10 it lands in the message);
+            # a failure of the reservation, the mapping, or the stream setup is a real error and propagates.
+            if "fabric handle" not in " ".join((str(exc), *getattr(exc, "__notes__", ()))):
                 raise
-            _fabric_allocation_error[device.device_id] = status
+            _fabric_allocation_error[device.device_id] = str(exc).split(":", 1)[0]
         finally:
             current.set_current()
     if _fabric_allocation_error[device.device_id]:
