@@ -923,7 +923,7 @@ cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
     return attachment_owner
 
 
-cdef inline OpaqueHandle _resolve_memcpy_operand(
+cdef OpaqueHandle _resolve_memcpy_operand(
         object operand, object owner, str side,
         cydriver.CUdeviceptr* out_ptr) except *:
     """Resolve an operand to a pointer and optional attachment owner.

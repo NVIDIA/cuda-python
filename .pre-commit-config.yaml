@@ -219,6 +219,8 @@ repos:
     rev: "35dbc940c2bd4499ebf39aba00ad717e05cec9b5"  # frozen: v0.22.0
     hooks:
       - id: cython-lint
+        # Cross-file rules need .pxd declarations and .pyx implementations in one process.
+        require_serial: true
         args: [--no-pycodestyle]
         exclude: ^cuda_bindings_(?:12|13)/
         additional_dependencies:

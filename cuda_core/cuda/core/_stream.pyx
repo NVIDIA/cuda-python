@@ -517,7 +517,7 @@ cpdef Stream default_stream():
     else:
         return LEGACY_DEFAULT_STREAM
 
-cdef inline bint Stream_handle_is_default_token(cydriver.CUstream s) noexcept nogil:
+cdef bint Stream_handle_is_default_token(cydriver.CUstream s) noexcept nogil:
     """Return True for the raw CU_STREAM_LEGACY and CU_STREAM_PER_THREAD tokens.
 
     These tokens carry no context of their own; they refer to whatever context
@@ -527,12 +527,12 @@ cdef inline bint Stream_handle_is_default_token(cydriver.CUstream s) noexcept no
     return h == <uintptr_t>cydriver.CU_STREAM_LEGACY or h == <uintptr_t>cydriver.CU_STREAM_PER_THREAD
 
 
-cdef inline bint Stream_is_default_token(Stream self) noexcept nogil:
+cdef bint Stream_is_default_token(Stream self) noexcept nogil:
     """Return True when this stream is CU_STREAM_LEGACY or CU_STREAM_PER_THREAD."""
     return Stream_handle_is_default_token(as_cu(self._h_stream))
 
 
-cdef inline bint Stream_is_legacy_default_token(Stream self) noexcept nogil:
+cdef bint Stream_is_legacy_default_token(Stream self) noexcept nogil:
     """Return True only for CU_STREAM_LEGACY.
 
     Unlike CU_STREAM_PER_THREAD, the legacy default stream token is rejected
