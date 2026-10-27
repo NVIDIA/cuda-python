@@ -9,33 +9,59 @@ from cuda.core.typing import DevicePointerType
 
 
 class _MemPoolAttributes:
-    """Provides access to memory pool attributes."""
+    """Provides access to memory pool attributes.
+
+    Setting an attribute changes the memory pool itself, which other memory
+    resources that share the pool, such as a device's default pool, also see.
+    """
     def __init__(self, *args, **kwargs) -> None: ...
     def __repr__(self) -> str: ...
     @property
     def reuse_follow_event_dependencies(self) -> bool:
         """Allow memory to be reused when there are event dependencies between streams."""
+    @reuse_follow_event_dependencies.setter
+    def reuse_follow_event_dependencies(self, value: bool) -> None: ...
     @property
     def reuse_allow_opportunistic(self) -> bool:
         """Allow reuse of completed frees without dependencies."""
+    @reuse_allow_opportunistic.setter
+    def reuse_allow_opportunistic(self, value: bool) -> None: ...
     @property
     def reuse_allow_internal_dependencies(self) -> bool:
         """Allow insertion of new stream dependencies for memory reuse."""
+    @reuse_allow_internal_dependencies.setter
+    def reuse_allow_internal_dependencies(self, value: bool) -> None: ...
     @property
     def release_threshold(self) -> int:
-        """Amount of reserved memory to hold before OS release."""
+        """
+        Amount of reserved memory, in bytes, to hold before OS release. When
+        more than this is reserved, the pool returns unused memory to the OS
+        at the next synchronization of an event, stream or device.
+        """
+    @release_threshold.setter
+    def release_threshold(self, value: int) -> None: ...
     @property
     def reserved_mem_current(self) -> int:
         """Current amount of backing memory allocated."""
     @property
     def reserved_mem_high(self) -> int:
-        """High watermark of backing memory allocated."""
+        """
+        High watermark of backing memory allocated. It can be set to zero to
+        reset it to the current value.
+        """
+    @reserved_mem_high.setter
+    def reserved_mem_high(self, value: int) -> None: ...
     @property
     def used_mem_current(self) -> int:
         """Current amount of memory in use."""
     @property
     def used_mem_high(self) -> int:
-        """High watermark of memory in use."""
+        """
+        High watermark of memory in use. It can be set to zero to reset it to
+        the current value.
+        """
+    @used_mem_high.setter
+    def used_mem_high(self, value: int) -> None: ...
 
 class _MemPool(MemoryResource):
     def __init__(self) -> None: ...
@@ -82,6 +108,19 @@ class _MemPool(MemoryResource):
             Keyword-only. The stream on which to perform the deallocation
             asynchronously. Must be passed explicitly; pass
             ``device.default_stream`` to use the default stream.
+        """
+    def trim(self, min_bytes_to_keep: int=0) -> None:
+        """Release unused memory held by the memory pool back to the OS.
+
+        Memory that backs live allocations is not released, nor is memory
+        freed on a stream until the host has observed the free through a
+        synchronization.
+
+        Parameters
+        ----------
+        min_bytes_to_keep : int, optional
+            Reserved memory, in bytes, that the pool keeps. Defaults to 0,
+            which releases all unused memory.
         """
     @property
     def attributes(self) -> _MemPoolAttributes:

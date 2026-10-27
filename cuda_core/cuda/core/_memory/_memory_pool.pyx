@@ -41,7 +41,11 @@ if TYPE_CHECKING:
 
 
 cdef class _MemPoolAttributes:
-    """Provides access to memory pool attributes."""
+    """Provides access to memory pool attributes.
+
+    Setting an attribute changes the memory pool itself, which other memory
+    resources that share the pool, such as a device's default pool, also see.
+    """
     cdef:
         MemoryPoolHandle _h_pool
 
@@ -65,12 +69,31 @@ cdef class _MemPoolAttributes:
             HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(as_cu(self._h_pool), attr_enum, value))
         return 0
 
+    cdef int _setattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except?-1:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(as_cu(self._h_pool), attr_enum, value))
+        return 0
+
+    cdef int _setflag(self, cydriver.CUmemPool_attribute attr_enum, bint flag) except?-1:
+        cdef int value = flag
+        return self._setattribute(attr_enum, &value)
+
+    cdef int _reset_watermark(self, cydriver.CUmemPool_attribute attr_enum, str name, value) except?-1:
+        if value != 0:
+            raise AttributeError(f"Attribute '{name}' may only be set to zero (got {value}).")
+        cdef cydriver.cuuint64_t zero = 0
+        return self._setattribute(attr_enum, &zero)
+
     @property
     def reuse_follow_event_dependencies(self) -> bool:
         """Allow memory to be reused when there are event dependencies between streams."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES, &value)
         return bool(value)
+
+    @reuse_follow_event_dependencies.setter
+    def reuse_follow_event_dependencies(self, value: bool) -> None:
+        self._setflag(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES, value)
 
     @property
     def reuse_allow_opportunistic(self) -> bool:
@@ -79,6 +102,10 @@ cdef class _MemPoolAttributes:
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC, &value)
         return bool(value)
 
+    @reuse_allow_opportunistic.setter
+    def reuse_allow_opportunistic(self, value: bool) -> None:
+        self._setflag(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC, value)
+
     @property
     def reuse_allow_internal_dependencies(self) -> bool:
         """Allow insertion of new stream dependencies for memory reuse."""
@@ -86,12 +113,27 @@ cdef class _MemPoolAttributes:
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES, &value)
         return bool(value)
 
+    @reuse_allow_internal_dependencies.setter
+    def reuse_allow_internal_dependencies(self, value: bool) -> None:
+        self._setflag(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES, value)
+
     @property
     def release_threshold(self) -> int:
-        """Amount of reserved memory to hold before OS release."""
+        """
+        Amount of reserved memory, in bytes, to hold before OS release. When
+        more than this is reserved, the pool returns unused memory to the OS
+        at the next synchronization of an event, stream or device.
+        """
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &value)
         return int(value)
+
+    @release_threshold.setter
+    def release_threshold(self, value: int) -> None:
+        if value < 0:
+            raise ValueError(f"release_threshold must be >= 0 (got {value}).")
+        cdef cydriver.cuuint64_t threshold = value
+        self._setattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &threshold)
 
     @property
     def reserved_mem_current(self) -> int:
@@ -102,10 +144,18 @@ cdef class _MemPoolAttributes:
 
     @property
     def reserved_mem_high(self) -> int:
-        """High watermark of backing memory allocated."""
+        """
+        High watermark of backing memory allocated. It can be set to zero to
+        reset it to the current value.
+        """
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH, &value)
         return int(value)
+
+    @reserved_mem_high.setter
+    def reserved_mem_high(self, value: int) -> None:
+        self._reset_watermark(
+            cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH, "reserved_mem_high", value)
 
     @property
     def used_mem_current(self) -> int:
@@ -116,10 +166,18 @@ cdef class _MemPoolAttributes:
 
     @property
     def used_mem_high(self) -> int:
-        """High watermark of memory in use."""
+        """
+        High watermark of memory in use. It can be set to zero to reset it to
+        the current value.
+        """
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH, &value)
         return int(value)
+
+    @used_mem_high.setter
+    def used_mem_high(self, value: int) -> None:
+        self._reset_watermark(
+            cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH, "used_mem_high", value)
 
 
 cdef class _MemPool(MemoryResource):
@@ -192,6 +250,23 @@ cdef class _MemPool(MemoryResource):
         """
         cdef Stream s = Stream_accept(stream)
         _MP_deallocate(self, <uintptr_t>ptr, size, s)
+
+    def trim(self, size_t min_bytes_to_keep=0) -> None:
+        """Release unused memory held by the memory pool back to the OS.
+
+        Memory that backs live allocations is not released, nor is memory
+        freed on a stream until the host has observed the free through a
+        synchronization.
+
+        Parameters
+        ----------
+        min_bytes_to_keep : int, optional
+            Reserved memory, in bytes, that the pool keeps. Defaults to 0,
+            which releases all unused memory.
+        """
+        MP_check_open(self)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolTrimTo(as_cu(self._h_pool), min_bytes_to_keep))
 
     @property
     @cython.critical_section

@@ -2775,6 +2775,96 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
+def _create_owned_pool_or_skip(memory_resource_factory, device):
+    MR, MRops = memory_resource_factory
+    if MR is DeviceMemoryResource:
+        if not device.properties.memory_pools_supported:
+            pytest.skip("Device does not support mempool operations")
+        return MR(device, options=MRops(max_size=POOL_SIZE))
+    if MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+        return MR(options=MRops(max_size=POOL_SIZE))
+    skip_if_managed_memory_unsupported(device)
+    return create_managed_memory_resource_or_skip(options=MRops())
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_attributes_set(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    attributes = mr.attributes
+    try:
+        for name in (
+            "reuse_follow_event_dependencies",
+            "reuse_allow_opportunistic",
+            "reuse_allow_internal_dependencies",
+        ):
+            for flag in (False, True):
+                setattr(attributes, name, flag)
+                assert getattr(attributes, name) is flag
+
+        attributes.release_threshold = 1 << 20
+        assert attributes.release_threshold == 1 << 20
+        attributes.release_threshold = 0
+        assert attributes.release_threshold == 0
+        with pytest.raises(ValueError, match="release_threshold must be >= 0"):
+            attributes.release_threshold = -1
+
+        for name in ("reserved_mem_high", "used_mem_high"):
+            with pytest.raises(AttributeError, match=f"'{name}' may only be set to zero"):
+                setattr(attributes, name, 1)
+            setattr(attributes, name, 0)
+        for name in ("reserved_mem_current", "used_mem_current"):
+            with pytest.raises(AttributeError):
+                setattr(attributes, name, 0)
+    finally:
+        mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_used_mem_high_reset(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        assert mr.attributes.used_mem_high >= POOL_SIZE // 2
+
+        mr.attributes.used_mem_high = 0
+        assert mr.attributes.used_mem_high == mr.attributes.used_mem_current
+    finally:
+        mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_trim(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        # Keep freed memory reserved so that only trim() returns it.
+        mr.attributes.release_threshold = 2**64 - 1
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        reserved = mr.attributes.reserved_mem_current
+        assert reserved > 0
+
+        mr.trim(min_bytes_to_keep=reserved)
+        assert mr.attributes.reserved_mem_current == reserved
+
+        mr.trim()
+        assert mr.attributes.reserved_mem_current == 0
+    finally:
+        mr.close()
+
+    with pytest.raises(RuntimeError, match="has been closed"):
+        mr.trim()
+
+
 def test_mempool_attributes_repr(memory_resource_factory):
     """Test the repr of memory pool attributes for all memory resource types."""
     MR, MRops = memory_resource_factory

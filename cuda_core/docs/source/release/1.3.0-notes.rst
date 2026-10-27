@@ -76,6 +76,13 @@ New features
   top-level ``cuda.core`` namespace, alongside :class:`CUDAWarning`. Previously
   they were only available from a private module.
 
+- The memory pool attributes of :class:`DeviceMemoryResource`,
+  :class:`PinnedMemoryResource` and :class:`ManagedMemoryResource` can now be
+  set: ``release_threshold`` and the three ``reuse_*`` policies take any
+  value, and ``reserved_mem_high`` and ``used_mem_high`` can be set to zero to
+  reset the watermark, as for :class:`GraphMemoryResource`. The new
+  ``trim(min_bytes_to_keep=0)`` method returns unused pool memory to the OS.
+
 - Added :class:`VirtualMemoryBuffer`, the :class:`Buffer` subclass that
   :class:`VirtualMemoryResource` returns. Closing it on a capturing stream
   other than a default stream raises, because virtual memory deallocation
