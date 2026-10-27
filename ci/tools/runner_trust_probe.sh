@@ -126,7 +126,12 @@ else
     record_check "curl rejects test endpoint" "FAIL" "Connection to \`${TEST_ENDPOINT}\` succeeded (certificate was trusted)"
     gating_failures=$((gating_failures + 1))
   elif (( curl_rc == 60 )); then
-    record_check "curl rejects test endpoint" "PASS" "Rejected with curl exit 60 (peer certificate cannot be authenticated)"
+    if grep -qiE 'no alternative certificate subject name|subject alternative name|does not match' <<< "${curl_err}"; then
+      record_check "curl rejects test endpoint" "FAIL" "Certificate chain was trusted; failed only hostname check (${curl_err_oneline})"
+      gating_failures=$((gating_failures + 1))
+    else
+      record_check "curl rejects test endpoint" "PASS" "Rejected with curl exit 60 (peer certificate cannot be authenticated)"
+    fi
   else
     record_check "curl rejects test endpoint" "INCONCLUSIVE" "curl exited ${curl_rc} (network/DNS or non-verification error: ${curl_err_oneline})"
   fi
