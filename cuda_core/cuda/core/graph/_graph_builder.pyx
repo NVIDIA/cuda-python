@@ -15,7 +15,7 @@ from cuda.core.graph._graph_definition cimport (
     GD_check_valid,
 )
 from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
-from cuda.core.graph._host_callback cimport _resolve_host_callback
+from cuda.core._host_callback cimport _resolve_host_callback
 from cuda.core.graph._subclasses cimport (
     ChildGraphNode,
     EventRecordNode,
