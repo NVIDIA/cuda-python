@@ -85,20 +85,27 @@ if ([string]::IsNullOrEmpty($TestEndpoint)) {
         $GatingFailures++
     } catch {
         $certRejected = $false
+        $hostnameMismatchOnly = $false
         $ex = $_.Exception
         while ($null -ne $ex) {
             if (
-                ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'remote certificate|certificate chain|UntrustedRoot|RemoteCertificateChainErrors') -or
+                ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'certificate chain|UntrustedRoot|RemoteCertificateChainErrors') -or
                 ($ex -is [System.Net.WebException] -and $ex.Status -eq [System.Net.WebExceptionStatus]::TrustFailure)
             ) {
                 $certRejected = $true
                 break
+            }
+            if ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'RemoteCertificateNameMismatch') {
+                $hostnameMismatchOnly = $true
             }
             $ex = $ex.InnerException
         }
         $cleanMsg = ($_.Exception.Message -replace '[\r\n]+', ' ' -replace '\|', '\|')
         if ($certRejected) {
             Record-Check 'Invoke-WebRequest rejects test endpoint' 'PASS' "Rejected with certificate validation error ($cleanMsg)"
+        } elseif ($hostnameMismatchOnly) {
+            Record-Check 'Invoke-WebRequest rejects test endpoint' 'FAIL' "Certificate chain was trusted; failed only hostname check ($cleanMsg)"
+            $GatingFailures++
         } else {
             Record-Check 'Invoke-WebRequest rejects test endpoint' 'INCONCLUSIVE' "Non-certificate or network error ($cleanMsg)"
         }

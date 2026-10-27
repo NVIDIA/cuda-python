@@ -32,7 +32,9 @@ module.exports = async function runNodeTrustProbe({ core }) {
     req.on('error', (err) => {
       const code = err.code || '';
       const msg = `${code} ${err.message || ''}`.trim();
-      if (/^(CERT_|UNABLE_TO_|SELF_SIGNED_|DEPTH_ZERO_|ERR_TLS_CERT_)/.test(code)) {
+      if (code === 'ERR_TLS_CERT_ALTNAME_INVALID') {
+        resolve({ status: 'FAIL', detail: `Certificate chain was trusted; failed only hostname check (${msg})` });
+      } else if (/^(CERT_|UNABLE_TO_|SELF_SIGNED_|DEPTH_ZERO_)/.test(code)) {
         resolve({ status: 'PASS', detail: `Rejected with certificate error (${msg})` });
       } else {
         resolve({ status: 'INCONCLUSIVE', detail: `Network/DNS or non-certificate error (${msg})` });
