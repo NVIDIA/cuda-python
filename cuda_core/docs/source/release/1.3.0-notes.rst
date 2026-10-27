@@ -331,7 +331,7 @@ Fixes and enhancements
   ``ValueError`` at construction, because the driver does not accept it for
   physical allocations.
   (`#2694 <https://github.com/NVIDIA/cuda-python/issues/2694>`__)
-  
+
 Deprecations
 ------------
 
