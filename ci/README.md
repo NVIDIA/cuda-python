@@ -292,3 +292,37 @@ Copying maintenance sources does not make their later branch tags ancestors of
 release. Follow the [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle)
 and keep temporary preview tags local to an independent disposable clone;
 worktrees share tags with their repository.
+
+
+### SCM Milestones and Bootstrap Targets
+
+The maintenance root's `[tool.cuda-python].scm-bootstrap-release` records the
+intended preview release, for example `12.9.11`. It is not a version override.
+Suitable reachable release or milestone tags take precedence through standard
+`setuptools-scm` progression; do not add a synthetic tag when that history
+already supplies the version.
+
+When choosing a new target, fetch the canonical tags and coordinate with
+maintainers of all release branches. Reserve the next globally unused release
+number for the intended line. If an urgent release from another branch consumes
+`12.9.11`, update main's preview target to the next unused release before another
+preview build. Unreachable tags still reserve their release numbers. Never move
+or replace such a tag to reuse its name on main. Keep the same target across
+PRs and builds until release coordination calls for a change.
+
+Temporary bootstrap tags must stay local to an independent disposable clone;
+worktrees share tags. For a newly integrated maintenance root, wait until the
+validated integration group is merged on `main` before creating its first
+retained internal `X.Y.Za0` milestone, by explicit maintainer decision. Once that
+milestone is reachable, remove the temporary bootstrap machinery and its
+workflow calls as a follow-up; ordinary SCM history governs subsequent builds.
+This guidance does not create or publish a milestone.
+
+A toolkit minor rollover also changes the bindings root's `--match` selector
+and the metapackage selector table. Before relying on builds from that new
+series, arrange an appropriate reachable milestone, such as `v13.5.0a0` for a
+validated CUDA 13.5 line. A selector change without matching history can yield
+a plausible but wrong `0.1.dev...` version. The maintenance bootstrap does not
+automatically establish milestones for the current-major root. Use the same
+local-preview safeguards while preparing the new source and confirm the
+resolved version and `git describe` output before retaining its milestone.
