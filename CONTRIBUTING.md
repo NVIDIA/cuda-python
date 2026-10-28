@@ -39,17 +39,13 @@ reproducers, documentation improvements, and code changes are welcome.
 
 Review capacity is limited. If you are contributing from outside NVIDIA:
 
+- **Existing issue:** comment and wait for a maintainer to assign it to you or
+  explicitly ask you to implement it. Check existing assignments and requests
+  to take the issue before starting competing work.
 - **New features, design changes, or CI/release infrastructure:** open an issue
   and agree on scope and validation before implementing.
-- **Small standalone bug or documentation fixes:** a direct PR is welcome,
-  even if an issue exists. This exception does not cover design or CI/release
-  changes. Check related issues first: if someone else is assigned, another
-  contributor's request to take the issue is pending, or the issue says to wait
-  for maintainer agreement, coordinate with a maintainer before starting. Link
-  any existing issue and explain how you checked the fix.
-- **Other work on an existing issue:** comment and wait for a maintainer to
-  assign it to you or explicitly ask you to implement it. Check existing
-  assignments and requests to take the issue before starting competing work.
+- **Small standalone bug or documentation fixes without an existing issue:**
+  a direct PR is welcome. Explain the problem and how you checked the fix.
 
 An open issue or suggested fix is not approval to implement it. External PRs
 that bypass these steps may be closed before code review. NVIDIA colleagues
