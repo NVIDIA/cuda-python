@@ -152,6 +152,8 @@ from cuda.core._graphics import *
 from cuda.core._graphics import __all__ as _graphics_all
 from cuda.core._host import *
 from cuda.core._host import __all__ as _host_all
+from cuda.core._host_callback import *
+from cuda.core._host_callback import __all__ as _host_callback_all
 from cuda.core._launch_config import *
 from cuda.core._launch_config import __all__ as _launch_config_all
 from cuda.core._launcher import *
@@ -180,6 +182,7 @@ __all__ = [
     *_event_all,
     *_graphics_all,
     *_host_all,
+    *_host_callback_all,
     *_launch_config_all,
     *_launcher_all,
     *_linker_all,
