@@ -4,10 +4,11 @@
 
 name: Harden pip
 description: >-
-  Verify the CPython interpreter carries the eMudhra/emSign CA fix in its ssl
-  module (3.11.18+, 3.12.16+, 3.13.18+, 3.14.10+, 3.15.2+; CVE-2026-115557),
-  then update pip. The version check guarantees pip's TLS connections use the
-  patched ssl module, so a hash-pinned bootstrap is no longer necessary.
+  Update pip. Call sites must use setup-python with a floor spec that ensures
+  the interpreter's ssl module rejects the compromised eMudhra/emSign CA keys
+  (CVE-2026-115557; first fixed releases: 3.11.18, 3.12.16, 3.13.18, 3.14.10,
+  3.15.2). With a patched ssl module, pip install -U pip is safe and picks up
+  the latest pip, which uses truststore (the OS certificate store) by default.
   See https://github.com/NVIDIA/cuda-python/issues/3195 and
   https://discuss.python.org/t/109678.
 
@@ -19,15 +20,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Check Python interpreter is patched
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      env:
-        HARDEN_PIP_PYTHON: ${{ inputs.python }}
-      # The script lives next to this action so that it matches the action's
-      # commit even when the action is referenced from another checkout.
-      run: |
-        "${HARDEN_PIP_PYTHON}" "${GITHUB_ACTION_PATH}/check_python_patched.py"
-
     - name: Update pip
       shell: bash --noprofile --norc -xeuo pipefail {0}
       env:

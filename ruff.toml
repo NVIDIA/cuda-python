@@ -158,7 +158,6 @@ inline-quotes = "double"
 "qa/**" = ["T201"]
 "toolshed/**" = ["T201"]
 "ci/**" = ["T201"]
-".github/actions/**" = ["T201"]
 "**/build_hooks.py" = ["T201"]
 "**/_build_shared.py" = ["T201"]
 "**/docs/**/conf.py" = ["T201", "ARG001"]
