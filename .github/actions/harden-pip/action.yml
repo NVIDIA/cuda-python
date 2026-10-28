@@ -4,15 +4,12 @@
 
 name: Harden pip
 description: >-
-  Install the security-fixed pip (26.2.2) from a hash-pinned wheel so that later
-  pip invocations do not fall back on the vendored certifi bundle that trusts the
-  compromised eMudhra/emSign intermediate CAs. The sha256 fragment guarantees the
-  bootstrap download's integrity even if the bootstrapping pip's trust store is
-  compromised. See https://github.com/NVIDIA/cuda-python/issues/3195 and
-  https://discuss.python.org/t/109576. Before that, print sys.version and fail
-  if the interpreter is older than the first CPython release of its minor
-  series whose ssl module rejects the compromised intermediate keys (3.11.18,
-  3.12.16, 3.13.18, 3.14.10, 3.15.2).
+  Verify the CPython interpreter carries the eMudhra/emSign CA fix in its ssl
+  module (3.11.18+, 3.12.16+, 3.13.18+, 3.14.10+, 3.15.2+; CVE-2026-115557),
+  then update pip. The version check guarantees pip's TLS connections use the
+  patched ssl module, so a hash-pinned bootstrap is no longer necessary.
+  See https://github.com/NVIDIA/cuda-python/issues/3195 and
+  https://discuss.python.org/t/109678.
 
 inputs:
   python:
@@ -31,10 +28,9 @@ runs:
       run: |
         "${HARDEN_PIP_PYTHON}" "${GITHUB_ACTION_PATH}/check_python_patched.py"
 
-    - name: Install hash-pinned pip 26.2.2
+    - name: Update pip
       shell: bash --noprofile --norc -xeuo pipefail {0}
       env:
         HARDEN_PIP_PYTHON: ${{ inputs.python }}
       run: |
-        "${HARDEN_PIP_PYTHON}" -m pip install \
-          "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
+        "${HARDEN_PIP_PYTHON}" -m pip install -U pip
