@@ -90,7 +90,27 @@ in_container() {
 }
 
 host_install() {
-  apt-get -y install build-essential dkms "linux-headers-$(uname -r)" psmisc kmod
+  local kernel_release kernel_version gcc_major=""
+  local -a compiler_packages=()
+  kernel_release=$(uname -r)
+  # Compare the Ubuntu ABI version without the flavor (e.g. -generic).
+  kernel_version=$(echo "$kernel_release" | sed -E 's/-[^0-9].*$//')
+  if dpkg --compare-versions "$kernel_version" gt 6.8.0-142; then
+    # Newer runner kernels may require flags missing from build-essential's GCC.
+    gcc_major=$(sed -nE 's/.*gcc(-[0-9]+)? (\([^)]*\) )?([0-9]+)\..*/\3/p' /proc/version)
+    if [ -z "$gcc_major" ]; then
+      echo "::error::cannot detect the kernel GCC version from /proc/version" >&2
+      return 1
+    fi
+    compiler_packages=("gcc-${gcc_major}" "g++-${gcc_major}")
+  fi
+  apt-get -y install build-essential "${compiler_packages[@]}" dkms "linux-headers-${kernel_release}" psmisc kmod
+
+  if [ -n "$gcc_major" ]; then
+    # Installing a versioned compiler does not change the default; select it for DKMS.
+    export CC="gcc-${gcc_major}" CXX="g++-${gcc_major}"
+    echo "Kernel ${kernel_release}: using CC=${CC} CXX=${CXX}" >&2
+  fi
 
   # Download and verify the installer before tearing down the existing
   # host driver so a download failure or SHA-256 mismatch leaves the
