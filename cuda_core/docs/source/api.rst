@@ -22,6 +22,7 @@ Devices and execution
    Host
    launch
    host_launch
+   pack_host_copy_args
 
    :template: autosummary/cyclass.rst
 
@@ -51,6 +52,21 @@ Devices and execution
    The per-thread default CUDA stream. Each host thread has its own per-thread
    default stream, and work launched on it can execute concurrently with work
    on other non-blocking streams.
+
+.. data:: HOST_COPY_FN
+
+   A ctypes function pointer with the ``CUhostFn`` prototype that copies host
+   memory. Pass it as ``fn`` to :func:`host_launch`,
+   :meth:`graph.GraphBuilder.callback`, or the other host callback methods,
+   with ``user_data`` from :func:`pack_host_copy_args`. It is compiled code, so
+   it runs without the GIL. It copies ``nbytes`` bytes from ``src`` to ``dst``
+   with ``memcpy``.
+
+   The driver may run all host functions of a context on one thread, in order,
+   whatever their stream. A long copy then delays every other host function in
+   that context, including Python callbacks. Split a large copy into chunks
+   that each take no longer than the other host functions can wait. Chunks of
+   a few MiB keep each copy well under a millisecond on current hosts.
 
 
 Memory management

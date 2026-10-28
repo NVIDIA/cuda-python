@@ -53,6 +53,13 @@ New features
   ``user_data`` forms.
   (`#2058 <https://github.com/NVIDIA/cuda-python/issues/2058>`__)
 
+- Added :data:`HOST_COPY_FN`, a host function that copies host memory without
+  the GIL, and :func:`pack_host_copy_args`, which packs its ``user_data``. Pass
+  both to :func:`host_launch` or a graph host callback method for a host copy
+  in stream order, for example from a pinned staging buffer into a NumPy array,
+  without a compiled extension of your own.
+  (`#3256 <https://github.com/NVIDIA/cuda-python/issues/3256>`__)
+
 - Added incremental linking to :class:`Linker` through
   ``LinkerOptions(incremental=True)`` on nvJitLink 13.2 or newer. A partial
   native result is returned as a CUBIN and can be passed directly to another

@@ -94,8 +94,9 @@ def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=N
         passes to the driver as is. A pointer to compiled code runs without
         the GIL; a ctypes callback that wraps a Python function acquires the
         GIL through ctypes and is subject to the same deadlock rule as a
-        Python callable. ``cuda.core`` keeps ``fn`` alive until the function
-        has run and releases it afterwards on the main thread.
+        Python callable. :data:`HOST_COPY_FN` is such a pointer, for a host
+        copy that runs without the GIL. ``cuda.core`` keeps ``fn`` alive until
+        the function has run and releases it afterwards on the main thread.
     user_data : int or bytes-like, optional
         Only for ctypes function pointers. An ``int`` is a raw pointer that
         the caller must keep valid until the function has run. Bytes-like data
@@ -108,7 +109,8 @@ def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=N
         If ``stream`` is ``None`` or not a stream, or if ``fn`` is not
         callable or its ctypes prototype is not ``CUhostFn``.
     ValueError
-        If ``user_data`` is given for a Python callable.
+        If ``user_data`` is given for a Python callable, or if ``fn`` is
+        :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
     RuntimeError
         If ``stream`` is a :class:`Stream` that is capturing a graph, or a
         :class:`~graph.GraphBuilder` that is closed or not building.
