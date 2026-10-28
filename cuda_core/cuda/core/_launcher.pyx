@@ -121,7 +121,8 @@ def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=N
     .. warning::
 
         The function must not call CUDA, directly or through a library. The
-        driver does not permit such calls and may reject them with an error.
+        driver does not permit such calls. Such a call may fail with an error,
+        or it may deadlock.
 
         A Python callable, or a ctypes callback that wraps a Python function,
         acquires the GIL on the driver's thread. A thread
