@@ -38,7 +38,7 @@ jobs:
     if: >-
       github.repository == 'NVIDIA/cuda-python' ||
       vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true'
-    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@01c3188ab2fa212e8a2af0251dd9038dbae1439e  # main
+    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@fd1f966240bf29723679039892dc863ca6d3adb9  # malware-vuln-onboarding
     with:
       enable-secret-scan: true
       enable-vuln-scan: true
