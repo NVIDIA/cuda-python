@@ -20,7 +20,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
-from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport (
@@ -912,52 +912,6 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
             &new_node, as_cu(h_graph), deps, num_deps, c_dptr))
 
     return _registered(FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr))
-
-
-cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
-    """Copy a Buffer's device-pointer handle into an attachment owner."""
-    Buffer_check_open(buf)
-    # The local is required: Cython permits the DevicePtrHandle -> OpaqueHandle
-    # conversion on assignment, but not directly in a return statement.
-    cdef OpaqueHandle attachment_owner = buf._h_ptr
-    return attachment_owner
-
-
-cdef inline OpaqueHandle _resolve_memcpy_operand(
-        object operand, object owner, str side,
-        cydriver.CUdeviceptr* out_ptr) except *:
-    """Resolve an operand to a pointer and optional attachment owner.
-
-    ``operand`` is a :class:`Buffer` or a raw integer address; its device
-    pointer is written to ``out_ptr``. For a :class:`Buffer` operand, returns an
-    owner that retains the underlying allocation (not the wrapper). For a raw
-    pointer, returns an owner built from ``owner`` (or an empty handle when
-    ``owner`` is ``None``).
-
-    Raises
-    ------
-    ValueError
-        If ``operand`` is a :class:`Buffer` and ``owner`` is not ``None``.
-        If a :class:`Buffer` operand or ``*_owner`` has no active allocation.
-    """
-    cdef Buffer buf
-    cdef OpaqueHandle attachment_owner
-
-    if isinstance(operand, Buffer):
-        if owner is not None:
-            raise ValueError(
-                f"{side}_owner cannot be used when {side} is a Buffer"
-            )
-        buf = operand
-        attachment_owner = _buffer_attachment_owner(buf, side)
-        out_ptr[0] = as_cu(buf._h_ptr)
-        return attachment_owner
-    out_ptr[0] = <cydriver.CUdeviceptr><uintptr_t>operand
-    if owner is None:
-        return OpaqueHandle()
-    if isinstance(owner, Buffer):
-        return _buffer_attachment_owner(owner, f"{side}_owner")
-    return make_opaque_py(owner)
 
 
 cdef inline MemsetNode GN_memset(

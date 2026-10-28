@@ -58,7 +58,7 @@ class IPCAllocationHandle:
     @property
     def uuid(self) -> uuid.UUID: ...
 
-class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
+class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
     """Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.
 
     The descriptor holds one exported POSIX file descriptor per physical
@@ -97,9 +97,9 @@ class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
     _handles: tuple[Any, ...]
 
     @staticmethod
-    def _from_exports(handle_type: int, chunk_sizes: tuple[int, ...], handles: tuple[Any, ...], size: int) -> VirtualMemoryIPCBufferDescriptor: ...
+    def _from_exports(handle_type: int, chunk_sizes: tuple[int, ...], handles: tuple[Any, ...], size: int) -> VirtualMemoryFdBufferDescriptor: ...
     @classmethod
-    def from_fds(cls, fds: Iterable[int | IPCAllocationHandle], sizes: Iterable[int], *, size: int | None=None) -> VirtualMemoryIPCBufferDescriptor:
+    def from_fds(cls, fds: Iterable[int | IPCAllocationHandle], sizes: Iterable[int], *, size: int | None=None) -> VirtualMemoryFdBufferDescriptor:
         """Build a descriptor from POSIX file descriptors received outside ``multiprocessing``.
 
         The exporter sends ``fds``, ``sizes``, and ``size`` of its descriptor
