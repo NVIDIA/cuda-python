@@ -2809,8 +2809,9 @@ def test_mempool_attributes_set(memory_resource_factory):
         assert attributes.release_threshold == 1 << 20
         attributes.release_threshold = 0
         assert attributes.release_threshold == 0
-        with pytest.raises(ValueError, match="release_threshold must be >= 0"):
-            attributes.release_threshold = -1
+        for value in (-1, 2**64):
+            with pytest.raises(OverflowError):
+                attributes.release_threshold = value
 
         for name in ("reserved_mem_high", "used_mem_high"):
             with pytest.raises(AttributeError, match=f"'{name}' may only be set to zero"):
@@ -2819,6 +2820,35 @@ def test_mempool_attributes_set(memory_resource_factory):
         for name in ("reserved_mem_current", "used_mem_current"):
             with pytest.raises(AttributeError):
                 setattr(attributes, name, 0)
+    finally:
+        mr.close()
+
+
+class _IntSubclass(int):
+    pass
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    "make_value",
+    [
+        pytest.param(lambda: True, id="bool"),
+        pytest.param(lambda: _IntSubclass(4096), id="int-subclass"),
+        pytest.param(
+            lambda: np.uint64(4096),
+            id="np-uint64",
+            marks=pytest.mark.skipif(np is None, reason="numpy is not installed"),
+        ),
+    ],
+)
+def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, make_value):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        value = make_value()
+        mr.attributes.release_threshold = value
+        assert mr.attributes.release_threshold == int(value)
     finally:
         mr.close()
 

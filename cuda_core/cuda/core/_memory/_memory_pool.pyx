@@ -6,7 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.limits cimport ULLONG_MAX
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uint64_t, uintptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
@@ -172,11 +172,8 @@ cdef class _MemPoolAttributes:
         return int(value)
 
     @release_threshold.setter
-    def release_threshold(self, value: int) -> None:
-        if value < 0:
-            raise ValueError(f"release_threshold must be >= 0 (got {value}).")
-        cdef cydriver.cuuint64_t threshold = value
-        self._setattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &threshold)
+    def release_threshold(self, uint64_t value) -> None:
+        self._setattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &value)
 
     @property
     def reserved_mem_current(self) -> int:
