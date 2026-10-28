@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.kernel\_get\_param\_info
-==================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: kernel_get_param_info

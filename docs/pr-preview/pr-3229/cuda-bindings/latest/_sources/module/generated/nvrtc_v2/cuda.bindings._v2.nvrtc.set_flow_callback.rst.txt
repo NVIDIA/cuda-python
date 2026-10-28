@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.set\_flow\_callback
-============================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autofunction:: set_flow_callback

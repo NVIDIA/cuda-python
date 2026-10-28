@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.link\_add\_data\_v2
-=============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: link_add_data_v2

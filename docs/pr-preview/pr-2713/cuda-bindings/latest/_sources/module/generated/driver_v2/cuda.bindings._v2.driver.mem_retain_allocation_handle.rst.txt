@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.mem\_retain\_allocation\_handle
-=========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: mem_retain_allocation_handle

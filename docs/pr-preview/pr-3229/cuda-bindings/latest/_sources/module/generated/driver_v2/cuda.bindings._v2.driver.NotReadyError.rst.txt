@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.NotReadyError
-=======================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoexception:: NotReadyError

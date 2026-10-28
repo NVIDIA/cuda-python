@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.func\_is\_loaded
-==========================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: func_is_loaded
