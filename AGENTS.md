@@ -49,6 +49,9 @@ effective `git describe` result for traceability.
 Before starting implementation or preparing an issue or PR, follow the
 [contribution guidelines](CONTRIBUTING.md#coordinate-before-implementing).
 
+For an external contribution, briefly explain any unmet coordination requirement
+for that change and the next step before starting implementation.
+
 # Pull requests
 
 Treat the canonical upstream repository as read-only by default. For normal
