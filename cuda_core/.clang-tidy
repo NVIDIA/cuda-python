@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Layout is clang-format's job (see .clang-format), so clang-tidy does no
+# formatting of its own (FormatStyle: none below). Each enabled check is meant
+# to be adoptable on its own, so findings can be fixed one check at a time.
+#
+# Checks are opt-in (-*) by group, minus the ones below. They cannot be
+# commented inline because Checks is a single YAML string.
+#
+# Disabled because they conflict with the C-style CUDA driver API idioms:
+#   bugprone-easily-swappable-parameters: wrappers of driver calls take many
+#       adjacent parameters of the same type; the signatures mirror the API.
+#   bugprone-assignment-in-if-condition: `if (CUDA_SUCCESS != (err = CALL(...)))`
+#       is the standard error-handling pattern here.
+#   performance-no-int-to-ptr: opaque handles and file descriptors are
+#       converted to pointers with reinterpret_cast on purpose.
+#   modernize-avoid-c-arrays: arrays are passed to and filled by C APIs.
+#   modernize-return-braced-init-list: `return {};` vs. an explicit type is
+#       left to the author; it adds noise for the driver-API result structs.
+#   bugprone-throwing-static-initialization: the handle registries are
+#       process-lifetime globals whose constructors allocate on some standard
+#       libraries (MSVC); running out of memory while loading the module is
+#       fatal either way.
+#
+# Disabled because they do not match the codebase style:
+#   performance-enum-size: enum underlying types are left as they are.
+#   misc-const-correctness: const on every local is not the convention here.
+#   readability-function-cognitive-complexity: too disruptive.
+#   readability-identifier-length: short names such as the handle parameter `h`
+#       are used throughout.
+#   readability-implicit-bool-conversion: `if (ptr)` and `if (handle)` are the
+#       idiom for pointers and handles.
+#   misc-include-cleaner: too noisy with the CUDA and CPython umbrella headers.
+#   misc-no-recursion: recursion is used deliberately.
+#   misc-use-anonymous-namespace: file-local functions use `static`.
+#   modernize-use-trailing-return-type: the code uses `Type\nname()` layout.
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-assignment-in-if-condition,
+  -bugprone-throwing-static-initialization,
+  clang-analyzer-*,
+  misc-*,
+  -misc-include-cleaner,
+  -misc-const-correctness,
+  -misc-no-recursion,
+  -misc-use-anonymous-namespace,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-avoid-c-arrays,
+  -modernize-return-braced-init-list,
+  performance-*,
+  -performance-enum-size,
+  -performance-no-int-to-ptr,
+  readability-*,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion
+FormatStyle: none
+CheckOptions:
+  # Records whose members are all public (the *Box and guard structs) are plain
+  # data holders; only a mix of public and private members is flagged.
+  misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
+WarningsAsErrors: '*'
+# Only report diagnostics for our own headers, not CUDA/CPython/libstdc++.
+HeaderFilterRegex: 'cuda/core/_(cpp|include)/'
+ExcludeHeaderFilterRegex: 'cuda/core/_include/(dlpack|aoti_shim)\.h'

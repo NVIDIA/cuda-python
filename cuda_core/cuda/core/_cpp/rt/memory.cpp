@@ -68,7 +68,7 @@ clear_mempool_peer_access(CUmemoryPool pool, int owner_device) noexcept
             DRIVER_CALL(cuMemPoolSetAccess, pool, &revoke, 1);  // Best effort
         }
     }
-    catch (...) {
+    catch (...) {  // NOLINT(bugprone-empty-catch)
         // Swallow exceptions - this is best-effort cleanup in destructor context
     }
 }
@@ -139,7 +139,7 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
 {
     GILReleaseGuard gil;
     CUmemoryPool pool;
-    auto handle_ptr = reinterpret_cast<void *>(static_cast<uintptr_t>(fd));
+    auto *handle_ptr = reinterpret_cast<void *>(static_cast<uintptr_t>(fd));
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemPoolImportFromShareableHandle, &pool, handle_ptr, handle_type, 0))) {
         return {};
     }
@@ -513,7 +513,7 @@ struct ExportDataKeyHash {
         std::size_t h = 0;
         const auto *bytes = reinterpret_cast<const unsigned char *>(&key.data);
         for (std::size_t i = 0; i < sizeof(key.data); ++i) {
-            h = h * 31 + bytes[i];
+            h = (h * 31) + bytes[i];  // NOLINT(readability-magic-numbers)
         }
         return h;
     }
@@ -527,7 +527,7 @@ static std::mutex ipc_import_mutex;
 DevicePtrHandle
 deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream)
 {
-    auto data = const_cast<CUmemPoolPtrExportData *>(reinterpret_cast<const CUmemPoolPtrExportData *>(export_data));
+    auto *data = const_cast<CUmemPoolPtrExportData *>(reinterpret_cast<const CUmemPoolPtrExportData *>(export_data));
 
     // Resolve the table before you take any lock: a fill acquires the GIL, and
     // nothing under ipc_import_mutex may acquire it (#2840). The raw p_ calls
@@ -552,7 +552,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         CUresult discard_status = CUDA_SUCCESS;
         CUdeviceptr discarded = 0;
         {
-            std::lock_guard<std::mutex> lock(ipc_import_mutex);
+            std::scoped_lock lock(ipc_import_mutex);
 
             if (auto h = ipc_ptr_cache.lookup(key)) {
                 return h;
@@ -586,7 +586,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                             [&]() noexcept {
                                 return p_cuMemFreeAsync(b->resource, as_cu(stream.h_stream));  // raw: under ipc_import_mutex
                             },
-                            [&]() noexcept { lock.unlock(); });
+                            [&]() noexcept { lock.release()->unlock(); });
                         delete b;
                     }
                 );
@@ -602,7 +602,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
             discarded = ptr;
         }
         if (discard_status != CUDA_SUCCESS) {
-            char operation[160];
+            char operation[kOperationNameSize];
             format_operation(operation, sizeof(operation), "cuMemFreeAsync", discarded);
             report_cuda_error(
                 operation,
@@ -613,20 +613,19 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         }
         return {};
     }
-    else {
-        GILReleaseGuard gil;
-        CUdeviceptr ptr;
-        if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemPoolImportPointer, &ptr, *h_pool, data))) {
-            return {};
-        }
+    GILReleaseGuard gil;
+    CUdeviceptr ptr;
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemPoolImportPointer, &ptr, *h_pool, data))) {
+        return {};
+    }
 
-        DeallocationStream ds;
-        if (!make_deallocation_stream(h_stream, ds)) {
-            pw_cuMemFreeAsync(ptr, as_cu(h_stream));
-            return {};
-        }
+    DeallocationStream ds;
+    if (!make_deallocation_stream(h_stream, ds)) {
+        pw_cuMemFreeAsync(ptr, as_cu(h_stream));
+        return {};
+    }
 
-        // clang-format off
+    // clang-format off
         auto box = std::shared_ptr<DevicePtrBox>(
             new DevicePtrBox{ptr, std::move(ds)},
             [h_pool](DevicePtrBox *b) {
@@ -641,9 +640,8 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                 delete b;
             }
         );
-        // clang-format on
-        return DevicePtrHandle(box, &box->resource);
-    }
+    // clang-format on
+    return DevicePtrHandle(box, &box->resource);
 }
 
 // ============================================================================
@@ -651,7 +649,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
 // ============================================================================
 
 FileDescriptorHandle
-create_fd_handle(int fd)
+create_fd_handle([[maybe_unused]] int fd)
 {
 #ifdef _WIN32
     throw std::runtime_error("create_fd_handle is not supported on Windows");
@@ -671,7 +669,7 @@ create_fd_handle(int fd)
 }
 
 FileDescriptorHandle
-create_fd_handle_ref(int fd)
+create_fd_handle_ref([[maybe_unused]] int fd)
 {
 #ifdef _WIN32
     throw std::runtime_error("create_fd_handle_ref is not supported on Windows");

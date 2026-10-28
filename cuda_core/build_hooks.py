@@ -12,6 +12,7 @@ import glob
 import importlib.util
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import zipfile
@@ -702,6 +703,59 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     wheel_name = _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
     record_build_config(config_key)
     return wheel_name
+
+
+def _find_clang_tidy() -> str:
+    """The clang-tidy executable of the clang-tidy wheel in the build environment.
+
+    The wheel is a build-system requirement in pyproject.toml.
+
+    It is located through the wheel's ``clang_tidy`` package, never PATH, so a
+    system clang-tidy cannot be picked up. Raises RuntimeError when the wheel is
+    not installed.
+    """
+    spec = importlib.util.find_spec("clang_tidy")
+    if spec is not None and spec.submodule_search_locations is not None:
+        exe = "clang-tidy"
+        if sys.platform == "win32":
+            exe = "clang-tidy.exe"
+        for base in spec.submodule_search_locations:
+            candidate = Path(base) / "data" / "bin" / exe
+            if candidate.is_file():
+                return str(candidate)
+    raise RuntimeError(
+        "The clang-tidy build requirement of pyproject.toml is not installed. Isolated builds install it "
+        "automatically. For other builds, install the pinned version of it."
+    )
+
+
+def _is_handwritten_cpp(path) -> bool:
+    """Whether path is a handwritten C++ source, not a Cython-generated one."""
+    path = Path(path)
+    return path.suffix == ".cpp" and path.resolve().is_relative_to(_PACKAGE_DIR / "_cpp")
+
+
+def check_with_clang_tidy(compile_command) -> None:
+    """Run clang-tidy on the handwritten .cpp that a compiler command line compiles.
+
+    ``compile_command`` is the exact command that setuptools is about to spawn,
+    so clang-tidy sees the same compiler, include directories, macros and
+    flags as the build. Commands that do not compile a handwritten source are
+    ignored. The configuration is cuda_core/.clang-tidy, which turns every
+    finding into an error. Raises RuntimeError with the findings.
+    """
+    sources = [arg for arg in compile_command if _is_handwritten_cpp(arg)]
+    if not sources:
+        return
+    (source,) = sources
+    config = Path(__file__).resolve().parent / ".clang-tidy"
+    result = subprocess.run(  # noqa: S603
+        [_find_clang_tidy(), f"--config-file={config}", "--quiet", source, "--", *compile_command],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"clang-tidy reported errors in {source}:\n{result.stdout}{result.stderr}")
 
 
 def _get_cuda_bindings_require():

@@ -6,6 +6,8 @@ recursive-include cuda/core *.pyx *.pxd *.pxi *.pyi
 recursive-include cuda/core/_cpp *.cpp *.h *.hpp
 recursive-include cuda/core/_include *.h *.hpp *.def
 include build_hooks.py
+# configuration of the clang-tidy run in the build
+include .clang-tidy
 include cuda/core/py.typed
 include NOTICE
 # package-local shared PEP 517 helper

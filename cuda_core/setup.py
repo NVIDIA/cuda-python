@@ -87,6 +87,31 @@ class build_ext(_build_ext):  # noqa: N801
         raise RuntimeError(f"Failed to find extension {_TENSOR_BRIDGE_EXT_NAME!r} for Windows build.")
 
     @contextlib.contextmanager
+    def _clang_tidy_before_compile(self):
+        """Run clang-tidy on each handwritten .cpp just before its compiler command runs.
+
+        Every compiler, MSVC included, runs its commands through one method, so
+        clang-tidy gets the exact command line of the build. That method is
+        call() in current setuptools, where spawn() is deprecated and delegates
+        to it, and spawn() before. Only sources that are rebuilt are checked.
+        """
+        compiler = self.compiler
+        method = "spawn"
+        if hasattr(compiler, "call"):
+            method = "call"
+        stock = getattr(compiler, method)
+
+        def run(cmd, *args, **kwargs):
+            build_hooks.check_with_clang_tidy(cmd)
+            return stock(cmd, *args, **kwargs)
+
+        setattr(compiler, method, run)
+        try:
+            yield
+        finally:
+            setattr(compiler, method, stock)
+
+    @contextlib.contextmanager
     def _parallel_source_compilation(self):
         """Compile the sources of every extension through one shared thread pool.
 
@@ -140,7 +165,7 @@ class build_ext(_build_ext):  # noqa: N801
     def build_extensions(self):
         self.parallel = nthreads
         self._configure_windows_tensor_bridge()
-        with self._parallel_source_compilation():
+        with self._clang_tidy_before_compile(), self._parallel_source_compilation():
             super().build_extensions()
 
 

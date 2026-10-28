@@ -146,6 +146,10 @@ enqueue_cleanup(void *item) noexcept
 
 // Module initialization calls this once with the GIL held, which serializes
 // the check, allocation, and publication below.
+//
+// The queue lives for the rest of the process. MSVC's std::atomic hides the
+// publication from the analyzer, which then reports a leak at the closing brace.
+// NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
 void
 initialize_deferred_cleanup()
 {
@@ -155,6 +159,7 @@ initialize_deferred_cleanup()
     auto *queue = new DeferredCleanupQueue();
     deferred_cleanup_queue.store(queue, std::memory_order_release);
 }
+// NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
 
 void
 retry_deferred_cleanup() noexcept
