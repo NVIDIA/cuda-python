@@ -11,8 +11,8 @@ name: "CI: Runner trust probe"
 
 on:
   schedule:
-    # Weekly on Mondays at 06:23 UTC
-    - cron: "23 6 * * 1"
+    # Daily at 06:00 PST (14:00 UTC)
+    - cron: "0 14 * * *"
   workflow_dispatch:
     inputs:
       label-filter:
@@ -31,7 +31,10 @@ defaults:
 jobs:
   compute-matrix:
     name: Compute runner label sets
-    if: ${{ github.repository_owner == 'nvidia' }}
+    # Skip on forks (which cannot reach the self-hosted runners). This is true on
+    # both NVIDIA/cuda-python and the private development repo, so the one guard
+    # works unchanged on both and the workflow does not diverge between branches.
+    if: ${{ !github.event.repository.fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -49,29 +52,48 @@ jobs:
         env:
           LABEL_FILTER: ${{ inputs.label-filter || '' }}
         run: |
-          # Hosted and self-hosted CPU labels are listed explicitly; GPU labels
-          # are derived from ci/test-matrix.yml.
-          labels_json="$(yq -o json '.' ci/test-matrix.yml | jq -c --arg filter "${LABEL_FILTER}" '
+          # GitHub-hosted labels are a small, stable seed. Self-hosted labels are
+          # discovered from the runner labels referenced across this branch's own
+          # workflows, so the probe self-adapts per branch (for example the
+          # internal labels on the private development branch) without this file
+          # diverging between branches. GPU labels that are built from
+          # ci/test-matrix.yml at runtime are not literals in any workflow, so
+          # they are still derived from that file.
+          hosted='["ubuntu-latest","windows-latest","windows-2022","windows-11-arm"]'
+
+          # Discover runner-label literals from the workflows. The grammar matches
+          # self-hosted labels (-cpuN, -gpu-, -internal, -1xgb10, riscv64) and any
+          # GPU labels hard-coded in a workflow; GitHub-hosted names and
+          # host-platform strings (e.g. 'linux-64') deliberately do not match.
+          scanned="$(grep -rhoE \
+            '(linux|windows|wsl)-[a-z0-9-]*(cpu[0-9]+|gpu-[a-z0-9]|internal|1xgb10)[a-z0-9-]*|(linux|windows|wsl)-riscv64-[a-z0-9][a-z0-9-]*[a-z0-9]' \
+            .github/workflows/ --exclude=runner-trust-probe.yml \
+            | sort -u | jq -Rsc 'split("\n") | map(select(length > 0 and (endswith("-") | not)))' || true)"
+          scanned="${scanned:-[]}"
+
+          # GPU labels derived from the test matrix cover labels passed via matrix
+          # outputs that never appear as literals in a workflow.
+          gpu="$(yq -o json '.' ci/test-matrix.yml | jq -c '
             {
-              host: (
-                [
-                  "ubuntu-latest",
-                  "linux-amd64-cpu8",
-                  "linux-arm64-cpu8",
-                  "linux-amd64-cpu4",
-                  "windows-latest",
-                  "windows-2022",
-                  "windows-11-arm"
-                ] + [
-                  (.windows["pull-request"][]?, .windows["nightly"][]?)
-                  | "windows-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
-                ]
-              ),
-              linux_gpu: [
-                (.linux["pull-request"][]?, .linux["nightly"][]?)
-                | "\(.FLAVOR // "linux")-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
-              ]
-            }
+              windows: [ (.windows["pull-request"][]?, .windows["nightly"][]?)
+                         | "windows-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)" ],
+              linux:   [ (.linux["pull-request"][]?, .linux["nightly"][]?)
+                         | "\(.FLAVOR // "linux")-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)" ]
+            }')"
+
+          # A label runs in the Linux GPU container probe when it is a linux/wsl
+          # GPU label; every other discovered label runs on the host probe.
+          labels_json="$(jq -cn \
+            --argjson hosted "${hosted}" \
+            --argjson scanned "${scanned}" \
+            --argjson gpu "${gpu}" \
+            --arg filter "${LABEL_FILTER}" '
+            def is_linux_gpu: test("^(linux|wsl)-.*-gpu-");
+            (($scanned + $gpu.linux + $gpu.windows)) as $discovered
+            | {
+                host:      ($hosted + ($discovered | map(select(is_linux_gpu | not)))),
+                linux_gpu: ($discovered | map(select(is_linux_gpu)))
+              }
             | map_values(unique | if $filter != "" then map(select(test($filter))) else . end)
           ')"
 

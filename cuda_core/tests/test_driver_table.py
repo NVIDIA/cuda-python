@@ -169,8 +169,13 @@ def test_missing_table_entry_names_the_mismatch(tmp_path):
 
 
 _INTERRUPTED_CHILD = textwrap.dedent("""
+    import signal
     import warnings
     import cuda.bindings._internal.nvrtc as loader
+
+    # Non-interactive background shells inherit SIGINT as SIG_IGN; restore the
+    # default handler so a re-armed interrupt becomes KeyboardInterrupt.
+    signal.signal(signal.SIGINT, signal.default_int_handler)
 
     real_inspect = loader._inspect_function_pointers
 

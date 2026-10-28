@@ -48,9 +48,9 @@ module.exports = async function runNodeTrustProbe({
 
   const tlsResult = await probeEndpoint();
   const rows = [
-    ['Node version', versionOk ? '**PASS**' : '**FAIL**', `\`${version}\` (require Node 24 \`>= v24.22.1\`; \`execPath=${execPath}\`)`],
-    ['Node env overrides', '**INFO**', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
-    ['Node rejects test endpoint', `**${tlsResult.status}**`, tlsResult.detail],
+    ['Node version', versionOk ? '<strong>PASS</strong>' : '<strong>FAIL</strong>', `\`${version}\` (require Node 24 \`>= v24.22.1\`; \`execPath=${execPath}\`)`],
+    ['Node env overrides', '<strong>INFO</strong>', `\`NODE_OPTIONS=${nodeOptions}\`, \`NODE_EXTRA_CA_CERTS=${extraCa}\`, \`NODE_USE_SYSTEM_CA=${useSystemCa}\``],
+    ['Node rejects test endpoint', `<strong>${tlsResult.status}</strong>`, tlsResult.detail],
   ];
 
   await core.summary
