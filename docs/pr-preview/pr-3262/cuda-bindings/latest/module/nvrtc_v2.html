@@ -1,0 +1,1485 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>nvrtc_v2 &#8212; cuda.bindings</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+
+
+    <script src="../_static/documentation_options.js?v=0fedfaed"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'module/nvrtc_v2';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-3262/cuda-bindings/latest/module/nvrtc_v2.html" />
+    <link rel="icon" href="../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nvjitlink" href="nvjitlink.html" />
+    <link rel="prev" title="nvrtc" href="nvrtc.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+
+
+  </head>
+
+  <body data-default-mode="">
+
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/3262">PR 3262</a>! To keep previews small, the autosummary-generated API pages are omitted.</div>
+</aside>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    Apache License 2.0
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    Apache License 2.0
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.4.3-notes.html">13.4.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.4.2-notes.html">13.4.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.4.1-notes.html">13.4.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.4.0-notes.html">13.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.3.1-notes.html">13.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.3.0-notes.html">13.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.2.0-notes.html">13.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.3-notes.html">13.0.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.9-notes.html">12.9.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.8-notes.html">12.9.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.7-notes.html">12.9.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.6-notes.html">12.9.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.4-notes.html">12.9.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.3-notes.html">12.9.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.2-notes.html">12.9.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.1-notes.html">12.9.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.0-notes.html">12.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.7-notes.html">11.8.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.4-notes.html">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="driver.html">driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver_v2.html">driver_v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime.html">runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvrtc.html">nvrtc</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">nvrtc_v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvvm.html">nvvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cudla.html">cudla</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cufile.html">cufile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvml.html">nvml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Apache License 2.0</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">CUDA Python API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">nvrtc_v2</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="nvrtc-v2">
+<h1>nvrtc_v2<a class="headerlink" href="#nvrtc-v2" title="Link to this heading">#</a></h1>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>See the <a class="reference internal" href="v2_migration.html"><span class="doc">migration guide</span></a> for the differences between this module and the legacy <a class="reference internal" href="nvrtc.html"><span class="doc">nvrtc</span></a> module.</p>
+</div>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following enumeration type and function for API call error handling.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Result</span></code></p></td>
+<td><p>The enumerated type <cite>nvrtcResult</cite> defines API call result codes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BuiltinOperationFailureError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BusyError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CancelledError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompilationError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">InternalError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">InvalidInputError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">InvalidOptionError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">InvalidProgramError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NameExpressionNotValidError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoLoweredNamesBeforeCompilationError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoNameExpressionsAfterCompilationError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NoPchCreateAttemptedError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvrtcError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutOfMemoryError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PchCreateError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PchCreateHeapExhaustedError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgramCreationFailureError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeFileWriteFailedError</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeTraceFileWriteFailedError</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_error_string</span></code></p></td>
+<td><p>nvrtcGetErrorString is a helper function that returns a string describing the given <code class="docutils literal notranslate"><span class="pre">nvrtcResult</span></code> code, e.g., NVRTC_SUCCESS to <code class="docutils literal notranslate"><span class="pre">&quot;NVRTC_SUCCESS&quot;</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="general-information-query">
+<h2>General Information Query<a class="headerlink" href="#general-information-query" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following function for general information query.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">version</span></code></p></td>
+<td><p>nvrtcVersion sets the output parameters <code class="docutils literal notranslate"><span class="pre">major</span></code> and <code class="docutils literal notranslate"><span class="pre">minor</span></code> with the CUDA Runtime Compilation version number.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_num_supported_archs</span></code></p></td>
+<td><p>nvrtcGetNumSupportedArchs sets the output parameter <code class="docutils literal notranslate"><span class="pre">num_archs</span></code> with the number of architectures supported by NVRTC.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_supported_archs</span></code></p></td>
+<td><p>nvrtcGetSupportedArchs populates the array passed via the output parameter <code class="docutils literal notranslate"><span class="pre">supported_archs</span></code> with the architectures supported by NVRTC.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="compilation">
+<h2>Compilation<a class="headerlink" href="#compilation" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following type and functions for actual compilation.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_program</span></code></p></td>
+<td><p>nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">destroy_program</span></code></p></td>
+<td><p>nvrtcDestroyProgram destroys the given program.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile_program</span></code></p></td>
+<td><p>nvrtcCompileProgram compiles the given program.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ptx_size</span></code></p></td>
+<td><p>nvrtcGetPTXSize sets the value of <code class="docutils literal notranslate"><span class="pre">ptx_size_ret</span></code> with the size of the PTX generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> (including the trailing <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ptx</span></code></p></td>
+<td><p>nvrtcGetPTX stores the PTX generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">ptx</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubin_size</span></code></p></td>
+<td><p>nvrtcGetCUBINSize sets the value of <code class="docutils literal notranslate"><span class="pre">cubin_size_ret</span></code> with the size of the cubin generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubin</span></code></p></td>
+<td><p>nvrtcGetCUBIN stores the cubin generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">cubin</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ltoir_size</span></code></p></td>
+<td><p>nvrtcGetLTOIRSize sets the value of <code class="docutils literal notranslate"><span class="pre">ltoir_size_ret</span></code> with the size of the LTO IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ltoir</span></code></p></td>
+<td><p>nvrtcGetltoir stores the LTO IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">ltoir</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_optix_ir_size</span></code></p></td>
+<td><p>nvrtcGetOptiXIRSize sets the value of <code class="docutils literal notranslate"><span class="pre">optixir_size_ret</span></code> with the size of the OptiX IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_optix_ir</span></code></p></td>
+<td><p>nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">optixir</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_program_log_size</span></code></p></td>
+<td><p>nvrtcGetProgramLogSize sets <code class="docutils literal notranslate"><span class="pre">log_size_ret</span></code> with the size of the log generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> (including the trailing <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_program_log</span></code></p></td>
+<td><p>nvrtcGetProgramLog stores the log generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">log</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_name_expression</span></code></p></td>
+<td><p>nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lowered_name</span></code></p></td>
+<td><p>nvrtcGetLoweredName extracts the lowered (mangled) name for a global function or device/__constant__ variable, and updates *lowered_name to point to it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow_callback</span></code></p></td>
+<td><p>nvrtcSetFlowCallback registers a callback that the compiler invokes during <code class="xref py py-func docutils literal notranslate"><span class="pre">compile_program()</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tile_ir_size</span></code></p></td>
+<td><p>nvrtcGetTileIRSize sets the value of <code class="docutils literal notranslate"><span class="pre">tile_ir_size_ret</span></code> with the size of the cuda_tile IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tile_ir</span></code></p></td>
+<td><p>nvrtcGettile_ir stores the cuda_tile IR generated by the previous compilation of <code class="docutils literal notranslate"><span class="pre">prog</span></code> in the memory pointed by <code class="docutils literal notranslate"><span class="pre">tile_ir</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="precompiled-header-pch-cuda-12-8">
+<h2>Precompiled header (PCH) (CUDA 12.8+)<a class="headerlink" href="#precompiled-header-pch-cuda-12-8" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following function related to PCH. Also see PCH related flags passed to compile_program.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pch_heap_size</span></code></p></td>
+<td><p>retrieve the current size of the PCH Heap.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_pch_heap_size</span></code></p></td>
+<td><p>set the size of the PCH Heap.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pch_create_status</span></code></p></td>
+<td><p>returns the PCH creation status.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pch_heap_size_required</span></code></p></td>
+<td><p>retrieve the required size of the PCH heap required to compile the given program.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="bundled-headers-installation">
+<h2>Bundled Headers Installation<a class="headerlink" href="#bundled-headers-installation" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following types and functions for bundled headers installation and management.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BundledHeadersInfo</span></code></p></td>
+<td><p>Empty-initialize an instance of <cite>nvrtcBundledHeadersInfo</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">InstallHeadersFlag</span></code></p></td>
+<td><p>Flags for <code class="xref py py-func docutils literal notranslate"><span class="pre">install_bundled_headers()</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">install_bundled_headers</span></code></p></td>
+<td><p>nvrtcInstallBundledHeaders extracts CUDA headers bundled with NVRTC to a specified directory for use during compilation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bundled_headers_info</span></code></p></td>
+<td><p>nvrtcGetBundledHeadersInfo queries information about the bundled headers without extracting them.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_bundled_headers</span></code></p></td>
+<td><p>nvrtcRemoveBundledHeaders removes previously installed bundled headers.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="supported-compile-options">
+<h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Link to this heading">#</a></h2>
+<p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_100&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_100&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
+<p>The valid compiler options are:</p>
+<ul class="simple">
+<li><p>Compilation targets</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--gpu-architecture=&lt;arch&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-arch</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Specify the name of the class of GPU architectures for which the input must be compiled.</p>
+<ul class="simple">
+<li><p>Separate compilation / whole-program compilation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-c</span></code> (<code class="docutils literal notranslate"><span class="pre">-dc</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Generate relocatable code that can be linked with other relocatable device code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-w</span></code> (<code class="docutils literal notranslate"><span class="pre">-dw</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate non-relocatable code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=false</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--relocatable-device-code={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-rdc</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable (disable) the generation of relocatable device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--extensible-whole-program</span></code> (<code class="docutils literal notranslate"><span class="pre">-ewp</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Do extensible whole program compilation of device code.</p>
+<ul class="simple">
+<li><p>Tile compilation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--enable-tile</span></code> (<code class="docutils literal notranslate"><span class="pre">-enable-tile</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Enable support for Tile constructs (e.g. <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> ) and define the macro <code class="docutils literal notranslate"><span class="pre">__CUDACC_TILE__</span></code> .</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--tile-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-tile-only</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable support for parsing Tile constructs and define the macro <code class="docutils literal notranslate"><span class="pre">__CUDACC_TILE__</span></code>, but omit code generation for non-Tile code (e.g. <code class="docutils literal notranslate"><span class="pre">__global__</span></code> function).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--simt-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-simt-only</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable support for parsing Tile constructs and define the macro <code class="docutils literal notranslate"><span class="pre">__CUDACC_TILE__</span></code>, but omit code generation for Tile code (e.g. <code class="docutils literal notranslate"><span class="pre">__tile_global__</span></code> function).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--default-tile</span></code> (<code class="docutils literal notranslate"><span class="pre">--default-tile</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Consider an unannotated function or static storage duration variable as having an implicit <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> annotation. If the static storage duration variable violates Tile restrictions (e.g. cannot be of pointer type), then the implicit annotation is silently omitted by default; use <code class="docutils literal notranslate"><span class="pre">-diagnose-implicit-tile-var</span></code> to enable compiler diagnostics for such cases.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-default-tile</span></code> can be used in conjunction with <code class="docutils literal notranslate"><span class="pre">-default-device</span></code>. If both flags are specified, the unannotated function and/or static storage duration variable will be considered to have both <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> and <code class="docutils literal notranslate"><span class="pre">__device__</span></code> implict annotations. There will be a separate copy of the function/variable in the generated SIMT and cuda_tile programs, at present.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diagnose-implicit-tile-var</span></code> (<code class="docutils literal notranslate"><span class="pre">-diagnose-implicit-tile-var</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>When combined with <code class="docutils literal notranslate"><span class="pre">-default-tile</span></code>, diagnose static storage duration variables that could not be implicitly annotated with the <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> memory space specifier (e.g., due to pointer type restrictions).</p>
+<ul class="simple">
+<li><p>Debugging support</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-debug</span></code> (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Generate debug information. If <code class="docutils literal notranslate"><span class="pre">--dopt</span></code> is not specified, then turns off all optimizations.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--generate-line-info</span></code> (<code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate line-number information.</p>
+<ul class="simple">
+<li><p>Code generation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dopt</span></code> <code class="docutils literal notranslate"><span class="pre">on</span></code> (<code class="docutils literal notranslate"><span class="pre">-dopt</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dopt=on</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>Enable device code optimization. When specified along with <code class="docutils literal notranslate"><span class="pre">-G</span></code>, enables limited debug information generation for optimized device code (currently, only line number information). When <code class="docutils literal notranslate"><span class="pre">-G</span></code> is not specified, <code class="docutils literal notranslate"><span class="pre">-dopt=on</span></code> is implicit.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--Ofast-compile={0|min|mid|max}</span></code> (<code class="docutils literal notranslate"><span class="pre">-Ofc</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the fast-compile level for device code, which controls the tradeoff between compilation speed and runtime performance by disabling certain optimizations at varying levels.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options</span></code> &lt;options&gt; (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options=&lt;options&gt;</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Specify options directly to ptxas, the PTX optimizing assembler.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--maxrregcount=&lt;N&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the maximum amount of registers that GPU functions can use. Until a function-specific limit, a higher value will generally increase the performance of individual GPU threads that execute this function. However, because thread registers are allocated from a global register pool on each GPU, a higher value of this option will also reduce the maximum thread block size, thereby reducing the amount of thread parallelism. Hence, a good maxrregcount value is the result of a trade-off. If this option is not specified, then no maximum is assumed. Value less than the minimum registers required by ABI will be bumped up by the compiler to ABI minimum limit.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ftz={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-ftz</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-sqrt={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-sqrt</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-div={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-div</span></code>) For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code>.</p>
+<ul>
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--fmad={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-fmad</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations (FMAD, FFMA, or DFMA). <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fno-signed-zeros</span></code> (<code class="docutils literal notranslate"><span class="pre">-fno-signed-zeros</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>This option instructs the optimizer not to distinguish between +-0.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ffinite-math-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-ffinite-math-only</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>This option instructs the optimizer to assume that values are not nan or +-inf.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> (<code class="docutils literal notranslate"><span class="pre">-use_fast_math</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Make use of fast math operations. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code> <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--extra-device-vectorization</span></code> (<code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enables more aggressive device code vectorization in the NVVM optimizer.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--modify-stack-limit={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-modify-stack-limit</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>On Linux, during compilation, use <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> to increase stack size to maximum allowed. The limit is reset to the previous value at the end of compilation. Note: <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> changes the value for the entire process.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>. Note: when this option is used the <code class="docutils literal notranslate"><span class="pre">get_ltoir</span></code> API should be used, as PTX or Cubin will not be generated.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--gen-opt-lto</span></code> (<code class="docutils literal notranslate"><span class="pre">-gen-opt-lto</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Run the optimizer passes before generating the LTO IR.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--optix-ir</span></code> (<code class="docutils literal notranslate"><span class="pre">-optix-ir</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate OptiX IR. The Optix IR is only intended for consumption by OptiX through appropriate APIs. This feature is not supported with link-time-optimization (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>).</p>
+<p>Note: when this option is used the get_optix_ir API should be used, as PTX or Cubin will not be generated.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--jump-table-density=</span></code>[0-101] (<code class="docutils literal notranslate"><span class="pre">-jtd</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable (disable) the generation of stack canaries in device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-cache</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-cache</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Disable the use of cache for both ptx and cubin code generation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--frandom-seed</span></code> (<code class="docutils literal notranslate"><span class="pre">-frandom-seed</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministically identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.</p>
+<ul class="simple">
+<li><p>Preprocessing</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--define-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-D</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code> can be either <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;name=definitions&gt;</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--undefine-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-U</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Cancel any previous definition of <code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Add the directory <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> to the list of directories to be searched for headers. These paths are searched after the list of headers given to create_program.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--use-bundled-headers=&lt;dir&gt;</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Install bundled CUDA headers to <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> and add include paths. This is a convenience flag that combines calling install_bundled_headers and adding <code class="docutils literal notranslate"><span class="pre">-I&lt;dir&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">-I&lt;dir&gt;/cccl</span></code> to the include search path. Headers are installed only if they don’t already exist at the specified location.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Preinclude <code class="docutils literal notranslate"><span class="pre">&lt;header&gt;</span></code> during preprocessing.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-source-include</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-source-include</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>The preprocessor by default adds the directory of each input sources to the include path. This option disables this feature and only considers the path specified explicitly.</p>
+<ul class="simple">
+<li><p>Language Dialect</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20|c++23}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Set language dialect to C++03, C++11, C++14, C++17, C++20, or C++23</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::move</span></code> and <code class="docutils literal notranslate"><span class="pre">std::forward</span></code>, when C++11 or later language dialect is selected.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code> class and member functions when C++11 or later language dialect is selected.</p>
+<ul class="simple">
+<li><p>Precompiled header support (CUDA 12.8+)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Enable automatic PCH processing.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--create-pch=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-create-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Create a PCH file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--use-pch=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-use-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Use the specified PCH file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-dir=&lt;directory-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-dir</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>When using automatic PCH (<code class="docutils literal notranslate"><span class="pre">-pch</span></code>), look for and create PCH files in the specified directory. When using explicit PCH (<code class="docutils literal notranslate"><span class="pre">-create-pch</span></code> or <code class="docutils literal notranslate"><span class="pre">-use-pch</span></code>), the directory name is prefixed before the specified file name, unless the file name is an absolute path name.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-verbose={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-verbose</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>In automatic PCH mode, for each PCH file that could not be used in current compilation, print the reason in the compilation log.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-messages={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-messages</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Print a message in the compilation log, if a PCH file was created or used in the current compilation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--instantiate-templates-in-pch={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-instantiate-templates-in-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable or disable instantiatiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).</p>
+<ul class="simple">
+<li><p>Misc.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--disable-warnings</span></code> (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Inhibit all warning messages.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--Wreorder</span></code> (<code class="docutils literal notranslate"><span class="pre">-Wreorder</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate warnings when member initializers are reordered.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--Wconversion</span></code> (<code class="docutils literal notranslate"><span class="pre">-Wconversion</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate a warning when an implicit numeric conversion may narrow the value in the target type (e.g. <code class="docutils literal notranslate"><span class="pre">long</span></code> <code class="docutils literal notranslate"><span class="pre">long</span></code> narrowed to <code class="docutils literal notranslate"><span class="pre">int</span></code>)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--warning-as-error=</span></code> &lt;kind&gt;,… (<code class="docutils literal notranslate"><span class="pre">-Werror</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Make warnings of the specified kinds into errors. The following is the list of warning kinds accepted by this option:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fmax-errors=</span></code> &lt;number&gt; (<code class="docutils literal notranslate"><span class="pre">-fmax-errors</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the maximum number of errors to emit before compilation is aborted; &lt;number&gt; must be greater than 0.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--restrict</span></code> (<code class="docutils literal notranslate"><span class="pre">-restrict</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Programmer assertion that all kernel pointer parameters are restrict pointers.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Treat entities with no execution space annotation as <code class="docutils literal notranslate"><span class="pre">__device__</span></code> entities.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Allow the <code class="docutils literal notranslate"><span class="pre">__int128</span></code> type in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">__CUDACC_RTC_INT128__</span></code> to be defined.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-float128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-float128</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Allow the <code class="docutils literal notranslate"><span class="pre">__float128</span></code> and <code class="docutils literal notranslate"><span class="pre">_Float128</span></code> types in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">D__CUDACC_RTC_FLOAT128__</span></code> to be defined.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--optimization-info=&lt;kind&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-opt-info</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Provide optimization reports for the specified kind of optimization. The following kind tags are supported:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-err-no</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Display diagnostic number for warning messages. (Default)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-err-no</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Disables the display of a diagnostic number for warning messages.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-error=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-error</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Emit error for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-suppress=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-suppress</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Suppress specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--brief-diagnostics={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-brief-diag</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>This option disables or enables showing source line and column info in a diagnostic. The <code class="docutils literal notranslate"><span class="pre">--brief-diagnostics=true</span></code> will not show the source line and column info.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--time=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-time</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate a comma separated value table with the time taken by each compilation phase, and append it at the end of the file given as the option argument. If the file does not exist, the column headings are generated in the first row of the table. If the file name is ‘-’, the timing data is written to the compilation log.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--split-compile=&lt;number-of-threads&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-split-compile=&lt;number-of-threads&gt;</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting <code class="docutils literal notranslate"><span class="pre">--split-compile=0</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">--split-compile=1</span></code> will cause this option to be ignored.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-syntax-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-syntax-only</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Ends device compilation after front-end syntax checking. This option does not generate valid device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--minimal</span></code> (<code class="docutils literal notranslate"><span class="pre">-minimal</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Omit certain language features to reduce compile time for small programs. In particular, the following are omitted:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in each function. Only those functions which are deemed high-risk make use of a stack canary.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-time-trace=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-time-trace=&lt;file-name&gt;</span></code>) Enables the time profiler, outputting a JSON file based on given &lt;file-name&gt;. Results can be analyzed on chrome://tracing for a flamegraph visualization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--utf-8</span></code> (<code class="docutils literal notranslate"><span class="pre">-utf-8</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Set the source and execution character set to UTF-8 on platforms where that isn’t already the default.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="nvrtc.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">nvrtc</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="nvjitlink.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">nvjitlink</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-information-query">General Information Query</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compilation">Compilation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#precompiled-header-pch-cuda-12-8">Precompiled header (PCH) (CUDA 12.8+)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bundled-headers-installation">Bundled Headers Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-compile-options">Supported Compile Options</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2021-2026, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
