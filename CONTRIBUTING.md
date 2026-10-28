@@ -1,24 +1,13 @@
 # Contributing to CUDA Python
 
 Thank you for your interest in contributing to CUDA Python! Bug reports,
-reproducible examples, documentation improvements, and code changes are all
-welcome. Our review capacity is limited, so for anything beyond a small fix we
-ask you to check in with us before you start; the sections below explain when
-and how. That way your effort goes into changes we can take, and our review
-time goes where it helps most.
+reproducers, documentation improvements, and code changes are welcome.
 
 ## Table of Contents
 
 - [Contributing to CUDA Python](#contributing-to-cuda-python)
   - [Table of Contents](#table-of-contents)
-  - [Report a problem or suggest a change](#report-a-problem-or-suggest-a-change)
   - [Coordinate before implementing](#coordinate-before-implementing)
-    - [Working on an existing issue](#working-on-an-existing-issue)
-    - [Small standalone fixes](#small-standalone-fixes)
-    - [Larger changes and shared infrastructure](#larger-changes-and-shared-infrastructure)
-    - [Readiness notices on issues](#readiness-notices-on-issues)
-    - [What you can expect from us](#what-you-can-expect-from-us)
-  - [Using coding agents](#using-coding-agents)
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
     - [Updating your clone](#updating-your-clone)
@@ -46,164 +35,40 @@ time goes where it helps most.
   - [Code coverage](#code-coverage)
 
 
-## Report a problem or suggest a change
-
-If you run into a bug, please [file an
-issue](https://github.com/NVIDIA/cuda-python/issues/new/choose). Include a
-minimal reproducer, the package and CUDA versions involved, your platform, and
-what you expected versus what happened. Please also tell us how the problem
-affects you: regressions, incorrect results, and bugs that block your work help
-us set priorities, and a comment on the issue is the right way to flag
-something that needs urgent attention.
-
-Feature requests, documentation corrections, measurements, and suggested
-regression tests are welcome too. Reporting a problem or adding evidence to an
-issue never requires an assignment. For questions, please use [GitHub
-Discussions](https://github.com/NVIDIA/cuda-python/discussions). The NVIDIA
-team triages issues by user impact, release plans, and the review and
-maintenance capacity we have.
-
 ## Coordinate before implementing
 
-The short version:
+Review capacity is limited. If you are contributing from outside NVIDIA:
 
-- **Found a bug or have an idea?** Open an issue. No assignment needed.
-- **Fixing a small, self-contained bug or documentation error?** Open a PR
-  directly. Say what was wrong and how you checked the fix.
-- **Want to work on an existing issue?** Comment on it and wait for a
-  maintainer to assign it to you before you start.
-- **Planning a new feature, a design change, or anything touching CI or
-  release infrastructure?** Open an issue first and agree on scope and testing
-  with a maintainer before writing code.
+- **Existing issue:** comment and wait for a maintainer to assign it to you or
+  explicitly ask you to implement it. Check existing assignments and requests
+  to take the issue before starting competing work.
+- **New features, design changes, or CI/release infrastructure:** open an issue
+  and agree on scope and validation before implementing.
+- **Small standalone bug or documentation fixes without an existing issue:**
+  a direct PR is welcome. Explain the problem and how you checked the fix.
 
-This section is written for external contributors, which in this guide means
-anyone contributing from outside NVIDIA. If you are an NVIDIA colleague, see
-the note at the end of the section.
+An open issue or suggested fix is not approval to implement it. External PRs
+that bypass these steps may be closed before code review. NVIDIA colleagues
+use normal team planning and self-assignment instead of this external process.
 
-Why we ask: an open issue may record an idea, an investigation, or a proposed
-approach that nobody has agreed to yet, and even an issue with a detailed
-suggested implementation is not necessarily ready for a PR. Review is also
-more than reading a diff. We need to understand the problem, check behavior
-and tests, and think about long-term maintenance. Checking in first protects
-you from investing in a change we cannot take, protects other contributors
-from duplicate work, and lets us put review time where it helps most.
+Anyone can report a bug or contribute reproducers, measurements, and
+suggestions without an assignment. Include relevant versions and expected
+versus observed behavior in bug reports.
 
-### Working on an existing issue
+Keep changes focused, understand the complete diff, and report which checks
+ran and any validation gaps. These expectations apply to everyone.
 
-Comment on the issue to say you would like to take it, and wait for a
-maintainer to assign it to you before you start implementing. If a maintainer
-has already asked for the change, in the issue or in a review, that counts as
-agreement and no separate assignment is needed. Issues labeled
-`good first issue` are ones we have already judged suitable for a newcomer;
-claiming one works the same way.
+For investigations or proposals not ready for implementation, maintainers
+should add a notice such as the following and update it when the plan changes:
 
-Before you start, confirm the scope and how the change will be tested,
-especially if part of the testing needs hardware or CI you do not have. Agree
-on which checks you can run yourself and which need help from us, and mention
-those limits in the PR.
-
-### Small standalone fixes
-
-Small, self-contained bug fixes and documentation corrections do not need an
-issue or an assignment: open a PR directly. As a rule of thumb, a standalone
-fix changes a few lines, involves no API or behavior design decisions, and
-does not touch CI or release infrastructure. In the PR, explain the problem
-and how you validated the correction. If an issue already exists, link it and
-leave a short comment there so nobody else starts on the same fix.
-
-### Larger changes and shared infrastructure
-
-For a new feature, a change that involves design decisions, or anything that
-touches workflows, shared caches, runners, or release infrastructure, open an
-issue to discuss the problem and the approach first, and agree on scope and
-validation with a maintainer before writing code. Infrastructure changes in
-particular often need operational context and validation that are not visible
-from the issue alone. If you are not sure who the right maintainer is, just
-ask on the issue; the team will route it.
-
-Keep each PR focused and independently reviewable. If the work needs several
-dependent PRs, agree on the sequence with a maintainer first. You do not need
-access to the upstream repository for any of this: develop in a fork and open
-PRs from there.
-
-### Readiness notices on issues
-
-Some issues carry a notice at the top, like this one:
-
-> **Maintainer investigation; not yet open for external implementation
-> PRs.** The approach touches shared CI infrastructure and is still being
-> decided. Reproducers, measurements, and suggestions are very welcome here;
-> please check with a maintainer before starting on an implementation.
-
-The notice means the approach is still being decided. It is not a request to
-stay away: reproducers, measurements, and discussion are exactly what helps at
-that stage. Please hold off on an implementation PR until a maintainer
-confirms the plan; the notice is then updated or removed. A notice starting
-with "Proposal awaiting maintainer agreement" means the same for an idea that
-is not an active investigation yet, and says what remains to be decided.
-
-For maintainers: add the notice to investigations and proposals that are not
-ready for implementation, pick the status that matches the issue, adapt the
-reason, and update the notice when the direction changes. Routine bug reports
-do not need one just because a fix has not been designed yet.
-
-### What you can expect from us
-
-- We read every issue and PR. Triage weighs user impact, release plans, and
-  the review and maintenance capacity we have.
-- When you ask to take an issue or propose an approach, we will answer, even
-  when the answer is "not now". If you have not heard back after a week or
-  two, a short ping on the issue is welcome.
-- If a PR arrives without the coordination described here, we will point you
-  to this section and may put the PR on hold until the approach is agreed,
-  rather than reviewing it ahead of agreed work.
-- When we decline a change, we try to say why, so the effort is not wasted
-  next time.
+> **Maintainer investigation; not yet open for external implementation PRs.**
+> Reproducers, measurements, and suggestions are welcome.
 
 Please also read the relevant component's guidelines:
 
 - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
 - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
 - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
-
-**A note for NVIDIA colleagues.** You coordinate through the team's internal
-planning and maintainer direction rather than through the public assignment
-step. Everything else in this guide, including the quality, validation, and
-review expectations, applies to everyone.
-
-## Using coding agents
-
-Coding agents are welcome here, and the same expectations apply as for any
-other contribution: the coordination step for external contributors, and the
-quality bar for everyone. A patch that was quick to generate still takes the
-same care to review and maintain, so the useful question is not whether you
-can produce a change but whether it is one we can take.
-
-Give your agent [AGENTS.md](AGENTS.md) and this guide. AGENTS.md asks the agent
-to check an issue's readiness notice, assignment, and discussion, and to tell
-you, before it starts on an implementation, whether maintainer agreement
-already exists, whether the change is a small standalone fix, or what the next
-step is. If your agent does not do this on its own, ask it to.
-
-Before submitting an agent-assisted PR:
-
-- Give the agent the relevant repository and component instructions, the issue
-  discussion, the surrounding code, and the tests. Treat a fix suggested in an
-  issue, or by the agent, as a proposal to evaluate, not as a design that has
-  been accepted.
-- Read and understand the complete diff. You should be able to explain the
-  problem, the approach, and the resulting behavior, and you are the one who
-  responds to review feedback and corrects the change.
-- Validate the change against the reported problem and run the relevant
-  checks. Report what actually ran and what you could not run. Mark new tests
-  with the authorship markers described in
-  [AGENTS.md](AGENTS.md#test-authorship-markers).
-- Keep the change within the agreed scope, and please mention in the PR
-  description that an agent helped and roughly how; it helps reviewers
-  calibrate.
-- One PR at a time, please. Batches of speculative PRs picked from the backlog
-  are costly to review and rarely land. If you would like to do more, ask on
-  an issue and we will point you at work that is ready.
 
 ## Cloning the repository
 
