@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.pointer\_get\_attributes
+==================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: pointer_get_attributes
