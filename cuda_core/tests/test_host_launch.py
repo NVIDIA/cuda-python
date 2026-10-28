@@ -4,6 +4,7 @@
 
 import ctypes
 import sys
+import threading
 import time
 import weakref
 from contextlib import closing
@@ -69,18 +70,26 @@ def test_host_launch_releases_callable_after_it_ran(init_cuda):
 
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_host_launch_ctypes_bytes_user_data_is_copied(init_cuda):
+    """The bytes are copied at launch; a later change to the caller's buffer is not seen."""
     dev = Device(0)
     dev.set_current()
     seen = []
+    gate = threading.Event()
 
     @ctypes.CFUNCTYPE(None, ctypes.c_void_p)
     def callback(data):
         seen.append(ctypes.string_at(data, N))
 
     with closing(dev.create_stream()) as stream:
-        data = bytes(range(N))
-        host_launch(stream, callback, user_data=data)
-        del data
+        data = bytearray(range(N))
+        try:
+            # Hold the stream on the driver thread (Event.wait releases the GIL) while
+            # the caller overwrites its buffer; the copy made at launch is unaffected.
+            host_launch(stream, gate.wait)
+            host_launch(stream, callback, user_data=data)
+            data[:] = b"\xff" * N
+        finally:
+            gate.set()
         stream.sync()
         assert seen == [bytes(range(N))]
 
@@ -181,8 +190,8 @@ def test_host_launch_python_exception_is_reported_as_unraisable(init_cuda, monke
         host_launch(stream, lambda: ran.append(True))
         stream.sync()
         assert ran == [True]
-        assert len(records) == 1
-        assert records[0].exc_type is RuntimeError
+        assert [record.exc_type for record in records] == [RuntimeError]
+        assert "callback raised" in str(records[0].exc_value)
 
 
 @pytest.mark.agent_authored(model="gpt-6.1-sol")

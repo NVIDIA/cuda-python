@@ -127,7 +127,8 @@ deleters call CUDA or run Python finalizers.
 destructor callback only adds the attachment to the process-lifetime
 `DeferredCleanupQueue` and requests a `Py_AddPendingCall`.
 
-The host launch record of `host_launch.cpp` is the queue's second producer;
+The host launch record of `host_launch.cpp` is the one producer that is not a
+graph attachment;
 its trampoline enqueues the record after the user function returns.
 
 One pending call drains all queued attachments from Python's main thread. The
