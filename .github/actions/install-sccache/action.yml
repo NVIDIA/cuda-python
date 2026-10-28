@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Install pinned rapidsai/sccache
+description: Download, verify, and install a pinned rapidsai/sccache binary on Linux
+
+# Regenerate hashes when bumping SCCACHE_VERSION:
+#   for arch in x86_64 aarch64; do
+#     curl -fsSL "https://github.com/rapidsai/sccache/releases/download/<tag>/sccache-${arch}-unknown-linux-musl.tar.gz" | sha256sum
+#   done
+# Cross-check against the `.sha256` files published on the GitHub release.
+#
+# Security note (eMudhra/emSign CA incident):
+# - Every version bump MUST repeat the embedded-roots check on the extracted
+#   `sccache` binary:
+#     grep -ac 'ISRG Root X1' sccache             # >0 means a root list is embedded
+#     grep -ac 'emSign ECC Root CA - G3' sccache  # must be 0
+#   Pass criteria: either no embedded root list (both return 0; binary defers
+#   to the OS trust store via `rustls-platform-verifier`, as verified for
+#   `rapidsai/sccache` v0.18.0-rapids.7), or an embedded `webpki-roots` list
+#   at 1.0.10+ where `ISRG Root X1` matches and `emSign ECC Root CA - G3`
+#   returns 0. Match the full root name: 1.0.10 removes only that emSign root
+#   and still ships other emSign roots.
+# - Do NOT switch to or bump `mozilla/sccache` to v0.19.0 (or later without
+#   repeating the roots check): `mozilla/sccache` v0.19.0 re-embeds
+#   `webpki-roots` 1.0.5, which still trusts `emSign ECC Root CA - G3`.
+
+runs:
+  using: composite
+  steps:
+    - name: Install pinned rapidsai/sccache
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      env:
+        SCCACHE_VERSION: v0.18.0-rapids.7
+      run: |
+        if [[ "$(uname -s)" != "Linux" ]]; then
+          echo "::error::install-sccache only supports Linux (got $(uname -s))" >&2
+          exit 1
+        fi
+
+        arch="$(uname -m)"
+        case "${arch}" in
+          x86_64)
+            expected_sha256="44106a2e01aeff99767e66b1a5ae6be074306c518458b367f75287de4532974c"
+            ;;
+          aarch64)
+            expected_sha256="1bad10208481786f2c2e943d7cca8006eaa7e620d122859ef2d61861a733d3d1"
+            ;;
+          *)
+            echo "::error::Unsupported architecture for install-sccache: ${arch}" >&2
+            exit 1
+            ;;
+        esac
+
+        tarball="sccache-${arch}-unknown-linux-musl.tar.gz"
+        url="https://github.com/rapidsai/sccache/releases/download/${SCCACHE_VERSION}/${tarball}"
+
+        tmp_dir="$(mktemp -d)"
+        trap 'rm -rf "${tmp_dir}"' EXIT
+
+        curl -fsSL -o "${tmp_dir}/${tarball}" "${url}"
+        (
+          cd "${tmp_dir}"
+          echo "${expected_sha256}  ${tarball}" | sha256sum --check --strict -
+        )
+
+        if [[ "$(id -u)" -eq 0 ]]; then
+          tar -C /usr/local/bin -xvzf "${tmp_dir}/${tarball}" --wildcards --strip-components=1 -x '*/sccache'
+        else
+          sudo tar -C /usr/local/bin -xvzf "${tmp_dir}/${tarball}" --wildcards --strip-components=1 -x '*/sccache'
+        fi
+
+        echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "${GITHUB_ENV}"
+        /usr/local/bin/sccache --version

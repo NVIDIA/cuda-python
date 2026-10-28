@@ -219,8 +219,18 @@ repos:
     rev: "35dbc940c2bd4499ebf39aba00ad717e05cec9b5"  # frozen: v0.22.0
     hooks:
       - id: cython-lint
-        args: [--no-pycodestyle]
-        exclude: ^cuda_bindings_(?:12|13)/
+        # Some rules (e.g. "inline" on a function declared in a .pxd) match
+        # declarations in one file against implementations in another, and the
+        # linter only remembers that within a single invocation. Pre-commit
+        # splits filenames across parallel processes and only passes changed
+        # files, so a .pyx edited without its .pxd would escape the check.
+        # Instead, whenever any Cython file under these trees changes, lint
+        # all of them in one process. Generated cuda_bindings_* and
+        # third-party submodules are not listed.
+        args: [--no-pycodestyle, cuda_core/cuda]
+        files: ^cuda_core/cuda
+        pass_filenames: false
+        require_serial: true
         additional_dependencies:
           - Cython==3.2.9
 

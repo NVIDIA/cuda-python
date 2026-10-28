@@ -2,7 +2,6 @@
 
 from typing import Any, Callable, NamedTuple
 
-from cuda.bindings import cydriver
 from cuda.bindings import driver as driver
 from cuda.bindings import nvrtc as nvrtc
 from cuda.bindings import runtime as runtime
@@ -10,6 +9,8 @@ from cuda.bindings import runtime as runtime
 _keep_driver_in_stub: driver.CUresult
 _keep_nvrtc_in_stub: nvrtc.nvrtcResult
 _keep_runtime_in_stub: runtime.cudaError_t
+_RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
+_NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 _fork_warning_checked = False
 
 class CUDAError(Exception):
@@ -52,9 +53,6 @@ class ComputeCapability(NamedTuple):
     minor: int
 
 def cast_to_3_tuple(label: str, cfg: int | tuple[int, ...]) -> tuple[int, int, int]: ...
-def _check_driver_error(error: cydriver.CUresult) -> int: ...
-def _check_runtime_error(error) -> int: ...
-def _check_nvrtc_error(error, handle=None) -> int: ...
 def handle_return(result: tuple[Any, ...], handle: object | None=None) -> Any: ...
 def check_or_create_options(cls: type, options: object, options_description: str='', keep_none: bool=False) -> object:
     """
