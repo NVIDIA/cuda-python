@@ -41,34 +41,20 @@ Review capacity is limited. If you are contributing from outside NVIDIA:
 
 - **Existing issue:** comment and wait for a maintainer to assign it to you or
   explicitly ask you to implement it. Check existing assignments and requests
-  to take the issue before starting competing work.
+  to take the issue.
 - **New features, design changes, or CI/release infrastructure:** open an issue
   and agree on scope and validation before implementing.
 - **Small standalone bug or documentation fixes without an existing issue:**
   a direct PR is welcome. Explain the problem and how you checked the fix.
 
-An open issue or suggested fix is not approval to implement it. External PRs
-that bypass these steps may be closed before code review. NVIDIA colleagues
-use normal team planning and self-assignment instead of this external process.
+NVIDIA contributors may use normal team planning and self-assignment.
 
-Anyone can report a bug or contribute reproducers, measurements, and
-suggestions without an assignment. Include relevant versions and expected
-versus observed behavior in bug reports.
+Feel free to report a bug or send reproducers, measurements, and suggestions
+without an assignment. Include relevant versions and expected versus observed
+behavior in bug reports.
 
 Keep changes focused, understand the complete diff, and report which checks
-ran and any validation gaps. These expectations apply to everyone.
-
-For investigations or proposals not ready for implementation, maintainers
-should add a notice such as the following and update it when the plan changes:
-
-> **Maintainer investigation; not yet open for external implementation PRs.**
-> Reproducers, measurements, and suggestions are welcome.
-
-Please also read the relevant component's guidelines:
-
-- [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
-- [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
-- [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
+ran and any validation gaps.
 
 ## Cloning the repository
 
@@ -487,7 +473,3 @@ The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`
 Code coverage reports are produced nightly and posted to [GitHub Pages](https://nvidia.github.io/cuda-python/coverage).
 
 Known limitations: Code coverage is only run on Linux x86_64 with an a100 GPU.  We plan to add more platform and GPU coverage in the future.
-
----
-
-<a name="footnote1">1</a>: The `cuda-python` meta package shares the same license and the contributing guidelines as those of `cuda-bindings`.
