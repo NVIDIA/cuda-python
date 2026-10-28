@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.IpcMemFlags
-=====================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoenum:: IpcMemFlags

@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.HostMemoryNotRegisteredError
-======================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoexception:: HostMemoryNotRegisteredError

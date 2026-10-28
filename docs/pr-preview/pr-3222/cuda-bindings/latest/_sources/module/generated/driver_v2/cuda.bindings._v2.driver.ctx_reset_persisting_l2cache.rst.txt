@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.ctx\_reset\_persisting\_l2cache
-=========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: ctx_reset_persisting_l2cache

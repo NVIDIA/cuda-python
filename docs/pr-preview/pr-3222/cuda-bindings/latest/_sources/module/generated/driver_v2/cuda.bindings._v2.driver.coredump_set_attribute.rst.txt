@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.coredump\_set\_attribute
-==================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: coredump_set_attribute

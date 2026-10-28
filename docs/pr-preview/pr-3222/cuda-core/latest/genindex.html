@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=6a7fc7da"></script>
+    <script src="_static/documentation_options.js?v=9d3019ed"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev260';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev272';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -789,7 +789,7 @@
 </li>
         <li><a href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor.__init__">(cuda.core._memory._ipc.IPCBufferDescriptor method)</a>
 </li>
-        <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.__init__">(cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor method)</a>
+        <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.__init__">(cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor method)</a>
 </li>
         <li><a href="generated/cuda.core._memory._managed_buffer.AccessedBySetProxy.html#cuda.core._memory._managed_buffer.AccessedBySetProxy.__init__">(cuda.core._memory._managed_buffer.AccessedBySetProxy method)</a>
 </li>
@@ -1966,7 +1966,7 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.fdevice_time_trace">fdevice_time_trace (cuda.core.ProgramOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.fds">fds (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.fds">fds (cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system._device.FieldValue.html#cuda.core.system._device.FieldValue.field_id">field_id (cuda.core.system._device.FieldValue attribute)</a>
 </li>
@@ -2044,7 +2044,7 @@
 </li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.from_fatbin">from_fatbin() (cuda.core.ObjectCode static method)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.from_fds">from_fds() (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor class method)</a>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.from_fds">from_fds() (cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor class method)</a>
 </li>
       <li><a href="generated/cuda.core.GraphicsResource.html#cuda.core.GraphicsResource.from_gl_buffer">from_gl_buffer() (cuda.core.GraphicsResource class method)</a>
 </li>
@@ -2398,7 +2398,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handle_type">handle_type (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.handle_type">handle_type (cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor attribute)</a>
 
       <ul>
         <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.handle_type">(cuda.core.VirtualMemoryResourceOptions attribute)</a>
@@ -2412,7 +2412,7 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported">handle_type_win32_kmt_handle_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.handles">handles (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.handles">handles (cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor attribute)</a>
 
       <ul>
         <li><a href="generated/cuda.core.graph.GraphDebugPrintOptions.html#cuda.core.graph.GraphDebugPrintOptions.handles">(cuda.core.graph.GraphDebugPrintOptions attribute)</a>
@@ -3428,6 +3428,8 @@
 </li>
         <li><a href="generated/cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions.numa_id">(cuda.core.PinnedMemoryResourceOptions attribute)</a>
 </li>
+        <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.numa_id">(cuda.core.VirtualMemoryResourceOptions attribute)</a>
+</li>
       </ul></li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.numa_node_id">numa_node_id (cuda.core.system.Device attribute)</a>
 </li>
@@ -3864,7 +3866,7 @@
       <li><a href="generated/cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor.size">size (cuda.core._memory._ipc.IPCBufferDescriptor attribute)</a>
 
       <ul>
-        <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.size">(cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+        <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.size">(cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor attribute)</a>
 </li>
         <li><a href="generated/cuda.core.Buffer.html#cuda.core.Buffer.size">(cuda.core.Buffer attribute)</a>
 </li>
@@ -3883,7 +3885,7 @@
         <li><a href="generated/cuda.core.texture.ResourceDescriptor.html#cuda.core.texture.ResourceDescriptor.size_bytes">(cuda.core.texture.ResourceDescriptor attribute)</a>
 </li>
       </ul></li>
-      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.sizes">sizes (cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor attribute)</a>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.sizes">sizes (cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor attribute)</a>
 </li>
       <li><a href="generated/cuda.core.DeviceResources.html#cuda.core.DeviceResources.sm">sm (cuda.core.DeviceResources attribute)</a>
 </li>
@@ -4309,11 +4311,11 @@
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer">VirtualMemoryBuffer (class in cuda.core)</a>
 </li>
+      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor">VirtualMemoryFdBufferDescriptor (class in cuda.core._memory._ipc)</a>
+</li>
       <li><a href="generated/cuda.core.typing.VirtualMemoryGranularityType.html#cuda.core.typing.VirtualMemoryGranularityType">VirtualMemoryGranularityType (class in cuda.core.typing)</a>
 </li>
       <li><a href="generated/cuda.core.typing.VirtualMemoryHandleType.html#cuda.core.typing.VirtualMemoryHandleType">VirtualMemoryHandleType (class in cuda.core.typing)</a>
-</li>
-      <li><a href="generated/cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor.html#cuda.core._memory._ipc.VirtualMemoryIPCBufferDescriptor">VirtualMemoryIPCBufferDescriptor (class in cuda.core._memory._ipc)</a>
 </li>
       <li><a href="generated/cuda.core.typing.VirtualMemoryLocationType.html#cuda.core.typing.VirtualMemoryLocationType">VirtualMemoryLocationType (class in cuda.core.typing)</a>
 </li>

@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.ctx\_set\_limit
-=========================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: ctx_set_limit
