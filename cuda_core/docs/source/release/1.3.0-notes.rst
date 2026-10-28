@@ -78,14 +78,14 @@ New features
 
 - The memory pool attributes of :class:`DeviceMemoryResource`,
   :class:`PinnedMemoryResource` and :class:`ManagedMemoryResource` can now be
-  set: ``release_threshold`` and the three ``reuse_*`` policies take any
-  value, and ``reserved_mem_high`` and ``used_mem_high`` can be set to zero to
-  reset the watermark, as for :class:`GraphMemoryResource`. The new
-  ``trim(min_bytes_to_keep=0)`` method returns unused pool memory to the OS.
-  Reading or setting a pool attribute, and ``trim()``, no longer fail with
-  ``CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`` and invalidate a stream capture
-  that is in progress in global mode on any thread, or in thread-local mode
-  on the calling thread.
+  set: ``release_threshold`` takes a non-negative integer, the three
+  ``reuse_*`` policies take a bool, and ``reserved_mem_high`` and
+  ``used_mem_high`` can be set to zero to reset the watermark, as for
+  :class:`GraphMemoryResource`. The new :meth:`DeviceMemoryResource.trim`
+  method, also on the other two resources, returns unused pool memory to the
+  OS. Setting an attribute and ``trim()`` take effect immediately, even during
+  a stream capture, and leave the capture valid.
+  (`#3261 <https://github.com/NVIDIA/cuda-python/issues/3261>`__)
 
 - Added :class:`VirtualMemoryBuffer`, the :class:`Buffer` subclass that
   :class:`VirtualMemoryResource` returns. Closing it on a capturing stream
@@ -165,6 +165,13 @@ Fixes and enhancements
   restores the thread's previous mode, so the capture stays valid. Creating a
   new pool with options during such a capture is still refused by the driver.
   (`#2834 <https://github.com/NVIDIA/cuda-python/issues/2834>`__)
+
+- Reading the :attr:`~DeviceMemoryResource.attributes` of a
+  :class:`DeviceMemoryResource`, :class:`PinnedMemoryResource` or
+  :class:`ManagedMemoryResource` no longer fails, or invalidates a stream
+  capture, while the calling thread is inside a ``thread_local`` capture or
+  any thread is inside a ``global`` one.
+  (`#3236 <https://github.com/NVIDIA/cuda-python/pull/3236>`__)
 
 - Ending, closing, or collecting a top-level :class:`~graph.GraphBuilder`
   whose capture was invalidated, or left unjoined by a
