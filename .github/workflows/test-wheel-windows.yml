@@ -119,13 +119,23 @@ jobs:
         with:
           enable-apt: true
 
+      - name: Checkout driver install scripts (workflow revision)
+        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: .driver-tools
+          sparse-checkout: ci/tools
+          persist-credentials: false
+
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         env:
           DRIVER: ${{ matrix.DRIVER }}
+          DRIVER_SHA256: ${{ matrix.DRIVER_SHA256 }}
           GPU_TYPE: ${{ matrix.GPU }}
         run: |
-          ci/tools/install_gpu_driver.ps1
+          .driver-tools/ci/tools/install_gpu_driver.ps1
 
       - name: Configure driver mode
         env:
