@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from cuda.core.typing import DevicePointerType
 
 from cuda.core._memory._buffer import Buffer, MemoryResource
-from cuda.core._utils.cuda_utils import (
+from cuda.core._utils.cuda_utils import (  # type: ignore[attr-defined]  # stubgen-pyx omits .pxd cpdef bodies
     _check_driver_error as raise_if_driver_error,
 )
 from cuda.core._utils.cuda_utils import (

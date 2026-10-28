@@ -26,16 +26,20 @@ struct GraphicsResourceBox {
 };
 }  // namespace
 
-GraphicsResourceHandle create_graphics_resource_handle(CUgraphicsResource resource) {
+GraphicsResourceHandle
+create_graphics_resource_handle(CUgraphicsResource resource)
+{
+    // clang-format off
     ensure_fn_table(FnTable::driver);  // the deleter calls the driver: resolve the table before it can run
     auto box = std::shared_ptr<const GraphicsResourceBox>(
         new GraphicsResourceBox{resource},
-        [](const GraphicsResourceBox* b) {
+        [](const GraphicsResourceBox *b) {
             GILReleaseGuard gil;
             pw_cuGraphicsUnregisterResource(b->resource);
             delete b;
         }
     );
+    // clang-format on
     return GraphicsResourceHandle(box, &box->resource);
 }
 
@@ -79,50 +83,62 @@ struct SurfObjectBox {
 };
 
 // Recover an array's owning box from its aliased resource pointer.
-const ArrayBox* get_box(const OpaqueArrayHandle& h) noexcept {
-    const CUarray* p = h.get();
-    return reinterpret_cast<const ArrayBox*>(
-        reinterpret_cast<const char*>(p) - offsetof(ArrayBox, resource));
+const ArrayBox *
+get_box(const OpaqueArrayHandle &h) noexcept
+{
+    const CUarray *p = h.get();
+    return reinterpret_cast<const ArrayBox *>(reinterpret_cast<const char *>(p) - offsetof(ArrayBox, resource));
 }
 
 // Recover a mipmapped array's owning box from its aliased resource pointer.
-const MipmappedArrayBox* get_box(const MipmappedArrayHandle& h) noexcept {
-    const CUmipmappedArray* p = h.get();
-    return reinterpret_cast<const MipmappedArrayBox*>(
-        reinterpret_cast<const char*>(p)
-        - offsetof(MipmappedArrayBox, resource));
+const MipmappedArrayBox *
+get_box(const MipmappedArrayHandle &h) noexcept
+{
+    const CUmipmappedArray *p = h.get();
+    return reinterpret_cast<const MipmappedArrayBox *>(
+        reinterpret_cast<const char *>(p) - offsetof(MipmappedArrayBox, resource)
+    );
 }
 
 // Wrap an array with shared owning-destruction behavior.
-static OpaqueArrayHandle wrap_array_owned(CUarray arr, ContextHandle h_context) {
+static OpaqueArrayHandle
+wrap_array_owned(CUarray arr, ContextHandle h_context)
+{
+    // clang-format off
     auto box = std::shared_ptr<const ArrayBox>(
         new ArrayBox{arr, {}, std::move(h_context)},
-        [](const ArrayBox* b) {
+        [](const ArrayBox *b) {
             GILReleaseGuard gil;
             pw_cuArrayDestroy(b->resource);
             delete b;
         }
     );
+    // clang-format on
     return OpaqueArrayHandle(box, &box->resource);
 }
 
 }  // namespace
 
-OpaqueArrayHandle create_array_handle(const ContextHandle& h_context, const CUDA_ARRAY3D_DESCRIPTOR& desc) {
+OpaqueArrayHandle
+create_array_handle(const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTOR &desc)
+{
     GILReleaseGuard gil;
     CUarray arr = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
         [&]() noexcept { return DRIVER_CALL(cuArray3DCreate, &arr, &desc); },
         [&]() noexcept { pw_cuArrayDestroy(arr); },
-        /*undo_requires_target_context=*/false);
+        /*undo_requires_target_context=*/false
+    );
     if (err != CUDA_SUCCESS) {
         return {};
     }
     return wrap_array_owned(arr, h_context);
 }
 
-OpaqueArrayHandle create_array_handle_ref(CUarray arr) {
+OpaqueArrayHandle
+create_array_handle_ref(CUarray arr)
+{
     if (!arr) {
         return {};
     }
@@ -130,7 +146,9 @@ OpaqueArrayHandle create_array_handle_ref(CUarray arr) {
     return OpaqueArrayHandle(box, &box->resource);
 }
 
-OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
+OpaqueArrayHandle
+create_array_handle_owning(CUarray arr)
+{
     ensure_fn_table(FnTable::driver);  // the deleter calls the driver: resolve the table before it can run
     if (!arr) {
         return {};
@@ -139,11 +157,15 @@ OpaqueArrayHandle create_array_handle_owning(CUarray arr) {
 }
 
 // Return the context retained by an array handle.
-ContextHandle get_array_context(const OpaqueArrayHandle& h) noexcept {
+ContextHandle
+get_array_context(const OpaqueArrayHandle &h) noexcept
+{
     return h ? get_box(h)->h_context : ContextHandle{};
 }
 
-OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level) {
+OpaqueArrayHandle
+create_array_level_handle(const MipmappedArrayHandle &h_mip, unsigned int level)
+{
     GILReleaseGuard gil;
     CUarray arr;
     ContextHandle h_context = h_mip ? get_box(h_mip)->h_context : ContextHandle{};
@@ -152,60 +174,75 @@ OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, u
     }
     // Non-owning level view: storage belongs to the mipmap. Embed the mipmap
     // handle so the parent outlives this level; the deleter does not destroy.
+    // clang-format off
     auto box = std::shared_ptr<const ArrayBox>(
         new ArrayBox{arr, h_mip, h_context},
-        [](const ArrayBox* b) { delete b; }
+        [](const ArrayBox *b) { delete b; }
     );
+    // clang-format on
     return OpaqueArrayHandle(box, &box->resource);
 }
 
-MipmappedArrayHandle create_mipmapped_array_handle(const ContextHandle& h_context,
-                                                   const CUDA_ARRAY3D_DESCRIPTOR& desc,
-                                                   unsigned int num_levels) {
+MipmappedArrayHandle
+create_mipmapped_array_handle(
+    const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTOR &desc, unsigned int num_levels
+)
+{
     GILReleaseGuard gil;
     CUmipmappedArray mip = nullptr;
     err = invoke_in_context_or_undo(
         h_context,
         [&]() noexcept { return DRIVER_CALL(cuMipmappedArrayCreate, &mip, &desc, num_levels); },
         [&]() noexcept { pw_cuMipmappedArrayDestroy(mip); },
-        /*undo_requires_target_context=*/false);
+        /*undo_requires_target_context=*/false
+    );
     if (err != CUDA_SUCCESS) {
         return {};
     }
+    // clang-format off
     auto box = std::shared_ptr<const MipmappedArrayBox>(
         new MipmappedArrayBox{mip, h_context},
-        [](const MipmappedArrayBox* b) {
+        [](const MipmappedArrayBox *b) {
             GILReleaseGuard gil;
             pw_cuMipmappedArrayDestroy(b->resource);
             delete b;
         }
     );
+    // clang-format on
     return MipmappedArrayHandle(box, &box->resource);
 }
 
 // Return the context retained by a mipmapped array handle.
-ContextHandle get_mipmapped_array_context(const MipmappedArrayHandle& h) noexcept {
+ContextHandle
+get_mipmapped_array_context(const MipmappedArrayHandle &h) noexcept
+{
     return h ? get_box(h)->h_context : ContextHandle{};
 }
 
 namespace {
-TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
-                                       const CUDA_TEXTURE_DESC& tex,
-                                       std::shared_ptr<const void> h_backing,
-                                       const ContextHandle& h_context) {
+TexObjectHandle
+make_tex_object_handle(
+    const CUDA_RESOURCE_DESC &res,
+    const CUDA_TEXTURE_DESC &tex,
+    std::shared_ptr<const void> h_backing,
+    const ContextHandle &h_context
+)
+{
     GILReleaseGuard gil;
     CUtexObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
         [&]() noexcept { return DRIVER_CALL(cuTexObjectCreate, &obj, &res, &tex, nullptr); },
         [&]() noexcept { pw_cuTexObjectDestroy(obj); },
-        /*undo_requires_target_context=*/true);
+        /*undo_requires_target_context=*/true
+    );
     if (err != CUDA_SUCCESS) {
         return {};
     }
+    // clang-format off
     auto box = std::shared_ptr<const TexObjectBox>(
         new TexObjectBox{TexObjectValue{obj}, std::move(h_backing), h_context},
-        [](const TexObjectBox* b) {
+        [](const TexObjectBox *b) {
             GILReleaseGuard gil;
             cleanup_in_context(b->h_context, "cuTexObjectDestroy", handle_bits(b->resource.raw), [&]() noexcept {
                 return DRIVER_CALL(cuTexObjectDestroy, b->resource.raw);
@@ -213,47 +250,64 @@ TexObjectHandle make_tex_object_handle(const CUDA_RESOURCE_DESC& res,
             delete b;
         }
     );
+    // clang-format on
     return TexObjectHandle(box, &box->resource);
 }
 }  // namespace
 
-TexObjectHandle create_tex_object_handle_array(const ContextHandle& h_context,
-                                               const CUDA_RESOURCE_DESC& res,
-                                               const CUDA_TEXTURE_DESC& tex,
-                                               const OpaqueArrayHandle& h_backing) {
+TexObjectHandle
+create_tex_object_handle_array(
+    const ContextHandle &h_context,
+    const CUDA_RESOURCE_DESC &res,
+    const CUDA_TEXTURE_DESC &tex,
+    const OpaqueArrayHandle &h_backing
+)
+{
     return make_tex_object_handle(res, tex, h_backing, h_context);
 }
 
-TexObjectHandle create_tex_object_handle_mipmap(const ContextHandle& h_context,
-                                                const CUDA_RESOURCE_DESC& res,
-                                                const CUDA_TEXTURE_DESC& tex,
-                                                const MipmappedArrayHandle& h_backing) {
+TexObjectHandle
+create_tex_object_handle_mipmap(
+    const ContextHandle &h_context,
+    const CUDA_RESOURCE_DESC &res,
+    const CUDA_TEXTURE_DESC &tex,
+    const MipmappedArrayHandle &h_backing
+)
+{
     return make_tex_object_handle(res, tex, h_backing, h_context);
 }
 
-TexObjectHandle create_tex_object_handle_linear(const ContextHandle& h_context,
-                                                const CUDA_RESOURCE_DESC& res,
-                                                const CUDA_TEXTURE_DESC& tex,
-                                                const DevicePtrHandle& h_backing) {
+TexObjectHandle
+create_tex_object_handle_linear(
+    const ContextHandle &h_context,
+    const CUDA_RESOURCE_DESC &res,
+    const CUDA_TEXTURE_DESC &tex,
+    const DevicePtrHandle &h_backing
+)
+{
     return make_tex_object_handle(res, tex, h_backing, h_context);
 }
 
-SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
-                                           const CUDA_RESOURCE_DESC& res,
-                                           const OpaqueArrayHandle& h_backing) {
+SurfObjectHandle
+create_surf_object_handle(
+    const ContextHandle &h_context, const CUDA_RESOURCE_DESC &res, const OpaqueArrayHandle &h_backing
+)
+{
     GILReleaseGuard gil;
     CUsurfObject obj = 0;
     err = invoke_in_context_or_undo(
         h_context,
         [&]() noexcept { return DRIVER_CALL(cuSurfObjectCreate, &obj, &res); },
         [&]() noexcept { pw_cuSurfObjectDestroy(obj); },
-        /*undo_requires_target_context=*/true);
+        /*undo_requires_target_context=*/true
+    );
     if (err != CUDA_SUCCESS) {
         return {};
     }
+    // clang-format off
     auto box = std::shared_ptr<const SurfObjectBox>(
         new SurfObjectBox{SurfObjectValue{obj}, h_backing, h_context},
-        [](const SurfObjectBox* b) {
+        [](const SurfObjectBox *b) {
             GILReleaseGuard gil;
             cleanup_in_context(b->h_context, "cuSurfObjectDestroy", handle_bits(b->resource.raw), [&]() noexcept {
                 return DRIVER_CALL(cuSurfObjectDestroy, b->resource.raw);
@@ -261,6 +315,7 @@ SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
             delete b;
         }
     );
+    // clang-format on
     return SurfObjectHandle(box, &box->resource);
 }
 

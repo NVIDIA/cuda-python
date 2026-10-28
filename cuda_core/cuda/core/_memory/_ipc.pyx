@@ -177,7 +177,7 @@ def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None
 multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
 
-cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
+cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
     """Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.
 
     The descriptor holds one exported POSIX file descriptor per physical
@@ -215,9 +215,9 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
     @staticmethod
     def _from_exports(
         handle_type: int, chunk_sizes: tuple[int, ...], handles: tuple, size: int
-    ) -> VirtualMemoryIPCBufferDescriptor:
-        cdef VirtualMemoryIPCBufferDescriptor self = VirtualMemoryIPCBufferDescriptor.__new__(
-            VirtualMemoryIPCBufferDescriptor)
+    ) -> VirtualMemoryFdBufferDescriptor:
+        cdef VirtualMemoryFdBufferDescriptor self = VirtualMemoryFdBufferDescriptor.__new__(
+            VirtualMemoryFdBufferDescriptor)
         self._payload = b""
         self._size = size
         self._handle_type = handle_type
@@ -232,7 +232,7 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
         sizes: Iterable[int],
         *,
         size: int | None = None,
-    ) -> VirtualMemoryIPCBufferDescriptor:
+    ) -> VirtualMemoryFdBufferDescriptor:
         """Build a descriptor from POSIX file descriptors received outside ``multiprocessing``.
 
         The exporter sends ``fds``, ``sizes``, and ``size`` of its descriptor
@@ -292,7 +292,7 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
                 raise
             # The handle owns the duplicate now; if append fails, the handle closes it once.
             handles.append(handle)
-        return VirtualMemoryIPCBufferDescriptor._from_exports(driver_type, sizes_t, tuple(handles), size)
+        return VirtualMemoryFdBufferDescriptor._from_exports(driver_type, sizes_t, tuple(handles), size)
 
     @property
     def handle_type(self) -> VirtualMemoryHandleType:
@@ -330,7 +330,7 @@ cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
 
     def __reduce__(self) -> tuple[object, ...]:
         # multiprocessing duplicates the IPCAllocationHandle fds into the receiver; plain pickle raises.
-        return VirtualMemoryIPCBufferDescriptor._from_exports, (
+        return VirtualMemoryFdBufferDescriptor._from_exports, (
             self._handle_type, self._chunk_sizes, self._handles, self._size)
 
 
@@ -359,7 +359,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
     cls, object mr, IPCBufferDescriptor ipc_descriptor, stream
 ):
     """Import a buffer that was exported from another process."""
-    if isinstance(ipc_descriptor, VirtualMemoryIPCBufferDescriptor):
+    if isinstance(ipc_descriptor, VirtualMemoryFdBufferDescriptor):
         # Imported here rather than cimported: _virtual_memory_resource
         # cimports this module.
         from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource
