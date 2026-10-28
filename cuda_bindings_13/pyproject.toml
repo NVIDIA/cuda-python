@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 [build-system]
+# Keep the external tools in sync with dependency-groups.build.
 requires = [
     "setuptools>=80.0.0",
     "setuptools_scm[simple]>=8,!=10.1",
@@ -42,9 +43,14 @@ all = [
 ]
 
 [dependency-groups]
-test = [
-    "cython>=3.2.5,<3.3",
+# Keep build in sync with build-system.requires; install local cuda-pathfinder separately.
+build = [
     "setuptools>=80.0.0",
+    "setuptools_scm[simple]>=8,!=10.1",
+    "cython>=3.2.5,<3.3",
+]
+test = [
+    { include-group = "build" },
     "numpy>=1.21.1",
     "pytest==9.1.0",
     "pytest-benchmark==5.2.3",
