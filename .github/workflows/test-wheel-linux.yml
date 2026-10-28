@@ -338,6 +338,10 @@ jobs:
         with:
           python-version: ${{ matrix.PY_VER }}
           allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.16') }}
+          # Resolve the newest patch from the manifest rather than a stale tool
+          # cache; every matrix series' newest patch carries the eMudhra ssl fix
+          # (CVE-2026-115557), which a single floor spec cannot express here.
+          check-latest: true
         env:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"

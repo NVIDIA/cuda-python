@@ -445,6 +445,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: ${{ startsWith(matrix.python-version, '3.16') }}
+          # Resolve the newest patch from the manifest rather than a stale tool
+          # cache; every matrix series' newest patch carries the eMudhra ssl fix
+          # (CVE-2026-115557), which a single floor spec cannot express here.
+          check-latest: true
 
       - name: Harden pip
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
