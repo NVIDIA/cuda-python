@@ -342,6 +342,14 @@ jobs:
       EXTRA_INDEX_URL: https://pypi.org/simple/
       INDEX_NAME: TestPyPI
     steps: &verify-pathfinder-steps
+      - name: Set up Python
+        # Floor the interpreter so the venv below inherits an ssl module that
+        # rejects the compromised eMudhra keys (CVE-2026-115557). setup-python
+        # puts its shim first on PATH, so `python3 -m venv` uses it.
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "~3.12.16"  # floor: first 3.12 with eMudhra ssl fix
+
       - name: Create verification environment
         run: |
           [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }

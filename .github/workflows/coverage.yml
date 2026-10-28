@@ -11,6 +11,10 @@ on:
 
 env:
   PY_VER: "3.14"
+  # Floor spec for setup-python: first 3.14 whose ssl module rejects the
+  # compromised eMudhra keys (CVE-2026-115557). PY_VER stays minor-only for
+  # env-vars/naming; PY_VER_FLOOR is used only as the setup-python spec.
+  PY_VER_FLOOR: "~3.14.10"
   LOCAL_CTK: "1"
   GPU: "a100"
   DRIVER: "latest"
@@ -104,7 +108,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: ${{ env.PY_VER }}
+          python-version: ${{ env.PY_VER_FLOOR }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly...
           AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
@@ -252,7 +256,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: ${{ env.PY_VER }}
+          python-version: ${{ env.PY_VER_FLOOR }}
 
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
@@ -391,7 +395,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: ${{ env.PY_VER }}
+          python-version: ${{ env.PY_VER_FLOOR }}
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -501,7 +505,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: ${{ env.PY_VER }}
+          python-version: ${{ env.PY_VER_FLOOR }}
 
       - name: Harden pip
         uses: ./.github/actions/harden-pip
