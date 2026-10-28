@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f2c10d39"></script>
+    <script src="../_static/documentation_options.js?v=56b98920"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev274';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev275';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -812,9 +812,12 @@ after it.</p>
 the callback.</p></li>
 <li><p><strong>fn</strong> (<em>callable</em><em> or </em><em>ctypes function pointer</em>) – A Python callable taking no arguments, which runs with the GIL, or a
 ctypes function pointer declared as <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>, for example
-<code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE(None,</span> <span class="pre">ctypes.c_void_p)</span></code>, which the driver calls
-directly without the GIL. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> keeps <code class="docutils literal notranslate"><span class="pre">fn</span></code> alive until the
-function has run and releases it afterwards on the main thread.</p></li>
+<code class="docutils literal notranslate"><span class="pre">ctypes.CFUNCTYPE(None,</span> <span class="pre">ctypes.c_void_p)</span></code>, which <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
+passes to the driver as is. A pointer to compiled code runs without
+the GIL; a ctypes callback that wraps a Python function acquires the
+GIL through ctypes and is subject to the same deadlock rule as a
+Python callable. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> keeps <code class="docutils literal notranslate"><span class="pre">fn</span></code> alive until the function
+has run and releases it afterwards on the main thread.</p></li>
 <li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> or </em><em>bytes-like</em><em>, </em><em>optional</em>) – Only for ctypes function pointers. An <code class="docutils literal notranslate"><span class="pre">int</span></code> is a raw pointer that
 the caller must keep valid until the function has run. Bytes-like data
 is copied; <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> owns the copy until the function has run and
@@ -823,9 +826,11 @@ releases it afterwards on the main thread.</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">fn</span></code> is not callable, or its ctypes prototype is not <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">stream</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> or not a stream, or if <code class="docutils literal notranslate"><span class="pre">fn</span></code> is not
+    callable or its ctypes prototype is not <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is given for a Python callable.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If a <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> is capturing a graph.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">stream</span></code> is a <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> that is capturing a graph, or a
+    <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> that is closed or not building.</p></li>
 </ul>
 </dd>
 </dl>
@@ -835,8 +840,9 @@ It is reported through <a class="reference external" href="https://docs.python.o
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The function must not call CUDA, directly or through a library. The
-driver rejects such calls with an error.</p>
-<p>A Python callable acquires the GIL on the driver’s thread. A thread
+driver does not permit such calls and may reject them with an error.</p>
+<p>A Python callable, or a ctypes callback that wraps a Python function,
+acquires the GIL on the driver’s thread. A thread
 that holds the GIL while blocking inside a CUDA call waiting for this
 stream therefore deadlocks with the callback. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> release the GIL around CUDA calls. A library that

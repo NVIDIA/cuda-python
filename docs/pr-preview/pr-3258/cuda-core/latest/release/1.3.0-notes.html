@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f2c10d39"></script>
+    <script src="../_static/documentation_options.js?v=56b98920"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev274';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev275';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -824,9 +824,10 @@ no longer surface as <code class="docutils literal notranslate"><span class="pre
 <ul class="simple">
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.host_launch.html#cuda.core.host_launch" title="cuda.core.host_launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">host_launch()</span></code></a>, which enqueues a host function on a stream in stream
 order: a Python callable, or a ctypes function pointer with the <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>
-prototype that the driver calls without the GIL. It is the stream-side
-counterpart of <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.callback()</span></code></a> and accepts the same
-<code class="docutils literal notranslate"><span class="pre">fn</span></code> and <code class="docutils literal notranslate"><span class="pre">user_data</span></code> forms.
+prototype, which <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> passes to the driver as is, so a pointer to
+compiled code runs without the GIL. It is the stream-side counterpart of
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.callback()</span></code></a> and accepts the same <code class="docutils literal notranslate"><span class="pre">fn</span></code> and
+<code class="docutils literal notranslate"><span class="pre">user_data</span></code> forms.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2058">#2058</a>)</p></li>
 <li><p>Added incremental linking to <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> through
 <code class="docutils literal notranslate"><span class="pre">LinkerOptions(incremental=True)</span></code> on nvJitLink 13.2 or newer. A partial
