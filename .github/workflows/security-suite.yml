@@ -52,10 +52,9 @@ jobs:
       secret-failure-policy: unverified
       # Same analysis the retired codeql.yml performed: python, build-mode none, security-extended.
       sast-languages: '["python"]'
-      # Must be a repository Actions variable, not a secret — a reusable workflow's inputs cannot
-      # read the secrets context. Empty degrades to an unregistered rapid scan: findings are still
-      # reported, but nothing is recorded against the nSpect program.
-      nspect-id: ${{ vars.NSPECT_ID }}
+      # NSPECT_ID must be an Actions *variable*: a reusable workflow's inputs cannot read secrets.
+      # Literal fallback until it is provisioned, scoped so no other caller inherits this registration.
+      nspect-id: ${{ vars.NSPECT_ID || (github.repository == 'NVIDIA/cuda-python' && 'NSPECT-ZY2K-Y1V8' || '') }}
       vuln-runs-on: linux-amd64-cpu4
       # report-only (default) — findings warn; fail-on-vulnerability — any finding fails. Errors always fail.
       vuln-failure-policy: report-only
