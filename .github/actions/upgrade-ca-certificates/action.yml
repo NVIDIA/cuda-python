@@ -6,9 +6,13 @@
 # on GitHub-hosted runners until GitHub ships fixed images.
 #
 # On Linux: upgrades ca-certificates via apt so the compromised emSign ECC Root
-# CA - G3 anchor is removed from /etc/ssl/certs/ca-certificates.crt.
-# On Windows: adds the compromised root to Cert:\LocalMachine\Disallowed so
-# schannel-based clients (git, gh, PowerShell/.NET) reject chains through it.
+# CA - G3 anchor is removed from /etc/ssl/certs/ca-certificates.crt. Ubuntu's
+# bundle does not include AAA Certificate Services, so the Sectigo cross-signs
+# do not chain to a trusted root there.
+# On Windows: adds the eight compromised intermediates and their eight Sectigo
+# cross-signs (impacted-intermediates.json) to Cert:\LocalMachine\Disallowed so
+# schannel-based clients (git, gh, PowerShell/.NET) reject chains through them,
+# including chains to AAA Certificate Services, which Windows still trusts.
 #
 # This action is a no-op on self-hosted runners (runner.environment != 'github-hosted')
 # because self-hosted runner operators own and update their own host images.
@@ -19,59 +23,48 @@
 name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
 description: >
   Temporary per-job stopgap for CVE-2026-111943. Upgrades ca-certificates on
-  GitHub-hosted Linux runners and adds the compromised emSign ECC Root CA - G3
-  to the Disallowed store on GitHub-hosted Windows runners. No-op on self-hosted.
+  GitHub-hosted Linux runners and adds the compromised eMudhra intermediates
+  and cross-signs to the Disallowed store on GitHub-hosted Windows runners.
+  No-op on self-hosted.
 
 runs:
   using: composite
   steps:
 
     # -------------------------------------------------------------------------
-    # Windows path: add the compromised root to LocalMachine\Disallowed.
+    # Windows path: add the compromised intermediates to LocalMachine\Disallowed.
     # Takes effect immediately for all schannel-based clients in subsequent steps
     # (git, gh, PowerShell/.NET, WinHTTP). Must precede actions/checkout.
     # -------------------------------------------------------------------------
-    - name: Distrust emSign ECC Root CA - G3 (Windows, GitHub-hosted)
+    - name: Distrust compromised eMudhra intermediates (Windows, GitHub-hosted)
       if: ${{ runner.os == 'Windows' && runner.environment == 'github-hosted' }}
       shell: pwsh
+      env:
+        ACTION_PATH: ${{ github.action_path }}
       run: |
         $ErrorActionPreference = 'Stop'
-        $targetFP = '86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B'
+        . (Join-Path $env:ACTION_PATH 'emudhra_intermediates.ps1')
 
-        # Use -ErrorAction Stop for Root (an unreadable store is a failure, not
-        # a "clean" state). Use SilentlyContinue for Disallowed, which may be
-        # empty on a fresh runner. GetCertHashString('SHA256') is available in
-        # PS7 (shell: pwsh) and avoids the manual SHA256::Create() block.
-        function Find-CertBySHA256FP([string]$StoreName, [switch]$Required) {
-          $ea = if ($Required) { 'Stop' } else { 'SilentlyContinue' }
-          Get-ChildItem "Cert:\LocalMachine\$StoreName" -ErrorAction $ea |
-            Where-Object { $_.GetCertHashString('SHA256').ToUpper() -eq $targetFP } |
-            Select-Object -First 1
+        $certs = @(Get-EmudhraIntermediates)
+        try {
+          # Adding is idempotent, so no early exit when the image is already fixed.
+          $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('Disallowed', 'LocalMachine')
+          $store.Open('ReadWrite')
+          try {
+            foreach ($cert in $certs) { $store.Add($cert) }
+          } finally {
+            $store.Close()
+          }
+
+          $notDistrusted = @($certs | Where-Object { -not (Test-ExplicitlyDistrusted $_) } | ForEach-Object { $_.EmudhraLabel })
+          if ($notDistrusted.Count -gt 0) {
+            Write-Error "Not explicitly distrusted after adding to LocalMachine\Disallowed: $($notDistrusted -join '; ')"
+            exit 1
+          }
+          Write-Host "Distrusted $($certs.Count) compromised eMudhra intermediates and cross-signs."
+        } finally {
+          $certs | ForEach-Object { $_.Dispose() }
         }
-
-        $inRoot       = Find-CertBySHA256FP 'Root'      -Required
-        $inDisallowed = Find-CertBySHA256FP 'Disallowed'
-
-        if (-not $inRoot) {
-          Write-Host "::notice::emSign ECC Root CA - G3 absent from LocalMachine\Root; image already fixed."
-          exit 0
-        }
-        if ($inDisallowed) {
-          Write-Host "::notice::emSign ECC Root CA - G3 already in LocalMachine\Disallowed; image already distrusted."
-          exit 0
-        }
-
-        Write-Host "::notice::emSign ECC Root CA - G3 in LocalMachine\Root and not in Disallowed; adding to Disallowed store."
-        $store = New-Object System.Security.Cryptography.X509Certificates.X509Store('Disallowed', 'LocalMachine')
-        $store.Open('ReadWrite')
-        $store.Add($inRoot)
-        $store.Close()
-
-        if (-not (Find-CertBySHA256FP 'Disallowed')) {
-          Write-Error "emSign ECC Root CA - G3 was not found in LocalMachine\Disallowed after adding; aborting."
-          exit 1
-        }
-        Write-Host "emSign ECC Root CA - G3 successfully added to LocalMachine\Disallowed."
 
     # -------------------------------------------------------------------------
     # Linux path: upgrade ca-certificates via apt.
