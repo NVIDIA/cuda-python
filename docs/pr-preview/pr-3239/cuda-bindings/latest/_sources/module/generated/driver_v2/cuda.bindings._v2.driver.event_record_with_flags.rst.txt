@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.event\_record\_with\_flags
-====================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: event_record_with_flags

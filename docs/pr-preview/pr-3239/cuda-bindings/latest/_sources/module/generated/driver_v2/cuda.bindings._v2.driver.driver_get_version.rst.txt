@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.driver\_get\_version
-==============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: driver_get_version

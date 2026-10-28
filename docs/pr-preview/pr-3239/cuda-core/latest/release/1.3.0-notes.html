@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=32765964"></script>
+    <script src="../_static/documentation_options.js?v=56b98920"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev265';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev275';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -868,7 +868,7 @@ imports as one contiguous range. A descriptor holds one file descriptor per
 physical allocation and pins the memory while it exists; nothing else does.
 A buffer that contains imported memory cannot be exported again. For a
 transport of your own, the descriptor exposes <code class="docutils literal notranslate"><span class="pre">fds</span></code>, <code class="docutils literal notranslate"><span class="pre">sizes</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">size</span></code>, and <code class="docutils literal notranslate"><span class="pre">VirtualMemoryIPCBufferDescriptor.from_fds()</span></code> rebuilds it
+<code class="docutils literal notranslate"><span class="pre">size</span></code>, and <code class="docutils literal notranslate"><span class="pre">VirtualMemoryFdBufferDescriptor.from_fds()</span></code> rebuilds it
 in the receiver. Fabric handles are not shared yet.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2980">#2980</a>)</p></li>
 </ul>
@@ -1071,6 +1071,16 @@ pool-backed and virtual-memory operands and rejects the change for them,
 while operands from plain <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> allocations accept it. The node’s
 <code class="docutils literal notranslate"><span class="pre">repr</span></code> now shows <code class="docutils literal notranslate"><span class="pre">U</span></code> for unified operands.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2649">#2649</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> can now allocate with
+<code class="docutils literal notranslate"><span class="pre">location_type=&quot;host_numa&quot;</span></code>. Every such allocation failed with
+<code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>, because the driver received <code class="docutils literal notranslate"><span class="pre">-1</span></code> as the NUMA
+node. <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a> has a new <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> field that
+names the node. It is required for <code class="docutils literal notranslate"><span class="pre">&quot;host_numa&quot;</span></code> and rejected for every
+other location type; <code class="docutils literal notranslate"><span class="pre">Device.properties.host_numa_id</span></code> gives the node
+closest to a device. <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host_numa_current&quot;</span></code> now raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> at construction, because the driver does not accept it for
+physical allocations.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2694">#2694</a>)</p></li>
 </ul>
 </section>
 <section id="deprecations">

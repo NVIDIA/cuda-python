@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.mem\_get\_default\_mem\_pool
-======================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: mem_get_default_mem_pool
