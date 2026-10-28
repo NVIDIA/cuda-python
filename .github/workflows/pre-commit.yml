@@ -66,6 +66,10 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          # Resolve from the manifest, not a stale tool cache: with a minor-only
+          # spec setup-python otherwise reuses a cached patch that may predate
+          # the eMudhra ssl fix (e.g. 3.14.9), which harden-pip then rejects.
+          check-latest: true
 
       - name: Set pre-commit cache location
         run: echo "PRE_COMMIT_HOME=${RUNNER_TEMP}/pre-commit" >> "${GITHUB_ENV}"
