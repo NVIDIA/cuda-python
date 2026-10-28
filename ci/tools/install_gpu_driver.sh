@@ -90,25 +90,18 @@ in_container() {
 }
 
 host_install() {
-  local kernel_release kernel_version gcc_major=""
-  local -a compiler_packages=()
+  local kernel_release kernel_gcc default_gcc
   kernel_release=$(uname -r)
-  # Compare the Ubuntu ABI version without the flavor (e.g. -generic).
-  kernel_version=$(echo "$kernel_release" | sed -E 's/-[^0-9].*$//')
-  if dpkg --compare-versions "$kernel_version" gt 6.8.0-142; then
-    # Newer runner kernels may require flags missing from build-essential's GCC.
-    gcc_major=$(sed -nE 's/.*gcc(-[0-9]+)? (\([^)]*\) )?([0-9]+)\..*/\3/p' /proc/version)
-    if [ -z "$gcc_major" ]; then
-      echo "::error::cannot detect the kernel GCC version from /proc/version" >&2
-      return 1
-    fi
-    compiler_packages=("gcc-${gcc_major}" "g++-${gcc_major}")
-  fi
-  apt-get -y install build-essential "${compiler_packages[@]}" dkms "linux-headers-${kernel_release}" psmisc kmod
+  apt-get -y install build-essential dkms "linux-headers-${kernel_release}" psmisc kmod
 
-  if [ -n "$gcc_major" ]; then
+  # Match the kernel's GCC major only when the default compiler differs.
+  kernel_gcc=$(sed -nE 's/.*gcc(-[0-9]+)? (\([^)]*\) )?([0-9]+)\..*/\3/p' /proc/version)
+  default_gcc=$(gcc -dumpversion | cut -d. -f1)
+  echo "Kernel ${kernel_release}: GCC major=${kernel_gcc:-unknown}, default GCC major=${default_gcc}" >&2
+  if [ -n "$kernel_gcc" ] && [ "$kernel_gcc" != "$default_gcc" ]; then
+    apt-get -y install "gcc-${kernel_gcc}" "g++-${kernel_gcc}"
     # Installing a versioned compiler does not change the default; select it for DKMS.
-    export CC="gcc-${gcc_major}" CXX="g++-${gcc_major}"
+    export CC="gcc-${kernel_gcc}" CXX="g++-${kernel_gcc}"
     echo "Kernel ${kernel_release}: using CC=${CC} CXX=${CXX}" >&2
   fi
 
