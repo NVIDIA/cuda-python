@@ -2816,7 +2816,6 @@ def test_mempool_attributes_set(memory_resource_factory):
         for name in ("reserved_mem_high", "used_mem_high"):
             with pytest.raises(AttributeError, match=f"'{name}' may only be set to zero"):
                 setattr(attributes, name, 1)
-            setattr(attributes, name, 0)
         for name in ("reserved_mem_current", "used_mem_current"):
             with pytest.raises(AttributeError):
                 setattr(attributes, name, 0)
@@ -2854,18 +2853,24 @@ def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, 
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
-def test_mempool_used_mem_high_reset(memory_resource_factory):
+@pytest.mark.parametrize("kind", ["reserved", "used"])
+def test_mempool_watermark_reset(memory_resource_factory, kind):
     device = Device()
     device.set_current()
     mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    high, current = f"{kind}_mem_high", f"{kind}_mem_current"
     try:
         buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
         buffer.close()
         device.sync()
-        assert mr.attributes.used_mem_high >= POOL_SIZE // 2
+        # Return the freed memory so that the reserved watermark is above the
+        # current value too.
+        mr.trim()
+        assert getattr(mr.attributes, high) >= POOL_SIZE // 2
+        assert getattr(mr.attributes, current) < POOL_SIZE // 2
 
-        mr.attributes.used_mem_high = 0
-        assert mr.attributes.used_mem_high == mr.attributes.used_mem_current
+        setattr(mr.attributes, high, 0)
+        assert getattr(mr.attributes, high) == getattr(mr.attributes, current)
     finally:
         mr.close()
 
@@ -2898,8 +2903,12 @@ def test_mempool_trim(memory_resource_factory):
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 @pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
-@pytest.mark.parametrize("caller", ["same_thread", "other_thread"])
-@pytest.mark.parametrize("mode", ["global", "thread_local"])
+@pytest.mark.parametrize(
+    ("mode", "caller"),
+    # A thread-local capture does not restrict other threads, so pairing it
+    # with other_thread would pass without relaxed mode.
+    [("global", "same_thread"), ("global", "other_thread"), ("thread_local", "same_thread")],
+)
 def test_mempool_calls_during_capture_keep_capture_valid(memory_resource_factory, mode, caller):
     """Pool attribute reads, writes and trim() run in relaxed capture mode.
 
