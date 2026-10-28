@@ -38,16 +38,18 @@ runs:
         $ErrorActionPreference = 'Stop'
         $targetFP = '86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B'
 
-        function Find-CertBySHA256FP([string]$StoreName) {
-          Get-ChildItem "Cert:\LocalMachine\$StoreName" -ErrorAction SilentlyContinue |
-            Where-Object {
-              $sha = [System.Security.Cryptography.SHA256]::Create()
-              try { [System.BitConverter]::ToString($sha.ComputeHash($_.RawData)).Replace('-', '').ToUpper() -eq $targetFP }
-              finally { $sha.Dispose() }
-            } | Select-Object -First 1
+        # Use -ErrorAction Stop for Root (an unreadable store is a failure, not
+        # a "clean" state). Use SilentlyContinue for Disallowed, which may be
+        # empty on a fresh runner. GetCertHashString('SHA256') is available in
+        # PS7 (shell: pwsh) and avoids the manual SHA256::Create() block.
+        function Find-CertBySHA256FP([string]$StoreName, [switch]$Required) {
+          $ea = if ($Required) { 'Stop' } else { 'SilentlyContinue' }
+          Get-ChildItem "Cert:\LocalMachine\$StoreName" -ErrorAction $ea |
+            Where-Object { $_.GetCertHashString('SHA256').ToUpper() -eq $targetFP } |
+            Select-Object -First 1
         }
 
-        $inRoot      = Find-CertBySHA256FP 'Root'
+        $inRoot       = Find-CertBySHA256FP 'Root'      -Required
         $inDisallowed = Find-CertBySHA256FP 'Disallowed'
 
         if (-not $inRoot) {
@@ -86,13 +88,31 @@ runs:
         CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
         VERSION_ID="$(. /etc/os-release && echo "${VERSION_ID}")"
 
+        # Fail closed if openssl is missing or the bundle cannot be parsed
+        # (mirrors ci/tools/runner_trust_probe.sh).
+        if ! command -v openssl >/dev/null 2>&1; then
+          echo "::error::openssl not found; cannot verify CA bundle"
+          exit 1
+        fi
+        if [[ ! -f "${CA_BUNDLE}" ]]; then
+          echo "::error::CA bundle not found: ${CA_BUNDLE}"
+          exit 1
+        fi
+
         fingerprints_in_bundle() {
           awk '/-----BEGIN CERTIFICATE-----/{cert=""} {cert=cert $0 "\n"}
                /-----END CERTIFICATE-----/{print cert | "openssl x509 -noout -fingerprint -sha256 2>/dev/null"; close("openssl x509 -noout -fingerprint -sha256 2>/dev/null")}' \
             "${CA_BUNDLE}"
         }
 
-        if grep -qiF "${EMSIGN_G3_FP}" <<< "$(fingerprints_in_bundle)"; then
+        fps="$(fingerprints_in_bundle)"
+        cert_count="$(grep -c . <<< "${fps}" || true)"
+        if (( cert_count == 0 )); then
+          echo "::error::No certificates parsed from ${CA_BUNDLE}; openssl may have failed"
+          exit 1
+        fi
+
+        if grep -qiF "${EMSIGN_G3_FP}" <<< "${fps}"; then
           before_state="not fixed"
         else
           before_state="already fixed"
@@ -118,7 +138,13 @@ runs:
         done
 
         after_ver="$(dpkg-query -W -f='${Version}' ca-certificates 2>/dev/null || echo unknown)"
-        if grep -qiF "${EMSIGN_G3_FP}" <<< "$(fingerprints_in_bundle)"; then
+        after_fps="$(fingerprints_in_bundle)"
+        after_count="$(grep -c . <<< "${after_fps}" || true)"
+        if (( after_count == 0 )); then
+          echo "::error::No certificates parsed after upgrade; cannot verify fix"
+          exit 1
+        fi
+        if grep -qiF "${EMSIGN_G3_FP}" <<< "${after_fps}"; then
           echo "::error::emSign ECC Root CA - G3 still present after upgrade (ca-certificates ${after_ver} on ${VERSION_ID})"
           exit 1
         fi

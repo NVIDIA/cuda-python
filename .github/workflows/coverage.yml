@@ -236,6 +236,9 @@ jobs:
       CUDA_PYTHON_COVERAGE: "1"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
+      - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
+        uses: $/.github/actions/upgrade-ca-certificates
+
       - name: Enable Git symlinks (Windows, must precede checkout)
         run: git config --global core.symlinks true
 

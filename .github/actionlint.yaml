@@ -41,3 +41,6 @@ paths:
   ".github/workflows/test-sdist-windows.yml":
     ignore:
       - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/coverage.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
