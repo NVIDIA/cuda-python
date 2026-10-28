@@ -127,7 +127,7 @@ class _MemPool(MemoryResource):
         """
     @property
     def attributes(self) -> _MemPoolAttributes:
-        """Memory pool attributes."""
+        """:obj:`~_memory._memory_pool._MemPoolAttributes` object with the attributes of the memory pool."""
     @property
     def handle(self) -> object:
         """Handle to the underlying memory pool."""

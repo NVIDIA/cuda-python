@@ -316,7 +316,7 @@ cdef class _MemPool(MemoryResource):
     @property
     @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
-        """Memory pool attributes."""
+        """:obj:`~_memory._memory_pool._MemPoolAttributes` object with the attributes of the memory pool."""
         MP_check_open(self)
         cdef _MemPoolAttributes attributes
         if self._attributes is None:
