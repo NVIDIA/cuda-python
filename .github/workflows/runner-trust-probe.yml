@@ -11,8 +11,8 @@ name: "CI: Runner trust probe"
 
 on:
   schedule:
-    # Weekly on Mondays at 06:23 UTC
-    - cron: "23 6 * * 1"
+    # Daily at 06:00 PST (14:00 UTC)
+    - cron: "0 14 * * *"
   workflow_dispatch:
     inputs:
       label-filter:
