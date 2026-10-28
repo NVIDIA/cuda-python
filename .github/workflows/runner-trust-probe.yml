@@ -66,7 +66,7 @@ jobs:
           # GPU labels hard-coded in a workflow; GitHub-hosted names and
           # host-platform strings (e.g. 'linux-64') deliberately do not match.
           scanned="$(grep -rhoE \
-            '(linux|windows|wsl)-[a-z0-9-]*(cpu[0-9]+|gpu-[a-z0-9]|internal|1xgb10)[a-z0-9-]*|(linux|windows|wsl)-riscv64[a-z0-9-]*' \
+            '(linux|windows|wsl)-[a-z0-9-]*(cpu[0-9]+|gpu-[a-z0-9]|internal|1xgb10)[a-z0-9-]*|(linux|windows|wsl)-riscv64-[a-z0-9][a-z0-9-]*[a-z0-9]' \
             .github/workflows/ | sort -u | jq -Rsc 'split("\n") | map(select(length > 0))' || true)"
           scanned="${scanned:-[]}"
 
