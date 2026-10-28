@@ -90,7 +90,23 @@ in_container() {
 }
 
 host_install() {
-  apt-get -y install build-essential dkms "linux-headers-$(uname -r)" psmisc kmod
+  local kernel_release kernel_gcc default_gcc
+  kernel_release=$(uname -r)
+  apt-get -y install build-essential
+
+  # Match the kernel's GCC major only when the default compiler differs.
+  kernel_gcc=$(sed -nE 's/.*gcc(-[0-9]+)? (\([^)]*\) )?([0-9]+)\..*/\3/p' /proc/version)
+  default_gcc=$(gcc -dumpversion | cut -d. -f1)
+  echo "Kernel ${kernel_release}: GCC major=${kernel_gcc:-unknown}, default GCC major=${default_gcc}" >&2
+  if [ -n "$kernel_gcc" ] && [ "$kernel_gcc" != "$default_gcc" ]; then
+    apt-get -y install "gcc-${kernel_gcc}" "g++-${kernel_gcc}"
+    # Installing a versioned compiler does not change the default; select it for DKMS.
+    export CC="gcc-${kernel_gcc}" CXX="g++-${kernel_gcc}"
+    echo "Kernel ${kernel_release}: using CC=${CC} CXX=${CXX}" >&2
+  fi
+
+  # Header installation can trigger DKMS builds, so select the compiler first.
+  apt-get -y install dkms "linux-headers-${kernel_release}" psmisc kmod
 
   # Download and verify the installer before tearing down the existing
   # host driver so a download failure or SHA-256 mismatch leaves the
