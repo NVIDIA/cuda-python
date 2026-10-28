@@ -47,9 +47,12 @@ def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=N
     fn : callable or ctypes function pointer
         A Python callable taking no arguments, which runs with the GIL, or a
         ctypes function pointer declared as ``CUhostFn``, for example
-        ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``, which the driver calls
-        directly without the GIL. ``cuda.core`` keeps ``fn`` alive until the
-        function has run and releases it afterwards on the main thread.
+        ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``, which ``cuda.core``
+        passes to the driver as is. A pointer to compiled code runs without
+        the GIL; a ctypes callback that wraps a Python function acquires the
+        GIL through ctypes and is subject to the same deadlock rule as a
+        Python callable. ``cuda.core`` keeps ``fn`` alive until the function
+        has run and releases it afterwards on the main thread.
     user_data : int or bytes-like, optional
         Only for ctypes function pointers. An ``int`` is a raw pointer that
         the caller must keep valid until the function has run. Bytes-like data
@@ -59,11 +62,13 @@ def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=N
     Raises
     ------
     TypeError
-        If ``fn`` is not callable, or its ctypes prototype is not ``CUhostFn``.
+        If ``stream`` is ``None`` or not a stream, or if ``fn`` is not
+        callable or its ctypes prototype is not ``CUhostFn``.
     ValueError
         If ``user_data`` is given for a Python callable.
     RuntimeError
-        If a :class:`Stream` is capturing a graph.
+        If ``stream`` is a :class:`Stream` that is capturing a graph, or a
+        :class:`~graph.GraphBuilder` that is closed or not building.
 
     Notes
     -----
@@ -73,9 +78,10 @@ def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=N
     .. warning::
 
         The function must not call CUDA, directly or through a library. The
-        driver rejects such calls with an error.
+        driver does not permit such calls and may reject them with an error.
 
-        A Python callable acquires the GIL on the driver's thread. A thread
+        A Python callable, or a ctypes callback that wraps a Python function,
+        acquires the GIL on the driver's thread. A thread
         that holds the GIL while blocking inside a CUDA call waiting for this
         stream therefore deadlocks with the callback. ``cuda.core`` and
         ``cuda.bindings`` release the GIL around CUDA calls. A library that

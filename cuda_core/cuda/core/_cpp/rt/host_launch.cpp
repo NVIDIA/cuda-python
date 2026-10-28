@@ -31,7 +31,7 @@ host_launch_trampoline(void *p) noexcept
     auto *rec = static_cast<HostLaunchRecord *>(p);
     rec->fn(rec->user_data);
     // Owners may run Python finalizers or CUDA calls, so release them on the main thread.
-    detail::enqueue_cleanup(rec);
+    detail::enqueue_cleanup(static_cast<detail::DeferredCleanupItem *>(rec));
 }
 
 }  // namespace

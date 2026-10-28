@@ -47,9 +47,10 @@ New features
 
 - Added :func:`host_launch`, which enqueues a host function on a stream in stream
   order: a Python callable, or a ctypes function pointer with the ``CUhostFn``
-  prototype that the driver calls without the GIL. It is the stream-side
-  counterpart of :meth:`graph.GraphBuilder.callback` and accepts the same
-  ``fn`` and ``user_data`` forms.
+  prototype, which ``cuda.core`` passes to the driver as is, so a pointer to
+  compiled code runs without the GIL. It is the stream-side counterpart of
+  :meth:`graph.GraphBuilder.callback` and accepts the same ``fn`` and
+  ``user_data`` forms.
   (`#2058 <https://github.com/NVIDIA/cuda-python/issues/2058>`__)
 
 - Added incremental linking to :class:`Linker` through
