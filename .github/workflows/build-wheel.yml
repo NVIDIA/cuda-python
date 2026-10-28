@@ -109,7 +109,10 @@ jobs:
         with:
           # WAR: setup-python is not relocatable, and cibuildwheel hard-wires to 3.12...
           # see https://github.com/actions/setup-python/issues/871
-          python-version: "~3.12.16"  # floor: first 3.12 with eMudhra ssl fix (CVE-2026-115557)
+          python-version: "3.12"
+          # Resolve newest patch from manifest (not stale tool cache); tilde-range
+          # (~3.12.16) is not used because the Windows manifest may lag behind Linux.
+          check-latest: true
           architecture: ${{ ((inputs.host-platform == 'linux-aarch64' || inputs.host-platform == 'win-arm64') && 'arm64') || 'x64' }}
 
       - name: Harden pip
