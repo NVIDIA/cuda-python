@@ -83,9 +83,10 @@ struct GraphBox : GraphBoxBase {
     GraphAttachmentMap attachments;       // Non-owning attachment index.
     HandleRegistry<CUgraphNode, GraphNodeHandle> node_handles;
 
+    // Not noexcept: the std::map and HandleRegistry members allocate.
     GraphBox(
         CUgraph resource_, GraphHierarchy *hierarchy_, GraphBox *parent_ = nullptr, CUgraphNode owner_node_ = nullptr
-    ) noexcept
+    )
         : GraphBoxBase{resource_}, hierarchy(hierarchy_), parent(parent_), owner_node(owner_node_)
     {
     }

@@ -586,7 +586,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                             [&]() noexcept {
                                 return p_cuMemFreeAsync(b->resource, as_cu(stream.h_stream));  // raw: under ipc_import_mutex
                             },
-                            [&]() noexcept { lock.unlock(); });
+                            [&]() noexcept { lock.release()->unlock(); });
                         delete b;
                     }
                 );
@@ -649,7 +649,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
 // ============================================================================
 
 FileDescriptorHandle
-create_fd_handle(int fd)
+create_fd_handle([[maybe_unused]] int fd)
 {
 #ifdef _WIN32
     throw std::runtime_error("create_fd_handle is not supported on Windows");
@@ -669,7 +669,7 @@ create_fd_handle(int fd)
 }
 
 FileDescriptorHandle
-create_fd_handle_ref(int fd)
+create_fd_handle_ref([[maybe_unused]] int fd)
 {
 #ifdef _WIN32
     throw std::runtime_error("create_fd_handle_ref is not supported on Windows");

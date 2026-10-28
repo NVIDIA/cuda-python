@@ -19,12 +19,15 @@
 #   modernize-avoid-c-arrays: arrays are passed to and filled by C APIs.
 #   modernize-return-braced-init-list: `return {};` vs. an explicit type is
 #       left to the author; it adds noise for the driver-API result structs.
+#   bugprone-throwing-static-initialization: the handle registries are
+#       process-lifetime globals whose constructors allocate on some standard
+#       libraries (MSVC); running out of memory while loading the module is
+#       fatal either way.
 #
 # Disabled because they do not match the codebase style:
 #   performance-enum-size: enum underlying types are left as they are.
 #   misc-const-correctness: const on every local is not the convention here.
-#   readability-function-cognitive-complexity: a metric threshold, not a defect;
-#       it flags only ensure_fn_table, which is flat error handling.
+#   readability-function-cognitive-complexity: too disruptive.
 #   readability-identifier-length: short names such as the handle parameter `h`
 #       are used throughout.
 #   readability-implicit-bool-conversion: `if (ptr)` and `if (handle)` are the
@@ -38,6 +41,7 @@ Checks: >
   bugprone-*,
   -bugprone-easily-swappable-parameters,
   -bugprone-assignment-in-if-condition,
+  -bugprone-throwing-static-initialization,
   clang-analyzer-*,
   misc-*,
   -misc-include-cleaner,
