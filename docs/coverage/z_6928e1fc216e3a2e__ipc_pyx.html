@@ -280,7 +280,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__managed_memory_ops_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-27 01:22 +0000
+            created at 2026-10-28 01:06 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -474,7 +474,7 @@
     <p class="mis show_mis"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">    The descriptor holds one exported POSIX file descriptor per physical</span>&nbsp;</span><span class="r"></span></p>
@@ -512,9 +512,9 @@
     <p class="mis show_mis"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">    def _from_exports(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">        handle_type: int, chunk_sizes: tuple[int, ...], handles: tuple, size: int</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">    ) -&gt; VirtualMemoryIPCBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        cdef VirtualMemoryIPCBufferDescriptor self = VirtualMemoryIPCBufferDescriptor.__new__(</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">44 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? 1 ~ dbnb@ [ ab] ^ w c fbd bbebgbq cb_ ` { | </span></p>
-    <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">            VirtualMemoryIPCBufferDescriptor)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">    ) -&gt; VirtualMemoryFdBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        cdef VirtualMemoryFdBufferDescriptor self = VirtualMemoryFdBufferDescriptor.__new__(</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">44 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? 1 ~ dbnb@ [ ab] ^ w c fbd bbebgbq cb_ ` { | </span></p>
+    <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">            VirtualMemoryFdBufferDescriptor)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        self._payload = b&quot;&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs221"><span class="r"><label for="ctxs221" class="ctx">44 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? 1 ~ dbnb@ [ ab] ^ w c fbd bbebgbq cb_ ` { | </span></p>
     <p class="run"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">        self._size = size</span>&nbsp;</span><input type="checkbox" id="ctxs222"><span class="r"><label for="ctxs222" class="ctx">44 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? 1 ~ dbnb@ [ ab] ^ w c fbd bbebgbq cb_ ` { | </span></p>
     <p class="run"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">        self._handle_type = handle_type</span>&nbsp;</span><input type="checkbox" id="ctxs223"><span class="r"><label for="ctxs223" class="ctx">44 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? 1 ~ dbnb@ [ ab] ^ w c fbd bbebgbq cb_ ` { | </span></p>
@@ -529,7 +529,7 @@
     <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">        sizes: Iterable[int],</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">        *,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">        size: int | None = None,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    ) -&gt; VirtualMemoryIPCBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    ) -&gt; VirtualMemoryFdBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Build a descriptor from POSIX file descriptors received outside ``multiprocessing``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">        The exporter sends ``fds``, ``sizes``, and ``size`` of its descriptor</span>&nbsp;</span><span class="r"></span></p>
@@ -589,7 +589,7 @@
     <p class="mis show_mis"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">                raise</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">            # The handle owns the duplicate now; if append fails, the handle closes it once.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">            handles.append(handle)</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">1 ctx</label></span><span class="ctxs">1d</span></p>
-    <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">        return VirtualMemoryIPCBufferDescriptor._from_exports(driver_type, sizes_t, tuple(handles), size)</span>&nbsp;</span><input type="checkbox" id="ctxs295"><span class="r"><label for="ctxs295" class="ctx">2 ctx</label></span><span class="ctxs">1cd</span></p>
+    <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">        return VirtualMemoryFdBufferDescriptor._from_exports(driver_type, sizes_t, tuple(handles), size)</span>&nbsp;</span><input type="checkbox" id="ctxs295"><span class="r"><label for="ctxs295" class="ctx">2 ctx</label></span><span class="ctxs">1cd</span></p>
     <p class="pln"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">    def handle_type(self) -&gt; VirtualMemoryHandleType:</span>&nbsp;</span><span class="r"></span></p>
@@ -627,7 +627,7 @@
     <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">    def __reduce__(self) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">        # multiprocessing duplicates the IPCAllocationHandle fds into the receiver; plain pickle raises.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">        return VirtualMemoryIPCBufferDescriptor._from_exports, (</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">33 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? db@ [ ] ^ w gb_ ` { | </span></p>
+    <p class="run"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">        return VirtualMemoryFdBufferDescriptor._from_exports, (</span>&nbsp;</span><input type="checkbox" id="ctxs333"><span class="r"><label for="ctxs333" class="ctx">33 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? db@ [ ] ^ w gb_ ` { | </span></p>
     <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">            self._handle_type, self._chunk_sizes, self._handles, self._size)</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">33 ctx</label></span><span class="ctxs">26 3 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? db@ [ ] ^ w gb_ ` { | </span></p>
     <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -656,7 +656,7 @@
     <p class="pln"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">    cls, object mr, IPCBufferDescriptor ipc_descriptor, stream</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Import a buffer that was exported from another process.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">    if isinstance(ipc_descriptor, VirtualMemoryIPCBufferDescriptor):</span>&nbsp;</span><input type="checkbox" id="ctxs362"><span class="r"><label for="ctxs362" class="ctx">16 ctx</label></span><span class="ctxs">2a obpbnc1 ~ dbabc d bbebq cbkclc</span></p>
+    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">    if isinstance(ipc_descriptor, VirtualMemoryFdBufferDescriptor):</span>&nbsp;</span><input type="checkbox" id="ctxs362"><span class="r"><label for="ctxs362" class="ctx">16 ctx</label></span><span class="ctxs">2a obpbnc1 ~ dbabc d bbebq cbkclc</span></p>
     <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">        # Imported here rather than cimported: _virtual_memory_resource</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">        # cimports this module.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource</span>&nbsp;</span><input type="checkbox" id="ctxs365"><span class="r"><label for="ctxs365" class="ctx">10 ctx</label></span><span class="ctxs">21 ~ dbabc d bbebq cb</span></p>
@@ -801,7 +801,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__managed_memory_ops_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-27 01:22 +0000
+            created at 2026-10-28 01:06 +0000
         </p>
     </div>
 </footer>

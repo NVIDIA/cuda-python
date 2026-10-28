@@ -99,8 +99,8 @@
   "ab": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   "bb": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "cb": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "db": "tests/test_program.py::test_nvvm_compile_accepts_log_sink|setup",
-  "eb": "tests/test_program.py::test_nvvm_program_with_single_extra_source|setup",
+  "db": "tests/test_program.py::test_nvvm_compile_invalid_target|setup",
+  "eb": "tests/test_program.py::test_nvvm_program_options[options2-ltoir]|setup",
   "fb": "tests/test_nvvm.py::test_nvvm_llvm_version|run"
 }
     </script>
@@ -164,7 +164,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-27 01:22 +0000
+            created at 2026-10-28 01:06 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -202,7 +202,7 @@
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmIRVersion(int* majorIR, int* minorIR, int* majorDbg, int* minorDbg) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    return _nvvm._nvvmIRVersion(majorIR, minorIR, majorDbg, minorDbg)</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">41 ctx</label></span><span class="ctxs">2a , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbj k eb3 4 5 6 7 8 9 ! # $ L M N O P </span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">    return _nvvm._nvvmIRVersion(majorIR, minorIR, majorDbg, minorDbg)</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">41 ctx</label></span><span class="ctxs">2a , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebj k 3 4 5 6 7 8 9 ! # $ L M N O P </span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">cdef nvvmResult nvvmCreateProgram(nvvmProgram* prog) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs27" class="ctx">(empty)</label></span></p>
@@ -256,7 +256,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cyruntime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-27 01:22 +0000
+            created at 2026-10-28 01:06 +0000
         </p>
     </div>
 </footer>
