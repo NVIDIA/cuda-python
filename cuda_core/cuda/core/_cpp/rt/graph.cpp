@@ -291,6 +291,25 @@ struct PreparedChildGraphUpdateState {
     }
 };
 
+// Deleter of the shared hierarchy: it owns the root CUgraph once the root box
+// exists.
+static void
+release_graph_hierarchy(GraphHierarchy *hierarchy)
+{
+    for (const GraphBox &box : hierarchy->graphs) {
+        if (box.resource) {
+            graph_registry.unregister_handle(box.resource);
+        }
+    }
+    GraphBox *root = hierarchy->root();
+    if (root && root->resource) {
+        GILReleaseGuard gil;
+        pw_cuGraphDestroy(root->resource);
+    }
+    retry_deferred_cleanup();
+    delete hierarchy;
+}
+
 GraphHandle
 create_graph_handle(CUgraph graph)
 {
@@ -299,28 +318,21 @@ create_graph_handle(CUgraph graph)
         return {};
     }
 
-    // clang-format off
-    auto hierarchy = std::shared_ptr<GraphHierarchy>(
-        new GraphHierarchy{},
-        [](GraphHierarchy *hierarchy) {
-            for (const GraphBox& box : hierarchy->graphs) {
-                if (box.resource) {
-                    graph_registry.unregister_handle(box.resource);
-                }
-            }
-            GraphBox *root = hierarchy->root();
-            if (root && root->resource) {
-                GILReleaseGuard gil;
-                pw_cuGraphDestroy(root->resource);
-            }
-            retry_deferred_cleanup();
-            delete hierarchy;
-        }
-    );
-    // clang-format on
-    GraphBox &root = hierarchy->graphs.emplace_back(graph, hierarchy.get());
+    // Until the root box exists the hierarchy deleter has nothing to destroy,
+    // so an allocation failure before then must release the graph here.
+    std::shared_ptr<GraphHierarchy> hierarchy;
+    GraphBox *root = nullptr;
+    try {
+        hierarchy = std::shared_ptr<GraphHierarchy>(new GraphHierarchy{}, release_graph_hierarchy);
+        root = &hierarchy->graphs.emplace_back(graph, hierarchy.get());
+    }
+    catch (...) {
+        GILReleaseGuard gil;
+        pw_cuGraphDestroy(graph);
+        throw;
+    }
 
-    GraphHandle h_graph(hierarchy, &root.resource);
+    GraphHandle h_graph(hierarchy, &root->resource);
     graph_registry.register_handle(graph, h_graph);
     return h_graph;
 }
