@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ipc\_open\_mem\_handle\_v2
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: ipc_open_mem_handle_v2
