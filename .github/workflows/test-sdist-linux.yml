@@ -87,15 +87,10 @@ jobs:
           pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
           printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
 
-      # Cython packages need CTK + sccache.
-      # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
-      # are exposed by this action.
-      - name: Enable sccache
+      # Cython packages need CTK + sccache (local disk cache only in this job).
+      - name: Install rapidsai/sccache
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
-        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba  # 0.0.11
-        with:
-          version: v0.18.0
-          disable_annotations: 'true'
+        uses: ./.github/actions/install-sccache
 
       - name: Setup proxy cache
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}

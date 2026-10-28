@@ -1,0 +1,187 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Temporary, report-only probe of OS and bundled Node.js certificate stores
+# across hosted and self-hosted runner labels for the eMudhra/emSign CA
+# incident. Delete this workflow and ci/tools/runner_trust_probe* once all
+# runner labels pass and the rollout is complete.
+
+name: "CI: Runner trust probe"
+
+on:
+  schedule:
+    # Weekly on Mondays at 06:23 UTC
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      label-filter:
+        description: "Optional regex to filter runner labels (e.g. '^(ubuntu-latest|linux-amd64-cpu8)$'; empty probes all)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+jobs:
+  compute-matrix:
+    name: Compute runner label sets
+    if: ${{ github.repository_owner == 'nvidia' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      host: ${{ steps.compute.outputs.host }}
+      linux_gpu: ${{ steps.compute.outputs.linux_gpu }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Compute runner labels
+        id: compute
+        env:
+          LABEL_FILTER: ${{ inputs.label-filter || '' }}
+        run: |
+          # Hosted and self-hosted CPU labels are listed explicitly; GPU labels
+          # are derived from ci/test-matrix.yml.
+          labels_json="$(yq -o json '.' ci/test-matrix.yml | jq -c --arg filter "${LABEL_FILTER}" '
+            {
+              host: (
+                [
+                  "ubuntu-latest",
+                  "linux-amd64-cpu8",
+                  "linux-arm64-cpu8",
+                  "linux-amd64-cpu4",
+                  "windows-latest",
+                  "windows-2022",
+                  "windows-11-arm"
+                ] + [
+                  (.windows["pull-request"][]?, .windows["nightly"][]?)
+                  | "windows-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
+                ]
+              ),
+              linux_gpu: [
+                (.linux["pull-request"][]?, .linux["nightly"][]?)
+                | "\(.FLAVOR // "linux")-\(.ARCH)-gpu-\(.GPU)-\(if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)-\(.GPU_COUNT)"
+              ]
+            }
+            | map_values(unique | if $filter != "" then map(select(test($filter))) else . end)
+          ')"
+
+          echo "host=$(jq -c '.host' <<< "${labels_json}")" | tee -a "${GITHUB_OUTPUT}"
+          echo "linux_gpu=$(jq -c '.linux_gpu' <<< "${labels_json}")" | tee -a "${GITHUB_OUTPUT}"
+
+  probe-host:
+    name: Probe (${{ matrix.label }})
+    needs: compute-matrix
+    if: ${{ needs.compute-matrix.outputs.host != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ${{ fromJSON(needs.compute-matrix.outputs.host) }}
+    runs-on: ${{ matrix.label }}
+    timeout-minutes: 15
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Probe Linux OS trust store
+        if: ${{ runner.os != 'Windows' }}
+        env:
+          TRUST_PROBE_LABEL: "${{ matrix.label == 'ubuntu-latest' && 'OS trust store (before ca-certificates upgrade)' || 'OS trust store' }}"
+        run: ./ci/tools/runner_trust_probe.sh
+
+      - name: Probe Linux OS trust store after ca-certificates upgrade (ubuntu-latest)
+        if: ${{ always() && matrix.label == 'ubuntu-latest' }}
+        env:
+          TRUST_PROBE_LABEL: "OS trust store (after ca-certificates upgrade)"
+        run: |
+          sudo apt-get update
+          sudo apt-get install --only-upgrade -y ca-certificates
+          ./ci/tools/runner_trust_probe.sh
+
+      - name: Probe Windows OS trust store
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: ./ci/tools/runner_trust_probe.ps1
+
+      - name: Probe Node 20 action runtime (informational)
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
+        with:
+          script: |
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core, heading: 'Node 20 action runtime (informational)', gating: false });
+
+      - name: Probe bundled Node runtime and trust store
+        if: ${{ always() }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core });
+
+  probe-linux-gpu:
+    name: Probe (${{ matrix.label }})
+    needs: compute-matrix
+    if: ${{ needs.compute-matrix.outputs.linux_gpu != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ${{ fromJSON(needs.compute-matrix.outputs.linux_gpu) }}
+    runs-on: ${{ matrix.label }}
+    timeout-minutes: 15
+    # Match test-wheel-linux.yml container setup so the probe inspects the exact
+    # container environment that Linux GPU test jobs see.
+    container:
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+      image: ubuntu:24.04
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+
+      - name: Install container CA certificates and probe tools
+        uses: ./.github/actions/install_unix_deps
+        with:
+          dependencies: "ca-certificates curl openssl"
+          dependent_exes: "curl openssl"
+
+      - name: Probe container OS trust store
+        env:
+          TRUST_PROBE_LABEL: "Container OS trust store (ubuntu:24.04)"
+        run: ./ci/tools/runner_trust_probe.sh
+
+      - name: Probe Node 20 action runtime (informational)
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
+        with:
+          script: |
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core, heading: 'Node 20 action runtime (informational)', gating: false });
+
+      - name: Probe bundled Node runtime and trust store
+        if: ${{ always() }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
+            await probe({ core });

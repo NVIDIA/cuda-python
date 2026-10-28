@@ -30,7 +30,7 @@ from helpers.contexts import assert_no_cuda_warning
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, MemoryResource, VirtualMemoryResource, VirtualMemoryResourceOptions
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor, VirtualMemoryIPCBufferDescriptor
+from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor, VirtualMemoryFdBufferDescriptor
 from cuda.core._memory._virtual_memory_resource import VirtualMemoryBuffer
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
@@ -113,7 +113,7 @@ def _forge(desc, **fields):
     fields.setdefault("chunk_sizes", desc._chunk_sizes)
     fields.setdefault("handles", desc._handles)
     fields.setdefault("size", desc.size)
-    return VirtualMemoryIPCBufferDescriptor._from_exports(
+    return VirtualMemoryFdBufferDescriptor._from_exports(
         fields["handle_type"], fields["chunk_sizes"], fields["handles"], fields["size"]
     )
 
@@ -181,9 +181,8 @@ class _ReportingQueue(multiprocessing.queues.Queue):
         pytest.param({"handle_type": "fabric"}, False, id="fabric"),
         pytest.param({"handle_type": "win32_kmt"}, False, id="win32_kmt"),
         pytest.param({"location_type": "host", "handle_type": None}, False, id="host"),
-        pytest.param({"location_type": "host_numa", "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"),
         pytest.param(
-            {"location_type": "host_numa_current", "handle_type": "posix_fd"}, False, id="host_numa_current-posix_fd"
+            {"location_type": "host_numa", "numa_id": 0, "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"
         ),
     ],
 )
@@ -812,7 +811,7 @@ class TestRawFileDescriptorTransport:
         del desc
         gc.collect()
         assert _open_fds() == fds0 + 2
-        rebuilt = VirtualMemoryIPCBufferDescriptor.from_fds(wire["fds"], wire["sizes"], size=wire["size"])
+        rebuilt = VirtualMemoryFdBufferDescriptor.from_fds(wire["fds"], wire["sizes"], size=wire["size"])
         assert _open_fds() == fds0 + 4, "from_fds duplicates the integers it is given"
         for fd in wire["fds"]:
             os.close(fd)  # the caller keeps ownership of its own
@@ -838,7 +837,7 @@ class TestRawFileDescriptorTransport:
         buf = mr.allocate(1)
         gran = buf.size
         desc = buf.ipc_descriptor
-        from_fds = VirtualMemoryIPCBufferDescriptor.from_fds
+        from_fds = VirtualMemoryFdBufferDescriptor.from_fds
 
         shared = from_fds(desc.handles, desc.sizes)
         assert shared.handles[0] is desc.handles[0]  # an IPCAllocationHandle is shared, not duplicated
@@ -898,7 +897,7 @@ class TestRawFileDescriptorTransport:
         with sock:
             msg, fds, _flags, _addr = socket.recv_fds(sock, 4096, 16)
         header = json.loads(msg)
-        desc = VirtualMemoryIPCBufferDescriptor.from_fds(fds, header["sizes"], size=header["size"])
+        desc = VirtualMemoryFdBufferDescriptor.from_fds(fds, header["sizes"], size=header["size"])
         for fd in fds:
             os.close(fd)  # from_fds duplicated them; the received ones are ours to close
         imported = Buffer.from_ipc_descriptor(_resource(device), desc, stream=device.default_stream)
