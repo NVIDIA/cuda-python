@@ -1,0 +1,125 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Temporary stopgap for the eMudhra/emSign CA key compromise (CVE-2026-111943)
+# on GitHub-hosted runners until GitHub ships fixed images.
+#
+# On Linux: upgrades ca-certificates via apt so the compromised emSign ECC Root
+# CA - G3 anchor is removed from /etc/ssl/certs/ca-certificates.crt.
+# On Windows: adds the compromised root to Cert:\LocalMachine\Disallowed so
+# schannel-based clients (git, gh, PowerShell/.NET) reject chains through it.
+#
+# This action is a no-op on self-hosted runners (runner.environment != 'github-hosted')
+# because self-hosted runner operators own and update their own host images.
+#
+# Removal criteria and implementation notes: security/emudhra-plan2.md
+# Tracked by: actions/runner-images#15018
+
+name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
+description: >
+  Temporary per-job stopgap for CVE-2026-111943. Upgrades ca-certificates on
+  GitHub-hosted Linux runners and adds the compromised emSign ECC Root CA - G3
+  to the Disallowed store on GitHub-hosted Windows runners. No-op on self-hosted.
+
+runs:
+  using: composite
+  steps:
+
+    # -------------------------------------------------------------------------
+    # Windows path: add the compromised root to LocalMachine\Disallowed.
+    # Takes effect immediately for all schannel-based clients in subsequent steps
+    # (git, gh, PowerShell/.NET, WinHTTP). Must precede actions/checkout.
+    # -------------------------------------------------------------------------
+    - name: Distrust emSign ECC Root CA - G3 (Windows, GitHub-hosted)
+      if: ${{ runner.os == 'Windows' && runner.environment == 'github-hosted' }}
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $targetFP = '86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B'
+
+        function Find-CertBySHA256FP([string]$StoreName) {
+          Get-ChildItem "Cert:\LocalMachine\$StoreName" -ErrorAction SilentlyContinue |
+            Where-Object {
+              $sha = [System.Security.Cryptography.SHA256]::Create()
+              try { [System.BitConverter]::ToString($sha.ComputeHash($_.RawData)).Replace('-', '').ToUpper() -eq $targetFP }
+              finally { $sha.Dispose() }
+            } | Select-Object -First 1
+        }
+
+        $inRoot      = Find-CertBySHA256FP 'Root'
+        $inDisallowed = Find-CertBySHA256FP 'Disallowed'
+
+        if (-not $inRoot) {
+          Write-Host "::notice::emSign ECC Root CA - G3 absent from LocalMachine\Root; image already fixed."
+          exit 0
+        }
+        if ($inDisallowed) {
+          Write-Host "::notice::emSign ECC Root CA - G3 already in LocalMachine\Disallowed; image already distrusted."
+          exit 0
+        }
+
+        Write-Host "::notice::emSign ECC Root CA - G3 in LocalMachine\Root and not in Disallowed; adding to Disallowed store."
+        $store = New-Object System.Security.Cryptography.X509Certificates.X509Store('Disallowed', 'LocalMachine')
+        $store.Open('ReadWrite')
+        $store.Add($inRoot)
+        $store.Close()
+
+        if (-not (Find-CertBySHA256FP 'Disallowed')) {
+          Write-Error "emSign ECC Root CA - G3 was not found in LocalMachine\Disallowed after adding; aborting."
+          exit 1
+        }
+        Write-Host "emSign ECC Root CA - G3 successfully added to LocalMachine\Disallowed."
+
+    # -------------------------------------------------------------------------
+    # Linux path: upgrade ca-certificates via apt.
+    # The Ubuntu archive GPG check does not depend on the trust store being
+    # fixed, so this bootstrap is safe. Retries guard against transient mirror
+    # failures. Must precede actions/checkout.
+    # -------------------------------------------------------------------------
+    - name: Upgrade ca-certificates (Linux, GitHub-hosted)
+      if: ${{ runner.os == 'Linux' && runner.environment == 'github-hosted' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        EMSIGN_G3_FP="86:A1:EC:BA:08:9C:4A:8D:3B:BE:27:34:C6:12:BA:34:1D:81:3E:04:3C:F9:E8:A8:62:CD:5C:57:A3:6B:BE:6B"
+        CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
+        VERSION_ID="$(. /etc/os-release && echo "${VERSION_ID}")"
+
+        fingerprints_in_bundle() {
+          awk '/-----BEGIN CERTIFICATE-----/{cert=""} {cert=cert $0 "\n"}
+               /-----END CERTIFICATE-----/{print cert | "openssl x509 -noout -fingerprint -sha256 2>/dev/null"; close("openssl x509 -noout -fingerprint -sha256 2>/dev/null")}' \
+            "${CA_BUNDLE}"
+        }
+
+        if grep -qiF "${EMSIGN_G3_FP}" <<< "$(fingerprints_in_bundle)"; then
+          before_state="not fixed"
+        else
+          before_state="already fixed"
+        fi
+        before_ver="$(dpkg-query -W -f='${Version}' ca-certificates 2>/dev/null || echo unknown)"
+        echo "::notice::emSign ECC Root CA - G3 on ${VERSION_ID}: ${before_state} (ca-certificates ${before_ver})"
+
+        if [ "${before_state}" = "already fixed" ]; then
+          exit 0
+        fi
+
+        for attempt in 1 2 3; do
+          if sudo apt-get update -q && sudo apt-get install --only-upgrade -y ca-certificates; then
+            break
+          fi
+          if [ "${attempt}" -lt 3 ]; then
+            echo "apt-get attempt ${attempt} failed; retrying in 10s..."
+            sleep 10
+          else
+            echo "::error::apt-get upgrade failed after ${attempt} attempts"
+            exit 1
+          fi
+        done
+
+        after_ver="$(dpkg-query -W -f='${Version}' ca-certificates 2>/dev/null || echo unknown)"
+        if grep -qiF "${EMSIGN_G3_FP}" <<< "$(fingerprints_in_bundle)"; then
+          echo "::error::emSign ECC Root CA - G3 still present after upgrade (ca-certificates ${after_ver} on ${VERSION_ID})"
+          exit 1
+        fi
+        echo "ca-certificates upgraded to ${after_ver}; emSign ECC Root CA - G3 absent."
