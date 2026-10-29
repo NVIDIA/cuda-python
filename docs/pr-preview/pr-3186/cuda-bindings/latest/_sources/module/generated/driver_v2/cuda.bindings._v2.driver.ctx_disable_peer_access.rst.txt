@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.ctx\_disable\_peer\_access
-====================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: ctx_disable_peer_access

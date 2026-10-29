@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.PchCreateError
-=======================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autoexception:: PchCreateError

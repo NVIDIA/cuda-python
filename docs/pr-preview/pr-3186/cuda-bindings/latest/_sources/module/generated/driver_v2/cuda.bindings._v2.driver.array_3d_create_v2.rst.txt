@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.array\_3d\_create\_v2
-===============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: array_3d_create_v2
