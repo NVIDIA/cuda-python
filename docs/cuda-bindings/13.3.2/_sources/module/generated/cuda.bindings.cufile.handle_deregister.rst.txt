@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.handle\_deregister
-=======================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: handle_deregister
