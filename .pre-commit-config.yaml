@@ -171,7 +171,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|.*\.pyi|\.github/actions/upgrade-ca-certificates/impacted-intermediates\.json)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
