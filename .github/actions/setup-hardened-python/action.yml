@@ -85,13 +85,18 @@ runs:
         } >> "${GITHUB_OUTPUT}"
 
     - name: Check Python interpreter is patched (CVE-2026-115557)
-      shell: bash --noprofile --norc -euo pipefail {0}
+      # Runs the venv's python through the PATH entry added above.
+      shell: python {0}
       env:
         PYTHON: ${{ steps.venv.outputs.python-path }}
       run: |
-        "${PYTHON}" -c '
+        import os
         import platform
         import sys
+
+        if os.path.normcase(sys.executable) != os.path.normcase(os.environ["PYTHON"]):
+            print(f"::error::PATH resolves python to {sys.executable}, not the venv interpreter {os.environ['PYTHON']}.")
+            sys.exit(1)
 
         FIXED = {(3, 11): 18, (3, 12): 16, (3, 13): 18, (3, 14): 10, (3, 15): 2}
         v = sys.version_info
@@ -110,7 +115,6 @@ runs:
         else:
             print(f"::error::Python {name} has no release whose ssl module rejects the compromised eMudhra CA keys (CVE-2026-115557).")
             sys.exit(1)
-        '
 
     - name: Update pip
       shell: bash --noprofile --norc -xeuo pipefail {0}
