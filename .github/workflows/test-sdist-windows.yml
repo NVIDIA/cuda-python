@@ -43,6 +43,9 @@ jobs:
     timeout-minutes: 60
     runs-on: windows-2022
     steps:
+      - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
+        uses: $/.github/actions/upgrade-ca-certificates
+
       - name: Enable Git symlinks (Windows, must precede checkout)
         run: git config --global core.symlinks true
 

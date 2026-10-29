@@ -58,6 +58,9 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2022') ||
                  (inputs.host-platform == 'win-arm64' && 'windows-11-arm') }}
     steps:
+      - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
+        uses: $/.github/actions/upgrade-ca-certificates
+
       - name: Enable Git symlinks (Windows, must precede checkout)
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: git config --global core.symlinks true
