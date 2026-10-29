@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graphics\_resource\_get\_mapped\_pointer\_v2
+======================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graphics_resource_get_mapped_pointer_v2

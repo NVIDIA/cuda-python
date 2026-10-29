@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.memcpy\_3d\_peer
+==========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: memcpy_3d_peer

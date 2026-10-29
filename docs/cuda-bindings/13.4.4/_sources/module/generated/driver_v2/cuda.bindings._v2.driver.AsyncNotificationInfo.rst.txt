@@ -1,0 +1,33 @@
+﻿cuda.bindings.\_v2.driver.AsyncNotificationInfo
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: AsyncNotificationInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AsyncNotificationInfo.__init__
+      ~AsyncNotificationInfo.from_buffer
+      ~AsyncNotificationInfo.from_data
+      ~AsyncNotificationInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AsyncNotificationInfo.info
+      ~AsyncNotificationInfo.ptr
+      ~AsyncNotificationInfo.type
+   
+   
