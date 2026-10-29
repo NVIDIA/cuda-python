@@ -1448,6 +1448,30 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
         unsupported.append("fdevice_syntax_only")
     if opts.minimal is not None and opts.minimal:
         unsupported.append("minimal")
+    if opts.no_cache is not None and opts.no_cache:
+        unsupported.append("no_cache")
+    if opts.fdevice_time_trace is not None:
+        unsupported.append("fdevice_time_trace")
+    if opts.device_float128 is not None and opts.device_float128:
+        unsupported.append("device_float128")
+    if opts.frandom_seed is not None:
+        unsupported.append("frandom_seed")
+    if opts.ofast_compile is not None:
+        unsupported.append("ofast_compile")
+    if opts.pch is not None and opts.pch:
+        unsupported.append("pch")
+    if opts.create_pch is not None:
+        unsupported.append("create_pch")
+    if opts.use_pch is not None:
+        unsupported.append("use_pch")
+    if opts.pch_dir is not None:
+        unsupported.append("pch_dir")
+    if opts.pch_verbose is not None:
+        unsupported.append("pch_verbose")
+    if opts.pch_messages is not None:
+        unsupported.append("pch_messages")
+    if opts.instantiate_templates_in_pch is not None:
+        unsupported.append("instantiate_templates_in_pch")
     if unsupported:
         raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
 
