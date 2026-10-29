@@ -32,6 +32,12 @@ def supportsManagedMemory():
     return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
+# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
+# virtual address space of about twice the device memory, and that reservation
+# can fail on systems with a limited virtual address space.
+POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
+
+
 def supportsCudaAPI(name):
     return name in dir(cuda)
 
@@ -333,6 +339,7 @@ def test_cuda_memPool_attr():
     poolProps.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
     poolProps.location.id = 0
     poolProps.location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    poolProps.maxSize = POOL_SIZE
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
@@ -539,9 +546,27 @@ def test_cuda_mem_range_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
+@pytest.fixture
+def xfail_on_graph_mempool_oom():
+    """Return a check that xfails the calling test if the graph memory pool cannot be created.
+
+    The graph memory pool reserves virtual address space of about twice the
+    device memory, and unlike pools from cuMemPoolCreate it cannot be capped.
+    On systems with a limited virtual address space this reservation can fail
+    with CUDA_ERROR_OUT_OF_MEMORY, especially when another uncapped pool
+    already exists in the process.
+    """
+
+    def check(err):
+        if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
+            pytest.xfail("graph memory pool creation failed with CUDA_ERROR_OUT_OF_MEMORY")
+
+    return check
+
+
 @pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
-def test_cuda_graphMem_attr():
+def test_cuda_graphMem_attr(xfail_on_graph_mempool_oom):
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, device = cuda.cuDeviceGet(0)
@@ -564,6 +589,12 @@ def test_cuda_graphMem_attr():
     params.bytesize = allocSize
 
     err, allocNode = cuda.cuGraphAddMemAllocNode(graph, None, 0, params)
+    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
+        (destroy_err,) = cuda.cuGraphDestroy(graph)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        (destroy_err,) = cuda.cuStreamDestroy(stream)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        xfail_on_graph_mempool_oom(err)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS

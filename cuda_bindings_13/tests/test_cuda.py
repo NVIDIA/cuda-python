@@ -603,6 +603,7 @@ def test_ffi_coverage_new_mempool_attributes():
     pool_props.alloc_type = driver.MemAllocationType.PINNED
     pool_props.location.id = 0
     pool_props.location.type = driver.MemLocationType.DEVICE
+    pool_props.max_size = POOL_SIZE
     pool = driver.mem_pool_create(pool_props)
     try:
         for attr in [
