@@ -151,6 +151,13 @@ def test_pack_host_copy_args_rejects_unsupported_type():
         pack_host_copy_args(1.0, bytearray(N), N)
 
 
+@pytest.mark.parametrize("address", [True, np.uintp(0x1000), ctypes.c_void_p(0x1000)])
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_pack_host_copy_args_rejects_scalar_address(address):
+    with pytest.raises(TypeError, match=r"int\(addr\)"):
+        pack_host_copy_args(bytearray(8), address, 1)
+
+
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 def test_pack_host_copy_args_rejects_overlap():
     data = bytearray(N)

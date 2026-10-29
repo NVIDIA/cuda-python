@@ -27,6 +27,8 @@ import sys
 import ctypes as ct
 from _ctypes import CFuncPtr
 
+import numpy
+
 __all__ = ['HOST_COPY_FN', 'pack_host_copy_args']
 
 
@@ -97,6 +99,10 @@ HOST_COPY_FN: CFuncPtr = _host_copy_fn_pointer()
 cdef uintptr_t _host_copy_address(object obj, size_t nbytes, bint writable, str name) except? 0:
     cdef Buffer buf
     cdef Py_buffer view
+    # These export the buffer protocol over their own storage, so a value
+    # meant as an address would otherwise pack the address of that storage.
+    if isinstance(obj, (bool, numpy.integer, ct._SimpleCData)):
+        raise TypeError(f"{name} must not be a {type(obj).__name__}; pass int(addr) for an address")
     if isinstance(obj, int):
         return <uintptr_t>obj
     if isinstance(obj, Buffer):
@@ -137,11 +143,11 @@ def pack_host_copy_args(dst, src, nbytes: int) -> bytes:
     Parameters
     ----------
     dst : int, Buffer, or buffer-protocol object
-        The destination. An ``int`` is a host address. A buffer-protocol
+        The destination. Only an ``int`` is a host address. A buffer-protocol
         object must be contiguous and writable.
     src : int, Buffer, or buffer-protocol object
-        The source. An ``int`` is a host address. A buffer-protocol object
-        must be contiguous.
+        The source. Only an ``int`` is a host address. A buffer-protocol
+        object must be contiguous.
     nbytes : int
         The number of bytes to copy. Zero packs a copy that does nothing.
 
@@ -154,8 +160,10 @@ def pack_host_copy_args(dst, src, nbytes: int) -> bytes:
     ------
     TypeError
         If ``dst`` or ``src`` is not an ``int``, a :class:`Buffer`, or a
-        buffer-protocol object. A buffer-protocol object that cannot export a
-        contiguous view, or a writable one for ``dst``, raises its own error.
+        buffer-protocol object, or is a ``bool``, a NumPy integer scalar, or a
+        ctypes scalar such as ``ctypes.c_void_p``. A buffer-protocol object
+        that cannot export a contiguous view, or a writable one for ``dst``,
+        raises its own error.
     ValueError
         If ``nbytes`` exceeds the size of ``dst`` or ``src``, if a
         :class:`Buffer` comes from a memory resource that is not
