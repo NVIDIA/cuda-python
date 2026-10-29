@@ -70,7 +70,8 @@ build = [
     "Cython>=3.2.5,<3.3",
 ]
 test = [
-    { include-group = "build" },
+    "cython>=3.2.5,<3.3",
+    "setuptools>=80",
     "pytest==9.1.0",
     "pytest-benchmark==5.2.3",
     "pytest-randomly==4.1.0",
