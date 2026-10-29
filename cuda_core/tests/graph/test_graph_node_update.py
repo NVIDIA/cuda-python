@@ -150,13 +150,15 @@ def _event_wait_case(device):
     invalid_replacement = device.create_event(options=event_options)
     invalid_replacement.close()
     after_wait = device.create_event(options=event_options)
-    delay = NanosleepKernel(device)
 
     graph_def = GraphDefinition()
     node = graph_def.wait(original)
     node.record(after_wait)
 
     def assert_exec_uses(graph, expected):
+        if device.compute_capability.major < 7:
+            pytest.skip("__nanosleep is only available starting Volta (sm70)")
+        delay = NanosleepKernel(device)
         producer_stream = device.create_stream()
         consumer_stream = device.create_stream()
 
