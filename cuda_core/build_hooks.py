@@ -14,8 +14,10 @@ import os
 import re
 import subprocess
 import sys
+import sysconfig
 import tempfile
 import zipfile
+from collections.abc import Sequence
 from pathlib import Path
 
 import Cython as _Cython
@@ -705,37 +707,99 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     return wheel_name
 
 
-def _find_clang_tidy() -> str:
-    """The clang-tidy executable of the clang-tidy wheel in the build environment.
+def _find_clang_tidy() -> str | None:
+    """The clang-tidy executable of the build environment.
 
-    The wheel is a build-system requirement in pyproject.toml.
+    Isolated builds install the clang-tidy wheel that pyproject.toml requires.
+    It is located through the wheel's ``clang_tidy`` package. The pixi build
+    uses the ``clang-tools`` conda package, which puts the executable in a
+    different location.
 
-    It is located through the wheel's ``clang_tidy`` package, never PATH, so a
-    system clang-tidy cannot be picked up. Raises RuntimeError when the wheel is
-    not installed.
+    PATH is never searched, so a system clang-tidy cannot be picked up.
+    Returns None when neither is installed.
     """
+    exe = f"clang-tidy{sysconfig.get_config_var('EXE')}"
+    if sys.platform == "win32":
+        conda_dir = Path("Library") / "bin"
+    else:
+        conda_dir = "bin"
+    candidates = [Path(sys.prefix) / conda_dir / exe]
     spec = importlib.util.find_spec("clang_tidy")
     if spec is not None and spec.submodule_search_locations is not None:
-        exe = "clang-tidy"
-        if sys.platform == "win32":
-            exe = "clang-tidy.exe"
-        for base in spec.submodule_search_locations:
-            candidate = Path(base) / "data" / "bin" / exe
-            if candidate.is_file():
-                return str(candidate)
-    raise RuntimeError(
-        "The clang-tidy build requirement of pyproject.toml is not installed. Isolated builds install it "
-        "automatically. For other builds, install the pinned version of it."
+        wheel_candidates = [Path(base) / "data" / "bin" / exe for base in spec.submodule_search_locations]
+        candidates = wheel_candidates + candidates
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate)
+    return None
+
+
+@functools.cache
+def _warn_clang_tidy_missing() -> None:
+    """Warn, once per build, that the clang-tidy checks do not run."""
+    banner = "!" * 78
+    print(
+        f"\n{banner}\n"
+        "WARNING: clang-tidy is not installed in the build environment, so the clang-tidy\n"
+        "checks of the handwritten C++ sources will NOT run.\n"
+        "Isolated builds install the clang-tidy wheel automatically. For other builds,\n"
+        "install the version that pyproject.toml pins, as the wheel or as the conda-forge\n"
+        "clang-tools package. The wheel does not exist on Windows ARM64.\n"
+        f"{banner}\n",
+        file=sys.stderr,
+        flush=True,
     )
 
 
-def _is_handwritten_cpp(path) -> bool:
-    """Whether path is a handwritten C++ source, not a Cython-generated one."""
-    path = Path(path)
-    return path.suffix == ".cpp" and path.resolve().is_relative_to(_PACKAGE_DIR / "_cpp")
+def _get_handwritten_cpp_files(compile_command: Sequence[str]) -> list[Path]:
+    """The handwritten C++ sources, not Cython-generated ones, that a compiler command line compiles."""
+    handwritten_dir = (_PACKAGE_DIR / "_cpp").resolve()
+    files: list[Path] = []
+    for arg in compile_command:
+        # MSVC passes each C++ source as /Tp<path>, which is removed from the result.
+        path = Path(arg.removeprefix("/Tp"))
+        if path.suffix == ".cpp" and path.resolve().is_relative_to(handwritten_dir):
+            files.append(path)
+    return files
 
 
-def check_with_clang_tidy(compile_command) -> None:
+@functools.cache
+def _get_implicit_include_dirs(compiler: str) -> list[str]:
+    """The include directories that a GCC-style compiler searches without being told.
+
+    They are built into the compiler, so they are not on the command line that
+    setuptools runs, and clang-tidy cannot find them for a toolchain such as the
+    conda cross-compiler, whose layout it does not know. Examples are the C++
+    standard library and the compiler's own limits.h. They are returned in
+    search order. Raises RuntimeError when the compiler does not list them.
+    """
+    # MSVC's include directories come from the INCLUDE environment variable,
+    # which clang-tidy reads in its MSVC mode. Elsewhere clang-tidy needs the
+    # include directories that the compiler has built in.
+    if sys.platform == "win32":
+        return []
+
+    result = subprocess.run(  # noqa: S603
+        [compiler, "-E", "-x", "c++", "-", "-v"],
+        input="",
+        capture_output=True,
+        text=True,
+    )
+    dirs: list[str] = []
+    in_list = False
+    for line in result.stderr.splitlines():
+        if line.startswith("#include <...> search starts here:"):
+            in_list = True
+        elif line.startswith("End of search list."):
+            break
+        elif in_list and not line.endswith("(framework directory)"):
+            dirs.append(line.strip())
+    if result.returncode != 0 or not dirs:
+        raise RuntimeError(f"Failed to query the implicit include directories of {compiler}:\n{result.stderr}")
+    return dirs
+
+
+def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
     """Run clang-tidy on the handwritten .cpp that a compiler command line compiles.
 
     ``compile_command`` is the exact command that setuptools is about to spawn,
@@ -743,14 +807,24 @@ def check_with_clang_tidy(compile_command) -> None:
     flags as the build. Commands that do not compile a handwritten source are
     ignored. The configuration is cuda_core/.clang-tidy, which turns every
     finding into an error. Raises RuntimeError with the findings.
+
+    When clang-tidy is not installed, the check is skipped with a prominent
+    warning.
     """
-    sources = [arg for arg in compile_command if _is_handwritten_cpp(arg)]
+    sources = _get_handwritten_cpp_files(compile_command)
     if not sources:
         return
     (source,) = sources
+    clang_tidy = _find_clang_tidy()
+    if clang_tidy is None:
+        _warn_clang_tidy_missing()
+        return
     config = Path(__file__).resolve().parent / ".clang-tidy"
+    implicit_includes: list[str] = []
+    for include_dir in _get_implicit_include_dirs(compile_command[0]):
+        implicit_includes.extend(["-isystem", include_dir])
     result = subprocess.run(  # noqa: S603
-        [_find_clang_tidy(), f"--config-file={config}", "--quiet", source, "--", *compile_command],
+        [clang_tidy, f"--config-file={config}", "--quiet", source, "--", *compile_command, *implicit_includes],
         capture_output=True,
         text=True,
     )

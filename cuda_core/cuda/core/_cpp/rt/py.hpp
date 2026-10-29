@@ -11,7 +11,7 @@
 
 namespace cuda_core::rt {
 
-#if PY_VERSION_HEX < 0x030D0000
+#if PY_VERSION_HEX < 0x030D0000 && defined(Py_LIMITED_API)
 extern "C" int _Py_IsFinalizing(void);
 #endif
 

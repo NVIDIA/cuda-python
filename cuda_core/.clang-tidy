@@ -66,5 +66,5 @@ CheckOptions:
   misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
 WarningsAsErrors: '*'
 # Only report diagnostics for our own headers, not CUDA/CPython/libstdc++.
-HeaderFilterRegex: 'cuda/core/_(cpp|include)/'
-ExcludeHeaderFilterRegex: 'cuda/core/_include/(dlpack|aoti_shim)\.h'
+HeaderFilterRegex: 'cuda[/\\]core[/\\]_(cpp|include)[/\\]'
+ExcludeHeaderFilterRegex: 'cuda[/\\]core[/\\]_include[/\\](dlpack|aoti_shim)\.h'

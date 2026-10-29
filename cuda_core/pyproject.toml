@@ -8,7 +8,7 @@ requires = [
     "setuptools-scm[simple]>=8,!=10.1",
     "Cython>=3.2.5,<3.3",
     "cuda-pathfinder>=1.5",
-    "clang-tidy==22.1.8",
+    "clang-tidy==22.1.8; sys_platform != 'win32' or platform_machine != 'ARM64'",
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
