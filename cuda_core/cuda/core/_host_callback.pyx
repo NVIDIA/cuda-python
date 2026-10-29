@@ -29,6 +29,8 @@ from _ctypes import CFuncPtr
 
 import numpy
 
+from cuda.core._utils.pycompat import BufferProtocol
+
 __all__ = ['HOST_COPY_FN', 'pack_host_copy_args']
 
 
@@ -127,7 +129,8 @@ cdef uintptr_t _host_copy_address(object obj, size_t nbytes, bint writable, str 
         PyBuffer_Release(&view)
 
 
-def pack_host_copy_args(dst, src, nbytes: int) -> bytes:
+def pack_host_copy_args(
+        dst: int | Buffer | BufferProtocol, src: int | Buffer | BufferProtocol, nbytes: int) -> bytes:
     """Pack the arguments of :data:`HOST_COPY_FN` into ``user_data`` bytes.
 
     The result is a record of three native-width fields in this order:
@@ -137,15 +140,16 @@ def pack_host_copy_args(dst, src, nbytes: int) -> bytes:
     record in memory of its own can pass its address as an ``int``
     ``user_data`` instead.
 
-    ``dst`` and ``src`` are not retained. The caller must keep both alive
-    until the copy has run.
+    ``dst`` and ``src`` are not retained. The caller must keep both alive,
+    and must not resize them (a ``bytearray``, for example), until the copy
+    has run.
 
     Parameters
     ----------
-    dst : int, Buffer, or buffer-protocol object
+    dst : int | :class:`Buffer` | :obj:`collections.abc.Buffer`
         The destination. Only an ``int`` is a host address. A buffer-protocol
         object must be contiguous and writable.
-    src : int, Buffer, or buffer-protocol object
+    src : int | :class:`Buffer` | :obj:`collections.abc.Buffer`
         The source. Only an ``int`` is a host address. A buffer-protocol
         object must be contiguous.
     nbytes : int
@@ -168,13 +172,17 @@ def pack_host_copy_args(dst, src, nbytes: int) -> bytes:
         If ``nbytes`` exceeds the size of ``dst`` or ``src``, if a
         :class:`Buffer` comes from a memory resource that is not
         host-accessible, if an address is null, or if the ranges overlap.
+    OverflowError
+        If ``nbytes`` or an ``int`` address is negative or does not fit in a
+        native-width field.
     RuntimeError
         If ``dst`` or ``src`` is a closed :class:`Buffer`.
 
     Notes
     -----
-    This function makes no CUDA calls, so a Python host callback can use it to
-    enqueue the next copy. It checks host accessibility only for a
+    This function makes no CUDA calls, so a Python host callback can call it,
+    for example to fill a record that a later :data:`HOST_COPY_FN` reads
+    through an ``int`` ``user_data``. It checks host accessibility only for a
     :class:`Buffer` with a memory resource. For an ``int`` or a :class:`Buffer`
     without one, the caller must ensure that the memory is host-accessible.
     """
