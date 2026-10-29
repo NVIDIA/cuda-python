@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=43b7b2b1fd18625de44c30075928dabc5433911817f30d9d25f02d243c3aef88
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=51aa8097269246ec75ca06d0fd4f4ba97a110908146a66dfed09997c052406f3
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -50,6 +50,14 @@ cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, in
     buffer.shape = &buffer.len
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
+
+cdef inline intptr_t _cyb_array_ptr(object arr) except? 0:
+    cdef _cyb_cpython.Py_buffer view
+    cdef intptr_t ptr
+    _cyb_cpython.PyObject_GetBuffer(arr, &view, _cyb_cpython_buffer.PyBUF_STRIDES)
+    ptr = <intptr_t>view.buf
+    _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
 
 cdef _cyb_from_buffer(buffer, size, lowpp_type):
     cdef _cyb_cpython.Py_buffer view
@@ -428,6 +436,7 @@ cdef _get_io_events_dtype_offsets():
     })
 
 io_events_dtype = _get_io_events_dtype_offsets()
+cdef object io_events_dtype_record = _numpy.dtype((_numpy.record, io_events_dtype))
 
 cdef class IOEvents:
     """Empty-initialize an array of `CUfileIOEvents_t`.
@@ -444,8 +453,7 @@ cdef class IOEvents:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=io_events_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=io_events_dtype_record)
         assert self._data.itemsize == sizeof(CUfileIOEvents_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOEvents_t) }"
 
@@ -458,17 +466,17 @@ cdef class IOEvents:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -489,44 +497,45 @@ cdef class IOEvents:
     def cookie(self):
         """Union[~_numpy.intp, int]: """
         if self._data.size == 1:
-            return int(self._data.cookie[0])
-        return self._data.cookie
+            return int(self._data["cookie"][0])
+        return self._data["cookie"]
 
     @cookie.setter
     def cookie(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOEvents instance is read-only")
-        self._data.cookie = val
+        self._data["cookie"] = val
 
     @property
     def status(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.status[0])
-        return self._data.status
+            return int(self._data["status"][0])
+        return self._data["status"]
 
     @status.setter
     def status(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOEvents instance is read-only")
-        self._data.status = val
+        self._data["status"] = val
 
     @property
     def ret(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.ret[0])
-        return self._data.ret
+            return int(self._data["ret"][0])
+        return self._data["ret"]
 
     @ret.setter
     def ret(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOEvents instance is read-only")
-        self._data.ret = val
+        self._data["ret"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef IOEvents obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -534,10 +543,18 @@ cdef class IOEvents:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return IOEvents.from_data(self._data[key_:key_+1])
+            obj = IOEvents.__new__(IOEvents)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == io_events_dtype:
-            return IOEvents.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == io_events_dtype:
+                obj = IOEvents.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -562,8 +579,7 @@ cdef class IOEvents:
             raise ValueError("data array must be 1D")
         if data.dtype != io_events_dtype:
             raise ValueError("data array must be of dtype io_events_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=io_events_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -583,10 +599,8 @@ cdef class IOEvents:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileIOEvents_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=io_events_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=io_events_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -780,6 +794,7 @@ cdef _get_per_gpu_stats_dtype_offsets():
     })
 
 per_gpu_stats_dtype = _get_per_gpu_stats_dtype_offsets()
+cdef object per_gpu_stats_dtype_record = _numpy.dtype((_numpy.record, per_gpu_stats_dtype))
 
 cdef class PerGpuStats:
     """Empty-initialize an array of `CUfilePerGpuStats_t`.
@@ -796,8 +811,7 @@ cdef class PerGpuStats:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=per_gpu_stats_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=per_gpu_stats_dtype_record)
         assert self._data.itemsize == sizeof(CUfilePerGpuStats_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfilePerGpuStats_t) }"
 
@@ -810,17 +824,17 @@ cdef class PerGpuStats:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -840,394 +854,395 @@ cdef class PerGpuStats:
     @property
     def uuid(self):
         """~_numpy.int8: (array of length 16)."""
-        return self._data.uuid
+        return self._data["uuid"]
 
     @uuid.setter
     def uuid(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.uuid = val
+        self._data["uuid"] = val
 
     @property
     def read_bytes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.read_bytes[0])
-        return self._data.read_bytes
+            return int(self._data["read_bytes"][0])
+        return self._data["read_bytes"]
 
     @read_bytes.setter
     def read_bytes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.read_bytes = val
+        self._data["read_bytes"] = val
 
     @property
     def read_bw_bytes_per_sec(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.read_bw_bytes_per_sec[0])
-        return self._data.read_bw_bytes_per_sec
+            return int(self._data["read_bw_bytes_per_sec"][0])
+        return self._data["read_bw_bytes_per_sec"]
 
     @read_bw_bytes_per_sec.setter
     def read_bw_bytes_per_sec(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.read_bw_bytes_per_sec = val
+        self._data["read_bw_bytes_per_sec"] = val
 
     @property
     def read_utilization(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.read_utilization[0])
-        return self._data.read_utilization
+            return int(self._data["read_utilization"][0])
+        return self._data["read_utilization"]
 
     @read_utilization.setter
     def read_utilization(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.read_utilization = val
+        self._data["read_utilization"] = val
 
     @property
     def read_duration_us(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.read_duration_us[0])
-        return self._data.read_duration_us
+            return int(self._data["read_duration_us"][0])
+        return self._data["read_duration_us"]
 
     @read_duration_us.setter
     def read_duration_us(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.read_duration_us = val
+        self._data["read_duration_us"] = val
 
     @property
     def n_total_reads(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_total_reads[0])
-        return self._data.n_total_reads
+            return int(self._data["n_total_reads"][0])
+        return self._data["n_total_reads"]
 
     @n_total_reads.setter
     def n_total_reads(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_total_reads = val
+        self._data["n_total_reads"] = val
 
     @property
     def n_p2p_reads(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_p2p_reads[0])
-        return self._data.n_p2p_reads
+            return int(self._data["n_p2p_reads"][0])
+        return self._data["n_p2p_reads"]
 
     @n_p2p_reads.setter
     def n_p2p_reads(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_p2p_reads = val
+        self._data["n_p2p_reads"] = val
 
     @property
     def n_nvfs_reads(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_nvfs_reads[0])
-        return self._data.n_nvfs_reads
+            return int(self._data["n_nvfs_reads"][0])
+        return self._data["n_nvfs_reads"]
 
     @n_nvfs_reads.setter
     def n_nvfs_reads(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_nvfs_reads = val
+        self._data["n_nvfs_reads"] = val
 
     @property
     def n_posix_reads(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_posix_reads[0])
-        return self._data.n_posix_reads
+            return int(self._data["n_posix_reads"][0])
+        return self._data["n_posix_reads"]
 
     @n_posix_reads.setter
     def n_posix_reads(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_posix_reads = val
+        self._data["n_posix_reads"] = val
 
     @property
     def n_unaligned_reads(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_unaligned_reads[0])
-        return self._data.n_unaligned_reads
+            return int(self._data["n_unaligned_reads"][0])
+        return self._data["n_unaligned_reads"]
 
     @n_unaligned_reads.setter
     def n_unaligned_reads(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_unaligned_reads = val
+        self._data["n_unaligned_reads"] = val
 
     @property
     def n_dr_reads(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_dr_reads[0])
-        return self._data.n_dr_reads
+            return int(self._data["n_dr_reads"][0])
+        return self._data["n_dr_reads"]
 
     @n_dr_reads.setter
     def n_dr_reads(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_dr_reads = val
+        self._data["n_dr_reads"] = val
 
     @property
     def n_sparse_regions(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_sparse_regions[0])
-        return self._data.n_sparse_regions
+            return int(self._data["n_sparse_regions"][0])
+        return self._data["n_sparse_regions"]
 
     @n_sparse_regions.setter
     def n_sparse_regions(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_sparse_regions = val
+        self._data["n_sparse_regions"] = val
 
     @property
     def n_inline_regions(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_inline_regions[0])
-        return self._data.n_inline_regions
+            return int(self._data["n_inline_regions"][0])
+        return self._data["n_inline_regions"]
 
     @n_inline_regions.setter
     def n_inline_regions(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_inline_regions = val
+        self._data["n_inline_regions"] = val
 
     @property
     def n_reads_err(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_reads_err[0])
-        return self._data.n_reads_err
+            return int(self._data["n_reads_err"][0])
+        return self._data["n_reads_err"]
 
     @n_reads_err.setter
     def n_reads_err(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_reads_err = val
+        self._data["n_reads_err"] = val
 
     @property
     def writes_bytes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.writes_bytes[0])
-        return self._data.writes_bytes
+            return int(self._data["writes_bytes"][0])
+        return self._data["writes_bytes"]
 
     @writes_bytes.setter
     def writes_bytes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.writes_bytes = val
+        self._data["writes_bytes"] = val
 
     @property
     def write_bw_bytes_per_sec(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.write_bw_bytes_per_sec[0])
-        return self._data.write_bw_bytes_per_sec
+            return int(self._data["write_bw_bytes_per_sec"][0])
+        return self._data["write_bw_bytes_per_sec"]
 
     @write_bw_bytes_per_sec.setter
     def write_bw_bytes_per_sec(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.write_bw_bytes_per_sec = val
+        self._data["write_bw_bytes_per_sec"] = val
 
     @property
     def write_utilization(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.write_utilization[0])
-        return self._data.write_utilization
+            return int(self._data["write_utilization"][0])
+        return self._data["write_utilization"]
 
     @write_utilization.setter
     def write_utilization(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.write_utilization = val
+        self._data["write_utilization"] = val
 
     @property
     def write_duration_us(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.write_duration_us[0])
-        return self._data.write_duration_us
+            return int(self._data["write_duration_us"][0])
+        return self._data["write_duration_us"]
 
     @write_duration_us.setter
     def write_duration_us(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.write_duration_us = val
+        self._data["write_duration_us"] = val
 
     @property
     def n_total_writes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_total_writes[0])
-        return self._data.n_total_writes
+            return int(self._data["n_total_writes"][0])
+        return self._data["n_total_writes"]
 
     @n_total_writes.setter
     def n_total_writes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_total_writes = val
+        self._data["n_total_writes"] = val
 
     @property
     def n_p2p_writes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_p2p_writes[0])
-        return self._data.n_p2p_writes
+            return int(self._data["n_p2p_writes"][0])
+        return self._data["n_p2p_writes"]
 
     @n_p2p_writes.setter
     def n_p2p_writes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_p2p_writes = val
+        self._data["n_p2p_writes"] = val
 
     @property
     def n_nvfs_writes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_nvfs_writes[0])
-        return self._data.n_nvfs_writes
+            return int(self._data["n_nvfs_writes"][0])
+        return self._data["n_nvfs_writes"]
 
     @n_nvfs_writes.setter
     def n_nvfs_writes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_nvfs_writes = val
+        self._data["n_nvfs_writes"] = val
 
     @property
     def n_posix_writes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_posix_writes[0])
-        return self._data.n_posix_writes
+            return int(self._data["n_posix_writes"][0])
+        return self._data["n_posix_writes"]
 
     @n_posix_writes.setter
     def n_posix_writes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_posix_writes = val
+        self._data["n_posix_writes"] = val
 
     @property
     def n_unaligned_writes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_unaligned_writes[0])
-        return self._data.n_unaligned_writes
+            return int(self._data["n_unaligned_writes"][0])
+        return self._data["n_unaligned_writes"]
 
     @n_unaligned_writes.setter
     def n_unaligned_writes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_unaligned_writes = val
+        self._data["n_unaligned_writes"] = val
 
     @property
     def n_dr_writes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_dr_writes[0])
-        return self._data.n_dr_writes
+            return int(self._data["n_dr_writes"][0])
+        return self._data["n_dr_writes"]
 
     @n_dr_writes.setter
     def n_dr_writes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_dr_writes = val
+        self._data["n_dr_writes"] = val
 
     @property
     def n_writes_err(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_writes_err[0])
-        return self._data.n_writes_err
+            return int(self._data["n_writes_err"][0])
+        return self._data["n_writes_err"]
 
     @n_writes_err.setter
     def n_writes_err(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_writes_err = val
+        self._data["n_writes_err"] = val
 
     @property
     def n_mmap(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_mmap[0])
-        return self._data.n_mmap
+            return int(self._data["n_mmap"][0])
+        return self._data["n_mmap"]
 
     @n_mmap.setter
     def n_mmap(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_mmap = val
+        self._data["n_mmap"] = val
 
     @property
     def n_mmap_ok(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_mmap_ok[0])
-        return self._data.n_mmap_ok
+            return int(self._data["n_mmap_ok"][0])
+        return self._data["n_mmap_ok"]
 
     @n_mmap_ok.setter
     def n_mmap_ok(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_mmap_ok = val
+        self._data["n_mmap_ok"] = val
 
     @property
     def n_mmap_err(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_mmap_err[0])
-        return self._data.n_mmap_err
+            return int(self._data["n_mmap_err"][0])
+        return self._data["n_mmap_err"]
 
     @n_mmap_err.setter
     def n_mmap_err(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_mmap_err = val
+        self._data["n_mmap_err"] = val
 
     @property
     def n_mmap_free(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.n_mmap_free[0])
-        return self._data.n_mmap_free
+            return int(self._data["n_mmap_free"][0])
+        return self._data["n_mmap_free"]
 
     @n_mmap_free.setter
     def n_mmap_free(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.n_mmap_free = val
+        self._data["n_mmap_free"] = val
 
     @property
     def reg_bytes(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.reg_bytes[0])
-        return self._data.reg_bytes
+            return int(self._data["reg_bytes"][0])
+        return self._data["reg_bytes"]
 
     @reg_bytes.setter
     def reg_bytes(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This PerGpuStats instance is read-only")
-        self._data.reg_bytes = val
+        self._data["reg_bytes"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PerGpuStats obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -1235,10 +1250,18 @@ cdef class PerGpuStats:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PerGpuStats.from_data(self._data[key_:key_+1])
+            obj = PerGpuStats.__new__(PerGpuStats)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == per_gpu_stats_dtype:
-            return PerGpuStats.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == per_gpu_stats_dtype:
+                obj = PerGpuStats.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -1263,8 +1286,7 @@ cdef class PerGpuStats:
             raise ValueError("data array must be 1D")
         if data.dtype != per_gpu_stats_dtype:
             raise ValueError("data array must be of dtype per_gpu_stats_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=per_gpu_stats_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -1284,10 +1306,8 @@ cdef class PerGpuStats:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfilePerGpuStats_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=per_gpu_stats_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=per_gpu_stats_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -1304,6 +1324,7 @@ cdef _get_io_vec_dtype_offsets():
     })
 
 io_vec_dtype = _get_io_vec_dtype_offsets()
+cdef object io_vec_dtype_record = _numpy.dtype((_numpy.record, io_vec_dtype))
 
 cdef class IOVec:
     """Empty-initialize an array of `CUfileIOVec_t`.
@@ -1320,8 +1341,7 @@ cdef class IOVec:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=io_vec_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=io_vec_dtype_record)
         assert self._data.itemsize == sizeof(CUfileIOVec_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOVec_t) }"
 
@@ -1334,17 +1354,17 @@ cdef class IOVec:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -1365,31 +1385,32 @@ cdef class IOVec:
     def base_(self):
         """Union[~_numpy.intp, int]: """
         if self._data.size == 1:
-            return int(self._data.base_[0])
-        return self._data.base_
+            return int(self._data["base_"][0])
+        return self._data["base_"]
 
     @base_.setter
     def base_(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOVec instance is read-only")
-        self._data.base_ = val
+        self._data["base_"] = val
 
     @property
     def len(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.len[0])
-        return self._data.len
+            return int(self._data["len"][0])
+        return self._data["len"]
 
     @len.setter
     def len(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOVec instance is read-only")
-        self._data.len = val
+        self._data["len"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef IOVec obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -1397,10 +1418,18 @@ cdef class IOVec:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return IOVec.from_data(self._data[key_:key_+1])
+            obj = IOVec.__new__(IOVec)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == io_vec_dtype:
-            return IOVec.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == io_vec_dtype:
+                obj = IOVec.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -1425,8 +1454,7 @@ cdef class IOVec:
             raise ValueError("data array must be 1D")
         if data.dtype != io_vec_dtype:
             raise ValueError("data array must be of dtype io_vec_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=io_vec_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -1446,10 +1474,8 @@ cdef class IOVec:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileIOVec_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=io_vec_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=io_vec_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -1467,6 +1493,7 @@ cdef _get_descr_dtype_offsets():
     })
 
 descr_dtype = _get_descr_dtype_offsets()
+cdef object descr_dtype_record = _numpy.dtype((_numpy.record, descr_dtype))
 
 cdef class Descr:
     """Empty-initialize an array of `CUfileDescr_t`.
@@ -1483,8 +1510,7 @@ cdef class Descr:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=descr_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=descr_dtype_record)
         assert self._data.itemsize == sizeof(CUfileDescr_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileDescr_t) }"
 
@@ -1497,17 +1523,17 @@ cdef class Descr:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -1528,42 +1554,43 @@ cdef class Descr:
     def type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.type[0])
-        return self._data.type
+            return int(self._data["type"][0])
+        return self._data["type"]
 
     @type.setter
     def type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This Descr instance is read-only")
-        self._data.type = val
+        self._data["type"] = val
 
     @property
     def handle(self):
         """_py_anon_pod1_dtype: """
-        return self._data.handle
+        return self._data["handle"].view(_numpy.recarray)
 
     @handle.setter
     def handle(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This Descr instance is read-only")
-        self._data.handle = val
+        self._data["handle"] = val
 
     @property
     def fs_ops(self):
         """Union[~_numpy.intp, int]: """
         if self._data.size == 1:
-            return int(self._data.fs_ops[0])
-        return self._data.fs_ops
+            return int(self._data["fs_ops"][0])
+        return self._data["fs_ops"]
 
     @fs_ops.setter
     def fs_ops(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This Descr instance is read-only")
-        self._data.fs_ops = val
+        self._data["fs_ops"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef Descr obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -1571,10 +1598,18 @@ cdef class Descr:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return Descr.from_data(self._data[key_:key_+1])
+            obj = Descr.__new__(Descr)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == descr_dtype:
-            return Descr.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == descr_dtype:
+                obj = Descr.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -1599,8 +1634,7 @@ cdef class Descr:
             raise ValueError("data array must be 1D")
         if data.dtype != descr_dtype:
             raise ValueError("data array must be of dtype descr_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=descr_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -1620,10 +1654,8 @@ cdef class Descr:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -2685,6 +2717,7 @@ cdef _get_io_params_dtype_offsets():
     })
 
 io_params_dtype = _get_io_params_dtype_offsets()
+cdef object io_params_dtype_record = _numpy.dtype((_numpy.record, io_params_dtype))
 
 cdef class IOParams:
     """Empty-initialize an array of `CUfileIOParams_t`.
@@ -2701,8 +2734,7 @@ cdef class IOParams:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=io_params_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=io_params_dtype_record)
         assert self._data.itemsize == sizeof(CUfileIOParams_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOParams_t) }"
 
@@ -2715,17 +2747,17 @@ cdef class IOParams:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -2746,68 +2778,69 @@ cdef class IOParams:
     def mode(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.mode[0])
-        return self._data.mode
+            return int(self._data["mode"][0])
+        return self._data["mode"]
 
     @mode.setter
     def mode(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOParams instance is read-only")
-        self._data.mode = val
+        self._data["mode"] = val
 
     @property
     def u(self):
         """_py_anon_pod2_dtype: """
-        return self._data.u
+        return self._data["u"].view(_numpy.recarray)
 
     @u.setter
     def u(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOParams instance is read-only")
-        self._data.u = val
+        self._data["u"] = val
 
     @property
     def fh(self):
         """Union[~_numpy.intp, int]: """
         if self._data.size == 1:
-            return int(self._data.fh[0])
-        return self._data.fh
+            return int(self._data["fh"][0])
+        return self._data["fh"]
 
     @fh.setter
     def fh(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOParams instance is read-only")
-        self._data.fh = val
+        self._data["fh"] = val
 
     @property
     def opcode(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.opcode[0])
-        return self._data.opcode
+            return int(self._data["opcode"][0])
+        return self._data["opcode"]
 
     @opcode.setter
     def opcode(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOParams instance is read-only")
-        self._data.opcode = val
+        self._data["opcode"] = val
 
     @property
     def cookie(self):
         """Union[~_numpy.intp, int]: """
         if self._data.size == 1:
-            return int(self._data.cookie[0])
-        return self._data.cookie
+            return int(self._data["cookie"][0])
+        return self._data["cookie"]
 
     @cookie.setter
     def cookie(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This IOParams instance is read-only")
-        self._data.cookie = val
+        self._data["cookie"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef IOParams obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -2815,10 +2848,18 @@ cdef class IOParams:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return IOParams.from_data(self._data[key_:key_+1])
+            obj = IOParams.__new__(IOParams)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == io_params_dtype:
-            return IOParams.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == io_params_dtype:
+                obj = IOParams.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -2843,8 +2884,7 @@ cdef class IOParams:
             raise ValueError("data array must be 1D")
         if data.dtype != io_params_dtype:
             raise ValueError("data array must be of dtype io_params_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=io_params_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -2864,10 +2904,8 @@ cdef class IOParams:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileIOParams_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype_record)
         obj._owner = owner
-
         return obj
 
 

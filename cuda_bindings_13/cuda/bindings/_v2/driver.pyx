@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cc1ac70b43586bcc18fa53eaf2741642b15689e14a6882e41062b817f36e80ab
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2aeb6615dc0c6ffb24ee43dc713535be3e3dca8dcf13c42bdc7d3a1cf3326c11
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -57,6 +57,14 @@ cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, in
     buffer.shape = &buffer.len
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
+
+cdef inline intptr_t _cyb_array_ptr(object arr) except? 0:
+    cdef _cyb_cpython.Py_buffer view
+    cdef intptr_t ptr
+    _cyb_cpython.PyObject_GetBuffer(arr, &view, _cyb_cpython_buffer.PyBUF_STRIDES)
+    ptr = <intptr_t>view.buf
+    _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
 
 cdef _cyb_from_buffer(buffer, size, lowpp_type):
     cdef _cyb_cpython.Py_buffer view
@@ -5554,6 +5562,7 @@ cdef _get_graph_edge_data_dtype_offsets():
     })
 
 graph_edge_data_dtype = _get_graph_edge_data_dtype_offsets()
+cdef object graph_edge_data_dtype_record = _numpy.dtype((_numpy.record, graph_edge_data_dtype))
 
 cdef class GraphEdgeData:
     """Empty-initialize an array of `CUgraphEdgeData`.
@@ -5570,8 +5579,7 @@ cdef class GraphEdgeData:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=graph_edge_data_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=graph_edge_data_dtype_record)
         assert self._data.itemsize == sizeof(CUgraphEdgeData), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUgraphEdgeData) }"
 
@@ -5584,17 +5592,17 @@ cdef class GraphEdgeData:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -5615,44 +5623,45 @@ cdef class GraphEdgeData:
     def from_port(self):
         """Union[~_numpy.uint8, int]: """
         if self._data.size == 1:
-            return int(self._data.from_port[0])
-        return self._data.from_port
+            return int(self._data["from_port"][0])
+        return self._data["from_port"]
 
     @from_port.setter
     def from_port(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This GraphEdgeData instance is read-only")
-        self._data.from_port = val
+        self._data["from_port"] = val
 
     @property
     def to_port(self):
         """Union[~_numpy.uint8, int]: """
         if self._data.size == 1:
-            return int(self._data.to_port[0])
-        return self._data.to_port
+            return int(self._data["to_port"][0])
+        return self._data["to_port"]
 
     @to_port.setter
     def to_port(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This GraphEdgeData instance is read-only")
-        self._data.to_port = val
+        self._data["to_port"] = val
 
     @property
     def type(self):
         """Union[~_numpy.uint8, int]: """
         if self._data.size == 1:
-            return int(self._data.type[0])
-        return self._data.type
+            return int(self._data["type"][0])
+        return self._data["type"]
 
     @type.setter
     def type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This GraphEdgeData instance is read-only")
-        self._data.type = val
+        self._data["type"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef GraphEdgeData obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -5660,10 +5669,18 @@ cdef class GraphEdgeData:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return GraphEdgeData.from_data(self._data[key_:key_+1])
+            obj = GraphEdgeData.__new__(GraphEdgeData)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == graph_edge_data_dtype:
-            return GraphEdgeData.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == graph_edge_data_dtype:
+                obj = GraphEdgeData.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -5688,8 +5705,7 @@ cdef class GraphEdgeData:
             raise ValueError("data array must be 1D")
         if data.dtype != graph_edge_data_dtype:
             raise ValueError("data array must be of dtype graph_edge_data_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=graph_edge_data_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -5709,10 +5725,8 @@ cdef class GraphEdgeData:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUgraphEdgeData) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=graph_edge_data_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=graph_edge_data_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -15023,6 +15037,7 @@ cdef _get_dev_sm_resource_group_params_dtype_offsets():
     })
 
 dev_sm_resource_group_params_dtype = _get_dev_sm_resource_group_params_dtype_offsets()
+cdef object dev_sm_resource_group_params_dtype_record = _numpy.dtype((_numpy.record, dev_sm_resource_group_params_dtype))
 
 cdef class DevSmResourceGroupParams:
     """Empty-initialize an array of `CU_DEV_SM_RESOURCE_GROUP_PARAMS`.
@@ -15039,8 +15054,7 @@ cdef class DevSmResourceGroupParams:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=dev_sm_resource_group_params_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=dev_sm_resource_group_params_dtype_record)
         assert self._data.itemsize == sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS) }"
 
@@ -15053,17 +15067,17 @@ cdef class DevSmResourceGroupParams:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -15084,70 +15098,71 @@ cdef class DevSmResourceGroupParams:
     def sm_count(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.sm_count[0])
-        return self._data.sm_count
+            return int(self._data["sm_count"][0])
+        return self._data["sm_count"]
 
     @sm_count.setter
     def sm_count(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
-        self._data.sm_count = val
+        self._data["sm_count"] = val
 
     @property
     def coscheduled_sm_count(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.coscheduled_sm_count[0])
-        return self._data.coscheduled_sm_count
+            return int(self._data["coscheduled_sm_count"][0])
+        return self._data["coscheduled_sm_count"]
 
     @coscheduled_sm_count.setter
     def coscheduled_sm_count(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
-        self._data.coscheduled_sm_count = val
+        self._data["coscheduled_sm_count"] = val
 
     @property
     def preferred_coscheduled_sm_count(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.preferred_coscheduled_sm_count[0])
-        return self._data.preferred_coscheduled_sm_count
+            return int(self._data["preferred_coscheduled_sm_count"][0])
+        return self._data["preferred_coscheduled_sm_count"]
 
     @preferred_coscheduled_sm_count.setter
     def preferred_coscheduled_sm_count(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
-        self._data.preferred_coscheduled_sm_count = val
+        self._data["preferred_coscheduled_sm_count"] = val
 
     @property
     def flags_(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.flags_[0])
-        return self._data.flags_
+            return int(self._data["flags_"][0])
+        return self._data["flags_"]
 
     @flags_.setter
     def flags_(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
-        self._data.flags_ = val
+        self._data["flags_"] = val
 
     @property
     def locality_domain_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.locality_domain_id[0])
-        return self._data.locality_domain_id
+            return int(self._data["locality_domain_id"][0])
+        return self._data["locality_domain_id"]
 
     @locality_domain_id.setter
     def locality_domain_id(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevSmResourceGroupParams instance is read-only")
-        self._data.locality_domain_id = val
+        self._data["locality_domain_id"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef DevSmResourceGroupParams obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -15155,10 +15170,18 @@ cdef class DevSmResourceGroupParams:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return DevSmResourceGroupParams.from_data(self._data[key_:key_+1])
+            obj = DevSmResourceGroupParams.__new__(DevSmResourceGroupParams)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == dev_sm_resource_group_params_dtype:
-            return DevSmResourceGroupParams.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == dev_sm_resource_group_params_dtype:
+                obj = DevSmResourceGroupParams.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -15183,8 +15206,7 @@ cdef class DevSmResourceGroupParams:
             raise ValueError("data array must be 1D")
         if data.dtype != dev_sm_resource_group_params_dtype:
             raise ValueError("data array must be of dtype dev_sm_resource_group_params_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=dev_sm_resource_group_params_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -15204,10 +15226,8 @@ cdef class DevSmResourceGroupParams:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=dev_sm_resource_group_params_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=dev_sm_resource_group_params_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -15766,6 +15786,7 @@ cdef _get_clique_info_dtype_offsets():
     })
 
 clique_info_dtype = _get_clique_info_dtype_offsets()
+cdef object clique_info_dtype_record = _numpy.dtype((_numpy.record, clique_info_dtype))
 
 cdef class CliqueInfo:
     """Empty-initialize an array of `CUcliqueInfo`.
@@ -15782,8 +15803,7 @@ cdef class CliqueInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=clique_info_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=clique_info_dtype_record)
         assert self._data.itemsize == sizeof(CUcliqueInfo), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUcliqueInfo) }"
 
@@ -15796,17 +15816,17 @@ cdef class CliqueInfo:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -15827,31 +15847,32 @@ cdef class CliqueInfo:
     def type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.type[0])
-        return self._data.type
+            return int(self._data["type"][0])
+        return self._data["type"]
 
     @type.setter
     def type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This CliqueInfo instance is read-only")
-        self._data.type = val
+        self._data["type"] = val
 
     @property
     def id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.id[0])
-        return self._data.id
+            return int(self._data["id"][0])
+        return self._data["id"]
 
     @id.setter
     def id(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This CliqueInfo instance is read-only")
-        self._data.id = val
+        self._data["id"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef CliqueInfo obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -15859,10 +15880,18 @@ cdef class CliqueInfo:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return CliqueInfo.from_data(self._data[key_:key_+1])
+            obj = CliqueInfo.__new__(CliqueInfo)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == clique_info_dtype:
-            return CliqueInfo.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == clique_info_dtype:
+                obj = CliqueInfo.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -15887,8 +15916,7 @@ cdef class CliqueInfo:
             raise ValueError("data array must be 1D")
         if data.dtype != clique_info_dtype:
             raise ValueError("data array must be of dtype clique_info_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=clique_info_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -15908,10 +15936,8 @@ cdef class CliqueInfo:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUcliqueInfo) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=clique_info_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=clique_info_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -19276,6 +19302,7 @@ cdef _get_stream_batch_mem_op_params_v1_dtype_offsets():
     })
 
 stream_batch_mem_op_params_v1_dtype = _get_stream_batch_mem_op_params_v1_dtype_offsets()
+cdef object stream_batch_mem_op_params_v1_dtype_record = _numpy.dtype((_numpy.record, stream_batch_mem_op_params_v1_dtype))
 
 cdef class StreamBatchMemOpParams_v1:
     """Empty-initialize an array of `CUstreamBatchMemOpParams_v1`.
@@ -19297,41 +19324,9 @@ cdef class StreamBatchMemOpParams_v1:
         readonly tuple _atomic_reduction
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=stream_batch_mem_op_params_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=stream_batch_mem_op_params_v1_dtype_record)
         assert self._data.itemsize == sizeof(CUstreamBatchMemOpParams_v1), \
             f"itemsize {self._data.itemsize} mismatches union size { sizeof(CUstreamBatchMemOpParams_v1) }"
-        obj = self
-        wait_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wait_value[i].__array_interface__['data'][0]
-            wait_value_obj = StreamMemOpWaitValueParams.from_ptr(addr, owner=obj, readonly=False)
-            wait_value_list.append(wait_value_obj)
-        obj._wait_value = tuple(wait_value_list)
-        write_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.write_value[i].__array_interface__['data'][0]
-            write_value_obj = StreamMemOpWriteValueParams.from_ptr(addr, owner=obj, readonly=False)
-            write_value_list.append(write_value_obj)
-        obj._write_value = tuple(write_value_list)
-        flush_remote_writes_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.flush_remote_writes[i].__array_interface__['data'][0]
-            flush_remote_writes_obj = StreamMemOpFlushRemoteWritesParams.from_ptr(addr, owner=obj, readonly=False)
-            flush_remote_writes_list.append(flush_remote_writes_obj)
-        obj._flush_remote_writes = tuple(flush_remote_writes_list)
-        memory_barrier_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.memory_barrier[i].__array_interface__['data'][0]
-            memory_barrier_obj = StreamMemOpMemoryBarrierParams.from_ptr(addr, owner=obj, readonly=False)
-            memory_barrier_list.append(memory_barrier_obj)
-        obj._memory_barrier = tuple(memory_barrier_list)
-        atomic_reduction_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.atomic_reduction[i].__array_interface__['data'][0]
-            atomic_reduction_obj = StreamMemOpAtomicReductionParams.from_ptr(addr, owner=obj, readonly=False)
-            atomic_reduction_list.append(atomic_reduction_obj)
-        obj._atomic_reduction = tuple(atomic_reduction_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -19342,17 +19337,17 @@ cdef class StreamBatchMemOpParams_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -19372,6 +19367,17 @@ cdef class StreamBatchMemOpParams_v1:
     @property
     def wait_value(self):
         """StreamMemOpWaitValueParams: """
+        if self._wait_value is None:
+            wait_value_list = list()
+            wait_value_base = _cyb_array_ptr(self._data)
+            wait_value_offset = stream_batch_mem_op_params_v1_dtype.fields["wait_value"][1]
+            wait_value_stride = self._data.strides[0]
+            wait_value_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = wait_value_base + i * wait_value_stride + wait_value_offset
+                wait_value_obj = StreamMemOpWaitValueParams.from_ptr(addr, owner=self, readonly=wait_value_readonly)
+                wait_value_list.append(wait_value_obj)
+            self._wait_value = tuple(wait_value_list)
         if self._data.size == 1:
             return self._wait_value[0]
         return self._wait_value
@@ -19383,12 +19389,23 @@ cdef class StreamBatchMemOpParams_v1:
         cdef StreamMemOpWaitValueParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].wait_value = value")
-        cdef intptr_t addr = self._data.wait_value[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + stream_batch_mem_op_params_v1_dtype.fields["wait_value"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUstreamMemOpWaitValueParams_st) * 1)
 
     @property
     def write_value(self):
         """StreamMemOpWriteValueParams: """
+        if self._write_value is None:
+            write_value_list = list()
+            write_value_base = _cyb_array_ptr(self._data)
+            write_value_offset = stream_batch_mem_op_params_v1_dtype.fields["write_value"][1]
+            write_value_stride = self._data.strides[0]
+            write_value_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = write_value_base + i * write_value_stride + write_value_offset
+                write_value_obj = StreamMemOpWriteValueParams.from_ptr(addr, owner=self, readonly=write_value_readonly)
+                write_value_list.append(write_value_obj)
+            self._write_value = tuple(write_value_list)
         if self._data.size == 1:
             return self._write_value[0]
         return self._write_value
@@ -19400,12 +19417,23 @@ cdef class StreamBatchMemOpParams_v1:
         cdef StreamMemOpWriteValueParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].write_value = value")
-        cdef intptr_t addr = self._data.write_value[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + stream_batch_mem_op_params_v1_dtype.fields["write_value"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUstreamMemOpWriteValueParams_st) * 1)
 
     @property
     def flush_remote_writes(self):
         """StreamMemOpFlushRemoteWritesParams: """
+        if self._flush_remote_writes is None:
+            flush_remote_writes_list = list()
+            flush_remote_writes_base = _cyb_array_ptr(self._data)
+            flush_remote_writes_offset = stream_batch_mem_op_params_v1_dtype.fields["flush_remote_writes"][1]
+            flush_remote_writes_stride = self._data.strides[0]
+            flush_remote_writes_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = flush_remote_writes_base + i * flush_remote_writes_stride + flush_remote_writes_offset
+                flush_remote_writes_obj = StreamMemOpFlushRemoteWritesParams.from_ptr(addr, owner=self, readonly=flush_remote_writes_readonly)
+                flush_remote_writes_list.append(flush_remote_writes_obj)
+            self._flush_remote_writes = tuple(flush_remote_writes_list)
         if self._data.size == 1:
             return self._flush_remote_writes[0]
         return self._flush_remote_writes
@@ -19417,12 +19445,23 @@ cdef class StreamBatchMemOpParams_v1:
         cdef StreamMemOpFlushRemoteWritesParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].flush_remote_writes = value")
-        cdef intptr_t addr = self._data.flush_remote_writes[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + stream_batch_mem_op_params_v1_dtype.fields["flush_remote_writes"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUstreamMemOpFlushRemoteWritesParams_st) * 1)
 
     @property
     def memory_barrier(self):
         """StreamMemOpMemoryBarrierParams: """
+        if self._memory_barrier is None:
+            memory_barrier_list = list()
+            memory_barrier_base = _cyb_array_ptr(self._data)
+            memory_barrier_offset = stream_batch_mem_op_params_v1_dtype.fields["memory_barrier"][1]
+            memory_barrier_stride = self._data.strides[0]
+            memory_barrier_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = memory_barrier_base + i * memory_barrier_stride + memory_barrier_offset
+                memory_barrier_obj = StreamMemOpMemoryBarrierParams.from_ptr(addr, owner=self, readonly=memory_barrier_readonly)
+                memory_barrier_list.append(memory_barrier_obj)
+            self._memory_barrier = tuple(memory_barrier_list)
         if self._data.size == 1:
             return self._memory_barrier[0]
         return self._memory_barrier
@@ -19434,12 +19473,23 @@ cdef class StreamBatchMemOpParams_v1:
         cdef StreamMemOpMemoryBarrierParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].memory_barrier = value")
-        cdef intptr_t addr = self._data.memory_barrier[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + stream_batch_mem_op_params_v1_dtype.fields["memory_barrier"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUstreamMemOpMemoryBarrierParams_st) * 1)
 
     @property
     def atomic_reduction(self):
         """StreamMemOpAtomicReductionParams: """
+        if self._atomic_reduction is None:
+            atomic_reduction_list = list()
+            atomic_reduction_base = _cyb_array_ptr(self._data)
+            atomic_reduction_offset = stream_batch_mem_op_params_v1_dtype.fields["atomic_reduction"][1]
+            atomic_reduction_stride = self._data.strides[0]
+            atomic_reduction_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = atomic_reduction_base + i * atomic_reduction_stride + atomic_reduction_offset
+                atomic_reduction_obj = StreamMemOpAtomicReductionParams.from_ptr(addr, owner=self, readonly=atomic_reduction_readonly)
+                atomic_reduction_list.append(atomic_reduction_obj)
+            self._atomic_reduction = tuple(atomic_reduction_list)
         if self._data.size == 1:
             return self._atomic_reduction[0]
         return self._atomic_reduction
@@ -19451,25 +19501,26 @@ cdef class StreamBatchMemOpParams_v1:
         cdef StreamMemOpAtomicReductionParams val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].atomic_reduction = value")
-        cdef intptr_t addr = self._data.atomic_reduction[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + stream_batch_mem_op_params_v1_dtype.fields["atomic_reduction"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUstreamMemOpAtomicReductionParams_st) * 1)
 
     @property
     def operation(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.operation[0])
-        return self._data.operation
+            return int(self._data["operation"][0])
+        return self._data["operation"]
 
     @operation.setter
     def operation(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This StreamBatchMemOpParams_v1 instance is read-only")
-        self._data.operation = val
+        self._data["operation"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef StreamBatchMemOpParams_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -19477,10 +19528,18 @@ cdef class StreamBatchMemOpParams_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return StreamBatchMemOpParams_v1.from_data(self._data[key_:key_+1])
+            obj = StreamBatchMemOpParams_v1.__new__(StreamBatchMemOpParams_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == stream_batch_mem_op_params_v1_dtype:
-            return StreamBatchMemOpParams_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == stream_batch_mem_op_params_v1_dtype:
+                obj = StreamBatchMemOpParams_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -19505,38 +19564,7 @@ cdef class StreamBatchMemOpParams_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != stream_batch_mem_op_params_v1_dtype:
             raise ValueError("data array must be of dtype stream_batch_mem_op_params_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        wait_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wait_value[i].__array_interface__['data'][0]
-            wait_value_obj = StreamMemOpWaitValueParams.from_ptr(addr, owner=obj, readonly=False)
-            wait_value_list.append(wait_value_obj)
-        obj._wait_value = tuple(wait_value_list)
-        write_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.write_value[i].__array_interface__['data'][0]
-            write_value_obj = StreamMemOpWriteValueParams.from_ptr(addr, owner=obj, readonly=False)
-            write_value_list.append(write_value_obj)
-        obj._write_value = tuple(write_value_list)
-        flush_remote_writes_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.flush_remote_writes[i].__array_interface__['data'][0]
-            flush_remote_writes_obj = StreamMemOpFlushRemoteWritesParams.from_ptr(addr, owner=obj, readonly=False)
-            flush_remote_writes_list.append(flush_remote_writes_obj)
-        obj._flush_remote_writes = tuple(flush_remote_writes_list)
-        memory_barrier_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.memory_barrier[i].__array_interface__['data'][0]
-            memory_barrier_obj = StreamMemOpMemoryBarrierParams.from_ptr(addr, owner=obj, readonly=False)
-            memory_barrier_list.append(memory_barrier_obj)
-        obj._memory_barrier = tuple(memory_barrier_list)
-        atomic_reduction_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.atomic_reduction[i].__array_interface__['data'][0]
-            atomic_reduction_obj = StreamMemOpAtomicReductionParams.from_ptr(addr, owner=obj, readonly=False)
-            atomic_reduction_list.append(atomic_reduction_obj)
-        obj._atomic_reduction = tuple(atomic_reduction_list)
+        obj._data = data.view(dtype=stream_batch_mem_op_params_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -19556,40 +19584,8 @@ cdef class StreamBatchMemOpParams_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUstreamBatchMemOpParams_v1) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=stream_batch_mem_op_params_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=stream_batch_mem_op_params_v1_dtype_record)
         obj._owner = owner
-
-        wait_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wait_value[i].__array_interface__['data'][0]
-            wait_value_obj = StreamMemOpWaitValueParams.from_ptr(addr, owner=obj, readonly=readonly)
-            wait_value_list.append(wait_value_obj)
-        obj._wait_value = tuple(wait_value_list)
-        write_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.write_value[i].__array_interface__['data'][0]
-            write_value_obj = StreamMemOpWriteValueParams.from_ptr(addr, owner=obj, readonly=readonly)
-            write_value_list.append(write_value_obj)
-        obj._write_value = tuple(write_value_list)
-        flush_remote_writes_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.flush_remote_writes[i].__array_interface__['data'][0]
-            flush_remote_writes_obj = StreamMemOpFlushRemoteWritesParams.from_ptr(addr, owner=obj, readonly=readonly)
-            flush_remote_writes_list.append(flush_remote_writes_obj)
-        obj._flush_remote_writes = tuple(flush_remote_writes_list)
-        memory_barrier_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.memory_barrier[i].__array_interface__['data'][0]
-            memory_barrier_obj = StreamMemOpMemoryBarrierParams.from_ptr(addr, owner=obj, readonly=readonly)
-            memory_barrier_list.append(memory_barrier_obj)
-        obj._memory_barrier = tuple(memory_barrier_list)
-        atomic_reduction_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.atomic_reduction[i].__array_interface__['data'][0]
-            atomic_reduction_obj = StreamMemOpAtomicReductionParams.from_ptr(addr, owner=obj, readonly=readonly)
-            atomic_reduction_list.append(atomic_reduction_obj)
-        obj._atomic_reduction = tuple(atomic_reduction_list)
         return obj
 
 
@@ -19890,6 +19886,7 @@ cdef _get_exec_affinity_param_v1_dtype_offsets():
     })
 
 exec_affinity_param_v1_dtype = _get_exec_affinity_param_v1_dtype_offsets()
+cdef object exec_affinity_param_v1_dtype_record = _numpy.dtype((_numpy.record, exec_affinity_param_v1_dtype))
 
 cdef class ExecAffinityParam_v1:
     """Empty-initialize an array of `CUexecAffinityParam_v1`.
@@ -19907,17 +19904,9 @@ cdef class ExecAffinityParam_v1:
         readonly tuple _param
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=exec_affinity_param_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=exec_affinity_param_v1_dtype_record)
         assert self._data.itemsize == sizeof(CUexecAffinityParam_v1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUexecAffinityParam_v1) }"
-        obj = self
-        param_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.param[i].__array_interface__['data'][0]
-            param_obj = _py_anon_pod10.from_ptr(addr, owner=obj, readonly=False)
-            param_list.append(param_obj)
-        obj._param = tuple(param_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -19928,17 +19917,17 @@ cdef class ExecAffinityParam_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -19958,6 +19947,17 @@ cdef class ExecAffinityParam_v1:
     @property
     def param(self):
         """_py_anon_pod10: """
+        if self._param is None:
+            param_list = list()
+            param_base = _cyb_array_ptr(self._data)
+            param_offset = exec_affinity_param_v1_dtype.fields["param"][1]
+            param_stride = self._data.strides[0]
+            param_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = param_base + i * param_stride + param_offset
+                param_obj = _py_anon_pod10.from_ptr(addr, owner=self, readonly=param_readonly)
+                param_list.append(param_obj)
+            self._param = tuple(param_list)
         if self._data.size == 1:
             return self._param[0]
         return self._param
@@ -19969,25 +19969,26 @@ cdef class ExecAffinityParam_v1:
         cdef _py_anon_pod10 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].param = value")
-        cdef intptr_t addr = self._data.param[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + exec_affinity_param_v1_dtype.fields["param"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(cuda_bindings_driver__anon_pod10) * 1)
 
     @property
     def type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.type[0])
-        return self._data.type
+            return int(self._data["type"][0])
+        return self._data["type"]
 
     @type.setter
     def type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ExecAffinityParam_v1 instance is read-only")
-        self._data.type = val
+        self._data["type"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ExecAffinityParam_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -19995,10 +19996,18 @@ cdef class ExecAffinityParam_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ExecAffinityParam_v1.from_data(self._data[key_:key_+1])
+            obj = ExecAffinityParam_v1.__new__(ExecAffinityParam_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == exec_affinity_param_v1_dtype:
-            return ExecAffinityParam_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == exec_affinity_param_v1_dtype:
+                obj = ExecAffinityParam_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -20023,14 +20032,7 @@ cdef class ExecAffinityParam_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != exec_affinity_param_v1_dtype:
             raise ValueError("data array must be of dtype exec_affinity_param_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        param_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.param[i].__array_interface__['data'][0]
-            param_obj = _py_anon_pod10.from_ptr(addr, owner=obj, readonly=False)
-            param_list.append(param_obj)
-        obj._param = tuple(param_list)
+        obj._data = data.view(dtype=exec_affinity_param_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -20050,16 +20052,8 @@ cdef class ExecAffinityParam_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUexecAffinityParam_v1) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=exec_affinity_param_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=exec_affinity_param_v1_dtype_record)
         obj._owner = owner
-
-        param_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.param[i].__array_interface__['data'][0]
-            param_obj = _py_anon_pod10.from_ptr(addr, owner=obj, readonly=readonly)
-            param_list.append(param_obj)
-        obj._param = tuple(param_list)
         return obj
 
 
@@ -20847,6 +20841,7 @@ cdef _get_array_map_info_v1_dtype_offsets():
     })
 
 array_map_info_v1_dtype = _get_array_map_info_v1_dtype_offsets()
+cdef object array_map_info_v1_dtype_record = _numpy.dtype((_numpy.record, array_map_info_v1_dtype))
 
 cdef class ArrayMapInfo_v1:
     """Empty-initialize an array of `CUarrayMapInfo_v1`.
@@ -20866,29 +20861,9 @@ cdef class ArrayMapInfo_v1:
         readonly tuple _mem_handle
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=array_map_info_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=array_map_info_v1_dtype_record)
         assert self._data.itemsize == sizeof(CUarrayMapInfo_v1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUarrayMapInfo_v1) }"
-        obj = self
-        resource_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.resource[i].__array_interface__['data'][0]
-            resource_obj = _py_anon_pod32.from_ptr(addr, owner=obj, readonly=False)
-            resource_list.append(resource_obj)
-        obj._resource = tuple(resource_list)
-        subresource_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.subresource[i].__array_interface__['data'][0]
-            subresource_obj = _py_anon_pod33.from_ptr(addr, owner=obj, readonly=False)
-            subresource_list.append(subresource_obj)
-        obj._subresource = tuple(subresource_list)
-        mem_handle_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.mem_handle[i].__array_interface__['data'][0]
-            mem_handle_obj = _py_anon_pod36.from_ptr(addr, owner=obj, readonly=False)
-            mem_handle_list.append(mem_handle_obj)
-        obj._mem_handle = tuple(mem_handle_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -20899,17 +20874,17 @@ cdef class ArrayMapInfo_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -20929,6 +20904,17 @@ cdef class ArrayMapInfo_v1:
     @property
     def resource(self):
         """_py_anon_pod32: """
+        if self._resource is None:
+            resource_list = list()
+            resource_base = _cyb_array_ptr(self._data)
+            resource_offset = array_map_info_v1_dtype.fields["resource"][1]
+            resource_stride = self._data.strides[0]
+            resource_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = resource_base + i * resource_stride + resource_offset
+                resource_obj = _py_anon_pod32.from_ptr(addr, owner=self, readonly=resource_readonly)
+                resource_list.append(resource_obj)
+            self._resource = tuple(resource_list)
         if self._data.size == 1:
             return self._resource[0]
         return self._resource
@@ -20940,12 +20926,23 @@ cdef class ArrayMapInfo_v1:
         cdef _py_anon_pod32 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].resource = value")
-        cdef intptr_t addr = self._data.resource[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + array_map_info_v1_dtype.fields["resource"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(cuda_bindings_driver__anon_pod32) * 1)
 
     @property
     def subresource(self):
         """_py_anon_pod33: """
+        if self._subresource is None:
+            subresource_list = list()
+            subresource_base = _cyb_array_ptr(self._data)
+            subresource_offset = array_map_info_v1_dtype.fields["subresource"][1]
+            subresource_stride = self._data.strides[0]
+            subresource_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = subresource_base + i * subresource_stride + subresource_offset
+                subresource_obj = _py_anon_pod33.from_ptr(addr, owner=self, readonly=subresource_readonly)
+                subresource_list.append(subresource_obj)
+            self._subresource = tuple(subresource_list)
         if self._data.size == 1:
             return self._subresource[0]
         return self._subresource
@@ -20957,12 +20954,23 @@ cdef class ArrayMapInfo_v1:
         cdef _py_anon_pod33 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].subresource = value")
-        cdef intptr_t addr = self._data.subresource[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + array_map_info_v1_dtype.fields["subresource"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(cuda_bindings_driver__anon_pod33) * 1)
 
     @property
     def mem_handle(self):
         """_py_anon_pod36: """
+        if self._mem_handle is None:
+            mem_handle_list = list()
+            mem_handle_base = _cyb_array_ptr(self._data)
+            mem_handle_offset = array_map_info_v1_dtype.fields["mem_handle"][1]
+            mem_handle_stride = self._data.strides[0]
+            mem_handle_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = mem_handle_base + i * mem_handle_stride + mem_handle_offset
+                mem_handle_obj = _py_anon_pod36.from_ptr(addr, owner=self, readonly=mem_handle_readonly)
+                mem_handle_list.append(mem_handle_obj)
+            self._mem_handle = tuple(mem_handle_list)
         if self._data.size == 1:
             return self._mem_handle[0]
         return self._mem_handle
@@ -20974,103 +20982,104 @@ cdef class ArrayMapInfo_v1:
         cdef _py_anon_pod36 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].mem_handle = value")
-        cdef intptr_t addr = self._data.mem_handle[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + array_map_info_v1_dtype.fields["mem_handle"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(cuda_bindings_driver__anon_pod36) * 1)
 
     @property
     def resource_type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.resource_type[0])
-        return self._data.resource_type
+            return int(self._data["resource_type"][0])
+        return self._data["resource_type"]
 
     @resource_type.setter
     def resource_type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
-        self._data.resource_type = val
+        self._data["resource_type"] = val
 
     @property
     def subresource_type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.subresource_type[0])
-        return self._data.subresource_type
+            return int(self._data["subresource_type"][0])
+        return self._data["subresource_type"]
 
     @subresource_type.setter
     def subresource_type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
-        self._data.subresource_type = val
+        self._data["subresource_type"] = val
 
     @property
     def mem_operation_type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.mem_operation_type[0])
-        return self._data.mem_operation_type
+            return int(self._data["mem_operation_type"][0])
+        return self._data["mem_operation_type"]
 
     @mem_operation_type.setter
     def mem_operation_type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
-        self._data.mem_operation_type = val
+        self._data["mem_operation_type"] = val
 
     @property
     def mem_handle_type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.mem_handle_type[0])
-        return self._data.mem_handle_type
+            return int(self._data["mem_handle_type"][0])
+        return self._data["mem_handle_type"]
 
     @mem_handle_type.setter
     def mem_handle_type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
-        self._data.mem_handle_type = val
+        self._data["mem_handle_type"] = val
 
     @property
     def offset(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.offset[0])
-        return self._data.offset
+            return int(self._data["offset"][0])
+        return self._data["offset"]
 
     @offset.setter
     def offset(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
-        self._data.offset = val
+        self._data["offset"] = val
 
     @property
     def device_bit_mask(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.device_bit_mask[0])
-        return self._data.device_bit_mask
+            return int(self._data["device_bit_mask"][0])
+        return self._data["device_bit_mask"]
 
     @device_bit_mask.setter
     def device_bit_mask(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
-        self._data.device_bit_mask = val
+        self._data["device_bit_mask"] = val
 
     @property
     def flags_(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.flags_[0])
-        return self._data.flags_
+            return int(self._data["flags_"][0])
+        return self._data["flags_"]
 
     @flags_.setter
     def flags_(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This ArrayMapInfo_v1 instance is read-only")
-        self._data.flags_ = val
+        self._data["flags_"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ArrayMapInfo_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -21078,10 +21087,18 @@ cdef class ArrayMapInfo_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ArrayMapInfo_v1.from_data(self._data[key_:key_+1])
+            obj = ArrayMapInfo_v1.__new__(ArrayMapInfo_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == array_map_info_v1_dtype:
-            return ArrayMapInfo_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == array_map_info_v1_dtype:
+                obj = ArrayMapInfo_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -21106,26 +21123,7 @@ cdef class ArrayMapInfo_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != array_map_info_v1_dtype:
             raise ValueError("data array must be of dtype array_map_info_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        resource_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.resource[i].__array_interface__['data'][0]
-            resource_obj = _py_anon_pod32.from_ptr(addr, owner=obj, readonly=False)
-            resource_list.append(resource_obj)
-        obj._resource = tuple(resource_list)
-        subresource_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.subresource[i].__array_interface__['data'][0]
-            subresource_obj = _py_anon_pod33.from_ptr(addr, owner=obj, readonly=False)
-            subresource_list.append(subresource_obj)
-        obj._subresource = tuple(subresource_list)
-        mem_handle_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.mem_handle[i].__array_interface__['data'][0]
-            mem_handle_obj = _py_anon_pod36.from_ptr(addr, owner=obj, readonly=False)
-            mem_handle_list.append(mem_handle_obj)
-        obj._mem_handle = tuple(mem_handle_list)
+        obj._data = data.view(dtype=array_map_info_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -21145,28 +21143,8 @@ cdef class ArrayMapInfo_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUarrayMapInfo_v1) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=array_map_info_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=array_map_info_v1_dtype_record)
         obj._owner = owner
-
-        resource_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.resource[i].__array_interface__['data'][0]
-            resource_obj = _py_anon_pod32.from_ptr(addr, owner=obj, readonly=readonly)
-            resource_list.append(resource_obj)
-        obj._resource = tuple(resource_list)
-        subresource_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.subresource[i].__array_interface__['data'][0]
-            subresource_obj = _py_anon_pod33.from_ptr(addr, owner=obj, readonly=readonly)
-            subresource_list.append(subresource_obj)
-        obj._subresource = tuple(subresource_list)
-        mem_handle_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.mem_handle[i].__array_interface__['data'][0]
-            mem_handle_obj = _py_anon_pod36.from_ptr(addr, owner=obj, readonly=readonly)
-            mem_handle_list.append(mem_handle_obj)
-        obj._mem_handle = tuple(mem_handle_list)
         return obj
 
 
@@ -21619,6 +21597,7 @@ cdef _get_dev_resource_v1_dtype_offsets():
     })
 
 dev_resource_v1_dtype = _get_dev_resource_v1_dtype_offsets()
+cdef object dev_resource_v1_dtype_record = _numpy.dtype((_numpy.record, dev_resource_v1_dtype))
 
 cdef class DevResource_v1:
     """Empty-initialize an array of `CUdevResource_v1`.
@@ -21638,29 +21617,9 @@ cdef class DevResource_v1:
         readonly tuple _wq
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=dev_resource_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=dev_resource_v1_dtype_record)
         assert self._data.itemsize == sizeof(CUdevResource_v1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUdevResource_v1) }"
-        obj = self
-        sm_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.sm[i].__array_interface__['data'][0]
-            sm_obj = DevSmResource.from_ptr(addr, owner=obj, readonly=False)
-            sm_list.append(sm_obj)
-        obj._sm = tuple(sm_list)
-        wq_config_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wq_config[i].__array_interface__['data'][0]
-            wq_config_obj = DevWorkqueueConfigResource.from_ptr(addr, owner=obj, readonly=False)
-            wq_config_list.append(wq_config_obj)
-        obj._wq_config = tuple(wq_config_list)
-        wq_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wq[i].__array_interface__['data'][0]
-            wq_obj = DevWorkqueueResource.from_ptr(addr, owner=obj, readonly=False)
-            wq_list.append(wq_obj)
-        obj._wq = tuple(wq_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -21671,17 +21630,17 @@ cdef class DevResource_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -21701,6 +21660,17 @@ cdef class DevResource_v1:
     @property
     def sm(self):
         """DevSmResource: """
+        if self._sm is None:
+            sm_list = list()
+            sm_base = _cyb_array_ptr(self._data)
+            sm_offset = dev_resource_v1_dtype.fields["sm"][1]
+            sm_stride = self._data.strides[0]
+            sm_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = sm_base + i * sm_stride + sm_offset
+                sm_obj = DevSmResource.from_ptr(addr, owner=self, readonly=sm_readonly)
+                sm_list.append(sm_obj)
+            self._sm = tuple(sm_list)
         if self._data.size == 1:
             return self._sm[0]
         return self._sm
@@ -21712,12 +21682,23 @@ cdef class DevResource_v1:
         cdef DevSmResource val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].sm = value")
-        cdef intptr_t addr = self._data.sm[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + dev_resource_v1_dtype.fields["sm"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUdevSmResource) * 1)
 
     @property
     def wq_config(self):
         """DevWorkqueueConfigResource: """
+        if self._wq_config is None:
+            wq_config_list = list()
+            wq_config_base = _cyb_array_ptr(self._data)
+            wq_config_offset = dev_resource_v1_dtype.fields["wq_config"][1]
+            wq_config_stride = self._data.strides[0]
+            wq_config_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = wq_config_base + i * wq_config_stride + wq_config_offset
+                wq_config_obj = DevWorkqueueConfigResource.from_ptr(addr, owner=self, readonly=wq_config_readonly)
+                wq_config_list.append(wq_config_obj)
+            self._wq_config = tuple(wq_config_list)
         if self._data.size == 1:
             return self._wq_config[0]
         return self._wq_config
@@ -21729,12 +21710,23 @@ cdef class DevResource_v1:
         cdef DevWorkqueueConfigResource val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].wq_config = value")
-        cdef intptr_t addr = self._data.wq_config[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + dev_resource_v1_dtype.fields["wq_config"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUdevWorkqueueConfigResource) * 1)
 
     @property
     def wq(self):
         """DevWorkqueueResource: """
+        if self._wq is None:
+            wq_list = list()
+            wq_base = _cyb_array_ptr(self._data)
+            wq_offset = dev_resource_v1_dtype.fields["wq"][1]
+            wq_stride = self._data.strides[0]
+            wq_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = wq_base + i * wq_stride + wq_offset
+                wq_obj = DevWorkqueueResource.from_ptr(addr, owner=self, readonly=wq_readonly)
+                wq_list.append(wq_obj)
+            self._wq = tuple(wq_list)
         if self._data.size == 1:
             return self._wq[0]
         return self._wq
@@ -21746,60 +21738,61 @@ cdef class DevResource_v1:
         cdef DevWorkqueueResource val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].wq = value")
-        cdef intptr_t addr = self._data.wq[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + dev_resource_v1_dtype.fields["wq"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUdevWorkqueueResource) * 1)
 
     @property
     def type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.type[0])
-        return self._data.type
+            return int(self._data["type"][0])
+        return self._data["type"]
 
     @type.setter
     def type(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
-        self._data.type = val
+        self._data["type"] = val
 
     @property
     def _internal_padding(self):
         """~_numpy.uint8: (array of length 92)."""
-        return self._data._internal_padding
+        return self._data["_internal_padding"]
 
     @_internal_padding.setter
     def _internal_padding(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
-        self._data._internal_padding = val
+        self._data["_internal_padding"] = val
 
     @property
     def _oversize(self):
         """~_numpy.uint8: (array of length 40)."""
-        return self._data._oversize
+        return self._data["_oversize"]
 
     @_oversize.setter
     def _oversize(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
-        self._data._oversize = val
+        self._data["_oversize"] = val
 
     @property
     def next_resource(self):
         """Union[~_numpy.intp, int]: """
         if self._data.size == 1:
-            return int(self._data.next_resource[0])
-        return self._data.next_resource
+            return int(self._data["next_resource"][0])
+        return self._data["next_resource"]
 
     @next_resource.setter
     def next_resource(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This DevResource_v1 instance is read-only")
-        self._data.next_resource = val
+        self._data["next_resource"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef DevResource_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -21807,10 +21800,18 @@ cdef class DevResource_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return DevResource_v1.from_data(self._data[key_:key_+1])
+            obj = DevResource_v1.__new__(DevResource_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == dev_resource_v1_dtype:
-            return DevResource_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == dev_resource_v1_dtype:
+                obj = DevResource_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -21835,26 +21836,7 @@ cdef class DevResource_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != dev_resource_v1_dtype:
             raise ValueError("data array must be of dtype dev_resource_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        sm_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.sm[i].__array_interface__['data'][0]
-            sm_obj = DevSmResource.from_ptr(addr, owner=obj, readonly=False)
-            sm_list.append(sm_obj)
-        obj._sm = tuple(sm_list)
-        wq_config_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wq_config[i].__array_interface__['data'][0]
-            wq_config_obj = DevWorkqueueConfigResource.from_ptr(addr, owner=obj, readonly=False)
-            wq_config_list.append(wq_config_obj)
-        obj._wq_config = tuple(wq_config_list)
-        wq_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wq[i].__array_interface__['data'][0]
-            wq_obj = DevWorkqueueResource.from_ptr(addr, owner=obj, readonly=False)
-            wq_list.append(wq_obj)
-        obj._wq = tuple(wq_list)
+        obj._data = data.view(dtype=dev_resource_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -21874,28 +21856,8 @@ cdef class DevResource_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUdevResource_v1) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=dev_resource_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=dev_resource_v1_dtype_record)
         obj._owner = owner
-
-        sm_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.sm[i].__array_interface__['data'][0]
-            sm_obj = DevSmResource.from_ptr(addr, owner=obj, readonly=readonly)
-            sm_list.append(sm_obj)
-        obj._sm = tuple(sm_list)
-        wq_config_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wq_config[i].__array_interface__['data'][0]
-            wq_config_obj = DevWorkqueueConfigResource.from_ptr(addr, owner=obj, readonly=readonly)
-            wq_config_list.append(wq_config_obj)
-        obj._wq_config = tuple(wq_config_list)
-        wq_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.wq[i].__array_interface__['data'][0]
-            wq_obj = DevWorkqueueResource.from_ptr(addr, owner=obj, readonly=readonly)
-            wq_list.append(wq_obj)
-        obj._wq = tuple(wq_list)
         return obj
 
 
@@ -23674,6 +23636,7 @@ cdef _get_mem_access_desc_v1_dtype_offsets():
     })
 
 mem_access_desc_v1_dtype = _get_mem_access_desc_v1_dtype_offsets()
+cdef object mem_access_desc_v1_dtype_record = _numpy.dtype((_numpy.record, mem_access_desc_v1_dtype))
 
 cdef class MemAccessDesc_v1:
     """Empty-initialize an array of `CUmemAccessDesc_v1`.
@@ -23691,17 +23654,9 @@ cdef class MemAccessDesc_v1:
         readonly tuple _location
 
     def __init__(self, size=1):
-        arr = _numpy.zeros(size, dtype=mem_access_desc_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=mem_access_desc_v1_dtype_record)
         assert self._data.itemsize == sizeof(CUmemAccessDesc_v1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUmemAccessDesc_v1) }"
-        obj = self
-        location_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.location[i].__array_interface__['data'][0]
-            location_obj = MemLocation_v1.from_ptr(addr, owner=obj, readonly=False)
-            location_list.append(location_obj)
-        obj._location = tuple(location_list)
 
     def __repr__(self):
         if self._data.size > 1:
@@ -23712,17 +23667,17 @@ cdef class MemAccessDesc_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -23742,6 +23697,17 @@ cdef class MemAccessDesc_v1:
     @property
     def location(self):
         """MemLocation_v1: """
+        if self._location is None:
+            location_list = list()
+            location_base = _cyb_array_ptr(self._data)
+            location_offset = mem_access_desc_v1_dtype.fields["location"][1]
+            location_stride = self._data.strides[0]
+            location_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = location_base + i * location_stride + location_offset
+                location_obj = MemLocation_v1.from_ptr(addr, owner=self, readonly=location_readonly)
+                location_list.append(location_obj)
+            self._location = tuple(location_list)
         if self._data.size == 1:
             return self._location[0]
         return self._location
@@ -23753,25 +23719,26 @@ cdef class MemAccessDesc_v1:
         cdef MemLocation_v1 val_ = val
         if self._data.size != 1:
             raise ValueError("Assign to the member of one element, e.g. array[i].location = value")
-        cdef intptr_t addr = self._data.location[0].__array_interface__['data'][0]
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + mem_access_desc_v1_dtype.fields["location"][1]
         _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUmemLocation) * 1)
 
     @property
     def flags_(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.flags_[0])
-        return self._data.flags_
+            return int(self._data["flags_"][0])
+        return self._data["flags_"]
 
     @flags_.setter
     def flags_(self, val):
         if not self._data.flags.writeable:
             raise ValueError("This MemAccessDesc_v1 instance is read-only")
-        self._data.flags_ = val
+        self._data["flags_"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef MemAccessDesc_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -23779,10 +23746,18 @@ cdef class MemAccessDesc_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return MemAccessDesc_v1.from_data(self._data[key_:key_+1])
+            obj = MemAccessDesc_v1.__new__(MemAccessDesc_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == mem_access_desc_v1_dtype:
-            return MemAccessDesc_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == mem_access_desc_v1_dtype:
+                obj = MemAccessDesc_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -23807,14 +23782,7 @@ cdef class MemAccessDesc_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != mem_access_desc_v1_dtype:
             raise ValueError("data array must be of dtype mem_access_desc_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        location_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.location[i].__array_interface__['data'][0]
-            location_obj = MemLocation_v1.from_ptr(addr, owner=obj, readonly=False)
-            location_list.append(location_obj)
-        obj._location = tuple(location_list)
+        obj._data = data.view(dtype=mem_access_desc_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -23834,16 +23802,8 @@ cdef class MemAccessDesc_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUmemAccessDesc_v1) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=mem_access_desc_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=mem_access_desc_v1_dtype_record)
         obj._owner = owner
-
-        location_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.location[i].__array_interface__['data'][0]
-            location_obj = MemLocation_v1.from_ptr(addr, owner=obj, readonly=readonly)
-            location_list.append(location_obj)
-        obj._location = tuple(location_list)
         return obj
 
 
