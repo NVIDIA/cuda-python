@@ -108,7 +108,9 @@ take_python_error(char *buf, std::size_t size, bool *interrupted) noexcept
 #if PY_VERSION_HEX >= 0x030C0000
     PyObject *exc = PyErr_GetRaisedException();
 #else
-    PyObject *type, *value, *traceback;
+    PyObject *type = nullptr;
+    PyObject *value = nullptr;
+    PyObject *traceback = nullptr;
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
     PyObject *exc = value;

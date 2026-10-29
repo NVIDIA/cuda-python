@@ -848,8 +848,10 @@ def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
     config = Path(__file__).resolve().parent / ".clang-tidy"
     if sys.platform == "win32":
         # Without this clang-tidy reads the MSVC options, such as /std:c++17,
-        # as file names.
+        # as file names. It does not use some of them, such as /c and /GL, and
+        # reports each unused option as an error.
         args.insert(0, "--driver-mode=cl")
+        args.append("-Wno-unused-command-line-argument")
     for include_dir in _get_implicit_include_dirs(compiler):
         args.extend(["-isystem", include_dir])
     result = subprocess.run(  # noqa: S603
