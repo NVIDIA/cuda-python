@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_get\_allocation\_granularity
+===========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_get_allocation_granularity

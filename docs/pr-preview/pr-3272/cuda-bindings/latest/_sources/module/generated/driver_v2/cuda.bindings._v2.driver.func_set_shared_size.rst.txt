@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.func\_set\_shared\_size
+=================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: func_set_shared_size

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.import\_external\_memory
+==================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: import_external_memory

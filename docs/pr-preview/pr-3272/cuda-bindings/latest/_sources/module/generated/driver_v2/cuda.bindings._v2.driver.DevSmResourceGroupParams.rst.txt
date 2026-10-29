@@ -1,0 +1,36 @@
+﻿cuda.bindings.\_v2.driver.DevSmResourceGroupParams
+==================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: DevSmResourceGroupParams
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DevSmResourceGroupParams.__init__
+      ~DevSmResourceGroupParams.from_buffer
+      ~DevSmResourceGroupParams.from_data
+      ~DevSmResourceGroupParams.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DevSmResourceGroupParams.coscheduled_sm_count
+      ~DevSmResourceGroupParams.flags_
+      ~DevSmResourceGroupParams.locality_domain_id
+      ~DevSmResourceGroupParams.preferred_coscheduled_sm_count
+      ~DevSmResourceGroupParams.ptr
+      ~DevSmResourceGroupParams.sm_count
+   
+   

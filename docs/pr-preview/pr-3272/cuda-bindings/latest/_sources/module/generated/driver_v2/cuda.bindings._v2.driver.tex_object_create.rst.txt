@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.tex\_object\_create
+=============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: tex_object_create

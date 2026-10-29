@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.logs\_current
+=======================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: logs_current
