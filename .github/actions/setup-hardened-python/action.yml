@@ -19,9 +19,9 @@ description: >-
 inputs:
   python-version:
     description: >-
-      uv Python request, e.g. "3.12", "3.14t" (free-threaded), or "3.16"
-      (resolves to a prerelease while no final release exists). The newest
-      patch known to the pinned uv is installed.
+      uv Python request, e.g. "3.12" or "3.14t" (free-threaded). The newest
+      patch known to the pinned uv is installed. Only series with a fixed
+      release listed in the interpreter check (3.11-3.15) are accepted.
     required: true
   venv:
     description: Directory for the venv. Defaults to a new directory under RUNNER_TEMP.
@@ -112,10 +112,9 @@ runs:
                 print(f"::error::Python {full} is older than {floor}, the first {name} release whose ssl module rejects the compromised eMudhra CA keys (CVE-2026-115557).")
                 sys.exit(1)
             print(f"Python {full}: ssl module carries the fix (first fixed: {floor}).")
-        elif series > max(FIXED):
-            print(f"::warning::Python {full}: no fixed {name} release is known yet.")
         else:
-            print(f"::error::Python {name} has no release whose ssl module rejects the compromised eMudhra CA keys (CVE-2026-115557).")
+            # Fail closed: a series is only accepted once its fixed release is listed.
+            print(f"::error::Python {full}: no {name} release is known to reject the compromised eMudhra CA keys (CVE-2026-115557).")
             sys.exit(1)
 
     - name: Update pip
