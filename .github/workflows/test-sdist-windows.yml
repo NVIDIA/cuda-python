@@ -59,12 +59,9 @@ jobs:
           submodules: true
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: "3.12"
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
 
       - name: Set up MSVC
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
