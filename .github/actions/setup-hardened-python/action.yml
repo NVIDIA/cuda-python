@@ -41,9 +41,11 @@ runs:
     - name: Install uv
       uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
       with:
-        # The uv release fixes the newest available patch of each series;
-        # 0.13.6 is the first with the eMudhra-fixed CPython builds.
-        version: "0.13.6"
+        # The newest uv whose checksum ships inside the pinned setup-uv, so
+        # the binary is verified against the SHA-pinned action itself. The uv
+        # release determines the newest patch of each CPython series, so
+        # bumping the setup-uv SHA also moves the CPython patch versions.
+        version: "latest-known"
         enable-cache: false
         # Some callers (e.g. release verification) have no checkout.
         ignore-empty-workdir: true
