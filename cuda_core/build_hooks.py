@@ -707,6 +707,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     return wheel_name
 
 
+@functools.cache
 def _find_clang_tidy() -> str | None:
     """The clang-tidy executable of the build environment.
 
@@ -751,20 +752,40 @@ def _warn_clang_tidy_missing() -> None:
     )
 
 
-def _get_handwritten_cpp_files(compile_command: Sequence[str]) -> list[Path]:
-    """The handwritten C++ sources, not Cython-generated ones, that a compiler command line compiles."""
+def _partition_handwritten_cpp_files(args: Sequence[str]) -> tuple[list[Path], list[str]]:
+    """Split compiler arguments into the handwritten C++ sources and the other arguments.
+
+    Cython-generated sources are not handwritten, so they stay among the other
+    arguments.
+    """
     handwritten_dir = (_PACKAGE_DIR / "_cpp").resolve()
-    files: list[Path] = []
-    for arg in compile_command:
-        # MSVC passes each C++ source as /Tp<path>, which is removed from the result.
-        path = Path(arg.removeprefix("/Tp"))
+    sources: list[Path] = []
+    other_args: list[str] = []
+    for arg in args:
+        path = Path(arg)
         if path.suffix == ".cpp" and path.resolve().is_relative_to(handwritten_dir):
-            files.append(path)
-    return files
+            sources.append(path)
+        else:
+            other_args.append(arg)
+    return sources, other_args
+
+
+def _split_compile_command(compile_command: Sequence[str]) -> tuple[tuple[str, ...], list[str]]:
+    """Split a compiler command line into the compiler and its arguments.
+
+    The compiler is the leading words that are not options: a compiler launcher
+    such as sccache or ccache, if any, and the compiler. MSVC options start with
+    "/", like paths, so there the compiler is the first word only.
+    """
+    n = 1
+    if sys.platform != "win32":
+        while n < len(compile_command) and not compile_command[n].startswith("-"):
+            n += 1
+    return tuple(compile_command[:n]), list(compile_command[n:])
 
 
 @functools.cache
-def _get_implicit_include_dirs(compiler: str) -> list[str]:
+def _get_implicit_include_dirs(compiler: tuple[str, ...]) -> list[str]:
     """The include directories that a GCC-style compiler searches without being told.
 
     They are built into the compiler, so they are not on the command line that
@@ -780,7 +801,7 @@ def _get_implicit_include_dirs(compiler: str) -> list[str]:
         return []
 
     result = subprocess.run(  # noqa: S603
-        [compiler, "-E", "-x", "c++", "-", "-v"],
+        [*compiler, "-E", "-x", "c++", "-", "-v"],
         input="",
         capture_output=True,
         text=True,
@@ -795,7 +816,9 @@ def _get_implicit_include_dirs(compiler: str) -> list[str]:
         elif in_list and not line.endswith("(framework directory)"):
             dirs.append(line.strip())
     if result.returncode != 0 or not dirs:
-        raise RuntimeError(f"Failed to query the implicit include directories of {compiler}:\n{result.stderr}")
+        raise RuntimeError(
+            f"Failed to query the implicit include directories of {' '.join(compiler)}:\n{result.stderr}"
+        )
     return dirs
 
 
@@ -809,22 +832,28 @@ def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
     finding into an error. Raises RuntimeError with the findings.
 
     When clang-tidy is not installed, the check is skipped with a prominent
-    warning.
+    warning, whether or not the command compiles a handwritten source.
     """
-    sources = _get_handwritten_cpp_files(compile_command)
-    if not sources:
-        return
-    (source,) = sources
     clang_tidy = _find_clang_tidy()
     if clang_tidy is None:
         _warn_clang_tidy_missing()
         return
+    compiler, args = _split_compile_command(compile_command)
+    # MSVC passes each C++ source as /Tp<path>.
+    args = [arg.removeprefix("/Tp") for arg in args]
+    sources, args = _partition_handwritten_cpp_files(args)
+    if not sources:
+        return
+    (source,) = sources
     config = Path(__file__).resolve().parent / ".clang-tidy"
-    implicit_includes: list[str] = []
-    for include_dir in _get_implicit_include_dirs(compile_command[0]):
-        implicit_includes.extend(["-isystem", include_dir])
+    if sys.platform == "win32":
+        # Without this clang-tidy reads the MSVC options, such as /std:c++17,
+        # as file names.
+        args.insert(0, "--driver-mode=cl")
+    for include_dir in _get_implicit_include_dirs(compiler):
+        args.extend(["-isystem", include_dir])
     result = subprocess.run(  # noqa: S603
-        [clang_tidy, f"--config-file={config}", "--quiet", source, "--", *compile_command, *implicit_includes],
+        [clang_tidy, f"--config-file={config}", "--quiet", source, "--", *args],
         capture_output=True,
         text=True,
     )
