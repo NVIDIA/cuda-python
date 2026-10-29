@@ -9,7 +9,7 @@ from contextlib import closing
 import numpy as np
 import pytest
 
-from cuda.core import HOST_COPY_FN, Device, LegacyPinnedMemoryResource, host_launch, pack_host_copy_args
+from cuda.core import HOST_COPY_FN, Buffer, Device, LegacyPinnedMemoryResource, host_launch, pack_host_copy_args
 
 N = 4096
 
@@ -108,6 +108,14 @@ def test_pack_host_copy_args_takes_addresses_from_objects(init_cuda):
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_pack_host_copy_args_accepts_buffer_without_memory_resource():
+    src = np.arange(N, dtype=np.uint8)
+    dst = np.zeros(N, dtype=np.uint8)
+    buffer = Buffer.from_handle(dst.ctypes.data, N, owner=dst)
+    assert struct.unpack("@PPN", pack_host_copy_args(buffer, src, N)) == (dst.ctypes.data, src.ctypes.data, N)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
 def test_pack_host_copy_args_checks_bounds(init_cuda):
     small = np.zeros(N - 1, dtype=np.uint8)
     large = np.zeros(N, dtype=np.uint8)
@@ -164,7 +172,10 @@ def test_pack_host_copy_args_rejects_overlap():
     view = memoryview(data)
     with pytest.raises(ValueError, match="overlap"):
         pack_host_copy_args(view[1:], view, N - 1)
+    with pytest.raises(ValueError, match="overlap"):
+        pack_host_copy_args(view, view[1:], N - 1)
     pack_host_copy_args(view[N // 2 :], view, N // 2)
+    pack_host_copy_args(view, view[N // 2 :], N // 2)
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
@@ -173,7 +184,11 @@ def test_pack_host_copy_args_rejects_null_address():
         pack_host_copy_args(0, bytearray(N), N)
 
 
+@pytest.mark.parametrize(
+    ("dst", "nbytes"),
+    [(0x1000, -1), (0x1000, 1 << 64), (-1, 1), (1 << 64, 1)],
+)
 @pytest.mark.agent_authored(model="claude-opus-5-5")
-def test_pack_host_copy_args_rejects_negative_nbytes():
+def test_pack_host_copy_args_rejects_out_of_range_int(dst, nbytes):
     with pytest.raises(OverflowError):
-        pack_host_copy_args(bytearray(N), bytearray(N), -1)
+        pack_host_copy_args(dst, 0x2000, nbytes)
