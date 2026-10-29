@@ -626,20 +626,20 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
     }
 
     // clang-format off
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, std::move(ds)},
-            [h_pool](DevicePtrBox *b) {
-                GILReleaseGuard gil;
-                const DeallocationStream& stream = b->deallocation;
-                cleanup_in_context(
-                    deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
-                    [&]() noexcept {
-                        return DRIVER_CALL(cuMemFreeAsync,
-                            b->resource, as_cu(stream.h_stream));
-                    });
-                delete b;
-            }
-        );
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, std::move(ds)},
+        [h_pool](DevicePtrBox *b) {
+            GILReleaseGuard gil;
+            const DeallocationStream& stream = b->deallocation;
+            cleanup_in_context(
+                deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
+                [&]() noexcept {
+                    return DRIVER_CALL(cuMemFreeAsync,
+                        b->resource, as_cu(stream.h_stream));
+                });
+            delete b;
+        }
+    );
     // clang-format on
     return DevicePtrHandle(box, &box->resource);
 }
