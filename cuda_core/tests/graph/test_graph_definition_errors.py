@@ -6,13 +6,16 @@
 import ctypes
 
 import pytest
+from helpers.contexts import current_context_handle, use_context
 from helpers.graph_kernels import compile_common_kernels
 from helpers.misc import try_create_condition
 
-from cuda.core import Device, LaunchConfig
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core import ContextOptions, Device, LaunchConfig, SMResourceOptions
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import driver_version
 from cuda.core.graph import (
     EmptyNode,
+    GraphCompleteOptions,
     GraphCondition,
     GraphDefinition,
 )
@@ -148,6 +151,118 @@ def test_multiple_instantiation(init_cuda):
     g1 = g.instantiate()
     g2 = g.instantiate()
     assert g1 is not g2
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_instantiate_rejects_cycle_and_accepts_repaired_graph(init_cuda):
+    """Removing a cycle makes an invalid graph executable again."""
+    definition = GraphDefinition()
+    called = []
+    first = definition.empty()
+    last = first.callback(lambda: called.append(True))
+    last.succ.add(first)
+    stream = init_cuda.create_stream()
+    executable = None
+    try:
+        with pytest.raises(RuntimeError, match="invalid structure, such as cycles"):
+            definition.instantiate()
+        assert called == []
+        last.succ.discard(first)
+        executable = definition.instantiate()
+        executable.launch(stream)
+        stream.sync()
+        assert called == [True]
+    finally:
+        if executable is not None:
+            executable.close()
+        last.succ.discard(first)
+        last.destroy()
+        first.destroy()
+        stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_device_launch_rejects_host_callback(init_cuda):
+    """Device-launch graphs reject host callbacks before execution."""
+    definition = GraphDefinition()
+    called = []
+    node = definition.callback(lambda: called.append(True))
+    try:
+        with pytest.raises(
+            RuntimeError, match="device launch failed because the graph contained an unsupported operation"
+        ):
+            definition.instantiate(GraphCompleteOptions(device_launch=True))
+        assert called == []
+    finally:
+        node.destroy()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_device_launch_rejects_nodes_from_different_contexts(init_cuda):
+    """Device-launch instantiation rejects mixed contexts and accepts a repaired graph."""
+    if driver_version() < (12, 4, 0):
+        pytest.skip("green contexts require CUDA driver 12.4 or newer")
+    if not init_cuda.properties.unified_addressing:
+        pytest.skip("device launch requires unified addressing")
+    original_context = current_context_handle()
+    definition = GraphDefinition()
+    green_context = first = foreign = executable = stream = None
+    try:
+        groups, _ = init_cuda.resources.sm.split(SMResourceOptions(count=None))
+        green_context = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+        module = compile_common_kernels()
+        kernel = module.get_kernel("empty_kernel")
+        config = LaunchConfig(grid=1, block=1)
+        first = definition.launch(config, kernel)
+        with use_context(init_cuda, green_context):
+            foreign = definition.launch(config, kernel)
+
+        # CUkernel handles are context-independent; check each node's resolved context.
+        first_params = handle_return(driver.cuGraphKernelNodeGetParams(first.handle))
+        foreign_params = handle_return(driver.cuGraphKernelNodeGetParams(foreign.handle))
+        assert int(first_params.ctx) == original_context
+        assert int(foreign_params.ctx) == int(green_context.handle)
+        assert int(foreign_params.ctx) != original_context
+        assert current_context_handle() == original_context
+        with pytest.raises(RuntimeError, match="nodes belonging to different contexts"):
+            definition.instantiate(GraphCompleteOptions(device_launch=True))
+        assert current_context_handle() == original_context
+
+        # A single-context graph remains valid after the failed instantiation.
+        foreign.destroy()
+        foreign = None
+        executable = definition.instantiate(GraphCompleteOptions(device_launch=True))
+        stream = init_cuda.create_stream()
+        executable.launch(stream)
+        stream.sync()
+        assert current_context_handle() == original_context
+    finally:
+        if executable is not None:
+            executable.close()
+        if foreign is not None:
+            foreign.destroy()
+        if first is not None:
+            first.destroy()
+        if stream is not None:
+            stream.close()
+        if green_context is not None:
+            green_context.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_instantiate_rejects_unassociated_condition(init_cuda):
+    """Instantiation rejects a condition that no conditional node uses."""
+    if driver_version() < (12, 8, 0):
+        pytest.skip("Unused graph-condition diagnostics require CUDA driver 12.8 or newer")
+    definition = GraphDefinition()
+    # Deliberately leave this graph-owned condition unassociated with a node.
+    definition.create_condition(default_value=1)
+    node = definition.empty()
+    try:
+        with pytest.raises(RuntimeError, match="conditional handles are not associated with conditional builders"):
+            definition.instantiate()
+    finally:
+        node.destroy()
 
 
 def test_unmatched_alloc_succeeds(init_cuda):

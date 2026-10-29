@@ -4,7 +4,7 @@
 
 import numpy as np
 import pytest
-from helpers.contexts import assert_device_operations_use_bound_context, use_context
+from helpers.contexts import assert_device_operations_use_bound_context, current_context_handle, use_context
 
 from cuda.core import (
     ContextOptions,
@@ -206,6 +206,24 @@ def test_create_context_requires_resources(init_cuda):
         init_cuda.create_context(ContextOptions(resources=None))
     with pytest.raises(TypeError):
         init_cuda.create_context(object())
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_create_context_rejects_empty_resources(init_cuda):
+    """An empty resource list cannot create a green context."""
+    original_context = current_context_handle()
+    with pytest.raises(ValueError):
+        init_cuda.create_context(ContextOptions(resources=[]))
+    assert current_context_handle() == original_context
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_create_context_rejects_unsupported_resource(init_cuda):
+    """A resource of an unsupported type leaves the current context unchanged."""
+    original_context = current_context_handle()
+    with pytest.raises(TypeError):
+        init_cuda.create_context(ContextOptions(resources=[object()]))
+    assert current_context_handle() == original_context
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
