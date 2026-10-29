@@ -2833,11 +2833,7 @@ class _IntSubclass(int):
     [
         pytest.param(lambda: True, id="bool"),
         pytest.param(lambda: _IntSubclass(4096), id="int-subclass"),
-        pytest.param(
-            lambda: np.uint64(4096),
-            id="np-uint64",
-            marks=pytest.mark.skipif(np is None, reason="numpy is not installed"),
-        ),
+        pytest.param(lambda: np.uint64(4096), id="np-uint64"),
     ],
 )
 def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, make_value):
