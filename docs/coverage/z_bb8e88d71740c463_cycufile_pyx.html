@@ -73,7 +73,7 @@
   "#": "tests/legacy_api/test_legacy_cufile.py::test_set_parameter_posix_pool_slab_array|setup",
   "$": "tests/legacy_api/test_legacy_cufile.py::test_set_stats_level|setup",
   "%": "tests/legacy_api/test_legacy_cufile.py::test_stats_start_stop|setup",
-  "'": "tests/test_cufile.py::test_cufile_success_defined|setup",
+  "'": "tests/test_cufile.py::test_batch_io_large_operations|setup",
   "(": "tests/test_cufile.py::test_get_stats_l1|setup",
   ")": "tests/test_cufile.py::test_get_stats_l2|setup",
   "*": "tests/test_cufile.py::test_get_stats_l3|setup",
@@ -102,64 +102,63 @@
   "db": "tests/legacy_api/test_legacy_cufile.py::test_handle_register|setup",
   "eb": "tests/test_cufile.py::test_batch_io_basic|setup",
   "fb": "tests/test_cufile.py::test_batch_io_cancel|setup",
-  "gb": "tests/test_cufile.py::test_batch_io_large_operations|setup",
-  "hb": "tests/test_cufile.py::test_buf_register_already_registered|setup",
-  "ib": "tests/test_cufile.py::test_buf_register_host_memory|setup",
-  "jb": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
-  "kb": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
-  "lb": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
-  "mb": "tests/test_cufile.py::test_buf_register_simple|setup",
-  "nb": "tests/test_cufile.py::test_cufile_async_read_write|setup",
-  "ob": "tests/test_cufile.py::test_cufile_read_async|setup",
-  "pb": "tests/test_cufile.py::test_cufile_read_write_host_memory|setup",
-  "qb": "tests/test_cufile.py::test_cufile_read_write_large|setup",
-  "rb": "tests/test_cufile.py::test_cufile_read_write|setup",
-  "sb": "tests/test_cufile.py::test_cufile_write_async|setup",
-  "tb": "tests/test_cufile.py::test_get_bar_size_in_kb|setup",
-  "ub": "tests/test_cufile.py::test_get_parameter_min_max_value|setup",
-  "vb": "tests/test_cufile.py::test_handle_register|setup",
-  "wb": "tests/legacy_api/test_legacy_cufile.py::test_batch_io_basic|teardown",
-  "xb": "tests/legacy_api/test_legacy_cufile.py::test_batch_io_cancel|teardown",
-  "yb": "tests/legacy_api/test_legacy_cufile.py::test_batch_io_large_operations|teardown",
-  "zb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_already_registered|teardown",
-  "Ab": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_host_memory|teardown",
-  "Bb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_invalid_flags|teardown",
-  "Cb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_large_buffer|teardown",
-  "Db": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_multiple_buffers|teardown",
-  "Eb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_simple|teardown",
-  "Fb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_async_read_write|teardown",
-  "Gb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_async|teardown",
-  "Hb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_write_host_memory|teardown",
-  "Ib": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_write_large|teardown",
-  "Jb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_write|teardown",
-  "Kb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_write_async|teardown",
-  "Lb": "tests/legacy_api/test_legacy_cufile.py::test_get_bar_size_in_kb|teardown",
-  "Mb": "tests/legacy_api/test_legacy_cufile.py::test_get_parameter_min_max_value|teardown",
-  "Nb": "tests/legacy_api/test_legacy_cufile.py::test_handle_register|teardown",
-  "Ob": "tests/legacy_api/test_legacy_cufile.py::test_set_parameter_posix_pool_slab_array|teardown",
-  "Pb": "tests/test_cufile.py::test_batch_io_basic|teardown",
-  "Qb": "tests/test_cufile.py::test_batch_io_cancel|teardown",
-  "Rb": "tests/test_cufile.py::test_batch_io_large_operations|teardown",
-  "Sb": "tests/test_cufile.py::test_buf_register_already_registered|teardown",
-  "Tb": "tests/test_cufile.py::test_buf_register_host_memory|teardown",
-  "Ub": "tests/test_cufile.py::test_buf_register_invalid_flags|teardown",
-  "Vb": "tests/test_cufile.py::test_buf_register_large_buffer|teardown",
-  "Wb": "tests/test_cufile.py::test_buf_register_multiple_buffers|teardown",
-  "Xb": "tests/test_cufile.py::test_buf_register_simple|teardown",
-  "Yb": "tests/test_cufile.py::test_cufile_async_read_write|teardown",
-  "Zb": "tests/test_cufile.py::test_cufile_read_async|teardown",
-  "0b": "tests/test_cufile.py::test_cufile_read_write_host_memory|teardown",
-  "1b": "tests/test_cufile.py::test_cufile_read_write_large|teardown",
-  "2b": "tests/test_cufile.py::test_cufile_read_write|teardown",
-  "3b": "tests/test_cufile.py::test_cufile_write_async|teardown",
-  "4b": "tests/test_cufile.py::test_get_bar_size_in_kb|teardown",
-  "5b": "tests/test_cufile.py::test_get_parameter_min_max_value|teardown",
-  "6b": "tests/test_cufile.py::test_handle_register|teardown",
-  "7b": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|teardown",
-  "8b": "tests/legacy_api/test_legacy_cufile.py::test_get_parameter_min_max_value|run",
-  "9b": "tests/test_cufile.py::test_get_parameter_min_max_value|run",
-  "!b": "tests/legacy_api/test_legacy_cufile.py::test_get_bar_size_in_kb|run",
-  "#b": "tests/test_cufile.py::test_get_bar_size_in_kb|run"
+  "gb": "tests/test_cufile.py::test_buf_register_already_registered|setup",
+  "hb": "tests/test_cufile.py::test_buf_register_host_memory|setup",
+  "ib": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
+  "jb": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
+  "kb": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
+  "lb": "tests/test_cufile.py::test_buf_register_simple|setup",
+  "mb": "tests/test_cufile.py::test_cufile_async_read_write|setup",
+  "nb": "tests/test_cufile.py::test_cufile_read_async|setup",
+  "ob": "tests/test_cufile.py::test_cufile_read_write_host_memory|setup",
+  "pb": "tests/test_cufile.py::test_cufile_read_write_large|setup",
+  "qb": "tests/test_cufile.py::test_cufile_read_write|setup",
+  "rb": "tests/test_cufile.py::test_cufile_write_async|setup",
+  "sb": "tests/test_cufile.py::test_get_bar_size_in_kb|setup",
+  "tb": "tests/test_cufile.py::test_get_parameter_min_max_value|setup",
+  "ub": "tests/test_cufile.py::test_handle_register|setup",
+  "vb": "tests/legacy_api/test_legacy_cufile.py::test_batch_io_basic|teardown",
+  "wb": "tests/legacy_api/test_legacy_cufile.py::test_batch_io_cancel|teardown",
+  "xb": "tests/legacy_api/test_legacy_cufile.py::test_batch_io_large_operations|teardown",
+  "yb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_already_registered|teardown",
+  "zb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_host_memory|teardown",
+  "Ab": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_invalid_flags|teardown",
+  "Bb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_large_buffer|teardown",
+  "Cb": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_multiple_buffers|teardown",
+  "Db": "tests/legacy_api/test_legacy_cufile.py::test_buf_register_simple|teardown",
+  "Eb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_async_read_write|teardown",
+  "Fb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_async|teardown",
+  "Gb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_write_host_memory|teardown",
+  "Hb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_write_large|teardown",
+  "Ib": "tests/legacy_api/test_legacy_cufile.py::test_cufile_read_write|teardown",
+  "Jb": "tests/legacy_api/test_legacy_cufile.py::test_cufile_write_async|teardown",
+  "Kb": "tests/legacy_api/test_legacy_cufile.py::test_get_bar_size_in_kb|teardown",
+  "Lb": "tests/legacy_api/test_legacy_cufile.py::test_get_parameter_min_max_value|teardown",
+  "Mb": "tests/legacy_api/test_legacy_cufile.py::test_handle_register|teardown",
+  "Nb": "tests/legacy_api/test_legacy_cufile.py::test_set_parameter_posix_pool_slab_array|teardown",
+  "Ob": "tests/test_cufile.py::test_batch_io_basic|teardown",
+  "Pb": "tests/test_cufile.py::test_batch_io_cancel|teardown",
+  "Qb": "tests/test_cufile.py::test_batch_io_large_operations|teardown",
+  "Rb": "tests/test_cufile.py::test_buf_register_already_registered|teardown",
+  "Sb": "tests/test_cufile.py::test_buf_register_host_memory|teardown",
+  "Tb": "tests/test_cufile.py::test_buf_register_invalid_flags|teardown",
+  "Ub": "tests/test_cufile.py::test_buf_register_large_buffer|teardown",
+  "Vb": "tests/test_cufile.py::test_buf_register_multiple_buffers|teardown",
+  "Wb": "tests/test_cufile.py::test_buf_register_simple|teardown",
+  "Xb": "tests/test_cufile.py::test_cufile_async_read_write|teardown",
+  "Yb": "tests/test_cufile.py::test_cufile_read_async|teardown",
+  "Zb": "tests/test_cufile.py::test_cufile_read_write_host_memory|teardown",
+  "0b": "tests/test_cufile.py::test_cufile_read_write_large|teardown",
+  "1b": "tests/test_cufile.py::test_cufile_read_write|teardown",
+  "2b": "tests/test_cufile.py::test_cufile_write_async|teardown",
+  "3b": "tests/test_cufile.py::test_get_bar_size_in_kb|teardown",
+  "4b": "tests/test_cufile.py::test_get_parameter_min_max_value|teardown",
+  "5b": "tests/test_cufile.py::test_handle_register|teardown",
+  "6b": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|teardown",
+  "7b": "tests/legacy_api/test_legacy_cufile.py::test_get_parameter_min_max_value|run",
+  "8b": "tests/test_cufile.py::test_get_parameter_min_max_value|run",
+  "9b": "tests/legacy_api/test_legacy_cufile.py::test_get_bar_size_in_kb|run",
+  "!b": "tests/test_cufile.py::test_get_bar_size_in_kb|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -222,7 +221,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-28 01:06 +0000
+            created at 2026-10-29 01:02 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -287,7 +286,7 @@
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverOpen() except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs50" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverOpen()</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">58 ctx</label></span><span class="ctxs">2: ; = ? @ [ ] ^ _ ` { | } ~ 7 abbbcb8 9 ! dbz B C F # $ % ebfbgbhbibjbkblbmbnbobpbqbrb' sbtbub( ) * vbA D E G + , - </span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverOpen()</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">57 ctx</label></span><span class="ctxs">2: ; = ? @ [ ] ^ _ ` { | } ~ 7 abbbcb8 9 ! dbz B C F # $ % ebfb' gbhbibjbkblbmbnbobpbqbrbsbtb( ) * ubA D E G + , - </span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose() except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs54" class="ctx">(empty)</label></span></p>
@@ -295,7 +294,7 @@
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileDriverClose_v2() except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs58" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverClose_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">58 ctx</label></span><span class="ctxs">2wbxbybzbAbBbCbDbEbFbGbHbIbJb7 KbLbMbH I J Nbz B C F ObK L PbQbRbSbTbUbVbWbXbYbZb0b1b2b' 3b4b5bM N O 6bA D E G 7bP Q </span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">    return _cufile._cuFileDriverClose_v2()</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">58 ctx</label></span><span class="ctxs">2vbwbxbybzbAbBbCbDbEbFbGbHbIb7 JbKbLbH I J Mbz B C F NbK L ObPb' QbRbSbTbUbVbWbXbYbZb0b1b2b3b4bM N O 5bA D E G 6bP Q </span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">cdef long cuFileUseCount() except* nogil:</span>&nbsp;</span><span class="r"><label for="ctxs62" class="ctx">(empty)</label></span></p>
@@ -388,7 +387,7 @@
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs151" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterMinMaxValue(param, min_value, max_value)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">2 ctx</label></span><span class="ctxs">28b9b</span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetParameterMinMaxValue(param, min_value, max_value)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">2 ctx</label></span><span class="ctxs">27b8b</span></p>
     <p class="pln"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetStatsLevel(int level) except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs155" class="ctx">(empty)</label></span></p>
@@ -424,7 +423,7 @@
     <p class="pln"><span class="n"><a id="t185" href="#t185">185</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs187" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetBARSizeInKB(gpuIndex, barSize)</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">2 ctx</label></span><span class="ctxs">2!b#b</span></p>
+    <p class="run"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">    return _cufile._cuFileGetBARSizeInKB(gpuIndex, barSize)</span>&nbsp;</span><input type="checkbox" id="ctxs188"><span class="r"><label for="ctxs188" class="ctx">2 ctx</label></span><span class="ctxs">29b!b</span></p>
     <p class="pln"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?&lt;CUfileError_t&gt;CUFILE_LOADING_ERROR nogil:</span>&nbsp;</span><span class="r"><label for="ctxs191" class="ctx">(empty)</label></span></p>
@@ -450,7 +449,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cydriver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-28 01:06 +0000
+            created at 2026-10-29 01:02 +0000
         </p>
     </div>
 </footer>
