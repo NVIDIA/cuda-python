@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.ctx\_get\_exec\_affinity
-==================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: ctx_get_exec_affinity
