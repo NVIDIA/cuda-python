@@ -107,16 +107,12 @@ jobs:
           enable-apt: true
 
       - name: Set up Python
-        id: setup-python1
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        id: host-python
+        uses: ./.github/actions/setup-hardened-python
         with:
-          # WAR: setup-python is not relocatable, and cibuildwheel hard-wires to 3.12...
-          # see https://github.com/actions/setup-python/issues/871
+          # Also installs cibuildwheel (via python-path below), so the action
+          # does not fall back on its own unchecked setup-python interpreter.
           python-version: "3.12"
-          architecture: ${{ ((inputs.host-platform == 'linux-aarch64' || inputs.host-platform == 'win-arm64') && 'arm64') || 'x64' }}
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') }}
@@ -235,6 +231,7 @@ jobs:
           package-dir: ./cuda_bindings_13/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # build[uv]: same PEP 517 orchestration, with uv instead of pip.
@@ -332,6 +329,7 @@ jobs:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # See the cuda.bindings step above for UV_* vs PIP_*.
@@ -442,16 +440,10 @@ jobs:
           if-no-files-found: error
 
       - name: Set up Python
-        id: setup-python2
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: ${{ startsWith(matrix.python-version, '3.16') }}
-
-      - name: Harden pip
-        if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
-        uses: ./.github/actions/harden-pip
 
       - name: verify free-threaded build
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && endsWith(matrix.python-version, 't') }}
@@ -460,10 +452,11 @@ jobs:
       - name: Set up Python include paths
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
         run: |
+          include="$(python -c "import sysconfig; print(sysconfig.get_paths()['include'])")"
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            echo "CPLUS_INCLUDE_PATH=${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}" >> $GITHUB_ENV
+            echo "CPLUS_INCLUDE_PATH=${include}" >> $GITHUB_ENV
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            echo "CL=/I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\"" >> $GITHUB_ENV
+            echo "CL=/I\"${include}\"" >> $GITHUB_ENV
           fi
           # For caching
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
@@ -614,6 +607,7 @@ jobs:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # See the cuda.bindings step above for UV_* vs PIP_*.
