@@ -238,7 +238,10 @@ class HandleRegistry {
         return h;
     }
 
+    // MSVC's std::unordered_map allocates in its default constructor, so an
+    // allocation failure here terminates. Running out of memory is fatal either way.
     MapType
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     drain() noexcept
     {
         std::scoped_lock lock(mutex_);
