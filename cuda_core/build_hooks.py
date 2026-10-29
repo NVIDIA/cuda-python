@@ -822,6 +822,10 @@ def _get_implicit_include_dirs(compiler: tuple[str, ...]) -> list[str]:
     return dirs
 
 
+class ClangTidyError(RuntimeError):
+    """clang-tidy reported errors in a handwritten source."""
+
+
 def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
     """Run clang-tidy on the handwritten .cpp that a compiler command line compiles.
 
@@ -829,7 +833,7 @@ def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
     so clang-tidy sees the same compiler, include directories, macros and
     flags as the build. Commands that do not compile a handwritten source are
     ignored. The configuration is cuda_core/.clang-tidy, which turns every
-    finding into an error. Raises RuntimeError with the findings.
+    finding into an error. Raises ClangTidyError with the findings.
 
     When clang-tidy is not installed, the check is skipped with a prominent
     warning, whether or not the command compiles a handwritten source.
@@ -860,7 +864,7 @@ def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
         text=True,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"clang-tidy reported errors in {source}:\n{result.stdout}{result.stderr}")
+        raise ClangTidyError(f"clang-tidy reported errors in {source}:\n{result.stdout}{result.stderr}")
 
 
 def _get_cuda_bindings_require():

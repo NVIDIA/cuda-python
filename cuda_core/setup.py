@@ -94,15 +94,23 @@ class build_ext(_build_ext):  # noqa: N801
         clang-tidy gets the exact command line of the build. That method is
         call() in current setuptools, where spawn() is deprecated and delegates
         to it, and spawn() before. Only sources that are rebuilt are checked.
+
+        A source with findings does not stop the build. Every source is checked
+        and compiled, and the findings of all of them are raised together once
+        the build is over, so that one run reports everything to fix.
         """
         compiler = self.compiler
         method = "spawn"
         if hasattr(compiler, "call"):
             method = "call"
         stock = getattr(compiler, method)
+        failures = []
 
         def run(cmd, *args, **kwargs):
-            build_hooks.check_with_clang_tidy(cmd)
+            try:
+                build_hooks.check_with_clang_tidy(cmd)
+            except build_hooks.ClangTidyError as e:
+                failures.append(str(e))
             return stock(cmd, *args, **kwargs)
 
         setattr(compiler, method, run)
@@ -110,6 +118,8 @@ class build_ext(_build_ext):  # noqa: N801
             yield
         finally:
             setattr(compiler, method, stock)
+            if failures:
+                raise build_hooks.ClangTidyError("\n\n".join(failures))
 
     @contextlib.contextmanager
     def _parallel_source_compilation(self):
