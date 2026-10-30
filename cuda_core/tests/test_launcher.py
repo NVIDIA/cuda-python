@@ -157,6 +157,41 @@ def test_launch_config_cooperative_unsupported(monkeypatch):
         LaunchConfig(grid=1, block=1, is_cooperative=True)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_cooperative_block_count_counts_blocks_not_clusters(monkeypatch):
+    """The cooperative residency check compares against a *block* limit.
+
+    ``config.grid`` counts clusters whenever ``cluster`` is set (that is what
+    ``_to_native_launch_config`` multiplies out before filling in ``gridDim``),
+    so comparing ``prod(config.grid)`` against
+    ``max_active_blocks_per_multiprocessor * num_sm`` under-counted by
+    ``prod(config.cluster)`` and let an over-subscribed cooperative launch
+    through the guard it exists to trip.
+
+    Device is mocked so this runs on any GPU.
+    """
+    from cuda.core import _launch_config as _lc_mod
+    from cuda.core._launcher import _cooperative_block_count
+
+    class _FakeProps:
+        cooperative_launch = True
+
+    class _FakeDev:
+        compute_capability = (9, 0)
+        properties = _FakeProps()
+
+    monkeypatch.setattr(_lc_mod, "Device", lambda: _FakeDev())
+
+    # No cluster: grid is already a block count.
+    config = LaunchConfig(grid=(2, 3, 1), block=32, is_cooperative=True)
+    assert _cooperative_block_count(config) == 6
+
+    # With a cluster the driver is asked for prod(grid) * prod(cluster) blocks.
+    config = LaunchConfig(grid=(2, 3, 1), cluster=(2, 2, 1), block=32, is_cooperative=True)
+    assert config.grid == (2, 3, 1)  # grid is still stored in cluster units
+    assert _cooperative_block_count(config) == 24
+
+
 def test_to_native_launch_config_cooperative(monkeypatch):
     """Covers the is_cooperative branch of _to_native_launch_config; Device is mocked so it runs on any GPU."""
     from cuda.bindings import driver

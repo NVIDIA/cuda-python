@@ -244,6 +244,12 @@ Fixes and enhancements
   refreshed for CUDA 13.3 and now recognizes
   ``CUDA_ERROR_GRAPH_RECAPTURE_FAILURE``.
   (`#2383 <https://github.com/NVIDIA/cuda-python/pull/2383>`__)
+- The cooperative-launch residency check now counts blocks when
+  :class:`LaunchConfig` specifies a ``cluster``. ``grid`` counts clusters in
+  that case, so the check compared cluster counts against a per-device block
+  limit and under-counted by ``prod(cluster)`` -- a cooperative launch that
+  genuinely over-subscribes the device passed the guard. The error message now
+  spells out the block count as well.
 
 Deprecation Notices
 -------------------
