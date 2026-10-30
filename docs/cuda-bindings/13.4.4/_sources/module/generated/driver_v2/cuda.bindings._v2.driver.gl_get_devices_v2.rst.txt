@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.gl\_get\_devices\_v2
-==============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: gl_get_devices_v2

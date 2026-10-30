@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.get\_cubin
-===================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autofunction:: get_cubin

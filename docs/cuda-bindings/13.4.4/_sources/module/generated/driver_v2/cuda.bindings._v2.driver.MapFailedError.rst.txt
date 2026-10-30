@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.MapFailedError
-========================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoexception:: MapFailedError

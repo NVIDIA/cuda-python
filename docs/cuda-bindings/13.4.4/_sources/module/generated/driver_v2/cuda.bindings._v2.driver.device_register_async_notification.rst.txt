@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.device\_register\_async\_notification
-===============================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: device_register_async_notification
