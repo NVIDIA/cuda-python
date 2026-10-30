@@ -100,6 +100,8 @@ def test_register_rejects_mismatched_uuid(ipc_memory_resource):
     resource's UUID and silently corrupt the IPC registry.
     """
     mr = ipc_memory_resource
+    if not is_pool_resource(mr):
+        pytest.skip("allocation handles and the registry are pool-only")
     assert mr.is_ipc_enabled
 
     # The resource must already carry its own UUID (assigned on creation).

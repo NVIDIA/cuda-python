@@ -455,8 +455,8 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
         registered = self.register(uuid)
         if registered is not self:
             raise RuntimeError(
-                "Internal error: register() returned a different memory "
-                "resource than the one being registered"
+                "internal cuda.core error, please report: register() returned a "
+                "different memory resource than the one being registered"
             )
 
     return self
