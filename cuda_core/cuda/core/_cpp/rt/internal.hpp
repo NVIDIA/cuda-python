@@ -193,6 +193,25 @@ class HandleRegistry {
         map_.erase(key);
     }
 
+    // A reused raw key may already name a newer resource generation.
+    void
+    unregister_handle(const Key &key, const typename Handle::element_type *expected) noexcept
+    {
+        // Releasing the last strong owner may re-enter this registry, so keep
+        // it alive until after the mutex is released.
+        Handle h;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto it = map_.find(key);
+            if (it != map_.end()) {
+                h = it->second.lock();
+                if (!h || h.get() == expected) {
+                    map_.erase(it);
+                }
+            }
+        }
+    }
+
     void
     register_handles(const std::vector<Handle> &handles)
     {

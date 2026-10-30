@@ -304,7 +304,7 @@ create_graph_handle(CUgraph graph)
         [](GraphHierarchy *hierarchy) {
             for (const GraphBox& box : hierarchy->graphs) {
                 if (box.resource) {
-                    graph_registry.unregister_handle(box.resource);
+                    graph_registry.unregister_handle(box.resource, &box.resource);
                 }
             }
             GraphBox *root = hierarchy->root();
@@ -330,11 +330,14 @@ create_child_graph_handle(CUgraph child_graph, const GraphHandle &h_parent, CUgr
     if (!child_graph || !h_parent || !owner_node) {
         return {};
     }
+    GraphBox *parent = get_box(h_parent);
     if (GraphHandle h_graph = graph_registry.lookup(child_graph)) {
-        return h_graph;
+        const GraphBox *child = get_box(h_graph);
+        if (child->parent == parent && child->owner_node == owner_node) {
+            return h_graph;
+        }
     }
 
-    GraphBox *parent = get_box(h_parent);
     GraphHierarchy *hierarchy = parent->hierarchy;
     GraphBox &child = hierarchy->graphs.emplace_back(child_graph, hierarchy, parent, owner_node);
 
@@ -659,7 +662,7 @@ retire_graph(GraphHierarchy &hierarchy, std::list<GraphBox>::iterator graph) noe
         }
     }
     if (graph->resource) {
-        graph_registry.unregister_handle(graph->resource);
+        graph_registry.unregister_handle(graph->resource, &graph->resource);
         graph->resource = nullptr;
     }
     graph->attachments.clear();

@@ -172,8 +172,11 @@ metadata for the root graph and subgraphs. Each `GraphBox` stores:
 When CUDA destroys a child graph, the associated `GraphBox` is cleared and
 moved to `GraphHierarchy::graveyard`. That invalidates existing handles and
 preserves the storage until the hierarchy's last shared owner is released.
-Removing the registry entry also prevents corruption if a future CUDA graph
-reuses the raw handle value.
+CUDA may reuse a child's raw handle before the old metadata is retired.
+Child lookup checks the parent box and owner node, and cleanup removes only
+its own resource generation's registry entry. This keeps old invalidation or
+hierarchy destruction from adopting or erasing an independent graph's newer
+metadata; see [registry identity](REGISTRY_DESIGN.md#reused-graph-handles).
 
 The process-wide graph registry maps a live `CUgraph` to its canonical
 `GraphHandle`. Node handles are scoped to their `GraphBox`, where they can all

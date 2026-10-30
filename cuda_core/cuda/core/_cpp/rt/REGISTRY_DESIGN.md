@@ -32,6 +32,21 @@ with default metadata, losing information that was set at creation.
 Instances: `context_registry`, `stream_registry`, `event_registry`,
 `kernel_registry`, `graph_registry`, and one node registry per `GraphBox`.
 
+### Reused graph handles
+
+CUDA can recycle a child graph's raw address after native destruction but
+before its old metadata is retired. A child-graph lookup therefore accepts a
+cached handle only when its parent `GraphBox` and owning node match the
+requested relationship. Independent hierarchies must not share stale metadata
+merely because CUDA reused an address.
+
+Graph cleanup uses identity-conditional unregistering: it erases the raw key
+only if the entry is expired or still names the retiring resource slot. Compare
+`shared_ptr::get()`, not its control block, because distinct graph generations
+within one hierarchy share ownership but have different stable resource slots.
+The temporary strong handle used for this check is released after unlocking
+the registry mutex; its deleter may re-enter the registry.
+
 ## Level 2: Resource Handle -> Python Object (Cython)
 
 `_node_registry` in `_graph_node.pyx` is a `WeakValueDictionary`
