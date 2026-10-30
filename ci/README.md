@@ -342,6 +342,11 @@ resolved version and `git describe` output before retaining its milestone.
 reads the bindings registry from that run's source commit. The source registry
 must be compatible with the nightly workflow; the current workflow requires
 schema 2. It does not translate an older registry into the new layout.
+Selected rows that install a custom driver must also include its
+`DRIVER_SHA256` in the source matrix. Registry compatibility alone does not
+make a pre-hardening source compatible: choose a newer successful run rather
+than disabling installer verification. Rows using preinstalled drivers do not
+need an installer checksum.
 
 After multi-root CI lands on `main`, wait for the first successful, complete
 main CI run containing the new registry and both bindings majors before using
@@ -351,8 +356,8 @@ incompatible source and stops. PR CI builds and tests everything when it has
 no complete, compatible artifact baseline.
 
 To test the nightly workflow before that main run is available, supply the ID
-of a successful CI run built with the compatible registry and required wheel
-artifacts, such as a validated PR run:
+of a successful CI run built with the compatible registry, required wheel
+artifacts, and driver-checksum metadata, such as a validated PR run:
 
 ```console
 gh workflow run ci-nightly.yml --repo NVIDIA/cuda-python --ref main -f 'run-id=<compatible-ci-run-id>'
@@ -411,7 +416,14 @@ that predate that registry, dispatch compatible historical tooling instead.
 In particular, CUDA 13.4 releases from `13.4.x` use the release workflow on
 that branch, including when rebuilding their documentation.
 
-For example, validate the existing `v13.4.4` release and rebuild its docs with:
+Before dispatching historical tooling, bring its control branch up to date
+with the applicable CI security fixes, including a verified patched Python
+and current CA/download protections. Source-layout compatibility alone is
+insufficient. The example below assumes those safeguards are in place; it
+does not require changing the immutable release source.
+
+After meeting that prerequisite, validate the existing `v13.4.4` release and
+rebuild its docs with:
 
 ```console
 gh workflow run release.yml --repo NVIDIA/cuda-python --ref 13.4.x \
