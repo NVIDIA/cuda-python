@@ -97,13 +97,14 @@ def _opted_out(lines: list[str], node: ast.AST) -> bool:
 
 
 def _walk_scope(scope: ast.AST) -> Iterator[ast.AST]:
-    """Yield ``scope``'s descendants, yielding but not entering nested function/lambda/class bodies."""
-    pending = list(ast.iter_child_nodes(scope))
+    """Yield ``scope``'s descendants in source order, not entering nested function/lambda/class bodies."""
+    # Push children reversed so the leftmost (earliest) child pops first.
+    pending = list(reversed(list(ast.iter_child_nodes(scope))))
     while pending:
         node = pending.pop()
         yield node
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)):
-            pending.extend(ast.iter_child_nodes(node))
+            pending.extend(reversed(list(ast.iter_child_nodes(node))))
 
 
 def _assign_targets(node: ast.AST) -> list[ast.expr]:
@@ -118,35 +119,64 @@ def _assign_targets(node: ast.AST) -> list[ast.expr]:
 def _pool_props_violations(path: Path, scope: ast.AST, lines: list[str]) -> list[Violation]:
     """Report each ``var = PoolPropsType(...)`` with no ``var.max_size`` set in the same scope.
 
-    Recurses so a cap only counts in the scope that built the props; a cap on a
-    same-named variable elsewhere does not excuse it.
+    Processes nodes in source order.  When ``var`` is reassigned to a new
+    construction, any cap set on the previous object is reset; only a cap that
+    follows the new construction (in the same scope) excuses it.
+
+    Recurses into nested scopes so a cap set in another function does not count.
+
+    Handles both plain and type-annotated assignments (``ast.Assign`` and
+    ``ast.AnnAssign``).
     """
     found: list[Violation] = []
-    constructed: list[tuple[ast.Assign, str, str]] = []  # (node, variable, type name)
-    capped: set[str] = set()
+    # Maps variable name -> (construction node, type name) for the latest
+    # uncapped construction.  Removed when the variable is capped; overwritten
+    # (with a report of the old entry if it was still pending) on reassignment.
+    pending: dict[str, tuple[ast.AST, str]] = {}
+
     for node in _walk_scope(scope):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             found += _pool_props_violations(path, node, lines)
             continue
+        # Cap: props.max_size = ... or props.maxSize = ...
         for target in _assign_targets(node):
             if (
                 isinstance(target, ast.Attribute)
                 and target.attr in POOL_PROPS_CAP_ATTRIBUTES
                 and isinstance(target.value, ast.Name)
             ):
-                capped.add(target.value.id)
-        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.value, ast.Call):
-            (target,) = node.targets
-            type_name = _callee_name(node.value)
-            if isinstance(target, ast.Name) and type_name in POOL_PROPS_TYPES:
-                constructed.append((node, target.id, type_name))
-    for node, variable, type_name in constructed:
-        if variable not in capped and not _opted_out(lines, node):
+                pending.pop(target.value.id, None)
+        # Construction: props = PoolPropsType(...) or props: T = PoolPropsType(...)
+        con_target = con_value = None
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            con_target, con_value = node.targets[0], node.value
+        elif isinstance(node, ast.AnnAssign) and node.value is not None:
+            con_target, con_value = node.target, node.value
+        if (
+            isinstance(con_target, ast.Name)
+            and isinstance(con_value, ast.Call)
+            and _callee_name(con_value) in POOL_PROPS_TYPES
+        ):
+            var, type_name = con_target.id, _callee_name(con_value)
+            if var in pending:
+                prev_node, prev_type = pending.pop(var)
+                if not _opted_out(lines, prev_node):
+                    found.append(
+                        Violation(
+                            RULE_PROPS,
+                            f"{path.as_posix()}:{prev_node.lineno}: {prev_type} assigned to '{var}' "
+                            f"without {var}.max_size / {var}.maxSize",
+                        )
+                    )
+            pending[var] = (node, type_name)
+
+    for var, (node, type_name) in pending.items():
+        if not _opted_out(lines, node):
             found.append(
                 Violation(
                     RULE_PROPS,
-                    f"{path.as_posix()}:{node.lineno}: {type_name} assigned to '{variable}' "
-                    f"without {variable}.max_size / {variable}.maxSize",
+                    f"{path.as_posix()}:{node.lineno}: {type_name} assigned to '{var}' "
+                    f"without {var}.max_size / {var}.maxSize",
                 )
             )
     return found

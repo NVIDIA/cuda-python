@@ -103,6 +103,16 @@ POOL_PROPS_CAPPED = [
     pytest.param("def f():\n    props = cuda.CUmemPoolProps_v1()\n    props.maxSize = POOL_SIZE\n", id="in-function"),
     # A field of an alloc-node params object is not a constructor call, so it is not checked.
     pytest.param("params.poolProps.allocType = TYPE\nparams.pool_props = other\n", id="graph-params-fields"),
+    # Type-annotated assignment (ast.AnnAssign) must also be detected and treated as capped.
+    pytest.param(
+        "props: cuda.CUmemPoolProps = cuda.CUmemPoolProps()\nprops.maxSize = POOL_SIZE\n",
+        id="annotated-capped",
+    ),
+    # Second construction caps correctly; the first was already capped.
+    pytest.param(
+        "props = cuda.CUmemPoolProps()\nprops.maxSize = POOL_SIZE\nprops = cuda.CUmemPoolProps()\nprops.maxSize = POOL_SIZE\n",
+        id="two-constructions-both-capped",
+    ),
 ]
 
 POOL_PROPS_UNCAPPED = [
@@ -117,6 +127,13 @@ POOL_PROPS_UNCAPPED = [
     pytest.param(
         "def make():\n    return cuda.CUmemPoolProps()\n\n\ndef f():\n    props = cuda.CUmemPoolProps()\n    g(props)\n\n\ndef g(props):\n    props.maxSize = POOL_SIZE\n",
         id="capped-in-another-function",
+    ),
+    # Type-annotated assignment without a cap must also be reported (ast.AnnAssign, Finding 1).
+    pytest.param("props: cuda.CUmemPoolProps = cuda.CUmemPoolProps()\n", id="annotated-uncapped"),
+    # A cap on the first object does not cover a second construction of the same name (Finding 2).
+    pytest.param(
+        "props = cuda.CUmemPoolProps()\nprops.maxSize = POOL_SIZE\nprops = cuda.CUmemPoolProps()\n",
+        id="reassignment-second-uncapped",
     ),
 ]
 
@@ -174,3 +191,29 @@ def test_main_reports_both_rules_separately(tmp_path, capsys):
     err = capsys.readouterr().err
     assert "memory pools created by tests must set max_size:" in err
     assert "pool properties created by tests must set max_size / maxSize" in err
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4.6")
+def test_annotated_pool_props_assignment_reports_correct_line(tmp_path):
+    # Finding 1: props: T = CUmemPoolProps() is ast.AnnAssign; it must be detected.
+    path = write(tmp_path, "x = 1\nprops: cuda.CUmemPoolProps = cuda.CUmemPoolProps()\n")
+
+    (violation,) = violations_in(path)
+
+    assert ":2:" in violation
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4.6")
+def test_reassignment_reports_only_the_uncapped_construction(tmp_path):
+    # Finding 2: a cap on the first object must not excuse a second construction
+    # of the same variable.  Only the second (uncapped) object should be reported.
+    source = (
+        "props = cuda.CUmemPoolProps()\n"  # line 1
+        "props.maxSize = POOL_SIZE\n"  # line 2 — caps line 1
+        "props = cuda.CUmemPoolProps()\n"  # line 3 — new object, no cap
+    )
+    path = write(tmp_path, source)
+
+    (violation,) = violations_in(path)
+
+    assert ":3:" in violation
