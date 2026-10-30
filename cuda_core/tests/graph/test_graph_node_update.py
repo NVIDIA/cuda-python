@@ -133,18 +133,16 @@ def _event_record_case(device):
 
 
 def _event_wait_case(device):
-    """Keep the selected event pending to identify each exec's wait target."""
+    """Keep one event pending at a time to identify each exec's wait target."""
     original = device.create_event()
     replacement = device.create_event()
     invalid_replacement = device.create_event()
     invalid_replacement.close()
 
-    callback_called = threading.Event()
     graph_def = GraphDefinition()
     node = graph_def.wait(original)
-    node.callback(callback_called.set)
 
-    def assert_exec_uses(graph, expected):
+    def assert_blocked_by(graph, pending, expect_blocked):
         producer_started = threading.Event()
         producer_release = threading.Event()
 
@@ -153,22 +151,37 @@ def _event_wait_case(device):
             producer_release.wait(timeout=30)
 
         producer_def = GraphDefinition()
-        producer_def.callback(blocking_callback).record(expected)
+        producer_def.callback(blocking_callback)
         producer_graph = producer_def.instantiate()
         producer_stream = device.create_stream()
         consumer_stream = device.create_stream()
 
-        callback_called.clear()
         producer_graph.launch(producer_stream)
         try:
+            # A stream-ordered record marks the event pending before it returns,
+            # unlike a record node, which does so only when the driver reaches it.
+            producer_stream.record(pending)
             assert producer_started.wait(timeout=5)
+            assert pending.is_done is False
             graph.launch(consumer_stream)
-            assert not callback_called.wait(timeout=0.1)
+            # Probe with an event rather than a host callback: host callbacks
+            # on different streams may or may not be serialized.
+            probe = consumer_stream.record()
+            if expect_blocked:
+                time.sleep(0.1)
+                assert not probe.is_done
+            else:
+                _wait_until(lambda: probe.is_done)
         finally:
             producer_release.set()
             producer_stream.sync()
             consumer_stream.sync()
-        assert callback_called.is_set()
+        assert probe.is_done
+
+    def assert_exec_uses(graph, expected):
+        unexpected = replacement if expected is original else original
+        assert_blocked_by(graph, expected, expect_blocked=True)
+        assert_blocked_by(graph, unexpected, expect_blocked=False)
 
     return _DefinitionUpdateCase(
         graph_def=graph_def,
