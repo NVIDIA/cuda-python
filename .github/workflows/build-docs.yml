@@ -78,16 +78,19 @@ jobs:
           ref: ${{ github.sha }}
           path: .ci-control
 
-      - name: Harden pip
+      - name: Set up Python for CI tools
         # The release checkout can predate this action; use the workflow revision.
-        uses: ./.ci-control/.github/actions/harden-pip
+        uses: ./.ci-control/.github/actions/setup-hardened-python
         with:
-          python: python3
+          python-version: "3.12"
 
       - name: Install CI tool dependencies
+        # Keep the hardened interpreter ahead of any login-shell activation.
+        shell: bash --noprofile --norc -euo pipefail {0}
         run: python3 -m pip install -e ./.ci-control/ci
 
       - name: Resolve CUDA bindings package
+        shell: bash --noprofile --norc -euo pipefail {0}
         env:
           BINDINGS_PACKAGE: ${{ inputs.bindings-package }}
           IS_RELEASE: ${{ inputs.is-release }}
@@ -353,7 +356,7 @@ jobs:
       # interpreter instead of the conda environment used above.
       - name: Set up Python for link checks
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        uses: ./.github/actions/setup-hardened-python
+        uses: ./.ci-control/.github/actions/setup-hardened-python
         with:
           python-version: "3.14"
 

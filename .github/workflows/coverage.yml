@@ -25,10 +25,10 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
         with:
-          python: python3
+          python-version: "3.12"
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci

@@ -82,8 +82,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.12"
 
       - name: Install CI tool dependencies
         run: python -m pip install -e ./ci

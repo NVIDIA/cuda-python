@@ -95,10 +95,10 @@ jobs:
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
 
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
         with:
-          python: python3
+          python-version: "3.12"
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci
@@ -277,10 +277,10 @@ jobs:
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
 
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
         with:
-          python: python3
+          python-version: "3.12"
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci
@@ -344,12 +344,10 @@ jobs:
       - name: Install system packages
         run: |
           apt-get update
-          # ca-certificates + git for checkout; libgl1/libegl1 for pyglet
-          # (pulled in by the test env). Python packages support the bindings
-          # registry and maintenance SCM preparation; setup-pixi installs pixi.
+          # ca-certificates + git for checkout; libgl1/libegl1 for pyglet.
+          # The hardened Python setup below supplies the CI helper interpreter.
           apt-get install -y --no-install-recommends \
-            ca-certificates git jq libgl1 libegl1 python3 \
-            python3-packaging python3-setuptools-scm python3-yaml
+            ca-certificates git jq libgl1 libegl1
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -361,6 +359,14 @@ jobs:
           filter: blob:none
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
+
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -e ./ci
 
       - name: Prepare selected CUDA environment
         env:
