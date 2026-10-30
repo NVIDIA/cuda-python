@@ -91,7 +91,7 @@ jobs:
       (needs.python-wheels.result == 'success' || github.ref != 'refs/heads/main') &&
       (github.repository == 'NVIDIA/cuda-python' ||
        vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true')
-    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@5a45d2625c1b120cc5e5303f523971f7ad5a0018  # test/malware-vuln-onboarding
+    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@0c1ff79b858f7a6037cb34a8d798ced83ad323df  # test/malware-vuln-onboarding
     with:
       enable-secret-scan: true
       enable-vuln-scan: true
