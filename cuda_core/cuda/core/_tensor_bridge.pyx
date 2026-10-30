@@ -166,36 +166,6 @@ cdef _get_cuda_stream_fn_t _cached_get_cuda_stream = NULL
 cdef _tensor_from_pyobj_fn_t _cached_tensor_from_pyobj = NULL
 cdef _delete_tensor_fn_t _cached_delete_tensor = NULL
 cdef bint _tried_resolve_pyobj_shim = False
-# Diagnostic/benchmark toggle: when False, the dispatch skips the shim path
-# even if the symbols were resolved.  Lets us benchmark fallback vs shim on
-# the same torch version.  Default True.
-cdef bint _use_shim_if_available = True
-
-# Diagnostic counters: how many view_as_torch_tensor calls used each path.
-cdef Py_ssize_t _shim_path_count = 0
-cdef Py_ssize_t _fallback_path_count = 0
-
-
-def _get_pyobj_path_counts():
-    """Return (shim_hits, fallback_hits) for the view_as_torch_tensor dispatch."""
-    return (_shim_path_count, _fallback_path_count)
-
-
-def _reset_pyobj_path_counts():
-    global _shim_path_count, _fallback_path_count
-    _shim_path_count = 0
-    _fallback_path_count = 0
-
-
-def _set_use_shim(bint enabled):
-    """Toggle whether the shim path is used when available (benchmarking only)."""
-    global _use_shim_if_available
-    _use_shim_if_available = enabled
-
-
-def _get_shim_available():
-    """Return True if the stable PyObject-conversion shim was resolved."""
-    return _cached_tensor_from_pyobj != NULL and _cached_delete_tensor != NULL
 
 import numpy
 import sys
@@ -432,7 +402,6 @@ def view_as_torch_tensor(
     cdef bint owned = False
     global _cached_tensor_from_pyobj, _cached_delete_tensor
     global _tried_resolve_pyobj_shim
-    global _shim_path_count, _fallback_path_count
 
     # -- Resolve the pytorch stable PyObject<->Tensor shims (torch>=2.14) on
     #    first call.  If present, use them for an owned handle.  Otherwise
@@ -442,16 +411,12 @@ def view_as_torch_tensor(
         _cached_delete_tensor = <_delete_tensor_fn_t>_resolve_delete_tensor_fn()
         _tried_resolve_pyobj_shim = True
 
-    if (_use_shim_if_available
-            and _cached_tensor_from_pyobj != NULL
-            and _cached_delete_tensor != NULL):
+    if _cached_tensor_from_pyobj != NULL and _cached_delete_tensor != NULL:
         check_aoti(_cached_tensor_from_pyobj(<void*>obj, &handle),
                    b"torch_tensor_from_pyobject")
         owned = True
-        _shim_path_count += 1
     else:
         handle = pyobj_to_aten_handle(obj)
-        _fallback_path_count += 1
 
     try:
         # Note: we intentionally skip PyTorch's Python-level __dlpack__ guards
