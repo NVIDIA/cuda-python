@@ -102,12 +102,10 @@ jobs:
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+          venv: .venv
 
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
@@ -116,15 +114,6 @@ jobs:
         with:
           host-platform: ${{ env.HOST_PLATFORM }}
           cuda-version: ${{ env.CUDA_VER }}
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
-        with:
-          python: .venv/bin/python
 
       - name: Build and install cuda-pathfinder wheel
         run: |
@@ -253,9 +242,10 @@ jobs:
           submodules: true
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
+          venv: .venv
 
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
@@ -266,15 +256,6 @@ jobs:
         with:
           host-platform: win-64
           cuda-version: ${{ env.CUDA_VER }}
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
-        with:
-          python: .venv/Scripts/python
 
       - name: Build cuda.pathfinder wheel
         run: |
@@ -392,9 +373,10 @@ jobs:
           nvidia-smi
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
+          venv: .venv
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -413,15 +395,6 @@ jobs:
         run: |
           echo "=== Downloaded wheel artifacts ==="
           ls -lahR ./wheels/
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
-        with:
-          python: .venv/Scripts/python
 
       - name: Install wheels from build job
         run: |
@@ -502,12 +475,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
 
       - name: Install coverage
         run: |

@@ -316,15 +316,11 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_TEST_BINARIES_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: ${{ matrix.PY_VER }}
-          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.16') }}
-
-      - name: Harden pip
         # $/ resolves at the workflow's commit. ./ would resolve against the
         # inputs.sha checkout, which can predate this action.
-        uses: $/.github/actions/harden-pip
+        uses: $/.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ matrix.PY_VER }}
 
       - name: Verify LongPathsEnabled
         run: |

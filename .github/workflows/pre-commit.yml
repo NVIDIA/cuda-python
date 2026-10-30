@@ -46,7 +46,7 @@ jobs:
       # install a Git commit hook. All other hooks, including Lychee, run.
       SKIP: check-precommit-installed
       PYTHONUTF8: "1"
-      # Minor version used by setup-python and as the cache restore-key prefix.
+      # Minor version used by setup-hardened-python and as the cache restore-key prefix.
       PYTHON_VERSION: "3.14"
     steps:
       - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
@@ -66,7 +66,7 @@ jobs:
 
       - name: Set up Python
         id: python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -83,13 +83,12 @@ jobs:
           # that bump, so hooks rebuild from a warm cache instead of cold. The
           # prefix stops at the minor with no trailing separator, so it is a
           # prefix of "py3.14.<patch>-..." regardless of the separator that
-          # follows the resolved version.
-          key: pre-commit-${{ runner.os }}-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          # follows the resolved version. Hook environments point at the
+          # interpreter that built them, so "uv" keeps environments built on
+          # setup-python interpreters from being restored.
+          key: pre-commit-${{ runner.os }}-uv-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: |
-            pre-commit-${{ runner.os }}-py${{ env.PYTHON_VERSION }}
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
+            pre-commit-${{ runner.os }}-uv-py${{ env.PYTHON_VERSION }}
 
       - name: Install pre-commit
         run: python -m pip install pre-commit
@@ -180,4 +179,4 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
-          key: pre-commit-${{ runner.os }}-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          key: pre-commit-${{ runner.os }}-uv-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
