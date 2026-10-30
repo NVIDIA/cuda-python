@@ -43,13 +43,13 @@ therefore resolve a recycled address to another hierarchy's metadata.
 
 Scoping the child registry to its parent `GraphBox` removes that case by
 construction: `create_child_graph_handle` always knows the parent, and roots
-are never looked up. Within one hierarchy, external synchronization and the
-retire-before-register order in `graph_commit_child_graph_update` keep the
-entry for an address on its live box, as long as every child graph that CUDA
-destroys is retired before that address is registered again. The one path
-that does not retire is a conditional-body capture that ends invalidated; the
-parent graph is already invalid there (issue #2918), and the registry does
-not guard it.
+are never looked up. Within the parent, an entry is keyed by the child's
+`CUgraph` and its owner node, which together identify a child graph. If CUDA
+destroys a child before cuda.core retires its box, the owner node is still
+alive, so a newer child at the recycled address has a different owner and its
+own entry. Retiring the stale box erases only the stale entry. Within one
+owner, external synchronization and the retire-before-register order in
+`graph_commit_child_graph_update` keep one live entry per key.
 
 ## Level 2: Resource Handle -> Python Object (Cython)
 

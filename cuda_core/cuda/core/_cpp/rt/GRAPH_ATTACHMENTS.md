@@ -174,9 +174,9 @@ That invalidates existing handles and preserves the storage until the
 hierarchy's last shared owner is released.
 
 Each `GraphBox` holds two registries: its direct child graphs keyed by
-`CUgraph` and its nodes keyed by `CUgraphNode`. Both are scoped to the box,
-so a raw handle recycled by CUDA in another hierarchy cannot resolve to this
-hierarchy's metadata; see
+`CUgraph` and owner node, and its nodes keyed by `CUgraphNode`. Both are
+scoped to the box, so a raw handle recycled by CUDA in another hierarchy
+cannot resolve to this hierarchy's metadata; see
 [registry identity](REGISTRY_DESIGN.md#reused-graph-handles). Node handles use
 separate `GraphNodeBox::resource` fields and are nulled before the graph box
 is retired.

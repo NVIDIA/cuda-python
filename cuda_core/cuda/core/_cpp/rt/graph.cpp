@@ -11,6 +11,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdlib>
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
@@ -69,6 +70,29 @@ using GraphAttachmentMap = std::map<CUgraphNode, NodeAttachment *>;
 
 struct GraphHierarchy;
 
+// A child graph is identified by its address and its owner node in the parent.
+// A box that CUDA destroyed before cuda.core retired it keeps a key distinct
+// from a newer child that reuses its address under another owner node.
+struct ChildGraphKey {
+    CUgraph graph;
+    CUgraphNode owner_node;
+
+    bool
+    operator==(const ChildGraphKey &other) const noexcept
+    {
+        return graph == other.graph && owner_node == other.owner_node;
+    }
+};
+
+struct ChildGraphKeyHash {
+    std::size_t
+    operator()(const ChildGraphKey &key) const noexcept
+    {
+        std::size_t h = std::hash<const void *>{}(key.graph);
+        return h ^ (std::hash<const void *>{}(key.owner_node) + 0x9e3779b9 + (h << 6) + (h >> 2));
+    }
+};
+
 // Standard-layout alias target for GraphHandle.
 struct GraphBoxBase {
     CUgraph resource = nullptr;
@@ -83,7 +107,7 @@ struct GraphBox : GraphBoxBase {
     GraphAttachmentMap attachments;       // Non-owning attachment index.
     HandleRegistry<CUgraphNode, GraphNodeHandle> node_handles;
     // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-    HandleRegistry<CUgraph, GraphHandle> children;  // Canonical handles of the direct child graphs.
+    HandleRegistry<ChildGraphKey, GraphHandle, ChildGraphKeyHash> children;  // Direct child graphs.
 
     GraphBox(
         CUgraph resource_, GraphHierarchy *hierarchy_, GraphBox *parent_ = nullptr, CUgraphNode owner_node_ = nullptr
@@ -149,7 +173,7 @@ register_child_handles(const std::vector<GraphHandle> &handles)
 {
     for (const GraphHandle &h : handles) {
         GraphBox *box = get_box(h);
-        box->parent->children.register_handle(box->resource, h);
+        box->parent->children.register_handle({box->resource, box->owner_node}, h);
     }
 }
 
@@ -334,17 +358,15 @@ create_child_graph_handle(CUgraph child_graph, const GraphHandle &h_parent, CUgr
         return {};
     }
     GraphBox *parent = get_box(h_parent);
-    if (GraphHandle h_graph = parent->children.lookup(child_graph)) {
-        if (get_box(h_graph)->owner_node == owner_node) {
-            return h_graph;
-        }
+    if (GraphHandle h_graph = parent->children.lookup({child_graph, owner_node})) {
+        return h_graph;
     }
 
     GraphHierarchy *hierarchy = parent->hierarchy;
     GraphBox &child = hierarchy->graphs.emplace_back(child_graph, hierarchy, parent, owner_node);
 
     GraphHandle h_child(h_parent, &child.resource);
-    parent->children.register_handle(child_graph, h_child);
+    parent->children.register_handle({child_graph, owner_node}, h_child);
     return h_child;
 }
 
@@ -665,7 +687,7 @@ retire_graph(GraphHierarchy &hierarchy, std::list<GraphBox>::iterator graph) noe
     }
     if (graph->resource) {
         if (graph->parent) {
-            graph->parent->children.unregister_handle(graph->resource);
+            graph->parent->children.unregister_handle({graph->resource, graph->owner_node});
         }
         graph->resource = nullptr;
     }
