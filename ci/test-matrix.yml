@@ -110,7 +110,7 @@ linux:
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' } }
     # nightly-numba-cuda
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '580.65.06', DRIVER_SHA256: '04b10867af585e765cfbfdcf39ed5f4bd112375bebab0172eaa187c6aa5024ff', ENV: { MODE: 'nightly-numba-cuda' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '580.126.18', DRIVER_SHA256: 'a7781b2e1c2d65c6580914c76e79ed454d02945df84711c033070a092a9ab49d', ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
     # nightly-numba-cuda-mlir (MLIR backend, linux-64 only)
