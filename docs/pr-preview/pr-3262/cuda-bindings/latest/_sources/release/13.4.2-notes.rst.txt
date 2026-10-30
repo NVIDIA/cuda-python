@@ -1,0 +1,78 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.4.2 Release notes
+======================================
+
+Breaking changes
+----------------
+
+Members of ``cuda-bindings`` classes that represent memory for use by future
+versions of the CUDA API were incorrectly exposed to Python.  These have been
+removed and are no longer exposed.  These members have names like ``reserved``,
+``internal``, ``padding`` and ``unused`` (sometimes with a numeric suffix).  The
+C++ CUDA documentation may sometimes say that these members "must be zeroed",
+but that is not required with the ``cuda-bindings`` Python interface (it happens
+automatically).
+
+This affects the following fields:
+
+- ``driver``: ``CUDA_ARRAY_MEMORY_REQUIREMENTS_st.reserved``,
+  ``CUDA_ARRAY_SPARSE_PROPERTIES_st.reserved``,
+  ``CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st.reserved``,
+  ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.reserved``,
+  ``CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st.reserved``,
+  ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.reserved``,
+  ``CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.reserved``,
+  ``CUDA_EXTERNAL_SEMAPHONE_SIGNAL_PARAMS_st.nvSciSync.reserved``,
+  ``CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.reserved``,
+  ``CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.nvSciSync.reserved``,
+  ``CUDA_MEMCPY3D_st.reserved0``, ``CUDA_MEMCPY3D_st.reserved1``,
+  ``CUDA_MEMCPY_NODE_PARAMS_st.reserved``, ``CUDA_RESOURCE_DESC_st.res.reserved``,
+  ``CUDA_RESOURCE_VIEW_DESC_st.reserved``, ``CUDA_TEXTURE_DESC_st.reserved``,
+  ``CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved``, ``CUarrayMapInfo_st.reserved``,
+  ``CUcheckpointCheckpointArgs_st.reserved``,
+  ``CUcheckpointLockArgs_st.reserved0``, ``CUcheckpointLockArgs_st.reserved1``,
+  ``CUcheckpointRestoreArgs_st.padding0``,
+  ``CUcheckpointRestoreArgs_st.reserved``, ``CUcheckpointUnlockArgs_st.reserved``,
+  ``CUdevWorkqueueResource_st.reserved``, ``CUgraphEdgeData_st.reserved``,
+  ``CUgraphNodeParams_st.reserved0``, ``CUgraphNodeParams_st.reserved1``,
+  ``CUgraphNodeParams_st.reserved2``, ``CUipcEventHandle_st.reserved``,
+  ``CUipcMemHandle_st.reserved``, ``CUmemAllocationProp_st.allocFlags.reserved``,
+  ``CUmemDecompressParams_st.padding``, ``CUmemPoolProps_st.reserved``,
+  ``CUmemPoolPtrExportData_st.reserved``
+- ``nvml``: ``AccountingStats.reserved``, ``VgpuMetadata.reserved``, ``VgpuPgpuMetadata.reserved``
+- ``runtime``: ``cudaArrayMemoryRequirements.reserved``,
+  ``cudaArraySparseProperties.reserved``,
+  ``cudaDevSmResourceGroupParams_st.reserved``,
+  ``cudaDevWorkqueueResource.reserved``, ``cudaDeviceProp.reserved``,
+  ``cudaEglPlaneDesc_st.reserved``, ``cudaExternalMemoryBufferDesc.reserved``,
+  ``cudaExternalMemoryHandleDesc.reserved``,
+  ``cudaExternalMemoryMipmappedArrayDesc.reserved``,
+  ``cudaExternalSemaphoreHandleDesc.reserved``,
+  ``cudaExternalSemaphoreSignalParams.reserved``,
+  ``cudaExternalSemaphoreWaitParams.reserved``, ``cudaFuncAttributes.reserved``,
+  ``cudaGraphEdgeData_st.reserved``, ``cudaGraphNodeParams.reserved0``,
+  ``cudaGraphNodeParams.reserved1``, ``cudaGraphNodeParams.reserved2``,
+  ``cudaIpcEventHandle_st.reserved``, ``cudaIpcMemHandle_st.reserved``,
+  ``cudaMemFabricHandle_st.reserved``, ``cudaMemPoolProps.reserved``,
+  ``cudaMemPoolPtrExportData.reserved``, ``cudaMemcpyNodeParams.reserved``,
+  ``cudaPointerAttributes.reserved``, ``cudaPointerAttributes.unused``,
+  ``cudaResourceViewDesc.reserved``
+
+It is no longer possible to get or set these bytes directly.  To create a
+wrapped struct from a buffer (for example, for pickling), see
+:ref:`tips-setting-raw-struct-bytes`.
+
+Bugfixes
+--------
+
+- ``cuda-bindings`` is rebuilt against CUDA toolkit 13.4.2, and thus gets all of its bugfixes.
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
+* ``nvml.system_get_process_name`` on WSL can return incorrect values.  To work around this, set the locale to "C" before calling ``nvml.device_get_compute_running_processes_v3`` (which sets the process names) and before calling ``nvml.system_get_process_name``. ``cuda_core`` does this automatically, but users of the raw NVML API will need to do this manually.
