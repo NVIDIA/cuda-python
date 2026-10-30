@@ -728,7 +728,7 @@ cdef class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type``, ``handle_type``, and ``numa_id`` and passes the
+            ``location_type``, ``handle_type``, and ``numa_id`` and pass the
             same checks as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
