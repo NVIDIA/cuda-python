@@ -22,8 +22,10 @@ from helpers.constants import POOL_SIZE
 mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
 ```
 
-Use a larger value only if a test genuinely requires it, and prefer adding a
-shared constant to `helpers/constants.py` over redefining one per module.
+`helpers/constants.py` re-exports `POOL_SIZE` from
+`cuda_python_test_helpers.memory`, where the `cuda.bindings` tests import it
+too. Use a larger value only if a test genuinely requires it, and prefer adding
+a shared constant over redefining one per module.
 
 ### Passing no options is different from passing empty options
 
@@ -105,6 +107,10 @@ Follow these rules when adding or moving shared test code:
   when the test needs to communicate with a running child or inspect its lifetime;
   use `kill_subprocesses` before assertions and `track_child_processes` for
   fixture cleanup so a stuck child cannot block IPC resource teardown.
+- Use the skip guards in `helpers/memory.py` instead of per-module copies:
+  `skip_if_mempool_unsupported`, `skip_if_managed_mempool_unsupported` (a
+  property check only; it never constructs a managed resource), and
+  `is_pool_resource` to tell pool-backed resources from VMM ones.
 - Search `tests/helpers/` and `cuda_python_test_helpers/` for prior art
   before adding a new helper; consolidate duplicates across
 

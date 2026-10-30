@@ -7,16 +7,12 @@ import cuda.cuda as cuda
 import cuda.cudart as cudart
 import numpy as np
 import pytest
+from cuda_python_test_helpers.memory import supports_memory_pools
 
 # TODO: update to new module once the old ones are removed, we use the
 # tests to cover backward compatibility.
 cimport cuda.ccuda as ccuda
 cimport cuda.ccudart as ccudart
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
 def test_interop_stream():
@@ -140,7 +136,7 @@ def test_interop_graphNode():
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
 
 
-@pytest.mark.skipif(not supportsMemoryPool(), reason='Requires mempool operations')
+@pytest.mark.skipif(not supports_memory_pools(), reason='Requires mempool operations')
 def test_interop_memPool():
     err_dr, = cuda.cuInit(0)
     assert(err_dr == cuda.CUresult.CUDA_SUCCESS)
