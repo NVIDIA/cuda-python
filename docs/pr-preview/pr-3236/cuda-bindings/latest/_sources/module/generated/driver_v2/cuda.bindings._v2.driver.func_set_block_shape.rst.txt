@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.func\_set\_block\_shape
-=================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: func_set_block_shape

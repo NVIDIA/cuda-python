@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.NvlinkLowPowerThreshold
-==========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: NvlinkLowPowerThreshold

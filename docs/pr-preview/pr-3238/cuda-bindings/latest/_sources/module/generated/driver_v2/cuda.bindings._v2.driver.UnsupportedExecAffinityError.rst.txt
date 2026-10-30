@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.UnsupportedExecAffinityError
-======================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoexception:: UnsupportedExecAffinityError

@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.vdpau\_ctx\_create\_v2
-================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: vdpau_ctx_create_v2

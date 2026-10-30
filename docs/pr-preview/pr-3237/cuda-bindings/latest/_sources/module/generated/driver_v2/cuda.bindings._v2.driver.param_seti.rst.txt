@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.param\_seti
-=====================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: param_seti

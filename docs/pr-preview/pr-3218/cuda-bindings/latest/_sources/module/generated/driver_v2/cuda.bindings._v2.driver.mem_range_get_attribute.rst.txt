@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.mem\_range\_get\_attribute
-====================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: mem_range_get_attribute

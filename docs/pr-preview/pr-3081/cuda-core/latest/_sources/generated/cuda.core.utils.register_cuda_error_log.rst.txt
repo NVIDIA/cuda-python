@@ -1,6 +1,0 @@
-﻿cuda.core.utils.register\_cuda\_error\_log
-==========================================
-
-.. currentmodule:: cuda.core.utils
-
-.. autofunction:: register_cuda_error_log

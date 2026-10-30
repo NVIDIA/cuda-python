@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.occupancy\_available\_dynamic\_smem\_per\_block
-=========================================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: occupancy_available_dynamic_smem_per_block

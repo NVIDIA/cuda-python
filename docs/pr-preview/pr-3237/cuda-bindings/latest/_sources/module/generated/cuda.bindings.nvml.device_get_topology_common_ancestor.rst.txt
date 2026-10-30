@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_topology\_common\_ancestor
-==========================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_topology_common_ancestor

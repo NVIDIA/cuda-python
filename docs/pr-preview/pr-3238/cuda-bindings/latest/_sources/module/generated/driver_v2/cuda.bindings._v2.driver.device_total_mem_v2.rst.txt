@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.device\_total\_mem\_v2
-================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: device_total_mem_v2

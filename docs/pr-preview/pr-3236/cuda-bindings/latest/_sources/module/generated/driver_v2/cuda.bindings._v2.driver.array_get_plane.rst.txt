@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.array\_get\_plane
-===========================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: array_get_plane

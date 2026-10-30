@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.signal\_external\_semaphores\_async
-=============================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: signal_external_semaphores_async

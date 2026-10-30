@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.GraphicsMapResourceFlags
-==================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoenum:: GraphicsMapResourceFlags

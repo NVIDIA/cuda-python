@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.destroy\_external\_memory
-===================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: destroy_external_memory

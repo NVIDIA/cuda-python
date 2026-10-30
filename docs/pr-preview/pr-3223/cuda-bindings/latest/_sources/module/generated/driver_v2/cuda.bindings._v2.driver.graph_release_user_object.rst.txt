@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.graph\_release\_user\_object
-======================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: graph_release_user_object

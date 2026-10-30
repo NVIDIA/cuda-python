@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.thread\_exchange\_stream\_capture\_mode
-=================================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: thread_exchange_stream_capture_mode

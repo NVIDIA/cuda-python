@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.remove\_bundled\_headers
-=================================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autofunction:: remove_bundled_headers

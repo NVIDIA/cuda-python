@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.pointer\_set\_attribute
-=================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: pointer_set_attribute

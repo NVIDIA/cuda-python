@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.InstallHeadersFlag
-===========================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autoenum:: InstallHeadersFlag

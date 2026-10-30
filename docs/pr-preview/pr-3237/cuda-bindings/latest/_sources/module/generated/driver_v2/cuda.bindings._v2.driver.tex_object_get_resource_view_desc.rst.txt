@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.tex\_object\_get\_resource\_view\_desc
-================================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: tex_object_get_resource_view_desc

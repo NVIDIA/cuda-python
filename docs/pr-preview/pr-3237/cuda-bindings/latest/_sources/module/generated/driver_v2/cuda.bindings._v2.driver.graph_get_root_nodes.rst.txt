@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.graph\_get\_root\_nodes
-=================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: graph_get_root_nodes

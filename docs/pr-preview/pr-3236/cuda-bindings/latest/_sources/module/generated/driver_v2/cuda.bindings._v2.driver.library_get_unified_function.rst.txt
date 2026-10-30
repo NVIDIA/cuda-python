@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.library\_get\_unified\_function
-=========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: library_get_unified_function

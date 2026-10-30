@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.module\_get\_tex\_ref
-===============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: module_get_tex_ref

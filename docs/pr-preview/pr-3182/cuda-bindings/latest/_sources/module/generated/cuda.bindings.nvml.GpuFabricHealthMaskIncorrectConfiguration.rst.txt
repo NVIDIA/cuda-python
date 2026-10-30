@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.GpuFabricHealthMaskIncorrectConfiguration
-============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: GpuFabricHealthMaskIncorrectConfiguration

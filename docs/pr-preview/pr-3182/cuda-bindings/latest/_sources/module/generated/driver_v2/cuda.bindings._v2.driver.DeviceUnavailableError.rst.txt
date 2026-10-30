@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.DeviceUnavailableError
-================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoexception:: DeviceUnavailableError

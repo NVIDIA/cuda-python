@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.surf\_ref\_get\_array
-===============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: surf_ref_get_array

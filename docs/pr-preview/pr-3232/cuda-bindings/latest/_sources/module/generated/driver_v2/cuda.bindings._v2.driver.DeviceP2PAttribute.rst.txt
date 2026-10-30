@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.DeviceP2PAttribute
-============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoenum:: DeviceP2PAttribute

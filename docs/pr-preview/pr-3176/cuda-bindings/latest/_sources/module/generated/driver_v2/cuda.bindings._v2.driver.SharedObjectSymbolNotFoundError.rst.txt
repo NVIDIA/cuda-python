@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.SharedObjectSymbolNotFoundError
-=========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autoexception:: SharedObjectSymbolNotFoundError

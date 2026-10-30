@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.graph\_debug\_dot\_print
-==================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: graph_debug_dot_print

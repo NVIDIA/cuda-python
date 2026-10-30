@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_supported\_performance\_states
-==============================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_supported_performance_states

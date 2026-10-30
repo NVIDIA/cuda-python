@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.occupancy\_max\_potential\_cluster\_size
-==================================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: occupancy_max_potential_cluster_size

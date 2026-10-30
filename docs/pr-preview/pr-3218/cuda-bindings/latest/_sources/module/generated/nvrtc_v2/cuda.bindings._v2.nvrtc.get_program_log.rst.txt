@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.nvrtc.get\_program\_log
-==========================================
-
-.. currentmodule:: cuda.bindings._v2.nvrtc
-
-.. autofunction:: get_program_log

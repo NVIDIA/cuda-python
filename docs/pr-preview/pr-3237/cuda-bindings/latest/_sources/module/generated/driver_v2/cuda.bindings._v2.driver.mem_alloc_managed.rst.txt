@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.mem\_alloc\_managed
-=============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: mem_alloc_managed

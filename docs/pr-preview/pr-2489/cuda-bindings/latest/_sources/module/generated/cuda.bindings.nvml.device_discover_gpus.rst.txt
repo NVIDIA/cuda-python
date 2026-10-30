@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_discover\_gpus
-=========================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_discover_gpus

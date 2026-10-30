@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.dev\_resource\_generate\_desc
-=======================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: dev_resource_generate_desc

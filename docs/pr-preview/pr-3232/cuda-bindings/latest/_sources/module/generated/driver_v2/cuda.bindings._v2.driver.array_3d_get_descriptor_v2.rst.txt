@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.array\_3d\_get\_descriptor\_v2
-========================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: array_3d_get_descriptor_v2

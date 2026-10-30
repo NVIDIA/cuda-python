@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.green\_ctx\_wait\_event
-=================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: green_ctx_wait_event

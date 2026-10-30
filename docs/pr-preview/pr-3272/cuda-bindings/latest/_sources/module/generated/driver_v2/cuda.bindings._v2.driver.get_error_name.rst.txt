@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.get\_error\_name
-==========================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: get_error_name

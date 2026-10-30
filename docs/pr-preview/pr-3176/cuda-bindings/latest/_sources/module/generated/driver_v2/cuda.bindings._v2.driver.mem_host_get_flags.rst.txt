@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.mem\_host\_get\_flags
-===============================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: mem_host_get_flags

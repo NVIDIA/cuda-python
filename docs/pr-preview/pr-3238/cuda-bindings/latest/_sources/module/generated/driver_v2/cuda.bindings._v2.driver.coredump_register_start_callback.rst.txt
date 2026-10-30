@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.coredump\_register\_start\_callback
-=============================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: coredump_register_start_callback

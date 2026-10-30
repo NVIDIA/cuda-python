@@ -1,6 +1,0 @@
-﻿cuda.bindings.\_v2.driver.multicast\_get\_granularity
-=====================================================
-
-.. currentmodule:: cuda.bindings._v2.driver
-
-.. autofunction:: multicast_get_granularity
