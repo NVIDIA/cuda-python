@@ -248,13 +248,11 @@ jobs:
       VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Create verification environment
-        run: python3 -m venv /tmp/verify
-
-      - name: Harden pip
         # These jobs have no checkout; $/ loads the action from the workflow's commit.
-        uses: $/.github/actions/harden-pip
+        uses: $/.github/actions/setup-hardened-python
         with:
-          python: /tmp/verify/bin/python
+          python-version: "3.12"
+          venv: /tmp/verify
 
       - name: Install from TestPyPI and verify
         run: |
@@ -331,13 +329,11 @@ jobs:
       VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - name: Create verification environment
-        run: python3 -m venv /tmp/verify
-
-      - name: Harden pip
         # These jobs have no checkout; $/ loads the action from the workflow's commit.
-        uses: $/.github/actions/harden-pip
+        uses: $/.github/actions/setup-hardened-python
         with:
-          python: /tmp/verify/bin/python
+          python-version: "3.12"
+          venv: /tmp/verify
 
       - name: Install from PyPI and verify
         run: |
