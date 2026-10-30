@@ -43,10 +43,10 @@ Our review and CI capacities are limited. If you are contributing from outside N
   explicitly ask you to implement it. Check existing assignments and requests
   to take the issue.
 - **New features, bug/documentation fixes, RFCs, or code updates/enhancements:** open an
-  issue, agree on scope and validation, and wait for the assignment before implementing. 
+  issue, agree on scope and validation, and wait for the assignment before implementing.
 
 For obvious issues, opening a one-liner issue for tracking and assignment purposes is
-completely fine. 
+completely fine.
 
 For bug reports, please include a reproducer with a clear description for the expected
 versus observed behavior. Also include the CUDA driver version and the Python environment
