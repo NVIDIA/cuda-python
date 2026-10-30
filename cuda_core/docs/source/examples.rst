@@ -35,6 +35,12 @@ Kernels and launch configuration
   partitions SMs across kernels with green contexts.
 - :sample:`kernelNsysProfile <kernelNsysProfile/>`
   annotates kernel launches with NVTX markers for Nsight Systems.
+- :cuda-core-example:`host_launch.py <host_launch.py>`
+  orders a host function between two kernel launches on a stream and reads a
+  pinned buffer from it.
+- :cuda-core-example:`host_copy.py <host_copy.py>`
+  copies a device buffer into a NumPy array in chunks through two pinned
+  staging slots, with the host copies done by ``HOST_COPY_FN``.
 
 Memory management and interop
 -----------------------------

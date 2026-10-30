@@ -343,7 +343,8 @@ class GraphNode:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
     def if_then(self, condition: GraphCondition) -> IfNode:
         """Add an if-conditional node depending on this node.

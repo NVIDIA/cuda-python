@@ -66,7 +66,7 @@ from cuda.core._rt cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core.graph._host_callback cimport (
+from cuda.core._host_callback cimport (
     _resolve_host_callback,
 )
 
@@ -541,7 +541,8 @@ cdef class GraphNode:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
         return GN_callback(self, fn, user_data)
 

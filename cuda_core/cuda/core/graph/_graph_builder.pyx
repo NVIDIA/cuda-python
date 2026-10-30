@@ -15,7 +15,7 @@ from cuda.core.graph._graph_definition cimport (
     GD_check_valid,
 )
 from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
-from cuda.core.graph._host_callback cimport _resolve_host_callback
+from cuda.core._host_callback cimport _resolve_host_callback
 from cuda.core.graph._subclasses cimport (
     ChildGraphNode,
     EventRecordNode,
@@ -988,7 +988,8 @@ cdef class GraphBuilder:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
         GB_callback(self, fn, user_data, False)
 
