@@ -9,6 +9,43 @@
 
 set -euo pipefail
 
+# Retry gh run download with exponential backoff to absorb transient
+# artifact-storage failures such as "HTTP 503: Egress is over the account limit".
+#
+# Downloads into a private staging directory and promotes the artifacts to CWD
+# on success.  The staging directory is wiped before each retry so that
+# artifact directories left behind by a partial download do not cause gh to
+# refuse to re-download them on subsequent attempts.  Staging lives under
+# RUNNER_TEMP, which the runner empties at the start and end of every job, so
+# a killed or cancelled step cannot leak it.
+_retry_gh_run_download() {
+    local max_attempts=5
+    local delay=15
+    local max_delay=120
+    local attempt=1
+    local staging
+    staging=$(mktemp -d -p "${RUNNER_TEMP:-/tmp}")
+
+    until gh run download "$@" -D "${staging}"; do
+        rm -rf "${staging}"
+        if (( attempt >= max_attempts )); then
+            echo "::error::gh run download failed after ${attempt} attempt(s): $*" >&2
+            return 1
+        fi
+        echo "::warning::gh run download failed (attempt ${attempt}/${max_attempts}); retrying in ${delay}s" >&2
+        sleep "${delay}"
+        attempt=$(( attempt + 1 ))
+        (( delay = delay * 2 > max_delay ? max_delay : delay * 2 ))
+        staging=$(mktemp -d -p "${RUNNER_TEMP:-/tmp}")
+    done
+
+    # Promote each downloaded artifact directory into the caller's CWD.
+    for artifact_dir in "${staging}"/*/; do
+        mv "${artifact_dir%/}" .
+    done
+    rm -rf "${staging}"
+}
+
 # Check required arguments
 if [[ $# -lt 3 ]]; then
     echo "Usage: $0 <run-id> <component> <repository> [output-dir]" >&2
@@ -35,9 +72,9 @@ echo "Downloading wheels for component: $COMPONENT from run: $RUN_ID"
 # Download component wheels using the same logic as release.yml
 if [[ "$COMPONENT" == "all" ]]; then
     # Download all component patterns
-    gh run download "$RUN_ID" -p "cuda-*" -R "$REPOSITORY"
+    _retry_gh_run_download "$RUN_ID" -p "cuda-*" -R "$REPOSITORY"
 else
-    gh run download "$RUN_ID" -p "${COMPONENT}*" -R "$REPOSITORY"
+    _retry_gh_run_download "$RUN_ID" -p "${COMPONENT}*" -R "$REPOSITORY"
 fi
 
 # Create output directory

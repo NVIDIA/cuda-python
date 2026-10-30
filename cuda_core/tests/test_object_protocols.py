@@ -15,6 +15,7 @@ import weakref
 import pytest
 from helpers.constants import POOL_SIZE
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import skip_if_mempool_unsupported
 from helpers.misc import try_create_condition
 
 from cuda.core import (
@@ -30,12 +31,6 @@ from cuda.core import (
 )
 from cuda.core._program import _can_load_generated_ptx
 from cuda.core.graph import GraphDefinition
-
-
-def _skip_if_no_mempool():
-    if not Device(0).properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
-
 
 # =============================================================================
 # Fixtures - Primary samples
@@ -280,7 +275,7 @@ def sample_root_node_alt(sample_graphdef_alt):
 @pytest.fixture
 def sample_empty_node(sample_graphdef):
     """An EmptyNode created by merging two branches."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     a = sample_graphdef.allocate(ALLOC_SIZE)
     b = sample_graphdef.allocate(ALLOC_SIZE)
     return sample_graphdef.join(a, b)
@@ -289,7 +284,7 @@ def sample_empty_node(sample_graphdef):
 @pytest.fixture
 def sample_empty_node_alt(sample_graphdef):
     """An alternate EmptyNode from same graph."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     c = sample_graphdef.allocate(ALLOC_SIZE)
     d = sample_graphdef.allocate(ALLOC_SIZE)
     return sample_graphdef.join(c, d)
@@ -298,14 +293,14 @@ def sample_empty_node_alt(sample_graphdef):
 @pytest.fixture
 def sample_alloc_node(sample_graphdef):
     """An AllocNode."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     return sample_graphdef.allocate(ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_alloc_node_alt(sample_graphdef):
     """An alternate AllocNode from same graph."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     return sample_graphdef.allocate(ALLOC_SIZE)
 
 
@@ -330,7 +325,7 @@ def sample_kernel_node_alt(sample_graphdef, init_cuda):
 @pytest.fixture
 def sample_free_node(sample_graphdef):
     """A FreeNode."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     alloc = sample_graphdef.allocate(ALLOC_SIZE)
     return alloc.deallocate(alloc.dptr)
 
@@ -338,7 +333,7 @@ def sample_free_node(sample_graphdef):
 @pytest.fixture
 def sample_free_node_alt(sample_graphdef):
     """An alternate FreeNode from same graph."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     alloc = sample_graphdef.allocate(ALLOC_SIZE)
     return alloc.deallocate(alloc.dptr)
 
@@ -346,7 +341,7 @@ def sample_free_node_alt(sample_graphdef):
 @pytest.fixture
 def sample_memset_node(sample_graphdef):
     """A MemsetNode."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     alloc = sample_graphdef.allocate(ALLOC_SIZE)
     return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
@@ -354,7 +349,7 @@ def sample_memset_node(sample_graphdef):
 @pytest.fixture
 def sample_memset_node_alt(sample_graphdef):
     """An alternate MemsetNode from same graph."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     alloc = sample_graphdef.allocate(ALLOC_SIZE)
     return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
@@ -362,7 +357,7 @@ def sample_memset_node_alt(sample_graphdef):
 @pytest.fixture
 def sample_memcpy_node(sample_graphdef):
     """A MemcpyNode."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     src = sample_graphdef.allocate(ALLOC_SIZE)
     dst = sample_graphdef.allocate(ALLOC_SIZE)
     dep = sample_graphdef.join(src, dst)
@@ -372,7 +367,7 @@ def sample_memcpy_node(sample_graphdef):
 @pytest.fixture
 def sample_memcpy_node_alt(sample_graphdef):
     """An alternate MemcpyNode from same graph."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     src = sample_graphdef.allocate(ALLOC_SIZE)
     dst = sample_graphdef.allocate(ALLOC_SIZE)
     dep = sample_graphdef.join(src, dst)

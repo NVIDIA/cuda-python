@@ -144,7 +144,7 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/$CUDA_BINDINGS_SOURCE_DIR/dist")" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-python-wheel
           path: .
@@ -157,7 +157,7 @@ jobs:
           ls -lahR .
 
       - name: Download cuda-pathfinder build artifacts
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
@@ -171,17 +171,17 @@ jobs:
 
       - name: Download cuda.bindings build artifacts
         if: ${{ !inputs.is-release }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
-          merge-multiple: true
+          merge-multiple: "true"
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
@@ -193,17 +193,17 @@ jobs:
 
       - name: Download cuda.core build artifacts
         if: ${{ !inputs.is-release }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Download cuda.core build artifacts
         if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          merge-multiple: true
+          merge-multiple: "true"
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id }}
           github-token: ${{ github.token }}
@@ -305,7 +305,7 @@ jobs:
       # interpreter instead of the conda environment used above.
       - name: Set up Python for link checks
         if: ${{ !inputs.is-release && startsWith(github.ref_name, 'pull-request/') }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: "3.14"
 
@@ -366,7 +366,7 @@ jobs:
           ref: ${{ inputs.git-tag }}
 
       - name: Download docs deployment payload
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ needs.build.outputs.deployment-artifact-name }}
           path: artifacts/docs/

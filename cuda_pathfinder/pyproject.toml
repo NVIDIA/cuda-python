@@ -11,6 +11,12 @@ dynamic = ["version", "readme"]
 dependencies = []
 
 [dependency-groups]
+# Keep build in sync with build-system.requires.
+build = [
+    "setuptools>=80.0.0",
+    "setuptools_scm[simple]>=8,!=10.1",
+    "wheel",
+]
 test = [
     "pytest==9.1.0",
     "pytest-mock==3.15.1",
@@ -93,6 +99,7 @@ packages = { find = { include = ["cuda*"] } }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [build-system]
+# Keep requires in sync with dependency-groups.build.
 requires = [
     "setuptools>=80.0.0",
     "setuptools_scm[simple]>=8,!=10.1",

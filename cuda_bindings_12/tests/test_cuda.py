@@ -10,26 +10,14 @@ import numpy as np
 import pytest
 
 import cuda.cuda as cuda
-import cuda.cudart as cudart
 from cuda.bindings import driver
-
-
-def driverVersionLessThan(target):
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, version = cuda.cuDriverGetVersion()
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    return version < target
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
-
-
-def supportsManagedMemory():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrManagedMemory, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
+from cuda_python_test_helpers import driver_version_less_than
+from cuda_python_test_helpers.memory import (
+    POOL_SIZE,
+    supports_managed_memory,
+    supports_memory_pools,
+    xfail_graph_mempool_oom,
+)
 
 
 def supportsCudaAPI(name):
@@ -319,7 +307,7 @@ def test_cuda_CUstreamBatchMemOpParams():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_cuda_memPool_attr():
     (err,) = cuda.cuInit(0)
@@ -333,6 +321,7 @@ def test_cuda_memPool_attr():
     poolProps.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
     poolProps.location.id = 0
     poolProps.location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    poolProps.maxSize = POOL_SIZE
 
     attr_list = [None] * 8
     err, pool = cuda.cuMemPoolCreate(poolProps)
@@ -390,7 +379,7 @@ def test_cuda_memPool_attr():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
     (err,) = cuda.cuInit(0)
@@ -449,7 +438,7 @@ def test_cuda_pointer_attr():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_pointer_get_attributes_device_ordinal():
     attributes = [
@@ -475,7 +464,7 @@ def test_pointer_allowed_handle_types_preserves_64_bits():
     assert helper.pyObj() == expected
 
 
-@pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
+@pytest.mark.skipif(not supports_managed_memory(), reason="When new attributes were introduced")
 def test_cuda_mem_range_attr():
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -539,7 +528,9 @@ def test_cuda_mem_range_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
+@pytest.mark.skipif(
+    driver_version_less_than(11040) or not supports_memory_pools(), reason="Mempool for graphs not supported"
+)
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
 def test_cuda_graphMem_attr():
     (err,) = cuda.cuInit(0)
@@ -564,6 +555,16 @@ def test_cuda_graphMem_attr():
     params.bytesize = allocSize
 
     err, allocNode = cuda.cuGraphAddMemAllocNode(graph, None, 0, params)
+    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
+        (destroy_err,) = cuda.cuGraphDestroy(graph)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        (destroy_err,) = cuda.cuStreamDestroy(stream)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        # xfail raises, so the context must be destroyed first or it leaks
+        # into later tests as the current context.
+        (destroy_err,) = cuda.cuCtxDestroy(ctx)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        xfail_graph_mempool_oom()
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -601,7 +602,7 @@ def test_cuda_graphMem_attr():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12010)
+    driver_version_less_than(12010)
     or not supportsCudaAPI("cuCoredumpSetAttributeGlobal")
     or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
     reason="Coredump API not present",
@@ -777,7 +778,7 @@ def test_device_get_name():
 
 
 # TODO: cuStreamGetCaptureInfo_v2
-@pytest.mark.skipif(driverVersionLessThan(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
+@pytest.mark.skipif(driver_version_less_than(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
 def test_stream_capture():
     pass
 
@@ -910,7 +911,7 @@ def test_invalid_repr_attribute():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12020)
+    driver_version_less_than(12020)
     or not supportsCudaAPI("cuGraphAddNode")
     or not supportsCudaAPI("cuGraphNodeSetParams")
     or not supportsCudaAPI("cuGraphExecNodeSetParams"),
@@ -1030,7 +1031,7 @@ def test_graph_poly():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
+    driver_version_less_than(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
     reason="Polymorphic graph APIs required",
 )
 def test_cuDeviceGetDevResource():
@@ -1059,7 +1060,7 @@ def test_cuDeviceGetDevResource():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
+    driver_version_less_than(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
     reason="Conditional graph APIs required",
 )
 def test_conditional():
@@ -1128,14 +1129,14 @@ def test_all_CUresult_codes():
     assert num_good >= 76  # CTK 11.0.3_450.51.06
 
 
-@pytest.mark.skipif(driverVersionLessThan(12030), reason="Driver too old for cuKernelGetName")
+@pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuKernelGetName")
 def test_cuKernelGetName_failure():
     err, name = cuda.cuKernelGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
     assert name is None
 
 
-@pytest.mark.skipif(driverVersionLessThan(12030), reason="Driver too old for cuFuncGetName")
+@pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuFuncGetName")
 def test_cuFuncGetName_failure():
     err, name = cuda.cuFuncGetName(0)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
@@ -1143,7 +1144,7 @@ def test_cuFuncGetName_failure():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
+    driver_version_less_than(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
     reason="When API was introduced",
 )
 def test_cuCheckpointProcessGetState_failure():
@@ -1185,7 +1186,7 @@ def test_struct_pointer_comparison(target):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphGetId(device, ctx):
@@ -1212,7 +1213,7 @@ def test_cuGraphGetId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphExecGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphExecGetId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphExecGetId(device, ctx):
@@ -1259,7 +1260,7 @@ def test_cuGraphExecGetId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetLocalId(device, ctx):
@@ -1301,7 +1302,7 @@ def test_cuGraphNodeGetLocalId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetToolsId(device, ctx):
@@ -1330,7 +1331,7 @@ def test_cuGraphNodeGetToolsId(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetContainingGraph(device, ctx):
@@ -1377,7 +1378,7 @@ def test_cuGraphNodeGetContainingGraph(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuStreamGetDevResource(device, ctx):
@@ -1396,7 +1397,7 @@ def test_cuStreamGetDevResource(device, ctx):
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
+    driver_version_less_than(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuDevSmResourceSplit(device, ctx):

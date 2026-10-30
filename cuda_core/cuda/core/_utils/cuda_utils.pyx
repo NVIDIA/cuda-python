@@ -162,8 +162,8 @@ cdef int _raise_nvjitlink_error(
     raise exc
 
 
-cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
-cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
+_RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
+_NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
 cdef inline void _attach_detail(exc, str detail):
@@ -171,9 +171,7 @@ cdef inline void _attach_detail(exc, str detail):
     exc.add_note(detail)
 
 
-cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
-    if error == cydriver.CUresult.CUDA_SUCCESS:
-        return 0
+cdef int _raise_driver_error(cydriver.CUresult error) except -1 nogil:
     cdef const char* name
     cdef const char* desc
     # A context-scoped helper in the handle layer may have recorded why this
@@ -197,9 +195,7 @@ cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
         raise exc
 
 
-cpdef inline int _check_runtime_error(error) except?-1:
-    if error == _RUNTIME_SUCCESS:
-        return 0
+cdef int _raise_runtime_error(error) except -1:
     # `_check_error()` reaches this path only for `runtime.cudaError_t` values.
     # Use the enum name directly because Windows hybrid cudart can lag that table.
     name = error.name
@@ -213,9 +209,7 @@ cpdef inline int _check_runtime_error(error) except?-1:
     raise CUDAError(f"{name}: {desc}")
 
 
-cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
-    if error == _NVRTC_SUCCESS:
-        return 0
+cdef int _raise_nvrtc_status_error(error, handle) except -1:
     err = f"{error}: {nvrtc.nvrtcGetErrorString(error)[1].decode()}"
     if handle is not None:
         _, logsize = nvrtc.nvrtcGetProgramLogSize(handle)

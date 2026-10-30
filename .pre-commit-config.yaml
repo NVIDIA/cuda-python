@@ -24,13 +24,20 @@ repos:
       - id: secret-scan-trufflehog
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: a56c0b927e6465d37cae3e97d35d4d18ab2b96cd  # frozen: v0.16.9
+    rev: f368fb366ff7f2f808dd324b83a6d32267799e19  # frozen: v0.17.2
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
         exclude: (^cuda_bindings_(?:12|13)/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
       - id: ruff-format
         exclude: .*\.pyi$
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 98ad4ddb9c057de2f5b9e93e44e6db959807d68c  # frozen: v23.1.3
+    hooks:
+      - id: clang-format
+        types_or: [c, c++, cuda]
+        exclude: ^cuda_core/(cuda/core/_include/(dlpack|aoti_shim)\.h|third_party/)
 
   - repo: local
     hooks:
@@ -83,7 +90,7 @@ repos:
         name: Check tests do not create uncapped memory pools
         entry: python ./ci/tools/check_mempool_hygiene.py
         language: python
-        files: '^cuda_core/tests/.*\.py$'
+        files: '^(cuda_core|cuda_bindings_1[23])/tests/.*\.py$'
 
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
@@ -104,7 +111,7 @@ repos:
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
         additional_dependencies:
-          - stubgen-pyx==0.2.22
+          - stubgen-pyx==0.2.23
           - Cython==3.2.9
 
   # Link checking for authored documentation files
@@ -155,7 +162,7 @@ repos:
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
-      exclude: '^(?:cuda_bindings_13/cuda/bindings/nvml\.pyx|cuda_bindings_12/cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx))$'
+      exclude: '^(?:cuda_bindings_13/cuda/bindings/(?:nvml\.pyx|_v2/driver\.pyx)|cuda_bindings_12/cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx))$'
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
@@ -164,7 +171,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|.*\.pyi|\.github/actions/upgrade-ca-certificates/impacted-intermediates\.json)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
@@ -184,7 +191,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 7ff8d35ae36a7d2b968f2f90b4c723e292e594ee  # frozen: v2.3.1
+    rev: 2834ec6639549dd6796205c8f011dedcd587288b  # frozen: v2.4.0
     hooks:
       - id: mypy
         alias: mypy-pathfinder
@@ -209,11 +216,21 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "eb2f695bb80387913b8cb1f91ba7ff6cb3026715"  # frozen: v0.21.1
+    rev: "35dbc940c2bd4499ebf39aba00ad717e05cec9b5"  # frozen: v0.22.0
     hooks:
       - id: cython-lint
-        args: [--no-pycodestyle]
-        exclude: ^cuda_bindings_(?:12|13)/
+        # Some rules (e.g. "inline" on a function declared in a .pxd) match
+        # declarations in one file against implementations in another, and the
+        # linter only remembers that within a single invocation. Pre-commit
+        # splits filenames across parallel processes and only passes changed
+        # files, so a .pyx edited without its .pxd would escape the check.
+        # Instead, whenever any Cython file under these trees changes, lint
+        # all of them in one process. Generated cuda_bindings_* and
+        # third-party submodules are not listed.
+        args: [--no-pycodestyle, cuda_core/cuda]
+        files: ^cuda_core/cuda
+        pass_filenames: false
+        require_serial: true
         additional_dependencies:
           - Cython==3.2.9
 

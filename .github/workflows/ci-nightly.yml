@@ -58,8 +58,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.12"
 
       - name: Run CI tools unit tests
         run: |

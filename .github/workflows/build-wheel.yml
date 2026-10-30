@@ -58,6 +58,9 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2022') ||
                  (inputs.host-platform == 'win-arm64' && 'windows-11-arm') }}
     steps:
+      - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
+        uses: $/.github/actions/upgrade-ca-certificates
+
       - name: Enable Git symlinks (Windows, must precede checkout)
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: git config --global core.symlinks true
@@ -79,12 +82,9 @@ jobs:
         # the job level instead of linking into the diff.
         run: echo "::add-matcher::.github/matchers/compiler.json"
 
-      - name: Install latest rapidsai/sccache
+      - name: Install rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
-        run: |
-          curl -fsSL "https://github.com/rapidsai/sccache/releases/latest/download/sccache-$(uname -m)-unknown-linux-musl.tar.gz" \
-            | sudo tar -C /usr/local/bin -xvzf - --wildcards --strip-components=1 -x '*/sccache'
-          echo "SCCACHE_PATH=/usr/local/bin/sccache" >> "$GITHUB_ENV"
+        uses: ./.github/actions/install-sccache
 
       # The runner only exposes these values to actions, not to `run:` steps or
       # the cibuildwheel container, so re-export them for sccache's GHA backend.
@@ -107,16 +107,12 @@ jobs:
           enable-apt: true
 
       - name: Set up Python
-        id: setup-python1
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        id: host-python
+        uses: ./.github/actions/setup-hardened-python
         with:
-          # WAR: setup-python is not relocatable, and cibuildwheel hard-wires to 3.12...
-          # see https://github.com/actions/setup-python/issues/871
+          # Also installs cibuildwheel (via python-path below), so the action
+          # does not fall back on its own unchecked setup-python interpreter.
           python-version: "3.12"
-          architecture: ${{ ((inputs.host-platform == 'linux-aarch64' || inputs.host-platform == 'win-arm64') && 'arm64') || 'x64' }}
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') }}
@@ -174,7 +170,7 @@ jobs:
 
       - name: Download reusable cuda.pathfinder wheel
         if: ${{ env.BUILD_PATHFINDER != 'true' }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-pathfinder-wheel
           path: cuda_pathfinder
@@ -235,6 +231,7 @@ jobs:
           package-dir: ./cuda_bindings_13/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # build[uv]: same PEP 517 orchestration, with uv instead of pip.
@@ -274,7 +271,7 @@ jobs:
 
       - name: Download reusable cuda.bindings wheel
         if: ${{ env.BUILD_BINDINGS != 'true' }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_BASENAME }}-${{ env.BASELINE_SHA }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -332,6 +329,7 @@ jobs:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # See the cuda.bindings step above for UV_* vs PIP_*.
@@ -397,7 +395,7 @@ jobs:
 
       - name: Download reusable cuda.core wheel
         if: ${{ env.BUILD_CORE != 'true' }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_BASENAME }}-${{ env.BASELINE_SHA }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -415,7 +413,7 @@ jobs:
 
       - name: Download reusable cuda-python wheel
         if: ${{ env.BUILD_PYTHON != 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-python-wheel
           path: cuda_python
@@ -442,16 +440,10 @@ jobs:
           if-no-files-found: error
 
       - name: Set up Python
-        id: setup-python2
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: ${{ startsWith(matrix.python-version, '3.16') }}
-
-      - name: Harden pip
-        if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
-        uses: ./.github/actions/harden-pip
 
       - name: verify free-threaded build
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && endsWith(matrix.python-version, 't') }}
@@ -460,10 +452,11 @@ jobs:
       - name: Set up Python include paths
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
         run: |
+          include="$(python -c "import sysconfig; print(sysconfig.get_paths()['include'])")"
           if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-            echo "CPLUS_INCLUDE_PATH=${Python3_ROOT_DIR}/include/python${{ matrix.python-version }}" >> $GITHUB_ENV
+            echo "CPLUS_INCLUDE_PATH=${include}" >> $GITHUB_ENV
           elif [[ "${{ inputs.host-platform }}" == win* ]]; then
-            echo "CL=/I\"${Python3_ROOT_DIR}\include\python${{ matrix.python-version }}\"" >> $GITHUB_ENV
+            echo "CL=/I\"${include}\"" >> $GITHUB_ENV
           fi
           # For caching
           echo "PY_EXT_SUFFIX=$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")" >> $GITHUB_ENV
@@ -549,14 +542,15 @@ jobs:
             ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.lib
           if-no-files-found: error
 
-      - name: Download cuda.bindings build artifacts from the prior branch
+      - name: Look up prior-branch cuda.bindings run ID
+        id: prior-bindings
         if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if ! (command -v gh 2>&1 >/dev/null); then
             # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-            # gh is needed for artifact fetching.
+            # gh is needed for lookup-run-id, which calls gh api.
             mkdir -p -m 755 /etc/apt/keyrings \
                   && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
                   && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
@@ -572,18 +566,18 @@ jobs:
             --branch "${OLD_BRANCH}" \
             --artifact "${OLD_ARTIFACT_PATTERN}" \
             NVIDIA/cuda-python "CI")
-          PREV_BINDINGS_DIR="cuda_bindings_13/dist-prev"
+          echo "run-id=${LATEST_PRIOR_RUN_ID}" >> "${GITHUB_OUTPUT}"
+          echo "artifact-pattern=${OLD_ARTIFACT_PATTERN}" >> "${GITHUB_OUTPUT}"
 
-          gh run download \
-            "${LATEST_PRIOR_RUN_ID}" \
-            -p "${OLD_ARTIFACT_PATTERN}" \
-            -R NVIDIA/cuda-python
-          OLD_ARTIFACT_DIR=$(compgen -G "${OLD_ARTIFACT_PATTERN}")
-          test -d "${OLD_ARTIFACT_DIR}"
-          ls -al "${OLD_ARTIFACT_DIR}"
-          mkdir -p "${PREV_BINDINGS_DIR}"
-          mv "${OLD_ARTIFACT_DIR}"/*.whl "${PREV_BINDINGS_DIR}"
-          rmdir "${OLD_ARTIFACT_DIR}"
+      - name: Download prior-branch cuda.bindings build artifacts
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
+        uses: $/.github/actions/download-artifact-retry
+        with:
+          pattern: ${{ steps.prior-bindings.outputs.artifact-pattern }}
+          merge-multiple: "true"
+          path: cuda_bindings_13/dist-prev
+          run-id: ${{ steps.prior-bindings.outputs.run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Constrain previous cuda.core to the downloaded cuda.bindings wheel
         if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
@@ -614,6 +608,7 @@ jobs:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
           extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # See the cuda.bindings step above for UV_* vs PIP_*.

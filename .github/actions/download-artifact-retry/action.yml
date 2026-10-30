@@ -5,16 +5,33 @@
 name: Download artifact (with retry)
 
 description: >-
-  Wrapper around actions/download-artifact that retries once after a short
-  delay when the first attempt fails.  Designed to absorb transient
-  infrastructure flakes such as "other side closed" without failing the job.
+  Wrapper around actions/download-artifact that retries up to three times with
+  exponential backoff when a download fails.  Handles both transient TCP errors
+  such as "other side closed" and storage-layer throttling such as
+  "HTTP 503: Egress is over the account limit".  Accepts either an exact
+  artifact name or a glob pattern; supply exactly one.
 
 inputs:
   name:
-    description: "Name of the artifact to download"
-    required: true
+    description: >-
+      Exact name of the artifact to download.  Mutually exclusive with
+      'pattern'; supply exactly one of the two.
+    required: false
+    default: ""
+  pattern:
+    description: >-
+      Glob pattern matching one or more artifact names.  Mutually exclusive
+      with 'name'; supply exactly one of the two.
+    required: false
+    default: ""
+  merge-multiple:
+    description: >-
+      When true and 'pattern' is set, merge files from all matched artifacts
+      directly into 'path' instead of placing each in its own subdirectory.
+    required: false
+    default: "false"
   path:
-    description: "Destination path for the downloaded artifact"
+    description: "Destination path for the downloaded artifact(s)"
     required: true
   run-id:
     description: >-
@@ -32,39 +49,80 @@ inputs:
     required: false
     default: ""
   retry-delay-seconds:
-    description: "Seconds to wait between the first failure and the retry"
+    description: "Seconds to wait between the first failure and the second attempt"
     required: false
     default: "15"
 
 runs:
   using: composite
   steps:
+    - name: Validate inputs
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        INPUT_NAME: ${{ inputs.name }}
+        INPUT_PATTERN: ${{ inputs.pattern }}
+      run: |
+        if [[ -n "${INPUT_NAME}" && -n "${INPUT_PATTERN}" ]]; then
+          echo "::error::Specify exactly one of 'name' or 'pattern', not both"
+          exit 1
+        fi
+        if [[ -z "${INPUT_NAME}" && -z "${INPUT_PATTERN}" ]]; then
+          echo "::error::Specify exactly one of 'name' or 'pattern'"
+          exit 1
+        fi
+
     - name: Download artifact (attempt 1)
       id: attempt1
       continue-on-error: true
       uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: ${{ inputs.name }}
+        pattern: ${{ inputs.pattern }}
+        merge-multiple: ${{ inputs.merge-multiple }}
         path: ${{ inputs.path }}
         run-id: ${{ inputs.run-id }}
         github-token: ${{ inputs.github-token }}
 
-    - name: Wait before retry
+    - name: Wait before retry (attempt 2)
       if: ${{ steps.attempt1.outcome == 'failure' }}
       shell: bash --noprofile --norc -euo pipefail {0}
       env:
-        # Pass through env instead of interpolating the input into the shell
-        # script, so a non-numeric value cannot inject commands.
         RETRY_DELAY_SECONDS: ${{ inputs.retry-delay-seconds }}
       run: |
         echo "::warning::Artifact download failed (attempt 1); retrying in ${RETRY_DELAY_SECONDS}s"
         sleep "$RETRY_DELAY_SECONDS"
 
     - name: Download artifact (attempt 2)
+      id: attempt2
       if: ${{ steps.attempt1.outcome == 'failure' }}
+      continue-on-error: true
       uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: ${{ inputs.name }}
+        pattern: ${{ inputs.pattern }}
+        merge-multiple: ${{ inputs.merge-multiple }}
+        path: ${{ inputs.path }}
+        run-id: ${{ inputs.run-id }}
+        github-token: ${{ inputs.github-token }}
+
+    - name: Wait before retry (attempt 3)
+      if: ${{ steps.attempt1.outcome == 'failure' && steps.attempt2.outcome == 'failure' }}
+      shell: bash --noprofile --norc -euo pipefail {0}
+      env:
+        RETRY_DELAY_SECONDS: ${{ inputs.retry-delay-seconds }}
+      run: |
+        # Double the delay for the second retry to give egress throttling more time to clear.
+        RETRY_DELAY_SECONDS=$(( RETRY_DELAY_SECONDS * 2 ))
+        echo "::warning::Artifact download failed (attempt 2); retrying in ${RETRY_DELAY_SECONDS}s"
+        sleep "$RETRY_DELAY_SECONDS"
+
+    - name: Download artifact (attempt 3)
+      if: ${{ steps.attempt1.outcome == 'failure' && steps.attempt2.outcome == 'failure' }}
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+      with:
+        name: ${{ inputs.name }}
+        pattern: ${{ inputs.pattern }}
+        merge-multiple: ${{ inputs.merge-multiple }}
         path: ${{ inputs.path }}
         run-id: ${{ inputs.run-id }}
         github-token: ${{ inputs.github-token }}

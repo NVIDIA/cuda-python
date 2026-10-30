@@ -54,10 +54,36 @@ cdef inline int HANDLE_RETURN_NVJITLINK(
 cdef int _get_current_device_id() except? -1
 
 
+# Success sentinels compared against by the inline checks below.
+cdef object _RUNTIME_SUCCESS
+cdef object _NVRTC_SUCCESS
+
+# Out-of-line failure paths for the inline checks below; keeps the error
+# formatting (and its Python-level dependencies) out of every cimporting module.
+cdef int _raise_driver_error(cydriver.CUresult error) except -1 nogil
+cdef int _raise_runtime_error(error) except -1
+cdef int _raise_nvrtc_status_error(error, handle) except -1
+
+
 # TODO: stop exposing these within the codebase?
-cpdef int _check_driver_error(cydriver.CUresult error) except?-1 nogil
-cpdef int _check_runtime_error(error) except?-1
-cpdef int _check_nvrtc_error(error) except?-1
+cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
+    if error == cydriver.CUresult.CUDA_SUCCESS:
+        return 0
+    return _raise_driver_error(error)
+
+
+cpdef inline int _check_runtime_error(error) except?-1:
+    if error == _RUNTIME_SUCCESS:
+        return 0
+    return _raise_runtime_error(error)
+
+
+cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
+    if error == _NVRTC_SUCCESS:
+        return 0
+    return _raise_nvrtc_status_error(error, handle)
+
+
 cdef int _raise_nvrtc_error(cynvrtc.nvrtcProgram prog, cynvrtc.nvrtcResult err) except -1
 cdef int _raise_nvvm_error(cynvvm.nvvmProgram prog, cynvvm.nvvmResult err) except -1
 cdef int _raise_nvjitlink_error(cynvjitlink.nvJitLinkHandle handle, cynvjitlink.nvJitLinkResult err) except -1
