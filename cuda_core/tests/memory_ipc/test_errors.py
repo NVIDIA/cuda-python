@@ -105,7 +105,8 @@ def test_register_rejects_mismatched_uuid(ipc_memory_resource):
     assert mr.is_ipc_enabled
 
     # The resource must already carry its own UUID (assigned on creation).
-    assert mr.uuid is not None
+    original = mr.uuid
+    assert original is not None
     other = uuid.uuid4()
     while other == mr.uuid:
         other = uuid.uuid4()
@@ -113,8 +114,8 @@ def test_register_rejects_mismatched_uuid(ipc_memory_resource):
     with pytest.raises(ValueError, match="already has UUID"):
         mr.register(other)
 
-    # A rejected registration must not rewrite the resource's own UUID.
-    assert mr.uuid != other
+    # A rejected registration must leave the resource's own UUID unchanged.
+    assert mr.uuid == original
 
     # Registering under the resource's own UUID still succeeds.
     assert mr.register(mr.uuid) is mr
