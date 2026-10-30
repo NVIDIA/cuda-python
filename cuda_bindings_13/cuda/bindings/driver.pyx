@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=348b02f0a76a3a271fbb11535f02d660d811d3c21a877e46bfc070bbabf43e76
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8932ee959b6a2f1e69316f813cb8e8492c8e112094812dc1310c49970f00779a
 from typing import Any, Optional
 import cython
 import ctypes
@@ -30899,7 +30899,7 @@ def cuDeviceRegisterAsyncNotification(device, callbackFunc, userData):
     if err != cydriver.CUDA_SUCCESS:
         free(cbData)
     else:
-        m_global._allocated[int(callback)] = cbData
+        m_global._insert(int(callback), cbData)
     _helper_input_void_ptr_free(&cyuserDataHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None)
@@ -30948,8 +30948,7 @@ def cuDeviceUnregisterAsyncNotification(device, callback):
     with nogil:
         err = cydriver.cuDeviceUnregisterAsyncNotification(cydevice, cycallback)
     if err == cydriver.CUDA_SUCCESS:
-        free(m_global._allocated[pcallback])
-        m_global._allocated.erase(<void_ptr>pcallback)
+        free(m_global._take(pcallback))
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
@@ -55743,7 +55742,7 @@ def cuLogsRegisterCallback(callbackFunc, userData):
     if err != cydriver.CUDA_SUCCESS:
         free(cbData)
     else:
-        m_global._allocated[int(callback_out)] = cbData
+        m_global._insert(int(callback_out), cbData)
     _helper_input_void_ptr_free(&cyuserDataHelper)
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None)
@@ -55774,8 +55773,7 @@ def cuLogsUnregisterCallback(callback):
     with nogil:
         err = cydriver.cuLogsUnregisterCallback(cycallback)
     if err == cydriver.CUDA_SUCCESS:
-        free(m_global._allocated[pcallback])
-        m_global._allocated.erase(<void_ptr>pcallback)
+        free(m_global._take(pcallback))
     return (_CUresult(err),)
 
 @cython.embedsignature(True)
@@ -57375,6 +57373,19 @@ def cuGraphicsVDPAURegisterOutputSurface(vdpSurface, unsigned int flags):
 
 cdef class cudaBindingsDriverGlobal:
     cdef map[void_ptr, void*] _allocated
+    cdef cython.pymutex _lock
+
+    cdef void _insert(self, void_ptr key, void* value) noexcept:
+        with self._lock:
+            self._allocated[key] = value
+
+    cdef void* _take(self, void_ptr key) noexcept:
+        cdef void* value = NULL
+        with self._lock:
+            if self._allocated.count(key) != 0:
+                value = self._allocated[key]
+                self._allocated.erase(key)
+        return value
 
     def __dealloc__(self):
         for item in self._allocated:
