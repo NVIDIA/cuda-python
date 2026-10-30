@@ -4,18 +4,20 @@
 
 #pragma once
 
+#include "versions.hpp"
 #include <cuda.h>
 #include <nvrtc.h>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 // Forward declaration for NVVM - avoids nvvm.h dependency
 // Use void* to match cuda.bindings.cynvvm's typedef
-using nvvmProgram = void*;
+using nvvmProgram = void *;
 
 // Forward declaration for nvJitLink - avoids nvJitLink.h dependency
 // Use void* to match cuda.bindings.cynvjitlink's typedef
-using nvJitLink_t = void*;
+using nvJitLink_t = void *;
 
 namespace cuda_core::rt {
 
@@ -27,7 +29,7 @@ namespace cuda_core::rt {
 // value with a unique tag type, making each shared_ptr type distinct.
 // ============================================================================
 
-template<typename T, int Tag>
+template <typename T, int Tag>
 struct TaggedHandle {
     T raw;
 };
@@ -42,6 +44,13 @@ using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
 // NVVM / nvJitLink handles above do.
 using TexObjectValue = TaggedHandle<CUtexObject, 2>;
 using SurfObjectValue = TaggedHandle<CUsurfObject, 3>;
+
+// Virtual memory management (VMM_DESIGN.md). CUmemGenericAllocationHandle is
+// also `unsigned long long`, and the reservation and mapping handles carry a
+// CUdeviceptr each, so all three are tagged for the same reason.
+using MemAllocationValue = TaggedHandle<CUmemGenericAllocationHandle, 4>;
+using VaReservationValue = TaggedHandle<CUdeviceptr, 5>;
+using VaMappingValue = TaggedHandle<CUdeviceptr, 6>;
 
 // ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
@@ -68,6 +77,17 @@ using MipmappedArrayHandle = std::shared_ptr<const CUmipmappedArray>;
 using TexObjectHandle = std::shared_ptr<const TexObjectValue>;
 using SurfObjectHandle = std::shared_ptr<const SurfObjectValue>;
 
+// Virtual memory management: a physical allocation (cuMemCreate), an address
+// reservation (cuMemAddressReserve), one mapping of a whole allocation into a
+// reservation (cuMemMap), and the range of mappings a buffer owns. A range is
+// the buffer's mappings in ascending, contiguous order; it is immutable once
+// built, and a grow builds a new one for its result (VMM_DESIGN.md).
+using MemAllocationHandle = std::shared_ptr<const MemAllocationValue>;
+using VaReservationHandle = std::shared_ptr<const VaReservationValue>;
+using VaMappingHandle = std::shared_ptr<const VaMappingValue>;
+using VmmRange = std::vector<VaMappingHandle>;
+using VmmRangeHandle = std::shared_ptr<const VmmRange>;
+
 using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
 
 // Type-erased shared owner of an attached resource. Typed handles such as
@@ -77,217 +97,338 @@ using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
 using OpaqueHandle = std::shared_ptr<const void>;
 
 struct PreparedAttachmentState;
-using PreparedAttachmentRollback =
-    void (*)(PreparedAttachmentState*) noexcept;
+using PreparedAttachmentRollback = void (*)(PreparedAttachmentState *) noexcept;
 struct PreparedAttachmentDeleter {
     PreparedAttachmentRollback rollback = nullptr;
 
-    void operator()(PreparedAttachmentState* state) const noexcept {
+    void
+    operator()(PreparedAttachmentState *state) const noexcept
+    {
         rollback(state);
     }
 };
-using PreparedAttachment =
-    std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
+using PreparedAttachment = std::unique_ptr<PreparedAttachmentState, PreparedAttachmentDeleter>;
 
 struct PreparedChildGraphUpdateState;
 // Opaque unpublished hierarchy transaction; releasing it discards staged
 // metadata unless graph_commit_child_graph_update publishes the replacement.
-using PreparedChildGraphUpdate =
-    std::shared_ptr<PreparedChildGraphUpdateState>;
+using PreparedChildGraphUpdate = std::shared_ptr<PreparedChildGraphUpdateState>;
 
 struct PreparedExecAttachmentState;
-using PreparedExecAttachmentRollback =
-    void (*)(PreparedExecAttachmentState*) noexcept;
+using PreparedExecAttachmentRollback = void (*)(PreparedExecAttachmentState *) noexcept;
 struct PreparedExecAttachmentDeleter {
     PreparedExecAttachmentRollback rollback = nullptr;
 
-    void operator()(PreparedExecAttachmentState* state) const noexcept {
+    void
+    operator()(PreparedExecAttachmentState *state) const noexcept
+    {
         rollback(state);
     }
 };
 // Opaque append transaction. Releasing it rolls back newly appended owners
 // unless graph_commit_exec_attachment has kept them.
-using PreparedExecAttachment =
-    std::unique_ptr<PreparedExecAttachmentState, PreparedExecAttachmentDeleter>;
+using PreparedExecAttachment = std::unique_ptr<PreparedExecAttachmentState, PreparedExecAttachmentDeleter>;
 
 // ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
 // as_cu() - extract the raw CUDA handle
-inline CUcontext as_cu(const ContextHandle& h) noexcept {
+inline CUcontext
+as_cu(const ContextHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUgreenCtx as_cu(const GreenCtxHandle& h) noexcept {
+inline CUgreenCtx
+as_cu(const GreenCtxHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUstream as_cu(const StreamHandle& h) noexcept {
+inline CUstream
+as_cu(const StreamHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUevent as_cu(const EventHandle& h) noexcept {
+inline CUevent
+as_cu(const EventHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUmemoryPool as_cu(const MemoryPoolHandle& h) noexcept {
+inline CUmemoryPool
+as_cu(const MemoryPoolHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUdeviceptr as_cu(const DevicePtrHandle& h) noexcept {
+inline CUdeviceptr
+as_cu(const DevicePtrHandle &h) noexcept
+{
     return h ? *h : 0;
 }
 
-inline CUlibrary as_cu(const LibraryHandle& h) noexcept {
+inline CUlibrary
+as_cu(const LibraryHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUmodule as_cu(const CUmodule& h) noexcept {
+inline CUmodule
+as_cu(const CUmodule &h) noexcept
+{
     return h;
 }
 
-inline CUkernel as_cu(const KernelHandle& h) noexcept {
+inline CUkernel
+as_cu(const KernelHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUgraph as_cu(const GraphHandle& h) noexcept {
+inline CUgraph
+as_cu(const GraphHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUgraphExec as_cu(const GraphExecHandle& h) noexcept {
+inline CUgraphExec
+as_cu(const GraphExecHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUgraphNode as_cu(const GraphNodeHandle& h) noexcept {
+inline CUgraphNode
+as_cu(const GraphNodeHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUgraphicsResource as_cu(const GraphicsResourceHandle& h) noexcept {
+inline CUgraphicsResource
+as_cu(const GraphicsResourceHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline nvrtcProgram as_cu(const NvrtcProgramHandle& h) noexcept {
+inline nvrtcProgram
+as_cu(const NvrtcProgramHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline nvvmProgram as_cu(const NvvmProgramHandle& h) noexcept {
+inline nvvmProgram
+as_cu(const NvvmProgramHandle &h) noexcept
+{
     return h ? h->raw : nullptr;
 }
 
-inline nvJitLink_t as_cu(const NvJitLinkHandle& h) noexcept {
+inline nvJitLink_t
+as_cu(const NvJitLinkHandle &h) noexcept
+{
     return h ? h->raw : nullptr;
 }
 
-inline CUlinkState as_cu(const CuLinkHandle& h) noexcept {
+inline CUlinkState
+as_cu(const CuLinkHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUarray as_cu(const OpaqueArrayHandle& h) noexcept {
+inline CUarray
+as_cu(const OpaqueArrayHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
-inline CUmipmappedArray as_cu(const MipmappedArrayHandle& h) noexcept {
+inline CUmipmappedArray
+as_cu(const MipmappedArrayHandle &h) noexcept
+{
     return h ? *h : nullptr;
 }
 
 // CUtexObject / CUsurfObject are integer-valued (like CUdeviceptr); null is 0.
 // The raw value lives in the tagged wrapper's `raw` field.
-inline CUtexObject as_cu(const TexObjectHandle& h) noexcept {
+inline CUtexObject
+as_cu(const TexObjectHandle &h) noexcept
+{
     return h ? h->raw : 0;
 }
 
-inline CUsurfObject as_cu(const SurfObjectHandle& h) noexcept {
+inline CUsurfObject
+as_cu(const SurfObjectHandle &h) noexcept
+{
+    return h ? h->raw : 0;
+}
+
+inline CUmemGenericAllocationHandle
+as_cu(const MemAllocationHandle &h) noexcept
+{
+    return h ? h->raw : 0;
+}
+
+inline CUdeviceptr
+as_cu(const VaReservationHandle &h) noexcept
+{
+    return h ? h->raw : 0;
+}
+
+inline CUdeviceptr
+as_cu(const VaMappingHandle &h) noexcept
+{
     return h ? h->raw : 0;
 }
 
 // as_intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
-inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const ContextHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const GreenCtxHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const GreenCtxHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const StreamHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const StreamHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const EventHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const EventHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const MemoryPoolHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const MemoryPoolHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const DevicePtrHandle &h) noexcept
+{
     return static_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const LibraryHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const LibraryHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const CUmodule& h) noexcept {
+inline std::intptr_t
+as_intptr(const CUmodule &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const KernelHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const KernelHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const GraphHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const GraphHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const GraphExecHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const GraphExecHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const GraphNodeHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const GraphNodeHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const GraphicsResourceHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const GraphicsResourceHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const NvrtcProgramHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const NvrtcProgramHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const NvvmProgramHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const NvvmProgramHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const NvJitLinkHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const NvJitLinkHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const CuLinkHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const CuLinkHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const FileDescriptorHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const FileDescriptorHandle &h) noexcept
+{
     return h ? static_cast<std::intptr_t>(*h) : -1;
 }
 
-inline std::intptr_t as_intptr(const OpaqueArrayHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const OpaqueArrayHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const MipmappedArrayHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const MipmappedArrayHandle &h) noexcept
+{
     return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const TexObjectHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const TexObjectHandle &h) noexcept
+{
     return static_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t as_intptr(const SurfObjectHandle& h) noexcept {
+inline std::intptr_t
+as_intptr(const SurfObjectHandle &h) noexcept
+{
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t
+as_intptr(const MemAllocationHandle &h) noexcept
+{
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t
+as_intptr(const VaReservationHandle &h) noexcept
+{
+    return static_cast<std::intptr_t>(as_cu(h));
+}
+
+inline std::intptr_t
+as_intptr(const VaMappingHandle &h) noexcept
+{
     return static_cast<std::intptr_t>(as_cu(h));
 }
 

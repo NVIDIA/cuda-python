@@ -2,13 +2,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""CUDA process checkpointing on Linux.
+
+This module requires the CUDA 13 build of cuda.core, because the driver
+structures it uses are CUDA 13 types. It also requires a CUDA driver of version
+12.8 or newer with checkpoint API support.
+"""
+
 import ctypes as _ctypes
 from collections.abc import Mapping
 from typing import Any
 
 from cuda.bindings import driver as _driver
 from cuda.core._utils.cuda_utils import handle_return as _handle_cuda_return
-from cuda.core._utils.version import binding_version as _binding_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR as _BUILD_CUDA_MAJOR
 from cuda.core._utils.version import driver_version as _driver_version
 from cuda.core.typing import ProcessStateType as _ProcessStateType
 
@@ -19,18 +26,6 @@ _PROCESS_STATE_NAME_ATTRS: tuple[tuple[str, _ProcessStateType], ...] = (
     ("CU_PROCESS_STATE_FAILED", "failed"),
 )
 
-_REQUIRED_BINDING_ATTRS = (
-    "cuCheckpointProcessCheckpoint",
-    "cuCheckpointProcessGetRestoreThreadId",
-    "cuCheckpointProcessGetState",
-    "cuCheckpointProcessLock",
-    "cuCheckpointProcessRestore",
-    "cuCheckpointProcessUnlock",
-    "CUcheckpointGpuPair",
-    "CUcheckpointLockArgs",
-    "CUprocessState",
-    "CUcheckpointRestoreArgs",
-)
 _REQUIRED_DRIVER_VERSION = (12, 8, 0)
 _driver_capability_checked = False
 
@@ -130,18 +125,10 @@ def _get_driver() -> Any:
     if _driver_capability_checked:
         return _driver
 
-    binding_ver = _binding_version()
-    if not _binding_version_supports_checkpoint(binding_ver):
-        raise RuntimeError(
-            "CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. "
-            f"Found cuda.bindings {'.'.join(str(part) for part in binding_ver[:3])}."
-        )
-
-    missing = [name for name in _REQUIRED_BINDING_ATTRS if not hasattr(_driver, name)]
-    if missing:
-        raise RuntimeError(
-            f"CUDA checkpointing requires cuda.bindings with CUDA checkpoint API support. Missing: {', '.join(missing)}"
-        )
+    # A restore onto other GPUs uses CUcheckpointGpuPair, a CUDA 13 type that
+    # cuda-bindings 12.x does not have.
+    if _BUILD_CUDA_MAJOR < 13:
+        raise RuntimeError("CUDA checkpointing requires the CUDA 13 build of cuda.core. Install cuda-core[cu13].")
 
     driver_ver = _driver_version()
     if driver_ver < _REQUIRED_DRIVER_VERSION:
@@ -152,11 +139,6 @@ def _get_driver() -> Any:
 
     _driver_capability_checked = True
     return _driver
-
-
-def _binding_version_supports_checkpoint(version: tuple[int, ...]) -> bool:
-    major, minor, patch = version[:3]
-    return (major == 12 and (minor, patch) >= (8, 0)) or (major == 13 and (minor, patch) >= (0, 2)) or major > 13
 
 
 def _get_process_state_names(driver: Any) -> dict[Any, _ProcessStateType]:

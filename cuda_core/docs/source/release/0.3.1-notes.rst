@@ -31,8 +31,8 @@ None.
 New examples
 ------------
 
-- Add a :cuda-core-example:`CUDA graph <cuda_graphs.py>` example.
-- Add a :cuda-core-example:`memory resource <memory_ops.py>` example.
+- Add a :sample-file:`CUDA graph <cudaGraphs/cudaGraphs.py>` example.
+- Add a :sample-file:`memory resource <memoryResources/memoryResources.py>` example.
 
 
 Fixes and enhancements

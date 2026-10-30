@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Configuration shared by the authored and rendered Lychee pre-commit hooks.
+# See https://lychee.cli.rs/guides/config/.
+
+exclude = [
+    # PR previews are not published yet during link checking.
+    '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/',
+    # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
+    # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.
+    '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$',
+    # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
+    '^https://www\.preferred\.jp/en/?$',
+]

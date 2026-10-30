@@ -6,7 +6,10 @@ version: 2
 updates:
   # GitHub Actions updates targeting the default branch (main)
   - package-ecosystem: github-actions
-    directory: /
+    # "/" covers only .github/workflows/; composite actions must be listed.
+    directories:
+      - /
+      - /.github/actions/*
     schedule:
       interval: "monthly"
       time: "09:00"
@@ -21,9 +24,43 @@ updates:
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
 
+    labels: [CI/CD, dependencies]
+
+  # Group monthly hook revision updates, preserving SHA pins and frozen comments.
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+
+    open-pull-requests-limit: 1
+
+    # Match hook repositories, leaving additional_dependencies pins unchanged.
+    allow:
+      - dependency-name: "https://github.com/*"
+
+    groups:
+      pre-commit-monthly:
+        applies-to: version-updates
+        patterns: ["*"]
+
+    labels: [CI/CD, dependencies]
+
+  # CCCL submodule on main.
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 1
+
   # GitHub Actions updates targeting the 12.9.x branch
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - /
+      - /.github/actions/*
     target-branch: "12.9.x"  # keep in sync with backport_branch in ci/versions.yml
     schedule:
       interval: "monthly"
@@ -38,3 +75,5 @@ updates:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["major", "minor", "patch"]
+
+    labels: [CI/CD, dependencies]

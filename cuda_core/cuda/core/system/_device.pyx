@@ -105,15 +105,10 @@ _BRAND_TYPE_MAPPING = {
     nvml.BrandType.BRAND_NVIDIA: "NVIDIA",
     nvml.BrandType.BRAND_GEFORCE_RTX: "GeForce RTX",
     nvml.BrandType.BRAND_TITAN_RTX: "Titan RTX",
+    nvml.BrandType.BRAND_NVIDIA_DLA: "NVIDIA DLA",
+    nvml.BrandType.BRAND_NVIDIA_VGAMEDEV: "NVIDIA vGameDev",
+    nvml.BrandType.BRAND_NVIDIA_NPU: "NVIDIA NPU",
 }
-
-
-if hasattr(nvml.BrandType, "BRAND_NVIDIA_DLA"):
-    _BRAND_TYPE_MAPPING.update({
-        nvml.BrandType.BRAND_NVIDIA_DLA: "NVIDIA DLA",
-        nvml.BrandType.BRAND_NVIDIA_VGAMEDEV: "NVIDIA vGameDev",
-        nvml.BrandType.BRAND_NVIDIA_NPU: "NVIDIA NPU",
-    })
 
 
 _GPU_P2P_CAPS_INDEX_MAPPING = {
@@ -244,9 +239,10 @@ cdef class Device:
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
 
-        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  If you need a `uuid` without that prefix (for example, to
-        interact with CUDA), use the `uuid_without_prefix` property.
+        Returns the UUID exactly as reported by NVML.  It usually includes a
+        ``GPU-``, ``MIG-``, or ``DLA-`` prefix, but some platforms report an
+        unprefixed UUID.  To interact with CUDA, use the `uuid_without_prefix`
+        property.
         """
         return nvml.device_get_uuid(self._handle)
 
@@ -257,12 +253,15 @@ cdef class Device:
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
 
-        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
-        prefix.  This property returns it without the prefix, to match the UUIDs
-        used in CUDA.  If you need the prefix, use the `uuid` property.
+        Removes a ``GPU-``, ``MIG-``, or ``DLA-`` prefix when present, to match
+        the UUIDs used in CUDA.  An already unprefixed UUID is returned
+        unchanged.  For the UUID exactly as reported by NVML, use the `uuid`
+        property.
         """
-        # NVML UUIDs have a `gpu-` or `mig-` prefix.  We remove that here.
-        return nvml.device_get_uuid(self._handle)[4:]
+        uuid = self.uuid
+        if uuid.startswith(("GPU-", "MIG-", "DLA-")):
+            return uuid[4:]
+        return uuid
 
     @property
     def pci_bus_id(self) -> str:
@@ -1111,7 +1110,7 @@ cdef class Device:
         return Utilization(nvml.device_get_utilization_rates(self._handle))
 
 
-def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:
+def get_topology_common_ancestor(Device device1 not None: Device, Device device2 not None: Device) -> GpuTopologyLevel:
     """
     Retrieve the common ancestor for two devices.
 
@@ -1137,7 +1136,7 @@ def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopolog
     ]
 
 
-def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
+def get_p2p_status(Device device1 not None: Device, Device device2 not None: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
     """
     Retrieve the P2P status between two devices.
 

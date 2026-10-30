@@ -53,7 +53,7 @@ from cuda.core._rt cimport (
 )
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core._utils.version cimport cy_binding_version, cy_driver_version
+from cuda.core._utils.version cimport cy_driver_version
 
 from cuda.core._utils.cuda_utils import (
     CUDAError,
@@ -72,6 +72,18 @@ else:
     # decorator must leave the method alone.
     def overload(f):
         return f
+
+# Each ``@overload`` stub of ``Graph.__getitem__`` still compiles to a static
+# wrapper function that nothing references, because only the final definition
+# is bound. gcc and clang report those under -Wunused-function, so this file
+# turns that warning off for its own translation unit. The guard keeps the
+# pragma away from MSVC, whose equivalent warning is off at the default level.
+cdef extern from *:
+    """
+    #if defined(__GNUC__)
+    #pragma GCC diagnostic ignored "-Wunused-function"
+    #endif
+    """
 
 __all__ = ['Graph', 'GraphBuilder', 'GraphCompleteOptions', 'GraphDebugPrintOptions']
 
@@ -252,10 +264,7 @@ def _instantiate_graph(source, options: GraphCompleteOptions | None = None) -> G
         )
     elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED:
         raise RuntimeError("Instantiation for device launch failed due to the nodes belonging to different contexts.")
-    elif (
-        cy_binding_version() >= (12, 8, 0)
-        and params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
-    ):
+    elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED:
         raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
     elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
         raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
@@ -614,7 +623,7 @@ cdef class GraphBuilder:
 
         event = self._stream.record()
         result = [self]
-        for i in range(count - 1):
+        for _ in range(count - 1):
             stream = self._stream.device.create_stream()
             stream.wait(event)
             result.append(GB_init_forked(stream, self._h_graph))
@@ -711,8 +720,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional handles")
-        if cy_binding_version() < (12, 3, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional handles")
         if default_value is not None:
             flags = driver.CU_GRAPH_COND_ASSIGN_DEFAULT
         else:
@@ -728,7 +735,7 @@ cdef class GraphBuilder:
         )
         return GraphCondition._from_handle(<cydriver.CUgraphConditionalHandle><intptr_t>int(raw_handle))
 
-    def if_then(self, condition: GraphCondition) -> GraphBuilder:
+    def if_then(self, GraphCondition condition not None: GraphCondition) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
 
         The resulting if graph will only execute the branch if the
@@ -751,8 +758,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if")
-        if cy_binding_version() < (12, 3, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "
@@ -765,7 +770,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)[0]
 
-    def if_else(self, condition: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
+    def if_else(self, GraphCondition condition not None: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
         """Adds an if-else condition branch and returns new graph builders for both branches.
 
         The resulting if graph will execute the branch if the condition
@@ -788,8 +793,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 8, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional if-else")
-        if cy_binding_version() < (12, 8, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional if-else")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "
@@ -802,7 +805,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)
 
-    def switch(self, condition: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
+    def switch(self, GraphCondition condition not None: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
         """Adds a switch condition branch and returns new graph builders for all cases.
 
         The resulting switch graph will execute the branch whose case index
@@ -828,8 +831,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 8, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional switch")
-        if cy_binding_version() < (12, 8, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional switch")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "
@@ -842,7 +843,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)
 
-    def while_loop(self, condition: GraphCondition) -> GraphBuilder:
+    def while_loop(self, GraphCondition condition not None: GraphCondition) -> GraphBuilder:
         """Adds a while loop and returns a new graph builder for it.
 
         The resulting while loop graph will execute the branch repeatedly at runtime
@@ -865,8 +866,6 @@ cdef class GraphBuilder:
         GB_check_open(self)
         if cy_driver_version() < (12, 3, 0):
             raise RuntimeError(f"Driver version {'.'.join(map(str, cy_driver_version()))} does not support conditional while loop")
-        if cy_binding_version() < (12, 3, 0):
-            raise RuntimeError(f"Binding version {'.'.join(map(str, cy_binding_version()))} does not support conditional while loop")
         if not isinstance(condition, GraphCondition):
             raise TypeError(
                 f"condition must be a GraphCondition object (from "
@@ -1280,7 +1279,7 @@ cdef class Graph:
     @overload
     def __getitem__(self, node: HostCallbackNode) -> ExecutableHostCallbackNode: ...
 
-    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+    def __getitem__(self, GraphNode node not None: GraphNode) -> ExecutableGraphNode:
         """Return a view for updating *node* in this executable graph.
 
         *node* is a definition node from the graph used to instantiate this
@@ -1330,7 +1329,7 @@ cdef class Graph:
             raise CUDAError(msg)
         HANDLE_RETURN(err)
 
-    def upload(self, stream: Stream) -> None:
+    def upload(self, Stream stream not None: Stream) -> None:
         """Uploads the graph in a stream.
 
         Parameters
@@ -1346,7 +1345,7 @@ cdef class Graph:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))
 
-    def launch(self, stream: Stream) -> None:
+    def launch(self, Stream stream not None: Stream) -> None:
         """Launches the graph in a stream.
 
         Parameters

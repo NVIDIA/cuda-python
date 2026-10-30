@@ -31,7 +31,9 @@ extern "C" int _Py_IsFinalizing(void);
 // work once shutdown is underway and accept an intentional leak or skipped
 // Python conversion in that edge case rather than add more complex deferral
 // machinery.
-inline bool py_is_finalizing() noexcept {
+inline bool
+py_is_finalizing() noexcept
+{
 #if PY_VERSION_HEX >= 0x030D0000
     return Py_IsFinalizing();
 #else
@@ -41,8 +43,9 @@ inline bool py_is_finalizing() noexcept {
 
 // Conditionally release the GIL while calling into the CUDA driver.
 class GILReleaseGuard {
-public:
-    GILReleaseGuard() noexcept {
+   public:
+    GILReleaseGuard() noexcept
+    {
         if (!Py_IsInitialized() || py_is_finalizing()) {
             return;
         }
@@ -51,24 +54,26 @@ public:
         }
     }
 
-    ~GILReleaseGuard() {
+    ~GILReleaseGuard()
+    {
         if (tstate_) {
             PyEval_RestoreThread(tstate_);
         }
     }
 
-    GILReleaseGuard(const GILReleaseGuard&) = delete;
-    GILReleaseGuard& operator=(const GILReleaseGuard&) = delete;
+    GILReleaseGuard(const GILReleaseGuard &) = delete;
+    GILReleaseGuard &operator=(const GILReleaseGuard &) = delete;
 
-private:
-    PyThreadState* tstate_ = nullptr;
+   private:
+    PyThreadState *tstate_ = nullptr;
 };
 
 // Helper to acquire the GIL when we might not hold it.
 // Use in C++ destructors that need to manipulate Python objects.
 class GILAcquireGuard {
-public:
-    GILAcquireGuard() : acquired_(false) {
+   public:
+    GILAcquireGuard() : acquired_(false)
+    {
         // Don't try to acquire GIL if Python is finalizing
         if (!Py_IsInitialized() || py_is_finalizing()) {
             return;
@@ -77,132 +82,244 @@ public:
         acquired_ = true;
     }
 
-    ~GILAcquireGuard() {
+    ~GILAcquireGuard()
+    {
         if (acquired_) {
             PyGILState_Release(gstate_);
         }
     }
 
-    bool acquired() const { return acquired_; }
+    bool
+    acquired() const
+    {
+        return acquired_;
+    }
 
     // Non-copyable, non-movable
-    GILAcquireGuard(const GILAcquireGuard&) = delete;
-    GILAcquireGuard& operator=(const GILAcquireGuard&) = delete;
+    GILAcquireGuard(const GILAcquireGuard &) = delete;
+    GILAcquireGuard &operator=(const GILAcquireGuard &) = delete;
 
-private:
+   private:
     PyGILState_STATE gstate_;
     bool acquired_;
+};
+
+// Save the Python exception in flight and restore it on scope exit, dropping
+// anything the scope itself raised. A deleter may run while an exception is
+// propagating through the caller that released the last reference; Python
+// code it calls (a MemoryResource's deallocate, the warnings machinery) must
+// start with a clean error state and must not leave that exception cleared,
+// or the caller returns an error with no exception set. Allocates nothing.
+// Construct with the GIL held and destroy before releasing it.
+class PendingExceptionGuard {
+   public:
+    PendingExceptionGuard() noexcept
+    {
+#if PY_VERSION_HEX >= 0x030C0000
+        pending_ = PyErr_GetRaisedException();
+#else
+        PyErr_Fetch(&type_, &value_, &tb_);
+#endif
+    }
+
+    ~PendingExceptionGuard()
+    {
+        PyErr_Clear();
+#if PY_VERSION_HEX >= 0x030C0000
+        PyErr_SetRaisedException(pending_);
+#else
+        PyErr_Restore(type_, value_, tb_);
+#endif
+    }
+
+    PendingExceptionGuard(const PendingExceptionGuard &) = delete;
+    PendingExceptionGuard &operator=(const PendingExceptionGuard &) = delete;
+
+   private:
+#if PY_VERSION_HEX >= 0x030C0000
+    PyObject *pending_ = nullptr;
+#else
+    PyObject *type_ = nullptr;
+    PyObject *value_ = nullptr;
+    PyObject *tb_ = nullptr;
+#endif
 };
 
 // as_py() - convert handle to Python wrapper object (returns new reference)
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
-inline PyObject* make_py(const char* module_name, const char* class_name, std::intptr_t value) noexcept {
+inline PyObject *
+make_py(const char *module_name, const char *class_name, std::intptr_t value) noexcept
+{
     if (py_is_finalizing()) {
         Py_RETURN_NONE;
     }
-    PyObject* mod = PyImport_ImportModule(module_name);
-    if (!mod) return nullptr;
-    PyObject* cls = PyObject_GetAttrString(mod, class_name);
+    PyObject *mod = PyImport_ImportModule(module_name);
+    if (!mod)
+        return nullptr;
+    PyObject *cls = PyObject_GetAttrString(mod, class_name);
     Py_DECREF(mod);
-    if (!cls) return nullptr;
-    PyObject* result = PyObject_CallFunction(cls, "L", value);
+    if (!cls)
+        return nullptr;
+    PyObject *result = PyObject_CallFunction(cls, "L", value);
     Py_DECREF(cls);
     return result;
 }
 }  // namespace detail
 
-inline PyObject* as_py(const ContextHandle& h) noexcept {
+inline PyObject *
+as_py(const ContextHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUcontext", as_intptr(h));
 }
 
-inline PyObject* as_py(const GreenCtxHandle& h) noexcept {
+inline PyObject *
+as_py(const GreenCtxHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUgreenCtx", as_intptr(h));
 }
 
-inline PyObject* as_py(const StreamHandle& h) noexcept {
+inline PyObject *
+as_py(const StreamHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUstream", as_intptr(h));
 }
 
-inline PyObject* as_py(const EventHandle& h) noexcept {
+inline PyObject *
+as_py(const EventHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUevent", as_intptr(h));
 }
 
-inline PyObject* as_py(const MemoryPoolHandle& h) noexcept {
+inline PyObject *
+as_py(const MemoryPoolHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUmemoryPool", as_intptr(h));
 }
 
-inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
+inline PyObject *
+as_py(const DevicePtrHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUdeviceptr", as_intptr(h));
 }
 
-inline PyObject* as_py(const LibraryHandle& h) noexcept {
+inline PyObject *
+as_py(const LibraryHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUlibrary", as_intptr(h));
 }
 
-inline PyObject* as_py(const CUmodule& h) noexcept {
+inline PyObject *
+as_py(const CUmodule &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUmodule", as_intptr(h));
 }
 
-inline PyObject* as_py(const KernelHandle& h) noexcept {
+inline PyObject *
+as_py(const KernelHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUkernel", as_intptr(h));
 }
 
-inline PyObject* as_py(const GraphHandle& h) noexcept {
+inline PyObject *
+as_py(const GraphHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUgraph", as_intptr(h));
 }
 
-inline PyObject* as_py(const GraphExecHandle& h) noexcept {
+inline PyObject *
+as_py(const GraphExecHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUgraphExec", as_intptr(h));
 }
 
-inline PyObject* as_py(const GraphNodeHandle& h) noexcept {
+inline PyObject *
+as_py(const GraphNodeHandle &h) noexcept
+{
     if (!as_intptr(h)) {
         Py_RETURN_NONE;
     }
     return detail::make_py("cuda.bindings.driver", "CUgraphNode", as_intptr(h));
 }
 
-inline PyObject* as_py(const NvrtcProgramHandle& h) noexcept {
+inline PyObject *
+as_py(const NvrtcProgramHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.nvrtc", "nvrtcProgram", as_intptr(h));
 }
 
-inline PyObject* as_py(const NvvmProgramHandle& h) noexcept {
+inline PyObject *
+as_py(const NvvmProgramHandle &h) noexcept
+{
     // NVVM bindings use raw integers, not wrapper classes
     return PyLong_FromSsize_t(as_intptr(h));
 }
 
-inline PyObject* as_py(const NvJitLinkHandle& h) noexcept {
+inline PyObject *
+as_py(const NvJitLinkHandle &h) noexcept
+{
     // nvJitLink bindings use raw integers, not wrapper classes
     return PyLong_FromSsize_t(as_intptr(h));
 }
 
-inline PyObject* as_py(const CuLinkHandle& h) noexcept {
+inline PyObject *
+as_py(const CuLinkHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUlinkState", as_intptr(h));
 }
 
-inline PyObject* as_py(const GraphicsResourceHandle& h) noexcept {
+inline PyObject *
+as_py(const GraphicsResourceHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUgraphicsResource", as_intptr(h));
 }
 
-inline PyObject* as_py(const FileDescriptorHandle& h) noexcept {
+inline PyObject *
+as_py(const FileDescriptorHandle &h) noexcept
+{
     return PyLong_FromSsize_t(as_intptr(h));
 }
 
-inline PyObject* as_py(const OpaqueArrayHandle& h) noexcept {
+inline PyObject *
+as_py(const OpaqueArrayHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUarray", as_intptr(h));
 }
 
-inline PyObject* as_py(const MipmappedArrayHandle& h) noexcept {
+inline PyObject *
+as_py(const MipmappedArrayHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUmipmappedArray", as_intptr(h));
 }
 
-inline PyObject* as_py(const TexObjectHandle& h) noexcept {
+inline PyObject *
+as_py(const TexObjectHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUtexObject", as_intptr(h));
 }
 
-inline PyObject* as_py(const SurfObjectHandle& h) noexcept {
+inline PyObject *
+as_py(const SurfObjectHandle &h) noexcept
+{
     return detail::make_py("cuda.bindings.driver", "CUsurfObject", as_intptr(h));
+}
+
+inline PyObject *
+as_py(const MemAllocationHandle &h) noexcept
+{
+    return detail::make_py("cuda.bindings.driver", "CUmemGenericAllocationHandle", as_intptr(h));
+}
+
+inline PyObject *
+as_py(const VaReservationHandle &h) noexcept
+{
+    return detail::make_py("cuda.bindings.driver", "CUdeviceptr", as_intptr(h));
+}
+
+inline PyObject *
+as_py(const VaMappingHandle &h) noexcept
+{
+    return detail::make_py("cuda.bindings.driver", "CUdeviceptr", as_intptr(h));
 }
 
 // ============================================================================
@@ -211,28 +328,27 @@ inline PyObject* as_py(const SurfObjectHandle& h) noexcept {
 
 // Register the Python warning category used by report_* (cuda.core.CUDAWarning).
 // Implemented in py_report.cpp
-void register_warning_category(PyObject* category) noexcept;
+void register_warning_category(PyObject *category) noexcept;
 
 // Create a non-owning stream handle that prevents a Python owner from being GC'd.
 // The owner's refcount is incremented; decremented when handle is released.
 // The owner is responsible for keeping the stream's context alive.
 // Implemented in stream.cpp
-StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
+StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject *owner);
 
 // Create a non-owning device pointer handle that prevents a Python owner from being GC'd.
 // The owner's refcount is incremented; decremented when handle is released.
 // The pointer will NOT be freed when the handle is released.
 // If owner is nullptr, equivalent to deviceptr_create_ref.
 // Implemented in memory.cpp
-DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject *owner);
 
 // Callback type for MemoryResource deallocation.
 // Called from the shared_ptr deleter when a handle created via
 // deviceptr_create_with_mr is destroyed.  The implementation is responsible
 // for converting raw C types to Python objects and calling
 // mr.deallocate(ptr, size, stream).
-using MRDeallocCallback = void (*)(PyObject* mr, CUdeviceptr ptr,
-                                   size_t size, const StreamHandle& stream);
+using MRDeallocCallback = void (*)(PyObject *mr, CUdeviceptr ptr, size_t size, const StreamHandle &stream);
 
 // Register the MR deallocation callback.
 // Implemented in memory.cpp
@@ -243,11 +359,11 @@ void register_mr_dealloc_callback(MRDeallocCallback cb);
 // decremented when the handle is released.
 // If mr is nullptr, equivalent to deviceptr_create_ref.
 // Implemented in memory.cpp
-DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject* mr);
+DevicePtrHandle deviceptr_create_with_mr(CUdeviceptr ptr, size_t size, PyObject *mr);
 
 // Build an OpaqueHandle from a Python object: increments its refcount now and
 // decrements it (under the GIL) on release. The caller must hold the GIL.
 // Implemented in graph.cpp
-OpaqueHandle make_opaque_py(PyObject* obj);
+OpaqueHandle make_opaque_py(PyObject *obj);
 
 }  // namespace cuda_core::rt

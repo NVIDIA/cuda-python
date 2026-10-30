@@ -22,8 +22,10 @@ from helpers.constants import POOL_SIZE
 mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
 ```
 
-Use a larger value only if a test genuinely requires it, and prefer adding a
-shared constant to `helpers/constants.py` over redefining one per module.
+`helpers/constants.py` re-exports `POOL_SIZE` from
+`cuda_python_test_helpers.memory`, where the `cuda.bindings` tests import it
+too. Use a larger value only if a test genuinely requires it, and prefer adding
+a shared constant over redefining one per module.
 
 ### Passing no options is different from passing empty options
 
@@ -60,11 +62,24 @@ with pytest.raises(RuntimeError, match="IPC is not available"):
 
 ## Release resources at test boundaries
 
-The `init_cuda` fixture in `conftest.py` runs `gc.collect()` followed
-by `cuCtxSynchronize()` before popping the context. Tests should not rely on
-that as a substitute for cleaning up explicitly: prefer context managers for
-resources whose lifetime fits a single scope, and keep pool lifetimes inside
-the test that creates them.
+The `init_cuda` fixture in `conftest.py` runs `gc.collect()` and
+`cuCtxSynchronize()` before popping the context. The collect runs only when the
+count of live owned driver resources (owned memory pools or VA reservations,
+tracked in the C++ layer) has changed since setup, so do not rely on it as a
+substitute for cleaning up explicitly: prefer context managers for resources
+whose lifetime fits a single scope, and keep pool lifetimes inside the test
+that creates them. The collected items and imported modules are frozen after
+collection, so the collect covers only objects created during the run.
+
+An owned memory pool or VA reservation that outlives a test without `init_cuda`
+makes the next `init_cuda` test fail with `UnreleasedMemoryResourceWarning`, and
+an `init_cuda` test that releases one created before it started fails with
+`BaselineMemoryResourceReleasedWarning` (both escalated to errors in
+`pytest.ini`). Other resources -- wrappers of the device default pool,
+`MemoryResource` subclasses that hold no pool, and their buffers -- are not
+counted, so leaking one goes undetected. Release what you construct regardless,
+and request `init_cuda` in any test that constructs a memory resource (see
+"Tests that touch CUDA must establish their own context").
 
 ## Shared test support
 
@@ -83,11 +98,24 @@ Follow these rules when adding or moving shared test code:
   `tests/helpers/` instead.
 - Import helpers explicitly from the test root, for example:
   `from helpers.memory import create_managed_memory_resource_or_skip`.
+- Reuse `run_child` and `noop` from `helpers.child_processes` for synchronous
+  child-process tests. The runner applies the sanitizer-aware timeout, kills
+  surviving children before asserting success, and closes process handles.
+  Before measuring file-descriptor counts around spawned processes, call
+  `warmup_multiprocessing` from the same module to start the persistent
+  resource-tracker pipe outside the baseline. Keep explicit process management
+  when the test needs to communicate with a running child or inspect its lifetime;
+  use `kill_subprocesses` before assertions and `track_child_processes` for
+  fixture cleanup so a stuck child cannot block IPC resource teardown.
+- Use the skip guards in `helpers/memory.py` instead of per-module copies:
+  `skip_if_mempool_unsupported`, `skip_if_managed_mempool_unsupported` (a
+  property check only; it never constructs a managed resource), and
+  `is_pool_resource` to tell pool-backed resources from VMM ones.
 - Search `tests/helpers/` and `cuda_python_test_helpers/` for prior art
   before adding a new helper; consolidate duplicates across
 
   packages into `cuda_python_test_helpers` (both `cuda_core` and
-  `cuda_bindings` test environments already depend on it).
+  `cuda-bindings` test environments already depend on it).
 - Fixtures in a nested `conftest.py` are available to tests in its directory
   and descendants; fixtures from applicable parent `conftest.py` files remain
   available.
@@ -112,11 +140,11 @@ and only around the setup call — never around `yield`:
 @contextlib.contextmanager
 def _gl_context():
     try:
-        win, tex_id = _setup_gl_texture()      # setup only
+        win, tex_id = _setup_gl_texture()  # setup only
     except (pyglet.NoSuchConfigException, GLContextError) as e:
         pytest.skip(f"GL unavailable: {e}")
     try:
-        yield tex_id                          # body exceptions propagate
+        yield tex_id  # body exceptions propagate
     finally:
         _cleanup(win, tex_id)
 ```
@@ -237,7 +265,9 @@ that calls a CUDA API without `init_cuda` (or an explicit
 to leave current on the thread — possibly none. With `pytest-randomly` that
 makes the pass/fail outcome depend on test order, so it moves seed to seed and
 looks like flakiness. Request `init_cuda` for any test that calls into the
-driver, or set up and tear down a context yourself.
+driver, or set up and tear down a context yourself. Allocating through
+`device.memory_resource` or `Device.allocate`, or constructing any memory
+resource, counts as touching CUDA and requires `init_cuda`.
 
 ## Assert on behavior, not implementation
 

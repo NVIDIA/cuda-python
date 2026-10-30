@@ -8,7 +8,7 @@ import ctypes
 import numpy as np
 import pytest
 from helpers.graph_kernels import skip_if_nvrtc_lacks_conditional_handle
-from helpers.memory import xfail_on_graph_mempool_oom
+from helpers.memory import skip_if_mempool_unsupported
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
@@ -16,11 +16,6 @@ from cuda.core.graph import GraphDefinition
 
 SIZEOF_FLOAT = 4
 SIZEOF_INT = 4
-
-
-def _skip_if_no_mempool():
-    if not Device(0).properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
 
 
 # ===================================================================
@@ -201,15 +196,14 @@ def test_heat_diffusion(init_cuda):
 
     if dev.compute_capability < (9, 0):
         pytest.skip("Conditional nodes require compute capability >= 9.0")
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     k_heat, k_countdown = _compile_heat_kernels()
 
     host_ptr = handle_return(driver.cuMemAllocHost(_HEAT_N * SIZEOF_FLOAT))
 
     try:
-        with xfail_on_graph_mempool_oom(dev):
-            _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
+        _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -312,15 +306,14 @@ def test_bisection_root(init_cuda):
 
     if dev.compute_capability < (9, 0):
         pytest.skip("Conditional nodes require compute capability >= 9.0")
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     k_eval, k_hi, k_lo, k_cd, k_check, k_newton = _compile_bisect_kernels()
 
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_FLOAT))
 
     try:
-        with xfail_on_graph_mempool_oom(dev):
-            _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
+        _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -415,15 +408,14 @@ def test_switch_dispatch(init_cuda, mode, expected):
 
     if dev.compute_capability < (9, 0):
         pytest.skip("Conditional nodes require compute capability >= 9.0")
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     k_negate, k_double, k_square = _compile_switch_kernels()
 
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_INT))
 
     try:
-        with xfail_on_graph_mempool_oom(dev):
-            _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
+        _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
 
         result = ctypes.c_int.from_address(host_ptr).value
         assert result == expected

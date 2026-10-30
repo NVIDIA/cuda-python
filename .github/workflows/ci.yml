@@ -35,6 +35,7 @@ jobs:
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
       WINDOWS_ARM64_SUPPORTED: ${{ steps.get-vars.outputs.windows_arm64_supported }}
       WINDOWS_ARM64_SINGLE_CUDA_MAJOR: ${{ steps.get-vars.outputs.windows_arm64_single_cuda_major }}
+      PYTHON_SUPPORTED: ${{ steps.get-vars.outputs.python_supported }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -48,6 +49,11 @@ jobs:
 
           cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
+
+          # Flattened one-line JSON for pass-through to build-wheel.yml via
+          # fromJSON on the receiving side.
+          python_supported=$(yq -o json -I 0 '.python.supported' ci/versions.yml)
+          echo "python_supported=$python_supported" >> $GITHUB_OUTPUT
 
           # Windows ARM64 is available starting with CUDA 13.4.
           if [[ "$cuda_build_ver" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
@@ -87,12 +93,11 @@ jobs:
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
       base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euxo pipefail
           if ${{ startsWith(github.ref_name, 'pull-request/') }}; then
@@ -143,9 +148,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          # Treeless clone: the commit graph is needed to resolve the PR merge
-          # base and classify its changed paths, but historical blobs aren't.
-          fetch-depth: 0
+          # Only PR mirrors need full ancestry to find their merge base.
+          fetch-depth: ${{ startsWith(github.ref_name, 'pull-request/') && '0' || '1' }}
           filter: blob:none
 
       - name: Resolve PR merge base
@@ -224,7 +228,7 @@ jobs:
           done
 
           cuda_version=$(yq '.cuda.build.version' ci/versions.yml)
-          if ! python_versions=$(yq -r '.jobs.build.strategy.matrix."python-version"[]' .github/workflows/build-wheel.yml); then
+          if ! python_versions=$(yq -r '.python.supported[]' ci/versions.yml); then
             unavailable
           fi
           if ! platforms=$(yq -r '.platforms[]' ci/test-matrix.yml); then
@@ -388,6 +392,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
@@ -415,6 +420,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-windows:
@@ -442,6 +448,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # Windows ARM64 is available starting with CUDA 13.4. Build only the current
   # CUDA major because no prior-major toolkit or wheel artifacts exist.
@@ -467,9 +474,10 @@ jobs:
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.ci-vars.outputs.WINDOWS_ARM64_SINGLE_CUDA_MAJOR == 'true' }}
+      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
-  # so platform-specific sources (e.g. cuda_bindings/*_windows.pyx selected by
+  # so platform-specific sources (e.g. cuda_bindings_13/*_windows.pyx selected by
   # build_hooks.py) are exercised on their target OS. Keep these job definitions
   # textually identical except for:
   #   - host-platform value
@@ -623,38 +631,7 @@ jobs:
     uses: ./.github/workflows/build-docs.yml
     with:
       is-release: ${{ github.ref_type == 'tag' }}
-
-  precommit-windows:
-    name: Pre-commit on Windows
-    runs-on: windows-latest
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
-    needs:
-      - should-skip
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: '3.13'
-
-      - name: Install pre-commit
-        shell: bash
-        run: |
-          set -euxo pipefail
-          python -m pip install --upgrade pip pre-commit
-
-      - name: Run pre-commit
-        shell: bash
-        run: |
-          set -euxo pipefail
-          SKIP=lychee pre-commit run --all-files
+      deploy-docs: ${{ github.ref_type != 'tag' }}
 
   checks:
     name: Check job status
@@ -676,7 +653,6 @@ jobs:
       - api-check-core-vs-release
       - api-check-core-vs-base
       - doc
-      - precommit-windows
     steps:
       - name: Exit
         env:
@@ -714,14 +690,12 @@ jobs:
             fi
           }
 
-          # Control jobs, the universal linux build, docs, and Windows
-          # pre-commit checks always run.
+          # Control jobs, the universal Linux build, and docs always run.
           check_result "ci-vars"           "success"
           check_result "should-skip"       "success"
           check_result "detect-changes"    "success"
           check_result "build-linux-64"    "success"
           check_result "doc"               "success"
-          check_result "precommit-windows" "success"
 
           # Optional platform builds and wheel tests share the platform plan.
           linux_expected="skipped"

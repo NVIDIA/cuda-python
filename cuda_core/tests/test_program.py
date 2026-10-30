@@ -38,9 +38,7 @@ def _is_nvvm_available():
         return False
 
 
-nvvm_available = pytest.mark.skipif(
-    not _is_nvvm_available(), reason="NVVM not available (libNVVM not found or cuda-bindings < 12.9.0)"
-)
+nvvm_available = pytest.mark.skipif(not _is_nvvm_available(), reason="NVVM not available: libNVVM not found")
 
 
 def _get_nvrtc_version_for_tests():
@@ -60,19 +58,9 @@ def _get_nvrtc_version_for_tests():
     # CUDAError from a successfully loaded library propagates (real bug).
 
 
-def _has_nvrtc_pch_apis_for_tests():
-    required = (
-        "nvrtcGetPCHHeapSize",
-        "nvrtcSetPCHHeapSize",
-        "nvrtcGetPCHCreateStatus",
-        "nvrtcGetPCHHeapSizeRequired",
-    )
-    return all(hasattr(nvrtc, name) for name in required)
-
-
 nvrtc_pch_available = pytest.mark.skipif(
-    (_get_nvrtc_version_for_tests() or 0) < 12800 or not _has_nvrtc_pch_apis_for_tests(),
-    reason="PCH runtime APIs require NVRTC >= 12.8 bindings",
+    (_get_nvrtc_version_for_tests() or 0) < 12800,
+    reason="PCH runtime APIs require NVRTC >= 12.8",
 )
 
 bundled_headers_available = pytest.mark.skipif(
@@ -308,6 +296,37 @@ def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
     assert program.pch_status in ("created", "not_attempted", "failed")
     assert isinstance(program.pch_status, PCHStatusType)
     program.close()
+
+
+@nvrtc_pch_available
+@pytest.mark.skipif("NVRTC_DISABLE_PCH" in os.environ, reason="PCH is disabled by NVRTC_DISABLE_PCH")
+@pytest.mark.thread_unsafe(reason="resizes the process-global NVRTC PCH heap")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cpp_program_pch_heap_retry(tmp_path):
+    """PCH heap exhaustion retries compilation and returns a typed creation status."""
+    source = '\n#pragma nv_hdrstop\nextern "C" __global__ void my_kernel() {}\n'
+    pch_path = tmp_path / "retry.pch"
+    arch = min(handle_return(nvrtc.nvrtcGetSupportedArchs()))
+    options = ProgramOptions(arch=f"compute_{arch}", name="retry.cu", create_pch=str(pch_path))
+    previous_heap = handle_return(nvrtc.nvrtcGetPCHHeapSize())
+    try:
+        # NVRTC rounds this up; compare against the actual initial heap size.
+        handle_return(nvrtc.nvrtcSetPCHHeapSize(1))
+        small_heap = handle_return(nvrtc.nvrtcGetPCHHeapSize())
+        program = Program(source, "c++", options)
+        try:
+            result = program.compile("ptx")
+            assert isinstance(result, ObjectCode)
+            assert b"my_kernel" in result.code
+            assert program.pch_status is PCHStatusType.CREATED
+            assert pch_path.is_file()
+            # Success alone could miss the retry path; require automatic growth.
+            assert handle_return(nvrtc.nvrtcGetPCHHeapSize()) > small_heap
+        finally:
+            program.close()
+    finally:
+        handle_return(nvrtc.nvrtcSetPCHHeapSize(previous_heap))
+        assert handle_return(nvrtc.nvrtcGetPCHHeapSize()) == previous_heap
 
 
 @bundled_headers_available
@@ -565,6 +584,22 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
             pytest.xfail("PTX version not supported by current CUDA Driver")
         raise
     program.close()
+
+
+@nvvm_available
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_nvvm_compile_accepts_log_sink(nvvm_ir):
+    """NVVM compilation accepts a log sink and produces non-empty PTX."""
+    import io
+
+    program = Program(nvvm_ir, "nvvm")
+    try:
+        # Successful compilation may produce an empty log.
+        obj = program.compile("ptx", logs=io.StringIO())
+        assert isinstance(obj, ObjectCode)
+        assert obj.code
+    finally:
+        program.close()
 
 
 @nvvm_available
@@ -1446,3 +1481,30 @@ declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()""",
         assert not any(b".extern" in line and b"__nv_sin" in line for line in obj.code.splitlines())
     finally:
         program.close()
+
+
+@pytest.mark.thread_unsafe(reason="monkeypatches the process-global nvrtcVersion binding")
+@pytest.mark.parametrize(
+    ("version", "supported"),
+    [
+        pytest.param((13, 2), False, id="below-minimum"),
+        pytest.param((13, 3), True, id="minimum"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_use_bundled_headers_nvrtc_version_boundary(monkeypatch, version, supported):
+    """use_bundled_headers requires NVRTC 13.3 or newer."""
+    calls = []
+
+    def _nvrtc_version():
+        calls.append(True)
+        return (nvrtc.nvrtcResult.NVRTC_SUCCESS, *version)
+
+    monkeypatch.setattr(nvrtc, "nvrtcVersion", _nvrtc_version)
+    if supported:
+        options = ProgramOptions(arch="sm_80", use_bundled_headers=True)
+        assert options.use_bundled_headers is True
+    else:
+        with pytest.raises(RuntimeError, match=r"use_bundled_headers requires NVRTC >= 13\.3"):
+            ProgramOptions(arch="sm_80", use_bundled_headers=True)
+    assert calls == [True]

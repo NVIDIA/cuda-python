@@ -7,7 +7,7 @@ import ctypes
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
-from helpers.memory import xfail_on_graph_mempool_oom
+from helpers.memory import skip_if_mempool_unsupported
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
@@ -19,11 +19,6 @@ from cuda.core.graph import (
 )
 
 SIZEOF_INT = ctypes.sizeof(ctypes.c_int)
-
-
-def _skip_if_no_mempool():
-    if not Device(0).properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
 
 
 # =============================================================================
@@ -47,6 +42,24 @@ def test_conditional_rejects_non_condition(init_cuda, method, args):
         getattr(g, method)(*args)
 
 
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize("none_arg", ["config", "kernel"])
+@pytest.mark.parametrize("target", ["GraphDefinition", "GraphNode"])
+def test_launch_rejects_none(init_cuda, target, none_arg):
+    """launch() on a graph or node rejects None for config and kernel."""
+    kernel = compile_common_kernels().get_kernel("add_one")
+    g = GraphDefinition()
+    if target == "GraphDefinition":
+        owner = g
+    else:
+        owner = g.empty()
+    args = {"config": LaunchConfig(grid=1, block=1), "kernel": kernel}
+    args[none_arg] = None
+
+    with pytest.raises(TypeError):
+        owner.launch(args["config"], args["kernel"])
+
+
 def test_embed_rejects_non_graphdef(init_cuda):
     """embed() rejects non-GraphDefinition arguments."""
     g = GraphDefinition()
@@ -68,10 +81,9 @@ def test_free_null_pointer(init_cuda):
 
 def test_memset_invalid_value_size(init_cuda):
     """memset with 3-byte value (not 1, 2, or 4) raises ValueError."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
     with pytest.raises(ValueError):
         alloc.memset(alloc.dptr, b"\x01\x02\x03", 100)
 
@@ -113,11 +125,10 @@ def test_empty_node(init_cuda):
 
 def test_join_single_predecessor(init_cuda):
     """node.join() with no extra args creates a single-dep empty node."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom():
-        a = g.allocate(1024)
-        joined = a.join()
+    a = g.allocate(1024)
+    joined = a.join()
     assert isinstance(joined, EmptyNode)
     assert set(joined.pred) == {a}
 
@@ -137,10 +148,9 @@ def test_multiple_instantiation(init_cuda):
 
 def test_unmatched_alloc_succeeds(init_cuda):
     """Alloc without corresponding free is valid (graph-scoped lifetime)."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom():
-        g.allocate(1024)
+    g.allocate(1024)
     graph = g.instantiate()
     stream = Device().create_stream()
     graph.launch(stream)
@@ -170,7 +180,7 @@ def _skip_unless_cc_90():
 def test_while_loop_zero_iterations(init_cuda):
     """While loop with default_value=0 never executes its body."""
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -178,11 +188,10 @@ def test_while_loop_zero_iterations(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=0)
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(SIZEOF_INT)
-        ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
-        loop = ms.while_loop(condition)
-        loop.body.launch(cfg, add_one, alloc.dptr)
+    alloc = g.allocate(SIZEOF_INT)
+    ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
+    loop = ms.while_loop(condition)
+    loop.body.launch(cfg, add_one, alloc.dptr)
 
     graph = g.instantiate()
     stream = Device().create_stream()
@@ -199,7 +208,7 @@ def test_while_loop_zero_iterations(init_cuda):
 def test_if_then_false_skips_body(init_cuda):
     """If conditional with default_value=0 does not execute its body."""
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -207,11 +216,10 @@ def test_if_then_false_skips_body(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=0)
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(SIZEOF_INT)
-        ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
-        if_node = ms.if_then(condition)
-        if_node.then.launch(cfg, add_one, alloc.dptr)
+    alloc = g.allocate(SIZEOF_INT)
+    ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
+    if_node = ms.if_then(condition)
+    if_node.then.launch(cfg, add_one, alloc.dptr)
 
     graph = g.instantiate()
     stream = Device().create_stream()
@@ -228,7 +236,7 @@ def test_if_then_false_skips_body(init_cuda):
 def test_switch_oob_skips_all_branches(init_cuda):
     """Switch with out-of-range condition value does not execute any branch."""
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -236,12 +244,11 @@ def test_switch_oob_skips_all_branches(init_cuda):
 
     g = GraphDefinition()
     condition = g.create_condition(default_value=99)
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(SIZEOF_INT)
-        ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
-        sw = ms.switch(condition, 3)
-        for branch in sw.branches:
-            branch.launch(cfg, add_one, alloc.dptr)
+    alloc = g.allocate(SIZEOF_INT)
+    ms = alloc.memset(alloc.dptr, 0, SIZEOF_INT)
+    sw = ms.switch(condition, 3)
+    for branch in sw.branches:
+        branch.launch(cfg, add_one, alloc.dptr)
 
     graph = g.instantiate()
     stream = Device().create_stream()
