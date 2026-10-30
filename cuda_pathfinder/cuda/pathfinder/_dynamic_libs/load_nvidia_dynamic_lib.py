@@ -313,6 +313,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         The search is performed **per library**. There is currently no mechanism to
         guarantee that multiple libraries are all resolved from the same location.
 
+        Set ``CUDA_PATHFINDER_LOG_LEVEL=INFO`` to log where each library was
+        found (``abs_path`` and ``found_via``) to the ``cuda.pathfinder`` logger.
+
     """
     pointer_size_bits = struct.calcsize("P") * 8
     if pointer_size_bits != 64:
