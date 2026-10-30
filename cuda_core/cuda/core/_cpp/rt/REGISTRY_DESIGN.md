@@ -30,22 +30,26 @@ Without this level, a round-tripped handle would produce a new Box
 with default metadata, losing information that was set at creation.
 
 Instances: `context_registry`, `stream_registry`, `event_registry`,
-`kernel_registry`, `graph_registry`, and one node registry per `GraphBox`.
+`kernel_registry`, and, per `GraphBox`, one registry for its direct child
+graphs and one for its nodes.
 
 ### Reused graph handles
 
-CUDA can recycle a child graph's raw address after native destruction but
-before its old metadata is retired. A child-graph lookup therefore accepts a
-cached handle only when its parent `GraphBox` and owning node match the
-requested relationship. Independent hierarchies must not share stale metadata
-merely because CUDA reused an address.
+A `GraphHandle` weak reference locks whenever any handle of its hierarchy is
+alive, so a lockable entry does not prove that a child graph is alive. CUDA
+destroys child graphs inside node operations and capture invalidation, before
+cuda.core retires their boxes. A process-wide map keyed by raw `CUgraph` could
+therefore resolve a recycled address to another hierarchy's metadata.
 
-Graph cleanup uses identity-conditional unregistering: it erases the raw key
-only if the entry is expired or still names the retiring resource slot. Compare
-`shared_ptr::get()`, not its control block, because distinct graph generations
-within one hierarchy share ownership but have different stable resource slots.
-The temporary strong handle used for this check is released after unlocking
-the registry mutex; its deleter may re-enter the registry.
+Scoping the child registry to its parent `GraphBox` removes that case by
+construction: `create_child_graph_handle` always knows the parent, and roots
+are never looked up. Within one hierarchy, external synchronization and the
+retire-before-register order in `graph_commit_child_graph_update` keep the
+entry for an address on its live box, as long as every child graph that CUDA
+destroys is retired before that address is registered again. The one path
+that does not retire is a conditional-body capture that ends invalidated; the
+parent graph is already invalid there (issue #2918), and the registry does
+not guard it.
 
 ## Level 2: Resource Handle -> Python Object (Cython)
 

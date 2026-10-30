@@ -82,6 +82,8 @@ struct GraphBox : GraphBoxBase {
     CUgraphNode owner_node = nullptr;     // Node in parent that owns this graph.
     GraphAttachmentMap attachments;       // Non-owning attachment index.
     HandleRegistry<CUgraphNode, GraphNodeHandle> node_handles;
+    // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
+    HandleRegistry<CUgraph, GraphHandle> children;  // Canonical handles of the direct child graphs.
 
     GraphBox(
         CUgraph resource_, GraphHierarchy *hierarchy_, GraphBox *parent_ = nullptr, CUgraphNode owner_node_ = nullptr
@@ -103,10 +105,6 @@ struct GraphHierarchy {
         return graphs.empty() ? nullptr : &graphs.front();
     }
 };
-
-// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-using GraphRegistry = HandleRegistry<CUgraph, GraphHandle>;
-static GraphRegistry graph_registry;
 
 // Immutable resource owners for one version of a graph node's parameters.
 // Inheriting DeferredCleanupItem lets CUDA's user-object destructor enqueue
@@ -142,6 +140,17 @@ get_box(const GraphHandle &h) noexcept
 {
     auto *value = reinterpret_cast<const GraphBoxBase *>(h.get());
     return const_cast<GraphBox *>(static_cast<const GraphBox *>(value));
+}
+
+// Register child handles with their immediate parents. Each handle aliases a
+// GraphBox whose parent is set; a hierarchy's root is never registered.
+void
+register_child_handles(const std::vector<GraphHandle> &handles)
+{
+    for (const GraphHandle &h : handles) {
+        GraphBox *box = get_box(h);
+        box->parent->children.register_handle(box->resource, h);
+    }
 }
 
 // Rekey a staged attachment map from source nodes to their cloned nodes.
@@ -302,11 +311,6 @@ create_graph_handle(CUgraph graph)
     auto hierarchy = std::shared_ptr<GraphHierarchy>(
         new GraphHierarchy{},
         [](GraphHierarchy *hierarchy) {
-            for (const GraphBox& box : hierarchy->graphs) {
-                if (box.resource) {
-                    graph_registry.unregister_handle(box.resource, &box.resource);
-                }
-            }
             GraphBox *root = hierarchy->root();
             if (root && root->resource) {
                 GILReleaseGuard gil;
@@ -320,7 +324,6 @@ create_graph_handle(CUgraph graph)
     GraphBox &root = hierarchy->graphs.emplace_back(graph, hierarchy.get());
 
     GraphHandle h_graph(hierarchy, &root.resource);
-    graph_registry.register_handle(graph, h_graph);
     return h_graph;
 }
 
@@ -331,9 +334,8 @@ create_child_graph_handle(CUgraph child_graph, const GraphHandle &h_parent, CUgr
         return {};
     }
     GraphBox *parent = get_box(h_parent);
-    if (GraphHandle h_graph = graph_registry.lookup(child_graph)) {
-        const GraphBox *child = get_box(h_graph);
-        if (child->parent == parent && child->owner_node == owner_node) {
+    if (GraphHandle h_graph = parent->children.lookup(child_graph)) {
+        if (get_box(h_graph)->owner_node == owner_node) {
             return h_graph;
         }
     }
@@ -342,7 +344,7 @@ create_child_graph_handle(CUgraph child_graph, const GraphHandle &h_parent, CUgr
     GraphBox &child = hierarchy->graphs.emplace_back(child_graph, hierarchy, parent, owner_node);
 
     GraphHandle h_child(h_parent, &child.resource);
-    graph_registry.register_handle(child_graph, h_child);
+    parent->children.register_handle(child_graph, h_child);
     return h_child;
 }
 
@@ -398,7 +400,7 @@ publish_child_graph_update(PreparedChildGraphUpdateState &state, GraphHandle *ou
     GraphBox *parent = get_box(state.h_parent);
     parent->hierarchy->graphs.splice(parent->hierarchy->graphs.end(), state.replacement);
     *out_child = state.handles.front();
-    graph_registry.register_handles(state.handles);
+    register_child_handles(state.handles);
 }
 
 CUresult
@@ -632,7 +634,7 @@ graph_clone_attachments(const GraphHandle &h_clone, const GraphHandle &h_source)
     }
 
     clone->hierarchy->graphs.splice(clone->hierarchy->graphs.end(), subgraphs);
-    graph_registry.register_handles(handles);
+    register_child_handles(handles);
     return CUDA_SUCCESS;
 }
 
@@ -662,7 +664,9 @@ retire_graph(GraphHierarchy &hierarchy, std::list<GraphBox>::iterator graph) noe
         }
     }
     if (graph->resource) {
-        graph_registry.unregister_handle(graph->resource, &graph->resource);
+        if (graph->parent) {
+            graph->parent->children.unregister_handle(graph->resource);
+        }
         graph->resource = nullptr;
     }
     graph->attachments.clear();
