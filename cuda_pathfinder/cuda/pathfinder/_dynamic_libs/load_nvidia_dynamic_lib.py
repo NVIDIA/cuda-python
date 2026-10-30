@@ -35,6 +35,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     parse_dynamic_lib_subprocess_payload,
 )
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import ALL_AVAILABLE_LIBNAMES
+from cuda.pathfinder._utils.diagnostic_log import LOGGER
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if TYPE_CHECKING:
@@ -312,6 +313,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         The search is performed **per library**. There is currently no mechanism to
         guarantee that multiple libraries are all resolved from the same location.
 
+        Set ``CUDA_PATHFINDER_LOG_LEVEL=INFO`` to log where each library was
+        found (``abs_path`` and ``found_via``) to the ``cuda.pathfinder`` logger.
+
     """
     pointer_size_bits = struct.calcsize("P") * 8
     if pointer_size_bits != 64:
@@ -327,4 +331,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f"Library name {libname!r} is known but not available on {_PLATFORM_NAME}. "
             f"Supported names on {_PLATFORM_NAME}: {sorted(ALL_AVAILABLE_LIBNAMES)}"
         )
-    return _load_lib_no_cache(libname)
+    loaded = _load_lib_no_cache(libname)
+    if LOGGER is not None:
+        LOGGER.info("loaded %s from %s (found via %s)", libname, loaded.abs_path, loaded.found_via)
+    return loaded
