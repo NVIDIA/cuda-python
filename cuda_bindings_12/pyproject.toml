@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
+# Keep the external tools in sync with dependency-groups.build.
 requires = [
     "setuptools>=80.0.0",
     "setuptools-scm[simple]>=8,!=10.1",
@@ -56,6 +57,13 @@ test = [
 ]
 
 [dependency-groups]
+# Keep build in sync with build-system.requires.
+build = [
+    "setuptools>=80.0.0",
+    "setuptools-scm[simple]>=8,!=10.1",
+    "cython>=3.2.5,<3.3",
+    "pyclibrary>=0.1.7",
+]
 test = [
     "cython>=3.2.5,<3.3",
     "setuptools>=80.0.0",
