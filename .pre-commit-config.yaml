@@ -90,7 +90,7 @@ repos:
         name: Check tests do not create uncapped memory pools
         entry: python ./ci/tools/check_mempool_hygiene.py
         language: python
-        files: '^cuda_core/tests/.*\.py$'
+        files: '^(cuda_core|cuda_bindings_1[23])/tests/.*\.py$'
 
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
