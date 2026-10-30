@@ -104,10 +104,10 @@ jobs:
           fetch-depth: ${{ startsWith(github.ref_name, 'pull-request/') && '0' || '1' }}
           filter: blob:none
 
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
+      - name: Set up Python for CI tools
+        uses: ./.github/actions/setup-hardened-python
         with:
-          python: python3
+          python-version: "3.12"
 
       - name: Install CI tool test dependencies
         run: python3 -m pip install -e './ci[test]'
