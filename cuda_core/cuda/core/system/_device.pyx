@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+cimport cython
+
 from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
@@ -17,7 +19,6 @@ from ._nvml_context cimport initialize
 from cuda.core.system.typing import (
     AddressingMode,
     AffinityScope,
-    DeviceArch,
     ClockId,
     ClocksEventReasons,
     ClockType,
