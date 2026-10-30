@@ -560,6 +560,10 @@ def test_cuda_graphMem_attr():
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
         (destroy_err,) = cuda.cuStreamDestroy(stream)
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
+        # xfail raises, so the context must be destroyed first or it leaks
+        # into later tests as the current context.
+        (destroy_err,) = cuda.cuCtxDestroy(ctx)
+        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
         xfail_graph_mempool_oom()
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
