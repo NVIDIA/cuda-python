@@ -9,18 +9,20 @@
 #include <cstdlib>
 #include <iostream>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup: init CUDA, allocate device memory
@@ -52,7 +54,7 @@ int main(int argc, char** argv) {
             &tensor_map,
             CU_TENSOR_MAP_DATA_TYPE_FLOAT32,
             2u,
-            reinterpret_cast<void*>(ptr),
+            reinterpret_cast<void *>(ptr),
             global_dim,
             global_strides,
             box_dim,
@@ -69,7 +71,7 @@ int main(int argc, char** argv) {
                         &tensor_map,
                         CU_TENSOR_MAP_DATA_TYPE_FLOAT32,
                         2u,
-                        reinterpret_cast<void*>(ptr),
+                        reinterpret_cast<void *>(ptr),
                         global_dim,
                         global_strides,
                         box_dim,
@@ -82,11 +84,11 @@ int main(int argc, char** argv) {
                     "cuTensorMapEncodeTiled failed"
                 );
             });
-        } else {
-            const char* err_name = nullptr;
+        }
+        else {
+            const char *err_name = nullptr;
             cuGetErrorName(probe, &err_name);
-            std::cerr << "Skipping tensormap.tensor_map_encode_tiled: "
-                      << (err_name ? err_name : "unknown") << '\n';
+            std::cerr << "Skipping tensormap.tensor_map_encode_tiled: " << (err_name ? err_name : "unknown") << '\n';
         }
     }
 
@@ -102,7 +104,7 @@ int main(int argc, char** argv) {
             &tensor_map,
             CU_TENSOR_MAP_DATA_TYPE_FLOAT16,
             3u,
-            reinterpret_cast<void*>(ptr),
+            reinterpret_cast<void *>(ptr),
             global_dim,
             global_strides,
             pixel_box_lower,
@@ -122,7 +124,7 @@ int main(int argc, char** argv) {
                         &tensor_map,
                         CU_TENSOR_MAP_DATA_TYPE_FLOAT16,
                         3u,
-                        reinterpret_cast<void*>(ptr),
+                        reinterpret_cast<void *>(ptr),
                         global_dim,
                         global_strides,
                         pixel_box_lower,
@@ -138,11 +140,11 @@ int main(int argc, char** argv) {
                     "cuTensorMapEncodeIm2col failed"
                 );
             });
-        } else {
-            const char* err_name = nullptr;
+        }
+        else {
+            const char *err_name = nullptr;
             cuGetErrorName(probe, &err_name);
-            std::cerr << "Skipping tensormap.tensor_map_encode_im2col: "
-                      << (err_name ? err_name : "unknown") << '\n';
+            std::cerr << "Skipping tensormap.tensor_map_encode_im2col: " << (err_name ? err_name : "unknown") << '\n';
         }
     }
 
@@ -157,7 +159,7 @@ int main(int argc, char** argv) {
             &tensor_map,
             CU_TENSOR_MAP_DATA_TYPE_FLOAT16,
             3u,
-            reinterpret_cast<void*>(ptr),
+            reinterpret_cast<void *>(ptr),
             global_dim,
             global_strides,
             0,
@@ -179,7 +181,7 @@ int main(int argc, char** argv) {
                         &tensor_map,
                         CU_TENSOR_MAP_DATA_TYPE_FLOAT16,
                         3u,
-                        reinterpret_cast<void*>(ptr),
+                        reinterpret_cast<void *>(ptr),
                         global_dim,
                         global_strides,
                         0,
@@ -196,11 +198,12 @@ int main(int argc, char** argv) {
                     "cuTensorMapEncodeIm2colWide failed"
                 );
             });
-        } else {
-            const char* err_name = nullptr;
+        }
+        else {
+            const char *err_name = nullptr;
             cuGetErrorName(probe, &err_name);
-            std::cerr << "Skipping tensormap.tensor_map_encode_im2col_wide: "
-                      << (err_name ? err_name : "unknown") << '\n';
+            std::cerr << "Skipping tensormap.tensor_map_encode_im2col_wide: " << (err_name ? err_name : "unknown")
+                      << '\n';
         }
     }
 #else

@@ -25,17 +25,32 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     ".github": "Apache-2.0",
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
-    "cuda_bindings": "Apache-2.0",
+    "cuda_bindings_13": "Apache-2.0",
+    "cuda_bindings_12": "Apache-2.0",
     "cuda_core": "Apache-2.0",
     "cuda_pathfinder": "Apache-2.0",
     "cuda_python": "Apache-2.0",
     "cuda_python_test_helpers": "Apache-2.0",
     "qa": "LicenseRef-NVIDIA-SOFTWARE-LICENSE",
+    "samples": "Apache-2.0",
     "scripts": "Apache-2.0",
     "toolshed": "Apache-2.0",
 }
 
 SPDX_IGNORE_FILENAME = ".spdx-ignore"
+REPOSITORY_LICENSE_CONTENTS = Path("LICENSE").read_bytes()
+
+
+def license_files_match_repository(filepaths):
+    licenses_match = True
+    for filepath in filepaths:
+        license_path = Path(filepath)
+        if license_path.name != "LICENSE":
+            continue
+        if license_path.read_bytes() != REPOSITORY_LICENSE_CONTENTS:
+            print(f"PACKAGE LICENSE {filepath!r} does not match repository LICENSE")
+            licenses_match = False
+    return licenses_match
 
 
 def load_spdx_ignore():
@@ -53,7 +68,7 @@ COPYRIGHT_REGEX = (
     rb"(?P<affiliation>NVIDIA CORPORATION & AFFILIATES\. All rights reserved\.)"
 )
 COPYRIGHT_SUB = r"Copyright (c) {} \g<affiliation>"
-CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.timezone.utc).year)
+CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.UTC).year)
 
 
 def is_staged(filepath):
@@ -203,9 +218,12 @@ def main(args):
     else:
         fix = False
 
+    returncode = 0
+    if not license_files_match_repository(args):
+        returncode = 1
+
     ignore_spec = load_spdx_ignore()
 
-    returncode = 0
     for filepath in args:
         if ignore_spec.match_file(filepath):
             continue

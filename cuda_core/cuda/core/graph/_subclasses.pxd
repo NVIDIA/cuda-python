@@ -7,7 +7,7 @@ from libc.stddef cimport size_t
 from cuda.bindings cimport cydriver
 from cuda.core.graph._graph_definition cimport GraphCondition
 from cuda.core.graph._graph_node cimport GraphNode
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     EventHandle,
     GraphExecHandle,
     GraphHandle,
@@ -162,6 +162,9 @@ cdef class ConditionalNode(GraphNode):
 
     @staticmethod
     cdef ConditionalNode _create_from_driver(GraphNodeHandle h_node)
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        @staticmethod
+        cdef ConditionalNode _create_from_driver_params(GraphNodeHandle h_node)
 
 
 cdef class IfNode(ConditionalNode):

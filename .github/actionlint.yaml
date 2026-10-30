@@ -8,3 +8,39 @@ self-hosted-runner:
   labels:
     - linux-amd64-cpu8
     - linux-amd64-gpu-l4-latest-1
+
+# GitHub supports queued concurrency runs, but the latest actionlint release
+# does not yet recognize the concurrency.queue key.
+paths:
+  ".github/workflows/build-docs.yml":
+    ignore:
+      - 'unexpected key "queue" for "concurrency" section'
+  ".github/workflows/cleanup-pr-previews.yml":
+    ignore:
+      - 'unexpected key "queue" for "concurrency" section'
+  ".github/workflows/ci-workflow-health.yml":
+    ignore:
+      - 'unexpected key "queue" for "concurrency" section'
+  # GitHub supports self-repository ($/) action references, but the latest
+  # actionlint release does not yet recognize them (rhysd/actionlint#711).
+  ".github/workflows/release.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/test-wheel-linux.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/test-wheel-windows.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/build-wheel.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/pre-commit.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/test-sdist-windows.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/coverage.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'

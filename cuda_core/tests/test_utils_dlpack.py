@@ -8,6 +8,7 @@ deleter paths, ``from_dlpack`` error handling, and the
 """
 
 import ctypes
+from pathlib import Path
 
 try:
     import ml_dtypes
@@ -23,6 +24,9 @@ _PyCapsule_IsValid = ctypes.pythonapi.PyCapsule_IsValid
 _PyCapsule_IsValid.argtypes = (ctypes.py_object, ctypes.c_char_p)
 _PyCapsule_IsValid.restype = ctypes.c_int
 
+_Py_DecRef = ctypes.pythonapi.Py_DecRef
+_Py_DecRef.argtypes = (ctypes.c_void_p,)
+_Py_DecRef.restype = None
 
 _NUMPY_NATIVE_DLPACK_DTYPES = (
     np.uint8,
@@ -76,6 +80,31 @@ def test_dlpack_export_roundtrip_special_shapes(shape):
     _assert_dlpack_export_roundtrip(np.zeros(shape, dtype=np.complex128))
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_export_array_interface_reports_cpu(init_cuda):
+    """An array-interface view without a DLPack tensor exports as CPU memory."""
+    src = np.arange(6, dtype=np.int32)
+    view = StridedMemoryView.from_array_interface(src)
+    assert view.is_device_accessible is False
+    assert view.device_id == -1
+    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCPU), 0)
+    assert np.array_equal(np.from_dlpack(view), src)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_view_of_buffer_reuses_exporting_buffer(init_cuda):
+    """Re-viewing a Buffer-imported tensor reuses the original Buffer owner."""
+    buffer = init_cuda.memory_resource.allocate(16, stream=init_cuda.default_stream)
+    try:
+        view = StridedMemoryView.from_dlpack(buffer, stream_ptr=-1)
+        adjusted = view.view(dtype=np.uint8)
+        assert adjusted.exporting_obj is buffer
+        assert adjusted.ptr == int(buffer.handle)
+        del adjusted, view
+    finally:
+        buffer.close()
+
+
 def test_dlpack_export_unversioned_capsule_and_deleter():
     """``__dlpack__()`` with no ``max_version`` yields an *unversioned* unused
     DLPack capsule; dropping it unconsumed runs ``_smv_pycapsule_deleter`` on
@@ -106,6 +135,66 @@ def test_from_dlpack_cpu_stream_none_ambiguous():
         StridedMemoryView.from_dlpack(src, stream_ptr=None)
 
 
+class _StreamHandleLike:
+    """Stand-in for a third-party stream wrapper such as numba-cuda's ``CUstream``.
+
+    It is int-convertible but has no ``__bool__``/``__len__``, so it is always
+    truthy even when it wraps 0.
+    """
+
+    def __init__(self, value):
+        self._value = value
+
+    def __int__(self):
+        return self._value
+
+
+class _RecordingDLPackSource:
+    """CPU DLPack exporter that records the ``stream`` it was asked for."""
+
+    def __init__(self, array):
+        self._array = array
+        self.streams = []
+
+    def __dlpack_device__(self):
+        return self._array.__dlpack_device__()
+
+    def __dlpack__(self, *, stream=None, **kwargs):
+        self.streams.append(stream)
+        return self._array.__dlpack__(stream=stream, **kwargs)
+
+
+def _view_via_constructor(src, stream_ptr):
+    with pytest.warns(DeprecationWarning, match="Constructing a StridedMemoryView directly"):
+        return StridedMemoryView(src, stream_ptr)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize("handle_value", [0, -1], ids=["zero", "opt-out"])
+@pytest.mark.parametrize(
+    "make_view",
+    [
+        StridedMemoryView.from_dlpack,
+        StridedMemoryView.from_any_interface,
+        _view_via_constructor,
+    ],
+    ids=["from_dlpack", "from_any_interface", "constructor"],
+)
+def test_cpu_dlpack_accepts_int_convertible_stream_ptr(make_view, handle_value):
+    """A truthy int-convertible stream wrapper is coerced before ``__dlpack__``.
+
+    CPU exporters such as NumPy only accept ``stream=None``. A wrapper around
+    0 (or the -1 opt-out) must be treated as the integer it wraps, not as an
+    opaque truthy object forwarded to ``__dlpack__`` as a stream.
+    """
+    src = _RecordingDLPackSource(np.arange(4, dtype=np.float32))
+
+    view = make_view(src, _StreamHandleLike(handle_value))
+
+    assert src.streams == [None]
+    assert view.shape == (4,)
+
+
 def test_from_dlpack_unsupported_device_type():
     """``view_as_dlpack`` rejects a DLPack device that is neither CPU, CUDA,
     CUDA-pinned, nor CUDA-managed before ever calling ``__dlpack__``."""
@@ -119,6 +208,21 @@ def test_from_dlpack_unsupported_device_type():
 
     with pytest.raises(BufferError, match="device not supported"):
         StridedMemoryView.from_dlpack(_FakeUnsupportedDevice(), stream_ptr=0)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_from_dlpack_cuda_stream_none_ambiguous():
+    """A CUDA DLPack source requires an explicit consumer stream."""
+
+    class _FakeCudaDevice:
+        def __dlpack_device__(self):
+            return (int(DLDeviceType.kDLCUDA), 0)
+
+        def __dlpack__(self, **kwargs):
+            raise AssertionError("__dlpack__ must not be reached")
+
+    with pytest.raises(BufferError, match="stream=None is ambiguous"):
+        StridedMemoryView.from_dlpack(_FakeCudaDevice(), stream_ptr=None)
 
 
 class _DLPackNoMaxVersion:
@@ -166,6 +270,11 @@ def test_from_dlpack_typeerror_fallback_unversioned_import():
 # consumer would, exercising the StridedMemoryView exchange-API implementation.
 # Pointers use PYFUNCTYPE so a failing call raises its real Python exception
 # (TypeError/RuntimeError/NotImplementedError).
+#
+# dlpack.h documents every `*_no_sync` entry point as returning "-1 on failure
+# with a Python exception set", so every failure below is asserted with
+# `pytest.raises`. A test that settles for `assert rc == -1` would be asserting a
+# contract violation, not the contract.
 # ---------------------------------------------------------------------------
 
 _PyCapsule_GetPointer = ctypes.pythonapi.PyCapsule_GetPointer
@@ -219,6 +328,198 @@ class _DLManagedTensorVersioned(ctypes.Structure):
     ]
 
 
+# ---------------------------------------------------------------------------
+# DLPack capsule validation
+# ---------------------------------------------------------------------------
+
+# DLPACK_FLAG_BITMASK_READ_ONLY in dlpack.h.
+_FLAG_READ_ONLY = 1 << 0
+
+
+class _VersionedCapsuleExport:
+    def __init__(self, base, capsule):
+        self.base = base
+        self.capsule = capsule
+
+    def __dlpack_device__(self):
+        return self.base.__dlpack_device__()
+
+    def __dlpack__(self, **kwargs):
+        return self.capsule
+
+
+def _retag_capsule_device(capsule, device_type):
+    """Retag an unconsumed DLPack capsule as CUDA host or managed memory."""
+    # Keep the fake producer self-consistent: DLPack requires the capsule's
+    # device type to agree with __dlpack_device__.
+    if _PyCapsule_IsValid(capsule, b"dltensor_versioned"):
+        name, managed_cls = b"dltensor_versioned", _DLManagedTensorVersioned
+    else:
+        name, managed_cls = b"dltensor", _DLManagedTensor
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, name), ctypes.POINTER(managed_cls))
+    dlm.contents.dl_tensor.device.device_type = int(device_type)
+    return capsule
+
+
+@pytest.mark.parametrize(
+    "device_type",
+    [
+        pytest.param(DLDeviceType.kDLCUDAHost, id="cuda-host"),
+        pytest.param(DLDeviceType.kDLCUDAManaged, id="cuda-managed"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_from_dlpack_cuda_host_or_managed_stream_none_passthrough(device_type):
+    """CUDA-host and managed producers receive stream_ptr=None unchanged."""
+    src = np.arange(4, dtype=np.float32)
+    received_streams = []
+
+    class _Export:
+        def __dlpack_device__(self):
+            return (int(device_type), 0)
+
+        def __dlpack__(self, stream=None, max_version=None, **kwargs):
+            received_streams.append(stream)
+            # Host memory retagged as pinned/managed, so the capsule reports the
+            # same device as __dlpack_device__ and the view stays importable here.
+            base = StridedMemoryView.from_array_interface(src)
+            capsule = base.__dlpack__(stream=stream, max_version=max_version, **kwargs)
+            return _retag_capsule_device(capsule, device_type)
+
+    view = StridedMemoryView.from_dlpack(_Export(), stream_ptr=None)
+    assert received_streams == [None]
+    assert view.is_device_accessible is True
+    assert view.device_id == 0
+    assert view.__dlpack_device__() == (int(device_type), 0)
+    assert np.array_equal(np.from_dlpack(view), src)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_versioned_readonly_export_and_import(init_cuda):
+    """The versioned readonly flag survives a StridedMemoryView round-trip."""
+    src = np.arange(4, dtype=np.int32)
+    src.setflags(write=False)
+    base = StridedMemoryView.from_array_interface(src)
+    capsule = base.__dlpack__(max_version=(1, 0))
+    dlm = ctypes.cast(
+        _PyCapsule_GetPointer(capsule, b"dltensor_versioned"),
+        ctypes.POINTER(_DLManagedTensorVersioned),
+    )
+    assert dlm.contents.flags & _FLAG_READ_ONLY
+
+    imported = StridedMemoryView.from_dlpack(
+        _VersionedCapsuleExport(base, capsule),
+        stream_ptr=-1,
+    )
+    assert imported.readonly is True
+
+
+@pytest.mark.parametrize(
+    ("code", "bits", "lanes", "exception", "match"),
+    [
+        pytest.param(0, 32, 2, NotImplementedError, "vector dtypes", id="lanes"),
+        pytest.param(1, 24, 1, TypeError, "uint24", id="uint-bits"),
+        pytest.param(0, 24, 1, TypeError, "int24", id="int-bits"),
+        pytest.param(2, 8, 1, TypeError, "float8", id="float-bits"),
+        pytest.param(5, 32, 1, TypeError, "complex32", id="complex-bits"),
+        pytest.param(6, 1, 1, TypeError, "1-bit bool", id="bool-bits"),
+        pytest.param(255, 8, 1, TypeError, "Unsupported dtype", id="code"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_from_dlpack_malformed_dtype_rejected_on_access(code, bits, lanes, exception, match):
+    """Accessing ``.dtype`` rejects malformed producer dtype metadata."""
+    base = StridedMemoryView.from_any_interface(np.arange(4, dtype=np.int32), stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=(1, 0))
+    dlm = ctypes.cast(
+        _PyCapsule_GetPointer(capsule, b"dltensor_versioned"),
+        ctypes.POINTER(_DLManagedTensorVersioned),
+    )
+    dlm.contents.dl_tensor.dtype = _DLDataType(code, bits, lanes)
+    imported = StridedMemoryView.from_dlpack(
+        _VersionedCapsuleExport(base, capsule),
+        stream_ptr=-1,
+    )
+    with pytest.raises(exception, match=match):
+        _ = imported.dtype
+
+
+def _assert_bfloat16_without_ml_dtypes():
+    from cuda.core import _memoryview
+
+    assert ml_dtypes is None
+    assert _memoryview.bfloat16 is None
+    base = StridedMemoryView.from_any_interface(np.arange(4, dtype=np.int32), stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=(1, 0))
+    dlm = ctypes.cast(
+        _PyCapsule_GetPointer(capsule, b"dltensor_versioned"),
+        ctypes.POINTER(_DLManagedTensorVersioned),
+    )
+    dlm.contents.dl_tensor.dtype = _DLDataType(4, 16, 1)
+    imported = StridedMemoryView.from_dlpack(
+        _VersionedCapsuleExport(base, capsule),
+        stream_ptr=-1,
+    )
+    with pytest.raises(NotImplementedError, match=r"requires `ml_dtypes`"):
+        _ = imported.dtype
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_from_dlpack_bfloat16_requires_ml_dtypes():
+    """kDLBfloat without ml_dtypes raises on ``.dtype`` access."""
+    # Import parent-only helpers here; the child loads this file from an empty directory.
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+    from helpers.child_processes import child_timeout_sec
+
+    check = f"""
+import numpy
+import runpy
+import sys
+
+assert "cuda.core._memoryview" not in sys.modules
+sys.modules.pop("ml_dtypes", None)
+
+class _BlockMlDtypes:
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == "ml_dtypes" or fullname.startswith("ml_dtypes."):
+            raise ModuleNotFoundError("No module named 'ml_dtypes'")
+
+sys.meta_path.insert(0, _BlockMlDtypes())
+runpy.run_path({str(Path(__file__).resolve())!r})["_assert_bfloat16_without_ml_dtypes"]()
+"""
+    run_python_snippet(check, timeout=child_timeout_sec())
+
+
+@pytest.mark.parametrize(
+    ("lanes", "expected_shape"),
+    [
+        pytest.param(1, None, id="non-byte-aligned"),
+        pytest.param(2, (4,), id="byte-aligned"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_from_dlpack_shape_validates_total_dtype_width(lanes, expected_shape):
+    """Shape access validates the total DLPack element width, including lanes."""
+    base = StridedMemoryView.from_any_interface(np.arange(4, dtype=np.int32), stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=(1, 0))
+    dlm = ctypes.cast(
+        _PyCapsule_GetPointer(capsule, b"dltensor_versioned"),
+        ctypes.POINTER(_DLManagedTensorVersioned),
+    )
+    dlm.contents.dl_tensor.dtype = _DLDataType(0, 12, lanes)
+    imported = StridedMemoryView.from_dlpack(
+        _VersionedCapsuleExport(base, capsule),
+        stream_ptr=-1,
+    )
+    if expected_shape is None:
+        with pytest.raises(ValueError, match="multiple of 8"):
+            _ = imported.shape
+    else:
+        assert imported.shape == expected_shape
+        # Reinterpretation checks the inferred 3-byte width through the public API.
+        assert imported.view(dtype=np.dtype("V3")).shape == expected_shape
+
+
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 @pytest.mark.parametrize(
     "max_version, capsule_name, managed_cls",
@@ -249,6 +550,46 @@ def test_from_dlpack_null_deleter_dealloc(max_version, capsule_name, managed_cls
     view = StridedMemoryView.from_dlpack(_Export(), stream_ptr=-1)
     del view  # __dealloc__ must not call the NULL deleter
     producer_deleter(dlm)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize(
+    "max_version, capsule_name, managed_cls",
+    [
+        pytest.param(None, b"dltensor", _DLManagedTensor, id="unversioned"),
+        pytest.param((1, 0), b"dltensor_versioned", _DLManagedTensorVersioned, id="versioned"),
+    ],
+)
+def test_from_dlpack_honours_byte_offset(max_version, capsule_name, managed_cls):
+    """DLPack puts a tensor's first element at ``data + byte_offset``, so a producer
+    may report the allocation base in ``data`` and express a slice as an offset.
+    ``view.ptr`` must account for it, as the capsule-consuming path already does."""
+    src = np.arange(9, dtype=np.int32)
+    # View only the first 8 elements, so shifting by one element below stays inside
+    # the allocation and a regression fails an assertion instead of reading OOB.
+    base = StridedMemoryView.from_any_interface(src[:8], stream_ptr=-1)
+    capsule = base.__dlpack__(max_version=max_version)
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, capsule_name), ctypes.POINTER(managed_cls))
+    assert dlm.contents.dl_tensor.data == src.ctypes.data
+    assert dlm.contents.dl_tensor.byte_offset == 0
+
+    # Re-describe the same 8 elements as src[1:9]. byte_offset is the only field
+    # written: shape and strides share one producer-owned block, so leave them alone.
+    dlm.contents.dl_tensor.byte_offset = src.itemsize
+
+    class _Export:
+        def __dlpack_device__(self):
+            return base.__dlpack_device__()
+
+        def __dlpack__(self, stream=None, max_version=None, **kwargs):
+            if capsule_name == b"dltensor" and max_version is not None:
+                raise TypeError("force unversioned")
+            return capsule
+
+    view = StridedMemoryView.from_dlpack(_Export(), stream_ptr=-1)
+    assert view.ptr == src.ctypes.data + src.itemsize
+    assert view.shape == (8,)
+    assert np.array_equal(np.from_dlpack(view), src[1:])
 
 
 _FN_FROM_PY = ctypes.PYFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
@@ -294,6 +635,14 @@ def test_dlpack_c_exchange_api_current_work_stream():
     assert not out.value  # set back to NULL
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_current_work_stream_null_output():
+    """``current_work_stream`` rejects a NULL output pointer."""
+    api = _get_exchange_api()
+    with pytest.raises(RuntimeError, match="out_current_stream cannot be NULL"):
+        api.current_work_stream(int(DLDeviceType.kDLCPU), 0, None)
+
+
 def test_dlpack_c_exchange_api_dltensor_from_py_object():
     """``dltensor_from_py_object_no_sync`` fills a borrowed DLTensor from a view."""
     api = _get_exchange_api()
@@ -315,6 +664,68 @@ def test_dlpack_c_exchange_api_dltensor_from_py_object_type_error():
     out = _DLTensor()
     with pytest.raises(TypeError, match="must be a StridedMemoryView"):
         api.dltensor_from_py_object_no_sync(id(not_a_view), ctypes.byref(out))
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_dltensor_from_py_object_null_output():
+    """``dltensor_from_py_object_no_sync`` rejects a NULL output pointer."""
+    api = _get_exchange_api()
+    view = StridedMemoryView.from_any_interface(np.arange(3), stream_ptr=-1)
+    with pytest.raises(RuntimeError, match="out cannot be NULL"):
+        api.dltensor_from_py_object_no_sync(id(view), None)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_dltensor_from_py_object_scalar():
+    """A borrowed scalar DLTensor has NULL shape and strides pointers."""
+    api = _get_exchange_api()
+    view = StridedMemoryView.from_any_interface(np.array(7, dtype=np.int16), stream_ptr=-1)
+    out = _DLTensor()
+    assert api.dltensor_from_py_object_no_sync(id(view), ctypes.byref(out)) == 0
+    assert out.ndim == 0
+    assert not out.shape
+    assert not out.strides
+
+
+@pytest.mark.parametrize("entry_point", ["managed_tensor_from_py_object_no_sync", "dltensor_from_py_object_no_sync"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_dlpack_c_exchange_api_export_failure_sets_exception(init_cuda, entry_point):
+    """Exporting a view without dtype information raises BufferError through either C entry point."""
+    api = _get_exchange_api()
+    with init_cuda.memory_resource.allocate(16, stream=init_cuda.default_stream) as buffer:
+        view = StridedMemoryView.from_buffer(buffer, shape=(16,), itemsize=1, dtype=None)
+        out = ctypes.c_void_p(123) if entry_point == "managed_tensor_from_py_object_no_sync" else _DLTensor()
+        with pytest.raises(BufferError, match="without dtype information"):
+            getattr(api, entry_point)(id(view), ctypes.byref(out))
+        if entry_point == "managed_tensor_from_py_object_no_sync":
+            assert not out.value
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_managed_tensor_export_failure_sets_exception():
+    """A view that DLPack cannot describe reports its BufferError through the
+    managed-tensor export entry point and leaves the output tensor NULL."""
+    api = _get_exchange_api()
+    swapped = np.dtype(np.int32).newbyteorder("S")
+    view = StridedMemoryView.from_array_interface(np.zeros(3, dtype=swapped))
+    out = ctypes.c_void_p(123)
+
+    with pytest.raises(BufferError, match="Non-native-endian"):
+        api.managed_tensor_from_py_object_no_sync(id(view), ctypes.byref(out))
+    assert not out.value
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_dltensor_export_failure_sets_exception():
+    """A view that DLPack cannot describe reports its BufferError through the
+    borrowed DLTensor export entry point."""
+    api = _get_exchange_api()
+    swapped = np.dtype(np.int32).newbyteorder("S")
+    view = StridedMemoryView.from_array_interface(np.zeros(3, dtype=swapped))
+    out = _DLTensor()
+
+    with pytest.raises(BufferError, match="Non-native-endian"):
+        api.dltensor_from_py_object_no_sync(id(view), ctypes.byref(out))
 
 
 def test_dlpack_c_exchange_api_managed_tensor_roundtrip():
@@ -345,6 +756,30 @@ def test_dlpack_c_exchange_api_managed_tensor_roundtrip():
     assert imported.ptr == src.ctypes.data
 
 
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_managed_tensor_from_py_object_errors():
+    """The managed-tensor producer validates both output and object inputs."""
+    api = _get_exchange_api()
+    view = StridedMemoryView.from_any_interface(np.arange(3), stream_ptr=-1)
+    with pytest.raises(RuntimeError, match="out cannot be NULL"):
+        api.managed_tensor_from_py_object_no_sync(id(view), None)
+
+    not_a_view = object()
+    out = ctypes.c_void_p()
+    with pytest.raises(TypeError, match="must be a StridedMemoryView"):
+        api.managed_tensor_from_py_object_no_sync(id(not_a_view), ctypes.byref(out))
+    assert not out.value
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_to_py_object_null_output():
+    """``managed_tensor_to_py_object_no_sync`` rejects a NULL output pointer."""
+    api = _get_exchange_api()
+    tensor = _DLManagedTensorVersioned()
+    with pytest.raises(RuntimeError, match="out_py_object cannot be NULL"):
+        api.managed_tensor_to_py_object_no_sync(ctypes.byref(tensor), None)
+
+
 def test_dlpack_c_exchange_api_to_py_object_null_tensor():
     """``managed_tensor_to_py_object_no_sync`` rejects a NULL tensor (RuntimeError)."""
     api = _get_exchange_api()
@@ -352,6 +787,51 @@ def test_dlpack_c_exchange_api_to_py_object_null_tensor():
     with pytest.raises(RuntimeError, match="tensor cannot be NULL"):
         api.managed_tensor_to_py_object_no_sync(None, ctypes.byref(out_obj))
     assert not out_obj.value  # set to NULL before the error
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_import_failure_sets_exception():
+    """Rejecting an unsupported DLPack device reports the underlying BufferError."""
+    api = _get_exchange_api()
+    tensor = _DLManagedTensorVersioned()
+    tensor.version = _DLPackVersion(1, 0)
+    tensor.dl_tensor.device = _DLDevice(7, 0)  # kDLVulkan is unsupported by cuda.core
+    tensor.dl_tensor.dtype = _DLDataType(0, 32, 1)
+    out_obj = ctypes.c_void_p(123)
+
+    with pytest.raises(BufferError, match="device not supported"):
+        api.managed_tensor_to_py_object_no_sync(ctypes.byref(tensor), ctypes.byref(out_obj))
+    assert not out_obj.value
+
+
+@pytest.mark.parametrize(
+    "device_type",
+    [
+        DLDeviceType.kDLCUDA,
+        DLDeviceType.kDLCUDAHost,
+        DLDeviceType.kDLCUDAManaged,
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_dlpack_c_exchange_api_to_py_object_device_accessible(device_type):
+    """Supported CUDA-family devices produce device-accessible views."""
+    api = _get_exchange_api()
+    tensor = _DLManagedTensorVersioned()
+    tensor.version = _DLPackVersion(1, 0)
+    tensor.dl_tensor.device = _DLDevice(int(device_type), 0)
+    tensor.dl_tensor.dtype = _DLDataType(0, 32, 1)
+    out_obj = ctypes.c_void_p()
+    assert api.managed_tensor_to_py_object_no_sync(ctypes.byref(tensor), ctypes.byref(out_obj)) == 0
+    assert out_obj.value
+    try:
+        imported = ctypes.cast(out_obj, ctypes.py_object).value
+        assert imported.is_device_accessible is True
+        assert imported.device_id == 0
+        del imported
+    finally:
+        # The C API returned a new reference. Release it while the synthetic
+        # tensor backing the view is still alive -- __dealloc__ dereferences it.
+        _Py_DecRef(out_obj)
 
 
 def test_dlpack_c_exchange_api_managed_tensor_allocator_not_supported():

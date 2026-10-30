@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
+# Keep the external tools in sync with dependency-groups.build.
 requires = [
     "setuptools>=80",
     "setuptools-scm[simple]>=8,!=10.1",
     "Cython>=3.2.5,<3.3",
-    "cuda-pathfinder>=1.5"
+    "cuda-pathfinder>=1.5",
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -19,7 +20,7 @@ dynamic = [
     "version",
     "readme",
 ]
-requires-python = '>=3.10'
+requires-python = '>=3.11'
 description = "cuda.core: pythonic CUDA module"
 authors = [
     { name = "NVIDIA Corporation" }
@@ -37,11 +38,11 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: Implementation :: CPython",
     "Environment :: GPU :: NVIDIA CUDA",
     "Environment :: GPU :: NVIDIA CUDA :: 12",
@@ -50,14 +51,24 @@ classifiers = [
 dependencies = [
     "cuda-pathfinder >=1.4.2",
     "numpy",
-    "backports.strenum; python_version < '3.11'",
 ]
 
+# The cuda-bindings pins below are the cuda-bindings *floors* of this release, one
+# per CUDA major. This is the only place that declares them. build_hooks.py, the
+# import-time check, the docs and CI read them from here (see
+# cuda/core/_bindings_floor.py and the "Bumping the cuda-bindings floor"
+# checklist in AGENTS.md). Keep the form `>=<floor>,<<next major>`.
 [project.optional-dependencies]
-cu12 = ["cuda-bindings[all]==12.*", "cuda-toolkit==12.*"]
-cu13 = ["cuda-bindings[all]==13.*", "cuda-toolkit==13.*"]
+cu12 = ["cuda-bindings[all]>=12.9.8,<13", "cuda-toolkit==12.*"]
+cu13 = ["cuda-bindings[all]>=13.4.1,<14", "cuda-toolkit==13.*"]
 
 [dependency-groups]
+# Keep build in sync with build-system.requires; install local cuda-pathfinder separately.
+build = [
+    "setuptools>=80",
+    "setuptools-scm[simple]>=8,!=10.1",
+    "Cython>=3.2.5,<3.3",
+]
 test = [
     "cython>=3.2.5,<3.3",
     "setuptools>=80",
@@ -67,20 +78,22 @@ test = [
     "pytest-repeat==0.9.4",
     "pytest-rerunfailures==16.3",
     "pytest-timeout==2.4.0",
+    # CI: one GitHub annotation per failed test; inert outside GitHub Actions.
+    "pytest-github-actions-annotate-failures==0.4.2",
     "cloudpickle==3.1.2",
-    "psutil==7.2.2",
+    # psutil has no cp315t wheel yet, so 3.15t builds it from source. Windows CI
+    # has no compiler, so skip it there. Tests skip when psutil is missing.
+    "psutil==7.2.2; sys_platform != 'win32' or python_version < '3.15'",
+    "packaging>=24",
     "docutils==0.23",
-    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
-    "cffi==2.0.0; python_version < '3.15'",
+    # Required by tests/test_graphics.py; pinned to match cuda-bindings.
+    "pyglet==2.1.14",
+    "cffi==2.1.1",
 ]
-# TODO: drop the Windows 3.15 guard once ml-dtypes publishes cp315 Windows wheels
-ml-dtypes = ["ml-dtypes>=0.5.4,<0.6.0; sys_platform != 'win32' or python_version < '3.15'"]
-test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
-test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
-# free threaded build, cupy doesn't support free-threaded builds yet, so avoid installing it for now
-# TODO: cupy should support free threaded builds
-test-cu12-ft = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cuda-toolkit[cudart]==12.*"]
-test-cu13-ft = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cuda-toolkit[cudart]==13.*"]
+ml-dtypes = ["ml-dtypes>=0.5.4"]
+test-ft = ["pytest-run-parallel==0.10.0"]
+test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.15'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
+test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.15'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
 
 [tool.uv]
 conflicts = [
@@ -91,15 +104,13 @@ conflicts = [
     [
         { group = "test-cu12" },
         { group = "test-cu13" },
-        { group = "test-cu12-ft" },
-        { group = "test-cu13-ft" },
     ],
 ]
 
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
 documentation = "https://nvidia.github.io/cuda-python/cuda-core/"
-repository = "https://github.com/NVIDIA/cuda-python/tree/main/cuda_core"
+repository = "https://github.com/NVIDIA/cuda-python"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
 
 [tool.setuptools.packages.find]
@@ -111,7 +122,7 @@ include-package-data = false
 [tool.setuptools.package-data]
 "*" = ["*.pxd", "*.pyi", "py.typed"]
 "cuda.core._include" = ["*.h", "*.hpp"]
-"cuda.core._cpp" = ["*.h", "*.hpp"]
+"cuda.core._cpp" = ["**/*.h", "**/*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
@@ -119,15 +130,13 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/core/_version.py"
-# Preserve a/b pre-release suffixes, but intentionally strip rc suffixes.
-tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+(?:[ab]\\d+)?)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
 
 [tool.mypy]
 # Try to keep the mypy configuration similar between the subprojects
 
 # Basic settings
-python_version = "3.10"
+python_version = "3.11"
 namespace_packages = true
 mypy_path = "cuda_core"
 
@@ -149,20 +158,6 @@ implicit_reexport = true
 # Ignore missing imports for now (you can tighten this later)
 ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-# cpdef functions with Cython-native tuple return types can't carry type args
-# through stubgen-pyx; suppress the resulting type-arg error for this module.
-module = "cuda.core._utils.cuda_utils"
-disable_error_code = ["type-arg"]
-
-[[tool.mypy.overrides]]
-# stubgen-pyx can't resolve DLPackExchangeAPI's C function-pointer typedef
-# fields and emits bare "..." as their annotation, which is invalid outside
-# a Callable[...] context. Suppress until upstream is fixed:
-# https://github.com/jon-edward/stubgen-pyx/issues (report pending)
-module = "cuda.core._dlpack"
-disable_error_code = ["misc"]
-
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
 build-verbosity = 1
@@ -171,6 +166,4 @@ build-verbosity = 1
 archs = "native"
 
 [tool.cibuildwheel.windows]
-archs = "AMD64"
-before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda --exclude \"torch_cpu.dll;torch_python.dll\" -w {dest_dir} {wheel}"

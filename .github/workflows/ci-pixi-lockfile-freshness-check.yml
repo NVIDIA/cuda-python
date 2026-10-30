@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Keep the existing check context on every PR while enforcement is paused.
+# Re-enable only after the released Pixi validation described in ci/README.md.
+name: "CI: pixi lockfile freshness check"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - "main"
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+permissions: {}
+
+jobs:
+  lockfile-fresh:
+    name: pixi lock --check (all workspaces)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Report temporary suspension
+        run: |
+          echo "::warning title=Pixi lockfile maintenance suspended::Pixi lockfile freshness enforcement and automated refreshes are temporarily suspended pending a verified released Pixi fix. Freshness was not checked."
+          {
+            echo "### Pixi lockfile maintenance temporarily suspended"
+            echo
+            echo "Freshness enforcement and automated refreshes are temporarily suspended. This successful job reports the suspension; it does not verify manifest/lock consistency."
+            echo
+            echo "Source builds and tests continue using the committed lockfiles with \`PIXI_FROZEN=true\`. Dependency changes require manual review and validation."
+            echo
+            echo "See [CI documentation](https://github.com/NVIDIA/cuda-python/blob/main/ci/README.md#temporary-pixi-lockfile-maintenance-pause) for the tradeoff and re-enable criteria."
+          } >> "${GITHUB_STEP_SUMMARY}"

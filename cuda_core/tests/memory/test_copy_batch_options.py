@@ -8,7 +8,7 @@ option field behaves, and every rejection path.
 """
 
 import pytest
-from helpers.buffers import compare_buffer_to_constant, set_buffer
+from helpers.buffers import compare_buffer_to_constant, set_buffer, thread_unsafe_on_windows
 from helpers.copy_batch import (
     COPY_BATCH_SIZE,
     assert_managed_holds,
@@ -25,7 +25,7 @@ from cuda.core._memory._copy_ops import (
     _normalize_copy_options,
 )
 from cuda.core._stream import PER_THREAD_DEFAULT_STREAM
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.utils import (
     CopyOptions,
     MemcpyOverlapMode,
@@ -36,7 +36,7 @@ from cuda.core.utils import (
 
 def _batch_native_available():
     """True when copy_batch will actually use cuMemcpyBatchAsync."""
-    return binding_version() >= (13, 0, 0) and driver_version() >= (13, 0, 0)
+    return BUILD_CUDA_MAJOR >= 13 and driver_version() >= (13, 0, 0)
 
 
 class TestOptionsEncoding:
@@ -139,6 +139,7 @@ class TestRejectUnsupportedDuringApiCall:
         _reject_unsupported_during_api_call(order, "some requirement", index=0)
 
 
+@thread_unsafe_on_windows
 class TestCopyBatchOptions:
     """Each ``CopyOptions`` field is accepted and does not corrupt the copy."""
 

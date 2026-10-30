@@ -12,6 +12,30 @@ from cuda.bindings import nvrtc
 from cuda.core import Device, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import NVRTCError, handle_return
 
+# NVRTC diagnostic phrases that indicate cudaGraphConditionalHandle itself is unknown
+# to the compiler (older NVRTC builds predate the type). Matched narrowly so a
+# genuine compile error (syntax error, etc.) is not hidden as a skip.
+# Phrase #1 is the exact diagnostic observed on this machine's NVRTC; phrase #2
+# is a common clang/NVRTC wording for an unknown type, not verified against the
+# cudaGraphConditionalHandle case on an old NVRTC build.
+_COND_HANDLE_UNKNOWN = (
+    'identifier "cudaGraphConditionalHandle" is undefined',
+    'unknown type name "cudaGraphConditionalHandle"',
+)
+
+
+def skip_if_nvrtc_lacks_conditional_handle(exc):
+    """Skip when *exc* means NVRTC predates cudaGraphConditionalHandle.
+
+    Catches only the documented "type unknown" cases; a genuine compile
+    error (syntax error, etc.) re-raises so a real bug is not hidden as a skip.
+    """
+    msg = str(exc)
+    if any(phrase in msg for phrase in _COND_HANDLE_UNKNOWN):
+        nvrtc_version = handle_return(nvrtc.nvrtcVersion())
+        pytest.skip(f"NVRTC version {nvrtc_version} does not support conditionals")
+    raise
+
 
 def compile_common_kernels():
     """Compile basic kernels for graph tests.
@@ -78,11 +102,9 @@ def compile_conditional_kernels(cond_type):
     prog = Program(code, code_type="c++", options=program_options)
     try:
         mod = prog.compile("cubin", name_expressions=("empty_kernel", "add_one", "set_handle", "loop_kernel"))
-    except NVRTCError as e:
-        with pytest.raises(NVRTCError, match='error: identifier "cudaGraphConditionalHandle" is undefined'):
-            raise e
-        nvrtcVersion = handle_return(nvrtc.nvrtcVersion())
-        pytest.skip(f"NVRTC version {nvrtcVersion} does not support conditionals")
+    except NVRTCError as exc:
+        skip_if_nvrtc_lacks_conditional_handle(exc)
+        raise
     return mod
 
 

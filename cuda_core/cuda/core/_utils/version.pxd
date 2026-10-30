@@ -2,5 +2,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-cdef tuple cy_binding_version()
 cdef tuple cy_driver_version()

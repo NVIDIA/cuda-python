@@ -316,7 +316,7 @@ def test_graph_conditional_on_forked_builder(init_cuda):
     except RuntimeError as e:
         with pytest.raises(RuntimeError, match="^(Driver|Binding) version"):
             raise e
-        right.end_building()
+        # join() ends the forked builder; end_building() on a fork is rejected.
         GraphBuilder.join(left, right).end_building()
         b.close()
         pytest.skip("Driver does not support conditional handle")

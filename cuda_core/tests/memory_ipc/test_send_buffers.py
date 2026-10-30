@@ -7,36 +7,37 @@ from itertools import cycle
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
-from helpers.constants import POOL_SIZE
 
-from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core import Device, VirtualMemoryResource
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 NMRS = 3
 NTASKS = 7
 
-# these tests spawn new processes and files which fails for very many threads
-pytestmark = pytest.mark.parallel_threads_limit(4)
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 class TestIpcSendBuffers:
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
-    def test_main(self, ipc_device, nmrs):
+    def test_main(self, ipc_device, ipc_memory_resource_factory, nmrs):
         """Test passing buffers sourced from multiple memory resources."""
-        # Set up several IPC-enabled memory pools.
+        # Set up several IPC-enabled memory resources.
         device = ipc_device
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        mrs = [ipc_memory_resource_factory() for _ in range(nmrs)]
         buffers = []
+        stream = device.default_stream
 
         try:
             # Allocate and fill memory.
-            buffers = [mr.allocate(NBYTES, stream=device.default_stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
-            pgen = PatternGen(device, NBYTES)
+            buffers = [mr.allocate(NBYTES, stream=stream) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+            pgen = PatternGen(device, NBYTES, stream=stream)
             for buffer in buffers:
                 pgen.fill_buffer(buffer, seed=False)
+            stream.sync()
 
             # Start the child process.
             process = mp.Process(target=self.child_main, args=(device, buffers))
@@ -50,25 +51,24 @@ class TestIpcSendBuffers:
             assert process.exitcode == 0
 
             # Verify that the buffers were modified.
-            pgen = PatternGen(device, NBYTES)
+            pgen = PatternGen(device, NBYTES, stream=stream)
             for buffer in buffers:
                 pgen.verify_buffer(buffer, seed=True)
                 buffer.close()
         finally:
             for buffer in buffers:
                 buffer.close()
-            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
-            device.sync()
-            for mr in mrs:
-                mr.close()
+            stream.sync()
 
     def child_main(self, device, buffers):
         device.set_current()
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         for buffer in buffers:
             pgen.verify_buffer(buffer, seed=False)
             pgen.fill_buffer(buffer, seed=True)
             buffer.close()
+        stream.sync()
 
 
 class TestIpcReexport:
@@ -93,9 +93,16 @@ class TestIpcReexport:
 
         # Allocate, fill a buffer.
         mr = ipc_memory_resource
-        pgen = PatternGen(device, NBYTES)
-        buffer = mr.allocate(NBYTES, stream=device.default_stream)
+        if isinstance(mr, VirtualMemoryResource):
+            pytest.skip(
+                "an imported VirtualMemoryBuffer cannot be exported again: the driver does not export "
+                "imported allocations, and cuda.core does not forward the original descriptor"
+            )
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
+        buffer = mr.allocate(NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=0)
+        stream.sync()
 
         # Set up communication.
         q_bc = mp.Queue()
@@ -123,11 +130,13 @@ class TestIpcReexport:
         # Verify that C’s operations are visible.
         pgen.verify_buffer(buffer, seed=1)
         buffer.close()
+        stream.sync()
 
     def process_b_main(self, buffer, q_bc, event_b):
         # Process B: receive buffer from A then forward it to C.
         device = Device()
         device.set_current()
+        stream = device.default_stream
 
         # Forward the buffer to C.
         q_bc.put(buffer)
@@ -136,6 +145,7 @@ class TestIpcReexport:
         # until C has received it and the parent releases this process.
         event_b.wait(timeout=CHILD_TIMEOUT_SEC)
         buffer.close()
+        stream.sync()
 
     def process_c_main(self, q_bc, event_c):
         # Process C: receive buffer from B then fill it.
@@ -144,9 +154,11 @@ class TestIpcReexport:
 
         # Get the buffer and fill it.
         buffer = q_bc.get(timeout=CHILD_TIMEOUT_SEC)
-        pgen = PatternGen(device, NBYTES)
+        stream = device.default_stream
+        pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=1)
         buffer.close()
+        stream.sync()
 
         # Signal A that the work is complete.
         event_c.set()

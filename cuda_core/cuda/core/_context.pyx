@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from cuda.bindings cimport cydriver
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._device_resources import SMResource, WorkqueueResource
-from cuda.core._resource_handles cimport (
+from cuda.core._rt cimport (
     ContextHandle,
     GreenCtxHandle,
     as_cu,

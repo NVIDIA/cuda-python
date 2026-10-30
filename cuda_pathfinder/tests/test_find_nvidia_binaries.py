@@ -9,9 +9,14 @@ from cuda.pathfinder import find_nvidia_binary_utility
 from cuda.pathfinder._binaries import find_nvidia_binary_utility as binary_finder_module
 from cuda.pathfinder._binaries.find_nvidia_binary_utility import UnsupportedBinaryError
 from cuda.pathfinder._binaries.supported_nvidia_binaries import (
+    _CUDA13_BIN,
     SITE_PACKAGES_BINDIRS,
     SUPPORTED_BINARIES,
     SUPPORTED_BINARIES_ALL,
+)
+
+CUDA13_WHEEL_BINARIES = frozenset(
+    ("nvcc", "ptxas", "nvdisasm", "cuobjdump", "fatbinary", "bin2c", "nvlink", "compute-sanitizer")
 )
 
 
@@ -31,6 +36,20 @@ def test_find_binary_utilities(info_summary_append, utility_name):
 def test_supported_binaries_consistency():
     assert set(SUPPORTED_BINARIES).issubset(SUPPORTED_BINARIES_ALL)
     assert set(SITE_PACKAGES_BINDIRS).issubset(SUPPORTED_BINARIES_ALL)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test_cuda13_wheel_layout_is_declared_and_preferred():
+    """Every supported utility shipped in nvidia/cu13/bin must declare that layout first.
+
+    Omitting it makes the site-packages search step skip an installed CUDA 13
+    wheel entirely, which is only visible on hosts without a local CTK to fall
+    back on.
+    """
+    declared = {name for name, bindirs in SITE_PACKAGES_BINDIRS.items() if _CUDA13_BIN in bindirs}
+    assert declared == set(CUDA13_WHEEL_BINARIES)
+    for name in CUDA13_WHEEL_BINARIES:
+        assert SITE_PACKAGES_BINDIRS[name][0] == _CUDA13_BIN
 
 
 @pytest.fixture

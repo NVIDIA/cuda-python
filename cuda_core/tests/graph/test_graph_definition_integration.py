@@ -7,10 +7,10 @@ import ctypes
 
 import numpy as np
 import pytest
-from helpers.memory import xfail_on_graph_mempool_oom
+from helpers.graph_kernels import skip_if_nvrtc_lacks_conditional_handle
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core.graph import GraphDefinition
 
 SIZEOF_FLOAT = 4
@@ -128,8 +128,9 @@ def _compile_heat_kernels():
             "cubin",
             name_expressions=("heat_step", "countdown"),
         )
-    except Exception:
-        pytest.skip("NVRTC does not support cudaGraphConditionalHandle")
+    except CUDAError as exc:
+        skip_if_nvrtc_lacks_conditional_handle(exc)
+        raise
     return mod.get_kernel("heat_step"), mod.get_kernel("countdown")
 
 
@@ -145,8 +146,9 @@ def _compile_bisect_kernels():
     prog = Program(_BISECT_KERNEL_SOURCE, code_type="c++", options=_nvrtc_opts())
     try:
         mod = prog.compile("cubin", name_expressions=names)
-    except Exception:
-        pytest.skip("NVRTC does not support cudaGraphConditionalHandle")
+    except CUDAError as exc:
+        skip_if_nvrtc_lacks_conditional_handle(exc)
+        raise
     return tuple(mod.get_kernel(n) for n in names)
 
 
@@ -205,8 +207,7 @@ def test_heat_diffusion(init_cuda):
     host_ptr = handle_return(driver.cuMemAllocHost(_HEAT_N * SIZEOF_FLOAT))
 
     try:
-        with xfail_on_graph_mempool_oom(dev):
-            _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
+        _run_heat_graph(dev, k_heat, k_countdown, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -316,8 +317,7 @@ def test_bisection_root(init_cuda):
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_FLOAT))
 
     try:
-        with xfail_on_graph_mempool_oom(dev):
-            _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
+        _run_bisection_graph(dev, k_eval, k_hi, k_lo, k_cd, k_check, k_newton, host_ptr)
     finally:
         handle_return(driver.cuMemFreeHost(host_ptr))
 
@@ -419,8 +419,7 @@ def test_switch_dispatch(init_cuda, mode, expected):
     host_ptr = handle_return(driver.cuMemAllocHost(SIZEOF_INT))
 
     try:
-        with xfail_on_graph_mempool_oom(dev):
-            _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
+        _run_switch_graph(dev, mode, k_negate, k_double, k_square, host_ptr)
 
         result = ctypes.c_int.from_address(host_ptr).value
         assert result == expected

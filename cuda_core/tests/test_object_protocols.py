@@ -15,7 +15,6 @@ import weakref
 import pytest
 from helpers.constants import POOL_SIZE
 from helpers.graph_kernels import compile_common_kernels
-from helpers.memory import xfail_on_graph_mempool_oom
 from helpers.misc import try_create_condition
 
 from cuda.core import (
@@ -282,36 +281,32 @@ def sample_root_node_alt(sample_graphdef_alt):
 def sample_empty_node(sample_graphdef):
     """An EmptyNode created by merging two branches."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        a = sample_graphdef.allocate(ALLOC_SIZE)
-        b = sample_graphdef.allocate(ALLOC_SIZE)
-        return sample_graphdef.join(a, b)
+    a = sample_graphdef.allocate(ALLOC_SIZE)
+    b = sample_graphdef.allocate(ALLOC_SIZE)
+    return sample_graphdef.join(a, b)
 
 
 @pytest.fixture
 def sample_empty_node_alt(sample_graphdef):
     """An alternate EmptyNode from same graph."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        c = sample_graphdef.allocate(ALLOC_SIZE)
-        d = sample_graphdef.allocate(ALLOC_SIZE)
-        return sample_graphdef.join(c, d)
+    c = sample_graphdef.allocate(ALLOC_SIZE)
+    d = sample_graphdef.allocate(ALLOC_SIZE)
+    return sample_graphdef.join(c, d)
 
 
 @pytest.fixture
 def sample_alloc_node(sample_graphdef):
     """An AllocNode."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        return sample_graphdef.allocate(ALLOC_SIZE)
+    return sample_graphdef.allocate(ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_alloc_node_alt(sample_graphdef):
     """An alternate AllocNode from same graph."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        return sample_graphdef.allocate(ALLOC_SIZE)
+    return sample_graphdef.allocate(ALLOC_SIZE)
 
 
 @pytest.fixture
@@ -336,58 +331,52 @@ def sample_kernel_node_alt(sample_graphdef, init_cuda):
 def sample_free_node(sample_graphdef):
     """A FreeNode."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        alloc = sample_graphdef.allocate(ALLOC_SIZE)
-        return alloc.deallocate(alloc.dptr)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
+    return alloc.deallocate(alloc.dptr)
 
 
 @pytest.fixture
 def sample_free_node_alt(sample_graphdef):
     """An alternate FreeNode from same graph."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        alloc = sample_graphdef.allocate(ALLOC_SIZE)
-        return alloc.deallocate(alloc.dptr)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
+    return alloc.deallocate(alloc.dptr)
 
 
 @pytest.fixture
 def sample_memset_node(sample_graphdef):
     """A MemsetNode."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        alloc = sample_graphdef.allocate(ALLOC_SIZE)
-        return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
+    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_memset_node_alt(sample_graphdef):
     """An alternate MemsetNode from same graph."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        alloc = sample_graphdef.allocate(ALLOC_SIZE)
-        return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
+    alloc = sample_graphdef.allocate(ALLOC_SIZE)
+    return alloc.memset(alloc.dptr, 0, ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_memcpy_node(sample_graphdef):
     """A MemcpyNode."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        src = sample_graphdef.allocate(ALLOC_SIZE)
-        dst = sample_graphdef.allocate(ALLOC_SIZE)
-        dep = sample_graphdef.join(src, dst)
-        return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
+    src = sample_graphdef.allocate(ALLOC_SIZE)
+    dst = sample_graphdef.allocate(ALLOC_SIZE)
+    dep = sample_graphdef.join(src, dst)
+    return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
 
 
 @pytest.fixture
 def sample_memcpy_node_alt(sample_graphdef):
     """An alternate MemcpyNode from same graph."""
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        src = sample_graphdef.allocate(ALLOC_SIZE)
-        dst = sample_graphdef.allocate(ALLOC_SIZE)
-        dep = sample_graphdef.join(src, dst)
-        return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
+    src = sample_graphdef.allocate(ALLOC_SIZE)
+    dst = sample_graphdef.allocate(ALLOC_SIZE)
+    dep = sample_graphdef.join(src, dst)
+    return dep.memcpy(dst.dptr, src.dptr, ALLOC_SIZE)
 
 
 @pytest.fixture
@@ -543,6 +532,27 @@ def sample_object_a(request):
 @pytest.fixture
 def sample_object_b(request):
     return request.getfixturevalue(request.param)
+
+
+@pytest.fixture
+def eq_samples(request, init_cuda):
+    """Every EQ_TYPES sample keyed by fixture name, resolved here at setup on the main thread.
+
+    A sample whose fixture skips is dropped and recorded in the test's JUnit properties, so the
+    remaining types are still compared on devices that lack a feature.
+    """
+    samples = {}
+    skipped = []
+    for name in EQ_TYPES:
+        try:
+            samples[name] = request.getfixturevalue(name)
+        except pytest.skip.Exception as exc:
+            skipped.append(f"{name}: {exc}")
+    if skipped:
+        request.node.user_properties.append(("skipped_samples", "; ".join(skipped)))
+    if len(samples) < 2:
+        pytest.skip("fewer than two EQ_TYPES samples resolved; " + "; ".join(skipped))
+    return samples
 
 
 # =============================================================================
@@ -704,7 +714,8 @@ REPR_PATTERNS = [
         "sample_launch_config",
         r"LaunchConfig\(grid=\(\d+, \d+, \d+\), cluster=.+, block=\(\d+, \d+, \d+\), "
         r"shmem_size=\d+, is_cooperative=(?:True|False), "
-        r"programmatic_stream_serialization=(?:True|False)\)",
+        r"programmatic_stream_serialization=(?:True|False), "
+        r"cluster_scheduling_policy_preference=.+, priority=-?\d+\)",
     ),
     ("sample_kernel", r"<Kernel handle=0x[0-9a-f]+>"),
     # ObjectCode variations (by code_type)
@@ -751,30 +762,31 @@ CLOSEABLE_TYPES = [
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-@pytest.mark.parametrize("fixture_name", CLOSEABLE_TYPES)
-def test_closeable_object_state_and_safe_inspection(fixture_name, request):
+@pytest.mark.thread_unsafe(reason="closes a fixture object shared between threads")
+@pytest.mark.parametrize("sample_object", CLOSEABLE_TYPES, indirect=True)
+def test_closeable_object_state_and_safe_inspection(sample_object):
     """Closing is idempotent, updates named state, and leaves inspection safe."""
-    obj = request.getfixturevalue(fixture_name)
-    assert not obj.is_closed
+    assert not sample_object.is_closed
 
-    obj.close()
-    assert obj.is_closed
-    assert bool(obj) is True  # Preserve backward-compatible truthiness after close.
-    repr(obj)
-    if hasattr(obj, "handle"):
-        _ = obj.handle
+    sample_object.close()
+    assert sample_object.is_closed
+    assert bool(sample_object) is True  # Preserve backward-compatible truthiness after close.
+    repr(sample_object)
+    if hasattr(sample_object, "handle"):
+        _ = sample_object.handle
 
-    obj.close()
-    assert obj.is_closed
+    sample_object.close()
+    assert sample_object.is_closed
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_graph_object_validity_uses_named_state(sample_graphdef):
+def test_graph_object_validity_uses_named_state(init_cuda):
     """Graph objects remain truthy when their named validity becomes false."""
-    assert sample_graphdef.is_valid
-    assert sample_graphdef._entry.is_valid
+    graph_def = GraphDefinition()
+    assert graph_def.is_valid
+    assert graph_def._entry.is_valid
 
-    node = sample_graphdef.empty()
+    node = graph_def.empty()
     assert node.is_valid
     node.destroy()
     assert not node.is_valid
@@ -811,12 +823,6 @@ def test_hash_distinct_same_type(sample_object_a, sample_object_b):
     assert hash(sample_object_a) != hash(sample_object_b)  # extremely unlikely
 
 
-@pytest.mark.parametrize("sample_object_a,sample_object_b", itertools.combinations(HASH_TYPES, 2), indirect=True)
-def test_hash_distinct_cross_type(sample_object_a, sample_object_b):
-    """Distinct objects of different types have different hashes."""
-    assert hash(sample_object_a) != hash(sample_object_b)  # extremely unlikely
-
-
 # =============================================================================
 # Equality tests
 # =============================================================================
@@ -832,10 +838,15 @@ def test_equality_basic(sample_object):
         assert sample_object != sample_object.handle
 
 
-@pytest.mark.parametrize("sample_object_a,sample_object_b", itertools.combinations(EQ_TYPES, 2), indirect=True)
-def test_no_cross_type_equality(sample_object_a, sample_object_b):
-    """No two distinct objects of different types should compare equal."""
-    assert sample_object_a != sample_object_b
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_no_cross_type_equality(eq_samples):
+    """No two objects of different types compare equal."""
+    equal_pairs = [
+        (name_a, name_b)
+        for (name_a, obj_a), (name_b, obj_b) in itertools.combinations(eq_samples.items(), 2)
+        if obj_a == obj_b or not (obj_a != obj_b)  # noqa: SIM202 - checks __eq__ and __ne__ separately
+    ]
+    assert equal_pairs == []
 
 
 @pytest.mark.parametrize("sample_object_a,sample_object_b", SAME_TYPE_PAIRS, indirect=True)

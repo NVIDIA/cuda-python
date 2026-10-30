@@ -14,7 +14,8 @@ from typing import Callable
 import pytest
 from helpers.graph_kernels import compile_common_kernels
 
-from cuda.core import LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import Device, DeviceMemoryResource, EventOptions, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._utils._weak_handles import weak_handle
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import driver_version
@@ -22,6 +23,7 @@ from cuda.core.graph import (
     ChildGraphNode,
     EventRecordNode,
     EventWaitNode,
+    ExecutableGraphNode,
     GraphDefinition,
     HostCallbackNode,
     KernelNode,
@@ -94,36 +96,27 @@ def _update_executable_case(graph, case):
 
 
 def _event_record_case(device):
-    """Keep the selected event pending to identify each exec's record target."""
-    original = device.create_event()
-    replacement = device.create_event()
-    invalid_replacement = device.create_event()
+    """Identify each exec's record target after completion."""
+    event_options = EventOptions(timing_enabled=True)
+    original = device.create_event(options=event_options)
+    replacement = device.create_event(options=event_options)
+    invalid_replacement = device.create_event(options=event_options)
     invalid_replacement.close()
 
-    callback_started = threading.Event()
-    callback_release = threading.Event()
-
-    def blocking_callback():
-        callback_started.set()
-        callback_release.wait(timeout=30)
-
     graph_def = GraphDefinition()
-    callback_node = graph_def.callback(blocking_callback)
-    node = callback_node.record(original)
+    node = graph_def.record(original)
 
     def assert_exec_uses(graph, expected):
-        callback_started.clear()
-        callback_release.clear()
         stream = device.create_stream()
+        reference = stream.record(options=event_options)
+        stream.sync()
+
+        with pytest.raises(RuntimeError, match=r"^Both Events must be recorded"):
+            expected - reference
+
         graph.launch(stream)
-        try:
-            assert callback_started.wait(timeout=5)
-            assert expected.is_done is False
-            unexpected = replacement if expected is original else original
-            assert unexpected.is_done is True
-        finally:
-            callback_release.set()
-            stream.sync()
+        stream.sync()
+        assert isinstance(expected - reference, float)
 
     return _DefinitionUpdateCase(
         graph_def=graph_def,
@@ -619,7 +612,10 @@ def _child_graph_case(device):
 def definition_update_case(request, init_cuda):
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
-    return request.param(init_cuda)
+    factory = request.param
+    # pytest-run-parallel shares this fixture object across workers. Build the
+    # case at call time on Device() so each worker gets its own graph/node.
+    return lambda: factory(Device())
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -741,11 +737,227 @@ def test_memcpy_update_between_host_and_device(init_cuda, device_operand):
     assert list(host_dst_bytes) == [0x5A] * 4
 
 
+def _capture_device_memcpy(device, stream, size=64, mr=None):
+    """Capture ``dst.copy_from(src)`` between two device buffers.
+
+    The buffers come from ``mr``, by default the device's memory resource.
+    The driver records both operands of a captured ``cuMemcpyAsync`` as
+    unified addresses rather than as device memory (#2649). The builder is
+    returned so that the captured graph stays alive with the definition view.
+    """
+    if mr is None:
+        mr = device.memory_resource
+    src = mr.allocate(size, stream=stream)
+    dst = mr.allocate(size, stream=stream)
+    src.fill(0x5A, stream=stream)
+    dst.fill(0, stream=stream)
+    stream.sync()
+
+    builder = device.create_graph_builder().begin_building()
+    dst.copy_from(src, stream=builder)
+    builder.end_building()
+    graph_def = builder.graph_definition
+    node = next(n for n in graph_def.nodes() if isinstance(n, MemcpyNode))
+    return builder, graph_def, node, dst, src
+
+
+def _read_device_bytes(buffer, stream):
+    host = LegacyPinnedMemoryResource().allocate(buffer.size)
+    buffer.copy_to(host, stream=stream)
+    stream.sync()
+    return list((ctypes.c_uint8 * buffer.size).from_address(int(host.handle)))
+
+
+_MEMORY_TYPE_TAGS = {
+    driver.CUmemorytype.CU_MEMORYTYPE_HOST: "H",
+    driver.CUmemorytype.CU_MEMORYTYPE_DEVICE: "D",
+    driver.CUmemorytype.CU_MEMORYTYPE_UNIFIED: "U",
+}
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_update_captured_node_size(init_cuda):
+    """A memcpy node recorded by stream capture accepts a size update (#2649)."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    recorded = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    assert node.size == 64
+    assert node.dst == int(dst.handle)
+    assert node.src == int(src.handle)
+    assert f"({_MEMORY_TYPE_TAGS[recorded.dstMemoryType]})" in repr(node)
+    assert f"({_MEMORY_TYPE_TAGS[recorded.srcMemoryType]})" in repr(node)
+
+    node.update(size=32)
+
+    assert node.size == 32
+    assert node.dst == int(dst.handle)
+    assert node.src == int(src.handle)
+    updated = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    assert updated.WidthInBytes == 32
+    assert updated.dstMemoryType == recorded.dstMemoryType
+    assert updated.srcMemoryType == recorded.srcMemoryType
+
+    graph = graph_def.instantiate()
+    graph.launch(stream)
+    assert _read_device_bytes(dst, stream) == [0x5A] * 32 + [0] * 32
+
+
+@pytest.mark.parametrize("operand", ["src", "dst"])
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_update_captured_node_operand(init_cuda, operand):
+    """Replacing one operand of a captured memcpy node keeps the other as recorded (#2649)."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    recorded = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    instantiated_before = graph_def.instantiate()
+    replacement = init_cuda.memory_resource.allocate(64, stream=stream)
+    replacement.fill(0xA5 if operand == "src" else 0, stream=stream)
+    stream.sync()
+
+    if operand == "src":
+        node.update(src=replacement)
+        assert node.src == int(replacement.handle)
+        assert node.dst == int(dst.handle)
+        copied_into, expected = dst, [0xA5] * 64
+    else:
+        node.update(dst=replacement)
+        assert node.dst == int(replacement.handle)
+        assert node.src == int(src.handle)
+        copied_into, expected = replacement, [0x5A] * 64
+    assert node.size == 64
+
+    # The driver rejects a change of memory type in an executable update, so
+    # the replaced operand keeps the recorded type.
+    updated = handle_return(driver.cuGraphMemcpyNodeGetParams(node.handle))
+    assert updated.dstMemoryType == recorded.dstMemoryType
+    assert updated.srcMemoryType == recorded.srcMemoryType
+
+    fresh = graph_def.instantiate()
+    fresh.launch(stream)
+    assert _read_device_bytes(copied_into, stream) == expected
+
+    copied_into.fill(0, stream=stream)
+    stream.sync()
+    instantiated_before.update(graph_def)
+    instantiated_before.launch(stream)
+    assert _read_device_bytes(copied_into, stream) == expected
+    if operand == "dst":
+        assert _read_device_bytes(dst, stream) == [0] * 64
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_executable_memcpy_update_on_captured_node(init_cuda):
+    """The executable view of a captured memcpy node accepts new operands (#2649)."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream)
+    new_src = init_cuda.memory_resource.allocate(64, stream=stream)
+    new_dst = init_cuda.memory_resource.allocate(64, stream=stream)
+    new_src.fill(0xA5, stream=stream)
+    new_dst.fill(0, stream=stream)
+    stream.sync()
+
+    graph = graph_def.instantiate()
+    graph[node].update(dst=new_dst, src=new_src, size=32)
+    graph.launch(stream)
+
+    assert _read_device_bytes(new_dst, stream) == [0xA5] * 32 + [0] * 32
+    assert _read_device_bytes(dst, stream) == [0] * 64
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.parametrize("kind", ["pool", "cumemalloc"])
+def test_memcpy_update_captured_node_host_operand(init_cuda, kind):
+    """Replacing a captured node's device operand with host memory.
+
+    The definition node accepts the host buffer and a fresh instantiation
+    copies from it. Two instantiations made before the change take the
+    whole-graph update and the executable node update. Whether an
+    executable update accepts the replacement depends on how the operands
+    were allocated. The driver compares the
+    memory class of pool-backed and virtual-memory operands and rejects the
+    change for them, so the pool-backed case expects the rejection. Plain
+    ``cuMemAlloc`` operands skip that comparison and the driver may accept
+    the change, so that case allows either outcome and checks the copy when
+    the update is accepted. A device without memory-pool support (Windows
+    TCC in CI) runs only the ``cuMemAlloc`` case. cuda.core enforces nothing
+    here.
+    """
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+    if kind == "pool":
+        if not init_cuda.properties.memory_pools_supported:
+            pytest.skip("Device does not support mempool operations")
+        mr = DeviceMemoryResource(init_cuda)
+    else:
+        mr = _SynchronousMemoryResource(init_cuda.device_id)
+
+    stream = init_cuda.create_stream()
+    # The builder is unused; it keeps the captured graph alive.
+    builder, graph_def, node, dst, src = _capture_device_memcpy(init_cuda, stream, mr=mr)
+    # Both still copy from the device buffer; the node-level update below
+    # must change the operand, not restate it.
+    instantiated_before = graph_def.instantiate()
+    other = graph_def.instantiate()
+    host_src = LegacyPinnedMemoryResource().allocate(64)
+    ctypes.memset(int(host_src.handle), 0xA5, 64)
+
+    node.update(src=host_src)
+    assert node.src == int(host_src.handle)
+
+    fresh = graph_def.instantiate()
+    fresh.launch(stream)
+    assert _read_device_bytes(dst, stream) == [0xA5] * 64
+
+    def _launch_copies_host_source(graph):
+        dst.fill(0, stream=stream)
+        stream.sync()
+        graph.launch(stream)
+        assert _read_device_bytes(dst, stream) == [0xA5] * 64
+
+    def _cuda_error_from(call):
+        try:
+            call()
+        except CUDAError as exc:
+            return exc
+        return None
+
+    # cuGraphExecMemcpyNodeSetParams has no update-result output, so the
+    # driver reports the same rejection as CUDA_ERROR_INVALID_VALUE there.
+    if kind == "pool":
+        with pytest.raises(CUDAError, match="PARAMETERS_CHANGED"):
+            instantiated_before.update(graph_def)
+        with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
+            other[node].update(dst=dst, src=host_src, size=64)
+    else:
+        rejected = _cuda_error_from(lambda: instantiated_before.update(graph_def))
+        if rejected is None:
+            _launch_copies_host_source(instantiated_before)
+        else:
+            assert "PARAMETERS_CHANGED" in str(rejected)
+        rejected = _cuda_error_from(lambda: other[node].update(dst=dst, src=host_src, size=64))
+        if rejected is None:
+            _launch_copies_host_source(other)
+        else:
+            assert "CUDA_ERROR_INVALID_VALUE" in str(rejected)
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_definition_node_update_changes_future_instantiations(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
     assert case.original != case.replacement
     old_graph = case.graph_def.instantiate()
 
@@ -762,7 +974,7 @@ def test_definition_node_update_changes_future_instantiations(
 def test_destroyed_definition_node_rejects_update(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
     case.node.destroy()
 
     assert not case.node.is_valid
@@ -777,7 +989,7 @@ def test_destroyed_definition_node_rejects_update(
 def test_failed_definition_node_update_preserves_state(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
 
     assert case.invalid_update is not None
     assert case.invalid_exception is not None
@@ -793,17 +1005,18 @@ def test_failed_definition_node_update_preserves_state(
 def test_definition_node_update_rejects_wrong_type(
     definition_update_case,
 ):
-    if definition_update_case.invalid_argument_update is None:
+    case = definition_update_case()
+    if case.invalid_argument_update is None:
         pytest.skip("update method has no typed positional argument")
     with pytest.raises(TypeError):
-        definition_update_case.invalid_argument_update()
+        case.invalid_argument_update()
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_executable_node_update_changes_existing_exec(
     definition_update_case,
 ):
-    case = definition_update_case
+    case = definition_update_case()
     graph = case.graph_def.instantiate()
 
     _update_executable_case(graph, case)
@@ -841,6 +1054,59 @@ def test_executable_node_enable_state(init_cuda, node_kind):
     assert view.is_enabled
     view.enable()
     assert view.is_enabled
+
+
+@pytest.mark.parametrize("operation", ["update", "is-enabled", "enable"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_executable_kernel_node_rejects_destroyed_source_node(init_cuda, operation):
+    """Executable-node operations reject a destroyed source node."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    graph_def = GraphDefinition()
+    node = graph_def.launch(config, kernel)
+    graph = graph_def.instantiate()
+    view = graph[node]
+
+    node.destroy()
+
+    operations = {
+        "update": lambda: view.update(config=config, kernel=kernel, args=()),
+        "is-enabled": lambda: view.is_enabled,
+        "enable": view.enable,
+    }
+    with pytest.raises(RuntimeError, match="GraphNode has been destroyed"):
+        operations[operation]()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_kernel_update_rejects_existing_cooperative_node(init_cuda):
+    """Definition updates reject a node already marked cooperative by the driver."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    config = LaunchConfig(grid=1, block=1)
+    graph_def = GraphDefinition()
+    node = graph_def.launch(config, kernel)
+
+    attr = driver.CUkernelNodeAttrValue()
+    attr.cooperative = 1
+    handle_return(
+        driver.cuGraphKernelNodeSetAttribute(
+            node.handle,
+            driver.CUkernelNodeAttrID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE,
+            attr,
+        )
+    )
+
+    with pytest.raises(
+        NotImplementedError,
+        match="updating clustered or cooperative kernel nodes is not supported",
+    ):
+        node.update(config=config)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -974,6 +1240,7 @@ def test_rejected_executable_update_rolls_back_owners(init_cuda):
     assert ctypes.c_int.from_address(int(active.handle)).value == 1
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_whole_update_replaces_executable_attachment_accumulator(init_cuda):
     if driver_version() < (12, 2, 0):
@@ -1132,6 +1399,7 @@ def test_sequential_executable_updates_accumulate_owners(init_cuda):
     _wait_until(lambda: first_weak() is None and second_weak() is None)
 
 
+@pytest.mark.thread_unsafe(reason="deferred cleanup on main thread which would wait")
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_child_graph_update_transfers_source_owners_to_executable(init_cuda):
     if driver_version() < (12, 2, 0):
@@ -1217,3 +1485,99 @@ def test_closing_executable_during_launch_defers_owner_release(init_cuda):
         stream.sync()
 
     _wait_until(lambda: not inflight_weak)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_memory_node_update_validates_owners_and_noops(init_cuda):
+    """Memory-node updates validate owners, preserve no-ops, and update geometry."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    memory_resource = LegacyPinnedMemoryResource()
+    with memory_resource.allocate(16) as src, memory_resource.allocate(16) as dst:
+        graph_def = GraphDefinition()
+        memset_node = graph_def.memset(dst, 0x11, 8)
+        memcpy_node = graph_def.memcpy(dst, src, 8)
+
+        with pytest.raises(ValueError, match=r"^dst_owner requires dst$"):
+            memset_node.update(dst_owner=dst)
+        memset_node.update()
+        assert memset_node.value == 0x11
+        assert memset_node.width == 8
+
+        memset_node.update(width=4, height=2, pitch=8)
+        assert memset_node.width == 4
+        assert memset_node.height == 2
+        assert memset_node.pitch == 8
+
+        with pytest.raises(ValueError, match=r"^dst_owner requires dst$"):
+            memcpy_node.update(dst_owner=dst)
+        with pytest.raises(ValueError, match=r"^src_owner requires src$"):
+            memcpy_node.update(src_owner=src)
+        memcpy_node.update()
+        assert memcpy_node.size == 8
+        assert memcpy_node.dst == int(dst.handle)
+        assert memcpy_node.src == int(src.handle)
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_executable_graph_node_cannot_be_constructed_directly():
+    """Executable-node views are factory-only and fail before any CUDA call."""
+    with pytest.raises(RuntimeError, match=r"^directly constructing an executable graph node is not supported$"):
+        ExecutableGraphNode()
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_executable_node_repr_reports_graph_and_node(init_cuda):
+    """An executable-node view reprs its subclass name and both handles."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    graph_def = GraphDefinition()
+    node = graph_def.launch(LaunchConfig(grid=1, block=1), kernel)
+    graph = graph_def.instantiate()
+
+    assert repr(graph[node]) == f"<ExecutableKernelNode graph=0x{int(graph.handle):x} node=0x{int(node.handle):x}>"
+
+
+@pytest.mark.parametrize("config_kind", ["clustered", "cooperative"])
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_executable_kernel_update_rejects_unsupported_config(init_cuda, config_kind):
+    """Executable kernel updates reject clustered and cooperative launches."""
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    kernel = compile_common_kernels().get_kernel("empty_kernel")
+    graph_def = GraphDefinition()
+    node = graph_def.launch(LaunchConfig(grid=1, block=1), kernel)
+    view = graph_def.instantiate()[node]
+
+    config = LaunchConfig(grid=1, block=1)
+    if config_kind == "clustered":
+        config.cluster = (1, 1, 1)
+    else:
+        config.is_cooperative = True
+    with pytest.raises(
+        NotImplementedError,
+        match=r"^updating clustered or cooperative kernel nodes is not supported$",
+    ):
+        view.update(config=config, kernel=kernel, args=())
+
+
+@pytest.mark.agent_authored(model="gpt-5.6-sol")
+def test_ctypes_host_callback_repr(init_cuda):
+    """A ctypes host callback repr reports its node and function addresses."""
+    callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+
+    @callback_type
+    def host_fn(_user_data):
+        return None
+
+    graph_def = GraphDefinition()
+    node = graph_def.callback(host_fn)
+    assert isinstance(node, HostCallbackNode)
+    assert node.callback is None
+    cfunc = ctypes.cast(host_fn, ctypes.c_void_p).value
+    assert cfunc is not None
+    assert repr(node) == f"<HostCallbackNode handle=0x{int(node.handle):x} cfunc=0x{cfunc:x}>"

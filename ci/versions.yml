@@ -1,10 +1,21 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 backport_branch: "12.9.x"  # keep in sync with target-branch in .github/dependabot.yml
 
 cuda:
   build:
-    version: "13.3.0"
+    version: "13.4.2"
   prev_build:
     version: "12.9.1"
+python:
+  # Python versions the wheel matrix is built across. ci.yml reads this list
+  # and passes it to build-wheel.yml as the `python-versions` input.
+  supported:
+    - "3.11"
+    - "3.12"
+    - "3.13"
+    - "3.14"
+    - "3.14t"
+    - "3.15"
+    - "3.15t"

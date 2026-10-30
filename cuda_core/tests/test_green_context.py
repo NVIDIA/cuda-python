@@ -2,11 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-
-import contextlib
-
 import numpy as np
 import pytest
+from helpers.contexts import assert_device_operations_use_bound_context, use_context
 
 from cuda.core import (
     ContextOptions,
@@ -22,7 +20,7 @@ from cuda.core import (
     launch,
 )
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
-from cuda.core._utils.version import binding_version, driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import GraphDefinition
 from cuda.core.typing import WorkqueueSharingScopeType
 
@@ -152,28 +150,18 @@ def _find_backfill_only_two_group_split(sm):
     return None
 
 
-@contextlib.contextmanager
-def _use_green_ctx(dev, ctx):
-    """Context manager: set green ctx current, restore previous on exit."""
-    prev = dev.set_current(ctx)
-    try:
-        yield
-    finally:
-        dev.set_current(prev)
-
-
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_memory_node_updates_preserve_green_context(
     init_cuda,
     green_ctx,
 ):
-    if driver_version() < (13, 2, 0) or binding_version() < (13, 2, 0):
-        pytest.skip("generic graph node parameter queries require CUDA 13.2+")
+    if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 2, 0):
+        pytest.skip("cuGraphNodeGetParams requires the CUDA 13 build and driver 13.2+")
 
     memory_resource = LegacyPinnedMemoryResource()
     src = memory_resource.allocate(4)
     dst = memory_resource.allocate(4)
-    with _use_green_ctx(init_cuda, green_ctx):
+    with use_context(init_cuda, green_ctx):
         graph_def = GraphDefinition()
         memset_node = graph_def.memset(dst, 0, 4)
         memcpy_node = graph_def.memcpy(dst, src, 4)
@@ -192,6 +180,9 @@ def test_memory_node_updates_preserve_green_context(
     memcpy_node.destroy()
     src.close()
     dst.close()
+    # Drop the pinned MR so it frees by refcount now rather than lingering
+    # for gc (see "Release resources at test boundaries" in tests/AGENTS.md).
+    del memory_resource
 
 
 # ---------------------------------------------------------------------------
@@ -420,7 +411,7 @@ class TestSMResourceSplit:
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_by_count_discovery_respects_alignment(self, sm_resource):
         """CUDA 12 SplitByCount discovery returns an aligned SM count."""
-        if binding_version()[0] != 12:
+        if BUILD_CUDA_MAJOR != 12:
             pytest.skip("test covers the CUDA 12 SplitByCount path")
 
         groups, _ = sm_resource.split(SMResourceOptions(count=None))
@@ -448,6 +439,47 @@ class TestSMResourceSplit:
             raise
 
         assert groups[0].sm_count % alignment == 0
+
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    def test_discovery_accepts_preferred_coscheduled_sm_count(self, init_cuda):
+        """Discovery with a preferred co-scheduling hint matches native-driver metadata."""
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 1, 0):
+            pytest.skip("preferred co-scheduled SM split requires CUDA 13.1+")
+        if init_cuda.compute_capability < (10, 0):
+            pytest.skip("distinct preferred co-scheduling requires Blackwell+")
+
+        sm_resource = init_cuda.resources.sm
+        alignment = sm_resource.coscheduled_alignment
+        preferred = 2 * alignment
+        if preferred > min(32, sm_resource.sm_count):
+            pytest.skip("device cannot support a distinct preferred count")
+
+        # Probe the same request independently. Once the native API accepts it,
+        # any cuda.core failure must propagate instead of becoming a skip.
+        native_input = driver.CUdevResource(_ptr=sm_resource.handle)
+        params = driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS()
+        params.smCount = 0
+        params.coscheduledSmCount = alignment
+        params.preferredCoscheduledSmCount = preferred
+        status, expected_groups, expected_remaining = driver.cuDevSmResourceSplit(1, native_input, 0, [params])
+        if status == driver.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION:
+            pytest.skip("native driver cannot satisfy the preferred co-scheduling request")
+        handle_return((status,))
+
+        groups, remaining = sm_resource.split(
+            SMResourceOptions(
+                count=None,
+                coscheduled_sm_count=alignment,
+                preferred_coscheduled_sm_count=preferred,
+            )
+        )
+        assert len(groups) == len(expected_groups) == 1
+        assert groups[0].sm_count == expected_groups[0].sm.smCount
+        if expected_groups[0].sm.smCoscheduledAlignment:
+            assert groups[0].coscheduled_alignment == expected_groups[0].sm.smCoscheduledAlignment
+        assert groups[0].sm_count % groups[0].coscheduled_alignment == 0
+        if expected_remaining.type == driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM:
+            assert remaining.sm_count == expected_remaining.sm.smCount
 
     def test_two_groups(self, sm_resource):
         """Two-group split succeeds for a supported explicit request."""
@@ -528,16 +560,45 @@ class TestGreenContextLifecycle:
         stream.sync()
         event.sync()
 
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_device_receiver_targets_stored_green_context(self, init_cuda, green_ctx):
+        primary_ctx = init_cuda.context
+
+        with use_context(init_cuda, green_ctx):
+            handle_return(driver.cuCtxSetCurrent(primary_ctx.handle))
+            assert_device_operations_use_bound_context(init_cuda)
+
+    @pytest.mark.agent_authored(model="gpt-5.6")
+    def test_texture_rejects_resource_from_other_context(self, init_cuda, green_ctx):
+        from cuda.core.texture import (
+            OpaqueArrayOptions,
+            ResourceDescriptor,
+        )
+        from cuda.core.typing import ArrayFormatType
+
+        with (
+            init_cuda.create_opaque_array(
+                OpaqueArrayOptions(
+                    shape=(8, 8),
+                    format=ArrayFormatType.UINT8,
+                    num_channels=4,
+                )
+            ) as array,
+            use_context(init_cuda, green_ctx),
+            pytest.raises(ValueError, match="resource is not compatible with this Device object"),
+        ):
+            init_cuda.create_texture_object(resource=ResourceDescriptor.from_opaque_array(array))
+
     def test_close_while_current_raises(self, init_cuda, green_ctx):
         """close() on a current context raises — test via set_current."""
         dev = init_cuda
-        with _use_green_ctx(dev, green_ctx), pytest.raises(RuntimeError, match="while it is current"):
+        with use_context(dev, green_ctx), pytest.raises(RuntimeError, match="while it is current"):
             green_ctx.close()
 
     def test_set_current_swap_regression(self, init_cuda, green_ctx):
         """set_current still works (backward compat) and preserves identity."""
         dev = init_cuda
-        with _use_green_ctx(dev, green_ctx):
+        with use_context(dev, green_ctx):
             pass  # just verify push/pop works
         # Swap again and check identity round-trip
         prev = dev.set_current(green_ctx)
@@ -615,6 +676,19 @@ class TestContextResources:
         finally:
             stream.close()
 
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    def test_primary_context_stream_workqueue_resources(self, init_cuda, wq_resource):
+        """A primary-context stream reports the full device workqueue resources."""
+        stream = init_cuda.create_stream()
+        try:
+            stream_wq = stream.resources.workqueue
+            assert stream_wq.handle != 0
+            assert stream_wq.sharing_scope is wq_resource.sharing_scope
+            assert stream_wq.concurrency_limit == wq_resource.concurrency_limit
+            assert stream_wq.device.device_id == init_cuda.device_id
+        finally:
+            stream.close()
+
 
 # ---------------------------------------------------------------------------
 # Kernel launch in green context (explicit model)
@@ -624,19 +698,28 @@ class TestContextResources:
 def _launch_fill_and_verify(dev, stream, kernel, n, value):
     """Launch the fill kernel and verify results on host."""
     dev_buf = dev.allocate(n * np.dtype(np.int32).itemsize, stream=stream)
-
-    config = LaunchConfig(grid=(n + 31) // 32, block=32)
-    launch(stream, config, kernel, dev_buf, np.int32(value), np.int32(n))
-
     host_mr = LegacyPinnedMemoryResource()
     host_buf = host_mr.allocate(n * np.dtype(np.int32).itemsize)
-    host_arr = np.from_dlpack(host_buf).view(np.int32)
-    host_arr[:] = 0
+    host_arr = None
+    try:
+        config = LaunchConfig(grid=(n + 31) // 32, block=32)
+        launch(stream, config, kernel, dev_buf, np.int32(value), np.int32(n))
 
-    dev_buf.copy_to(host_buf, stream=stream)
-    stream.sync()
+        host_arr = np.from_dlpack(host_buf).view(np.int32)
+        host_arr[:] = 0
 
-    np.testing.assert_array_equal(host_arr, np.full(n, value, dtype=np.int32))
+        dev_buf.copy_to(host_buf, stream=stream)
+        stream.sync()
+
+        np.testing.assert_array_equal(host_arr, np.full(n, value, dtype=np.int32))
+    finally:
+        # Release the DLPack view and close both buffers so the pinned MR
+        # frees by refcount at return instead of lingering in a cycle for gc
+        # (see "Release resources at test boundaries" in tests/AGENTS.md).
+        del host_arr
+        host_buf.close(stream)
+        dev_buf.close(stream)
+        del host_mr
 
 
 class TestGreenContextKernelLaunch:

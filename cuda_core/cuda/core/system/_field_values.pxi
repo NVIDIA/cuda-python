@@ -75,7 +75,7 @@ cdef class FieldValue:
         elif value_type == ValueType.UNSIGNED_LONG_LONG:
             return int(value.ull_val[0])
         elif value_type == ValueType.SIGNED_LONG_LONG:
-            return int(value.ll_val[0])
+            return int(value.sll_val[0])
         elif value_type == ValueType.SIGNED_INT:
             return int(value.si_val[0])
         elif value_type == ValueType.UNSIGNED_SHORT:
@@ -93,7 +93,7 @@ cdef class FieldValues:
     def __init__(self, field_values: nvml.FieldValue):
         self._field_values = field_values
 
-    def __getitem__(self, idx: int) -> FieldValue:
+    def __getitem__(self, Py_ssize_t idx) -> FieldValue:
         return FieldValue(self._field_values[idx])
 
     def __len__(self) -> int:
