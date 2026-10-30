@@ -31,14 +31,35 @@ permissions:
   actions: read
 
 jobs:
+  # The vulnerability scan inspects installed wheels: Detect cannot resolve cuda_core's
+  # CUDA-dependent build or cuda_python's dynamic setup.py from source. Python 3.12 matches
+  # the scanner image's interpreter.
+  build-wheels:
+    name: Build wheels for the vulnerability scan
+    if: >-
+      github.repository == 'NVIDIA/cuda-python' ||
+      vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true'
+    permissions:
+      actions: read
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: linux-64
+      cuda-version: "13.4.2"
+      prev-cuda-version: "12.9.1"
+      single-cuda-major: true
+      python-versions: '["3.12"]'
+
   security-suite:
     name: Security Suite
+    needs: build-wheels
     # Repository-specific workflow opt-ins use CI_CUSTOMIZATIONS_* Actions variables;
     # see ci/README.md. Enable this only after the security-suite prerequisites exist.
     if: >-
       github.repository == 'NVIDIA/cuda-python' ||
       vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true'
-    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@fd1f966240bf29723679039892dc863ca6d3adb9  # malware-vuln-onboarding
+    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@598dce94d43e0145d22679669b637e1a5c766dc7  # test/malware-vuln-onboarding
     with:
       enable-secret-scan: true
       enable-vuln-scan: true
@@ -56,6 +77,9 @@ jobs:
       # Literal fallback until it is provisioned, scoped so no other caller inherits this registration.
       nspect-id: ${{ vars.NSPECT_ID || (github.repository == 'NVIDIA/cuda-python' && 'NSPECT-ZY2K-Y1V8' || '') }}
       vuln-runs-on: linux-amd64-cpu4
+      vuln-scan-path: cuda_python
+      vuln-python-wheels-artifact: cuda-*
+      vuln-python-project-name: cuda-python
       # report-only (default) — findings warn; fail-on-vulnerability — any finding fails. Errors always fail.
       vuln-failure-policy: report-only
       vuln-upload-report: true
