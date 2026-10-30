@@ -97,7 +97,7 @@ def _opted_out(lines: list[str], node: ast.AST) -> bool:
 
 
 def _walk_scope(scope: ast.AST) -> Iterator[ast.AST]:
-    """Yield the nodes of ``scope`` without entering nested functions, lambdas, or classes."""
+    """Yield ``scope``'s descendants, yielding but not entering nested function/lambda/class bodies."""
     pending = list(ast.iter_child_nodes(scope))
     while pending:
         node = pending.pop()
@@ -106,55 +106,49 @@ def _walk_scope(scope: ast.AST) -> Iterator[ast.AST]:
             pending.extend(ast.iter_child_nodes(node))
 
 
-def _assigned_pool_props(node: ast.AST) -> tuple[str, str] | None:
-    """Return ``(variable, type name)`` for ``variable = <PoolPropsType>(...)``."""
-    if not (isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.value, ast.Call)):
-        return None
-    target = node.targets[0]
-    callee = _callee_name(node.value)
-    if isinstance(target, ast.Name) and callee in POOL_PROPS_TYPES:
-        return target.id, callee
-    return None
+def _assign_targets(node: ast.AST) -> list[ast.expr]:
+    """The assignment targets of ``node``, or ``[]`` if it is not an assignment."""
+    if isinstance(node, ast.Assign):
+        return node.targets
+    if isinstance(node, (ast.AugAssign, ast.AnnAssign)):
+        return [node.target]
+    return []
 
 
-def _capped_variables(scope: ast.AST) -> set[str]:
-    """Names with ``name.max_size`` or ``name.maxSize`` assigned directly in ``scope``."""
-    capped = set()
+def _pool_props_violations(path: Path, scope: ast.AST, lines: list[str]) -> list[Violation]:
+    """Report each ``var = PoolPropsType(...)`` with no ``var.max_size`` set in the same scope.
+
+    Recurses so a cap only counts in the scope that built the props; a cap on a
+    same-named variable elsewhere does not excuse it.
+    """
+    found: list[Violation] = []
+    constructed: list[tuple[ast.Assign, str, str]] = []  # (node, variable, type name)
+    capped: set[str] = set()
     for node in _walk_scope(scope):
-        if isinstance(node, ast.Assign):
-            targets = node.targets
-        elif isinstance(node, (ast.AugAssign, ast.AnnAssign)):
-            targets = [node.target]
-        else:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            found += _pool_props_violations(path, node, lines)
             continue
-        capped.update(
-            target.value.id
-            for target in targets
-            if isinstance(target, ast.Attribute)
-            and target.attr in POOL_PROPS_CAP_ATTRIBUTES
-            and isinstance(target.value, ast.Name)
-        )
-    return capped
-
-
-def _pool_props_violations(path: Path, tree: ast.AST, lines: list[str]) -> list[Violation]:
-    found = []
-    scopes = [tree, *(n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)))]
-    for scope in scopes:
-        capped = _capped_variables(scope)
-        for node in _walk_scope(scope):
-            assigned = _assigned_pool_props(node)
-            if assigned is None:
-                continue
-            variable, type_name = assigned
-            if variable not in capped and not _opted_out(lines, node):
-                found.append(
-                    Violation(
-                        RULE_PROPS,
-                        f"{path.as_posix()}:{node.lineno}: {type_name} assigned to '{variable}' "
-                        f"without {variable}.max_size / {variable}.maxSize",
-                    )
+        for target in _assign_targets(node):
+            if (
+                isinstance(target, ast.Attribute)
+                and target.attr in POOL_PROPS_CAP_ATTRIBUTES
+                and isinstance(target.value, ast.Name)
+            ):
+                capped.add(target.value.id)
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.value, ast.Call):
+            (target,) = node.targets
+            type_name = _callee_name(node.value)
+            if isinstance(target, ast.Name) and type_name in POOL_PROPS_TYPES:
+                constructed.append((node, target.id, type_name))
+    for node, variable, type_name in constructed:
+        if variable not in capped and not _opted_out(lines, node):
+            found.append(
+                Violation(
+                    RULE_PROPS,
+                    f"{path.as_posix()}:{node.lineno}: {type_name} assigned to '{variable}' "
+                    f"without {variable}.max_size / {variable}.maxSize",
                 )
+            )
     return found
 
 
@@ -189,6 +183,16 @@ def violations_in(path: Path) -> list[str]:
     return [violation.message for violation in _violations(path)]
 
 
+def _report(header: str, messages: list[str], hint: str) -> None:
+    """Print ``header``, the bulleted ``messages``, and ``hint`` to stderr; a no-op if empty."""
+    if not messages:
+        return
+    print(header, file=sys.stderr)
+    for message in messages:
+        print(f"  - {message}", file=sys.stderr)
+    print(hint, file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -206,28 +210,20 @@ def main(argv: list[str] | None = None) -> int:
     if not violations:
         return 0
 
-    resource_messages = [v.message for v in violations if v.rule == RULE_RESOURCE]
-    props_messages = [v.message for v in violations if v.rule == RULE_PROPS]
-    if resource_messages:
-        print("error: memory pools created by tests must set max_size:", file=sys.stderr)
-        for message in resource_messages:
-            print(f"  - {message}", file=sys.stderr)
-        print(
-            f"Use the suite-wide POOL_SIZE from cuda_core/tests/helpers/constants.py, or annotate a\n"
-            f"deliberate exception with a '# {OPT_OUT_MARKER}: <reason>' comment.\n"
-            f"See cuda_core/tests/AGENTS.md.",
-            file=sys.stderr,
-        )
-    if props_messages:
-        print("error: pool properties created by tests must set max_size / maxSize:", file=sys.stderr)
-        for message in props_messages:
-            print(f"  - {message}", file=sys.stderr)
-        print(
-            f"Set max_size (v2 bindings) or maxSize (other bindings) on the props object you constructed,\n"
-            f"using POOL_SIZE from cuda_python_test_helpers.memory, or annotate a deliberate exception\n"
-            f"with a '# {OPT_OUT_MARKER}: <reason>' comment. See cuda_bindings_13/AGENTS.md.",
-            file=sys.stderr,
-        )
+    _report(
+        "error: memory pools created by tests must set max_size:",
+        [v.message for v in violations if v.rule == RULE_RESOURCE],
+        f"Use the suite-wide POOL_SIZE from cuda_core/tests/helpers/constants.py, or annotate a\n"
+        f"deliberate exception with a '# {OPT_OUT_MARKER}: <reason>' comment.\n"
+        f"See cuda_core/tests/AGENTS.md.",
+    )
+    _report(
+        "error: pool properties created by tests must set max_size / maxSize:",
+        [v.message for v in violations if v.rule == RULE_PROPS],
+        f"Set max_size (v2 bindings) or maxSize (other bindings) on the props object you constructed,\n"
+        f"using POOL_SIZE from cuda_python_test_helpers.memory, or annotate a deliberate exception\n"
+        f"with a '# {OPT_OUT_MARKER}: <reason>' comment. See cuda_bindings_13/AGENTS.md.",
+    )
     return 1
 
 
