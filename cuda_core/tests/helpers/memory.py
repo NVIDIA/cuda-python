@@ -5,7 +5,7 @@
 
 import pytest
 
-from cuda.core import Device, ManagedMemoryResource, PinnedMemoryResource
+from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda_python_test_helpers import IS_WINDOWS
 
@@ -19,6 +19,33 @@ class UnreleasedMemoryResourceWarning(Warning):
 
 class BaselineMemoryResourceReleasedWarning(Warning):
     """An ``init_cuda`` test released an owned memory pool or VA reservation that existed before it started."""
+
+
+def skip_if_mempool_unsupported(device=None):
+    """Skip unless ``device`` (default: device 0) supports memory pools."""
+    if device is None:
+        device = Device(0)
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+
+def skip_if_managed_mempool_unsupported(device=None):
+    """Skip unless ``device`` (default: device 0) supports managed memory pools.
+
+    This is a property check only. Unlike ``skip_if_managed_memory_unsupported``
+    it never constructs a ``ManagedMemoryResource``, so it is also usable by
+    tests that allocate managed memory through graph nodes.
+    """
+    if device is None:
+        device = Device(0)
+    skip_if_mempool_unsupported(device)
+    if not device.properties.concurrent_managed_access:
+        pytest.skip("Device does not support managed memory pool operations")
+
+
+def is_pool_resource(mr):
+    """Whether ``mr`` has the pool half of the IPC protocol (allocation handle, registry, uuid)."""
+    return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
 
 
 def skip_if_pinned_memory_unsupported(device):

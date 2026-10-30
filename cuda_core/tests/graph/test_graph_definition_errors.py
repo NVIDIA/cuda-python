@@ -7,6 +7,7 @@ import ctypes
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import skip_if_mempool_unsupported
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
@@ -18,11 +19,6 @@ from cuda.core.graph import (
 )
 
 SIZEOF_INT = ctypes.sizeof(ctypes.c_int)
-
-
-def _skip_if_no_mempool():
-    if not Device(0).properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
 
 
 # =============================================================================
@@ -85,7 +81,7 @@ def test_free_null_pointer(init_cuda):
 
 def test_memset_invalid_value_size(init_cuda):
     """memset with 3-byte value (not 1, 2, or 4) raises ValueError."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     g = GraphDefinition()
     alloc = g.allocate(1024)
     with pytest.raises(ValueError):
@@ -129,7 +125,7 @@ def test_empty_node(init_cuda):
 
 def test_join_single_predecessor(init_cuda):
     """node.join() with no extra args creates a single-dep empty node."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     g = GraphDefinition()
     a = g.allocate(1024)
     joined = a.join()
@@ -152,7 +148,7 @@ def test_multiple_instantiation(init_cuda):
 
 def test_unmatched_alloc_succeeds(init_cuda):
     """Alloc without corresponding free is valid (graph-scoped lifetime)."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     g = GraphDefinition()
     g.allocate(1024)
     graph = g.instantiate()
@@ -184,7 +180,7 @@ def _skip_unless_cc_90():
 def test_while_loop_zero_iterations(init_cuda):
     """While loop with default_value=0 never executes its body."""
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -212,7 +208,7 @@ def test_while_loop_zero_iterations(init_cuda):
 def test_if_then_false_skips_body(init_cuda):
     """If conditional with default_value=0 does not execute its body."""
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
@@ -240,7 +236,7 @@ def test_if_then_false_skips_body(init_cuda):
 def test_switch_oob_skips_all_branches(init_cuda):
     """Switch with out-of-range condition value does not execute any branch."""
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
