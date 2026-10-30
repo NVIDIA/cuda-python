@@ -282,8 +282,8 @@ class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type`` and ``handle_type`` and passes the same checks
-            as the constructor.
+            ``location_type``, ``handle_type``, and ``numa_id`` and passes the
+            same checks as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
             memory that is already mapped.
@@ -300,8 +300,8 @@ class VirtualMemoryResource(MemoryResource):
         TypeError
             If ``buf`` did not come from this resource.
         ValueError
-            If ``config`` names a different location or handle type than the
-            resource, or the constructor would reject it.
+            If ``config`` names a different location type, handle type, or
+            ``numa_id`` than the resource, or the constructor would reject it.
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.
