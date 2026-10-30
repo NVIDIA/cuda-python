@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -32,7 +32,9 @@ cdef extern from "_include/dlpack.h" nogil:
         _DLDeviceType device_type
         int32_t device_id
 
-    cdef enum DLDataTypeCode:
+    # A typedef, like DLDeviceType above: `cdef enum` would have Cython spell
+    # C temporaries `enum DLDataTypeCode`, which the header does not declare.
+    ctypedef enum DLDataTypeCode:
         kDLInt
         kDLUInt
         kDLFloat
@@ -90,26 +92,28 @@ cdef extern from "_include/dlpack.h":
         void (*SetError)(void* error_ctx, const char* kind, const char* message) noexcept
     )
 
+    # dlpack.h: these entry points return -1 on failure with a Python
+    # exception set. `except -1` tells Cython so; it does not change the C type.
     ctypedef int (*DLPackManagedTensorFromPyObjectNoSync)(
         void* py_object,
         DLManagedTensorVersioned** out
-    )
+    ) except -1
 
     ctypedef int (*DLPackManagedTensorToPyObjectNoSync)(
         DLManagedTensorVersioned* tensor,
         void** out_py_object
-    )
+    ) except -1
 
     ctypedef int (*DLPackDLTensorFromPyObjectNoSync)(
         void* py_object,
         DLTensor* out
-    )
+    ) except -1
 
     ctypedef int (*DLPackCurrentWorkStream)(
         _DLDeviceType device_type,
         int32_t device_id,
         void** out_current_stream
-    )
+    ) except -1
 
     ctypedef struct DLPackExchangeAPIHeader:
         DLPackVersion version

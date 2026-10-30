@@ -12,36 +12,47 @@
 #include <string>
 #include <vector>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-static void check_nvrtc(nvrtcResult status, const char* message) {
+static void
+check_nvrtc(nvrtcResult status, const char *message)
+{
     if (status != NVRTC_SUCCESS) {
         std::cerr << message << ": " << nvrtcGetErrorString(status) << '\n';
         std::exit(1);
     }
 }
 
-static std::vector<char> compile_cubin(const char* source, CUdevice device) {
+static std::vector<char>
+compile_cubin(const char *source, CUdevice device)
+{
     int major = 0, minor = 0;
-    check_cu(cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device),
-             "cuDeviceGetAttribute failed");
-    check_cu(cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device),
-             "cuDeviceGetAttribute failed");
+    check_cu(
+        cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, device),
+        "cuDeviceGetAttribute failed"
+    );
+    check_cu(
+        cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, device),
+        "cuDeviceGetAttribute failed"
+    );
 
     nvrtcProgram prog;
-    check_nvrtc(nvrtcCreateProgram(&prog, source, "benchmark_kernel.cu", 0, nullptr, nullptr),
-                "nvrtcCreateProgram failed");
+    check_nvrtc(
+        nvrtcCreateProgram(&prog, source, "benchmark_kernel.cu", 0, nullptr, nullptr),
+        "nvrtcCreateProgram failed"
+    );
 
     std::string arch = "--gpu-architecture=sm_" + std::to_string(major) + std::to_string(minor);
-    const char* opts[] = {"--fmad=false", arch.c_str()};
+    const char *opts[] = {"--fmad=false", arch.c_str()};
     nvrtcResult compile_result = nvrtcCompileProgram(prog, 2, opts);
 
     if (compile_result != NVRTC_SUCCESS) {
@@ -62,13 +73,13 @@ static std::vector<char> compile_cubin(const char* source, CUdevice device) {
     return cubin;
 }
 
-
-static const char* KERNEL_SOURCE = R"(
+static const char *KERNEL_SOURCE = R"(
 extern "C" __global__ void empty_kernel() { return; }
 )";
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup
@@ -88,8 +99,7 @@ int main(int argc, char** argv) {
     check_cu(cuModuleLoadData(&persistent_module, cubin.data()), "cuModuleLoadData failed");
 
     CUfunction function;
-    check_cu(cuModuleGetFunction(&function, persistent_module, "empty_kernel"),
-             "cuModuleGetFunction failed");
+    check_cu(cuModuleGetFunction(&function, persistent_module, "empty_kernel"), "cuModuleGetFunction failed");
 
     bench::BenchmarkSuite suite(options);
 
@@ -106,8 +116,7 @@ int main(int argc, char** argv) {
     {
         CUfunction f;
         suite.run("module.module_get_function", [&]() {
-            check_cu(cuModuleGetFunction(&f, persistent_module, "empty_kernel"),
-                     "cuModuleGetFunction failed");
+            check_cu(cuModuleGetFunction(&f, persistent_module, "empty_kernel"), "cuModuleGetFunction failed");
         });
     }
 
@@ -115,8 +124,10 @@ int main(int argc, char** argv) {
     {
         int value = 0;
         suite.run("module.func_get_attribute", [&]() {
-            check_cu(cuFuncGetAttribute(&value, CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, function),
-                     "cuFuncGetAttribute failed");
+            check_cu(
+                cuFuncGetAttribute(&value, CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, function),
+                "cuFuncGetAttribute failed"
+            );
         });
     }
 

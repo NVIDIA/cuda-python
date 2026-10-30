@@ -13,7 +13,7 @@ import weakref
 import pytest
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers.graph_kernels import compile_common_kernels
-from helpers.memory import xfail_on_graph_mempool_oom
+from helpers.memory import VMM_HANDLE_TYPE
 from helpers.misc import try_create_condition
 
 from cuda_python_test_helpers import under_compute_sanitizer
@@ -75,10 +75,20 @@ def _wait_until(predicate, timeout=None, interval=0.02):
     raise AssertionError(f"condition not satisfied within {timeout}s")
 
 
-from cuda.core import Device, DeviceMemoryResource, EventOptions, Kernel, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import (
+    Device,
+    DeviceMemoryResource,
+    EventOptions,
+    Kernel,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
+)
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core._utils.version import driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import (
+    AllocNode,
     ChildGraphNode,
     ConditionalNode,
     EventRecordNode,
@@ -89,11 +99,37 @@ from cuda.core.graph import (
     KernelNode,
     MemcpyNode,
 )
+from cuda.core.typing import GraphMemoryType
 
 
 def _skip_if_no_mempool():
     if not Device(0).properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
+
+
+def _device_memory_resource(dev):
+    _skip_if_no_mempool()
+    return DeviceMemoryResource(dev)
+
+
+def _virtual_memory_resource(dev):
+    if not dev.properties.virtual_memory_management_supported:
+        pytest.skip("Device does not support virtual memory management")
+    return VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type=VMM_HANDLE_TYPE))
+
+
+# Memory resources whose buffers a graph node can retain through its
+# attachment. Each factory skips when the device lacks the feature.
+_MEMORY_RESOURCES = [
+    pytest.param(_device_memory_resource, id="device_mr"),
+    pytest.param(_virtual_memory_resource, id="vmm"),
+]
+
+
+def _skip_if_no_managed_mempool():
+    _skip_if_no_mempool()
+    if not Device(0).properties.concurrent_managed_access:
+        pytest.skip("Device does not support managed memory pool operations")
 
 
 # =============================================================================
@@ -559,8 +595,7 @@ def test_event_record_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom(dev):
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.record(event)
@@ -577,8 +612,7 @@ def test_event_wait_node_keeps_event_alive(init_cuda):
     _skip_if_no_mempool()
     dev = Device()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom(dev):
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.wait(event)
@@ -865,13 +899,18 @@ def test_callback_survives_source_node_deletion(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_inflight_launch_retains_attachments_until_completion(init_cuda):
-    """An in-flight launch retains the final allocation reference."""
+@pytest.mark.parametrize("make_mr", _MEMORY_RESOURCES)
+def test_inflight_launch_retains_attachments_until_completion(init_cuda, make_mr):
+    """An in-flight launch retains the final allocation reference.
+
+    The memcpy node attaches the buffer's allocation handle, so the memory
+    outlives ``buf.close()`` until the launch completes and the graph is gone.
+    For a virtual memory buffer that release also unmaps the range.
+    """
     from cuda.core._utils._weak_handles import weak_handle
 
-    _skip_if_no_mempool()
     dev = Device()
-    mr = DeviceMemoryResource(dev)
+    mr = make_mr(dev)
     buf = mr.allocate(8, stream=dev.default_stream)
     dev.default_stream.sync()
     dptr = int(buf.handle)
@@ -922,6 +961,49 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda):
     assert close_errors == []
     del close_graph, close_thread, graph
     _wait_until(lambda: not allocation_weak)
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-1")
+def test_memcpy_node_retains_vmm_range_across_grow(init_cuda):
+    """A memcpy node keeps a virtual memory range mapped across a grow and the close of every alias.
+
+    The node attaches the input buffer's device pointer handle. Growing the
+    buffer creates an alias; closing both buffers leaves the node as the last
+    owner, so the range stays mapped until the graph that retains it is gone.
+    """
+    from cuda.core._utils._weak_handles import weak_handle
+
+    dev = Device()
+    mr = _virtual_memory_resource(dev)
+    buf = mr.allocate(8, stream=dev.default_stream)
+    dev.default_stream.sync()
+    dptr = int(buf.handle)
+
+    graph_def = GraphDefinition()
+    copy_node = graph_def.memcpy(dptr, dptr + 4, 4, dst_owner=buf, src_owner=buf)
+    grown = mr.modify_allocation(buf, 2 * buf.size)
+    input_weak = weak_handle(buf)
+    grown_weak = weak_handle(grown)
+
+    buf.close()
+    grown.close()
+    gc.collect()
+    # The node still owns the input's handle; the alias released its own.
+    assert input_weak
+    assert not grown_weak
+
+    graph = graph_def.instantiate()
+    del copy_node, graph_def
+    gc.collect()
+    assert input_weak
+
+    # The copy runs against the range the node kept mapped.
+    stream = dev.create_stream()
+    graph.launch(stream)
+    stream.sync()
+    graph.close()
+    del graph
+    _wait_until(lambda: not input_weak)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -1200,12 +1282,8 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     stream.sync()
 
 
-def _pred_chain_memcpy(g, bufs):
-    memory_resource = LegacyPinnedMemoryResource()
-    src = memory_resource.allocate(8)
-    dst = memory_resource.allocate(8)
-    bufs.extend((src, dst))
-    node = g.memcpy(dst, src, 8)
+def _make_pred_chain_memcpy(builder, src, dst):
+    node = builder.memcpy(dst, src, 8)
     src_ptr, dst_ptr, size = node.src, node.dst, node.size
     succ = node.record(Device().create_event())
 
@@ -1216,6 +1294,21 @@ def _pred_chain_memcpy(g, bufs):
         assert reconstructed.size == size
 
     return node, succ, check
+
+
+def _pred_chain_memcpy_host(g, bufs):
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(8)
+    dst = memory_resource.allocate(8)
+    bufs.extend((src, dst))
+    return _make_pred_chain_memcpy(g, src, dst)
+
+
+def _pred_chain_memcpy_device(g, bufs):
+    _skip_if_no_mempool()
+    src = g.allocate(8)
+    dst = g.allocate(8)
+    return _make_pred_chain_memcpy(g.join(src, dst), src.dptr, dst.dptr)
 
 
 def _pred_chain_event_record(g, bufs):
@@ -1242,11 +1335,39 @@ def _pred_chain_event_wait(g, bufs):
     return node, succ, check
 
 
+def _pred_chain_alloc_peer_access(g, bufs):
+    _skip_if_no_mempool()
+    device = Device()
+    node = g.allocate(64, device=device, peer_access=[device])
+    expected_peer_access = (device.device_id,)
+    succ = node.record(device.create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, AllocNode)
+        assert reconstructed.peer_access == expected_peer_access
+
+    return node, succ, check
+
+
+def _pred_chain_alloc_managed(g, bufs):
+    _skip_if_no_managed_mempool()
+    node = g.allocate(64, memory_type=GraphMemoryType.MANAGED)
+    expected_dptr = node.dptr
+    succ = node.record(Device().create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, AllocNode)
+        assert reconstructed.memory_type == "managed"
+        assert reconstructed.dptr == expected_dptr
+        assert reconstructed.dptr != 0
+
+    return node, succ, check
+
+
 def _pred_chain_free(g, bufs):
     _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(64)
-        node = alloc.deallocate(alloc.dptr)
+    alloc = g.allocate(64)
+    node = alloc.deallocate(alloc.dptr)
     free_dptr = node.dptr
     succ = node.record(Device().create_event())
 
@@ -1260,12 +1381,21 @@ def _pred_chain_free(g, bufs):
 @pytest.mark.parametrize(
     "factory",
     [
-        _pred_chain_memcpy,
+        _pred_chain_memcpy_host,
+        _pred_chain_memcpy_device,
         _pred_chain_event_record,
         _pred_chain_event_wait,
+        _pred_chain_alloc_peer_access,
+        pytest.param(
+            _pred_chain_alloc_managed,
+            marks=pytest.mark.skipif(
+                BUILD_CUDA_MAJOR < 13,
+                reason="managed alloc requires a CUDA 13.0+ build",
+            ),
+        ),
         _pred_chain_free,
     ],
-    ids=["memcpy", "event_record", "event_wait", "free"],
+    ids=["memcpy_host", "memcpy_device", "event_record", "event_wait", "alloc_peer_access", "alloc_managed", "free"],
 )
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_graph_nodes_reconstructed_via_pred_chain(init_cuda, factory):

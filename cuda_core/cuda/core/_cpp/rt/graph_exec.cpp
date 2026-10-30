@@ -31,9 +31,10 @@ struct ExecAttachments : DeferredCleanupItem {
 
 struct GraphExecBox {
     CUgraphExec resource = nullptr;
-    ExecAttachments* attachments = nullptr;  // Non-owning.
+    ExecAttachments *attachments = nullptr;  // Non-owning.
 
-    ~GraphExecBox() noexcept {
+    ~GraphExecBox() noexcept
+    {
         if (resource) {
             GILReleaseGuard gil;
             pw_cuGraphExecDestroy(resource);
@@ -43,17 +44,20 @@ struct GraphExecBox {
     }
 };
 
-GraphExecBox* get_exec_box(const GraphExecHandle& h) noexcept {
-    return const_cast<GraphExecBox*>(
-        reinterpret_cast<const GraphExecBox*>(h.get()));
+GraphExecBox *
+get_exec_box(const GraphExecHandle &h) noexcept
+{
+    return const_cast<GraphExecBox *>(reinterpret_cast<const GraphExecBox *>(h.get()));
 }
 
-GraphExecHandle make_graph_exec_handle(
-        CUgraphExec graph_exec, ExecAttachments* attachments) {
+GraphExecHandle
+make_graph_exec_handle(CUgraphExec graph_exec, ExecAttachments *attachments)
+{
     struct RawGraphExecGuard {
         CUgraphExec resource;
 
-        ~RawGraphExecGuard() noexcept {
+        ~RawGraphExecGuard() noexcept
+        {
             if (resource) {
                 GILReleaseGuard gil;
                 pw_cuGraphExecDestroy(resource);
@@ -75,14 +79,16 @@ GraphExecHandle make_graph_exec_handle(
 // alive, and otherwise this drops its last reference.
 struct ExecAttachmentStaging {
     GraphHandle h_source;
-    ExecAttachments* accumulator = nullptr;
+    ExecAttachments *accumulator = nullptr;
 
-    ~ExecAttachmentStaging() noexcept {
-        report_cuda_error("cuGraphReleaseUserObject", release(),
-                          "failed while dropping a staged graph attachment");
+    ~ExecAttachmentStaging() noexcept
+    {
+        report_cuda_error("cuGraphReleaseUserObject", release(), "failed while dropping a staged graph attachment");
     }
 
-    CUresult release() noexcept {
+    CUresult
+    release() noexcept
+    {
         if (!h_source || !accumulator) {
             return CUDA_SUCCESS;
         }
@@ -90,39 +96,36 @@ struct ExecAttachmentStaging {
         const GraphHandle source = std::move(h_source);
         accumulator = nullptr;
         GILReleaseGuard gil;
-        return p_cuGraphReleaseUserObject(*source, object, 1);
+        return DRIVER_CALL(cuGraphReleaseUserObject, *source, object, 1);
     }
 };
 
 // Create an accumulator and retain it on h_source, so that a following
 // instantiation or whole-graph update propagates a reference into the exec.
-CUresult stage_exec_attachments(
-        const GraphHandle& h_source, ExecAttachmentStaging* out_staging) {
-    if (!p_cuUserObjectCreate || !p_cuUserObjectRelease ||
-        !p_cuGraphRetainUserObject || !p_cuGraphReleaseUserObject) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
+CUresult
+stage_exec_attachments(const GraphHandle &h_source, ExecAttachmentStaging *out_staging)
+{
     ensure_deferred_cleanup_ready();
-    auto* accumulator = new ExecAttachments;
+    auto *accumulator = new ExecAttachments;
 
     CUuserObject object = nullptr;
     CUresult status;
     {
         GILReleaseGuard gil;
-        status = p_cuUserObjectCreate(
+        status = DRIVER_CALL(
+            cuUserObjectCreate,
             &object,
-            static_cast<DeferredCleanupItem*>(accumulator),
+            static_cast<DeferredCleanupItem *>(accumulator),
             reinterpret_cast<CUhostFn>(enqueue_cleanup),
             1,
-            CU_USER_OBJECT_NO_DESTRUCTOR_SYNC);
+            CU_USER_OBJECT_NO_DESTRUCTOR_SYNC
+        );
         if (status != CUDA_SUCCESS) {
             delete accumulator;
             return status;
         }
         accumulator->object = object;
-        status = p_cuGraphRetainUserObject(
-            *h_source, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
+        status = DRIVER_CALL(cuGraphRetainUserObject, *h_source, object, 1, CU_GRAPH_USER_OBJECT_MOVE);
         if (status != CUDA_SUCCESS) {
             // Dropping the last reference retires the accumulator.
             pw_cuUserObjectRelease(object, 1);
@@ -142,20 +145,18 @@ CUresult stage_exec_attachments(
 // rollback can drop owners staged for a mutation that CUDA rejected.
 struct PreparedExecAttachmentState {
     GraphExecHandle h_exec;
-    ExecAttachments* attachments = nullptr;
+    ExecAttachments *attachments = nullptr;
     size_t original_size = 0;
 
-    PreparedExecAttachmentState(
-            GraphExecHandle h_exec_,
-            ExecAttachments* attachments_,
-            size_t original_size_)
-        : h_exec(std::move(h_exec_)),
-          attachments(attachments_),
-          original_size(original_size_) {}
+    PreparedExecAttachmentState(GraphExecHandle h_exec_, ExecAttachments *attachments_, size_t original_size_)
+        : h_exec(std::move(h_exec_)), attachments(attachments_), original_size(original_size_)
+    {
+    }
 };
 
-void rollback_prepared_exec_attachment(
-        PreparedExecAttachmentState* state) noexcept {
+void
+rollback_prepared_exec_attachment(PreparedExecAttachmentState *state) noexcept
+{
     if (!state) {
         return;
     }
@@ -167,18 +168,13 @@ void rollback_prepared_exec_attachment(
     delete state;
 }
 
-GraphExecHandle create_graph_exec_handle(
-        const GraphHandle& h_source,
-        CUDA_GRAPH_INSTANTIATE_PARAMS* params) {
+GraphExecHandle
+create_graph_exec_handle(const GraphHandle &h_source, CUDA_GRAPH_INSTANTIATE_PARAMS *params)
+{
     if (!h_source || !*h_source || !params) {
         err = CUDA_ERROR_INVALID_VALUE;
         return {};
     }
-    if (!p_cuGraphInstantiateWithParams) {
-        err = CUDA_ERROR_NOT_SUPPORTED;
-        return {};
-    }
-
     ExecAttachmentStaging staging;
     if (CUDA_SUCCESS != (err = stage_exec_attachments(h_source, &staging))) {
         return {};
@@ -187,7 +183,7 @@ GraphExecHandle create_graph_exec_handle(
     CUgraphExec graph_exec = nullptr;
     {
         GILReleaseGuard gil;
-        err = p_cuGraphInstantiateWithParams(&graph_exec, *h_source, params);
+        err = DRIVER_CALL(cuGraphInstantiateWithParams, &graph_exec, *h_source, params);
     }
     if (err != CUDA_SUCCESS) {
         return {};
@@ -203,26 +199,20 @@ GraphExecHandle create_graph_exec_handle(
         return {};
     }
 
-    GraphExecHandle h_exec = make_graph_exec_handle(
-        graph_exec, staging.accumulator);
+    GraphExecHandle h_exec = make_graph_exec_handle(graph_exec, staging.accumulator);
     if (CUDA_SUCCESS != (err = staging.release())) {
         return {};
     }
     return h_exec;
 }
 
-CUresult graph_exec_update(
-        const GraphExecHandle& h_exec,
-        const GraphHandle& h_source,
-        CUgraphExecUpdateResultInfo* result_info) {
+CUresult
+graph_exec_update(const GraphExecHandle &h_exec, const GraphHandle &h_source, CUgraphExecUpdateResultInfo *result_info)
+{
     if (!h_exec || !h_source || !*h_source || !result_info) {
         return CUDA_ERROR_INVALID_VALUE;
     }
-    if (!p_cuGraphExecUpdate) {
-        return CUDA_ERROR_NOT_SUPPORTED;
-    }
-
-    GraphExecBox* box = get_exec_box(h_exec);
+    GraphExecBox *box = get_exec_box(h_exec);
     if (!box->resource) {
         return CUDA_ERROR_INVALID_VALUE;
     }
@@ -235,7 +225,7 @@ CUresult graph_exec_update(
 
     {
         GILReleaseGuard gil;
-        status = p_cuGraphExecUpdate(box->resource, *h_source, result_info);
+        status = DRIVER_CALL(cuGraphExecUpdate, box->resource, *h_source, result_info);
     }
     if (status != CUDA_SUCCESS) {
         return status;
@@ -247,11 +237,11 @@ CUresult graph_exec_update(
     return staging.release();
 }
 
-CUresult graph_prepare_exec_attachment(
-        const GraphExecHandle& h_exec,
-        OpaqueHandle owner0,
-        OpaqueHandle owner1,
-        PreparedExecAttachment* out_prepared) {
+CUresult
+graph_prepare_exec_attachment(
+    const GraphExecHandle &h_exec, OpaqueHandle owner0, OpaqueHandle owner1, PreparedExecAttachment *out_prepared
+)
+{
     if (!out_prepared) {
         return CUDA_ERROR_INVALID_VALUE;
     }
@@ -260,21 +250,21 @@ CUresult graph_prepare_exec_attachment(
         return CUDA_ERROR_INVALID_VALUE;
     }
 
-    GraphExecBox* box = get_exec_box(h_exec);
+    GraphExecBox *box = get_exec_box(h_exec);
     if (!box->resource || !box->attachments) {
         return CUDA_ERROR_INVALID_VALUE;
     }
 
-    ExecAttachments* attachments = box->attachments;
+    ExecAttachments *attachments = box->attachments;
     const size_t original_size = attachments->owners.size();
     const size_t additions =
-        static_cast<size_t>(static_cast<bool>(owner0)) +
-        static_cast<size_t>(static_cast<bool>(owner1));
+        static_cast<size_t>(static_cast<bool>(owner0)) + static_cast<size_t>(static_cast<bool>(owner1));
     // Reserve before staging so that rollback and commit cannot allocate.
     attachments->owners.reserve(original_size + additions);
     PreparedExecAttachment prepared(
         new PreparedExecAttachmentState(h_exec, attachments, original_size),
-        PreparedExecAttachmentDeleter{rollback_prepared_exec_attachment});
+        PreparedExecAttachmentDeleter{rollback_prepared_exec_attachment}
+    );
     if (owner0) {
         attachments->owners.emplace_back(std::move(owner0));
     }
@@ -285,8 +275,9 @@ CUresult graph_prepare_exec_attachment(
     return CUDA_SUCCESS;
 }
 
-void graph_commit_exec_attachment(
-        PreparedExecAttachment& prepared) noexcept {
+void
+graph_commit_exec_attachment(PreparedExecAttachment &prepared) noexcept
+{
     delete prepared.release();
 }
 

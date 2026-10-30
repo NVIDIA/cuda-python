@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import pickle
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -26,20 +27,14 @@ def test_device_init_disabled():
         cuda.core._device.DeviceProperties()  # Ensure back door is locked.
 
 
-def test_to_system_device(deinit_cuda):
-    from cuda.core.system import _system
+@pytest.mark.agent_authored(model="gpt-6")
+def test_to_system_device(init_cuda):
+    device = init_cuda
 
-    device = Device()
+    from cuda_python_test_helpers.arch_check import hardware_supports_nvml_device_apis
 
-    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-        with pytest.raises(RuntimeError):
-            device.to_system_device()
-        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ for CUDA 12.x or 13.2.0+ for CUDA 13.x")
-
-    from cuda_python_test_helpers.arch_check import hardware_supports_nvml
-
-    if not hardware_supports_nvml():
-        pytest.skip("NVML not supported on this platform")
+    if not hardware_supports_nvml_device_apis():
+        pytest.skip("NVML device APIs are incomplete or unavailable on this platform")
 
     from cuda.core.system import Device as SystemDevice
 
@@ -556,6 +551,13 @@ def test_device_inequality_different_id_hash(init_cuda):
     except (ValueError, Exception):
         # Test is skipped if only one device available
         pytest.skip("Test requires at least 2 CUDA devices")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_device_pickle_round_trip(init_cuda):
+    """Unpickling a Device in the same process and thread returns the same singleton."""
+    for device in Device.get_all_devices():
+        assert pickle.loads(pickle.dumps(device)) is device  # noqa: S301
 
 
 def test_device_dict_key(init_cuda):

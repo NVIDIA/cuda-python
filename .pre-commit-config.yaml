@@ -19,18 +19,25 @@ repos:
   # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
   # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
   - repo: https://github.com/NVIDIA/security-workflows
-    rev: 711025b090f2aa728da576700750b195d1e816dc  # frozen: v0.3.0
+    rev: c736f0454dc99764a66af6b906adfcdfbf621985  # frozen: v0.4.0
     hooks:
       - id: secret-scan-trufflehog
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
+    rev: f368fb366ff7f2f808dd324b83a6d32267799e19  # frozen: v0.17.2
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
-        exclude: (^cuda_bindings/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
+        exclude: (^cuda_bindings_(?:12|13)/cuda/bindings/_internal/_fast_enum\.py$)|(.*\.pyi$)
       - id: ruff-format
         exclude: .*\.pyi$
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 98ad4ddb9c057de2f5b9e93e44e6db959807d68c  # frozen: v23.1.3
+    hooks:
+      - id: clang-format
+        types_or: [c, c++, cuda]
+        exclude: ^cuda_core/(cuda/core/_include/(dlpack|aoti_shim)\.h|third_party/)
 
   - repo: local
     hooks:
@@ -42,20 +49,33 @@ repos:
         pass_filenames: false
         verbose: true
 
+      - id: check-cuda-core-bindings-floor
+        name: Check the cuda-bindings floor against ci/versions.yml and the docs
+        entry: python ./toolshed/check_cuda_core_bindings_floor.py
+        language: python
+        files: ^(cuda_core/pyproject\.toml|ci/versions\.yml|cuda_core/cuda/core/_bindings_floor\.py|cuda_core/docs/source/.*\.rst|toolshed/check_cuda_core_bindings_floor\.py)$
+        pass_filenames: false
+
       - id: check-spdx
         name: Check SPDX Headers
         entry: python ./toolshed/check_spdx.py
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
-        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)'
+        exclude: '(.*pixi\.lock)|(\.git_archival\.txt)|(.*\.patch$)|(^cuda_core/cuda/core/_vendored/)|(^cuda_core/third_party/)'
         args: ["--fix"]
+
+      - id: check-cython-not-none
+        name: Check cdef-class-annotated def parameters carry 'not None'
+        entry: python ./toolshed/check_cython_not_none.py
+        language: python
+        files: ^cuda_core/cuda/.*\.pyx$
 
       - id: check-generated-file-seals
         name: Check generated-file seals
         entry: python ./toolshed/check_generated_file_seals.py
         language: python
-        files: ^cuda_bindings/
+        files: ^cuda_bindings_(?:12|13)/
         types: [text]
 
       - id: check-pixi-cuda-version
@@ -63,7 +83,7 @@ repos:
         entry: python ./ci/tools/check_pixi_cuda_version.py
         language: python
         additional_dependencies: [pyyaml==6.0.3]
-        files: '^(ci/versions\.yml|cuda_bindings/pixi\.toml|cuda_core/pixi\.toml)$'
+        files: '^(ci/versions\.yml|cuda_bindings_13/pixi\.toml|cuda_core/pixi\.toml)$'
         pass_filenames: false
 
       - id: check-mempool-hygiene
@@ -80,6 +100,9 @@ repos:
           - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
         language: system
         files: '^.*/docs/source/.*\.md$'
+        # The imported CUDA 12.9 documentation retains its historical MyST
+        # sources; new documentation elsewhere must continue to use reST.
+        exclude: '^cuda_bindings_12/docs/source/'
 
       - id: stubgen-pyx-cuda-core
         name: Generate .pyi stubs for cuda_core
@@ -88,29 +111,58 @@ repos:
         files: ^cuda_core/cuda/.*\.(pyx|pxd)$
         pass_filenames: false
         additional_dependencies:
-          - stubgen-pyx==0.2.22
+          - stubgen-pyx==0.2.23
           - Cython==3.2.9
 
   # Link checking for authored documentation files
-  - repo: https://github.com/lycheeverse/lychee
-    rev: 2bba271688c1abb1503097a064e6c3bc1d1b6a9b  # frozen: lychee-v0.24.2
+  - repo: local
     hooks:
       - id: lychee
+        name: lychee (authored documentation)
+        entry: python ./ci/tools/run_lychee.py
+        language: python
+        # Update this shared pin manually until Dependabot releases support for
+        # local-hook dependencies: https://github.com/dependabot/dependabot-core/issues/15489
+        # Once supported, add lychee-bin to the allowlist in .github/dependabot.yml.
+        additional_dependencies: &lychee_dependencies
+          - lychee-bin==0.24.2
+        types: [text]
+        require_serial: true
         args:
-          - LYCHEE_VERSION=0.24.2  # Must match the pinned rev above
           - --cache
+          - --max-cache-age=3d
           - --max-concurrency=4
           - --max-retries=3
           - --no-progress
         files: '\.(md|rst)$'
         exclude: ^qa/
 
+      # Generated HTML is checked explicitly after the documentation build.
+      - id: lychee-rendered
+        name: lychee (rendered documentation)
+        entry: python ./ci/tools/run_lychee.py --rendered
+        language: python
+        additional_dependencies: *lychee_dependencies
+        stages: [manual]
+        pass_filenames: false
+        always_run: true
+        args:
+          - --cache
+          - --max-cache-age=3d
+          - --max-concurrency=16
+          - --host-concurrency=2
+          - --host-request-interval=250ms
+          - --max-retries=3
+          - --retry-wait-time=5
+          - --timeout=30
+          - --no-progress
+
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
-      exclude: cuda_bindings/cuda/bindings/nvml.pyx
+      exclude: '^(?:cuda_bindings_13/cuda/bindings/(?:nvml\.pyx|_v2/driver\.pyx)|cuda_bindings_12/cuda/bindings/(?:driver\.pyx|runtime\.pyx\.in|nvml\.pyx))$'
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
@@ -119,14 +171,14 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|.*\.pyi|\.github/actions/upgrade-ca-certificates/impacted-intermediates\.json)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
         (?x)^(?:
           cuda_python/README\.md|
-          cuda_bindings/cuda/bindings/.*\.in?|
-          cuda_bindings/docs/source/module/.*\.rst?|
+          cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|
+          cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|
           .*\.patch$
         )$
 
@@ -139,7 +191,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 8e5c80792e2ec0c87804d8ef915bf35e2caea6da  # frozen: v1.20.0
+    rev: 2834ec6639549dd6796205c8f011dedcd587288b  # frozen: v2.4.0
     hooks:
       - id: mypy
         alias: mypy-pathfinder
@@ -164,11 +216,21 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "7c6152f6c8f9087684ff2e09a9227941e233bafb"  # frozen: v0.19.0
+    rev: "35dbc940c2bd4499ebf39aba00ad717e05cec9b5"  # frozen: v0.22.0
     hooks:
       - id: cython-lint
-        args: [--no-pycodestyle]
-        exclude: ^cuda_bindings/
+        # Some rules (e.g. "inline" on a function declared in a .pxd) match
+        # declarations in one file against implementations in another, and the
+        # linter only remembers that within a single invocation. Pre-commit
+        # splits filenames across parallel processes and only passes changed
+        # files, so a .pyx edited without its .pxd would escape the check.
+        # Instead, whenever any Cython file under these trees changes, lint
+        # all of them in one process. Generated cuda_bindings_* and
+        # third-party submodules are not listed.
+        args: [--no-pycodestyle, cuda_core/cuda]
+        files: ^cuda_core/cuda
+        pass_filenames: false
+        require_serial: true
         additional_dependencies:
           - Cython==3.2.9
 
