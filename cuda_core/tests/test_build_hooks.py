@@ -75,6 +75,17 @@ def _isolate_toolchain_env():
         os.environ.update(original)
 
 
+@pytest.mark.agent_authored(model="grok-4.6")
+def test_get_cccl_include_dirs_requires_initialized_submodule(tmp_path, monkeypatch):
+    monkeypatch.setattr(build_hooks, "_CCCL_SUBMODULE_DIR", tmp_path / "cccl")
+    build_hooks._get_cccl_include_dirs.cache_clear()
+    try:
+        with pytest.raises(RuntimeError, match="CCCL submodule"):
+            build_hooks._get_cccl_include_dirs()
+    finally:
+        build_hooks._get_cccl_include_dirs.cache_clear()
+
+
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_cuda_path_is_resolved_before_importing_bindings(monkeypatch):
     """PEP 517 namespace repair runs before cuda.bindings is imported."""
@@ -379,17 +390,19 @@ def _capture_cythonize_kwargs(monkeypatch, cuda_major):
         return []
 
     # Builds resolve the CTK for include dirs; stub it so the test runs
-    # where no toolkit is installed (e.g. the wheels CI jobs).
+    # where no toolkit is installed (e.g. the wheels CI jobs). The CCCL
+    # submodule is also absent from those checkouts.
     monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
     # The configuration check reads that header and the installed cuda-bindings.
     # TestBuildConfigurationCheck covers it.
     monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda *_: None)
+    monkeypatch.setattr(build_hooks, "_get_cccl_include_dirs", lambda: ["/nonexistent-cccl"])
     monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
     monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", cuda_major)
     build_hooks._determine_cuda_major_version.cache_clear()
     # _build_cuda_core() globs cuda/core/**/*.pyx relative to the cwd.
     monkeypatch.chdir(Path(__file__).parent.parent)
-    # It also prepends cuda_bindings/ to sys.path; swap in a copy so the
+    # It also prepends cuda_bindings_13/ to sys.path; swap in a copy so the
     # mutation lands there and the real list is restored on teardown.
     monkeypatch.setattr(sys, "path", list(sys.path))
 
@@ -449,7 +462,7 @@ def _load_setup_py(monkeypatch):
     guard does not affect real builds.
 
     setup.py does a bare ``import build_hooks``, which resolves to
-    cuda_bindings' copy if that directory is on sys.path. Pin cuda_core's, so
+    cuda_bindings_13' copy if that directory is on sys.path. Pin cuda_core's, so
     the flag the test sets is the one setup.py reads.
     """
     monkeypatch.setitem(sys.modules, "build_hooks", build_hooks)
@@ -866,6 +879,7 @@ class TestDefineMacros:
 
         monkeypatch.setattr(build_hooks, "_get_cuda_path", lambda: "/nonexistent-cuda")
         monkeypatch.setattr(build_hooks, "_check_build_configuration", lambda *_: None)
+        monkeypatch.setattr(build_hooks, "_get_cccl_include_dirs", lambda: ["/nonexistent-cccl"])
         monkeypatch.setattr(build_hooks, "cythonize", fake_cythonize)
         monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
         build_hooks._determine_cuda_major_version.cache_clear()
@@ -894,6 +908,7 @@ from cuda_python_test_helpers.build_shared import (
     BuildKeyStampMixin,
     CheckToolchainAvailableMixin,
     DistutilsLinkerIntegrationMixin,
+    DropEmptyVenvIncludeDirMixin,
     ForceBuildExtReexportMixin,
     ResolveToolchainMixin,
     WithCompilerMixin,
@@ -927,6 +942,10 @@ class TestAbiStampPath(AbiStampPathMixin):
 
 
 class TestBuildKeyStamp(BuildKeyStampMixin):
+    build_shared = _build_shared
+
+
+class TestDropEmptyVenvIncludeDir(DropEmptyVenvIncludeDirMixin):
     build_shared = _build_shared
 
 
@@ -1053,7 +1072,7 @@ class TestCythonCacheSmokeTest:
 
     The actual cythonize exercise lives in
     ``cuda_python_test_helpers.cython_cache`` so it is shared with
-    ``cuda_bindings/tests/test_build_hooks.py``.
+    ``cuda_bindings_13/tests/test_build_hooks.py``.
     """
 
     @POSIX_ONLY_CACHE

@@ -8,7 +8,7 @@ guide for package-specific conventions and workflows.
 ## Package map
 
 - `cuda_pathfinder/`: Pure-Python library discovery and loading utilities.
-- `cuda_bindings/`: Low-level CUDA host API bindings (Cython-heavy).
+- `cuda_bindings_13/`: Low-level CUDA host API bindings (Cython-heavy).
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
 
@@ -43,6 +43,14 @@ Use the package's established tag namespace, such as `vX.Y.Z...` for
 pre-tag bootstrap should validate the resulting release tuple rather than
 hard-code the expected alpha/development suffix, and should report the
 effective `git describe` result for traceability.
+
+# Contributions
+
+Before starting implementation or preparing an issue or PR, follow the
+[contribution guidelines](CONTRIBUTING.md#coordinate-before-implementing).
+
+For an external contribution, briefly explain any unmet coordination requirement
+for that change and the next step before starting implementation.
 
 # Pull requests
 

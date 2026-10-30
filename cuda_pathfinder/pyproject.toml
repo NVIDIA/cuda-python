@@ -6,11 +6,17 @@ name = "cuda-pathfinder"
 description = "Pathfinder for CUDA components"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
 license = "Apache-2.0"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dynamic = ["version", "readme"]
 dependencies = []
 
 [dependency-groups]
+# Keep build in sync with build-system.requires.
+build = [
+    "setuptools>=80.0.0",
+    "setuptools_scm[simple]>=8,!=10.1",
+    "wheel",
+]
 test = [
     "pytest==9.1.0",
     "pytest-mock==3.15.1",
@@ -54,8 +60,7 @@ cu13 = [
     "nvidia-nvshmem-cu13<3.7; sys_platform != 'win32'",
 ]
 host = [
-    # TODO: remove the Python 3.15 guard once 3.15 is officially supported
-    "nvidia-cutlass; python_version < '3.15'",
+    "nvidia-cutlass",
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
@@ -94,6 +99,7 @@ packages = { find = { include = ["cuda*"] } }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [build-system]
+# Keep requires in sync with dependency-groups.build.
 requires = [
     "setuptools>=80.0.0",
     "setuptools_scm[simple]>=8,!=10.1",
@@ -121,7 +127,7 @@ markers = [
 # Try to keep the mypy configuration similar between the subprojects
 
 # Basic settings
-python_version = "3.10"
+python_version = "3.11"
 explicit_package_bases = true
 warn_return_any = true
 warn_unused_configs = true

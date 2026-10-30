@@ -71,6 +71,8 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Fix workspace ownership
         run: |
@@ -100,12 +102,10 @@ jobs:
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+          venv: .venv
 
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
@@ -114,13 +114,6 @@ jobs:
         with:
           host-platform: ${{ env.HOST_PLATFORM }}
           cuda-version: ${{ env.CUDA_VER }}
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
-      - name: Install pip with build-constraint support
-        run: .venv/bin/python -m pip install "pip>=25.3"
 
       - name: Build and install cuda-pathfinder wheel
         run: |
@@ -140,8 +133,8 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          .venv/bin/pip wheel -v --no-deps ./cuda_bindings -w ./wheels/
-          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings/pyproject.toml:test
+          .venv/bin/pip wheel -v --no-deps ./cuda_bindings_13 -w ./wheels/
+          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings_13/pyproject.toml:test
 
       - name: Constrain cuda-core to the local cuda-bindings wheel
         run: |
@@ -186,7 +179,7 @@ jobs:
         continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings_13/tests
 
       - name: Run cuda.core tests
         continue-on-error: true
@@ -201,7 +194,7 @@ jobs:
           ls -lh $REPO_ROOT/.coverage.linux
 
       - name: Upload Linux coverage data
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: coverage-data-linux
           path: .coverage.linux
@@ -210,7 +203,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload cuda source code for coverage mapping
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: cuda-source-linux
           path: ${{ env.INSTALL_ROOT }}/cuda/
@@ -232,6 +225,9 @@ jobs:
       CUDA_PYTHON_COVERAGE: "1"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
+      - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
+        uses: $/.github/actions/upgrade-ca-certificates
+
       - name: Enable Git symlinks (Windows, must precede checkout)
         run: git config --global core.symlinks true
 
@@ -242,11 +238,14 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
+          venv: .venv
 
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
@@ -258,13 +257,9 @@ jobs:
           host-platform: win-64
           cuda-version: ${{ env.CUDA_VER }}
 
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
       - name: Build cuda.pathfinder wheel
         run: |
-          .venv/Scripts/python -m pip install "pip>=25.3" wheel setuptools Cython
+          .venv/Scripts/python -m pip install wheel setuptools Cython
           .venv/Scripts/pip wheel -v --no-deps ./cuda_pathfinder -w ./wheels/
 
       - name: Constrain builds to the local cuda.pathfinder wheel
@@ -280,7 +275,7 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          cd cuda_bindings
+          cd cuda_bindings_13
           ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
@@ -327,7 +322,7 @@ jobs:
           ls -lahR ./wheels/
 
       - name: Upload Windows wheel artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: coverage-windows-wheels
           path: ./wheels/*.whl
@@ -378,9 +373,10 @@ jobs:
           nvidia-smi
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
+          venv: .venv
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -390,7 +386,7 @@ jobs:
           cuda-version: ${{ env.CUDA_VER }}
 
       - name: Download Windows wheel artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: coverage-windows-wheels
           path: ./wheels/
@@ -399,10 +395,6 @@ jobs:
         run: |
           echo "=== Downloaded wheel artifacts ==="
           ls -lahR ./wheels/
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
 
       - name: Install wheels from build job
         run: |
@@ -419,7 +411,7 @@ jobs:
         run: |
           .venv/Scripts/pip install coverage pytest-cov Cython
           .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
-          .venv/Scripts/pip install --group ./cuda_bindings/pyproject.toml:test
+          .venv/Scripts/pip install --group ./cuda_bindings_13/pyproject.toml:test
           .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root
@@ -444,7 +436,7 @@ jobs:
             --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/cuda_bindings/tests"
+            "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
 
       - name: Run cuda.core tests (with 8MB stack)
         continue-on-error: true
@@ -462,7 +454,7 @@ jobs:
           ls -lh "$GITHUB_WORKSPACE/.coverage.windows"
 
       - name: Upload Windows coverage data
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: coverage-data-windows
           path: .coverage.windows
@@ -483,7 +475,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
 
@@ -493,19 +485,19 @@ jobs:
           pip install coverage[toml] Cython
 
       - name: Download Linux coverage data
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: coverage-data-linux
           path: ./
 
       - name: Download cuda source code
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: cuda-source-linux
           path: ./cuda/
 
       - name: Download Windows coverage data
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: coverage-data-windows
           path: ./
@@ -565,7 +557,7 @@ jobs:
           echo "[SUCCESS] Coverage reports generated successfully"
 
       - name: Archive combined coverage results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: coverage-combined
           path: docs/coverage/
@@ -591,7 +583,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Download combined coverage results
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: coverage-combined
           path: docs/coverage/

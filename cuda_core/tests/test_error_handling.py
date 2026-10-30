@@ -14,7 +14,6 @@ test here restores the context stack itself.
 """
 
 import ctypes
-import sys
 import warnings
 from contextlib import contextmanager
 
@@ -42,9 +41,6 @@ from cuda.core.graph import GraphDefinition
 INVALID_CONTEXT = int(driver.CUresult.CUDA_ERROR_INVALID_CONTEXT)
 INVALID_VALUE = int(driver.CUresult.CUDA_ERROR_INVALID_VALUE)
 DEINITIALIZED = int(driver.CUresult.CUDA_ERROR_DEINITIALIZED)
-
-# PEP 678 exception notes; on 3.10 the same information lands in the message.
-HAS_NOTES = sys.version_info >= (3, 11)
 
 thread_unsafe_context_fault = pytest.mark.thread_unsafe(
     reason="injects a thread-local restoration fault and mutates the CUDA context stack"
@@ -101,10 +97,9 @@ def test_create_stream_raises_when_context_cannot_be_restored(init_cuda):
         assert "could not be restored" in text
         assert "CUDA_ERROR_INVALID_CONTEXT" in text
         assert "Device.set_current()" in text
-        if HAS_NOTES:
-            # The explanation is a note, separable from the driver error message.
-            assert "could not be restored" not in str(excinfo.value)
-            assert any("could not be restored" in note for note in excinfo.value.__notes__)
+        # The explanation is a note, separable from the driver error message.
+        assert "could not be restored" not in str(excinfo.value)
+        assert any("could not be restored" in note for note in excinfo.value.__notes__)
         # As documented, a failed restoration leaves the device's context current.
         assert current_context_handle() == int(dev.context.handle)
     assert current_context_handle() == int(dev.context.handle)
@@ -230,6 +225,12 @@ def test_escalated_cudawarning_from_cleanup_is_not_a_crash(mempool_device):
     assert len(unraisable) == 1
     assert issubclass(unraisable[0].exc_type, CUDAWarning)
     assert "restoring the caller's context" in str(unraisable[0].exc_value)
+    # The unraisable hook args hold exc_traceback whose frame holds ``mr``
+    # (never closed). Clear the list and drop the locals so gc can reclaim mr;
+    # close the pool too.
+    unraisable.clear()
+    mr.close()
+    del mr, buf
 
 
 @thread_unsafe_context_fault
@@ -297,28 +298,20 @@ def test_memset_update_keeps_new_owners_alive_when_context_cannot_be_restored(de
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_rollback_failure_is_attached_to_the_propagating_exception():
     """A failed rollback inside an except block becomes a note on the exception being
-    handled (Python 3.11+); on 3.10, or with no exception being handled, it is reported
-    as a CUDAWarning. CUDA_ERROR_DEINITIALIZED is neither attached nor reported."""
+    handled; with no exception being handled, it is reported as a CUDAWarning. CUDA_ERROR_DEINITIALIZED is neither attached nor reported."""
     with pytest.raises(RuntimeError) as excinfo:
         try:
             raise RuntimeError("primary failure")
         except RuntimeError:
-            if HAS_NOTES:
-                with assert_no_cuda_warning():
-                    _attach_rollback_failure_for_testing(INVALID_VALUE)
-            else:
-                with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
-                    _attach_rollback_failure_for_testing(INVALID_VALUE)
+            with assert_no_cuda_warning():
+                _attach_rollback_failure_for_testing(INVALID_VALUE)
             with assert_no_cuda_warning():
                 _attach_rollback_failure_for_testing(DEINITIALIZED)
             raise
     exc = excinfo.value
     assert str(exc) == "primary failure"
-    if HAS_NOTES:
-        assert len(exc.__notes__) == 1
-        assert "cuTestOperation failed while testing: CUDA_ERROR_INVALID_VALUE" in exc.__notes__[0]
-    else:
-        assert not hasattr(exc, "__notes__")
+    assert len(exc.__notes__) == 1
+    assert "cuTestOperation failed while testing: CUDA_ERROR_INVALID_VALUE" in exc.__notes__[0]
     # With no exception being handled there is nothing to attach to.
     with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
         _attach_rollback_failure_for_testing(INVALID_VALUE)

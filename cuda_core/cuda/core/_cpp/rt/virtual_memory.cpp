@@ -12,6 +12,7 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <utility>
@@ -28,28 +29,59 @@ using namespace detail;
 namespace {
 
 struct MemAllocationBox {
-    MemAllocationValue resource;          // from cuMemCreate
+    MemAllocationValue resource;          // from cuMemCreate or cuMemImportFromShareableHandle
     size_t size;                          // the only size cuMemMap accepts for it
     std::vector<CUmemAccessDesc> access;  // applied to every mapping of this allocation
+    bool imported;                        // another process created it; it cannot be exported again
 };
 
 struct VaReservationBox {
-    VaReservationValue resource;          // base address from cuMemAddressReserve
-    size_t size;                          // exact reserved size; cuMemAddressFree needs both
+    VaReservationValue resource;  // base address from cuMemAddressReserve
+    size_t size;                  // exact reserved size; cuMemAddressFree needs both
 };
 
+// Process-wide count of live VA reservations created here with
+// cuMemAddressReserve. Memory-pool VA windows (issue #2381) are not included:
+// owned pools are tracked by the owned-pool count, and the device default pool
+// (cuDeviceGetMemPool) is a borrowed reference that neither count tracks.
+// Read by the test suite to gate the per-test gc.collect(). Atomic for
+// free-threaded builds.
+std::atomic<long long> g_live_va_reservations{0};
+
 struct VaMappingBox {
-    VaMappingValue resource;              // mapped address
-    size_t size;                          // == the allocation's size
-    MemAllocationHandle h_alloc;          // released after the unmap
-    VaReservationHandle h_reservation;    // freed after the unmap
+    VaMappingValue resource;            // mapped address
+    size_t size;                        // == the allocation's size
+    MemAllocationHandle h_alloc;        // released after the unmap
+    VaReservationHandle h_reservation;  // freed after the unmap
 };
 
 // Recover a box from the aliased handle; the resource is the first member.
 template <typename Box, typename Handle>
-const Box* box_of(const Handle& h) noexcept {
-    return reinterpret_cast<const Box*>(
-        reinterpret_cast<const char*>(h.get()) - offsetof(Box, resource));
+const Box *
+box_of(const Handle &h) noexcept
+{
+    return reinterpret_cast<const Box *>(reinterpret_cast<const char *>(h.get()) - offsetof(Box, resource));
+}
+
+// Wrap an allocation handle this process holds one reference to, whether
+// cuMemCreate or cuMemImportFromShareableHandle produced it. The last
+// reference releases it; the memory is freed once no mapping remains.
+MemAllocationHandle
+wrap_mem_allocation(
+    CUmemGenericAllocationHandle handle, size_t size, std::vector<CUmemAccessDesc> &&access, bool imported
+)
+{
+    // clang-format off
+    auto box = std::shared_ptr<const MemAllocationBox>(
+        new MemAllocationBox{{handle}, size, std::move(access), imported},
+        [](const MemAllocationBox *b) {
+            GILReleaseGuard gil;
+            pw_cuMemRelease(b->resource.raw);
+            delete b;
+        }
+    );
+    // clang-format on
+    return MemAllocationHandle(box, &box->resource);
 }
 
 }  // namespace
@@ -58,8 +90,9 @@ const Box* box_of(const Handle& h) noexcept {
 // Physical allocations
 // ============================================================================
 
-MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocationProp& prop,
-                                                 const CUmemAccessDesc* descs, size_t count) {
+MemAllocationHandle
+create_mem_allocation_handle(size_t size, const CUmemAllocationProp &prop, const CUmemAccessDesc *descs, size_t count)
+{
     // Copy the descriptors before the driver call so a failed copy leaves
     // nothing to undo.
     std::vector<CUmemAccessDesc> access(descs, descs + count);
@@ -68,43 +101,77 @@ MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocat
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemCreate, &handle, size, &prop, 0))) {
         return {};
     }
-    auto box = std::shared_ptr<const MemAllocationBox>(
-        new MemAllocationBox{{handle}, size, std::move(access)},
-        [](const MemAllocationBox* b) {
-            GILReleaseGuard gil;
-            pw_cuMemRelease(b->resource.raw);
-            delete b;
-        }
-    );
-    return MemAllocationHandle(box, &box->resource);
+    return wrap_mem_allocation(handle, size, std::move(access), false);
 }
 
-size_t mem_allocation_size(const MemAllocationHandle& h) noexcept {
+MemAllocationHandle
+import_mem_allocation_handle(
+    void *os_handle, CUmemAllocationHandleType handle_type, size_t size, const CUmemAccessDesc *descs, size_t count
+)
+{
+    // Copy the descriptors before the driver call so a failed copy leaves
+    // nothing to undo.
+    std::vector<CUmemAccessDesc> access(descs, descs + count);
+    GILReleaseGuard gil;
+    CUmemGenericAllocationHandle handle = 0;
+    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemImportFromShareableHandle, &handle, os_handle, handle_type))) {
+        return {};
+    }
+    return wrap_mem_allocation(handle, size, std::move(access), true);
+}
+
+size_t
+mem_allocation_size(const MemAllocationHandle &h) noexcept
+{
     return h ? box_of<MemAllocationBox>(h)->size : 0;
+}
+
+bool
+mem_allocation_is_imported(const MemAllocationHandle &h) noexcept
+{
+    return h ? box_of<MemAllocationBox>(h)->imported : false;
 }
 
 // ============================================================================
 // Address reservations
 // ============================================================================
 
-VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, CUdeviceptr hint) {
+VaReservationHandle
+create_va_reservation_handle(size_t size, size_t alignment, CUdeviceptr hint)
+{
     GILReleaseGuard gil;
     CUdeviceptr ptr = 0;
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemAddressReserve, &ptr, size, alignment, hint, 0))) {
         return {};
     }
+    auto *raw = new VaReservationBox{{ptr}, size};
+    // Count before constructing the shared_ptr: if its control-block allocation
+    // throws, it runs the deleter on raw, whose decrement then balances this.
+    g_live_va_reservations.fetch_add(1, std::memory_order_relaxed);
+    // clang-format off
     auto box = std::shared_ptr<const VaReservationBox>(
-        new VaReservationBox{{ptr}, size},
-        [](const VaReservationBox* b) {
+        raw,
+        [](const VaReservationBox *b) {
             GILReleaseGuard gil;
             pw_cuMemAddressFree(b->resource.raw, b->size);
+            g_live_va_reservations.fetch_sub(1, std::memory_order_relaxed);
             delete b;
         }
     );
+    // clang-format on
     return VaReservationHandle(box, &box->resource);
 }
 
-size_t va_reservation_size(const VaReservationHandle& h) noexcept {
+// Test-suite instrumentation; see g_live_va_reservations.
+long long
+live_va_reservation_count() noexcept
+{
+    return g_live_va_reservations.load(std::memory_order_relaxed);
+}
+
+size_t
+va_reservation_size(const VaReservationHandle &h) noexcept
+{
     return h ? box_of<VaReservationBox>(h)->size : 0;
 }
 
@@ -112,14 +179,15 @@ size_t va_reservation_size(const VaReservationHandle& h) noexcept {
 // Mappings
 // ============================================================================
 
-VaMappingHandle create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
-                                         const VaReservationHandle& h_res) {
+VaMappingHandle
+create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHandle &h_alloc, const VaReservationHandle &h_res)
+{
     if (!h_alloc || !h_res) {
         err = CUDA_ERROR_INVALID_VALUE;
         return {};
     }
-    const MemAllocationBox* alloc = box_of<MemAllocationBox>(h_alloc);
-    const VaReservationBox* res = box_of<VaReservationBox>(h_res);
+    const MemAllocationBox *alloc = box_of<MemAllocationBox>(h_alloc);
+    const VaReservationBox *res = box_of<VaReservationBox>(h_res);
     const CUdeviceptr base = res->resource.raw;
     if (ptr < base || ptr - base > res->size || alloc->size > res->size - (ptr - base)) {
         err = CUDA_ERROR_INVALID_VALUE;
@@ -133,29 +201,36 @@ VaMappingHandle create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHan
     // cuMemSetAccess rejects an empty descriptor list; a mapping with no
     // descriptors is mapped but not accessible, which is what the caller asked for.
     if (!alloc->access.empty()) {
-        const CUresult status = DRIVER_CALL(cuMemSetAccess, ptr, alloc->size, alloc->access.data(), alloc->access.size());
+        const CUresult status =
+            DRIVER_CALL(cuMemSetAccess, ptr, alloc->size, alloc->access.data(), alloc->access.size());
         if (status != CUDA_SUCCESS) {
             pw_cuMemUnmap(ptr, alloc->size);
             err = status;
             return {};
         }
     }
+    // clang-format off
     auto box = std::shared_ptr<const VaMappingBox>(
         new VaMappingBox{{ptr}, alloc->size, h_alloc, h_res},
-        [](const VaMappingBox* b) {
+        [](const VaMappingBox *b) {
             GILReleaseGuard gil;
             pw_cuMemUnmap(b->resource.raw, b->size);
             delete b;  // then the allocation and the reservation release
         }
     );
+    // clang-format on
     return VaMappingHandle(box, &box->resource);
 }
 
-size_t va_mapping_size(const VaMappingHandle& h) noexcept {
+size_t
+va_mapping_size(const VaMappingHandle &h) noexcept
+{
     return h ? box_of<VaMappingBox>(h)->size : 0;
 }
 
-MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept {
+MemAllocationHandle
+va_mapping_allocation(const VaMappingHandle &h) noexcept
+{
     return h ? box_of<VaMappingBox>(h)->h_alloc : MemAllocationHandle{};
 }
 
@@ -169,7 +244,9 @@ MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept {
 // CUDA_ERROR_STREAM_CAPTURE_IMPLICIT). cuStreamSynchronize would invalidate
 // such a capture; cuStreamIsCapturing does not. It is the query
 // cuStreamGetCaptureInfo makes first, with one signature on every CUDA major.
-static bool sync_would_disturb_capture(CUstream stream) noexcept {
+static bool
+sync_would_disturb_capture(CUstream stream) noexcept
+{
     CUstreamCaptureStatus status = CU_STREAM_CAPTURE_STATUS_NONE;
     const CUresult result = DRIVER_CALL(cuStreamIsCapturing, stream, &status);
     if (result == CUDA_ERROR_STREAM_CAPTURE_IMPLICIT) {
@@ -190,19 +267,24 @@ static bool sync_would_disturb_capture(CUstream stream) noexcept {
 // every global-mode capture in the process, and any non-relaxed capture this
 // thread began, on streams unrelated to `s`. Relaxed mode disables that
 // interaction; the stream's own capture state is still checked above.
-static void sync_recorded_stream(const DeallocationStream& ds, bool& capture_skipped) noexcept {
+static void
+sync_recorded_stream(const DeallocationStream &ds, bool &capture_skipped) noexcept
+{
     const CUstream s = as_cu(ds.h_stream);
     CUcontext previous = nullptr;
     int changed = 0;
-    const char* detail = nullptr;
+    const char *detail = nullptr;
     CUresult status = enter_context(deallocation_context(ds), &previous, &changed);
     if (status != CUDA_SUCCESS) {
         detail = "skipped (context activation failed); the range was unmapped without synchronizing it";
-    } else if (sync_would_disturb_capture(s)) {
+    }
+    else if (sync_would_disturb_capture(s)) {
         capture_skipped = true;
-    } else {
+    }
+    else {
         CUstreamCaptureMode mode = CU_STREAM_CAPTURE_MODE_RELAXED;
-        const CUresult swapped = DRIVER_CALL(cuThreadExchangeStreamCaptureMode, &mode);  // `mode` now holds the previous mode
+        const CUresult swapped =
+            DRIVER_CALL(cuThreadExchangeStreamCaptureMode, &mode);  // `mode` now holds the previous mode
         status = DRIVER_CALL(cuStreamSynchronize, s);
         if (swapped == CUDA_SUCCESS) {
             DRIVER_CALL(cuThreadExchangeStreamCaptureMode, &mode);  // restore the previous mode
@@ -227,7 +309,9 @@ static void sync_recorded_stream(const DeallocationStream& ds, bool& capture_ski
 }
 
 namespace detail {
-void vmm_sync_before_release(const DeallocationStream& stream) noexcept {
+void
+vmm_sync_before_release(const DeallocationStream &stream) noexcept
+{
     // Order the release on this buffer's stream, as the other DevicePtrBox
     // deleters do, unless the interpreter is finalizing or the sync would
     // disturb a capture. A host-located buffer recorded no stream.
@@ -240,23 +324,30 @@ void vmm_sync_before_release(const DeallocationStream& stream) noexcept {
         report_message(
             "a VirtualMemoryResource buffer was released while its deallocation stream "
             "is capturing, or is the legacy stream while another stream in its context is "
-            "capturing; the buffer was unmapped without synchronizing that stream");
+            "capturing; the buffer was unmapped without synchronizing that stream"
+        );
     }
 }
 }  // namespace detail
 
-VmmRangeHandle create_vmm_range(const std::vector<VaMappingHandle>& mappings) {
+VmmRangeHandle
+create_vmm_range(const std::vector<VaMappingHandle> &mappings)
+{
     return std::make_shared<const VmmRange>(mappings);
 }
 
-std::vector<VaMappingHandle> vmm_range_mappings(const VmmRangeHandle& range) {
+std::vector<VaMappingHandle>
+vmm_range_mappings(const VmmRangeHandle &range)
+{
     return range ? *range : VmmRange{};
 }
 
-size_t vmm_range_total(const VmmRangeHandle& range) noexcept {
+size_t
+vmm_range_total(const VmmRangeHandle &range) noexcept
+{
     size_t total = 0;
     if (range) {
-        for (const VaMappingHandle& m : *range) {
+        for (const VaMappingHandle &m : *range) {
             total += va_mapping_size(m);
         }
     }

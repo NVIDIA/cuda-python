@@ -291,7 +291,7 @@ cdef class StridedMemoryView:
     @classmethod
     def from_buffer(
         cls,
-        buffer : Buffer,
+        cyBuffer buffer not None : Buffer,
         shape : tuple[int, ...],
         strides : tuple[int, ...] | None = None,
         *,
@@ -418,8 +418,8 @@ cdef class StridedMemoryView:
 
     def copy_from(
         self,
-        other: StridedMemoryView,
-        stream: Stream,
+        StridedMemoryView other not None: StridedMemoryView,
+        stream: Stream | None,
         allocator: object = None,
         blocking: bool | None = None,
     ) -> None:
@@ -454,7 +454,7 @@ cdef class StridedMemoryView:
 
     def copy_to(
         self,
-        other: StridedMemoryView,
+        StridedMemoryView other not None: StridedMemoryView,
         stream: Stream | None = None,
         allocator: object = None,
         blocking: bool | None = None,
@@ -1034,6 +1034,10 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id
     cdef bint is_device_accessible, is_readonly = False
     is_device_accessible = False
+    # Callers may pass an int-convertible stream wrapper (e.g. numba-cuda's
+    # CUstream). Normalize it so the -1 and truthiness checks below see an int.
+    if stream_ptr is not None:
+        stream_ptr = int(stream_ptr)
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
         assert device_id == 0
