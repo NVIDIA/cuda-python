@@ -1,0 +1,308 @@
+#!/usr/bin/env python3
+#
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""Resolve mini-CTK components from NVIDIA redistrib metadata."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+from typing import Any
+
+HOST_PLATFORM_TO_SUBDIR: dict[str, str] = {
+    "linux-64": "linux-x86_64",
+    "linux-aarch64": "linux-sbsa",
+    "win-64": "windows-x86_64",
+    "win-arm64": "windows-arm64",
+}
+
+# CTK 13.3.0 renamed the redistrib key from cuda_cccl to cccl.
+COMPONENT_ALIASES: dict[str, tuple[str, ...]] = {
+    "cuda_cccl": ("cccl",),
+}
+
+# Known-good sha256 of the redistrib metadata JSON, keyed by CUDA version.
+# Per-archive verification is only trustworthy if the JSON that carries the
+# archive hashes is itself trusted, so we pin the metadata too. A version that
+# is absent here is not blocked -- failing closed would break CI on every new
+# CTK -- but `verify-metadata` emits a warning; add the version's hash below as
+# it enters the matrix to pin it. Regenerate with:
+#   curl -fsSL \
+#     https://developer.download.nvidia.com/compute/cuda/redist/redistrib_<ver>.json \
+#     | sha256sum
+KNOWN_REDISTRIB_SHA256: dict[str, str] = {
+    "11.8.0": "941a950a4ab3b95311c50df7b3c8bca973e0cdda76fc2f4b456d2d5e4dac0281",
+    "12.0.1": "14edfe941958212d184fac97890ddd2e5eb05383ff3601e27f37a8514a215fef",
+    "12.6.3": "9c598598457a6463eb92889080c16b2b9dc04150e501b8bfc1536d403ba70aaf",
+    "12.9.1": "8335301010b0023ee1ff61eb11e2600ca62002d76780de4089011ad77e0c7630",
+    "13.0.1": "9c494bc13b34e8fbcad083a6486d185b0906068b821722502edf9d0e3bd14096",
+    "13.0.2": "fce66717a81c510ffeb89ecc3e79849ab34af3b80139f750876d9033e31d71c2",
+    "13.4.2": "015b97aa3977d4d0bade1631b226b6d4cbe48751cc841aad9193295df7f9047a",
+}
+
+
+def host_platform_to_subdir(host_platform: str) -> str:
+    try:
+        return HOST_PLATFORM_TO_SUBDIR[host_platform]
+    except KeyError as exc:
+        raise ValueError(f"unsupported host-platform: {host_platform!r}") from exc
+
+
+def split_components(components: str) -> list[str]:
+    return [component for component in components.split(",") if component]
+
+
+def filter_static_components(
+    components: list[str], host_platform: str, cuda_version: str
+) -> list[str]:
+    try:
+        cuda_major = int(cuda_version.split(".", 1)[0])
+    except ValueError as exc:
+        raise ValueError(f"invalid cuda-version: {cuda_version!r}") from exc
+
+    filtered = []
+    for component in components:
+        if component == "libnvjitlink" and cuda_major < 12:
+            continue
+        if component in {"cuda_crt", "libnvvm"} and cuda_major < 13:
+            continue
+        if component == "libcufile" and host_platform.startswith("win-"):
+            continue
+        filtered.append(component)
+    return filtered
+
+
+def validate_metadata_url(metadata_url: str) -> str:
+    parsed = urllib.parse.urlsplit(metadata_url)
+    if parsed.scheme != "https" or not parsed.netloc:
+        raise ValueError(f"metadata URL must be an https URL: {metadata_url!r}")
+    return metadata_url
+
+
+def load_metadata(
+    *, metadata_path: str | None, metadata_url: str | None
+) -> dict[str, Any]:
+    if (metadata_path is None) == (metadata_url is None):
+        raise ValueError("exactly one of --metadata-path or --metadata-url is required")
+
+    if metadata_path is not None:
+        return json.loads(Path(metadata_path).read_text(encoding="utf-8"))
+
+    assert metadata_url is not None
+    metadata_url = validate_metadata_url(metadata_url)
+    with urllib.request.urlopen(metadata_url) as response:  # noqa: S310  # nosec B310 - scheme is restricted to https above
+        return json.load(response)
+
+
+def resolve_component_name(metadata: dict[str, Any], component: str) -> str:
+    if component in metadata:
+        return component
+
+    for alias in COMPONENT_ALIASES.get(component, ()):
+        if alias in metadata:
+            return alias
+
+    return component
+
+
+def filter_components(
+    metadata: dict[str, Any],
+    *,
+    host_platform: str,
+    cuda_version: str,
+    components: str,
+) -> tuple[list[str], list[str]]:
+    ctk_subdir = host_platform_to_subdir(host_platform)
+    filtered = []
+    skipped = []
+    for component in filter_static_components(
+        split_components(components), host_platform, cuda_version
+    ):
+        resolved_component = resolve_component_name(metadata, component)
+        if ctk_subdir in metadata.get(resolved_component, {}):
+            filtered.append(resolved_component)
+        else:
+            skipped.append(component)
+    return filtered, skipped
+
+
+def get_component_subdir_info(
+    metadata: dict[str, Any], *, host_platform: str, component: str
+) -> tuple[str, dict[str, Any]]:
+    ctk_subdir = host_platform_to_subdir(host_platform)
+    component = resolve_component_name(metadata, component)
+    component_info = metadata.get(component)
+    if component_info is None:
+        raise KeyError(f"unknown CTK component {component!r}")
+
+    subdir_info = component_info.get(ctk_subdir)
+    if subdir_info is None:
+        raise KeyError(
+            f"CTK component {component!r} is not available for redistrib subdir {ctk_subdir!r}"
+        )
+    return ctk_subdir, subdir_info
+
+
+def get_component_relative_path(
+    metadata: dict[str, Any], *, host_platform: str, component: str
+) -> str:
+    ctk_subdir, subdir_info = get_component_subdir_info(
+        metadata, host_platform=host_platform, component=component
+    )
+    relative_path = subdir_info.get("relative_path")
+    if relative_path is None:
+        raise KeyError(
+            f"CTK component {component!r} for redistrib subdir {ctk_subdir!r} is missing 'relative_path'"
+        )
+    return relative_path
+
+
+def get_component_sha256(
+    metadata: dict[str, Any], *, host_platform: str, component: str
+) -> str:
+    ctk_subdir, subdir_info = get_component_subdir_info(
+        metadata, host_platform=host_platform, component=component
+    )
+    sha256 = subdir_info.get("sha256")
+    if not sha256:
+        raise KeyError(
+            f"CTK component {component!r} for redistrib subdir {ctk_subdir!r} is missing 'sha256'"
+        )
+    return sha256
+
+
+def compute_file_sha256(path: str) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def verify_metadata_sha256(*, cuda_version: str, metadata_path: str) -> int:
+    """Verify the redistrib JSON against the pinned hash for its CUDA version.
+
+    Returns a process exit code: 1 on a mismatch (fail closed), 0 when the hash
+    matches or when the version is not pinned yet (warn only).
+    """
+    actual = compute_file_sha256(metadata_path)
+    expected = KNOWN_REDISTRIB_SHA256.get(cuda_version)
+    if expected is None:
+        print(
+            f"WARNING: no pinned redistrib sha256 for CUDA {cuda_version!r}; got {actual}. "
+            f"Add it to KNOWN_REDISTRIB_SHA256 in {Path(__file__).name} to pin it.",
+            file=sys.stderr,
+        )
+        return 0
+    if actual != expected:
+        print(
+            f"ERROR: redistrib metadata sha256 mismatch for CUDA {cuda_version!r}: expected {expected}, got {actual}",
+            file=sys.stderr,
+        )
+        return 1
+    print(f"OK: redistrib metadata sha256 verified for CUDA {cuda_version}")
+    return 0
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    filter_parser = subparsers.add_parser("filter-components")
+    filter_parser.add_argument("--host-platform", required=True)
+    filter_parser.add_argument("--cuda-version", required=True)
+    filter_parser.add_argument("--components", required=True)
+    filter_parser.add_argument("--metadata-path")
+    filter_parser.add_argument("--metadata-url")
+
+    relpath_parser = subparsers.add_parser("component-relative-path")
+    relpath_parser.add_argument("--host-platform", required=True)
+    relpath_parser.add_argument("--component", required=True)
+    relpath_parser.add_argument("--metadata-path")
+    relpath_parser.add_argument("--metadata-url")
+
+    sha_parser = subparsers.add_parser("component-sha256")
+    sha_parser.add_argument("--host-platform", required=True)
+    sha_parser.add_argument("--component", required=True)
+    sha_parser.add_argument("--metadata-path")
+    sha_parser.add_argument("--metadata-url")
+
+    verify_parser = subparsers.add_parser("verify-metadata")
+    verify_parser.add_argument("--cuda-version", required=True)
+    verify_parser.add_argument("--metadata-path", required=True)
+
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+
+    try:
+        # verify-metadata hashes the file directly; it does not parse the JSON.
+        if args.command == "verify-metadata":
+            return verify_metadata_sha256(
+                cuda_version=args.cuda_version, metadata_path=args.metadata_path
+            )
+
+        metadata = load_metadata(
+            metadata_path=args.metadata_path, metadata_url=args.metadata_url
+        )
+
+        if args.command == "filter-components":
+            filtered, skipped = filter_components(
+                metadata,
+                host_platform=args.host_platform,
+                cuda_version=args.cuda_version,
+                components=args.components,
+            )
+            for component in skipped:
+                print(
+                    f"Skipping unsupported CTK component {component!r} for host-platform {args.host_platform!r}",
+                    file=sys.stderr,
+                )
+            print(",".join(filtered))
+            return 0
+
+        if args.command == "component-relative-path":
+            print(
+                get_component_relative_path(
+                    metadata,
+                    host_platform=args.host_platform,
+                    component=args.component,
+                )
+            )
+            return 0
+
+        if args.command == "component-sha256":
+            print(
+                get_component_sha256(
+                    metadata,
+                    host_platform=args.host_platform,
+                    component=args.component,
+                )
+            )
+            return 0
+
+        raise AssertionError(f"unexpected command: {args.command!r}")
+    except (
+        ValueError,
+        KeyError,
+        OSError,
+        urllib.error.URLError,
+        json.JSONDecodeError,
+    ) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
