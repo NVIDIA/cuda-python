@@ -142,7 +142,7 @@ def _event_wait_case(device):
     graph_def = GraphDefinition()
     node = graph_def.wait(original)
 
-    def is_blocked_by(graph, pending):
+    def assert_blocked_by(graph, pending, expect_blocked):
         producer_started = threading.Event()
         producer_release = threading.Event()
 
@@ -157,29 +157,31 @@ def _event_wait_case(device):
         consumer_stream = device.create_stream()
 
         producer_graph.launch(producer_stream)
-        # A stream-ordered record marks the event pending before it returns,
-        # unlike a record node, which does so only when the driver reaches it.
-        producer_stream.record(pending)
         try:
+            # A stream-ordered record marks the event pending before it returns,
+            # unlike a record node, which does so only when the driver reaches it.
+            producer_stream.record(pending)
             assert producer_started.wait(timeout=5)
             assert pending.is_done is False
             graph.launch(consumer_stream)
             # Probe with an event rather than a host callback: host callbacks
             # on different streams may or may not be serialized.
             probe = consumer_stream.record()
-            time.sleep(0.1)
-            blocked = not probe.is_done
+            if expect_blocked:
+                time.sleep(0.1)
+                assert not probe.is_done
+            else:
+                _wait_until(lambda: probe.is_done)
         finally:
             producer_release.set()
             producer_stream.sync()
             consumer_stream.sync()
         assert probe.is_done
-        return blocked
 
     def assert_exec_uses(graph, expected):
         unexpected = replacement if expected is original else original
-        assert is_blocked_by(graph, expected)
-        assert not is_blocked_by(graph, unexpected)
+        assert_blocked_by(graph, expected, expect_blocked=True)
+        assert_blocked_by(graph, unexpected, expect_blocked=False)
 
     return _DefinitionUpdateCase(
         graph_def=graph_def,
