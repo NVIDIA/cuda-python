@@ -1508,3 +1508,78 @@ def test_use_bundled_headers_nvrtc_version_boundary(monkeypatch, version, suppor
         with pytest.raises(RuntimeError, match=r"use_bundled_headers requires NVRTC >= 13\.3"):
             ProgramOptions(arch="sm_80", use_bundled_headers=True)
     assert calls == [True]
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_nvrtc_debug_close_tolerates_removed_source(init_cuda):
+    """A temp-file cleaner may remove debug source before Program.close()."""
+    code = 'extern "C" __global__ void cleanup_kernel() {}'
+    program = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
+    try:
+        object_code = program.compile("ptx")
+        source_path = object_code.name
+        assert os.path.isfile(source_path)
+        with open(source_path, encoding="utf-8") as source:
+            assert source.read() == code
+        os.unlink(source_path)
+        program.close()
+        program.close()
+        assert not os.path.exists(source_path)
+        assert b"cleanup_kernel" in object_code.code
+    finally:
+        program.close()
+
+
+@nvrtc_pch_available
+@pytest.mark.skipif("NVRTC_DISABLE_PCH" in os.environ, reason="PCH is disabled by NVRTC_DISABLE_PCH")
+@pytest.mark.thread_unsafe(reason="creates PCH files in the shared pytest tmp_path")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_nvrtc_automatic_pch_preserves_compiled_kernel(init_cuda, tmp_path):
+    """Automatic PCH compilation preserves kernel output and reports creation status."""
+    from io import StringIO
+
+    import numpy as np
+
+    from cuda.bindings import driver
+    from cuda.core import LaunchConfig, launch
+
+    if handle_return(nvrtc.nvrtcGetPCHHeapSize()) == 0:
+        pytest.skip("PCH is disabled because the NVRTC PCH heap size is zero")
+
+    declarations = "\n".join(f"struct Type{i} {{ int data[{i % 16 + 1}]; }};" for i in range(2048))
+    (tmp_path / "pch_header.cuh").write_text(
+        declarations + "\n__device__ int pch_answer() { return 37; }\n", encoding="utf-8"
+    )
+    code = '#include "pch_header.cuh"\n#pragma nv_hdrstop\nextern "C" __global__ void answer(int* out) { *out = pch_answer(); }'
+    stream = init_cuda.create_stream()
+    buffer = None
+    actual = np.empty(1, dtype=np.int32)
+    try:
+        buffer = init_cuda.allocate(4, stream=stream)
+        for expected_status in (PCHStatusType.CREATED, PCHStatusType.NOT_ATTEMPTED):
+            program = Program(
+                code,
+                "c++",
+                ProgramOptions(pch=True, pch_dir=str(tmp_path), pch_messages=True, include_path=(str(tmp_path),)),
+            )
+            try:
+                logs = StringIO()
+                module = program.compile("cubin", logs=logs)
+                kernel = module.get_kernel("answer")
+                handle_return(driver.cuMemsetD32Async(buffer.handle, 0, 1, stream.handle))
+                launch(stream, LaunchConfig(grid=1, block=1), kernel, buffer)
+                stream.sync()
+                handle_return(driver.cuMemcpyDtoH(actual.ctypes.data, buffer.handle, actual.nbytes))
+                assert actual[0] == 37
+                if expected_status == PCHStatusType.CREATED and program.pch_status == PCHStatusType.NOT_ATTEMPTED:
+                    pytest.skip("NVRTC did not create an automatic PCH; kernel output was verified")
+                assert program.pch_status == expected_status, logs.getvalue()
+                assert list(tmp_path.glob("*.pch")), logs.getvalue()
+            finally:
+                program.close()
+    finally:
+        if buffer is not None:
+            buffer.close()
+        stream.close()
+        for path in tmp_path.glob("*.pch"):
+            path.unlink()
