@@ -9,28 +9,18 @@ import textwrap
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.memory import (
+    POOL_SIZE,
+    supports_managed_memory,
+    supports_memory_pools,
+    xfail_graph_mempool_oom,
+)
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 import cuda.bindings.driver as cuda
-import cuda.bindings.runtime as cudart
 from cuda.bindings import driver
 from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda_python_test_helpers import driver_version_less_than
-
-# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
-# virtual address space of about twice the device memory, and that reservation
-# can fail on systems with a limited virtual address space.
-POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
-
-
-def supportsManagedMemory():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrManagedMemory, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
 def supportsCudaAPI(name):
@@ -263,7 +253,7 @@ def test_cuda_CUstreamBatchMemOpParams():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_cuda_memPool_attr():
     poolProps = cuda.CUmemPoolProps()
@@ -326,7 +316,7 @@ def test_cuda_memPool_attr():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
     err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
@@ -377,7 +367,7 @@ def test_cuda_pointer_attr():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_pointer_get_attributes_device_ordinal():
     attributes = [
@@ -403,7 +393,7 @@ def test_pointer_allowed_handle_types_preserves_64_bits():
     assert helper.pyObj() == expected
 
 
-@pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
+@pytest.mark.skipif(not supports_managed_memory(), reason="When new attributes were introduced")
 def test_cuda_mem_range_attr(device):
     size = 0x1000
     location_device = cuda.CUmemLocation()
@@ -466,29 +456,11 @@ def test_cuda_mem_range_attr(device):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.fixture
-def xfail_on_graph_mempool_oom():
-    """Return a check that xfails the calling test if the graph memory pool cannot be created.
-
-    The graph memory pool reserves virtual address space of about twice the
-    device memory, and unlike pools from cuMemPoolCreate it cannot be capped.
-    On systems with a limited virtual address space this reservation can fail
-    with CUDA_ERROR_OUT_OF_MEMORY, especially when another uncapped pool
-    already exists in the process.
-    """
-
-    def check(err):
-        if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
-            pytest.xfail("graph memory pool creation failed with CUDA_ERROR_OUT_OF_MEMORY")
-
-    return check
-
-
 @pytest.mark.skipif(
-    driver_version_less_than(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported"
+    driver_version_less_than(11040) or not supports_memory_pools(), reason="Mempool for graphs not supported"
 )
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
-def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
+def test_cuda_graphMem_attr(device):
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -509,7 +481,7 @@ def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
         (destroy_err,) = cuda.cuStreamDestroy(stream)
         assert destroy_err == cuda.CUresult.CUDA_SUCCESS
-        xfail_on_graph_mempool_oom(err)
+        xfail_graph_mempool_oom()
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS

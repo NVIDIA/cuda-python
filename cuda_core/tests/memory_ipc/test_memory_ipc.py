@@ -6,8 +6,9 @@ import multiprocessing as mp
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.memory import is_pool_resource
 
-from cuda.core import Buffer, DeviceMemoryResource, PinnedMemoryResource, VirtualMemoryResource
+from cuda.core import Buffer, DeviceMemoryResource, VirtualMemoryResource
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -19,14 +20,9 @@ NTASKS = 2
 pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
-def _is_pool(mr):
-    """Whether ``mr`` has the pool half of the IPC protocol (allocation handle, registry, is_mapped)."""
-    return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
-
-
 def _share_token(mr):
     """What a child needs to rebuild ``mr``: a pool's allocation handle, or the VMM resource itself."""
-    return mr.allocation_handle if _is_pool(mr) else mr
+    return mr.allocation_handle if is_pool_resource(mr) else mr
 
 
 def _import_token(device, token):
@@ -43,7 +39,7 @@ class TestIpcMempool:
         # Set up the IPC-enabled memory pool and share it.
         device = ipc_device
         mr = ipc_memory_resource
-        if _is_pool(mr):
+        if is_pool_resource(mr):
             assert not mr.is_mapped
         stream = device.default_stream
         pgen = PatternGen(device, NBYTES, stream=stream)
@@ -75,7 +71,7 @@ class TestIpcMempool:
 
     def child_main(self, device, mr, queue):
         device.set_current()
-        if _is_pool(mr):
+        if is_pool_resource(mr):
             assert mr.is_mapped
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
         assert buffer.is_mapped

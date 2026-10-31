@@ -6,11 +6,7 @@ import pytest
 
 import cuda.cuda as cuda
 import cuda.cudart as cudart
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
+from cuda_python_test_helpers.memory import supports_memory_pools
 
 
 def test_interop_stream():
@@ -144,7 +140,7 @@ def test_interop_function():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(not supportsMemoryPool(), reason="Requires mempool operations")
+@pytest.mark.skipif(not supports_memory_pools(), reason="Requires mempool operations")
 def test_interop_memPool():
     (err_dr,) = cuda.cuInit(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
