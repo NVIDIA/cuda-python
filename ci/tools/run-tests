@@ -49,8 +49,21 @@ fi
 # all wheels together in a single pip call further below.
 if [[ "${test_module}" != nightly-* ]]; then
   pushd ./cuda_pathfinder
-  echo "Installing pathfinder wheel"
-  pip install ./*.whl --group test "${TEST_FT_GROUP[@]}"
+  if [[ "${PATHFINDER_SOURCE:-}" == "artifact" ]]; then
+    echo "Installing pathfinder wheel from CI artifacts"
+    pathfinder_wheels=(./*.whl)
+    if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+      echo "Expected exactly one cuda-pathfinder wheel in $(pwd)" >&2
+      exit 1
+    fi
+    pip install "${pathfinder_wheels[0]}" --group test "${TEST_FT_GROUP[@]}"
+  elif [[ "${PATHFINDER_SOURCE:-}" == "published" && "${test_module}" == "bindings" ]]; then
+    echo "Installing published pathfinder for a focused bindings release"
+    pip install cuda-pathfinder --group test "${TEST_FT_GROUP[@]}"
+  else
+    echo "Error: PATHFINDER_SOURCE must be artifact, or published for bindings release tests; got ${PATHFINDER_SOURCE:-<unset>}" >&2
+    exit 1
+  fi
   popd
 fi
 
@@ -68,16 +81,15 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
-  pushd "./${CUDA_BINDINGS_ROOT:-cuda_bindings_13}"
-  if [[ "${LOCAL_CTK}" == 1 ]]; then
-    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test "${TEST_FT_GROUP[@]}"
-  else
+  pushd "./${CUDA_BINDINGS_ROOT}"
+  bindings_requirements=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+  bindings_toolkit_requirement=()
+  if [[ "${LOCAL_CTK}" != 1 ]]; then
     TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
-    # Keep the wheel-installed Toolkit aligned with the matrix-selected minor;
-    # newer minors can grow ABI structs beyond the size compiled into this wheel.
-    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test "${TEST_FT_GROUP[@]}" \
-      "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
+    bindings_requirements=("${bindings_requirements[@]/%/[all]}")
+    bindings_toolkit_requirement=("cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*")
   fi
+  pip install "${bindings_requirements[@]}" --group test "${TEST_FT_GROUP[@]}" "${bindings_toolkit_requirement[@]}"
   echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-bindings.xml" tests/ | fold_pytest_log
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
@@ -86,17 +98,17 @@ elif [[ "${test_module}" == "bindings" ]]; then
   popd
 elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   # Shared setup for core and nightly modes.
-  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
+  TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
   TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
   # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
-  #   main/backport → local wheel from artifacts dir
-  #   floor         → the oldest cuda-bindings that the cuda-core wheel under test
-  #                   supports, read from that wheel and installed from PyPI
+  #   local         → matching configured-package wheel from this run
+  #   floor         -> the oldest supported bindings, read from the Core wheel
+  #                    and installed from PyPI
   BINDINGS_ARGS=()
   if [[ "${BINDINGS_SOURCE}" == "floor" ]]; then
     CORE_WHL_FOR_FLOOR=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
-    BINDINGS_FLOOR="$(python ci/tools/cuda_core_bindings_floor.py --wheel "${CORE_WHL_FOR_FLOOR[0]}" --major "${TEST_CUDA_MAJOR}")"
+    BINDINGS_FLOOR="$(python "${CI_TOOLS_DIR}/cuda_core_bindings_floor.py" --wheel "${CORE_WHL_FOR_FLOOR[0]}" --major "${TEST_CUDA_MAJOR}")"
     echo "cuda-bindings floor of ${CORE_WHL_FOR_FLOOR[0]##*/} for CUDA ${TEST_CUDA_MAJOR}: ${BINDINGS_FLOOR}"
     BINDINGS_ARGS+=("cuda-bindings==${BINDINGS_FLOOR}")
   else
@@ -114,10 +126,19 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   fi
 
   if [[ "${test_module}" == nightly-* ]]; then
+    if [[ "${PATHFINDER_SOURCE:-}" != "artifact" ]]; then
+      echo "Error: nightly tests require PATHFINDER_SOURCE=artifact" >&2
+      exit 1
+    fi
     # Resolve pathfinder wheel to absolute path before pushd.
     # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
     # absolute (set via realpath in env-vars).
-    PATHFINDER_WHL=($(realpath ./cuda_pathfinder/*.whl))
+    pathfinder_wheels=(./cuda_pathfinder/*.whl)
+    if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
+      echo "Expected exactly one cuda-pathfinder wheel in ./cuda_pathfinder" >&2
+      exit 1
+    fi
+    PATHFINDER_WHL=("$(realpath "${pathfinder_wheels[0]}")")
   fi
 
   if [[ "${test_module}" == "core" ]]; then
@@ -143,8 +164,8 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     pip list
     echo "Running core tests"
     ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-core.xml" tests/ | fold_pytest_log
-    # Currently our CI always installs the latest bindings (from either major version).
-    # This is not compatible with the test requirements.
+    # Compiled Cython tests require the bindings used to build them. Older
+    # toolkit rows intentionally exercise published floor bindings instead.
     if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
       ${SANITIZER_CMD} pytest -rsxXfE -v --randomly-dont-reorganize --exclude-warning-annotations "${PYTEST_PARALLEL_ARGS[@]}" --junitxml "${TEST_RESULTS_DIR}/junit-core-cython.xml" tests/cython | fold_pytest_log
     fi
