@@ -17,13 +17,9 @@ on:
         type: string
         required: true
       bindings-config:
-        description: Normalized bindings registry for maintenance-only tests.
+        description: Normalized bindings registry; empty retains legacy artifact sources.
         type: string
         default: ''
-      bindings-only:
-        description: Test this run's maintenance bindings wheel and Cython extensions.
-        type: boolean
-        default: false
       matrix_filter:
         type: string
         default: "."
@@ -63,7 +59,6 @@ jobs:
     env:
       BUILD_TYPE: ${{ inputs.build-type }}
       BINDINGS_CONFIG: ${{ inputs.bindings-config }}
-      BINDINGS_ONLY: ${{ inputs.bindings-only }}
       ARCH: ${{ (inputs.host-platform == 'win-64' && 'amd64') }}
     outputs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
@@ -89,11 +84,18 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".windows[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          if [[ "$BINDINGS_ONLY" == "true" ]]; then
+          if [[ -n "$BINDINGS_CONFIG" ]]; then
             TEST_MATRIX=$(jq -c --argjson config "$BINDINGS_CONFIG" '
-              ($config.package_roots[] | select(.release_status == "maintenance")) as $package
-              | map(select(.CUDA_VER == $package.toolkit_version)
-                | . + {BINDINGS_ROOT: $package.package_root})
+              ($config.package_roots | map({key: .toolkit_version, value: .}) | from_entries) as $packages
+              | map(($packages[.CUDA_VER]) as $package
+                | . + {
+                    BINDINGS_ROOT: ($package.package_root // "cuda_bindings_13"),
+                    BINDINGS_BUILD_VERSION: ($package.toolkit_version // ""),
+                    BINDINGS_SOURCE: (if $package == null then "floor" else "main" end),
+                    BINDINGS_ARTIFACT_PREFIX: (if $package.release_status == "maintenance" then "maintenance-bindings" else "cuda-bindings" end),
+                    CORE_CYTHON_SUFFIX: (if $package.release_status == "maintenance" then "-cu\($package.cuda_major)-tests" else "-tests" end),
+                    PYTHON_ARTIFACT_NAME: (if $package.release_status == "maintenance" then "maintenance-python-wheel" else "cuda-python-wheel" end)
+                  })
             ' <<< "$TEST_MATRIX")
           fi
 
@@ -107,10 +109,10 @@ jobs:
 
   test:
     env:
-      TEST_PATHFINDER: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test) }}
-      TEST_BINDINGS: ${{ inputs.bindings-only || inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
-      TEST_CORE: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test) }}
-      TEST_PYTHON: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test) }}
+      TEST_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test }}
+      TEST_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
+      TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
+      TEST_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     # The build stage could fail but we want the CI to keep moving.
@@ -175,9 +177,12 @@ jobs:
 
       - name: Set environment variables
         env:
-          BUILD_CUDA_VER: ${{ inputs.bindings-only && matrix.CUDA_VER || inputs.build-ctk-ver }}
+          BUILD_CUDA_VER: ${{ matrix.BINDINGS_BUILD_VERSION || inputs.build-ctk-ver }}
           CUDA_BINDINGS_ROOT: ${{ matrix.BINDINGS_ROOT || 'cuda_bindings_13' }}
-          BINDINGS_ARTIFACT_PREFIX: ${{ inputs.bindings-only && 'maintenance-bindings' || 'cuda-bindings' }}
+          BINDINGS_SOURCE: ${{ matrix.BINDINGS_SOURCE || '' }}
+          BINDINGS_ARTIFACT_PREFIX: ${{ matrix.BINDINGS_ARTIFACT_PREFIX || 'cuda-bindings' }}
+          CORE_CYTHON_SUFFIX: ${{ matrix.CORE_CYTHON_SUFFIX || '-tests' }}
+          CUDA_PYTHON_ARTIFACT_NAME: ${{ matrix.PYTHON_ARTIFACT_NAME || 'cuda-python-wheel' }}
           CUDA_VER: ${{ matrix.CUDA_VER }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
@@ -207,7 +212,7 @@ jobs:
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'main' }}
         uses: $/.github/actions/download-artifact-retry
         with:
-          name: cuda-python-wheel
+          name: ${{ env.CUDA_PYTHON_ARTIFACT_NAME || 'cuda-python-wheel' }}
           path: .
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -323,7 +328,7 @@ jobs:
         if: ${{ env.TEST_CORE == 'true' && env.SKIP_CYTHON_TEST == '0' }}
         uses: $/.github/actions/download-artifact-retry
         with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
+          name: ${{ env.CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME || format('{0}-tests', env.CUDA_CORE_ARTIFACT_NAME) }}
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -499,6 +499,10 @@ jobs:
   #   - host-platform value
   #   - uses: (test-sdist-linux.yml vs test-sdist-windows.yml)
   test-sdist-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.ci-vars.outputs.BINDINGS_CONFIG).package_roots }}
     needs:
       - ci-vars
       - should-skip
@@ -516,11 +520,15 @@ jobs:
     uses: ./.github/workflows/test-sdist-linux.yml
     with:
       host-platform: linux-64
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-package: ${{ toJSON(matrix.package) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
   test-sdist-windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.ci-vars.outputs.BINDINGS_CONFIG).package_roots }}
     needs:
       - ci-vars
       - should-skip
@@ -539,7 +547,7 @@ jobs:
     uses: ./.github/workflows/test-sdist-windows.yml
     with:
       host-platform: win-64
-      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-package: ${{ toJSON(matrix.package) }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
@@ -568,9 +576,10 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
-      build-type: pull-request
+      build-type: ${{ startsWith(github.ref_name, 'pull-request/') && 'pull-request' || (github.event_name == 'schedule' && 'nightly' || 'branch') }}
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -597,9 +606,10 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
-      build-type: pull-request
+      build-type: ${{ startsWith(github.ref_name, 'pull-request/') && 'pull-request' || (github.event_name == 'schedule' && 'nightly' || 'branch') }}
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -626,90 +636,11 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
-      build-type: pull-request
+      build-type: ${{ startsWith(github.ref_name, 'pull-request/') && 'pull-request' || (github.event_name == 'schedule' && 'nightly' || 'branch') }}
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
-      workplan: ${{ needs.detect-changes.outputs.workplan }}
-
-  test-maintenance-bindings-linux-64:
-    name: Maintenance bindings (linux-64)
-    if: ${{ github.repository_owner == 'nvidia' &&
-            !fromJSON(needs.should-skip.outputs.skip) &&
-            !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).modules.bindings.needs_test &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
-    permissions:
-      actions: read
-      contents: read
-    needs:
-      - ci-vars
-      - should-skip
-      - detect-changes
-      - build-linux-64
-    secrets: inherit
-    uses: ./.github/workflows/test-wheel-linux.yml
-    with:
-      build-type: ${{ startsWith(github.ref_name, 'pull-request/') && 'pull-request' || (github.event_name == 'schedule' && 'nightly' || 'branch') }}
-      host-platform: linux-64
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
-      bindings-only: true
-      nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
-      workplan: ${{ needs.detect-changes.outputs.workplan }}
-
-  test-maintenance-bindings-linux-aarch64:
-    name: Maintenance bindings (linux-aarch64)
-    if: ${{ github.repository_owner == 'nvidia' &&
-            !fromJSON(needs.should-skip.outputs.skip) &&
-            !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).modules.bindings.needs_test &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
-    permissions:
-      actions: read
-      contents: read
-    needs:
-      - ci-vars
-      - should-skip
-      - detect-changes
-      - build-linux-64
-      - build-linux-aarch64
-    secrets: inherit
-    uses: ./.github/workflows/test-wheel-linux.yml
-    with:
-      build-type: ${{ startsWith(github.ref_name, 'pull-request/') && 'pull-request' || (github.event_name == 'schedule' && 'nightly' || 'branch') }}
-      host-platform: linux-aarch64
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
-      bindings-only: true
-      nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
-      workplan: ${{ needs.detect-changes.outputs.workplan }}
-
-  test-maintenance-bindings-windows:
-    name: Maintenance bindings (win-64)
-    if: ${{ github.repository_owner == 'nvidia' &&
-            !fromJSON(needs.should-skip.outputs.skip) &&
-            !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).modules.bindings.needs_test &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
-    permissions:
-      actions: read
-      contents: read
-    needs:
-      - ci-vars
-      - should-skip
-      - detect-changes
-      - build-linux-64
-      - build-windows
-    secrets: inherit
-    uses: ./.github/workflows/test-wheel-windows.yml
-    with:
-      build-type: ${{ startsWith(github.ref_name, 'pull-request/') && 'pull-request' || (github.event_name == 'schedule' && 'nightly' || 'branch') }}
-      host-platform: win-64
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
-      bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
-      bindings-only: true
-      nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   doc:
@@ -746,9 +677,6 @@ jobs:
       - test-linux-64
       - test-linux-aarch64
       - test-windows
-      - test-maintenance-bindings-linux-64
-      - test-maintenance-bindings-linux-aarch64
-      - test-maintenance-bindings-windows
       - api-check-core-vs-release
       - api-check-core-vs-base
       - doc
@@ -776,7 +704,6 @@ jobs:
           windows_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows || false }}"
           windows_arm64_supported="${{ needs.ci-vars.outputs.WINDOWS_ARM64_SUPPORTED }}"
           build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
-          maintenance_bindings_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).modules.bindings.needs_test || false }}"
           run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
@@ -826,16 +753,6 @@ jobs:
           check_result "test-linux-64"      "$linux_expected"
           check_result "test-linux-aarch64" "$linux_expected"
           check_result "test-windows"       "$windows_expected"
-
-          maintenance_linux_expected="skipped"
-          maintenance_windows_expected="skipped"
-          if [[ "$maintenance_bindings_selected" == "true" ]]; then
-            maintenance_linux_expected="$linux_expected"
-            maintenance_windows_expected="$windows_expected"
-          fi
-          check_result "test-maintenance-bindings-linux-64" "$maintenance_linux_expected"
-          check_result "test-maintenance-bindings-linux-aarch64" "$maintenance_linux_expected"
-          check_result "test-maintenance-bindings-windows" "$maintenance_windows_expected"
 
           # API compatibility checks run for cuda_core source changes and for
           # conservative full runs when reusable base artifacts are unavailable.

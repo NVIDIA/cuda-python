@@ -128,9 +128,13 @@ def test_cuda12_source_changes_select_bindings_consumers():
 
 @pytest.mark.agent_authored(model="gpt-6")
 def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, monkeypatch):
-    for package_root, filename in (("cuda_bindings_13", "pyproject.toml"), ("cuda_python", "setup.py")):
+    for package_root, filename in (
+        ("cuda_bindings_13", "pyproject.toml"),
+        ("cuda_python", "setup.py"),
+        ("cuda_python", "pyproject.toml"),
+    ):
         destination = tmp_path / package_root / filename
-        destination.parent.mkdir()
+        destination.parent.mkdir(exist_ok=True)
         shutil.copyfile(ROOT / package_root / filename, destination)
 
     def git(*args):

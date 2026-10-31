@@ -64,6 +64,7 @@ if [[ "${1}" == "build" ]]; then
   {
     echo "MAINTENANCE_BINDINGS_ROOT=${maintenance_root}"
     echo "MAINTENANCE_CUDA_VERSION=${maintenance_version}"
+    echo "MAINTENANCE_CUDA_MAJOR=${maintenance_version%%.*}"
     echo "MAINTENANCE_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${maintenance_root}/dist")"
     echo "MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${maintenance_root}/tests/cython")"
     echo "MAINTENANCE_BINDINGS_ARTIFACT_NAME=maintenance-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${maintenance_version}-${HOST_PLATFORM}-${SHA}"
@@ -100,7 +101,14 @@ elif [[ "${1}" == "test" ]]; then
   BUILD_PREV_CUDA_VER="$(yq -r '.cuda.prev_build.version' ci/versions.yml)"
   BUILD_PREV_CUDA_MINOR="$(cut -d '.' -f 2 <<< ${BUILD_PREV_CUDA_VER})"
 
-  if [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then
+  if [[ -n "${BINDINGS_SOURCE:-}" ]]; then
+    SKIP_CUDA_BINDINGS_TEST=1
+    SKIP_CYTHON_TEST=1
+    if [[ "$BINDINGS_SOURCE" == main ]]; then
+      SKIP_CUDA_BINDINGS_TEST="${SKIP_BINDINGS_TEST_OVERRIDE:-0}"
+      SKIP_CYTHON_TEST=0
+    fi
+  elif [[ ${BUILD_CUDA_MAJOR} != ${TEST_CUDA_MAJOR} ]]; then
     SKIP_CUDA_BINDINGS_TEST=1
     SKIP_CYTHON_TEST=1
     if [[ ${BUILD_PREV_CUDA_MINOR} != ${TEST_CUDA_MINOR} ]]; then
@@ -153,4 +161,6 @@ fi
   echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
   echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/dist")"
   echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
+  echo "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}${CORE_CYTHON_SUFFIX:--tests}"
+  echo "CUDA_PYTHON_ARTIFACT_NAME=${CUDA_PYTHON_ARTIFACT_NAME:-cuda-python-wheel}"
 } >> $GITHUB_ENV
