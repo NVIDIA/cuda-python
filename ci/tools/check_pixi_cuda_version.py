@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Check pixi cuda-version pins track ci/versions.yml (cuda.build.version)."""
+"""Check bindings and Core Pixi toolkit pins track ci/versions.yml."""
 
 from __future__ import annotations
 
@@ -15,20 +15,23 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def main() -> int:
-    """Verify current bindings and cuda_core pixi pins match ci/versions.yml."""
+    """Verify both bindings roots and Core use their configured toolkit line."""
     try:
-        current = bindings_config.load_config().package_for_release_status("current")
+        config = bindings_config.load_config()
     except (KeyError, TypeError, ValueError) as exc:
         print(f"error: invalid CUDA toolkit pins in {bindings_config.DEFAULT_CONFIG}: {exc}", file=sys.stderr)
         return 2
 
-    build_version = current.toolkit_version
-    expected = f"{current.ctk_target}.*"
-    cuda_feature = current.cuda_variant
-
+    current = config.package_for_release_status("current")
+    checks = [(package.package_root, package) for package in config.package_roots]
+    checks.append(("cuda_core", current))
     errors: list[str] = []
     checked: list[str] = []
-    for package_root in (current.package_root, "cuda_core"):
+    for package_root, package in checks:
+        allowed = {f"{package.ctk_target}.*"}
+        if package.release_status == "maintenance":
+            allowed.add(f"{package.cuda_major}.*")
+        cuda_feature = package.cuda_variant
         path = ROOT / package_root / "pixi.toml"
         if not path.is_file():
             print(f"error: {path} not found", file=sys.stderr)
@@ -45,17 +48,15 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 2
-        if expected not in variants:
+        if not allowed.intersection(variants):
             errors.append(
                 f"{rel}: workspace.build-variants.cuda-version={variants!r} "
-                f"does not include {expected!r} "
-                f"(from ci/versions.yml cuda.build.version={build_version!r})"
+                f"does not include a pin for toolkit {package.toolkit_version!r} (allowed {sorted(allowed)!r})"
             )
-        if cuda_pin != expected:
+        if cuda_pin not in allowed:
             errors.append(
                 f"{rel}: feature.{cuda_feature}.dependencies.cuda-version={cuda_pin!r} "
-                f"!= {expected!r} "
-                f"(from ci/versions.yml cuda.build.version={build_version!r})"
+                f"does not match toolkit {package.toolkit_version!r} (allowed {sorted(allowed)!r})"
             )
 
         checked.append(
@@ -64,20 +65,12 @@ def main() -> int:
         )
 
     if errors:
-        print(
-            f"error: {current.package_root}/cuda_core pixi cuda-version pins out of sync with "
-            f"ci/versions.yml cuda.build.version={build_version!r} "
-            f"(expected pin {expected!r}):",
-            file=sys.stderr,
-        )
+        print("error: Pixi cuda-version pins out of sync with ci/versions.yml:", file=sys.stderr)
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    print(
-        f"OK: pixi cuda-version pins match ci/versions.yml "
-        f"cuda.build.version={build_version!r} (expected pin {expected!r}):"
-    )
+    print("OK: Pixi cuda-version pins match ci/versions.yml:")
     for item in checked:
         print(f"  - {item}")
     return 0
