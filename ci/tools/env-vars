@@ -16,6 +16,8 @@ if [[ ${#} -ne 1 ]]; then
 fi
 
 PYTHON_VERSION_FORMATTED=$(echo "${PY_VER}" | tr -d '.')
+CUDA_BINDINGS_ROOT="${CUDA_BINDINGS_ROOT:-cuda_bindings_13}"
+BINDINGS_ARTIFACT_PREFIX="${BINDINGS_ARTIFACT_PREFIX:-cuda-bindings}"
 
 if [[ "${HOST_PLATFORM}" == linux* ]]; then
   REPO_DIR=$(pwd)
@@ -56,10 +58,20 @@ if [[ "${1}" == "build" ]]; then
   echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}" >> $GITHUB_ENV
   echo "BUILD_PREV_CUDA_MAJOR=$((${BUILD_CUDA_MAJOR} - 1))" >> $GITHUB_ENV
   CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+  maintenance_package=$(python -m ci.tools.bindings_config --release-status maintenance)
+  maintenance_root=$(jq -r '.package_root' <<< "$maintenance_package")
+  maintenance_version=$(jq -r '.toolkit_version' <<< "$maintenance_package")
+  {
+    echo "MAINTENANCE_BINDINGS_ROOT=${maintenance_root}"
+    echo "MAINTENANCE_CUDA_VERSION=${maintenance_version}"
+    echo "MAINTENANCE_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${maintenance_root}/dist")"
+    echo "MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${maintenance_root}/tests/cython")"
+    echo "MAINTENANCE_BINDINGS_ARTIFACT_NAME=maintenance-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${maintenance_version}-${HOST_PLATFORM}-${SHA}"
+  } >> "$GITHUB_ENV"
 elif [[ "${1}" == "test" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CUDA_VER}-${HOST_PLATFORM}"
+  CUDA_BINDINGS_ARTIFACT_BASENAME="${BINDINGS_ARTIFACT_PREFIX}-python${PYTHON_VERSION_FORMATTED}-cuda${BUILD_CUDA_VER}-${HOST_PLATFORM}"
 
   # BINDINGS_SOURCE controls which cuda-bindings to install at test time:
   #   main      — use the just-built bindings wheel from this CI run
@@ -136,8 +148,9 @@ elif [[ "${1}" == "test" ]]; then
 fi
 
 {
+  echo "CUDA_BINDINGS_ROOT=${CUDA_BINDINGS_ROOT}"
   echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
   echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
-  echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings_13/dist")"
-  echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings_13/tests/cython")"
+  echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/dist")"
+  echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
 } >> $GITHUB_ENV

@@ -83,14 +83,14 @@ jobs:
         run: echo "::add-matcher::.github/matchers/compiler.json"
 
       - name: Install rapidsai/sccache
-        if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
+        if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true') }}
         uses: ./.github/actions/install-sccache
 
       # The runner only exposes these values to actions, not to `run:` steps or
       # the cibuildwheel container, so re-export them for sccache's GHA backend.
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
-        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true' }}
         uses: actions/github-script@v9
         with:
           script: |
@@ -144,6 +144,9 @@ jobs:
           $env:Path += ";$((Get-Location).Path)\\$env:YQ_DIR"
           yq --version
 
+      - name: Install CI tool dependencies
+        run: python -m pip install -e ./ci
+
       - name: Set environment variables
         env:
           CUDA_VER: ${{ inputs.cuda-version }}
@@ -151,6 +154,12 @@ jobs:
           PY_VER: ${{ matrix.python-version }}
           SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars build
+
+      - name: Prepare local maintenance SCM milestone
+        if: ${{ !inputs.single-cuda-major && (env.BUILD_BINDINGS == 'true' || env.TEST_BINDINGS == 'true') }}
+        run: |
+          python -m ci.tools.bindings_scm_version \
+            --package-root "${MAINTENANCE_BINDINGS_ROOT}" --sha "${{ github.sha }}"
 
       - name: Dump environment
         run: |
@@ -195,7 +204,7 @@ jobs:
           twine check --strict cuda_pathfinder/*.whl
 
       - name: Constrain builds to the local cuda.pathfinder wheel
-        if: ${{ env.BUILD_BINDINGS == 'true' }}
+        if: ${{ env.BUILD_BINDINGS == 'true' || env.TEST_BINDINGS == 'true' }}
         run: |
           pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
@@ -232,7 +241,7 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           extras: uv
           python-path: ${{ steps.host-python.outputs.python-path }}
-        env:
+        env: &bindings-wheel-env
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # build[uv]: same PEP 517 orchestration, with uv instead of pip.
           # extras: uv puts uv on PATH (required on Windows).
@@ -517,7 +526,7 @@ jobs:
 
       # Note: This overwrites CUDA_PATH etc
       - name: Set up mini CTK
-        if: ${{ !inputs.single-cuda-major && (env.BUILD_CORE == 'true' || env.TEST_CORE == 'true') }}
+        if: ${{ !inputs.single-cuda-major && (env.BUILD_CORE == 'true' || env.TEST_CORE == 'true' || env.BUILD_BINDINGS == 'true' || env.TEST_BINDINGS == 'true') }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
@@ -540,6 +549,47 @@ jobs:
             ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.o
             ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.a
             ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.lib
+          if-no-files-found: error
+
+      - name: Build maintenance cuda.bindings wheel
+        if: ${{ !inputs.single-cuda-major && (env.BUILD_BINDINGS == 'true' || env.TEST_BINDINGS == 'true') }}
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
+        with:
+          package-dir: ./${{ env.MAINTENANCE_BINDINGS_ROOT }}/
+          output-dir: ${{ env.MAINTENANCE_BINDINGS_ARTIFACTS_DIR }}
+          extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
+        env: *bindings-wheel-env
+
+      - name: Check maintenance cuda.bindings wheel
+        if: ${{ !inputs.single-cuda-major && (env.BUILD_BINDINGS == 'true' || env.TEST_BINDINGS == 'true') }}
+        run: twine check --strict "${MAINTENANCE_BINDINGS_ARTIFACTS_DIR}"/*.whl
+
+      - name: Upload maintenance cuda.bindings wheel
+        if: ${{ !inputs.single-cuda-major && (env.BUILD_BINDINGS == 'true' || env.TEST_BINDINGS == 'true') }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: ${{ env.MAINTENANCE_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.MAINTENANCE_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+
+      - name: Build maintenance cuda.bindings Cython tests
+        if: ${{ !inputs.single-cuda-major && env.TEST_BINDINGS == 'true' }}
+        run: |
+          pip uninstall -y cuda-bindings
+          bindings_wheels=("${MAINTENANCE_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+          test "${#bindings_wheels[@]}" -eq 1
+          python -m pip install "${bindings_wheels[0]}" --group "${MAINTENANCE_BINDINGS_ROOT}/pyproject.toml:test"
+          pushd "${MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR}"
+          bash build_tests.sh
+          popd
+
+      - name: Upload maintenance cuda.bindings Cython tests
+        if: ${{ !inputs.single-cuda-major && env.TEST_BINDINGS == 'true' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: ${{ env.MAINTENANCE_BINDINGS_ARTIFACT_NAME }}-tests
+          path: ${{ env.MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
 
       - name: Look up prior-branch cuda.bindings run ID
