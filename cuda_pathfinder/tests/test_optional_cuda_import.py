@@ -32,6 +32,42 @@ def test__optional_cuda_import_returns_none_when_module_missing(monkeypatch):
     assert result is None
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test__optional_cuda_import_returns_none_when_parent_package_missing(monkeypatch):
+    def fake_import_module(_name):
+        # What CPython reports for `import cuda.bindings.nvjitlink` when the
+        # cuda.bindings package itself is not installed: the outermost missing
+        # name, not the fully qualified one that was requested.
+        err = ModuleNotFoundError("No module named 'cuda.bindings'")
+        err.name = "cuda.bindings"
+        raise err
+
+    monkeypatch.setattr(optional_import_mod.importlib, "import_module", fake_import_module)
+
+    assert _optional_cuda_import("cuda.bindings.nvjitlink") is None
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test__optional_cuda_import_returns_none_for_a_really_uninstalled_package():
+    """Same as above, but through the real import machinery instead of a stub."""
+    assert _optional_cuda_import("cuda_pathfinder_no_such_package.sub.mod") is None
+
+
+@pytest.mark.agent_authored(model="claude-opus-5")
+def test__optional_cuda_import_reraises_for_a_string_prefix_that_is_not_an_ancestor(monkeypatch):
+    """``cuda.bindings`` is a string prefix of ``cuda.bindings_extra``, not a parent of it."""
+
+    def fake_import_module(_name):
+        err = ModuleNotFoundError("No module named 'cuda.bindings'")
+        err.name = "cuda.bindings"
+        raise err
+
+    monkeypatch.setattr(optional_import_mod.importlib, "import_module", fake_import_module)
+
+    with pytest.raises(ModuleNotFoundError, match="cuda.bindings"):
+        _optional_cuda_import("cuda.bindings_extra.mod")
+
+
 def test__optional_cuda_import_reraises_nested_module_not_found(monkeypatch):
     def fake_import_module(_name):
         err = ModuleNotFoundError("No module named 'not_a_real_dependency'")
