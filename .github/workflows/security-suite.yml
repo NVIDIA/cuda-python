@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# CI security scanning via the NVIDIA/security-workflows suite: Pulse secret scan + CodeQL SAST.
+# CI security scanning via the NVIDIA/security-workflows suite: Pulse secret scan,
+# Pulse OSS vulnerability scan (SCA), Pulse malware scan, and CodeQL SAST.
 # Pulse runs on Linux nv-gha-runners (Docker image + OIDC/Vault) — Linux-only by design.
 # The local secret-scan-trufflehog pre-commit hook is cross-platform (Linux/macOS/Windows).
 # Pinned to a reviewed commit SHA.
+# The vulnerability and malware scans cross a Charon tunnel; see ci/README.md.
 
 name: Security Suite (Pulse + CodeQL)
 
@@ -29,16 +31,71 @@ permissions:
   actions: read
 
 jobs:
+  # On main the vulnerability scan inspects installed wheels: Detect cannot resolve
+  # cuda_core's CUDA-dependent build or cuda_python's dynamic setup.py from source.
+  # Wheel mode is refused on pull-request/* mirrors. Python 3.12 matches the scanner image.
+  build-wheels:
+    name: Build wheels for the vulnerability scan
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.repository == 'NVIDIA/cuda-python' ||
+       vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true')
+    permissions:
+      actions: read
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: linux-64
+      cuda-version: "13.4.2"
+      prev-cuda-version: "12.9.1"
+      single-cuda-major: true
+      python-versions: '["3.12"]'
+
+  # The scan installs offline, so the artifact carries every runtime dependency wheel too.
+  python-wheels:
+    name: Collect runtime wheels for the vulnerability scan
+    needs: build-wheels
+    runs-on: linux-amd64-cpu8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: cuda-*
+          path: built
+          merge-multiple: true
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Add runtime dependency wheels
+        run: |
+          set -euo pipefail
+          mkdir wheelhouse
+          cp built/*.whl wheelhouse/
+          python -m pip download --only-binary=:all: --dest wheelhouse wheelhouse/*.whl
+          ls wheelhouse
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: python-wheels
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+
   security-suite:
     name: Security Suite
+    needs: python-wheels
     # Repository-specific workflow opt-ins use CI_CUSTOMIZATIONS_* Actions variables;
     # see ci/README.md. Enable this only after the security-suite prerequisites exist.
     if: >-
-      github.repository == 'NVIDIA/cuda-python' ||
-      vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true'
-    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@c736f0454dc99764a66af6b906adfcdfbf621985  # v0.4.0
+      !cancelled() &&
+      (needs.python-wheels.result == 'success' || github.ref != 'refs/heads/main') &&
+      (github.repository == 'NVIDIA/cuda-python' ||
+       vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true')
+    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@0c1ff79b858f7a6037cb34a8d798ced83ad323df  # integration/cuda-python-pilot
     with:
       enable-secret-scan: true
+      enable-vuln-scan: true
+      enable-malware-scan: true
       enable-sast-scan: true
       secret-runs-on: linux-amd64-cpu4
       # Set failure_policy explicitly so enforcement can't drift with upstream defaults.
@@ -48,3 +105,19 @@ jobs:
       secret-failure-policy: unverified
       # Same analysis the retired codeql.yml performed: python, build-mode none, security-extended.
       sast-languages: '["python"]'
+      # NSPECT_ID must be an Actions *variable*: a reusable workflow's inputs cannot read secrets.
+      # Literal fallback until it is provisioned, scoped so no other caller inherits this registration.
+      nspect-id: ${{ vars.NSPECT_ID || (github.repository == 'NVIDIA/cuda-python' && 'NSPECT-ZY2K-Y1V8' || '') }}
+      vuln-runs-on: linux-amd64-cpu4
+      vuln-python-wheels-artifact: ${{ github.ref == 'refs/heads/main' && 'python-wheels' || '' }}
+      vuln-python-project: ${{ github.ref == 'refs/heads/main' && 'cuda-python' || '' }}
+      # Pull-request mirrors scan source, minus the two packages Detect cannot resolve from it.
+      vuln-detect-properties: >-
+        ${{ github.ref == 'refs/heads/main' && '{}' ||
+            '{"detect.excluded.directories": "cuda_core,cuda_python"}' }}
+      # report-only (default) — findings warn; fail-on-vulnerability — any finding fails. Errors always fail.
+      vuln-failure-policy: report-only
+      vuln-upload-report: true
+      malware-runs-on: linux-amd64-cpu4
+      # strict (default) — SUSPICIOUS fails too; malicious-only — it only warns. MALICIOUS always fails.
+      malware-failure-policy: strict
