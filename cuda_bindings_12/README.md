@@ -11,11 +11,15 @@ Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cud
 
 ## Developing
 
-This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
+This is the CUDA 12.9 maintenance source root. Follow the repository
+[contribution guide](../CONTRIBUTING.md) and the
+[maintenance guide](MAINTENANCE.md) for source builds and cross-major changes.
 
 ## Testing
 
-Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.
+Run the commands below from `cuda_bindings_12/`, in an environment containing
+the CUDA 12 bindings. Install the package and its `test` dependency group with
+`python -m pip install -v -e . --group test`.
 
 Multiple testing options are available:
 
@@ -37,7 +41,7 @@ To run these tests:
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
 1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
-2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both cythonize the tests and build them.
+2. Run the `build_tests` script located in `tests/cython` appropriate to your platform. This will both cythonize the tests and build them.
 
 To run these tests:
 * `python -m pytest tests/cython/` against editable installations
@@ -58,10 +62,12 @@ In addition, extra examples are included:
   wrappers of the driver API.
 
 To run these samples:
-* `python -m pytest tests/cython/` against editable installations
-* `pytest tests/cython/` against installed packages
+* `python -m pytest examples/` against editable installations
+* `pytest examples/` against installed packages
 
 ### Benchmark
 
 See the shared [cuda.bindings benchmark harness](../benchmarks/cuda_bindings/README.md)
-for performance benchmarks and usage instructions.
+for performance benchmarks and usage instructions. Its configured environments
+currently target CUDA 13; benchmarking CUDA 12 requires a compatible environment
+configured separately.

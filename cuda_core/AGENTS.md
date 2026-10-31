@@ -26,8 +26,8 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   dependency wiring. Logic shared with `cuda-bindings` (toolchain selection,
   the compiler flag set, the Cython cache helpers and the rebuild stamps)
   lives in `_build_shared.py`. `cuda_bindings_13/_build_shared.py` is canonical;
-  `cuda_core/_build_shared.py` must be either a symlink to it or a byte-for-byte
-  identical copy.
+  each package-local `_build_shared.py` must be a symlink to it or a byte-for-byte
+  identical copy, including maintenance bindings roots.
 
 ## Build and version coupling
 
@@ -59,12 +59,13 @@ a bump. To bump:
 
 1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
    `pyproject.toml`. That is the only version to type.
-2. Check `ci/versions.yml`. The `build` pin is the current major and the
-   `prev_build` pin is the prior major. Neither toolkit pin may sit below its
-   floor's major.minor, or CI builds a configuration that the build rejects. A
-   toolkit ahead of the floor is the bump window described below. The
-   pre-commit hook `check-cuda-core-bindings-floor`
-   (`toolshed/check_cuda_core_bindings_floor.py`) checks the pins. It also
+2. Check each `cuda.bindings.package_roots.<root>.toolkit_version` in
+   `ci/versions.yml`. Neither toolkit pin may sit below the corresponding
+   floor's major.minor, or CI builds a configuration that the build rejects.
+   A toolkit ahead of the floor is the bump window described below. The
+   pre-commit hook `check-bindings-config` checks these pins against the floors.
+   The separate `check-cuda-core-bindings-floor` hook
+   (`toolshed/check_cuda_core_bindings_floor.py`) validates the extras and
    checks that no documentation page spells a floor out by hand.
 3. Add to the release notes a "Breaking Changes" entry that names the new
    floors. The support-policy table in `docs/source/support.rst` reads the
