@@ -24,3 +24,11 @@ Packaging
   declarations and includes (``.pxd`` and ``.pxi``), together with required
   headers, remain available for downstream Cython builds. Source distributions
   retain the sources, templates, and other inputs needed to build the package.
+
+Documentation
+-------------
+
+* Corrected the CUDA 12 driver guidance to its existing minor-version
+  compatibility baseline: Linux 525.60.13 and Windows 528.33. This is a
+  documentation correction, not a new runtime version check. Newer features
+  and PTX compilation can still require a newer driver.

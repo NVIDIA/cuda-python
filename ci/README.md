@@ -203,12 +203,12 @@ committed lockfiles to address the eMudhra/emSign CA incident; no general
 lockfile refresh was performed.
 
 Re-enable maintenance only after a released Pixi passes both upstream issue
-reproducers and repeated byte-stable update/lock/check cycles across all six
-workspaces: the repository root, `cuda_pathfinder`, `cuda_bindings_13`, `cuda_core`,
-`benchmarks/cuda_bindings`, and `benchmarks/cuda_core`. Verify both `pixi update
---no-install` and `pixi lock`, followed by repeated `pixi lock --check` commands,
-converge to unchanged lockfile bytes. Then restore strict freshness checks,
-scheduled refreshes, and `PIXI_LOCKED=true` in source-build CI.
+reproducers and repeated byte-stable update/lock/check cycles across every
+workspace reported by `python ci/tools/list_pixi_workspaces.py`, including both
+bindings roots. Verify `pixi update --no-install` and `pixi lock`, followed by
+repeated `pixi lock --check` commands, converge to unchanged lockfile bytes.
+Then restore strict freshness checks, scheduled refreshes, and `PIXI_LOCKED=true`
+in source-build CI.
 
 ## Repository Customizations
 
@@ -335,3 +335,109 @@ a plausible but wrong `0.1.dev...` version. The maintenance bootstrap does not
 automatically establish milestones for the current-major root. Use the same
 local-preview safeguards while preparing the new source and confirm the
 resolved version and `git describe` output before retaining its milestone.
+
+## Nightly Artifact Sources And Rollout
+
+`ci-nightly.yml` downloads wheels from the latest successful main CI run and
+reads the bindings registry from that run's source commit. The source registry
+must be compatible with the nightly workflow; the current workflow requires
+schema 2. It does not translate an older registry into the new layout.
+Selected rows that install a custom driver must also include its
+`DRIVER_SHA256` in the source matrix. Registry compatibility alone does not
+make a pre-hardening source compatible: choose a newer successful run rather
+than disabling installer verification. Rows using preinstalled drivers do not
+need an installer checksum.
+
+After multi-root CI lands on `main`, wait for the first successful, complete
+main CI run containing the new registry and both bindings majors before using
+it as the nightly artifact source. Until that run succeeds, auto-detection can
+still select an older successful run; the nightly job then reports the
+incompatible source and stops. PR CI builds and tests everything when it has
+no complete, compatible artifact baseline.
+
+To test the nightly workflow before that main run is available, supply the ID
+of a successful CI run built with the compatible registry, required wheel
+artifacts, and driver-checksum metadata, such as a validated PR run:
+
+```console
+gh workflow run ci-nightly.yml --repo NVIDIA/cuda-python --ref main -f 'run-id=<compatible-ci-run-id>'
+```
+
+The override selects both the wheel artifacts and their source revision. It
+does not convert old artifacts or change the default selection for later
+nightly runs. Once a compatible main run succeeds, ordinary nightly dispatches
+can leave `run-id` empty.
+
+## Reading CI Jobs and Summaries
+
+A name such as `pathfinder+bindings12+core12+meta12 / py3.11, CTK12.9.1
+(wheels; bindings PR)` identifies the enabled test suites, Python version,
+and toolkit. `meta12` means the CUDA 12 `cuda-python` metapackage; `core12`
+means Core tested with CUDA 12. The corresponding CUDA 13 suites use `13`.
+`pathfinder` is shared across majors.
+
+The two source descriptions answer different questions:
+
+- `wheels` or `local CTK` describes how the toolkit libraries are supplied.
+- `bindings PR` uses the selected root's artifact from this CI run. Unaffected
+  packages can reuse exact-baseline wheels, so this label alone does not mean
+  the bindings were rebuilt for the PR.
+- `bindings floor` uses the oldest published bindings supported by the Core
+  wheel for that CUDA major, as declared in its metadata. These rows test Core
+  or the selected nightly integration against published bindings, without
+  running the bindings or metapackage suites.
+
+Open the change-detection job's **CI workplan** summary and expand its JSON.
+The component build/test flags identify selected work; the baseline records
+the original run and exact source SHA for reusable artifacts. Reuse requires a
+successful push CI run for the exact merge-base commit on the PR's base branch,
+with the complete required artifact set. If that baseline is unavailable, CI
+builds and tests everything. A bindings-only change reuses the unchanged
+merged Core wheel while testing Core against the affected bindings major.
+
+The platform matrix-setup jobs' **Selected wheel test coverage** summaries
+show the final suites, toolkit source, bindings root or published floor, and
+GPU. Shared infrastructure changes, regular branch runs, and scheduled CI
+cover both majors; a bindings tag deliberately selects one bindings/metapackage
+line and published Pathfinder. Windows ARM64 omits CUDA 12 because that toolkit
+has no Windows ARM64 build.
+
+`ci/tools/select_test_matrix.py` applies the shared selection and local-wheel
+coverage rules after each platform reads its source matrix and applies an
+optional jq filter. Matrix data comes from the artifact source revision; the
+helper comes from the workflow control revision so older artifact sources do
+not need to contain newly introduced CI tooling.
+
+## Historical Release And Documentation Reruns
+
+Current release and documentation workflows read package paths and toolkit
+settings from the schema-2 registry committed with the release tag. For tags
+that predate that registry, dispatch compatible historical tooling instead.
+In particular, CUDA 13.4 releases from `13.4.x` use the release workflow on
+that branch, including when rebuilding their documentation.
+
+Before dispatching historical tooling, bring its control branch up to date
+with the applicable CI security fixes, including a verified patched Python
+and current CA/download protections. Source-layout compatibility alone is
+insufficient. The example below assumes those safeguards are in place; it
+does not require changing the immutable release source.
+
+After meeting that prerequisite, validate the existing `v13.4.4` release and
+rebuild its docs with:
+
+```console
+gh workflow run release.yml --repo NVIDIA/cuda-python --ref 13.4.x \
+  -f component=cuda-bindings -f release-action=dry-run \
+  -f git-tag=v13.4.4 -f 'backport-git-tag=not planned'
+```
+
+Here `--ref 13.4.x` selects the workflow and its reusable documentation
+workflow; `git-tag` selects the immutable release source. Leave `run-id` empty
+to find that tag's successful CI run, or supply its validated artifact run ID
+if needed. The artifacts must still exist. A dry run validates artifacts and
+builds docs without publishing a release; its documentation is retained as a
+workflow artifact. Optionally add `-f dry-run-docs-branch=gh-pages-dry-run` to
+deploy the documentation to that preview branch. Run once per component when
+validating more than one package; use `component=cuda-python` for the matching
+metapackage documentation. Other historical release lines likewise need
+tooling compatible with their tagged layout.
