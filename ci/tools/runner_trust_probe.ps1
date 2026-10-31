@@ -149,11 +149,11 @@ function Get-ExplicitlyDistrustedCountFresh {
     return [int]$output[0]
 }
 
-# Applies one CTL policy change, restarts the CryptSvc service that maintains
-# the CTLs, and records the explicit-distrust count and certutil matches
-# observed afterwards.
-function Invoke-PolicyExperimentStep([string]$Label, [scriptblock]$Change) {
-    & $Change
+# Restarts the CryptSvc service that maintains the CTLs after an experiment
+# change, then records the explicit-distrust count, certutil matches, TLS
+# outcomes and TLS chains observed afterwards. Returns the count and whether
+# any TLS connection still trusted its chain.
+function Measure-ExperimentState([string]$Label) {
     Restart-Service -Name CryptSvc -Force
     $policy = "DisableRootAutoUpdate=$(Get-RegistryValueText $CtlPolicyPath 'DisableRootAutoUpdate'), " +
         "EnableDisallowedCertAutoUpdate=$(Get-RegistryValueText $CtlPolicyPath 'EnableDisallowedCertAutoUpdate')"
@@ -161,11 +161,65 @@ function Invoke-PolicyExperimentStep([string]$Label, [scriptblock]$Change) {
     # Out-Host keeps the recorded rows out of this function's return value.
     Record-Check "Experiment: $Label" 'INFO' "$count of $EmudhraIntermediatesCount explicitly distrusted after CryptSvc restart ($policy)" | Out-Host
     Record-CtlMatch "Experiment: $Label, CTL matches" | Out-Host
+    $tlsTrusted = $false
     foreach ($endpoint in $TestEndpoints) {
         $outcome = Get-TlsOutcomeFresh $endpoint
+        if ($outcome.Kind -in 'Trusted', 'NameMismatchOnly') {
+            $tlsTrusted = $true
+        }
         Record-Check "Experiment: $Label, Invoke-WebRequest ``$endpoint``" 'INFO' "$($outcome.Kind): $($outcome.Detail)" | Out-Host
+        $chainCheck = "Experiment: $Label, TLS chain ``$endpoint``"
+        Invoke-Diagnostic $chainCheck { Record-Check $chainCheck 'INFO' (Get-TlsChainFresh $endpoint) } | Out-Host
     }
-    return $count
+    return [pscustomobject]@{ Count = $count; TlsTrusted = $tlsTrusted }
+}
+
+# Runs a function defined in this script in a fresh pwsh process, so no TLS or
+# chain state cached by this process carries over, and returns its result.
+function Invoke-FunctionFresh([string]$Name, [string]$Argument) {
+    $command = "function $Name { $((Get-Item -LiteralPath "function:$Name").ScriptBlock) }; " +
+        "$Name '$Argument' | ConvertTo-Json -Compress"
+    $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($command))
+    $output = @(& (Get-Process -Id $PID).Path -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1 | ForEach-Object { "$_" })
+    if ($LASTEXITCODE -ne 0 -or $output.Count -ne 1) {
+        throw "Fresh $Name failed (exit $LASTEXITCODE): $($output -join ' ')"
+    }
+    return ($output[0] | ConvertFrom-Json)
+}
+
+# Adds the compromised certificates missing from LocalMachine\Disallowed, as
+# the upgrade-ca-certificates action does, and returns their thumbprints.
+function Add-DisallowedStoreEntries {
+    $certs = @(Get-EmudhraIntermediates)
+    $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('Disallowed', 'LocalMachine')
+    try {
+        $store.Open('ReadWrite')
+        $added = @()
+        foreach ($cert in $certs) {
+            if ($store.Certificates.Find('FindByThumbprint', $cert.Thumbprint, $false).Count -eq 0) {
+                $store.Add($cert)
+                $added += $cert.Thumbprint
+            }
+        }
+        return $added
+    } finally {
+        $store.Dispose()
+        $certs | ForEach-Object { $_.Dispose() }
+    }
+}
+
+function Remove-DisallowedStoreEntries([string[]]$Thumbprints) {
+    $store = [System.Security.Cryptography.X509Certificates.X509Store]::new('Disallowed', 'LocalMachine')
+    try {
+        $store.Open('ReadWrite')
+        foreach ($thumbprint in $Thumbprints) {
+            foreach ($cert in $store.Certificates.Find('FindByThumbprint', $thumbprint, $false)) {
+                $store.Remove($cert)
+            }
+        }
+    } finally {
+        $store.Dispose()
+    }
 }
 
 # Connects to an endpoint with Invoke-WebRequest and classifies the result as
@@ -200,17 +254,48 @@ function Get-TlsOutcome {
     }
 }
 
-# Runs Get-TlsOutcome in a fresh pwsh process so no TLS or chain state cached
-# by this process carries over.
 function Get-TlsOutcomeFresh([string]$Endpoint) {
-    $command = "function Get-TlsOutcome { ${function:Get-TlsOutcome} }; " +
-        "`$o = Get-TlsOutcome '$Endpoint'; `"`$(`$o.Kind)``t`$(`$o.Detail)`""
-    $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($command))
-    $output = @(& (Get-Process -Id $PID).Path -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1 | ForEach-Object { "$_" })
-    if ($LASTEXITCODE -ne 0 -or $output.Count -ne 1 -or $output[0] -notmatch "^(\w+)`t(.*)$") {
-        throw "Fresh TLS check failed (exit $LASTEXITCODE): $($output -join ' ')"
+    return Invoke-FunctionFresh 'Get-TlsOutcome' $Endpoint
+}
+
+# Connects to an endpoint with SslStream and describes the chain .NET built
+# for the server certificate: the policy errors, the chain status and each
+# element with its status flags. The validation callback accepts every
+# certificate, so this observes the chain without gating on it.
+function Get-TlsChain {
+    param([string]$Endpoint)
+    $uri = [Uri]$Endpoint
+    $lines = [System.Collections.Generic.List[string]]::new()
+    $callback = {
+        param($source, $certificate, $chain, $errors)
+        $flagsOf = { param($statuses) $f = @($statuses | ForEach-Object { $_.Status }) -join ','; if ($f) { $f } else { 'NoError' } }
+        $lines.Add("policy errors $errors; chain status $(& $flagsOf $chain.ChainStatus)")
+        foreach ($element in $chain.ChainElements) {
+            $cert = $element.Certificate
+            $name = $cert.GetNameInfo('SimpleName', $false)
+            if ($cert.Subject -ne $cert.Issuer) {
+                $name += " (issued by $($cert.GetNameInfo('SimpleName', $true)))"
+            }
+            $lines.Add("$name [$(& $flagsOf $element.ChainElementStatus)]")
+        }
+        return $true
+    }.GetNewClosure()
+    $tcp = [System.Net.Sockets.TcpClient]::new($uri.Host, $uri.Port)
+    try {
+        $ssl = [System.Net.Security.SslStream]::new($tcp.GetStream(), $false, $callback)
+        try {
+            $ssl.AuthenticateAsClient($uri.Host)
+        } finally {
+            $ssl.Dispose()
+        }
+    } finally {
+        $tcp.Dispose()
     }
-    return [pscustomobject]@{ Kind = $Matches[1]; Detail = $Matches[2] }
+    return ($lines -join ' -> ')
+}
+
+function Get-TlsChainFresh([string]$Endpoint) {
+    return Invoke-FunctionFresh 'Get-TlsChain' $Endpoint
 }
 
 $GatingFailures = 0
@@ -285,29 +370,39 @@ foreach ($endpoint in $TestEndpoints) {
         }
     }
 }
+foreach ($endpoint in $TestEndpoints) {
+    Invoke-Diagnostic "TLS chain ``$endpoint``" { Record-Check "TLS chain ``$endpoint``" 'INFO' (Get-TlsChain $endpoint) }
+}
 
 # 5. Disallowed CTL currently published on Windows Update (informational). -f
 # forces a download; this runs after the gating checks so it cannot change
 # what they observed.
 Invoke-Diagnostic 'Windows Update Disallowed CTL' { Record-CertutilCtl 'Windows Update Disallowed CTL' @('-f', '-verifyCTL', 'DisallowedWU') }
 
-# 6. CTL policy experiment (informational). Tests whether the root auto-update
-# policy is why a Disallowed CTL that lists the compromised keys is not applied.
-# It changes machine policy and restarts CryptSvc, so it runs last and only on
-# ephemeral GitHub-hosted runners where DisableRootAutoUpdate=1.
+# 6. Trust experiment (informational). First tests the upgrade-ca-certificates
+# workaround (LocalMachine\Disallowed entries) under the image's policy, then
+# removes those entries again. Then tests whether the root auto-update policy
+# is why a Disallowed CTL that lists the compromised keys is not applied: set
+# EnableDisallowedCertAutoUpdate=1, and if chain building or TLS still trusts
+# the certificates, also remove DisableRootAutoUpdate. It changes machine
+# trust state and restarts CryptSvc, so it runs last and only on ephemeral
+# GitHub-hosted runners where DisableRootAutoUpdate=1.
 if ($env:RUNNER_ENVIRONMENT -ne 'github-hosted') {
     Record-Check 'Experiment: CTL policy' 'INFO' "Skipped: runner environment is '$env:RUNNER_ENVIRONMENT', not github-hosted"
 } elseif ((Get-RegistryValueText $CtlPolicyPath 'DisableRootAutoUpdate') -ne '1') {
     Record-Check 'Experiment: CTL policy' 'INFO' 'Skipped: DisableRootAutoUpdate is not 1'
 } else {
     Invoke-Diagnostic 'Experiment: CTL policy' {
-        $count = Invoke-PolicyExperimentStep 'EnableDisallowedCertAutoUpdate=1' {
-            Set-ItemProperty -LiteralPath $CtlPolicyPath -Name 'EnableDisallowedCertAutoUpdate' -Type DWord -Value 1
-        }
-        if ($count -lt $EmudhraIntermediatesCount) {
-            [void](Invoke-PolicyExperimentStep 'DisableRootAutoUpdate removed' {
-                Remove-ItemProperty -LiteralPath $CtlPolicyPath -Name 'DisableRootAutoUpdate'
-            })
+        $added = @(Add-DisallowedStoreEntries)
+        [void](Measure-ExperimentState "LocalMachine\Disallowed import ($($added.Count) added)")
+        Remove-DisallowedStoreEntries $added
+        [void](Measure-ExperimentState 'LocalMachine\Disallowed import removed')
+
+        Set-ItemProperty -LiteralPath $CtlPolicyPath -Name 'EnableDisallowedCertAutoUpdate' -Type DWord -Value 1
+        $state = Measure-ExperimentState 'EnableDisallowedCertAutoUpdate=1'
+        if ($state.Count -lt $EmudhraIntermediatesCount -or $state.TlsTrusted) {
+            Remove-ItemProperty -LiteralPath $CtlPolicyPath -Name 'DisableRootAutoUpdate'
+            [void](Measure-ExperimentState 'DisableRootAutoUpdate removed')
         }
     }
 }
