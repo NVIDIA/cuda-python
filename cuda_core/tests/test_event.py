@@ -127,9 +127,8 @@ def test_error_timing_recorded():
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 @pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 @pytest.mark.agent_authored(model="claude-opus-5-5")
-def test_error_timing_incomplete():
-    device = Device()
-    device.set_current()
+def test_error_timing_incomplete(init_cuda):
+    device = init_cuda
     latch = LatchKernel(device, timeout_sec=_LATCH_TIMEOUT_SEC)
     enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
@@ -147,8 +146,8 @@ def test_error_timing_incomplete():
     gc_enabled = gc.isenabled()
     gc.disable()
     try:
-        latch.launch(stream)
         start = time.monotonic()
+        latch.launch(stream)
         stream.record(event3)
         elapsed = time.monotonic() - start
         assert elapsed < _LATCH_TIMEOUT_SEC / 2, (
@@ -159,9 +158,11 @@ def test_error_timing_incomplete():
         with pytest.raises(RuntimeError, match="^One or both events have not completed."):
             event3 - event1
     finally:
-        latch.release()
-        if gc_enabled:
-            gc.enable()
+        try:
+            latch.release()
+        finally:
+            if gc_enabled:
+                gc.enable()
 
     event3.sync()
     event3 - event1  # this should work
