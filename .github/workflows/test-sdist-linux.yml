@@ -29,14 +29,15 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds
-    if: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_tests }}
+    if: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_package_roots[fromJSON(inputs.bindings-package).package_root] }}
     env:
       BINDINGS_ROOT: ${{ fromJSON(inputs.bindings-package).package_root }}
       CUDA_PYTHON_BUILD_MAJOR: ${{ fromJSON(inputs.bindings-package).cuda_major }}
       BUILD_PATHFINDER: ${{ fromJSON(inputs.bindings-package).release_status == 'current' && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build) }}
-      BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_build }}
-      BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_build }}
-      BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_build }}
+      BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
+      BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.cuda_majors[fromJSON(inputs.bindings-package).cuda_variant].needs_build }}
+      BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
+      PATHFINDER_SOURCE: ${{ inputs.workplan == '' && 'artifact' || fromJSON(inputs.workplan).sources.pathfinder }}
     timeout-minutes: 60
     runs-on: linux-amd64-cpu8
     steps:
@@ -77,7 +78,8 @@ jobs:
           pip wheel --no-deps --wheel-dir cuda_python/dist cuda_python/dist/*.tar.gz
 
       - name: Download cuda.pathfinder wheel
-        if: ${{ env.BUILD_PATHFINDER != 'true' && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
+        if: ${{ env.BUILD_PATHFINDER != 'true' && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') &&
+                env.PATHFINDER_SOURCE == 'artifact' }}
         uses: ./.github/actions/download-artifact-retry
         with:
           name: cuda-pathfinder-wheel
@@ -86,12 +88,19 @@ jobs:
       - name: Constrain builds to the local cuda.pathfinder wheel
         if: ${{ env.BUILD_BINDINGS == 'true' }}
         run: |
-          pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
-          test "${#pathfinder_wheels[@]}" -eq 1
-          test -f "${pathfinder_wheels[0]}"
           mkdir -p wheel-constraints
-          pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
-          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
+          if [[ "${PATHFINDER_SOURCE}" == artifact ]]; then
+            pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
+            test "${#pathfinder_wheels[@]}" -eq 1
+            test -f "${pathfinder_wheels[0]}"
+            pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" > wheel-constraints/cuda-bindings.txt
+          elif [[ "${PATHFINDER_SOURCE}" == published ]]; then
+            : > wheel-constraints/cuda-bindings.txt
+          else
+            echo "Error: PATHFINDER_SOURCE must be artifact or published" >&2
+            exit 1
+          fi
 
       # Cython packages need CTK + sccache (local disk cache only in this job).
       - name: Install rapidsai/sccache
