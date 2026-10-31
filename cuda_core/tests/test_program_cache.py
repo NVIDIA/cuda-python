@@ -38,6 +38,37 @@ def test_program_cache_resource_requires_core_methods():
     assert "__contains__" not in ProgramCacheResource.__abstractmethods__
 
 
+@pytest.mark.agent_authored(model="claude-opus-5")
+@pytest.mark.parametrize("factory", ["inmemory", "filestream"])
+def test_program_cache_is_not_iterable_and_rejects_in(tmp_path, factory):
+    """The ABC documents having no ``__contains__``, but defining
+    ``__getitem__`` without ``__iter__`` handed ``key in cache`` to the legacy
+    sequence protocol: it walked ``cache[0], cache[1], ...`` and compared
+    against the *values*. On these backends that surfaced as a baffling
+    "cache keys must be bytes or str, got int"; on a subclass whose
+    ``__getitem__`` accepts integers it silently answered about values instead
+    of keys.
+    """
+    from cuda.core.utils import FileStreamProgramCache, InMemoryProgramCache
+
+    cache = InMemoryProgramCache() if factory == "inmemory" else FileStreamProgramCache(tmp_path / "fc")
+    with cache:
+        cache[b"k"] = b"v"
+
+        with pytest.raises(TypeError, match="not iterable"):
+            b"k" in cache  # noqa: B015
+        with pytest.raises(TypeError, match="not iterable"):
+            iter(cache)
+        with pytest.raises(TypeError, match="not iterable"):
+            list(cache)
+
+        # The supported lookups are unaffected.
+        assert cache[b"k"] == b"v"
+        assert cache.get(b"k") == b"v"
+        assert cache.get(b"absent") is None
+        assert len(cache) == 1
+
+
 def _build_empty_subclass():
     from cuda.core.utils import ProgramCacheResource
 
