@@ -1,0 +1,6 @@
+﻿cuda.core.system.InvalidArgumentError
+=====================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: InvalidArgumentError
