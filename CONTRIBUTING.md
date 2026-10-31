@@ -86,6 +86,9 @@ build and test instructions for
 [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/install.html),
 [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html), or
 [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/install.html).
+The bindings `latest` guide covers CUDA 13. For CUDA 12 development, start
+with [`cuda_bindings_12/`](cuda_bindings_12/). Both bindings roots require
+Python 3.11 or newer; use a separate environment for each CUDA major.
 
 ### Updating your clone
 
@@ -112,17 +115,27 @@ $ git fetch --tags https://github.com/NVIDIA/cuda-python.git
 Every package in this repository derives its version from git tags using
 [`setuptools-scm`](https://setuptools-scm.readthedocs.io/), so **how you clone
 determines whether you can build at all, and whether the version you build is
-correct.** Each package matches its own tag prefix:
+correct.** Packages select tags for their own release line:
 
 | Package | Tag pattern |
 | --- | --- |
-| `cuda-bindings`, `cuda-python` | `v*` (e.g. `v13.4.2`) |
+| `cuda-bindings` from `cuda_bindings_12/` | `v12.9.*` (e.g. `v12.9.10`) |
+| `cuda-bindings` from `cuda_bindings_13/` | `v13.4.*` (e.g. `v13.4.2`) |
+| `cuda-python` | The matching bindings selector, chosen with `CUDA_PYTHON_BUILD_MAJOR=12` or `13` (default) |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
-Each package sets `root = ".."` in its `[tool.setuptools_scm]` table, meaning the
-version is read from the *repository root* rather than the package directory. A
-working build therefore needs all of the following:
+Git source builds of `cuda-python` default to CUDA 13. Set
+`CUDA_PYTHON_BUILD_MAJOR=12` to select CUDA 12, or `13` explicitly for CUDA 13.
+The resolved version determines dependencies: CUDA 12 depends on matching
+bindings, while CUDA 13 also depends on Core and Pathfinder. A standalone
+sdist retains its version and dependency major without requiring this variable.
+
+The selectors are recorded in the bindings roots' `pyproject.toml` files and
+the metapackage's `pyproject.toml`; the metadata check keeps them aligned with
+`ci/versions.yml`. All packages read versions from the *repository root*,
+rather than their package directory. Builds from a Git checkout therefore
+need all of the following:
 
 1. **A real git clone.** Source zips and GitHub "Download ZIP" archives have no
    git metadata and the build fails outright. Tarballs produced by
@@ -137,19 +150,22 @@ working build therefore needs all of the following:
 4. **The CCCL submodule** when building `cuda.core`. That package compiles
    against the headers pinned in `cuda_core/third_party/cccl`.
 
+Copying CUDA 12 sources into `main` does not make their historical branch tags
+reachable. For maintenance preview builds without an appropriate reachable
+tag, follow the [SCM bootstrap guidance](ci/README.md#cuda-bindings-package-root-registry)
+in a disposable clone; do not create preview tags in a shared worktree repository.
+
 ### Symptoms of a bad clone
 
-Only case 3 below reports an error. The first two fail *silently*, producing a
-wrong version that surfaces much later as a confusing dependency-resolution or
-version-check failure:
+Incomplete history can fail version detection or produce a plausible but
+incorrect version that surfaces later as a dependency-resolution failure:
 
-1. **No tags reachable.** The build succeeds and produces a version starting at
-   `0.1.dev`: a `--depth 1` clone yields `0.1.dev1+g0d22cb444`, a full clone made
-   with `--no-tags` yields `0.1.dev2114+g0d22cb444`. Installing `cuda-python`
-   built this way then fails, because its `install_requires` pins
-   `cuda-bindings` to that same bogus version.
+1. **No matching tags reachable.** Depending on the package's SCM configuration,
+   the build can fail or produce a placeholder such as `0.1.dev...`. Fetching
+   tags is insufficient if the checkout lacks the ancestry connecting them to
+   the build. Check the selected release line, not just whether any tag exists.
 2. **Stale tags** (a fork that has not fetched upstream in a while): you get a
-   plausible-looking but wrong version, e.g. `13.0.4.dev650+g0d22cb44` when the
+   plausible-looking but wrong version, e.g. `13.4.1.dev7+g0d22cb44` when the
    real latest tag is `v13.4.2`. Nothing warns you. Note there is no leading
    `v` — `setuptools-scm` strips the tag prefix.
 3. **No git metadata** (source zip): the build fails with
@@ -167,6 +183,25 @@ hyphens replaced by underscores: `..._FOR_CUDA_BINDINGS`, `..._FOR_CUDA_CORE`,
 `..._FOR_CUDA_PATHFINDER`, `..._FOR_CUDA_PYTHON`. Use this only when you
 genuinely cannot provide tags; it is not a substitute for a correct clone.
 
+
+## Transferring fixes between bindings roots
+
+For a handwritten fix that applies to both majors, a path-relative patch can
+transfer the source-root portion of a commit. From the repository root, with a
+clean worktree, replace `COMMIT` with the reviewed source commit:
+
+```console
+$ git format-patch -1 --stdout --relative=cuda_bindings_13 COMMIT -- cuda_bindings_13 > bindings-fix.patch
+$ git am --directory=cuda_bindings_12 bindings-fix.patch
+```
+
+Inspect the patch before applying it. The path restriction excludes changes
+outside the selected root; assess shared files separately. Resolve conflicts
+and review the result against the destination API and toolkit, then run the
+relevant tests. Swap the two roots for the reverse direction, and remove the
+temporary patch when finished. These commands copy handwritten changes;
+generated bindings must be regenerated from their generation source for each
+toolkit. Record matching changes or a concrete reason they do not apply.
 
 ## Development on Windows
 
@@ -306,20 +341,10 @@ must stay in sync with their manifests and easy to review.
 
 Contributor expectations:
 
-- If a PR changes a `pixi.toml`, update the corresponding `pixi.lock` in the
-  same PR. Regenerating one lockfile:
-
-  ```console
-  $ pixi lock --manifest-path cuda_core
-  ```
-
-  Use `--manifest-path .` for the repository-root environment. Regenerate with
-  the pixi version pinned in `ci/pixi-version.env`: different pixi versions
-  write different canonical forms, such as the `pixi.lock` format version or
-  the generated platform alias names, and CI requires the committed bytes to
-  match what the pinned version produces. The pin must remain at least 0.71.0,
-  which supplies the content-addressed source-build cache used by CI and writes
-  the repository's version 7 lockfiles.
+- If a PR changes dependencies in a `pixi.toml`, update and validate the
+  corresponding `pixi.lock` in the same PR. Use the Pixi version pinned in
+  `ci/pixi-version.env`; review the affected solution rather than performing
+  an unrelated dependency refresh.
 - If a PR does not intentionally change pixi dependencies or metadata, do not
   include unrelated lockfile churn. `pixi run` can refresh a stale lockfile
   implicitly; revert that noise unless the refresh is the point of the change.
@@ -327,37 +352,14 @@ Contributor expectations:
 - Isolate large dependency refreshes from feature work when possible. Prefer a
   dedicated lockfile-only PR over mixing solver churn into an unrelated change.
 
-CI enforces the contract: `pixi lock --check` fails when a committed lockfile is
-stale, and pixi source-build jobs run with `PIXI_LOCKED=true` so they install from
-the committed lock rather than updating it during the job. If either check
-fails, regenerate and commit the affected lockfile.
-
-The freshness check additionally fails when the check itself rewrote a lockfile.
-`pixi lock --check` accepts a lock whose solution is current but whose bytes are
-not canonical for the pinned pixi version, quietly normalizing the file instead,
-which leaves every later pixi run rewriting the committed lockfile.
-
-A scheduled workflow (`CI: pixi lockfile refresh`) runs
-`pixi update --no-install` for every workspace in one job and opens one PR with
-all changed lockfiles, so broad dependency churn is reviewed as maintenance
-rather than landing inside unrelated feature work. The workflow can also be
-dispatched manually. Both lockfile workflows resolve their workspace lists
-through `ci/tools/list_pixi_workspaces.py`, which derives the inventory from the
-committed manifests, so a newly added workspace is picked up without editing a
-workflow.
-
-Refresh PRs use `GITHUB_TOKEN`. After one opens, a maintainer with write access
-must first select **Approve workflows to run** in the merge box, then assign
-themselves to the PR. Approval starts the queued `pull_request` runs; the
-human-generated `assigned` event creates the required
-**PR has assignee, labels, and milestone** `pull_request_target` check and gives
-the PR a clear owner.
-
-A future GitHub App integration could trigger both `pull_request` and
-`pull_request_target` workflows automatically.
-See GitHub's
-[token event documentation](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)
-for the current behavior.
+Freshness enforcement and automated refreshes are temporarily suspended.
+The freshness workflow succeeds with a warning; it does not verify
+manifest/lock consistency. The refresh workflow has no schedule, and manual
+dispatch reports the suspension without changing dependencies or opening a PR.
+Source-build CI uses `PIXI_FROZEN=true` to consume committed lockfiles without
+solving them. Necessary dependency changes require manual review and validation.
+See the [maintenance pause and restoration criteria](ci/README.md#temporary-pixi-lockfile-maintenance-pause)
+before attempting a lockfile repair or refresh.
 
 ## Secret Scanning
 

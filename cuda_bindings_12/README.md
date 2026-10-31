@@ -15,7 +15,9 @@ This subpackage adheres to the developing practices described in the parent meta
 
 ## Testing
 
-Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.
+Run the commands below from `cuda_bindings_12/`, in an environment containing
+the CUDA 12 bindings. Install the package and its `test` dependency group with
+`python -m pip install -v -e . --group test`.
 
 Multiple testing options are available:
 
