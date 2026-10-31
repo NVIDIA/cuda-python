@@ -441,3 +441,66 @@ deploy the documentation to that preview branch. Run once per component when
 validating more than one package; use `component=cuda-python` for the matching
 metapackage documentation. Other historical release lines likewise need
 tooling compatible with their tagged layout.
+
+## Maintaining Both Bindings Roots
+
+`main` is the integration branch for both bindings release lines. The old
+`12.9.x` branch stays frozen except for emergency fixes using compatible
+historical tooling; reconcile any such fix into `cuda_bindings_12/` on `main`.
+Routine CUDA 12 development belongs in that main-tree root. Short release
+branches may stabilize a selected version or carry urgent fixes while `main` advances.
+The [bindings release guide](../.github/RELEASE-bindings.md) describes branch
+creation, backport automation, independent release validation, and returning
+fixes to `main`. The
+[CUDA 12 maintenance guide](../cuda_bindings_12/MAINTENANCE.md) identifies the
+maintenance root.
+
+For generated bindings, change cybind first and regenerate each affected
+package root against its intended toolkit inputs. Review the generated diff,
+record the cybind revision, toolkit inputs, and command in the pull request,
+and check modified files with
+`python toolshed/check_generated_file_seals.py <paths...>`. The seal verifies
+the content of an individual generated file; it does not identify the cybind
+revision or prove that the two roots should have identical output. Generated
+output may legitimately differ across toolkit targets.
+
+For a handwritten bindings fix, inspect the corresponding code in the other
+root. In the pull request, identify the matching change or explain concretely
+why the fix does not apply there. A reviewer must verify that judgment: there
+is no general deterministic check for semantic equivalence of handwritten
+code across the two roots. Where files are intentionally identical, a narrowly
+scoped byte-for-byte check can be added after establishing that invariant.
+
+Major-line maintenance can include deliberately selected compatibility work
+such as a new Python version or a new API supported by that toolkit. A frozen
+patch release has a narrower scope: fixes and release prerequisites approved
+for that release. State which policy applies in the release checklist and
+notes; a maintenance label alone does not promise a fixes-only release.
+
+Keep generator development and continuous toolkit qualification independent
+of this source layout. A cybind change should be exercised against both
+supported consumers before its generated output is imported. Record the
+generator revision and toolkit inputs for each import, including any manual
+post-generation adjustment. File seals establish content integrity, not
+generation provenance. Moving QA directories or redesigning cybind asset
+storage is not required to maintain both roots here.
+
+## Changing Supported Release Lines
+
+When support moves from CUDA 12/13 to CUDA 13/14, retain `cuda_bindings_13/`
+as the maintenance source and introduce a distinct CUDA 14 root. Then:
+
+1. Update `ci/versions.yml`: remove the retired CUDA 12 root, mark the CUDA
+   13 root `maintenance`, mark the CUDA 14 root `current`, and set each exact
+   toolkit build/test version.
+2. Align each root's `pyproject.toml` `git_describe_command --match` selector
+   and any preview bootstrap target with its release family. Update per-root packaging,
+   pixi environments, documentation, and dependent package constraints for the
+   supported lines.
+3. Build and test both roots and their dependent packages on the supported
+   platforms. Validate release selection and run publication-incapable dry
+   runs for tags from each line before releasing from the new layout.
+
+The same branch policy applies after the rollover: `main` integrates the
+current and maintenance roots, short release branches stabilize releases,
+and retired release branches are retained for history.
