@@ -22,14 +22,15 @@ ContextHandle create_context_handle_ref(CUcontext ctx);
 // Create a context handle for the CUcontext view of the provided green context.
 // The returned ContextHandle keeps the green context alive, but the CUcontext
 // view is non-owning and is not destroyed independently.
-ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx);
+ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle &h_green_ctx);
 
 // Return the green context dependency associated with a ContextHandle, if any.
-GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept;
+GreenCtxHandle get_context_green_ctx(const ContextHandle &h) noexcept;
 
 // Create an owning green context handle from a list of device resources.
-GreenCtxHandle create_green_ctx_handle(CUdevResource* resources, unsigned int nbResources,
-                                       CUdevice dev, unsigned int flags);
+GreenCtxHandle create_green_ctx_handle(
+    CUdevResource *resources, unsigned int nbResources, CUdevice dev, unsigned int flags
+);
 
 // Create a non-owning green context handle.
 GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
@@ -44,18 +45,17 @@ ContextHandle get_current_context();
 
 // Synchronize the provided context. Releases the GIL around the driver call.
 // Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
-CUresult context_synchronize(const ContextHandle& h_context) noexcept;
+CUresult context_synchronize(const ContextHandle &h_context) noexcept;
 
 // Query the stream priority range for the provided context.
 // Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
 CUresult context_get_stream_priority_range(
-    const ContextHandle& h_context,
-    int* least_priority,
-    int* greatest_priority) noexcept;
+    const ContextHandle &h_context, int *least_priority, int *greatest_priority
+) noexcept;
 
 // Query the device of the provided context.
 // Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
-CUresult context_get_device(const ContextHandle& h_context, CUdevice* device) noexcept;
+CUresult context_get_device(const ContextHandle &h_context, CUdevice *device) noexcept;
 
 // Call cuGraphNodeSetParams with h_context current (empty handle: the caller's
 // context). Returns the update status; *restore_status receives a failure to
@@ -64,10 +64,8 @@ CUresult context_get_device(const ContextHandle& h_context, CUdevice* device) no
 // Returns CUDA_ERROR_NOT_SUPPORTED when the driver lacks cuGraphNodeSetParams.
 // Implemented in graph.cpp
 CUresult graph_node_set_params(
-    CUgraphNode node,
-    CUgraphNodeParams* params,
-    const ContextHandle& h_context,
-    CUresult* restore_status) noexcept;
+    CUgraphNode node, CUgraphNodeParams *params, const ContextHandle &h_context, CUresult *restore_status
+) noexcept;
 
 // ============================================================================
 // Stream handle functions
@@ -77,7 +75,7 @@ CUresult graph_node_set_params(
 // The stream structurally depends on the provided context handle.
 // When the last reference is released, cuStreamDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-StreamHandle create_stream_handle(const ContextHandle& h_ctx, unsigned int flags, int priority);
+StreamHandle create_stream_handle(const ContextHandle &h_ctx, unsigned int flags, int priority);
 
 // Create a non-owning stream handle (references existing stream).
 // Use for borrowed streams (from foreign code) or built-in streams.
@@ -93,7 +91,7 @@ void initialize_deferred_cleanup();
 void retry_deferred_cleanup() noexcept;
 
 // Return the context dependency associated with a stream handle, if any.
-ContextHandle get_stream_context(const StreamHandle& h) noexcept;
+ContextHandle get_stream_context(const StreamHandle &h) noexcept;
 
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
 // Note: Legacy stream has no specific context dependency.
@@ -109,7 +107,15 @@ StreamHandle get_per_thread_stream();
 // known context (e.g. a synchronous, non-pooled allocator) record a correct
 // deallocation context without requiring that context to be current when the
 // token is created. Returns an empty handle for an empty h_context.
-StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context);
+StreamHandle create_context_bound_legacy_stream(const ContextHandle &h_context);
+
+// ============================================================================
+// Host function launch
+// ============================================================================
+
+CUresult launch_host_function(
+    CUstream stream, CUhostFn fn, void *user_data, OpaqueHandle fn_owner, OpaqueHandle data_owner
+) noexcept;
 
 // ============================================================================
 // Event handle functions
@@ -120,9 +126,14 @@ StreamHandle create_context_bound_legacy_stream(const ContextHandle& h_context);
 // Metadata fields are stored in the EventBox for later retrieval.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(const ContextHandle& h_ctx, unsigned int flags,
-                                bool timing_enabled, bool is_blocking_sync,
-                                bool ipc_enabled, int device_id);
+EventHandle create_event_handle(
+    const ContextHandle &h_ctx,
+    unsigned int flags,
+    bool timing_enabled,
+    bool is_blocking_sync,
+    bool ipc_enabled,
+    int device_id
+);
 
 // Create an owning event in the context that owns `stream`, so it can be
 // recorded on that stream regardless of which context is current. Default-
@@ -137,8 +148,7 @@ EventHandle create_event_handle_for_stream(CUstream stream, unsigned int flags);
 // The originating process owns the event and its context.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
-                                    bool is_blocking_sync);
+EventHandle create_event_handle_ipc(const CUipcEventHandle &ipc_handle, bool is_blocking_sync);
 
 // Create a non-owning event handle (references existing event).
 // Use for events that are managed by the CUDA graph or another owner.
@@ -147,11 +157,11 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle,
 EventHandle create_event_handle_ref(CUevent event);
 
 // Event metadata accessors (read from EventBox via pointer arithmetic)
-bool get_event_timing_enabled(const EventHandle& h) noexcept;
-bool get_event_is_blocking_sync(const EventHandle& h) noexcept;
-bool get_event_ipc_enabled(const EventHandle& h) noexcept;
-int get_event_device_id(const EventHandle& h) noexcept;
-ContextHandle get_event_context(const EventHandle& h) noexcept;
+bool get_event_timing_enabled(const EventHandle &h) noexcept;
+bool get_event_is_blocking_sync(const EventHandle &h) noexcept;
+bool get_event_ipc_enabled(const EventHandle &h) noexcept;
+int get_event_device_id(const EventHandle &h) noexcept;
+ContextHandle get_event_context(const EventHandle &h) noexcept;
 
 // ============================================================================
 // Memory pool handle functions
@@ -161,7 +171,7 @@ ContextHandle get_event_context(const EventHandle& h) noexcept;
 // Memory pools are device-scoped (not context-scoped).
 // When the last reference is released, cuMemPoolDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props);
+MemoryPoolHandle create_mempool_handle(const CUmemPoolProps &props);
 
 // Create a non-owning memory pool handle (references existing pool).
 // Use for device default/current pools that are managed by the driver.
@@ -186,21 +196,17 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 // The pointer structurally depends on the provided pool handle (captured in deleter).
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc_from_pool(
-    size_t size,
-    const MemoryPoolHandle& h_pool,
-    const StreamHandle& h_stream);
+DevicePtrHandle deviceptr_alloc_from_pool(size_t size, const MemoryPoolHandle &h_pool, const StreamHandle &h_stream);
 
 // Allocate device memory asynchronously via cuMemAllocAsync.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle& h_stream);
+DevicePtrHandle deviceptr_alloc_async(size_t size, const StreamHandle &h_stream);
 
 // Allocate device memory synchronously via cuMemAlloc with the provided
 // context current. The caller owns the pointer and releases it with cuMemFree.
 // Returns CUDA_ERROR_INVALID_CONTEXT for an empty handle.
-CUresult deviceptr_alloc_raw(CUdeviceptr* ptr, size_t size,
-                             const ContextHandle& h_context) noexcept;
+CUresult deviceptr_alloc_raw(CUdeviceptr *ptr, size_t size, const ContextHandle &h_context) noexcept;
 
 // Allocate pinned host memory via cuMemAllocHost.
 // When the last reference is released, cuMemFreeHost is called.
@@ -218,29 +224,26 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 // the stored stream, then the graphics resource may be unregistered when its
 // own handle is released.
 DevicePtrHandle deviceptr_create_mapped_graphics(
-    CUdeviceptr ptr,
-    const GraphicsResourceHandle& h_resource,
-    const StreamHandle& h_stream);
+    CUdeviceptr ptr, const GraphicsResourceHandle &h_resource, const StreamHandle &h_stream
+);
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Note: Does not yet implement reference counting for nvbug 5570902.
 // On error, returns empty handle and sets thread-local error (use get_last_error()).
 DevicePtrHandle deviceptr_import_ipc(
-    const MemoryPoolHandle& h_pool,
-    const void* export_data,
-    const StreamHandle& h_stream);
+    const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream
+);
 
 // Access the deallocation stream for a device pointer handle (read-only).
 // For non-owning handles, the stream is not used but can still be accessed.
 // Returns an empty handle for an empty device pointer handle.
-StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
+StreamHandle deallocation_stream(const DevicePtrHandle &h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
 // Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
 // bound because no CUDA context is current.
-CUresult set_deallocation_stream(
-    const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept;
+CUresult set_deallocation_stream(const DevicePtrHandle &h, const StreamHandle &h_stream) noexcept;
 
 // ============================================================================
 // Virtual memory management (VMM_DESIGN.md)
@@ -256,11 +259,32 @@ CUresult set_deallocation_stream(
 // applied to every mapping of this allocation. When the last reference is
 // released, cuMemRelease is called; the memory is freed once no mapping
 // remains. Returns empty handle on error (caller must check).
-MemAllocationHandle create_mem_allocation_handle(size_t size, const CUmemAllocationProp& prop,
-                                                 const CUmemAccessDesc* descs, size_t count);
+MemAllocationHandle create_mem_allocation_handle(
+    size_t size, const CUmemAllocationProp &prop, const CUmemAccessDesc *descs, size_t count
+);
 
 // Size of the allocation; the only size cuMemMap accepts for it.
-size_t mem_allocation_size(const MemAllocationHandle& h) noexcept;
+size_t mem_allocation_size(const MemAllocationHandle &h) noexcept;
+
+// Whether cuMemImportFromShareableHandle produced the allocation. The driver
+// exports only allocations this process created with a handle type, so an
+// imported allocation cannot be exported again; callers check this before
+// cuMemExportToShareableHandle instead of relying on the driver's error. The
+// mark travels with the allocation into every range that maps it.
+bool mem_allocation_is_imported(const MemAllocationHandle &h) noexcept;
+
+// Import a physical allocation that another process exported with
+// cuMemExportToShareableHandle. `os_handle` is the shareable handle in the
+// form cuMemImportFromShareableHandle expects for `handle_type` (a POSIX file
+// descriptor is its value cast to void*). `size` is the allocation's size,
+// which the OS handle does not expose to the importer; the caller takes it
+// from the exporter, and a wrong size fails the later cuMemMap. The result is
+// a MemAllocationHandle like one from create_mem_allocation_handle: the
+// access descriptors are applied to every mapping, and the last reference
+// calls cuMemRelease. Returns empty handle on error (caller must check).
+MemAllocationHandle import_mem_allocation_handle(
+    void *os_handle, CUmemAllocationHandleType handle_type, size_t size, const CUmemAccessDesc *descs, size_t count
+);
 
 // Reserve an address range via cuMemAddressReserve. Pass alignment 0 for the
 // driver default. When the last reference is released, cuMemAddressFree is
@@ -268,35 +292,45 @@ size_t mem_allocation_size(const MemAllocationHandle& h) noexcept;
 VaReservationHandle create_va_reservation_handle(size_t size, size_t alignment, CUdeviceptr hint);
 
 // Size of the reservation.
-size_t va_reservation_size(const VaReservationHandle& h) noexcept;
+size_t va_reservation_size(const VaReservationHandle &h) noexcept;
+
+// Test-suite instrumentation: process-wide counts of live *owned* driver
+// resources. Owned memory pools (cuMemPoolCreate or imported) and VA
+// reservations (cuMemAddressReserve) are each counted at their RAII create
+// site and uncounted in their deleter. Borrowed pool references and
+// MemoryResource subclasses that hold no pool or reservation are not counted.
+// conftest.py reads these to gate the per-test gc.collect().
+long long live_owned_mempool_count() noexcept;
+long long live_va_reservation_count() noexcept;
 
 // Map the whole allocation at ptr inside the reservation via cuMemMap and
 // apply the allocation's access descriptors. The mapping structurally depends
 // on both handles. When the last reference is released, cuMemUnmap is called
 // first. Returns empty handle on error, including a range outside the
 // reservation; a failed cuMemSetAccess unmaps before returning.
-VaMappingHandle create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
-                                         const VaReservationHandle& h_res);
+VaMappingHandle create_va_mapping_handle(
+    CUdeviceptr ptr, const MemAllocationHandle &h_alloc, const VaReservationHandle &h_res
+);
 
 // Mapping accessors.
-size_t va_mapping_size(const VaMappingHandle& h) noexcept;
-MemAllocationHandle va_mapping_allocation(const VaMappingHandle& h) noexcept;
+size_t va_mapping_size(const VaMappingHandle &h) noexcept;
+MemAllocationHandle va_mapping_allocation(const VaMappingHandle &h) noexcept;
 
 // Build an immutable range from mappings in ascending, contiguous order. A
 // grow builds a new range for its result and never changes the input's.
 // May throw std::bad_alloc.
-VmmRangeHandle create_vmm_range(const std::vector<VaMappingHandle>& mappings);
+VmmRangeHandle create_vmm_range(const std::vector<VaMappingHandle> &mappings);
 
 // The range of a device pointer handle created by deviceptr_create_vmm. Only
 // for such handles: the caller (VirtualMemoryBuffer) guarantees the origin.
 // Empty for an empty handle.
-VmmRangeHandle vmm_range(const DevicePtrHandle& h) noexcept;
+VmmRangeHandle vmm_range(const DevicePtrHandle &h) noexcept;
 
 // Range accessors: a copy of the mapping list, which a grow extends and turns
 // into a new range, and the range total. Reads of an immutable range need no
 // synchronization.
-std::vector<VaMappingHandle> vmm_range_mappings(const VmmRangeHandle& range);  // may throw
-size_t vmm_range_total(const VmmRangeHandle& range) noexcept;
+std::vector<VaMappingHandle> vmm_range_mappings(const VmmRangeHandle &range);  // may throw
+size_t vmm_range_total(const VmmRangeHandle &range) noexcept;
 
 // Create a device pointer handle whose box owns a range (an empty range for
 // a size-zero buffer). The box records no deallocation stream; set one with
@@ -304,7 +338,7 @@ size_t vmm_range_total(const VmmRangeHandle& range) noexcept;
 // stream is synchronized (skipped with a report when that would disturb a
 // capture) and the box freed, which unmaps every mapping this buffer was the
 // last to hold. Returns empty handle for a null range handle.
-DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& range);
+DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle &range);
 
 // ============================================================================
 // Library handle functions
@@ -313,13 +347,13 @@ DevicePtrHandle deviceptr_create_vmm(CUdeviceptr base, const VmmRangeHandle& ran
 // Create an owning library handle by loading from a file path.
 // When the last reference is released, cuLibraryUnload is called automatically.
 // Returns empty handle on error (caller must check).
-LibraryHandle create_library_handle_from_file(const char* path);
+LibraryHandle create_library_handle_from_file(const char *path);
 
 // Create an owning library handle by loading from memory data.
 // The driver makes an internal copy of the data; caller can free it after return.
 // When the last reference is released, cuLibraryUnload is called automatically.
 // Returns empty handle on error (caller must check).
-LibraryHandle create_library_handle_from_data(const void* data);
+LibraryHandle create_library_handle_from_data(const void *data);
 
 // Create a non-owning library handle (references existing library).
 // Use for borrowed libraries (e.g., from foreign code).
@@ -334,7 +368,7 @@ LibraryHandle create_library_handle_ref(CUlibrary library);
 // The kernel structurally depends on the provided library handle.
 // Kernels have no explicit destroy - their lifetime is tied to the library.
 // Returns empty handle on error (caller must check).
-KernelHandle create_kernel_handle(const LibraryHandle& h_library, const char* name);
+KernelHandle create_kernel_handle(const LibraryHandle &h_library, const char *name);
 
 // Create a kernel handle from a raw CUkernel.
 // If the kernel is already managed (in the registry), returns the owning
@@ -343,7 +377,7 @@ KernelHandle create_kernel_handle_ref(CUkernel kernel);
 
 // Get the library handle associated with a kernel (from KernelBox).
 // Returns empty handle if the kernel has no library dependency.
-LibraryHandle get_kernel_library(const KernelHandle& h) noexcept;
+LibraryHandle get_kernel_library(const KernelHandle &h) noexcept;
 
 // ============================================================================
 // Graph handle functions
@@ -354,8 +388,7 @@ GraphHandle create_graph_handle(CUgraph graph);
 
 // Create the canonical handle for a graph whose CUDA lifetime is owned by a
 // node in h_parent.
-GraphHandle create_child_graph_handle(
-    CUgraph child_graph, const GraphHandle& h_parent, CUgraphNode owner_node);
+GraphHandle create_child_graph_handle(CUgraph child_graph, const GraphHandle &h_parent, CUgraphNode owner_node);
 
 // ============================================================================
 // Graph node attachments
@@ -374,60 +407,47 @@ GraphHandle create_child_graph_handle(
 // ============================================================================
 
 // Build an OpaqueHandle from a malloc'd buffer: std::free on release.
-OpaqueHandle make_opaque_malloc(void* buf);
+OpaqueHandle make_opaque_malloc(void *buf);
 
 // Copy requested owners from node's current attachment. Pass nullptr to ignore
 // either owner; a missing attachment produces empty handles.
-CUresult graph_get_attachment(
-    const GraphHandle& h_graph,
-    CUgraphNode node,
-    OpaqueHandle* owner0,
-    OpaqueHandle* owner1);
+CUresult graph_get_attachment(const GraphHandle &h_graph, CUgraphNode node, OpaqueHandle *owner0, OpaqueHandle *owner1);
 
 // Create and graph-retain a replacement attachment before a CUDA mutation.
 // Destruction rolls the prepared attachment back unless it is committed.
 CUresult graph_prepare_attachment(
-    const GraphHandle& h_graph,
-    OpaqueHandle owner0,
-    OpaqueHandle owner1,
-    PreparedAttachment* out_prepared);
+    const GraphHandle &h_graph, OpaqueHandle owner0, OpaqueHandle owner1, PreparedAttachment *out_prepared
+);
 
 // Publish a prepared attachment after the CUDA mutation succeeds. A null node
 // retains the attachment anonymously without publishing node metadata.
-CUresult graph_commit_attachment(
-    PreparedAttachment& prepared,
-    CUgraphNode node);
+CUresult graph_commit_attachment(PreparedAttachment &prepared, CUgraphNode node);
 
 // Copy attachment metadata from a source graph hierarchy into its CUDA clone.
-CUresult graph_clone_attachments(
-    const GraphHandle& h_clone,
-    const GraphHandle& h_source);
+CUresult graph_clone_attachments(const GraphHandle &h_clone, const GraphHandle &h_source);
 
 // Stage a complete metadata replacement before CUDA replaces an embedded
 // graph. Dropping the prepared state leaves the current hierarchy unchanged.
 CUresult graph_prepare_child_graph_update(
-    const GraphHandle& h_parent,
-    const GraphHandle& h_old_child,
+    const GraphHandle &h_parent,
+    const GraphHandle &h_old_child,
     CUgraphNode owner_node,
-    const GraphHandle& h_source,
-    PreparedChildGraphUpdate* out_prepared);
+    const GraphHandle &h_source,
+    PreparedChildGraphUpdate *out_prepared
+);
 
 // Rekey staged metadata to CUDA's replacement clone, retire the old embedded
 // hierarchy, and publish the replacement handle.
-CUresult graph_commit_child_graph_update(
-    PreparedChildGraphUpdate& prepared,
-    GraphHandle* out_child);
+CUresult graph_commit_child_graph_update(PreparedChildGraphUpdate &prepared, GraphHandle *out_child);
 
 // Invalidate cuda.core state for child graphs CUDA destroyed with owner_node.
-void invalidate_child_graph_state(
-    const GraphHandle& h_parent,
-    CUgraphNode owner_node) noexcept;
+void invalidate_child_graph_state(const GraphHandle &h_parent, CUgraphNode owner_node) noexcept;
 
 // Invalidate cuda.core state for a root graph that CUDA destroyed itself, such
 // as the graph of an invalidated capture ended by cuStreamEndCapture. The
 // owning handle then no longer calls cuGraphDestroy. No-op unless h_root is
 // the live root of its hierarchy.
-void invalidate_root_graph_state(const GraphHandle& h_root) noexcept;
+void invalidate_root_graph_state(const GraphHandle &h_root) noexcept;
 
 // ============================================================================
 // Graph exec handle functions
@@ -442,30 +462,24 @@ void invalidate_root_graph_state(const GraphHandle& h_root) noexcept;
 // Returns empty handle on error (caller must check). The caller reads
 // params->result_out for the specific instantiation failure and
 // get_last_error() for a driver status.
-GraphExecHandle create_graph_exec_handle(
-    const GraphHandle& h_source,
-    CUDA_GRAPH_INSTANTIATE_PARAMS* params);
+GraphExecHandle create_graph_exec_handle(const GraphHandle &h_source, CUDA_GRAPH_INSTANTIATE_PARAMS *params);
 
 // Update h_exec in place by calling cuGraphExecUpdate, and publish a fresh
 // accumulator when CUDA accepts the update. Writes result_info for the caller.
 CUresult graph_exec_update(
-    const GraphExecHandle& h_exec,
-    const GraphHandle& h_source,
-    CUgraphExecUpdateResultInfo* result_info);
+    const GraphExecHandle &h_exec, const GraphHandle &h_source, CUgraphExecUpdateResultInfo *result_info
+);
 
 // Append owners before an executable-node mutation. The accumulator grows
 // because CUDA cannot attach user objects to an exec after instantiation, so
 // old owners stay reachable. Dropping the transaction restores the accumulator
 // to its original size.
 CUresult graph_prepare_exec_attachment(
-    const GraphExecHandle& h_exec,
-    OpaqueHandle owner0,
-    OpaqueHandle owner1,
-    PreparedExecAttachment* out_prepared);
+    const GraphExecHandle &h_exec, OpaqueHandle owner0, OpaqueHandle owner1, PreparedExecAttachment *out_prepared
+);
 
 // Keep the owners added by graph_prepare_exec_attachment.
-void graph_commit_exec_attachment(
-    PreparedExecAttachment& prepared) noexcept;
+void graph_commit_exec_attachment(PreparedExecAttachment &prepared) noexcept;
 
 // ============================================================================
 // Graph node handle functions
@@ -474,13 +488,13 @@ void graph_commit_exec_attachment(
 // Create a node handle. Nodes are owned by their parent graph (not
 // independently destroyable). The GraphHandle dependency ensures the
 // graph outlives any node reference.
-GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle& h_graph);
+GraphNodeHandle create_graph_node_handle(CUgraphNode node, const GraphHandle &h_graph);
 
 // Extract the owning graph handle from a node handle.
-GraphHandle graph_node_get_graph(const GraphNodeHandle& h) noexcept;
+GraphHandle graph_node_get_graph(const GraphNodeHandle &h) noexcept;
 
 // Zero the CUgraphNode resource inside the handle, marking it invalid.
-void invalidate_graph_node(const GraphNodeHandle& h) noexcept;
+void invalidate_graph_node(const GraphNodeHandle &h) noexcept;
 
 // ============================================================================
 // Graphics resource handle functions
@@ -569,7 +583,7 @@ FileDescriptorHandle create_fd_handle_ref(int fd);
 // Create an owning CUDA array via cuArray3DCreate.
 // When the last reference is released, cuArrayDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-OpaqueArrayHandle create_array_handle(const ContextHandle& h_context, const CUDA_ARRAY3D_DESCRIPTOR& desc);
+OpaqueArrayHandle create_array_handle(const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTOR &desc);
 
 // Create a non-owning array handle (references an existing CUarray).
 // Use for arrays owned elsewhere (e.g. graphics interop). Never destroyed here.
@@ -580,46 +594,52 @@ OpaqueArrayHandle create_array_handle_ref(CUarray arr);
 OpaqueArrayHandle create_array_handle_owning(CUarray arr);
 
 // Return the context dependency associated with an array, if known.
-ContextHandle get_array_context(const OpaqueArrayHandle& h) noexcept;
+ContextHandle get_array_context(const OpaqueArrayHandle &h) noexcept;
 
 // Create a non-owning handle to a mipmap level via cuMipmappedArrayGetLevel.
 // The level CUarray is owned by the mipmap; the parent MipmappedArrayHandle is
 // embedded in the box so it outlives the level view. No destroy in the deleter.
 // Returns empty handle on error (caller must check).
-OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle& h_mip, unsigned int level);
+OpaqueArrayHandle create_array_level_handle(const MipmappedArrayHandle &h_mip, unsigned int level);
 
 // Create an owning mipmapped array via cuMipmappedArrayCreate.
 // When the last reference is released, cuMipmappedArrayDestroy is called.
 // Returns empty handle on error (caller must check).
-MipmappedArrayHandle create_mipmapped_array_handle(const ContextHandle& h_context,
-                                                   const CUDA_ARRAY3D_DESCRIPTOR& desc,
-                                                   unsigned int num_levels);
+MipmappedArrayHandle create_mipmapped_array_handle(
+    const ContextHandle &h_context, const CUDA_ARRAY3D_DESCRIPTOR &desc, unsigned int num_levels
+);
 
 // Return the context dependency associated with a mipmapped array, if known.
-ContextHandle get_mipmapped_array_context(const MipmappedArrayHandle& h) noexcept;
+ContextHandle get_mipmapped_array_context(const MipmappedArrayHandle &h) noexcept;
 
 // Create an owning texture object via cuTexObjectCreate, embedding the backing
 // resource handle (array / mipmapped array / linear-or-pitch2d device pointer)
 // so the backing always outlives the texture. cuTexObjectDestroy runs in the
 // deleter. Returns empty handle on error (caller must check).
-TexObjectHandle create_tex_object_handle_array(const ContextHandle& h_context,
-                                               const CUDA_RESOURCE_DESC& res,
-                                               const CUDA_TEXTURE_DESC& tex,
-                                               const OpaqueArrayHandle& h_backing);
-TexObjectHandle create_tex_object_handle_mipmap(const ContextHandle& h_context,
-                                                const CUDA_RESOURCE_DESC& res,
-                                                const CUDA_TEXTURE_DESC& tex,
-                                                const MipmappedArrayHandle& h_backing);
-TexObjectHandle create_tex_object_handle_linear(const ContextHandle& h_context,
-                                                const CUDA_RESOURCE_DESC& res,
-                                                const CUDA_TEXTURE_DESC& tex,
-                                                const DevicePtrHandle& h_backing);
+TexObjectHandle create_tex_object_handle_array(
+    const ContextHandle &h_context,
+    const CUDA_RESOURCE_DESC &res,
+    const CUDA_TEXTURE_DESC &tex,
+    const OpaqueArrayHandle &h_backing
+);
+TexObjectHandle create_tex_object_handle_mipmap(
+    const ContextHandle &h_context,
+    const CUDA_RESOURCE_DESC &res,
+    const CUDA_TEXTURE_DESC &tex,
+    const MipmappedArrayHandle &h_backing
+);
+TexObjectHandle create_tex_object_handle_linear(
+    const ContextHandle &h_context,
+    const CUDA_RESOURCE_DESC &res,
+    const CUDA_TEXTURE_DESC &tex,
+    const DevicePtrHandle &h_backing
+);
 
 // Create an owning surface object via cuSurfObjectCreate, embedding the backing
 // array handle so it outlives the surface. cuSurfObjectDestroy runs in the
 // deleter. Returns empty handle on error (caller must check).
-SurfObjectHandle create_surf_object_handle(const ContextHandle& h_context,
-                                           const CUDA_RESOURCE_DESC& res,
-                                           const OpaqueArrayHandle& h_backing);
+SurfObjectHandle create_surf_object_handle(
+    const ContextHandle &h_context, const CUDA_RESOURCE_DESC &res, const OpaqueArrayHandle &h_backing
+);
 
 }  // namespace cuda_core::rt

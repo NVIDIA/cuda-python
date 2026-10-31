@@ -20,7 +20,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
-from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport (
@@ -66,7 +66,7 @@ from cuda.core._rt cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core.graph._host_callback cimport (
+from cuda.core._host_callback cimport (
     _resolve_host_callback,
 )
 
@@ -215,7 +215,7 @@ cdef class GraphNode:
         s.clear()
         s.update(value)
 
-    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
+    def launch(self, LaunchConfig config not None: LaunchConfig, Kernel kernel not None: Kernel, *args) -> KernelNode:
         """Add a kernel launch node depending on this node.
 
         Clustered and cooperative launch configurations are not currently
@@ -243,7 +243,7 @@ cdef class GraphNode:
             A new KernelNode representing the kernel launch.
         """
         GN_check_valid(self)
-        return GN_launch(self, config, <Kernel>kernel, ParamHolder(args))
+        return GN_launch(self, config, kernel, ParamHolder(args))
 
     def join(self, *nodes: GraphNode) -> EmptyNode:
         """Create an empty node that depends on this node and all given nodes.
@@ -446,7 +446,7 @@ cdef class GraphNode:
             self, c_dst, dst_attachment_owner,
             c_src, src_attachment_owner, size)
 
-    def embed(self, child: GraphDefinition) -> ChildGraphNode:
+    def embed(self, GraphDefinition child not None: GraphDefinition) -> ChildGraphNode:
         """Add a child graph node depending on this node.
 
         Embeds a clone of the given graph definition as a sub-graph node.
@@ -463,9 +463,9 @@ cdef class GraphNode:
         ChildGraphNode
             A new ChildGraphNode representing the embedded sub-graph.
         """
-        return GN_embed(self, <GraphDefinition>child)
+        return GN_embed(self, child)
 
-    def record(self, event: Event) -> EventRecordNode:
+    def record(self, Event event not None: Event) -> EventRecordNode:
         """Add an event record node depending on this node.
 
         Parameters
@@ -478,9 +478,9 @@ cdef class GraphNode:
         EventRecordNode
             A new EventRecordNode representing the event record operation.
         """
-        return GN_record_event(self, <Event>event)
+        return GN_record_event(self, event)
 
-    def wait(self, event: Event) -> EventWaitNode:
+    def wait(self, Event event not None: Event) -> EventWaitNode:
         """Add an event wait node depending on this node.
 
         Parameters
@@ -493,7 +493,7 @@ cdef class GraphNode:
         EventWaitNode
             A new EventWaitNode representing the event wait operation.
         """
-        return GN_wait_event(self, <Event>event)
+        return GN_wait_event(self, event)
 
     def callback(self, fn, *, user_data=None) -> object:
         """Add a host callback node depending on this node.
@@ -545,7 +545,7 @@ cdef class GraphNode:
         """
         return GN_callback(self, fn, user_data)
 
-    def if_then(self, condition: GraphCondition) -> IfNode:
+    def if_then(self, GraphCondition condition not None: GraphCondition) -> IfNode:
         """Add an if-conditional node depending on this node.
 
         The body graph executes only when the condition evaluates to
@@ -565,7 +565,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 1, IfNode)
 
-    def if_else(self, condition: GraphCondition) -> IfElseNode:
+    def if_else(self, GraphCondition condition not None: GraphCondition) -> IfElseNode:
         """Add an if-else conditional node depending on this node.
 
         Two body graphs: the first executes when the condition is
@@ -586,7 +586,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_IF, 2, IfElseNode)
 
-    def while_loop(self, condition: GraphCondition) -> WhileNode:
+    def while_loop(self, GraphCondition condition not None: GraphCondition) -> WhileNode:
         """Add a while-loop conditional node depending on this node.
 
         The body graph executes repeatedly while the condition
@@ -606,7 +606,7 @@ cdef class GraphNode:
             self, condition,
             cydriver.CU_GRAPH_COND_TYPE_WHILE, 1, WhileNode)
 
-    def switch(self, condition: GraphCondition, unsigned int count) -> SwitchNode:
+    def switch(self, GraphCondition condition not None: GraphCondition, unsigned int count) -> SwitchNode:
         """Add a switch conditional node depending on this node.
 
         The condition value selects which branch to execute. If the
@@ -912,52 +912,6 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
             &new_node, as_cu(h_graph), deps, num_deps, c_dptr))
 
     return _registered(FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr))
-
-
-cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
-    """Copy a Buffer's device-pointer handle into an attachment owner."""
-    Buffer_check_open(buf)
-    # The local is required: Cython permits the DevicePtrHandle -> OpaqueHandle
-    # conversion on assignment, but not directly in a return statement.
-    cdef OpaqueHandle attachment_owner = buf._h_ptr
-    return attachment_owner
-
-
-cdef inline OpaqueHandle _resolve_memcpy_operand(
-        object operand, object owner, str side,
-        cydriver.CUdeviceptr* out_ptr) except *:
-    """Resolve an operand to a pointer and optional attachment owner.
-
-    ``operand`` is a :class:`Buffer` or a raw integer address; its device
-    pointer is written to ``out_ptr``. For a :class:`Buffer` operand, returns an
-    owner that retains the underlying allocation (not the wrapper). For a raw
-    pointer, returns an owner built from ``owner`` (or an empty handle when
-    ``owner`` is ``None``).
-
-    Raises
-    ------
-    ValueError
-        If ``operand`` is a :class:`Buffer` and ``owner`` is not ``None``.
-        If a :class:`Buffer` operand or ``*_owner`` has no active allocation.
-    """
-    cdef Buffer buf
-    cdef OpaqueHandle attachment_owner
-
-    if isinstance(operand, Buffer):
-        if owner is not None:
-            raise ValueError(
-                f"{side}_owner cannot be used when {side} is a Buffer"
-            )
-        buf = operand
-        attachment_owner = _buffer_attachment_owner(buf, side)
-        out_ptr[0] = as_cu(buf._h_ptr)
-        return attachment_owner
-    out_ptr[0] = <cydriver.CUdeviceptr><uintptr_t>operand
-    if owner is None:
-        return OpaqueHandle()
-    if isinstance(owner, Buffer):
-        return _buffer_attachment_owner(owner, f"{side}_owner")
-    return make_opaque_py(owner)
 
 
 cdef inline MemsetNode GN_memset(

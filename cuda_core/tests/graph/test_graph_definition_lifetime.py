@@ -13,10 +13,10 @@ import weakref
 import pytest
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 from helpers.graph_kernels import compile_common_kernels
-from helpers.memory import xfail_on_graph_mempool_oom
+from helpers.memory import VMM_HANDLE_TYPE, skip_if_managed_mempool_unsupported, skip_if_mempool_unsupported
 from helpers.misc import try_create_condition
 
-from cuda_python_test_helpers import IS_WINDOWS, under_compute_sanitizer
+from cuda_python_test_helpers import under_compute_sanitizer
 
 # Resource finalization triggered by graph destruction is not synchronous. A
 # CUDA user-object callback transfers each node attachment bundle to a
@@ -86,8 +86,9 @@ from cuda.core import (
     VirtualMemoryResourceOptions,
 )
 from cuda.core._utils.cuda_utils import CUDAError
-from cuda.core._utils.version import driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import (
+    AllocNode,
     ChildGraphNode,
     ConditionalNode,
     EventRecordNode,
@@ -98,23 +99,18 @@ from cuda.core.graph import (
     KernelNode,
     MemcpyNode,
 )
-
-
-def _skip_if_no_mempool():
-    if not Device(0).properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
+from cuda.core.typing import GraphMemoryType
 
 
 def _device_memory_resource(dev):
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     return DeviceMemoryResource(dev)
 
 
 def _virtual_memory_resource(dev):
     if not dev.properties.virtual_memory_management_supported:
         pytest.skip("Device does not support virtual memory management")
-    handle_type = "win32_kmt" if IS_WINDOWS else "posix_fd"
-    return VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type=handle_type))
+    return VirtualMemoryResource(dev, config=VirtualMemoryResourceOptions(handle_type=VMM_HANDLE_TYPE))
 
 
 # Memory resources whose buffers a graph node can retain through its
@@ -585,11 +581,10 @@ def test_builder_embedded_clone_releases_attachment_on_node_destroy(init_cuda):
 
 def test_event_record_node_keeps_event_alive(init_cuda):
     """EventRecordNode should keep the Event alive after original is deleted."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom(dev):
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.record(event)
@@ -603,11 +598,10 @@ def test_event_record_node_keeps_event_alive(init_cuda):
 
 def test_event_wait_node_keeps_event_alive(init_cuda):
     """EventWaitNode should keep the Event alive after original is deleted."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     g = GraphDefinition()
-    with xfail_on_graph_mempool_oom(dev):
-        alloc = g.allocate(1024)
+    alloc = g.allocate(1024)
 
     event = dev.create_event(EventOptions(timing_enabled=False))
     node = alloc.wait(event)
@@ -1277,12 +1271,8 @@ def test_kernel_node_reconstruction_preserves_validity(init_cuda):
     stream.sync()
 
 
-def _pred_chain_memcpy(g, bufs):
-    memory_resource = LegacyPinnedMemoryResource()
-    src = memory_resource.allocate(8)
-    dst = memory_resource.allocate(8)
-    bufs.extend((src, dst))
-    node = g.memcpy(dst, src, 8)
+def _make_pred_chain_memcpy(builder, src, dst):
+    node = builder.memcpy(dst, src, 8)
     src_ptr, dst_ptr, size = node.src, node.dst, node.size
     succ = node.record(Device().create_event())
 
@@ -1293,6 +1283,21 @@ def _pred_chain_memcpy(g, bufs):
         assert reconstructed.size == size
 
     return node, succ, check
+
+
+def _pred_chain_memcpy_host(g, bufs):
+    memory_resource = LegacyPinnedMemoryResource()
+    src = memory_resource.allocate(8)
+    dst = memory_resource.allocate(8)
+    bufs.extend((src, dst))
+    return _make_pred_chain_memcpy(g, src, dst)
+
+
+def _pred_chain_memcpy_device(g, bufs):
+    skip_if_mempool_unsupported()
+    src = g.allocate(8)
+    dst = g.allocate(8)
+    return _make_pred_chain_memcpy(g.join(src, dst), src.dptr, dst.dptr)
 
 
 def _pred_chain_event_record(g, bufs):
@@ -1319,11 +1324,39 @@ def _pred_chain_event_wait(g, bufs):
     return node, succ, check
 
 
+def _pred_chain_alloc_peer_access(g, bufs):
+    skip_if_mempool_unsupported()
+    device = Device()
+    node = g.allocate(64, device=device, peer_access=[device])
+    expected_peer_access = (device.device_id,)
+    succ = node.record(device.create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, AllocNode)
+        assert reconstructed.peer_access == expected_peer_access
+
+    return node, succ, check
+
+
+def _pred_chain_alloc_managed(g, bufs):
+    skip_if_managed_mempool_unsupported()
+    node = g.allocate(64, memory_type=GraphMemoryType.MANAGED)
+    expected_dptr = node.dptr
+    succ = node.record(Device().create_event())
+
+    def check(reconstructed):
+        assert isinstance(reconstructed, AllocNode)
+        assert reconstructed.memory_type == "managed"
+        assert reconstructed.dptr == expected_dptr
+        assert reconstructed.dptr != 0
+
+    return node, succ, check
+
+
 def _pred_chain_free(g, bufs):
-    _skip_if_no_mempool()
-    with xfail_on_graph_mempool_oom():
-        alloc = g.allocate(64)
-        node = alloc.deallocate(alloc.dptr)
+    skip_if_mempool_unsupported()
+    alloc = g.allocate(64)
+    node = alloc.deallocate(alloc.dptr)
     free_dptr = node.dptr
     succ = node.record(Device().create_event())
 
@@ -1337,12 +1370,21 @@ def _pred_chain_free(g, bufs):
 @pytest.mark.parametrize(
     "factory",
     [
-        _pred_chain_memcpy,
+        _pred_chain_memcpy_host,
+        _pred_chain_memcpy_device,
         _pred_chain_event_record,
         _pred_chain_event_wait,
+        _pred_chain_alloc_peer_access,
+        pytest.param(
+            _pred_chain_alloc_managed,
+            marks=pytest.mark.skipif(
+                BUILD_CUDA_MAJOR < 13,
+                reason="managed alloc requires a CUDA 13.0+ build",
+            ),
+        ),
         _pred_chain_free,
     ],
-    ids=["memcpy", "event_record", "event_wait", "free"],
+    ids=["memcpy_host", "memcpy_device", "event_record", "event_wait", "alloc_peer_access", "alloc_managed", "free"],
 )
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_graph_nodes_reconstructed_via_pred_chain(init_cuda, factory):
@@ -1382,7 +1424,7 @@ def test_kernel_args_buffer_lifetime(init_cuda):
     """
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     add_one = compile_common_kernels().get_kernel("add_one")
@@ -1419,7 +1461,7 @@ def test_kernel_args_survive_graph_clone(init_cuda):
     """
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     add_one = compile_common_kernels().get_kernel("add_one")
@@ -1457,7 +1499,7 @@ def test_memset_buffer_lifetime(init_cuda):
     """Memset retains the Buffer allocation after the wrapper is collected."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)
@@ -1484,7 +1526,7 @@ def test_memset_buffer_survives_close(init_cuda):
     """Memset retains the allocation when the Buffer wrapper is closed."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)
@@ -1509,7 +1551,7 @@ def test_memcpy_buffer_lifetime(init_cuda):
     """Memcpy retains operand allocations after the Buffer wrappers are collected."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     src = mr.allocate(4, stream=dev.default_stream)
@@ -1538,7 +1580,7 @@ def test_memcpy_buffer_survives_close(init_cuda):
     """Memcpy retains allocations when Buffer wrappers are closed."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     src = mr.allocate(4, stream=dev.default_stream)
@@ -1574,7 +1616,7 @@ def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
     """
     from cuda.core._utils._weak_handles import weak_handle
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     src = mr.allocate(4, stream=dev.default_stream)
@@ -1601,7 +1643,7 @@ def test_memcpy_buffers_survive_graph_clone(init_cuda):
     """Cloned graph keeps memcpy operand allocations alive via CUDA user objects."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     src = mr.allocate(4, stream=dev.default_stream)
@@ -1639,7 +1681,7 @@ def test_memset_raw_ptr_with_dst_owner(init_cuda):
     """Raw dst plus Buffer dst_owner retains the allocation after close."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)
@@ -1669,7 +1711,7 @@ def test_attachment_owners_released_after_graph_destroyed(init_cuda):
     This exercises the same teardown that releases Buffer device-pointer
     handles retained for ``dst`` and ``src``.
     """
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(8, stream=dev.default_stream)
@@ -1698,7 +1740,7 @@ def test_attachment_owners_released_after_graph_destroyed(init_cuda):
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_deleted_memcpy_bundle_survives_in_existing_exec(init_cuda):
     """Both memcpy owners remain together until an existing exec releases them."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(8, stream=dev.default_stream)
@@ -1729,7 +1771,7 @@ def test_memcpy_raw_ptrs_with_owners(init_cuda):
     """Raw src/dst plus Buffer owners retain allocations after close."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     src = mr.allocate(4, stream=dev.default_stream)
@@ -1758,7 +1800,7 @@ def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
     """Buffer dst and raw src with src_owner retain allocations after close."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     src = mr.allocate(4, stream=dev.default_stream)
@@ -1785,7 +1827,7 @@ def test_memcpy_mixed_buffer_and_raw_owner(init_cuda):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_closed_buffer_rejected(init_cuda):
     """Memset rejects a closed Buffer."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)
@@ -1800,7 +1842,7 @@ def test_memset_closed_buffer_rejected(init_cuda):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
     """Memset rejects a closed Buffer passed as dst_owner."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)
@@ -1816,7 +1858,7 @@ def test_memset_closed_buffer_dst_owner_rejected(init_cuda):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
     """Memcpy rejects a closed Buffer passed as src_owner."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)
@@ -1832,7 +1874,7 @@ def test_memcpy_closed_buffer_src_owner_rejected(init_cuda):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_and_dst_owner_rejected(init_cuda):
     """dst_owner cannot be combined with a Buffer dst operand."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)
@@ -1846,7 +1888,7 @@ def test_memcpy_buffer_and_dst_owner_rejected(init_cuda):
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_memcpy_buffer_and_src_owner_rejected(init_cuda):
     """src_owner cannot be combined with a Buffer src operand."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     dev = Device()
     mr = DeviceMemoryResource(dev)
     buf = mr.allocate(4, stream=dev.default_stream)

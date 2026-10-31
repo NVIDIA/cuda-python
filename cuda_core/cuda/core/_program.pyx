@@ -1100,7 +1100,7 @@ cdef object Program_compile_nvrtc(Program self, str target_type, object name_exp
     )
 
     status = _read_pch_status(retry_prog)
-    self._pch_status = status if status is not None else str(PCHStatusType.FAILED)
+    self._pch_status = str(status) if status is not None else str(PCHStatusType.FAILED)
     return result
 
 

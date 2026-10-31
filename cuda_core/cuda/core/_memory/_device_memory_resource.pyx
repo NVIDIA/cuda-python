@@ -17,7 +17,6 @@ from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
@@ -126,7 +125,9 @@ cdef class DeviceMemoryResource(_MemPool):
 
     For greater efficiency when transferring many buffers, one may also send
     MRs and buffers separately. When an MR is sent via :mod:`multiprocessing`,
-    an MMR is created and registered in the receiving process. Subsequently,
+    an MMR is created and registered in the receiving process, for the device
+    with the same UUID as the MR's device, whatever its ordinal is there; if
+    that device is not visible, unpickling raises ``RuntimeError``. Subsequently,
     buffers may be serialized and transferred using ordinary :mod:`pickle`
     methods.  The reconstruction procedure uses the registry to find the
     associated MMR. Unpickling a :class:`Buffer` performs an IPC import from
@@ -144,7 +145,6 @@ cdef class DeviceMemoryResource(_MemPool):
     def __cinit__(self, *args, **kwargs) -> None:
         self._dev_id = cydriver.CU_DEVICE_INVALID
 
-    @cython.annotation_typing(False)
     def __init__(
         self,
         device_id: Device | int,
@@ -176,6 +176,13 @@ cdef class DeviceMemoryResource(_MemPool):
         -------
         The registered mapped memory resource. If one was previously registered
         with the given key, it is returned.
+
+        Raises
+        ------
+        RuntimeError
+            If the memory resource is not IPC-enabled.
+        ValueError
+            If the memory resource already has a different UUID.
         """
         return <DeviceMemoryResource>(_ipc.MP_register(self, uuid))
 
@@ -341,9 +348,17 @@ cpdef str DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
 def _deep_reduce_device_memory_resource(mr) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     from .._device import Device
-    device = Device(mr.device_id)
+    # Device ordinals are per process; the receiver maps the UUID to its own device.
+    device_uuid = Device(mr.device_id).uuid
     alloc_handle = mr.allocation_handle
-    return mr.from_allocation_handle, (device, alloc_handle)
+    return _reconstruct_device_memory_resource, (type(mr), device_uuid, alloc_handle)
+
+
+def _reconstruct_device_memory_resource(
+    cls: type, device_uuid: str, IPCAllocationHandle alloc_handle not None: IPCAllocationHandle
+) -> DeviceMemoryResource:
+    from .._device import _device_from_uuid
+    return cls.from_allocation_handle(_device_from_uuid(device_uuid), alloc_handle)
 
 
 multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)

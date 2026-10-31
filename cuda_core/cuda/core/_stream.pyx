@@ -128,13 +128,11 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    @cython.annotation_typing(False)
     def _init(cls, obj: IsStreamType | None = None, options: StreamOptions | None = None,
-              device_id: int | None = None, ctx: Context | None = None) -> Stream:
+              device_id: int | None = None, Context ctx: Context | None = None) -> Stream:
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
         cdef ContextHandle h_context
-        cdef Context context
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -148,9 +146,8 @@ cdef class Stream:
 
         if ctx is None:
             raise RuntimeError("A CUDA context is required to create a stream")
-        context = <Context>ctx
-        Context_check_open(context)
-        h_context = context._h_context
+        Context_check_open(ctx)
+        h_context = ctx._h_context
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
@@ -161,7 +158,7 @@ cdef class Stream:
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         cdef cydriver.CUresult res_code
-        res_code = context_get_stream_priority_range(context._h_context, &high, &low)
+        res_code = context_get_stream_priority_range(ctx._h_context, &high, &low)
         HANDLE_RETURN(res_code)
         cdef int prio
         if priority is not None:
@@ -175,7 +172,7 @@ cdef class Stream:
         # For green contexts, the C++ layer auto-dispatches to cuGreenCtxStreamCreate,
         # a 12.5 driver API. cuGreenCtxCreate itself is 12.4. The driver alone
         # decides availability. The gate lives here, not in C++.
-        if context.is_green and cy_driver_version() < (12, 5, 0):
+        if ctx.is_green and cy_driver_version() < (12, 5, 0):
             raise RuntimeError(
                 "Green context stream creation requires CUDA driver 12.5 or newer "
                 f"(current driver: {'.'.join(map(str, cy_driver_version()))})"
@@ -519,32 +516,6 @@ cpdef Stream default_stream():
         return PER_THREAD_DEFAULT_STREAM
     else:
         return LEGACY_DEFAULT_STREAM
-
-cdef inline bint Stream_handle_is_default_token(cydriver.CUstream s) noexcept nogil:
-    """Return True for the raw CU_STREAM_LEGACY and CU_STREAM_PER_THREAD tokens.
-
-    These tokens carry no context of their own; they refer to whatever context
-    is current, so nothing resolved from one may be cached on the object.
-    """
-    cdef uintptr_t h = <uintptr_t>s
-    return h == <uintptr_t>cydriver.CU_STREAM_LEGACY or h == <uintptr_t>cydriver.CU_STREAM_PER_THREAD
-
-
-cdef inline bint Stream_is_default_token(Stream self) noexcept nogil:
-    """Return True when this stream is CU_STREAM_LEGACY or CU_STREAM_PER_THREAD."""
-    return Stream_handle_is_default_token(as_cu(self._h_stream))
-
-
-cdef inline bint Stream_is_legacy_default_token(Stream self) noexcept nogil:
-    """Return True only for CU_STREAM_LEGACY.
-
-    Unlike CU_STREAM_PER_THREAD, the legacy default stream token is rejected
-    outright (CUDA_ERROR_INVALID_VALUE) by cuMemcpyWithAttributesAsync and
-    cuMemcpyBatchAsync; CU_STREAM_PER_THREAD is a real stream to those entry
-    points and is accepted normally. Use this narrower check, not
-    Stream_is_default_token, wherever that distinction matters.
-    """
-    return <uintptr_t>as_cu(self._h_stream) == <uintptr_t>cydriver.CU_STREAM_LEGACY
 
 
 cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 nogil:

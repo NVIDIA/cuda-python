@@ -110,8 +110,6 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     runs-on: "${{ matrix.FLAVOR || 'linux' }}-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
-    # TODO: remove continue-on-error once 3.15 is officially supported
-    continue-on-error: ${{ startsWith(matrix.PY_VER, '3.15') }}
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Our self-hosted runners require a container
@@ -148,12 +146,22 @@ jobs:
           dependencies: "jq wget libgl1 libegl1 g++ util-linux yq"
           dependent_exes: "jq wget yq"
 
+      - name: Checkout driver install scripts (workflow revision)
+        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: .driver-tools
+          sparse-checkout: ci/tools
+          persist-credentials: false
+
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         env:
           DRIVER: ${{ matrix.DRIVER }}
+          DRIVER_SHA256: ${{ matrix.DRIVER_SHA256 }}
           GPU_TYPE: ${{ matrix.GPU }}
-        run: ./ci/tools/install_gpu_driver.sh
+        run: ./.driver-tools/ci/tools/install_gpu_driver.sh
 
       - name: Ensure GPU is working
         run: nvidia-smi
@@ -177,7 +185,7 @@ jobs:
 
       - name: Download cuda-pathfinder build artifacts
         if: ${{ env.TEST_PATHFINDER == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
@@ -186,7 +194,7 @@ jobs:
 
       - name: Download cuda-python build artifacts
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'main' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-python-wheel
           path: .
@@ -196,21 +204,22 @@ jobs:
       - name: Download cuda.bindings build artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
                 env.BINDINGS_SOURCE == 'main' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
+      - name: Look up prior-branch artifacts run ID
+        id: prior
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
                 env.BINDINGS_SOURCE == 'backport' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-          # gh is needed for artifact fetching.
+          # gh is needed for lookup-run-id, which calls gh api.
           mkdir -p -m 755 /etc/apt/keyrings \
                 && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
                 && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
@@ -230,27 +239,39 @@ jobs:
           fi
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id \
             "${LOOKUP_ARGS[@]}" NVIDIA/cuda-python "CI")
+          echo "run-id=${LATEST_PRIOR_RUN_ID}" >> "${GITHUB_OUTPUT}"
+          echo "artifact-pattern=${OLD_ARTIFACT_PATTERN}" >> "${GITHUB_OUTPUT}"
 
-          gh run download \
-            "${LATEST_PRIOR_RUN_ID}" \
-            -p "${OLD_ARTIFACT_PATTERN}" \
-            -R NVIDIA/cuda-python
-          OLD_ARTIFACT_DIR=$(compgen -G "${OLD_ARTIFACT_PATTERN}")
-          test -d "${OLD_ARTIFACT_DIR}"
-          ls -al "${OLD_ARTIFACT_DIR}"
-          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          mv "${OLD_ARTIFACT_DIR}"/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
-          rmdir "${OLD_ARTIFACT_DIR}"
+      - name: Download prior-branch cuda.bindings build artifacts
+        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
+                env.BINDINGS_SOURCE == 'backport' }}
+        uses: $/.github/actions/download-artifact-retry
+        with:
+          pattern: ${{ steps.prior.outputs.artifact-pattern }}
+          merge-multiple: "true"
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ steps.prior.outputs.run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-          if ${{ env.TEST_PYTHON == 'true' }}; then
-            gh run download \
-              "${LATEST_PRIOR_RUN_ID}" \
-              -p cuda-python-wheel \
-              -R NVIDIA/cuda-python
-            ls -al cuda-python-wheel
-            mv cuda-python-wheel/*.whl .
-            rmdir cuda-python-wheel
+      - name: Download prior-branch cuda-python wheel
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'backport' }}
+        uses: $/.github/actions/download-artifact-retry
+        with:
+          name: cuda-python-wheel
+          path: .
+          run-id: ${{ steps.prior.outputs.run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify prior-branch artifact layout
+        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
+                env.BINDINGS_SOURCE == 'backport' }}
+        run: |
+          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-*.whl)
+          if [[ "${#bindings_wheels[@]}" -ne 1 ]] || [[ ! -f "${bindings_wheels[0]}" ]]; then
+            echo "::error::Expected exactly one cuda_bindings wheel in ${CUDA_BINDINGS_ARTIFACTS_DIR}; found: ${bindings_wheels[*]}"
+            exit 1
           fi
+          ls -al "${CUDA_BINDINGS_ARTIFACTS_DIR}"
 
       - name: Display structure of downloaded cuda-python artifacts
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'floor' }}
@@ -267,7 +288,7 @@ jobs:
 
       - name: Download cuda.bindings Cython tests
         if: ${{ env.TEST_BINDINGS == 'true' && env.SKIP_CYTHON_TEST == '0' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -282,7 +303,7 @@ jobs:
 
       - name: Download cuda.core build artifacts
         if: ${{ env.TEST_CORE == 'true' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -297,7 +318,7 @@ jobs:
 
       - name: Download cuda.core Cython tests
         if: ${{ env.TEST_CORE == 'true' && env.SKIP_CYTHON_TEST == '0' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
@@ -312,7 +333,7 @@ jobs:
 
       - name: Download cuda.core test binaries
         if: ${{ env.TEST_CORE == 'true' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
           path: ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}
@@ -326,21 +347,11 @@ jobs:
           ls -lahR $CUDA_CORE_TEST_BINARIES_DIR
 
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: ${{ matrix.PY_VER }}
-          # TODO: remove allow-prereleases once 3.15 is officially supported
-          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
-
-      - name: Enable Scientific Python Nightly Wheels for Python 3.15
-        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                startsWith(matrix.PY_VER, '3.15') }}
-        run: |
-          echo "PIP_EXTRA_INDEX_URL=https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" >> "$GITHUB_ENV"
-          echo "PIP_ONLY_BINARY=numpy" >> "$GITHUB_ENV"
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
@@ -589,7 +600,7 @@ jobs:
         # record of the run, kept for 14 days. The name must be unique per job
         # in the run.
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: test-results-${{ inputs.test-mode }}-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cu${{ matrix.CUDA_VER }}-${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}-${{ matrix.GPU }}-x${{ matrix.GPU_COUNT }}-${{ matrix.DRIVER }}${{ matrix.FLAVOR && format('-{0}', matrix.FLAVOR) || '' }}
           path: test-results/

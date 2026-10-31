@@ -103,6 +103,9 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         cydriver.CUstream stream, object owner) except+ nogil
     void initialize_deferred_cleanup "cuda_core::rt::initialize_deferred_cleanup" () except+
     void retry_deferred_cleanup "cuda_core::rt::retry_deferred_cleanup" () noexcept
+    cydriver.CUresult launch_host_function "cuda_core::rt::launch_host_function" (
+        cydriver.CUstream stream, cydriver.CUhostFn fn, void* user_data,
+        OpaqueHandle fn_owner, OpaqueHandle data_owner) noexcept nogil
     ContextHandle get_stream_context "cuda_core::rt::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::rt::get_legacy_stream" () except+ nogil
@@ -180,10 +183,17 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil
     size_t mem_allocation_size "cuda_core::rt::mem_allocation_size" (
         const MemAllocationHandle& h) noexcept nogil
+    bint mem_allocation_is_imported "cuda_core::rt::mem_allocation_is_imported" (
+        const MemAllocationHandle& h) noexcept nogil
+    MemAllocationHandle import_mem_allocation_handle "cuda_core::rt::import_mem_allocation_handle" (
+        void* os_handle, cydriver.CUmemAllocationHandleType handle_type, size_t size,
+        const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil
     VaReservationHandle create_va_reservation_handle "cuda_core::rt::create_va_reservation_handle" (
         size_t size, size_t alignment, cydriver.CUdeviceptr hint) except+ nogil
     size_t va_reservation_size "cuda_core::rt::va_reservation_size" (
         const VaReservationHandle& h) noexcept nogil
+    long long live_owned_mempool_count "cuda_core::rt::live_owned_mempool_count" () noexcept nogil
+    long long live_va_reservation_count "cuda_core::rt::live_va_reservation_count" () noexcept nogil
     VaMappingHandle create_va_mapping_handle "cuda_core::rt::create_va_mapping_handle" (
         cydriver.CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
         const VaReservationHandle& h_res) except+ nogil

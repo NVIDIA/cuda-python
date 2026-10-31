@@ -32,7 +32,9 @@ cdef extern from "_include/dlpack.h" nogil:
         _DLDeviceType device_type
         int32_t device_id
 
-    cdef enum DLDataTypeCode:
+    # A typedef, like DLDeviceType above: `cdef enum` would have Cython spell
+    # C temporaries `enum DLDataTypeCode`, which the header does not declare.
+    ctypedef enum DLDataTypeCode:
         kDLInt
         kDLUInt
         kDLFloat

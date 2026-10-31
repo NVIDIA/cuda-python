@@ -52,92 +52,94 @@ namespace cuda_core::rt {
 // cuStreamDestroy -> cuStreamDestroy_v2, and the table key follows that
 // mapping. The header cuda.core compiles against must therefore be the one
 // cuda-bindings was generated from. build_hooks.py enforces this.
-#define CUDA_CORE_DRIVER_FUNCTIONS(X)            \
-    /* Error formatting */                       \
-    X(cuGetErrorName, 6000)                      \
-    X(cuGetErrorString, 6000)                    \
-    /* Context */                                \
-    X(cuDevicePrimaryCtxRetain, 7000)            \
-    X(cuDevicePrimaryCtxRelease, 11000)          \
-    X(cuCtxGetCurrent, 4000)                     \
-    X(cuCtxSetCurrent, 4000)                     \
-    X(cuCtxSynchronize, 2000)                    \
-    X(cuCtxGetStreamPriorityRange, 5050)         \
-    X(cuCtxGetDevice, 2000)                      \
-    X(cuGraphNodeSetParams, 12020)               \
-    X(cuGreenCtxCreate, 12040)                   \
-    X(cuGreenCtxDestroy, 12040)                  \
-    X(cuCtxFromGreenCtx, 12040)                  \
-    X(cuDevResourceGenerateDesc, 12040)          \
-    X(cuGreenCtxStreamCreate, 12050)             \
-    /* Stream */                                 \
-    X(cuStreamCreateWithPriority, 5050)          \
-    X(cuStreamDestroy, 4000)                     \
-    X(cuStreamGetCtx, 9020)                      \
-    /* Event */                                  \
-    X(cuEventCreate, 2000)                       \
-    X(cuEventDestroy, 4000)                      \
-    X(cuIpcOpenEventHandle, 4010)                \
-    /* Device */                                 \
-    X(cuDeviceGetCount, 2000)                    \
-    /* Memory pool */                            \
-    X(cuMemPoolSetAccess, 11020)                 \
-    X(cuMemPoolDestroy, 11020)                   \
-    X(cuMemPoolCreate, 11020)                    \
-    X(cuDeviceGetMemPool, 11020)                 \
-    X(cuMemPoolImportFromShareableHandle, 11020) \
-    /* Memory allocation */                      \
-    X(cuMemAllocFromPoolAsync, 11020)            \
-    X(cuMemAllocAsync, 11020)                    \
-    X(cuMemAlloc, 3020)                          \
-    X(cuMemAllocHost, 3020)                      \
-    X(cuMemFreeAsync, 11020)                     \
-    X(cuMemFree, 3020)                           \
-    X(cuMemFreeHost, 2000)                       \
-    /* IPC */                                    \
-    X(cuMemPoolImportPointer, 11020)             \
-    /* Library */                                \
-    X(cuLibraryLoadFromFile, 12000)              \
-    X(cuLibraryLoadData, 12000)                  \
-    X(cuLibraryUnload, 12000)                    \
-    X(cuLibraryGetKernel, 12000)                 \
-    /* Graph */                                  \
-    X(cuGraphDestroy, 10000)                     \
-    X(cuGraphInstantiateWithParams, 12000)       \
-    X(cuGraphExecUpdate, 12000)                  \
-    X(cuGraphExecDestroy, 10000)                 \
-    X(cuUserObjectCreate, 11030)                 \
-    X(cuUserObjectRelease, 11030)                \
-    X(cuGraphRetainUserObject, 11030)            \
-    X(cuGraphReleaseUserObject, 11030)           \
-    X(cuGraphNodeFindInClone, 10000)             \
-    X(cuGraphChildGraphNodeGetGraph, 10000)      \
-    /* Linker */                                 \
-    X(cuLinkDestroy, 5050)                       \
+#define CUDA_CORE_DRIVER_FUNCTIONS(X)                                           \
+    /* Error formatting */                                                      \
+    X(cuGetErrorName, 6000)                                                     \
+    X(cuGetErrorString, 6000)                                                   \
+    /* Context */                                                               \
+    X(cuDevicePrimaryCtxRetain, 7000)                                           \
+    X(cuDevicePrimaryCtxRelease, 11000)                                         \
+    X(cuCtxGetCurrent, 4000)                                                    \
+    X(cuCtxSetCurrent, 4000)                                                    \
+    X(cuCtxSynchronize, 2000)                                                   \
+    X(cuCtxGetStreamPriorityRange, 5050)                                        \
+    X(cuCtxGetDevice, 2000)                                                     \
+    X(cuGraphNodeSetParams, 12020)                                              \
+    X(cuGreenCtxCreate, 12040)                                                  \
+    X(cuGreenCtxDestroy, 12040)                                                 \
+    X(cuCtxFromGreenCtx, 12040)                                                 \
+    X(cuDevResourceGenerateDesc, 12040)                                         \
+    X(cuGreenCtxStreamCreate, 12050)                                            \
+    /* Stream */                                                                \
+    X(cuStreamCreateWithPriority, 5050)                                         \
+    X(cuStreamDestroy, 4000)                                                    \
+    X(cuStreamGetCtx, 9020)                                                     \
+    /* Event */                                                                 \
+    X(cuEventCreate, 2000)                                                      \
+    X(cuEventDestroy, 4000)                                                     \
+    X(cuIpcOpenEventHandle, 4010)                                               \
+    /* Device */                                                                \
+    X(cuDeviceGetCount, 2000)                                                   \
+    /* Memory pool */                                                           \
+    X(cuMemPoolSetAccess, 11020)                                                \
+    X(cuMemPoolDestroy, 11020)                                                  \
+    X(cuMemPoolCreate, 11020)                                                   \
+    X(cuDeviceGetMemPool, 11020)                                                \
+    X(cuMemPoolImportFromShareableHandle, 11020)                                \
+    /* Memory allocation */                                                     \
+    X(cuMemAllocFromPoolAsync, 11020)                                           \
+    X(cuMemAllocAsync, 11020)                                                   \
+    X(cuMemAlloc, 3020)                                                         \
+    X(cuMemAllocHost, 3020)                                                     \
+    X(cuMemFreeAsync, 11020)                                                    \
+    X(cuMemFree, 3020)                                                          \
+    X(cuMemFreeHost, 2000)                                                      \
+    /* IPC */                                                                   \
+    X(cuMemPoolImportPointer, 11020)                                            \
+    /* Library */                                                               \
+    X(cuLibraryLoadFromFile, 12000)                                             \
+    X(cuLibraryLoadData, 12000)                                                 \
+    X(cuLibraryUnload, 12000)                                                   \
+    X(cuLibraryGetKernel, 12000)                                                \
+    /* Graph */                                                                 \
+    X(cuGraphDestroy, 10000)                                                    \
+    X(cuGraphInstantiateWithParams, 12000)                                      \
+    X(cuGraphExecUpdate, 12000)                                                 \
+    X(cuGraphExecDestroy, 10000)                                                \
+    X(cuUserObjectCreate, 11030)                                                \
+    X(cuUserObjectRelease, 11030)                                               \
+    X(cuGraphRetainUserObject, 11030)                                           \
+    X(cuGraphReleaseUserObject, 11030)                                          \
+    X(cuGraphNodeFindInClone, 10000)                                            \
+    X(cuGraphChildGraphNodeGetGraph, 10000)                                     \
+    /* Linker */                                                                \
+    X(cuLinkDestroy, 5050)                                                      \
     /* Graphics interop. cuda-bindings requests 7000 (PTDS) or 3000 (legacy) */ \
-    X(cuGraphicsUnmapResources, 7000)            \
-    X(cuGraphicsUnregisterResource, 3000)        \
-    /* Texture / surface / array (PR #467) */    \
-    X(cuArray3DCreate, 3020)                     \
-    X(cuArrayDestroy, 2000)                      \
-    X(cuMipmappedArrayCreate, 5000)              \
-    X(cuMipmappedArrayDestroy, 5000)             \
-    X(cuMipmappedArrayGetLevel, 5000)            \
-    X(cuTexObjectCreate, 5000)                   \
-    X(cuTexObjectDestroy, 5000)                  \
-    X(cuSurfObjectCreate, 5000)                  \
-    X(cuSurfObjectDestroy, 5000)                 \
-    /* Virtual memory management (VMM_DESIGN.md) */ \
-    X(cuMemCreate, 10020)                        \
-    X(cuMemRelease, 10020)                       \
-    X(cuMemAddressReserve, 10020)                \
-    X(cuMemAddressFree, 10020)                   \
-    X(cuMemMap, 10020)                           \
-    X(cuMemUnmap, 10020)                         \
-    X(cuMemSetAccess, 10020)                     \
-    /* cuda-bindings requests 7000 (PTDS) or 2000 (legacy) */ \
-    X(cuStreamSynchronize, 7000)                 \
-    X(cuStreamIsCapturing, 10000)                \
+    X(cuGraphicsUnmapResources, 7000)                                           \
+    X(cuGraphicsUnregisterResource, 3000)                                       \
+    /* Texture / surface / array (PR #467) */                                   \
+    X(cuArray3DCreate, 3020)                                                    \
+    X(cuArrayDestroy, 2000)                                                     \
+    X(cuMipmappedArrayCreate, 5000)                                             \
+    X(cuMipmappedArrayDestroy, 5000)                                            \
+    X(cuMipmappedArrayGetLevel, 5000)                                           \
+    X(cuTexObjectCreate, 5000)                                                  \
+    X(cuTexObjectDestroy, 5000)                                                 \
+    X(cuSurfObjectCreate, 5000)                                                 \
+    X(cuSurfObjectDestroy, 5000)                                                \
+    /* Virtual memory management (VMM_DESIGN.md) */                             \
+    X(cuMemCreate, 10020)                                                       \
+    X(cuMemRelease, 10020)                                                      \
+    X(cuMemAddressReserve, 10020)                                               \
+    X(cuMemAddressFree, 10020)                                                  \
+    X(cuMemMap, 10020)                                                          \
+    X(cuMemUnmap, 10020)                                                        \
+    X(cuMemSetAccess, 10020)                                                    \
+    X(cuMemImportFromShareableHandle, 10020)                                    \
+    /* cuda-bindings requests 7000 (PTDS) or 2000 (legacy) */                   \
+    X(cuStreamSynchronize, 7000)                                                \
+    X(cuStreamIsCapturing, 10000)                                               \
+    X(cuLaunchHostFunc, 10000)                                                  \
     X(cuThreadExchangeStreamCaptureMode, 10010)
 
 #define CUDA_CORE_DECLARE_DRIVER_FN(name, introduced) extern decltype(&name) p_##name;
@@ -151,9 +153,9 @@ CUDA_CORE_DRIVER_FUNCTIONS(CUDA_CORE_DECLARE_DRIVER_FN)
 // `nvvmResult nvvmDestroyProgram(nvvmProgram*)` and
 // `nvJitLinkResult nvJitLinkDestroy(nvJitLinkHandle*)` as int-sized enums.
 extern decltype(&nvrtcDestroyProgram) p_nvrtcDestroyProgram;
-using NvvmDestroyProgramFn = int (*)(nvvmProgram*);
+using NvvmDestroyProgramFn = int (*)(nvvmProgram *);
 extern NvvmDestroyProgramFn p_nvvmDestroyProgram;
-using NvJitLinkDestroyFn = int (*)(nvJitLink_t*);
+using NvJitLinkDestroyFn = int (*)(nvJitLink_t *);
 extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 
 // ============================================================================
@@ -163,14 +165,14 @@ extern NvJitLinkDestroyFn p_nvJitLinkDestroy;
 enum class FnTable { driver, nvrtc, nvvm, nvjitlink };
 
 struct FnEntry {
-    const char* key;   // cuda-bindings' name for the slot, e.g. "__cuStreamDestroy_v2"
-    const char* name;  // public name, for messages, e.g. "cuStreamDestroy"
-    void** slot;       // the p_ pointer, as storage
+    const char *key;   // cuda-bindings' name for the slot, e.g. "__cuStreamDestroy_v2"
+    const char *name;  // public name, for messages, e.g. "cuStreamDestroy"
+    void **slot;       // the p_ pointer, as storage
     int introduced;    // CUDA version cuda-bindings requests the symbol at (0 = n/a)
 };
 
 // The entries of a table. Implemented in driver_api.cpp.
-const FnEntry* fn_table_entries(FnTable table, std::size_t* count) noexcept;
+const FnEntry *fn_table_entries(FnTable table, std::size_t *count) noexcept;
 
 // Whether a table is filled. An acquire load: a true result orders the slots.
 bool fn_table_ready(FnTable table) noexcept;
@@ -192,14 +194,14 @@ bool ensure_fn_table(FnTable table) noexcept;
 
 // Copy the reason the fill of `table` failed into `buffer`. Return false if
 // it did not fail. Implemented in py_driver_fns.cpp.
-bool fn_table_error(FnTable table, char* buffer, std::size_t size) noexcept;
+bool fn_table_error(FnTable table, char *buffer, std::size_t size) noexcept;
 
 // Record a call to `name` while it is unavailable. After a failed fill, this
 // function attaches the fill's reason to the error the caller raises. The fill
 // reported that reason when it failed. A null entry in a filled table is a gate
 // bug, which this function reports once per table. Implemented in
 // py_driver_fns.cpp.
-void report_unavailable_fn(FnTable table, const char* name) noexcept;
+void report_unavailable_fn(FnTable table, const char *name) noexcept;
 
 namespace detail {
 
@@ -227,13 +229,19 @@ template <class F>
 struct Unavailable;
 template <class R, class... A>
 struct Unavailable<R (*)(A...)> {
-    static R call(A...) noexcept { return UnavailableStatus<R>::value; }
+    static R
+    call(A...) noexcept
+    {
+        return UnavailableStatus<R>::value;
+    }
 };
 
 // Fills the table on first use and returns the resolved pointer, or the
 // trampoline when the function is unavailable after the fill. Never throws.
 template <class F>
-inline F fn_or_unavailable(F& slot, FnTable table, const char* name) noexcept {
+inline F
+fn_or_unavailable(F &slot, FnTable table, const char *name) noexcept
+{
     if (!fn_table_ready(table)) {
         ensure_fn_table(table);
     }
@@ -255,11 +263,18 @@ inline F fn_or_unavailable(F& slot, FnTable table, const char* name) noexcept {
 // cuMemFree -> cuMemFree_v2.
 #define DRIVER_FN(name) \
     (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::driver, #name))
-#define DRIVER_CALL(name, ...) \
-    (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::driver, #name)(__VA_ARGS__))
-#define NVRTC_CALL(name, ...) \
-    (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::nvrtc, #name)(__VA_ARGS__))
-#define NVVM_CALL(name, ...) \
-    (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::nvvm, #name)(__VA_ARGS__))
+#define DRIVER_CALL(name, ...)                                                                                       \
+    (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::driver, #name)( \
+        __VA_ARGS__                                                                                                  \
+    ))
+#define NVRTC_CALL(name, ...)                                                                                       \
+    (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::nvrtc, #name)( \
+        __VA_ARGS__                                                                                                 \
+    ))
+#define NVVM_CALL(name, ...)                                                                                       \
+    (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::nvvm, #name)( \
+        __VA_ARGS__                                                                                                \
+    ))
 #define NVJITLINK_CALL(name, ...) \
-    (::cuda_core::rt::detail::fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::nvjitlink, #name)(__VA_ARGS__))
+    (::cuda_core::rt::detail::    \
+         fn_or_unavailable(::cuda_core::rt::p_##name, ::cuda_core::rt::FnTable::nvjitlink, #name)(__VA_ARGS__))

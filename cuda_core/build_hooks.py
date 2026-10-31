@@ -134,10 +134,8 @@ def _bindings_floors() -> dict:
     import-time check, the docs and CI all derive from them. See
     cuda/core/_bindings_floor.py. A malformed extra fails the build here.
     """
-    try:
-        import tomllib
-    except ModuleNotFoundError:  # Python 3.10: tomli is in build-system.requires
-        import tomli as tomllib
+    import tomllib
+
     with open(_PYPROJECT_PATH, "rb") as f:
         extras = tomllib.load(f)["project"]["optional-dependencies"]
     try:
@@ -180,6 +178,13 @@ def _read_cuda_h_version(cuda_path: str) -> int:
     )
 
 
+def _cccl_toolchain_flags(name, compile_args, link_args):
+    if name == "msvc":
+        # CCCL headers require the conforming MSVC preprocessor.
+        compile_args.append("/Zc:preprocessor")
+    return compile_args, link_args
+
+
 def _resolve_toolchain(debug=False, compile_for_coverage=False):
     """Resolve the C/C++ toolchain from CUDA_PYTHON_TOOLCHAIN (cuda.core flags).
 
@@ -192,6 +197,7 @@ def _resolve_toolchain(debug=False, compile_for_coverage=False):
         debug=debug,
         compile_for_coverage=compile_for_coverage,
         warnings_as_errors=WARNINGS_AS_ERRORS,
+        tweak=_cccl_toolchain_flags,
     )
 
 
@@ -321,6 +327,10 @@ def _build_define_macros(cuda_major: str, bindings_cuda_version: int | None = No
 # used later by setup()
 _extensions = None
 
+# Keep the pinned CCCL checkout inside cuda_core so it also travels into
+# cibuildwheel's Linux container, which copies only this package directory.
+_CCCL_SUBMODULE_DIR = Path(__file__).resolve().parent / "third_party" / "cccl"
+
 # Records the build configuration (CUDA major, toolchain, debug/coverage) of
 # the last completed build for this extension ABI, so setup.py can force
 # build_ext when it changes. Written by record_build_config() after the
@@ -374,7 +384,7 @@ def _relativize_extension_sources(extensions) -> None:
 def _extension_sources(mod_name):
     """The module's .pyx plus its C++, if any: every .cpp under
     cuda/core/_cpp/<stem>/, or the single legacy file cuda/core/_cpp/<stem>.cpp.
-    Example: _tensor_map.pyx compiles _cpp/tensor_map.cpp."""
+    Example: _rt.pyx compiles every .cpp under _cpp/rt/."""
     sources = [f"cuda/core/{mod_name}.pyx"]
     cpp_stem = Path("cuda", "core", "_cpp", mod_name.lstrip("_"))
     if cpp_stem.is_dir():
@@ -410,6 +420,31 @@ def _extension_depends():
     )
 
 
+@functools.cache
+def _get_cccl_include_dirs() -> list[str]:
+    """Return the include dirs providing the CCCL headers to compile against.
+
+    Always the pinned submodule, never the CTK's CCCL: cuda.core's feature set
+    must not vary with whatever the build environment happens to ship, so a
+    missing submodule is a build error rather than a fallback.
+
+    Only libcu++ is listed: a CCCL checkout keeps one include root per
+    component (see the "GitHub" section of CCCL's README) and cuda.core
+    includes nothing from cub or thrust.
+    """
+    libcudacxx_include = _CCCL_SUBMODULE_DIR / "libcudacxx" / "include"
+
+    # <cuda/tma> is where _tensor_map.pyx gets cuda::make_tma_descriptor, and
+    # it postdates the rest of the layout, so it doubles as the version check.
+    if not (libcudacxx_include / "cuda" / "tma").is_file():
+        raise RuntimeError(
+            f"The CCCL submodule at {_CCCL_SUBMODULE_DIR} is missing or not initialized. Run\n"
+            "    git submodule update --init cuda_core/third_party/cccl"
+        )
+
+    return [str(libcudacxx_include)]
+
+
 def _build_cuda_core(debug=False):
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
@@ -431,7 +466,7 @@ def _build_cuda_core(debug=False):
 
         bindings_path = Path(cuda_bindings.__file__).parent  # .../cuda/bindings/
         print(f"Using cuda-bindings {cuda_bindings.__version__} from {bindings_path}", file=sys.stderr)
-        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
+        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings_13/ (contains cuda/)
         if str(cuda_package_dir) not in sys.path:
             sys.path.insert(0, str(cuda_package_dir))
             print(f"Added cuda-bindings parent path for Cython: {cuda_package_dir}", file=sys.stderr)
@@ -455,7 +490,8 @@ def _build_cuda_core(debug=False):
                 continue
             yield mod
 
-    all_include_dirs = [os.path.join(cuda_path, "include")]
+    # The pinned CCCL must precede the toolkit's bundled headers.
+    all_include_dirs = [*_get_cccl_include_dirs(), os.path.join(cuda_path, "include")]
 
     # Resolve the C/C++ toolchain (CUDA_PYTHON_TOOLCHAIN). The default (gnu on
     # Linux, msvc on Windows) reproduces the previous build behavior and does
@@ -502,7 +538,12 @@ def _build_cuda_core(debug=False):
         "CUDA_CORE_BUILD_MAJOR": int(cuda_major),
         "CUDA_CORE_BINDINGS_FLOOR": tuple(_floor_for(cuda_major)),
     }
-    compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
+    compiler_directives = {
+        "embedsignature": True,
+        "warn.deprecated.IF": False,
+        "freethreading_compatible": True,
+        "annotation_typing": False,
+    }
     _CythonOptions.warning_errors = True
     if COMPILE_FOR_COVERAGE:
         compiler_directives["linetrace"] = True
@@ -580,7 +621,7 @@ def _add_cython_include_paths_to_pth(wheel_path: str) -> None:
 
         bindings_path = Path(cuda.bindings.__file__).parent  # .../cuda/bindings/
         # We need the directory containing the 'cuda' package for Cython imports
-        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings/ (contains cuda/)
+        cuda_package_dir = bindings_path.parent.parent  # .../cuda_bindings_13/ (contains cuda/)
         print(f"Found cuda-bindings at: {bindings_path}", file=sys.stderr)
         print(f"Will add to .pth for Cython: {cuda_package_dir}", file=sys.stderr)
     except ImportError:

@@ -4,8 +4,14 @@
 
 recursive-include cuda/core *.pyx *.pxd *.pxi *.pyi
 recursive-include cuda/core/_cpp *.cpp *.h *.hpp
-recursive-include cuda/core/_include *.h *.hpp
+recursive-include cuda/core/_include *.h *.hpp *.def
+include build_hooks.py
 include cuda/core/py.typed
 include NOTICE
-# canonical shared PEP 517 helper (cuda_core/_build_shared.py symlinks to the cuda_bindings copy)
+# package-local shared PEP 517 helper
 include _build_shared.py
+# setuptools-scm only records the submodule gitlink, so graft the libcu++
+# headers needed for wheel-from-sdist builds and include their licenses.
+graft third_party/cccl/libcudacxx/include
+include third_party/cccl/LICENSE
+include third_party/cccl/libcudacxx/LICENSE.TXT

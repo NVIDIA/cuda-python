@@ -124,6 +124,7 @@ cuda/core/
     ├── context_scope.hpp    # Scoped-context helpers (namespace detail)
     ├── internal.hpp         # Registry, cleanup wrappers, deferred-cleanup item (namespace detail)
     ├── py_report.cpp, py_deferred_cleanup.cpp        # Python-coupled bodies
+    ├── host_launch.cpp      # The stream-side host function launch record
     └── context.cpp, stream.cpp, event.cpp, memory.cpp, program.cpp,
         graph.cpp, graph_exec.cpp, texture.cpp        # One resource family per file
 ```
@@ -388,8 +389,7 @@ observes the caller's context. When restoration fails after the operation
 succeeded, the creation is undone and the restoration status is returned. When both fail, the
 operation status is returned. Either way the helper records a thread-local
 detail keyed to the returned status (`take_last_error_detail(status)`) that
-`_check_driver_error` attaches to the raised `CUDAError` as a PEP 678 note
-(appended to the message on Python 3.10), so the user learns that the caller's
+`_check_driver_error` attaches to the raised `CUDAError` as a PEP 678 note, so the user learns that the caller's
 context was not restored, which context is current and, for a double failure,
 why restoration failed. Keying the detail to its status narrows, but does not
 remove, misattribution: a caller that drops the status (an empty handle raised
@@ -428,10 +428,10 @@ exactly one of these; none is ever dropped.
 | Cython, on a path that can raise | `HANDLE_RETURN(status)` | Raises `CUDAError`. A restoration detail recorded by the C++ helper becomes a note on the exception. |
 | Cython, after a handle constructor returned an empty handle | `HANDLE_RETURN(get_last_error())`, immediately | Same. Transitional: #2760 makes constructors return the status instead. |
 | C++, a helper that runs an operation in another context | Return the `CUresult`; `exit_context` records the restoration detail | Cython raises it. Transitional: #2760 returns the restoration status as a second out-parameter. |
-| Cython, inside an `except` block whose rollback failed | `attach_rollback_failure(op, status, detail)` | Adds a note to the exception being handled. Reports instead if nothing is being handled or notes do not exist (Python 3.10). |
+| Cython, inside an `except` block whose rollback failed | `attach_rollback_failure(op, status, detail)` | Adds a note to the exception being handled. Reports instead if nothing is being handled. |
 | C++, a deleter or deferred cleanup | A `pw_*` wrapper, or `report_cuda_error()` / `report_message()` | Emits `CUDAWarning`. Never raises. |
 | Cython or Python, a `__dealloc__` or destructor-path callback | `warnings.warn(msg, CUDAWarning, stacklevel=2)` | Same. |
-| A CUDA callback thread | Nothing that needs the GIL. Hand the work to the deferred-cleanup queue with `Py_AddPendingCall` | CUDA forbids driver calls there, and acquiring the GIL there can deadlock with a GIL holder blocked in a driver call. GIL-free C API that only schedules work is fine. |
+| A CUDA user-object destructor callback | Nothing that needs the GIL. Hand the work to the deferred-cleanup queue with `Py_AddPendingCall` | CUDA forbids driver calls there, and acquiring the GIL there can deadlock with a GIL holder blocked in a driver call. GIL-free C API that only schedules work is fine. |
 
 ### `p_` versus `pw_`
 
@@ -456,9 +456,9 @@ allocate or throw, since a deleter is `noexcept`.
 So: use `pw_` only in deleters and cleanup paths that hold no C++ lock and have
 finished updating the layer's own state. Where a lock must stay held, call
 `p_`, keep the status, and report after the lock is released, as
-`deviceptr_import_ipc` does. CUDA callback threads need no extra rule for
-`pw_`: the driver call is forbidden there, so the wrapper is too. The general
-rule for those threads is no GIL and no Python objects; GIL-free scheduling
+`deviceptr_import_ipc` does. CUDA user-object destructor callbacks need no extra
+rule for `pw_`: the driver call is forbidden there, so the wrapper is too. Those
+callbacks must not acquire the GIL or touch Python objects; GIL-free scheduling
 calls such as `Py_AddPendingCall` are how work leaves them.
 
 ## Usage from Cython
