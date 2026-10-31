@@ -197,8 +197,9 @@ class TestErrorType:
         assert err.status == int(cudla.Status.ErrorInvalidParam)
 
     def test_cudla_error_str(self):
+        assert cudla.Status.ErrorInvalidParam is cudla.Status.ERROR_INVALID_PARAM
         err = cudla.CudlaError(int(cudla.Status.ErrorInvalidParam))
-        assert "ErrorInvalidParam" in str(err)
+        assert "ERROR_INVALID_PARAM" in str(err)
 
 
 # ---------------------------------------------------------------------------
