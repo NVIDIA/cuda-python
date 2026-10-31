@@ -130,7 +130,7 @@ jobs:
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: ./.github/actions/download-artifact-retry
         with:
-          name: ${{ fromJSON(inputs.bindings-package).release_status == 'maintenance' && 'maintenance-bindings' || 'cuda-bindings' }}-python312-cuda${{ fromJSON(inputs.bindings-package).toolkit_version }}-${{ inputs.host-platform }}-${{ github.sha }}
+          name: cuda-bindings-python312-cuda${{ fromJSON(inputs.bindings-package).toolkit_version }}-${{ inputs.host-platform }}-${{ github.sha }}
           path: ${{ env.BINDINGS_ROOT }}/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
