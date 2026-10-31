@@ -140,7 +140,7 @@ jobs:
       - name: Probe Node 20 action runtime (informational)
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v7.0.1 (declares node20)
         with:
           script: |
             const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
@@ -194,7 +194,7 @@ jobs:
       - name: Probe Node 20 action runtime (informational)
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1 (declares node20)
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v7.0.1 (declares node20)
         with:
           script: |
             const probe = require(`${process.env.GITHUB_WORKSPACE}/ci/tools/runner_trust_probe_node.js`);
