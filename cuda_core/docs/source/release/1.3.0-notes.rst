@@ -112,6 +112,13 @@ New features
 Fixes and enhancements
 ----------------------
 
+- ``register()`` on a :class:`~_memory.DeviceMemoryResource` or a
+  :class:`PinnedMemoryResource` now raises ``ValueError`` when the resource
+  already has a different UUID. The check used to be an ``assert``, so under
+  ``python -O`` a mismatched UUID silently rewrote the resource's UUID and
+  corrupted the IPC registry.
+  (`#2697 <https://github.com/NVIDIA/cuda-python/issues/2697>`__)
+
 - A :class:`~_memory.DeviceMemoryResource` or a :class:`VirtualMemoryResource`
   sent through ``multiprocessing`` now names its device, and the
   ``VirtualMemoryResource`` ``peers``, by UUID. The receiving process maps
