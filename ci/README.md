@@ -232,3 +232,97 @@ The canonical `NVIDIA/cuda-python` repository does not need this variable
 because its standard workflow behavior is enabled directly. Before enabling a
 customization elsewhere, document the repository-specific prerequisites and
 verification procedure in that repository's own documentation.
+
+## CUDA Bindings Package-Root Registry
+
+`ci/versions.yml` is the authoritative public registry for CUDA bindings
+package roots. Each mapping key is a repository-relative package root; its
+record declares an exact toolkit build/test pin and a `release_status` of
+`current` or `maintenance`. Release routing uses the tag's CUDA major/minor
+and the toolkit pin to select a root. Bindings and metapackage builds use
+setuptools-scm's default tag parser. Each root's `git_describe_command`
+selects its tag series for source builds; update its `--match` pattern when
+the root moves to a new toolkit minor.
+
+The Python helpers share registry parsing and package consistency checks. The small,
+repository-private `cuda-python-ci-tools` package installs their common
+dependencies and makes those helpers importable from each build environment;
+it is not part of a CUDA Python wheel. Workflows keep their control tooling separate when inspecting another
+source revision. Install it locally from the repository root:
+
+```console
+python -m pip install -e ./ci
+```
+
+Use `ci.tools.bindings_config` instead of reading the YAML directly. It
+reads the registry and emits normalized JSON with the configured values
+plus the derived CTK target and CUDA ABI major/variant:
+
+```console
+python -m ci.tools.bindings_config
+python -m ci.tools.bindings_config --package-roots
+python -m ci.tools.bindings_config --release-status current
+```
+
+Install the test extra to run the CI-tool tests:
+
+```console
+python -m pip install -e './ci[test]'
+python -m pytest --noconftest ci/tools/tests
+```
+
+The public wheel builder requires one `current` package root and one
+`maintenance` package root with different CUDA ABI majors.
+This is deliberately a two-line policy. The mapping keeps package paths out of
+workflow conditionals; it does not promise arbitrary numbers of supported
+lines. `cuda_bindings_12` names a stable ABI-major source tree, while `current`
+and `maintenance` describe release roles that can change at the next major.
+
+The standalone `cuda-python` source distribution carries its selectors in
+`cuda_python/pyproject.toml`, without depending on repository CI tooling. The
+pre-commit metadata check keeps those selectors, bindings packaging, and Core
+toolkit floors aligned with the registry:
+
+```console
+python -m ci.tools.bindings_config --check-package-metadata
+```
+
+Copying maintenance sources does not make their later branch tags ancestors of
+`main`. Preview builds need an appropriate reachable milestone for their target
+release. Follow the [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle)
+and keep temporary preview tags local to an independent disposable clone;
+worktrees share tags with their repository.
+
+
+### SCM Milestones and Bootstrap Targets
+
+The maintenance root's `[tool.cuda-python].scm-bootstrap-release` records the
+intended preview release, for example `12.9.11`. It is not a version override.
+Suitable reachable release or milestone tags take precedence through standard
+`setuptools-scm` progression; do not add a synthetic tag when that history
+already supplies the version.
+
+When choosing a new target, fetch the canonical tags and coordinate with
+maintainers of all release branches. Reserve the next globally unused release
+number for the intended line. If an urgent release from another branch consumes
+`12.9.11`, update main's preview target to the next unused release before another
+preview build. Unreachable tags still reserve their release numbers. Never move
+or replace such a tag to reuse its name on main. Keep the same target across
+PRs and builds until release coordination calls for a change.
+
+Temporary bootstrap tags must stay local to an independent disposable clone;
+worktrees share tags. For a newly integrated maintenance root, wait until the
+validated integration group is merged on `main` before creating its first
+retained internal `X.Y.Za0` milestone, by explicit maintainer decision. Once that
+milestone is reachable, remove the temporary bootstrap machinery and its
+workflow calls as a follow-up; ordinary SCM history governs subsequent builds.
+This guidance does not create or publish a milestone.
+
+A toolkit minor rollover also changes the bindings root's `--match` selector
+and the metapackage selector table. Before relying on builds from that new
+series, arrange an appropriate reachable milestone, such as `v13.5.0a0` for a
+validated CUDA 13.5 line. A selector change without matching history can yield
+a plausible but wrong `0.1.dev...` version. The maintenance bootstrap does not
+automatically establish milestones for the current-major root. Use the same
+local-preview safeguards while preparing the new source and confirm the
+resolved version and `git describe` output before retaining its milestone.
