@@ -83,9 +83,10 @@ struct GraphBox : GraphBoxBase {
     GraphAttachmentMap attachments;       // Non-owning attachment index.
     HandleRegistry<CUgraphNode, GraphNodeHandle> node_handles;
 
+    // Not noexcept: the std::map and HandleRegistry members allocate.
     GraphBox(
         CUgraph resource_, GraphHierarchy *hierarchy_, GraphBox *parent_ = nullptr, CUgraphNode owner_node_ = nullptr
-    ) noexcept
+    )
         : GraphBoxBase{resource_}, hierarchy(hierarchy_), parent(parent_), owner_node(owner_node_)
     {
     }
@@ -106,7 +107,7 @@ struct GraphHierarchy {
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 using GraphRegistry = HandleRegistry<CUgraph, GraphHandle>;
-static GraphRegistry graph_registry;
+GraphRegistry graph_registry;
 
 // Immutable resource owners for one version of a graph node's parameters.
 // Inheriting DeferredCleanupItem lets CUDA's user-object destructor enqueue
@@ -140,7 +141,7 @@ free_deleter(const void *p) noexcept
 GraphBox *
 get_box(const GraphHandle &h) noexcept
 {
-    auto *value = reinterpret_cast<const GraphBoxBase *>(h.get());
+    const auto *value = reinterpret_cast<const GraphBoxBase *>(h.get());
     return const_cast<GraphBox *>(static_cast<const GraphBox *>(value));
 }
 
@@ -254,7 +255,7 @@ struct PreparedAttachmentState {
     explicit PreparedAttachmentState(GraphHandle h_graph_) : h_graph(std::move(h_graph_)) {}
 };
 
-void
+static void
 rollback_prepared_attachment(PreparedAttachmentState *state) noexcept
 {
     if (!state) {
@@ -389,7 +390,7 @@ graph_prepare_child_graph_update(
     return CUDA_SUCCESS;
 }
 
-void
+static void
 publish_child_graph_update(PreparedChildGraphUpdateState &state, GraphHandle *out_child)
 {
     GraphBox *parent = get_box(state.h_parent);

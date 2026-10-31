@@ -39,7 +39,7 @@ handle_bits(const T &value) noexcept
     if constexpr (std::is_pointer_v<U>) {
         using P = std::remove_cv_t<std::remove_pointer_t<U>>;
         if constexpr (std::is_pointer_v<P>) {
-            return value ? handle_bits(*value) : 0ull;
+            return value ? handle_bits(*value) : 0ULL;
         }
         else {
             return static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(value));
@@ -49,14 +49,14 @@ handle_bits(const T &value) noexcept
         return static_cast<unsigned long long>(value);
     }
     else {
-        return 0ull;
+        return 0ULL;
     }
 }
 
 // Store a stream and any state needed to preserve deallocation ordering.
 struct DeallocationStream {
     StreamHandle h_stream;
-    std::thread::id ptds_tid{};
+    std::thread::id ptds_tid;
 };
 
 // Implemented in stream.cpp
@@ -110,7 +110,7 @@ class WarnOnFailure {
         if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
             return;
         }
-        char operation[160];
+        char operation[kOperationNameSize];
         format_operation(operation, sizeof(operation), operation_, handle);
         report_cuda_error(operation, status);
     }
@@ -120,7 +120,7 @@ class WarnOnFailure {
     report(Status status, unsigned long long handle) const noexcept
     {
         if (static_cast<long>(status) != 0) {
-            char operation[160];
+            char operation[kOperationNameSize];
             format_operation(operation, sizeof(operation), operation_, handle);
             report_status_code(operation, static_cast<long>(status));
         }
@@ -182,21 +182,21 @@ class HandleRegistry {
     void
     register_handle(const Key &key, const Handle &h)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         map_[key] = h;
     }
 
     void
     unregister_handle(const Key &key) noexcept
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         map_.erase(key);
     }
 
     void
     register_handles(const std::vector<Handle> &handles)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         for (const Handle &h : handles) {
             if (h) {
                 map_[*h] = h;
@@ -207,7 +207,7 @@ class HandleRegistry {
     Handle
     lookup(const Key &key)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
             if (auto h = it->second.lock()) {
@@ -222,7 +222,7 @@ class HandleRegistry {
     Handle
     get_or_create(const Key &key, Factory &&create)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
             if (Handle h = it->second.lock()) {
@@ -238,10 +238,13 @@ class HandleRegistry {
         return h;
     }
 
+    // MSVC's std::unordered_map allocates in its default constructor, so an
+    // allocation failure here terminates. Running out of memory is fatal either way.
     MapType
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     drain() noexcept
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         MapType extracted;
         extracted.swap(map_);
         return extracted;

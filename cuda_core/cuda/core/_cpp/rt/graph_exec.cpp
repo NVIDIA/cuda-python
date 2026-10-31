@@ -92,7 +92,7 @@ struct ExecAttachmentStaging {
         if (!h_source || !accumulator) {
             return CUDA_SUCCESS;
         }
-        const CUuserObject object = accumulator->object;
+        CUuserObject object = accumulator->object;
         const GraphHandle source = std::move(h_source);
         accumulator = nullptr;
         GILReleaseGuard gil;
@@ -154,7 +154,7 @@ struct PreparedExecAttachmentState {
     }
 };
 
-void
+static void
 rollback_prepared_exec_attachment(PreparedExecAttachmentState *state) noexcept
 {
     if (!state) {

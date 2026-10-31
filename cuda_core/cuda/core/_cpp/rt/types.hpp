@@ -34,23 +34,33 @@ struct TaggedHandle {
     T raw;
 };
 
-using NvvmProgramValue = TaggedHandle<nvvmProgram, 0>;
-using NvJitLinkValue = TaggedHandle<nvJitLink_t, 1>;
+enum HandleTag : int {
+    kTagNvvmProgram,
+    kTagNvJitLink,
+    kTagTexObject,
+    kTagSurfObject,
+    kTagMemAllocation,
+    kTagVaReservation,
+    kTagVaMapping,
+};
+
+using NvvmProgramValue = TaggedHandle<nvvmProgram, kTagNvvmProgram>;
+using NvJitLinkValue = TaggedHandle<nvJitLink_t, kTagNvJitLink>;
 
 // CUtexObject, CUsurfObject and CUdeviceptr are all `unsigned long long`, so
 // shared_ptr<const CUtexObject> et al. would be the *same* C++ type as
 // DevicePtrHandle (and each other), collapsing the as_cu/as_intptr/as_py
 // overload sets. Tag them to keep each handle type distinct, exactly as the
 // NVVM / nvJitLink handles above do.
-using TexObjectValue = TaggedHandle<CUtexObject, 2>;
-using SurfObjectValue = TaggedHandle<CUsurfObject, 3>;
+using TexObjectValue = TaggedHandle<CUtexObject, kTagTexObject>;
+using SurfObjectValue = TaggedHandle<CUsurfObject, kTagSurfObject>;
 
 // Virtual memory management (VMM_DESIGN.md). CUmemGenericAllocationHandle is
 // also `unsigned long long`, and the reservation and mapping handles carry a
 // CUdeviceptr each, so all three are tagged for the same reason.
-using MemAllocationValue = TaggedHandle<CUmemGenericAllocationHandle, 4>;
-using VaReservationValue = TaggedHandle<CUdeviceptr, 5>;
-using VaMappingValue = TaggedHandle<CUdeviceptr, 6>;
+using MemAllocationValue = TaggedHandle<CUmemGenericAllocationHandle, kTagMemAllocation>;
+using VaReservationValue = TaggedHandle<CUdeviceptr, kTagVaReservation>;
+using VaMappingValue = TaggedHandle<CUdeviceptr, kTagVaMapping>;
 
 // ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
