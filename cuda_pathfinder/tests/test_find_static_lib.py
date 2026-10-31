@@ -171,11 +171,49 @@ def test_cudadevrt_windows_paths_follow_python_arch(
     monkeypatch.setattr(find_static_lib_module, "IS_WINDOWS", True)
     monkeypatch.setattr(find_static_lib_module, "windows_python_arch", lambda: target_arch)
 
-    info = find_static_lib_module._cudadevrt_info()
+    info = find_static_lib_module._cuda_runtime_static_lib_info("cudadevrt")
 
+    assert info["filename"] == "cudadevrt.lib"
     assert info["ctk_rel_paths"] == expected_ctk_dirs
     assert info["conda_rel_paths"] == expected_conda_dirs
     assert info["site_packages_dirs"] == expected_site_packages_dirs
+
+
+@pytest.mark.parametrize(
+    ("is_windows", "expected_filename"),
+    ((False, "libcudart_static.a"), (True, "cudart_static.lib")),
+)
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_cudart_static_shares_cudadevrt_layout(monkeypatch, is_windows, expected_filename):
+    monkeypatch.setattr(find_static_lib_module, "IS_WINDOWS", is_windows)
+    monkeypatch.setattr(find_static_lib_module, "windows_python_arch", lambda: "x64")
+
+    cudart_static = find_static_lib_module._cuda_runtime_static_lib_info("cudart_static")
+    cudadevrt = find_static_lib_module._cuda_runtime_static_lib_info("cudadevrt")
+
+    assert cudart_static["filename"] == expected_filename
+    for key in ("ctk_rel_paths", "conda_rel_paths", "site_packages_dirs"):
+        assert cudart_static[key] == cudadevrt[key]
+
+
+@pytest.mark.usefixtures("clear_find_static_lib_cache")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_locate_cudart_static_in_site_packages(monkeypatch, tmp_path):
+    info = find_static_lib_module._SUPPORTED_STATIC_LIBS_INFO["cudart_static"]
+    lib_dir = tmp_path / "site-packages" / Path(info["site_packages_dirs"][0])
+    expected_path = _make_static_lib_file(lib_dir, info["filename"])
+
+    monkeypatch.setattr(
+        find_static_lib_module,
+        "find_sub_dirs_all_sitepackages",
+        lambda _sub_dir: [str(lib_dir)],
+    )
+
+    located_lib = locate_static_lib("cudart_static")
+    assert located_lib.name == "cudart_static"
+    assert located_lib.abs_path == expected_path
+    assert located_lib.found_via == "site-packages"
+    assert find_static_lib("cudart_static") == expected_path
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")

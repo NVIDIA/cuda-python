@@ -36,10 +36,10 @@ class _StaticLibInfo(TypedDict):
     site_packages_dirs: tuple[str, ...]
 
 
-def _cudadevrt_info() -> _StaticLibInfo:
+def _cuda_runtime_static_lib_info(stem: str) -> _StaticLibInfo:
     if not IS_WINDOWS:
         return {
-            "filename": "libcudadevrt.a",
+            "filename": f"lib{stem}.a",
             "ctk_rel_paths": ("lib64", "lib"),
             "conda_rel_paths": ("lib",),
             "site_packages_dirs": ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib"),
@@ -49,7 +49,7 @@ def _cudadevrt_info() -> _StaticLibInfo:
     component_wheel_dirs = ("nvidia/cuda_runtime/lib/x64",) if arch_dir == "x64" else ()
     conda_fallback_dirs = ("lib",) if arch_dir == "x64" else ()
     return {
-        "filename": "cudadevrt.lib",
+        "filename": f"{stem}.lib",
         "ctk_rel_paths": (str(Path("lib", arch_dir)),),
         "conda_rel_paths": (str(Path("lib", arch_dir)), *conda_fallback_dirs),
         "site_packages_dirs": (f"nvidia/cu13/lib/{arch_dir}", *component_wheel_dirs),
@@ -57,7 +57,8 @@ def _cudadevrt_info() -> _StaticLibInfo:
 
 
 _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
-    "cudadevrt": _cudadevrt_info(),
+    "cudadevrt": _cuda_runtime_static_lib_info("cudadevrt"),
+    "cudart_static": _cuda_runtime_static_lib_info("cudart_static"),
 }
 
 SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INFO.keys()))
