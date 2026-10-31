@@ -3,29 +3,47 @@
 This root maintains CUDA 12.9 bindings under the `cuda.bindings` namespace.
 Follow the repository-wide instructions, including
 [Changes across bindings majors](../AGENTS.md#changes-across-bindings-majors).
-Inspect the CUDA 13 counterpart during implementation and review; preserve
-intentional API, layout, and build differences.
+Inspect the CUDA 13 counterpart during implementation and review, and record
+matching changes or why they are not applicable. Preserve intentional API,
+layout, and build differences rather than copying the CUDA 13 root wholesale.
+
+Follow the [maintenance guide](MAINTENANCE.md) for branch and release policy
+and [Maintaining Both Bindings Roots](../ci/README.md#maintaining-both-bindings-roots)
+for generation provenance and review expectations.
 
 ## Generated and handwritten sources
 
-- Files carrying a `CYTHON-BINDINGS-GENERATED` seal are generated inputs.
-  Change their generation source and regenerate against CUDA 12.9 inputs.
-  Record generator revision, toolkit inputs, and affected files. Do not edit
-  sealed files or recalculate their seals to conceal manual changes.
-- Handwritten utilities, build helpers, tests, and documentation can be edited
-  directly. Inspect headers and provenance; a filename extension alone does
-  not identify generated code.
-- Source builds parse CUDA headers and expand `.in` templates before Cython.
-  Regenerate these outputs from their templates and headers. Preserve the
-  CUDA 12 parser, legacy APIs, and namespace redirector.
+- Files carrying a `CYTHON-BINDINGS-GENERATED` seal are cybind output,
+  including some `.pyx`, `.pxd`, and `.in` files. Change their generation source
+  and regenerate against the intended CUDA 12.9 inputs. Record the generator
+  revision, toolkit inputs, and affected files in the review summary. Do not
+  edit sealed files or recalculate their seals to conceal manual changes.
+- Handwritten files, such as `cuda/bindings/_internal/utils.pyx`, build helpers,
+  tests, and documentation, can be edited directly. Inspect the file's header
+  and provenance; a filename extension alone does not identify generated code.
+- Source builds also parse CUDA headers with pyclibrary and expand `.in`
+  templates through `build_hooks.py` before Cythonization. Those generated
+  `.pyx`, `.pxd`, and `.pxi` outputs must be regenerated from their templates
+  and headers, rather than patched. Build-time expansion does not make a
+  sealed input template handwritten.
+- Keep the CUDA 12 header parser, templates, legacy APIs, and namespace
+  redirector. The CUDA 13 extension list and generated layout are different.
 
 ## Build and test guidance
 
-- Use CUDA 12.9 headers and a separate Python environment from CUDA 13.
+- Source builds require CUDA 12.9 headers. `build_hooks.py` checks the first
+  `cuda.h` found through `CUDA_HOME` or `CUDA_PATH` before generating files.
+  Split installations can still supply the existing path list.
 - `_build_shared.py` links to the canonical helper in `cuda_bindings_13/`.
-  Preserve its symlink or byte-for-byte identity with the shared copies.
-- Use the package's [developer commands](README.md). Build the Cython test
-  extensions before running `tests/cython/`.
-- Legacy samples remain under `examples/`; CUDA 13 uses a different layout.
-- Run the SCM preview bootstrap only in a disposable build checkout. Never
-  push its synthetic tags or run it in a shared development repository.
+  Preserve the symlink or a byte-for-byte identical copy, including matching
+  changes in the Core and Pathfinder helper copies.
+- Use Python 3.11 or newer and a separate environment from CUDA 13 bindings.
+  From this directory, install with
+  `python -m pip install -v -e . --group test`, then run `python -m pytest tests/`.
+  Free-threaded development also needs the `test-ft` dependency group.
+- Build Cython tests with `tests/cython/build_tests.sh` or `build_tests.bat`
+  before running `python -m pytest tests/cython/`. This requires the matching
+  CUDA headers and compiler toolchain.
+- Legacy samples remain under `examples/`; do not assume CUDA 13's sample
+  layout applies to this root. Keep marked SYNCED test-bootstrap blocks equal
+  across both bindings roots and Core.
