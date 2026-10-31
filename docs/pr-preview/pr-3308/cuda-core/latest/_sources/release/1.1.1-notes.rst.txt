@@ -1,0 +1,59 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.1.1 Release Notes
+=================================
+
+
+New features
+------------
+
+- Added :meth:`ObjectCode.get_module` for interoperability with legacy
+  ``CUmodule``-based driver APIs. The method returns a context-dependent
+  ``CUmodule`` handle via ``cuLibraryGetModule``, bridging the newer
+  context-independent library API to existing code that expects a module.
+  (`#2339 <https://github.com/NVIDIA/cuda-python/pull/2339>`__)
+
+- ``cuda.core`` C++ headers are now included in source distributions and
+  installed wheels, making them available to downstream projects that extend
+  ``cuda.core`` at the C++ level.
+  (`#2236 <https://github.com/NVIDIA/cuda-python/pull/2236>`__)
+
+
+Fixes and enhancements
+----------------------
+
+- This cuda-core patch release was issued to be compatible with cuda-bindings
+  13.4.0b1.  Version strings that include PEP 440 pre-release suffixes (e.g.
+  ``0b1``) are now parsed correctly; previously they caused an ``ImportError``
+  on startup.
+
+- Graph nodes now properly retain per-node user-object attachments (kernel
+  argument buffers, host-callback functions and user data, and
+  memcpy/memset operands) for the full lifetime of the graph.
+  (`#2357 <https://github.com/NVIDIA/cuda-python/pull/2357>`__)
+
+- Graph user-object payload cleanup is now deferred to the main Python thread
+  via ``Py_AddPendingCall``, avoiding unsafe cross-thread Python object
+  destruction that could occur when CUDA invoked the destructor callback on an
+  internal driver thread.
+  (`#2371 <https://github.com/NVIDIA/cuda-python/pull/2371>`__)
+
+- The on-disk program cache directory is now created with owner-only
+  permissions (``0o700``) on POSIX systems, and those permissions are
+  re-asserted on each use.  This prevents other local users from reading or
+  injecting cached device code regardless of the process ``umask``.
+  (`#2399 <https://github.com/NVIDIA/cuda-python/pull/2399>`__)
+
+- DLPack: a ``NULL`` deleter in a ``DLManagedTensorVersioned`` capsule is now
+  handled correctly per the DLPack specification; previously it would cause a
+  crash.
+  (`#2427 <https://github.com/NVIDIA/cuda-python/pull/2427>`__)
+
+- Corrected NumPy version guards for writing into DLPack host arrays.  The
+  minimum required NumPy version for such writes is now correctly enforced as
+  2.2.5+; earlier NumPy versions return a read-only buffer
+  (``numpy GH#28632``) and would error rather than skip.
+  (`#2238 <https://github.com/NVIDIA/cuda-python/pull/2238>`__)
