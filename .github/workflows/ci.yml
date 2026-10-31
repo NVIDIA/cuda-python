@@ -265,7 +265,7 @@ jobs:
 
       - name: Test CI tools
         run: |
-          python -m pip install pytest==9.1.0 pyyaml==6.0.3 setuptools-scm
+          python -m pip install -e './ci[test]'
           python -m pytest -v --noconftest ci/tools/tests
 
       - name: Compute CI workplan
