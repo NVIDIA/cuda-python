@@ -16,7 +16,6 @@
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
 namespace cuda_core::rt::detail {
 
@@ -191,17 +190,6 @@ class HandleRegistry {
     {
         std::lock_guard<std::mutex> lock(mutex_);
         map_.erase(key);
-    }
-
-    void
-    register_handles(const std::vector<Handle> &handles)
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        for (const Handle &h : handles) {
-            if (h) {
-                map_[*h] = h;
-            }
-        }
     }
 
     Handle

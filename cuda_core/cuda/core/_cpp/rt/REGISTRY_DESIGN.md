@@ -30,7 +30,26 @@ Without this level, a round-tripped handle would produce a new Box
 with default metadata, losing information that was set at creation.
 
 Instances: `context_registry`, `stream_registry`, `event_registry`,
-`kernel_registry`, `graph_registry`, and one node registry per `GraphBox`.
+`kernel_registry`, and, per `GraphBox`, one registry for its direct child
+graphs and one for its nodes.
+
+### Reused graph handles
+
+A `GraphHandle` weak reference locks whenever any handle of its hierarchy is
+alive, so a lockable entry does not prove that a child graph is alive. CUDA
+destroys child graphs inside node operations and capture invalidation, before
+cuda.core retires their boxes. A process-wide map keyed by raw `CUgraph` could
+therefore resolve a recycled address to another hierarchy's metadata.
+
+Scoping the child registry to its parent `GraphBox` removes that case by
+construction: `create_child_graph_handle` always knows the parent, and roots
+are never looked up. Within the parent, an entry is keyed by the child's
+`CUgraph` and its owner node, which together identify a child graph. If CUDA
+destroys a child before cuda.core retires its box, the owner node is still
+alive, so a newer child at the recycled address has a different owner and its
+own entry. Retiring the stale box erases only the stale entry. Within one
+owner, external synchronization and the retire-before-register order in
+`graph_commit_child_graph_update` keep one live entry per key.
 
 ## Level 2: Resource Handle -> Python Object (Cython)
 
