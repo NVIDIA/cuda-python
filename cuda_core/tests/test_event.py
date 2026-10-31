@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import gc
 import math
+import time
 
 import pytest
 from helpers.latch import LatchKernel
@@ -14,6 +16,10 @@ from cuda.core import (
     Event,
     EventOptions,
 )
+
+# Short enough that a stalled host call fails fast; long enough that the
+# latch cannot time out on its own during the few calls it guards.
+_LATCH_TIMEOUT_SEC = 10
 
 
 def test_event_init_disabled():
@@ -120,22 +126,43 @@ def test_error_timing_recorded():
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 @pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
-    latch = LatchKernel(device)
+    latch = LatchKernel(device, timeout_sec=_LATCH_TIMEOUT_SEC)
     enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
-    latch.launch(stream)
-    event3 = stream.record(options=enabled)
+    # Create event3 before the latch holds the stream, so that no event
+    # creation runs while the stream is held.
+    event3 = device.create_event(options=enabled)
 
-    # event3 will never complete because the latch has not been released
-    with pytest.raises(RuntimeError, match="^One or both events have not completed."):
-        event3 - event1
+    # A finalizer that frees memory synchronizes the context. If the cycle
+    # collector runs one while the latch holds the stream, the host blocks
+    # until the latch times out, and event3 completes (#3296). Collect now
+    # and keep the collector off until the latch is released.
+    gc.collect()
+    gc_enabled = gc.isenabled()
+    gc.disable()
+    try:
+        latch.launch(stream)
+        start = time.monotonic()
+        stream.record(event3)
+        elapsed = time.monotonic() - start
+        assert elapsed < _LATCH_TIMEOUT_SEC / 2, (
+            f"a host call blocked for {elapsed:.1f} s while the latch held the stream "
+            f"(latch timeout {_LATCH_TIMEOUT_SEC} s)"
+        )
+        # event3 cannot complete while the latch holds the stream
+        with pytest.raises(RuntimeError, match="^One or both events have not completed."):
+            event3 - event1
+    finally:
+        latch.release()
+        if gc_enabled:
+            gc.enable()
 
-    latch.release()
     event3.sync()
     event3 - event1  # this should work
 
