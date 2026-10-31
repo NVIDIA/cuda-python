@@ -51,6 +51,7 @@ conda create -y -n "${ENV_NAME}" \
     sphinx-copybutton \
     myst-nb \
     enum_tools \
+    furo \
     sphinx-toolbox \
     pyclibrary
 
