@@ -6,9 +6,11 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -117,6 +119,59 @@ def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
 
 def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     return parse_config(yaml.safe_load(path.read_text(encoding="utf-8")))
+
+
+def check_core_toolkit_floors(config: BindingsConfig, repo_root: Path) -> None:
+    """Check toolkit pins against core's existing, standard-library floor reader."""
+    core = repo_root / "cuda_core"
+    floor_path = core / "cuda" / "core" / "_bindings_floor.py"
+    spec = importlib.util.spec_from_file_location("_cuda_core_bindings_floor", floor_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with (core / "pyproject.toml").open("rb") as stream:
+        extras = tomllib.load(stream)["project"]["optional-dependencies"]
+    floors = module.floors_from_extras(extras)
+    pins = {int(package.cuda_major): package for package in config.package_roots}
+    if pins.keys() != floors.keys():
+        raise ValueError("registered CUDA majors must match cuda_core's cu<N> extras")
+    for major, floor in floors.items():
+        package = pins[major]
+        if package.toolkit[:2] < floor[:2]:
+            raise ValueError(
+                f"{package.package_root} toolkit {package.toolkit_version} is below "
+                f"the CUDA {major} bindings floor {'.'.join(map(str, floor))}"
+            )
+
+
+def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
+    """Check consistency of package metadata in the selected source tree."""
+    check_core_toolkit_floors(config, repo_root)
+    selectors: dict[str, str] = {}
+    for package in config.package_roots:
+        path = repo_root / package.package_root / "pyproject.toml"
+        with path.open("rb") as stream:
+            scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+        if "tag_regex" in scm:
+            raise ValueError(f"{path} must use setuptools-scm's default tag parser")
+        command = scm["git_describe_command"]
+        if command.count("--match") != 1:
+            raise ValueError(f"{path} must specify one git_describe_command --match selector")
+        selector = command[command.index("--match") + 1]
+        expected_selector = f"v{package.ctk_target}.*"
+        if selector != expected_selector:
+            raise ValueError(
+                f"{path} --match must select registered CUDA {package.ctk_target} "
+                f"using {expected_selector!r} for the {package.release_status} root, got {selector!r}"
+            )
+        selectors[package.cuda_major] = selector
+        if "fallback_version" in scm:
+            raise ValueError(f"{path} bindings root must not declare fallback_version")
+
+    path = repo_root / "cuda_python" / "pyproject.toml"
+    with path.open("rb") as stream:
+        meta_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
+    if meta_selectors != selectors:
+        raise ValueError(f"{path} scm-describe-match-by-major must match the bindings package selectors")
 
 
 def parse_prefixed_version(tag: str, prefix: str) -> Version | None:
@@ -258,6 +313,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     output = parser.add_mutually_exclusive_group()
     output.add_argument("--package-roots", action="store_true")
+    output.add_argument("--check-package-metadata", action="store_true")
     output.add_argument("--release-status", choices=sorted(RELEASE_STATUSES))
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
     parser.add_argument("--release-source-root", type=Path)
@@ -284,7 +340,13 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 0
         if args.command == "write-github-env":
-            if args.package_roots or args.release_status or args.release_tag or args.release_source_root is not None:
+            if (
+                args.package_roots
+                or args.check_package_metadata
+                or args.release_status
+                or args.release_tag
+                or args.release_source_root is not None
+            ):
                 parser.error("write-github-env does not accept registry selectors")
             value = json.load(sys.stdin)
             if not isinstance(value, dict):
@@ -299,6 +361,9 @@ def main(argv: list[str] | None = None) -> int:
             if args.release_source_root is not None:
                 parser.error("--release-source-root requires --release-tag")
             config = load_config(args.config)
+            if args.check_package_metadata:
+                check_package_metadata(config, REPO_ROOT)
+                return 0
             if args.release_status:
                 result = config.package_for_release_status(args.release_status).to_dict()
             else:

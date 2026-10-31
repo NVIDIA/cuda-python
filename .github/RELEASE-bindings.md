@@ -36,15 +36,20 @@ boundary, not a separate long-term home for shared infrastructure.
 ## Move fixes between integration and release branches
 
 Prefer a reviewed fix on `main`, then backport it to the selected release
-branch in a separate PR. Inspect the diff, request CI using the normal PR
-approval procedure, and review it before merging. Conflicts and toolkit-specific
-generated changes require an explicitly reviewed adaptation.
+branch. Run **CI: Backport a merged PR to a release branch** from the Actions
+tab on `main`, supplying the merged PR number and one existing target branch.
+The workflow opens a PR; it does not merge or release the result. Inspect the
+diff, request CI using the normal PR approval procedure, and review it before
+merging. Workflow-file changes require a manual backport with appropriate
+credentials. Conflicts and toolkit-specific generated changes require an
+explicitly reviewed adaptation.
 
 If urgency requires a fix on the release branch first, link a follow-up PR
 reconciling the fix back into `main` before closing the release checklist. In either
 direction, assess both bindings roots and record why a change applies to one
 or both. Regenerate affected generated files from the intended toolkit and
 cybind inputs instead of blindly copying generated output between majors.
+See the [shared maintenance policy](../ci/README.md#maintaining-both-bindings-roots).
 
 ## Validate and publish the selected line
 
@@ -55,8 +60,8 @@ cybind inputs instead of blindly copying generated output between majors.
    branch. Normal development CI includes dependent packages and may cover
    both majors. Resolve failures in affected code before selecting the tag.
 3. Create the approved immutable `vX.Y.Z` tag at the selected source commit.
-   Tag-triggered CI builds both bindings lines and their consumers. The release
-   workflow selects only the requested line's bindings or metapackage artifacts.
+   Tag-triggered CI selects that line's bindings and metapackage, validates them
+   with the published Pathfinder dependency, and builds release artifacts.
    The tag does not have to be on `main`. Wait for this exact tag's CI to pass.
 4. Run **CI: Release** with `release-action=dry-run`, the tag, and
    `component=cuda-bindings`; repeat for `cuda-python`. Leave `run-id` blank

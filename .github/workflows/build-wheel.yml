@@ -502,14 +502,6 @@ jobs:
           path: cuda_python/dist/${{ env.CURRENT_CUDA_VARIANT }}/*.whl
           if-no-files-found: error
 
-      - name: Upload legacy CUDA13 metapackage alias
-        if: ${{ (env.BUILD_CUDA_PYTHON_CURRENT == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: cuda-python-wheel
-          path: cuda_python/dist/${{ env.CURRENT_CUDA_VARIANT }}/*.whl
-          if-no-files-found: error
-
       - name: List the cuda-python artifacts directories
         if: ${{ (env.BUILD_CUDA_PYTHON == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
@@ -614,14 +606,6 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-${{ env.CURRENT_CUDA_VARIANT }}-tests
-          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
-          if-no-files-found: error
-
-      - name: Upload legacy CUDA13 Core Cython alias
-        if: ${{ env.TEST_CORE_CURRENT == 'true' }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
 

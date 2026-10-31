@@ -23,8 +23,10 @@ Everything else derives from them through :func:`floors_from_extras`:
 - ``cuda/core/__init__.py`` checks the installed cuda-bindings against that
   record with :func:`check_installed_bindings`.
 - The documentation reads the floors into substitutions in ``docs/source/conf.py``.
-- ``toolshed/check_cuda_core_bindings_floor.py``, a pre-commit hook, checks
-  that the CI toolkit pins in ``ci/versions.yml`` sit in the minors of the floors.
+- The ``check-bindings-config`` pre-commit hook checks that each registered
+  toolkit in ``ci/versions.yml`` is not below its corresponding floor
+  major.minor. The separate ``check-cuda-core-bindings-floor`` hook validates
+  the extras and prevents documentation from hardcoding the floors.
 
 The build and the tools above load this module by file path. It therefore uses
 the standard library only and must not import anything from ``cuda``.

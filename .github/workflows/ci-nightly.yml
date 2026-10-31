@@ -75,26 +75,43 @@ jobs:
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
+      BINDINGS_CONFIG: ${{ steps.find.outputs.bindings_config }}
       CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
+      LEGACY_BACKPORT_BRANCH: ${{ steps.find.outputs.legacy_backport_branch }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
 
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -e ./ci
+
       - name: Find latest successful CI run on main
         id: find
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          REQUESTED_RUN_ID: ${{ inputs.run-id }}
         run: |
-          if [[ -n "${{ inputs.run-id }}" ]]; then
-            RUN_ID="${{ inputs.run-id }}"
+          set -euo pipefail
+          if [[ -n "$REQUESTED_RUN_ID" ]]; then
+            if [[ ! "$REQUESTED_RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
+              echo "::error::run-id must be a positive integer"
+              exit 1
+            fi
+            RUN_ID="$REQUESTED_RUN_ID"
             HEAD_SHA=$(gh run view "$RUN_ID" \
-              -R "${{ github.repository }}" \
+              -R "$RELEASE_REPOSITORY" \
               --json headSha | jq -r '.headSha')
           else
             # lookup-run-id --branch --head-sha prints two lines: run_id then head_sha
-            OUTPUT=$(./ci/tools/lookup-run-id --branch main --head-sha "${{ github.repository }}" "CI")
+            OUTPUT=$(./ci/tools/lookup-run-id --branch main --head-sha "$RELEASE_REPOSITORY" "CI")
             RUN_ID=$(echo "$OUTPUT" | sed -n '1p')
             HEAD_SHA=$(echo "$OUTPUT" | sed -n '2p')
           fi
@@ -104,20 +121,46 @@ jobs:
             exit 1
           fi
 
-          CUDA_BUILD_VER=$(gh api \
-            "repos/${{ github.repository }}/contents/ci/versions.yml?ref=$HEAD_SHA" \
-            --jq '.content' \
-            | base64 -d \
-            | yq '.cuda.build.version')
+          git fetch --depth=1 origin "$HEAD_SHA"
+          snapshot=$(mktemp -d)
+          trap 'rm -rf -- "$snapshot"' EXIT
+          git archive "$HEAD_SHA" | tar -x -C "$snapshot"
+          python - "$snapshot/ci/versions.yml" <<'PYTHON'
+          import os
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
 
-          if [[ -z "$CUDA_BUILD_VER" || "$CUDA_BUILD_VER" == "null" ]]; then
-            echo "::error::Could not resolve CUDA build version from $HEAD_SHA"
-            exit 1
-          fi
+          import yaml
+
+          from ci.tools.bindings_config import load_config
+
+          path = Path(sys.argv[1])
+          raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+          if "schema_version" not in raw:
+              # Preserve the artifact source's original test and artifact contract.
+              toolkit = raw["cuda"]["build"]["version"]
+              branch = raw["backport_branch"]
+              subprocess.run(["git", "check-ref-format", f"refs/heads/{branch}"], check=True)
+              config_json = ""
+          else:
+              if raw["schema_version"] != 2:
+                  raise ValueError(f"unsupported nightly source schema: {raw['schema_version']!r}")
+              config = load_config(path)
+              toolkit = config.package_for_release_status("current").toolkit_version
+              branch = ""
+              config_json = config.to_json()
+          if re.fullmatch(r"[1-9][0-9]*\.[0-9]+\.[0-9]+", toolkit) is None:
+              raise ValueError(f"invalid nightly source build toolkit: {toolkit!r}")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
+              output.write(f"bindings_config={config_json}\n")
+              output.write(f"cuda_build_ver={toolkit}\n")
+              output.write(f"legacy_backport_branch={branch}\n")
+          PYTHON
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
-          echo "cuda_build_ver=$CUDA_BUILD_VER" >> $GITHUB_OUTPUT
 
   # ── PyTorch interop tests ──
 
@@ -133,7 +176,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -151,7 +196,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-aarch64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -169,7 +216,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -189,7 +238,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -207,7 +258,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-aarch64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -225,7 +278,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -245,7 +300,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
@@ -263,7 +320,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
@@ -283,7 +342,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
@@ -301,7 +362,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
@@ -321,7 +384,9 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-aarch64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
+      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: standard
