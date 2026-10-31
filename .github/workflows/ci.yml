@@ -258,8 +258,15 @@ jobs:
             echo "Reusable artifacts: run \`${run_id}\` at \`${merge_base}\` on \`${BASE_REF}\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Test CI workplan planner
-        run: python3 -m unittest ci/tools/tests/test_compute_ci_plan.py
+      - name: Set up Python for CI tool tests
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.12"
+
+      - name: Test CI tools
+        run: |
+          python -m pip install pytest==9.1.0 pyyaml==6.0.3 setuptools-scm
+          python -m pytest -v --noconftest ci/tools/tests
 
       - name: Compute CI workplan
         id: workplan
