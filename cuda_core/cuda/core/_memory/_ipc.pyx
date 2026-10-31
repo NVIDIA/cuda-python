@@ -453,7 +453,11 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
     # Register it.
     if uuid is not None:
         registered = self.register(uuid)
-        assert registered is self
+        if registered is not self:
+            raise RuntimeError(
+                "internal cuda.core error, please report: register() returned a "
+                "different memory resource than the one being registered"
+            )
 
     return self
 
@@ -476,7 +480,11 @@ cdef _MemPool MP_register(_MemPool self, uuid):
         return existing
     if not self.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
-    assert self.uuid is None or self.uuid == uuid
+    if self.uuid is not None and self.uuid != uuid:
+        raise ValueError(
+            f"Cannot register memory resource with UUID {uuid}: "
+            f"the resource already has UUID {self.uuid}"
+        )
     registry[uuid] = self
     self._ipc_data._alloc_handle._uuid = uuid
     return self
