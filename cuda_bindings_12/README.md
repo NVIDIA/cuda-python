@@ -13,6 +13,36 @@ Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cud
 
 This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
 
+CUDA 12.9 sources are developed here on `main`. This root and
+`cuda_bindings_13/` build the same distribution and Python namespace; use
+separate environments for them. From the repository root:
+
+```console
+pixi run --manifest-path cuda_bindings_12 -e cu12 test
+```
+
+This builds bindings and Cython test extensions from source, then runs the
+GPU test suite. `pixi run -e cu12 test-bindings` selects the same package.
+For an existing Python environment with CUDA 12.9 headers and a compiler:
+
+```console
+cd cuda_bindings_12
+python -m pip install -v -e . --group test
+tests/cython/build_tests.sh
+python -m pytest tests/ tests/cython/
+```
+
+Use `build_tests.bat` on Windows. Free-threaded Python also needs the
+`test-ft` dependency group.
+
+Versions follow reachable `v12.9.*` tags through standard `setuptools-scm`.
+Before a retained milestone exists for the reserved preview release, CI uses
+`ci.tools.bindings_scm_version` in its disposable checkout to create one
+local ancestor tag. Never run that helper in a shared development repository
+or push its synthetic tags. See the repository's
+[version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
+
+
 ## Testing
 
 Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.

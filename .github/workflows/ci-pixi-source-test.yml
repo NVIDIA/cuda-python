@@ -12,8 +12,8 @@
 # only thing that runs the pixi source build end to end.
 #
 # Two tiers, to spend GPU minutes deliberately (GPUs are scarce):
-#   - build-smoke (PRs): CPU-only. Source-builds bindings + core, imports them,
-#     builds the cython test extensions and checks placement. Catches the
+#   - build-smoke (PRs): CPU-only. Source-builds both bindings roots and current
+#     Core, imports them, builds Cython extensions and checks placement. Catches the
 #     compile / ABI / .so-placement regressions WITHOUT a GPU.
 #   - build-identity-roundtrip (nightly + manual): CPU-only. cu13 -> cu12 ->
 #     cu13 in one checkout, so build artifacts cannot be reused across CUDA
@@ -42,11 +42,17 @@ on:
       # solve, so it can break the source build without a pixi.toml edit.
       - "**/pyproject.toml"
       - "cuda_bindings_13/build_hooks.py"
+      - "cuda_bindings_12/build_hooks.py"
       - "cuda_core/build_hooks.py"
       - "cuda_bindings_13/cuda/bindings/**" # generated bindings sources
+      - "cuda_bindings_12/cuda/bindings/**"
       - "cuda_bindings_13/tests/cython/**"
+      - "cuda_bindings_12/tests/**"
       - "cuda_core/tests/cython/**"
       - "ci/versions.yml"
+      - "ci/pyproject.toml"
+      - "ci/tools/bindings_config.py"
+      - "ci/tools/bindings_scm_version.py"
       - "ci/pixi-version.env"
       - ".github/actions/setup-pixi/action.yml"
       - ".github/workflows/ci-pixi-source-test.yml"
@@ -54,7 +60,8 @@ on:
     inputs:
       cuda-env:
         description: "pixi environment to test (cu13 or cu12)."
-        type: string
+        type: choice
+        options: ["cu13", "cu12"]
         default: "cu13"
 
 defaults:
@@ -73,12 +80,19 @@ env:
 jobs:
   # ── PR guard: CPU-only build + import + placement smoke ──
   build-smoke:
-    name: "build smoke (cu13, linux-64, CPU)"
+    name: "build smoke (${{ matrix.cuda-env }}, linux-64, CPU)"
     if: >-
       github.repository_owner == 'nvidia' &&
       (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        cuda-env: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.cuda-env) || '["cu12","cu13"]') }}
+    env:
+      CUDA_ENV: ${{ matrix.cuda-env }}
+      BINDINGS_ROOT: cuda_bindings_${{ matrix.cuda-env == 'cu12' && '12' || '13' }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -91,28 +105,46 @@ jobs:
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
 
+      - name: Set up Python for maintenance preview
+        if: ${{ matrix.cuda-env == 'cu12' }}
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.12"
+
+      - name: Bootstrap maintenance SCM in this disposable checkout
+        if: ${{ matrix.cuda-env == 'cu12' }}
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          python -m pip install -e ./ci
+          python -m ci.tools.bindings_scm_version --package-root cuda_bindings_12 --sha "$SOURCE_SHA"
+
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
 
       - name: Source-build + import + cython-placement smoke
-        env:
-          CUDA_ENV: ${{ inputs.cuda-env || 'cu13' }}
         run: |
           # pathfinder: pure-Python, no GPU.
           pixi run -e "${CUDA_ENV}" test-pathfinder
 
-          # bindings + core: force the source build (catches nvrtc/driver
+          # Force each bindings source build (catches nvrtc/driver
           # compile errors like #2182) and import them (catches ABI mismatches).
-          pixi run --manifest-path cuda_bindings_13 -e "${CUDA_ENV}" \
+          pixi run --manifest-path "${BINDINGS_ROOT}" -e "${CUDA_ENV}" \
             python -c "import cuda.bindings.driver, cuda.bindings.nvrtc, cuda.bindings.runtime; print('bindings import OK')"
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
-            python -c "import cuda.core; print('core import OK')"
+          if [[ "${CUDA_ENV}" == cu13 ]]; then
+            pixi run --manifest-path cuda_core -e "${CUDA_ENV}" \
+              python -c "import cuda.core; print('core import OK')"
+          fi
 
           # cython test extensions: build them and confirm each .so landed next
           # to its .pyx in tests/cython (catches the placement regression #2180).
-          pixi run --manifest-path cuda_bindings_13 -e "${CUDA_ENV}" build-cython-tests
-          pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
-          for d in cuda_bindings_13/tests/cython cuda_core/tests/cython; do
+          pixi run --manifest-path "${BINDINGS_ROOT}" -e "${CUDA_ENV}" build-cython-tests
+          cython_dirs=("${BINDINGS_ROOT}/tests/cython")
+          if [[ "${CUDA_ENV}" == cu13 ]]; then
+            pixi run --manifest-path cuda_core -e "${CUDA_ENV}" build-cython-tests
+            cython_dirs+=(cuda_core/tests/cython)
+          fi
+          for d in "${cython_dirs[@]}"; do
             if ! compgen -G "${d}/*.cpython-*.so" > /dev/null; then
               echo "::error::no compiled cython test .so in ${d} (placement regression)"
               exit 1
@@ -131,8 +163,7 @@ jobs:
   # The round trip (not just cu13 -> cu12) is what catches the second half:
   # coming back to cu13 must not silently reuse the cu12 extension.
   #
-  # cuda_core only: cuda-bindings cannot be source-built in its cu12
-  # environment at all, for reasons unrelated to stale artifacts.
+  # Core only: bindings majors have separate source roots and environments.
   build-identity-roundtrip:
     name: "cu13 -> cu12 -> cu13 round trip (linux-64, CPU)"
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
@@ -186,10 +217,14 @@ jobs:
 
   # ── Nightly: full `pixi run test` on a GPU runner ──
   full-test:
-    name: "pixi run test (${{ inputs.cuda-env || 'cu13' }}, linux-64, GPU)"
+    name: "pixi run test (${{ matrix.cuda-env }}, linux-64, GPU)"
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
     runs-on: "linux-amd64-gpu-l4-latest-1" # same label scheme as test-wheel-linux.yml
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        cuda-env: ${{ fromJSON(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.cuda-env) || '["cu12","cu13"]') }}
     container:
       options: -u root --security-opt seccomp=unconfined --shm-size 16g
       image: ubuntu:24.04
@@ -222,8 +257,24 @@ jobs:
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
 
+      - name: Set up Python for maintenance preview
+        if: ${{ matrix.cuda-env == 'cu12' }}
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.12"
+
+      - name: Bootstrap maintenance SCM in this disposable checkout
+        if: ${{ matrix.cuda-env == 'cu12' }}
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          python -m pip install -e ./ci
+          python -m ci.tools.bindings_scm_version --package-root cuda_bindings_12 --sha "$SOURCE_SHA"
+
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
 
       - name: pixi run test
-        run: pixi run -e "${{ inputs.cuda-env || 'cu13' }}" test
+        env:
+          CUDA_ENV: ${{ matrix.cuda-env }}
+        run: pixi run -e "${CUDA_ENV}" test
