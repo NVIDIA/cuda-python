@@ -280,6 +280,42 @@ def write_github_env(data: Mapping[str, object], path: Path) -> None:
         stream.write(f"BINDINGS_PACKAGE_ROOT={package_root}\n")
 
 
+def write_build_github_env(
+    config: BindingsConfig,
+    path: Path,
+    *,
+    repo_root: Path,
+    python_version: str,
+    host_platform: str,
+    sha: str,
+) -> None:
+    """Append both bindings lines' build paths and artifact names for Actions."""
+    python_tag = python_version.replace(".", "")
+    values = {}
+    for role in ("current", "maintenance"):
+        package = config.package_for_release_status(role)
+        prefix = role.upper()
+        source = repo_root / package.package_root
+        artifact = f"cuda-bindings-python{python_tag}-cuda{package.toolkit_version}-{host_platform}"
+        values.update(
+            {
+                f"{prefix}_BINDINGS_ROOT": package.package_root,
+                f"{prefix}_CUDA_VERSION": package.toolkit_version,
+                f"{prefix}_CUDA_MAJOR": package.cuda_major,
+                f"{prefix}_CUDA_VARIANT": package.cuda_variant,
+                f"{prefix}_BINDINGS_ARTIFACT_BASENAME": artifact,
+                f"{prefix}_BINDINGS_ARTIFACT_NAME": f"{artifact}-{sha}",
+                # Forward slashes work in native Python and Git Bash on Windows.
+                f"{prefix}_BINDINGS_ARTIFACTS_DIR": (source / "dist").resolve().as_posix(),
+                f"{prefix}_BINDINGS_CYTHON_TESTS_DIR": (source / "tests" / "cython").resolve().as_posix(),
+                f"{prefix}_PYTHON_ARTIFACT_NAME": f"cuda-python-wheel-cuda{package.toolkit_version}",
+            }
+        )
+    with path.open("a", encoding="utf-8") as stream:
+        for name, value in values.items():
+            stream.write(f"{name}={value}\n")
+
+
 def main(argv: list[str] | None = None) -> int:
     """Emit normalized registry JSON or export one package for GitHub Actions."""
     parser = ArgumentParser(description=__doc__)
@@ -304,9 +340,28 @@ def main(argv: list[str] | None = None) -> int:
         help="append bindings build variables from package JSON on stdin",
     )
     write_env.add_argument("github_env", type=Path, metavar="GITHUB_ENV")
+    write_build_env = commands.add_parser(
+        "write-build-env",
+        help="append both bindings lines' build variables from the registry",
+    )
+    write_build_env.add_argument("github_env", type=Path, metavar="GITHUB_ENV")
+    write_build_env.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    write_build_env.add_argument("--python-version", required=True)
+    write_build_env.add_argument("--host-platform", required=True)
+    write_build_env.add_argument("--sha", required=True)
     args = parser.parse_args(argv)
 
     try:
+        if args.command == "write-build-env":
+            write_build_github_env(
+                load_config(args.config),
+                args.github_env,
+                repo_root=args.repo_root,
+                python_version=args.python_version,
+                host_platform=args.host_platform,
+                sha=args.sha,
+            )
+            return 0
         if args.command == "write-github-env":
             if (
                 args.package_roots
