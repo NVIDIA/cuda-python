@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.ClockLimitId
+===============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: ClockLimitId

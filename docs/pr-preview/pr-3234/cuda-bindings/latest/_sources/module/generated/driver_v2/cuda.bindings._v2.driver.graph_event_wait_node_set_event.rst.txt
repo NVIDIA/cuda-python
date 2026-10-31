@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_event\_wait\_node\_set\_event
+==============================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_event_wait_node_set_event

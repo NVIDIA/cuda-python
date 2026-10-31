@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_discard\_and\_prefetch\_batch\_async
+===================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_discard_and_prefetch_batch_async
