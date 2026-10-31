@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=47f4e05b"></script>
+    <script src="../_static/documentation_options.js?v=d474ee28"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev295';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev297';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -884,6 +884,12 @@ in the receiver. Fabric handles are not shared yet.
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">register()</span></code> on a <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> or a
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> now raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the resource
+already has a different UUID. The check used to be an <code class="docutils literal notranslate"><span class="pre">assert</span></code>, so under
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-O</span></code> a mismatched UUID silently rewrote the resource’s UUID and
+corrupted the IPC registry.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2697">#2697</a>)</p></li>
 <li><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> or a <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>
 sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> now names its device, and the
 <code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> <code class="docutils literal notranslate"><span class="pre">peers</span></code>, by UUID. The receiving process maps
