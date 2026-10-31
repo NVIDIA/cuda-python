@@ -657,6 +657,9 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
+      component: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && 'cuda-bindings' || 'all' }}
+      git-tag: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+      run-id: ${{ github.run_id }}
       is-release: ${{ github.ref_type == 'tag' }}
       deploy-docs: ${{ github.ref_type != 'tag' }}
 

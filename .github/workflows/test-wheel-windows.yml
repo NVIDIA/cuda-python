@@ -92,9 +92,9 @@ jobs:
                     BINDINGS_ROOT: ($package.package_root // "cuda_bindings_13"),
                     BINDINGS_BUILD_VERSION: ($package.toolkit_version // ""),
                     BINDINGS_SOURCE: (if $package == null then "floor" else "main" end),
-                    BINDINGS_ARTIFACT_PREFIX: (if $package.release_status == "maintenance" then "maintenance-bindings" else "cuda-bindings" end),
+                    BINDINGS_ARTIFACT_PREFIX: "cuda-bindings",
                     CORE_CYTHON_SUFFIX: (if $package.release_status == "maintenance" then "-cu\($package.cuda_major)-tests" else "-tests" end),
-                    PYTHON_ARTIFACT_NAME: (if $package.release_status == "maintenance" then "maintenance-python-wheel" else "cuda-python-wheel" end)
+                    PYTHON_ARTIFACT_NAME: (if $package == null then "" else "cuda-python-wheel-cuda\($package.toolkit_version)" end)
                   })
             ' <<< "$TEST_MATRIX")
           fi

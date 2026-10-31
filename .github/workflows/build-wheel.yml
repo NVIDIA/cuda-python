@@ -435,7 +435,7 @@ jobs:
         if: ${{ !inputs.single-cuda-major && (env.BUILD_PYTHON == 'true' || env.TEST_PYTHON == 'true') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
-          name: maintenance-python-wheel
+          name: cuda-python-wheel-cuda${{ env.MAINTENANCE_CUDA_VERSION }}
           path: cuda_python/dist/cu${{ env.MAINTENANCE_CUDA_MAJOR }}/*.whl
           if-no-files-found: error
 
@@ -468,6 +468,14 @@ jobs:
           ls -lahR cuda_python
 
       - name: Upload cuda-python build artifacts
+        if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: cuda-python-wheel-cuda${{ inputs.cuda-version }}
+          path: cuda_python/*.whl
+          if-no-files-found: error
+
+      - name: Upload legacy cuda-python artifact alias
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
