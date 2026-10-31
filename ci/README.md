@@ -292,7 +292,16 @@ Copying maintenance sources does not make their later branch tags ancestors of
 release. Follow the [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle)
 and keep temporary preview tags local to an independent disposable clone;
 worktrees share tags with their repository.
+CI uses `ci.tools.bindings_scm_version` in disposable build checkouts until an
+appropriate maintenance milestone is reachable. It creates a local preview tag
+at a validated ancestor only when required; existing suitable tags govern the
+version through standard setuptools-scm. It never pushes or moves tags.
+For a local maintenance preview, use an independent disposable clone (not a
+linked worktree), install the CI tools, and run from its root:
 
+```console
+python -m ci.tools.bindings_scm_version --package-root cuda_bindings_12 --sha "$(git rev-parse HEAD)"
+```
 
 ### SCM Milestones and Bootstrap Targets
 
