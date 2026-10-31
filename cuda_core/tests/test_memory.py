@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import concurrent.futures
 import ctypes
 import gc
 import multiprocessing as mp
@@ -2773,6 +2774,168 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         current_prop = property_name.replace("_high", "_current")
         current_value = getattr(mr.attributes, current_prop)
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
+
+
+def _create_owned_pool_or_skip(memory_resource_factory, device):
+    MR, MRops = memory_resource_factory
+    if MR is DeviceMemoryResource:
+        if not device.properties.memory_pools_supported:
+            pytest.skip("Device does not support mempool operations")
+        return MR(device, options=MRops(max_size=POOL_SIZE))
+    if MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+        return MR(options=MRops(max_size=POOL_SIZE))
+    skip_if_managed_memory_unsupported(device)
+    return create_managed_memory_resource_or_skip(options=MRops())
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_attributes_set(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    attributes = mr.attributes
+    try:
+        for name in (
+            "reuse_follow_event_dependencies",
+            "reuse_allow_opportunistic",
+            "reuse_allow_internal_dependencies",
+        ):
+            for flag in (False, True):
+                setattr(attributes, name, flag)
+                assert getattr(attributes, name) is flag
+
+        attributes.release_threshold = 1 << 20
+        assert attributes.release_threshold == 1 << 20
+        attributes.release_threshold = 0
+        assert attributes.release_threshold == 0
+        for value in (-1, 2**64):
+            with pytest.raises(OverflowError):
+                attributes.release_threshold = value
+
+        for name in ("reserved_mem_high", "used_mem_high"):
+            with pytest.raises(AttributeError, match=f"'{name}' may only be set to zero"):
+                setattr(attributes, name, 1)
+        for name in ("reserved_mem_current", "used_mem_current"):
+            with pytest.raises(AttributeError):
+                setattr(attributes, name, 0)
+    finally:
+        mr.close()
+
+
+class _IntSubclass(int):
+    pass
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    "make_value",
+    [
+        pytest.param(lambda: True, id="bool"),
+        pytest.param(lambda: _IntSubclass(4096), id="int-subclass"),
+        pytest.param(lambda: np.uint64(4096), id="np-uint64"),
+    ],
+)
+def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, make_value):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        value = make_value()
+        mr.attributes.release_threshold = value
+        assert mr.attributes.release_threshold == int(value)
+    finally:
+        mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize("kind", ["reserved", "used"])
+def test_mempool_watermark_reset(memory_resource_factory, kind):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    high, current = f"{kind}_mem_high", f"{kind}_mem_current"
+    try:
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        # Return the freed memory so that the reserved watermark is above the
+        # current value too.
+        mr.trim()
+        assert getattr(mr.attributes, high) >= POOL_SIZE // 2
+        assert getattr(mr.attributes, current) < POOL_SIZE // 2
+
+        setattr(mr.attributes, high, 0)
+        assert getattr(mr.attributes, high) == getattr(mr.attributes, current)
+    finally:
+        mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_trim(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        # Keep freed memory reserved so that only trim() returns it.
+        mr.attributes.release_threshold = 2**64 - 1
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        reserved = mr.attributes.reserved_mem_current
+        assert reserved > 0
+
+        mr.trim(min_bytes_to_keep=reserved)
+        assert mr.attributes.reserved_mem_current == reserved
+
+        mr.trim()
+        assert mr.attributes.reserved_mem_current == 0
+    finally:
+        mr.close()
+
+    with pytest.raises(RuntimeError, match="has been closed"):
+        mr.trim()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize(
+    ("mode", "caller"),
+    # A thread-local capture does not restrict other threads, so pairing it
+    # with other_thread would pass without relaxed mode.
+    [("global", "same_thread"), ("global", "other_thread"), ("thread_local", "same_thread")],
+)
+def test_mempool_calls_during_capture_keep_capture_valid(memory_resource_factory, mode, caller):
+    """Pool attribute reads, writes and trim() run in relaxed capture mode.
+
+    The driver refuses these calls, and invalidates the capture, while a
+    global-mode capture is active on any thread or a thread-local one on the
+    calling thread.
+    """
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+
+    def use_pool():
+        device.set_current()
+        attributes = mr.attributes
+        attributes.release_threshold = attributes.release_threshold
+        attributes.reuse_allow_opportunistic = attributes.reuse_allow_opportunistic
+        attributes.used_mem_high = 0
+        mr.trim()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    try:
+        if caller == "same_thread":
+            use_pool()
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(use_pool).result()
+    finally:
+        # Raises if a pool call invalidated the capture.
+        gb.end_building()
+        gb.close()
+        mr.close()
 
 
 def test_mempool_attributes_repr(memory_resource_factory):

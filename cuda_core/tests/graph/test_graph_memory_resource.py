@@ -9,6 +9,7 @@ import threading
 import pytest
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer, thread_unsafe_on_windows
 
+from cuda.bindings import driver
 from cuda.core import (
     Device,
     DeviceMemoryResource,
@@ -404,14 +405,26 @@ def test_device_memory_resource_first_touch_under_capture(mempool_device, mode):
 def test_dmr_init_restores_capture_mode(mempool_device, mode):
     """After construction the thread is back in its previous capture mode.
 
-    Had the constructor left the thread in relaxed mode, this pool attribute
-    read would be accepted. Instead the driver refuses it and invalidates the
-    capture, which end_building() then ends and reports (#2834).
+    The constructor switches the thread to relaxed mode around its pool calls
+    (#2834), and must not leave it there.
     """
+
+    def thread_capture_mode():
+        # The exchange returns the mode it replaces, so exchanging twice reads
+        # the thread's mode without changing it.
+        relaxed = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_RELAXED
+        err, current = driver.cuThreadExchangeStreamCaptureMode(relaxed)
+        assert err == driver.CUresult.CUDA_SUCCESS
+        err, _ = driver.cuThreadExchangeStreamCaptureMode(current)
+        assert err == driver.CUresult.CUDA_SUCCESS
+        return current
+
     device = mempool_device
     gb = device.create_stream().create_graph_builder().begin_building(mode=mode)
-    dmr = DeviceMemoryResource(device)
-    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED"):
-        dmr.attributes.release_threshold  # noqa: B018 - the read itself is the probe
-    with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_INVALIDATED"):
+    try:
+        before = thread_capture_mode()
+        DeviceMemoryResource(device)
+        assert thread_capture_mode() == before
+    finally:
+        # Raises if construction invalidated the capture.
         gb.end_building()
