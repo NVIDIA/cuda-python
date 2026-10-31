@@ -126,7 +126,16 @@ def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, mon
 
     def git(*args):
         return subprocess.run(  # noqa: S603
-            ["git", "-c", "user.name=CI test", "-c", "user.email=ci-test@example.invalid", *args],  # noqa: S607
+            [  # noqa: S607
+                "git",
+                "-c",
+                "commit.gpgsign=false",
+                "-c",
+                "user.name=CI test",
+                "-c",
+                "user.email=ci-test@example.invalid",
+                *args,
+            ],
             cwd=tmp_path,
             check=True,
             capture_output=True,

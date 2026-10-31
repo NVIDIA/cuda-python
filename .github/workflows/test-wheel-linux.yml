@@ -21,6 +21,10 @@ on:
         description: Normalized registry; empty retains legacy snapshot routing.
         type: string
         default: ''
+      legacy-backport-branch:
+        description: Backport branch from the legacy artifact source; unused with bindings-config.
+        type: string
+        default: ''
       matrix_filter:
         type: string
         default: "."
@@ -63,6 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BINDINGS_CONFIG: ${{ inputs.bindings-config }}
+      LEGACY_BACKPORT_BRANCH: ${{ inputs.legacy-backport-branch }}
       BUILD_TYPE: ${{ inputs.build-type }}
       WORKPLAN: ${{ inputs.workplan }}
       TEST_MODE: ${{ inputs.test-mode }}
@@ -106,8 +111,7 @@ jobs:
 
           if [[ -z "$BINDINGS_CONFIG" ]]; then
             MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if any(.[]; .DRIVER != "latest" and .DRIVER != "earliest" and .FLAVOR == "wsl") then "Error: custom DRIVER is not supported with FLAVOR=wsl\n" | halt_error(1) else . end | map(. + {RUNNER_DRIVER: (if .DRIVER == "latest" or .DRIVER == "earliest" then .DRIVER else "latest" end)}) | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
-            OLD_BRANCH=$(yq -r '.backport_branch' ci/versions.yml)
-            echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
+            echo "OLD_BRANCH=${LEGACY_BACKPORT_BRANCH}" >> "$GITHUB_OUTPUT"
           else
             # Keep the caller's free-form jq filter; shared Python code handles
             # source selection, test suites, runner routing, and coverage checks.
@@ -261,6 +265,7 @@ jobs:
           && apt update \
           && apt install gh -y
 
+          : "${OLD_BRANCH:?legacy-backport-branch is required for legacy prior-branch artifacts}"
           OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
           LOOKUP_ARGS=(
             --branch "${OLD_BRANCH}"
