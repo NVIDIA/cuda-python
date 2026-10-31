@@ -7,6 +7,8 @@ from __future__ import annotations
 cimport cpython
 
 from libc.stddef cimport size_t
+from libc.stdint cimport uintptr_t
+from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open
@@ -177,7 +179,29 @@ def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None
 multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
 
-cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
+cdef class _VirtualMemoryDescriptor(IPCBufferDescriptor):
+    """Common allocation layout and driver-handle interface for VMM descriptors."""
+
+    @property
+    def handle_type(self) -> VirtualMemoryHandleType:
+        """The export handle type; the importing resource must use the same type."""
+        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResourceOptions
+
+        for spec, value in VirtualMemoryResourceOptions._handle_types.items():
+            if spec is not None and int(value) == self._handle_type:
+                return spec
+        raise ValueError(f"the descriptor carries an unknown handle type ({self._handle_type})")
+
+    @property
+    def sizes(self) -> tuple[int, ...]:
+        """Size of each physical allocation, in address order; the sum is at least ``size``."""
+        return self._chunk_sizes
+
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
+        raise NotImplementedError("a concrete VMM descriptor is required")
+
+
+cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
     """Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.
 
     The descriptor holds one exported POSIX file descriptor per physical
@@ -185,8 +209,7 @@ cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
     :class:`IPCAllocationHandle` that the descriptor owns and closes when it
     is released), with each allocation's size (``sizes``) and the buffer's
     size (``size``, which may be smaller than their sum). ``handle_type`` is
-    ``"posix_fd"``, the only handle type cuda.core shares today; the rules
-    below describe file descriptors.
+    ``"posix_fd"``; the rules below describe file descriptors.
 
     A descriptor pins the physical memory while it exists, in every process
     that holds one, and nothing else does: the exporting buffer keeps no
@@ -294,20 +317,10 @@ cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
             handles.append(handle)
         return VirtualMemoryFdBufferDescriptor._from_exports(driver_type, sizes_t, tuple(handles), size)
 
-    @property
-    def handle_type(self) -> VirtualMemoryHandleType:
-        """The handle type the exporter used; the importing resource must be configured with the same."""
-        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResourceOptions
-
-        for spec, value in VirtualMemoryResourceOptions._handle_types.items():
-            if spec is not None and int(value) == self._handle_type:
-                return spec
-        raise ValueError(f"the descriptor carries an unknown handle type ({self._handle_type})")
-
-    @property
-    def sizes(self) -> tuple[int, ...]:
-        """Size of each physical allocation, in address order; the sum is at least ``size``."""
-        return self._chunk_sizes
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
+        # fd zero is valid, so NULL is a valid result unless an exception is set.
+        cdef int fd = int(self._handles[i])
+        return <void*><uintptr_t>fd
 
     @property
     def handles(self) -> tuple[IPCAllocationHandle, ...]:
@@ -332,6 +345,114 @@ cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
         # multiprocessing duplicates the IPCAllocationHandle fds into the receiver; plain pickle raises.
         return VirtualMemoryFdBufferDescriptor._from_exports, (
             self._handle_type, self._chunk_sizes, self._handles, self._size)
+
+
+cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
+    """Plain-data descriptor of a :class:`VirtualMemoryBuffer` exported with fabric handles.
+
+    Each physical allocation contributes one opaque 64-byte handle, in address
+    order. Plain ``pickle``, ``multiprocessing``, or a transport of your own
+    can carry these bytes. Use :meth:`from_handles` to rebuild a descriptor
+    received outside cuda.core, then :meth:`Buffer.from_ipc_descriptor` to
+    import it. ``handle_type`` is always ``"fabric"``.
+
+    Nothing is pinned: unlike a file descriptor, a fabric descriptor parked
+    in a queue does not retain the memory. The exporter must keep the buffer
+    alive until every importer has imported it. After import, the imported
+    allocation holds its own driver references and is independent of the
+    exporter. Importing a stale or forged handle fails with a driver error.
+
+    Sharing is supported on one node; multi-node sharing is untested. Fabric
+    handles require an NVLink fabric and an accessible IMEX channel. Treat
+    handles and sizes received from another process as untrusted and import
+    only through :meth:`Buffer.from_ipc_descriptor`.
+    """
+
+    @staticmethod
+    def _from_exports(
+        sizes: tuple[int, ...], handles: tuple[bytes, ...], size: int, owner_uuid: str | None
+    ) -> VirtualMemoryFabricBufferDescriptor:
+        return VirtualMemoryFabricBufferDescriptor.from_handles(
+            handles, sizes, size=size, owner_uuid=owner_uuid)
+
+    @classmethod
+    def from_handles(
+        cls, handles: Iterable[bytes], sizes: Iterable[int], *,
+        size: int | None = None, owner_uuid: str | None = None,
+    ) -> VirtualMemoryFabricBufferDescriptor:
+        """Build a descriptor from fabric handles received through a transport of your own.
+
+        Parameters
+        ----------
+        handles : Iterable[bytes]
+            One opaque 64-byte handle per physical allocation, in address order.
+        sizes : Iterable[int]
+            One positive allocation size per handle, in the same order.
+        size : int, optional
+            Buffer size, between zero and the sum of ``sizes``; the sum by default.
+        owner_uuid : str, optional
+            Exporting device's UUID, used to identify the owner in error messages.
+
+        Raises
+        ------
+        ValueError
+            If counts differ, a handle is not 64 bytes, an allocation size is
+            not a positive integer, or the buffer size is outside the allocation sizes.
+        """
+        cdef tuple handles_t = tuple(handles)
+        try:
+            sizes_t = tuple(operator.index(n) for n in sizes)
+            size = None if size is None else operator.index(size)
+        except TypeError as exc:
+            raise ValueError("allocation sizes and size must be integers") from exc
+        if len(handles_t) != len(sizes_t):
+            raise ValueError(f"{len(handles_t)} handles for {len(sizes_t)} sizes; one size per handle is required")
+        for handle in handles_t:
+            if not isinstance(handle, bytes) or len(handle) != 64:
+                raise ValueError("each fabric handle must be 64 bytes")
+        for n in sizes_t:
+            if n <= 0:
+                raise ValueError(f"allocation sizes must be positive, got {n}")
+        total = sum(sizes_t)
+        size = total if size is None else size
+        if size < 0 or size > total:
+            raise ValueError(f"size {size} is outside 0..{total}, the sum of the allocation sizes")
+        cdef VirtualMemoryFabricBufferDescriptor self = VirtualMemoryFabricBufferDescriptor.__new__(cls)
+        self._payload = b""
+        self._handle_type = <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC
+        self._chunk_sizes = sizes_t
+        self._handles = handles_t
+        self._size = size
+        self._owner_uuid = owner_uuid
+        return self
+
+    @property
+    def handles(self) -> tuple[bytes, ...]:
+        """One opaque 64-byte fabric handle per allocation, in address order."""
+        return self._handles
+
+    @property
+    def owner_uuid(self) -> str | None:
+        """The exporting device's UUID, if supplied by the exporter."""
+        return self._owner_uuid
+
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
+        cdef bytes handle = self._handles[i]
+        memcpy(scratch.data, <const char*>handle, 64)
+        return <void*>scratch
+
+    def __reduce__(self) -> tuple[object, ...]:
+        return VirtualMemoryFabricBufferDescriptor._from_exports, (
+            self._chunk_sizes, self._handles, self._size, self._owner_uuid)
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, VirtualMemoryFabricBufferDescriptor):
+            return NotImplemented
+        cdef VirtualMemoryFabricBufferDescriptor rhs = other
+        return (self._chunk_sizes, self._handles, self._size) == (rhs._chunk_sizes, rhs._handles, rhs._size)
+
+    def __hash__(self) -> int:
+        return hash((self._chunk_sizes, self._handles, self._size))
 
 
 # Buffer IPC Implementation
@@ -359,7 +480,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
     cls, object mr, IPCBufferDescriptor ipc_descriptor, stream
 ):
     """Import a buffer that was exported from another process."""
-    if isinstance(ipc_descriptor, VirtualMemoryFdBufferDescriptor):
+    if isinstance(ipc_descriptor, _VirtualMemoryDescriptor):
         # Imported here rather than cimported: _virtual_memory_resource
         # cimports this module.
         from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource

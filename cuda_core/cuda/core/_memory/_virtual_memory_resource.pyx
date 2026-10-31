@@ -4,9 +4,10 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
 from libc.string cimport memset
 from libcpp.vector cimport vector
+
+cimport cpython
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport (
@@ -18,6 +19,8 @@ from cuda.core._memory._buffer cimport (
 from cuda.core._memory._ipc cimport (
     IPCAllocationHandle,
     IPCDataForBuffer,
+    _VirtualMemoryDescriptor,
+    VirtualMemoryFabricBufferDescriptor,
     VirtualMemoryFdBufferDescriptor,
 )
 from cuda.core._rt cimport (
@@ -84,9 +87,12 @@ _HOST_LOCATION_TYPES = frozenset(
 )
 
 # Handle types whose exported handles cuda.core can carry to another process.
-# POSIX file descriptors travel through multiprocessing on Linux. Win32 KMT
-# handles have no transport here, and fabric handles are not supported yet.
-_IPC_HANDLE_TYPES = frozenset({VirtualMemoryHandleType.POSIX_FD}) if platform.system() == "Linux" else frozenset()
+# POSIX file descriptors and plain fabric handles are transported on Linux.
+# Win32 KMT handles have no transport here.
+_IPC_HANDLE_TYPES = (
+    frozenset({VirtualMemoryHandleType.POSIX_FD, VirtualMemoryHandleType.FABRIC})
+    if platform.system() == "Linux" else frozenset()
+)
 
 
 @dataclass
@@ -105,10 +111,20 @@ class VirtualMemoryResourceOptions:
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
-        :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` on
-        Linux if you plan to import/export the allocation. Use `None` if you
-        don't need an exportable handle. ``location_type="host"`` requires
-        `None`.
+        :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` or
+        ``"fabric"`` on Linux if you plan to import/export the allocation.
+        Fabric handles work with plain ``pickle`` and pin nothing: keep the
+        exporting buffer alive until every importer has imported it. Sharing
+        is supported on one node; multi-node sharing is untested. Fabric needs
+        an NVLink fabric and an accessible IMEX channel
+        (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
+        ``RuntimeError`` if the device reports no fabric handle support. A
+        device can report support while the allocation is refused, because
+        the attribute does not check for an NVLink fabric and older drivers
+        do not check for an IMEX channel; the allocation then fails with a
+        driver error that says so.
+        Use `None` if you don't need an exportable handle.
+        ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
     granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str
@@ -268,6 +284,18 @@ cdef int _raise_last_error_noting(str detail) except -1:
     return 0
 
 
+cdef int _raise_allocation_error(const cydriver.CUmemAllocationProp* prop) except -1:
+    """Raise the status of a failed physical allocation; a fabric resource gets the IMEX note."""
+    if prop.requestedHandleTypes == cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
+        _raise_last_error_noting(
+            "while creating a physical allocation with a fabric handle; fabric handles need an NVLink fabric "
+            "and an accessible IMEX channel, and a device can report support while the allocation is refused "
+            "(the attribute does not check for an NVLink fabric, and older drivers do not check for an IMEX "
+            "channel)"
+        )
+    return _raise_last_error()
+
+
 cdef int _check_noting(cydriver.CUresult status, str detail) except -1:
     """``HANDLE_RETURN(status)``, with ``detail`` attached to the raised error as a note."""
     if status == cydriver.CUDA_SUCCESS:
@@ -305,10 +333,15 @@ cdef class VirtualMemoryBuffer(Buffer):
     """
 
     @property
-    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor:
+    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor | VirtualMemoryFabricBufferDescriptor:
         """A new descriptor for sharing this buffer with other processes.
 
-        Every access exports the physical allocations that back the buffer
+        The descriptor type follows the resource's ``handle_type``. Fabric
+        descriptors carry plain bytes and pin nothing: keep the exporting
+        buffer alive until every importer has imported it. Plain ``pickle``
+        works for fabric descriptors and buffers.
+
+        For ``"posix_fd"``, every access exports the physical allocations
         again and returns a new descriptor that owns one file descriptor per
         allocation; the file descriptors close when the descriptor is
         released. Keep the descriptor in a variable while you use its
@@ -346,6 +379,8 @@ cdef class VirtualMemoryBuffer(Buffer):
         # Buffers from a trusted principal. Must not serialize the parent's stream.
         Buffer_check_open(self)
         desc = _export_ipc_descriptor(self)
+        if isinstance(desc, VirtualMemoryFabricBufferDescriptor):
+            return Buffer._reduce_helper, (self.memory_resource, desc)
         popen = _mp_context.get_spawning_popen()
         if popen is not None:
             # A Queue, Pipe, or Pool duplicates the file descriptors while this
@@ -418,8 +453,9 @@ cdef class VirtualMemoryResource(MemoryResource):
         A shared buffer's descriptor comes from the exporting process and is not trusted:
         :meth:`Buffer.from_ipc_descriptor` checks what it can, and the driver rejects a size that
         does not match the exported allocation. Unpickling a shared buffer performs a live import,
-        so unpickle buffers only from a trusted principal. A descriptor pins the physical memory
-        while it exists; release it when the receiver has imported it.
+        so unpickle buffers only from a trusted principal. A POSIX fd descriptor pins the physical
+        memory while it exists; release it when the receiver has imported it. Fabric descriptors
+        pin nothing; keep the exporting buffer alive until every importer has imported it.
 
     Notes
     -----
@@ -434,7 +470,7 @@ cdef class VirtualMemoryResource(MemoryResource):
     :meth:`Buffer.set_deallocation_stream`.
 
     Buffers can be shared with other processes when ``config.handle_type``
-    is ``"posix_fd"`` (Linux), the only handle type cuda.core shares today;
+    is ``"posix_fd"`` or ``"fabric"`` on Linux;
     ``handle_type`` is the switch and :attr:`is_ipc_enabled` the query. The
     rules that follow describe POSIX file descriptors.
     :attr:`Buffer.ipc_descriptor` exports the physical allocations that back
@@ -451,8 +487,22 @@ cdef class VirtualMemoryResource(MemoryResource):
     ``VirtualMemoryFdBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
-    it exists, in every process that holds one, and nothing else does. A
-    buffer that contains imported memory (an import, or anything
+    it exists, in every process that holds one, and nothing else does.
+    Fabric descriptors carry one opaque 64-byte handle per allocation and work
+    with plain ``pickle``; they pin nothing, so the exporter must keep the
+    buffer alive until every importer has imported it. Rebuild handles sent
+    through a transport of your own with
+    ``VirtualMemoryFabricBufferDescriptor.from_handles()``. Fabric sharing is
+    supported on one node; multi-node sharing is untested. It requires a device
+    on an NVLink fabric and an accessible IMEX channel
+    (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
+    ``RuntimeError`` when the device reports no fabric handle support. A device
+    can report support while the allocation is refused, because the attribute
+    does not check for an NVLink fabric and older drivers do not check for an
+    IMEX channel; the allocation then fails with a driver error that says so.
+    Fabric-handle sharing was validated on NVIDIA internal hardware and is not
+    covered by the project's CI in this release.
+    A buffer that contains imported memory (an import, or anything
     :meth:`modify_allocation` derived from one) cannot be exported again;
     forward the descriptor it came from, or copy into a buffer you own.
     """
@@ -471,6 +521,13 @@ cdef class VirtualMemoryResource(MemoryResource):
             self.device = None
         if self.device is not None and not self.device.properties.virtual_memory_management_supported:
             raise RuntimeError("VirtualMemoryResource requires CUDA VMM API support")
+        if (self.config.handle_type == VirtualMemoryHandleType.FABRIC
+                and self.device is not None and not self.device.properties.handle_type_fabric_supported):
+            raise RuntimeError(
+                "fabric handles need a device on an NVLink fabric and an accessible IMEX channel "
+                "(/dev/nvidia-caps-imex-channels/channel*); "
+                f"device {self.device.device_id} reports no fabric handle support"
+            )
         self._check_config(self.config)
 
     def __reduce__(self) -> tuple[object, ...]:
@@ -683,7 +740,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         with nogil:
             h_alloc = create_mem_allocation_handle(aligned, prop, descs.data(), descs.size())
         if not h_alloc:
-            _raise_last_error()
+            _raise_allocation_error(&prop)
         with nogil:
             h_res = create_va_reservation_handle(aligned, addr_align, hint)
         if not h_res:
@@ -836,7 +893,7 @@ cdef class VirtualMemoryResource(MemoryResource):
             with nogil:
                 h_alloc = create_mem_allocation_handle(add, prop, descs.data(), descs.size())
             if not h_alloc:
-                _raise_last_error()
+                _raise_allocation_error(&prop)
             with nogil:
                 h_map = create_va_mapping_handle(base + total, h_alloc, h_res)
             if not h_map:
@@ -869,7 +926,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         with nogil:
             h_alloc = create_mem_allocation_handle(add, prop, descs.data(), descs.size())
         if not h_alloc:
-            _raise_last_error()
+            _raise_allocation_error(&prop)
         with nogil:
             m2 = create_va_mapping_handle(base_new + offset, h_alloc, h_res_new)
         if not m2:
@@ -938,12 +995,12 @@ cdef class VirtualMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether buffers of this resource can be shared with other processes.
 
-        True when ``config.handle_type`` is ``"posix_fd"`` on Linux and the
-        memory lives on a device; ``handle_type`` is the only switch, there is
+        True when ``config.handle_type`` is ``"posix_fd"`` or ``"fabric"`` on
+        Linux and the memory lives on a device; ``handle_type`` is the only switch, there is
         no separate option. With ``handle_type=None`` the allocations cannot
-        be exported, Win32 KMT handles are not transported by cuda.core, and
-        fabric handles are not supported yet. Host-located virtual memory
-        (``location_type`` ``"host"``, ``"host_numa"``, or
+        be exported, and Win32 KMT handles are not transported by cuda.core.
+        This is a configuration query and makes no driver call. Host-located
+        virtual memory (``location_type`` ``"host"``, ``"host_numa"``, or
         ``"host_numa_current"``) is not shared yet.
         """
         return (
@@ -951,7 +1008,7 @@ cdef class VirtualMemoryResource(MemoryResource):
             and self.config.location_type not in _HOST_LOCATION_TYPES
         )
 
-    def _import_ipc_buffer(self, VirtualMemoryFdBufferDescriptor desc not None, stream) -> VirtualMemoryBuffer:
+    def _import_ipc_buffer(self, _VirtualMemoryDescriptor desc not None, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
@@ -980,7 +1037,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         cdef size_t gran, gran_min = 0, addr_align, chunk, total = 0, offset = 0
         cdef Py_ssize_t n, i
         cdef cydriver.CUdeviceptr hint
-        cdef int handle_type, fd
+        cdef int handle_type
+        cdef cydriver.CUmemFabricHandle fh
         cdef void* os_handle
 
         if not self.is_ipc_enabled:
@@ -992,7 +1050,7 @@ cdef class VirtualMemoryResource(MemoryResource):
                 f"handle_type={str(cfg.handle_type)!r}; import it with a resource configured like the exporter's"
             )
         n = len(desc._chunk_sizes)
-        if n != len(desc._handles):
+        if n != len(desc.handles):
             raise ValueError("malformed VirtualMemoryResource buffer descriptor")
         if stream is not None:
             s = Stream_accept(stream)
@@ -1044,19 +1102,25 @@ cdef class VirtualMemoryResource(MemoryResource):
         # buffer therefore does not keep the descriptor; its file descriptors
         # live only as long as the caller holds the descriptor object.
         for i in range(n):
-            fd = int(desc._handles[i])  # raises if the handle was closed
             chunk = desc._chunk_sizes[i]
-            os_handle = <void*><uintptr_t>fd
+            os_handle = desc.handle_ptr(i, &fh)
             with nogil:
                 h_alloc = import_mem_allocation_handle(
                     os_handle, <cydriver.CUmemAllocationHandleType>handle_type, chunk, descs.data(), descs.size())
             if not h_alloc:
-                _raise_last_error_noting(
-                    f"while importing chunk {i + 1} of {n} of a VirtualMemoryResource buffer descriptor; either "
-                    "the shared handle does not refer to a CUDA allocation exported with "
-                    f"handle_type={str(cfg.handle_type)!r}, or the device that owns the memory is not usable in "
-                    "this process (for example, CUDA_VISIBLE_DEVICES hides it)"
-                )
+                if handle_type == <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
+                    note = (
+                        f"while importing chunk {i + 1} of {n} of a fabric buffer descriptor; the handle may be "
+                        "stale (the exporting buffer was closed), forged, or exported on a different IMEX channel"
+                    )
+                else:
+                    note = (
+                        f"while importing chunk {i + 1} of {n} of a VirtualMemoryResource buffer descriptor; either "
+                        "the shared handle does not refer to a CUDA allocation exported with "
+                        f"handle_type={str(cfg.handle_type)!r}, or the device that owns the memory is not usable in "
+                        "this process (for example, CUDA_VISIBLE_DEVICES hides it)"
+                    )
+                _raise_last_error_noting(note)
             # The exporter chose where the memory lives. This resource must map
             # memory of that kind on that device, or its access descriptors
             # would describe the wrong location.
@@ -1066,8 +1130,23 @@ cdef class VirtualMemoryResource(MemoryResource):
                 prop.location.type == cydriver.CU_MEM_LOCATION_TYPE_DEVICE
                 and imported_prop.location.id != prop.location.id
             ):
+                owner_detail = ""
+                owner_uuid = getattr(desc, "owner_uuid", None)
+                if owner_uuid is not None:
+                    try:
+                        owner = _device_from_uuid(owner_uuid)
+                    except RuntimeError:
+                        owner_detail = (
+                            f"memory belongs to the device with UUID {owner_uuid}, "
+                            "which is not visible in this process; "
+                        )
+                    else:
+                        owner_detail = (
+                            f"memory belongs to the device with UUID {owner_uuid}, "
+                            f"which is device {owner.device_id} in this process; "
+                        )
                 raise ValueError(
-                    f"chunk {i + 1} of the descriptor is memory on {_describe_location(imported_prop.location)}, "
+                    f"{owner_detail}chunk {i + 1} of the descriptor is memory on {_describe_location(imported_prop.location)}, "
                     f"but this resource maps memory on {_describe_location(prop.location)}; import the descriptor "
                     "with a VirtualMemoryResource for the device that owns the memory, and name other devices "
                     "in its peers option"
@@ -1127,7 +1206,7 @@ def _reconstruct_virtual_memory_resource(
     return cls(device, replace(config, peers=peers))
 
 
-cdef VirtualMemoryFdBufferDescriptor _export_ipc_descriptor(Buffer buf):
+cdef _VirtualMemoryDescriptor _export_ipc_descriptor(Buffer buf):
     """Export the allocations that back ``buf`` as shareable handles, in address order.
 
     Only the allocations that cover ``buf.size`` are exported; a buffer's size
@@ -1147,6 +1226,7 @@ cdef VirtualMemoryFdBufferDescriptor _export_ipc_descriptor(Buffer buf):
     cdef size_t i, n, chunk, offset = 0
     cdef int handle_type
     cdef int fd = -1
+    cdef cydriver.CUmemFabricHandle fh
     cdef list sizes = []
     cdef list handles = []
 
@@ -1171,6 +1251,16 @@ cdef VirtualMemoryFdBufferDescriptor _export_ipc_descriptor(Buffer buf):
     for i in range(n):
         h_alloc = allocs[i]
         chunk = mem_allocation_size(h_alloc)
+        if handle_type == <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
+            # The driver fills its fields of the 64 bytes and leaves the padding; zero it first so that two
+            # exports of one allocation carry the same bytes and no stack bytes travel in a descriptor.
+            memset(&fh, 0, sizeof(fh))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemExportToShareableHandle(
+                    <void*>&fh, as_cu(h_alloc), <cydriver.CUmemAllocationHandleType>handle_type, 0))
+            handles.append(cpython.PyBytes_FromStringAndSize(<char*>fh.data, sizeof(fh.data)))
+            sizes.append(chunk)
+            continue
         with nogil:
             status = cydriver.cuMemExportToShareableHandle(
                 <void*>&fd, as_cu(h_alloc), <cydriver.CUmemAllocationHandleType>handle_type, 0)
@@ -1189,4 +1279,7 @@ cdef VirtualMemoryFdBufferDescriptor _export_ipc_descriptor(Buffer buf):
         # The handle owns the fd now; if append fails, the handle closes it once.
         handles.append(handle)
         sizes.append(chunk)
+    if handle_type == <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
+        return VirtualMemoryFabricBufferDescriptor._from_exports(
+            tuple(sizes), tuple(handles), buf._size, mr.device.uuid)
     return VirtualMemoryFdBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)

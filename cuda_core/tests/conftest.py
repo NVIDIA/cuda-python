@@ -425,6 +425,70 @@ def vmm_ipc_device_x2(device_x2):
         yield devices
 
 
+_fabric_allocation_error = {}  # device ordinal -> "" when a fabric allocation works there, else the status
+
+
+def _require_vmm_fabric_device(device):
+    """Return a VMM device with fabric handles and an accessible IMEX channel, or skip."""
+    from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
+
+    if IS_WINDOWS or IS_WSL:
+        pytest.skip("Sharing fabric handles requires Linux")
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    if not device.properties.handle_type_fabric_supported:
+        pytest.skip("Fabric handles need an NVLink fabric and an accessible IMEX channel")
+    # The attribute does not check for an NVLink fabric, and older drivers do not check for an IMEX
+    # channel either, so it is true on the CI runners (no fabric, no channel), where the allocation
+    # itself is refused. Probe once per device.
+    if device.device_id not in _fabric_allocation_error:
+        from cuda.core import Device, VirtualMemoryResource, VirtualMemoryResourceOptions
+        from cuda.core._utils.cuda_utils import CUDAError
+
+        current = Device()
+        device.set_current()
+        try:
+            mr = VirtualMemoryResource(device, VirtualMemoryResourceOptions(handle_type="fabric"))
+            mr.allocate(1).close()
+            _fabric_allocation_error[device.device_id] = ""
+        except CUDAError as exc:
+            # Only a refused physical allocation means "no fabric here" (NOT_PERMITTED on the CI runners,
+            # INVALID_VALUE on an H200 without an IMEX channel). VirtualMemoryResource attaches its note about
+            # the fabric and IMEX requirements at that stage alone (on Python 3.10 it lands in the message);
+            # a failure of the reservation, the mapping, or the stream setup is a real error and propagates.
+            if "fabric handle" not in " ".join((str(exc), *getattr(exc, "__notes__", ()))):
+                raise
+            _fabric_allocation_error[device.device_id] = str(exc).split(":", 1)[0]
+        finally:
+            current.set_current()
+    if _fabric_allocation_error[device.device_id]:
+        pytest.skip(
+            "The device reports fabric handle support, but a fabric allocation is refused here: "
+            + _fabric_allocation_error[device.device_id]
+        )
+    return device
+
+
+@pytest.fixture
+def vmm_fabric_device(init_cuda):
+    """A fabric-capable VMM device, tracking spawned children for teardown."""
+    from helpers.child_processes import track_child_processes
+
+    device = _require_vmm_fabric_device(init_cuda)
+    with track_child_processes():
+        yield device
+
+
+@pytest.fixture
+def vmm_fabric_device_x2(device_x2):
+    """Two fabric-capable VMM devices, tracking spawned children for teardown."""
+    from helpers.child_processes import track_child_processes
+
+    devices = tuple(_require_vmm_fabric_device(device) for device in device_x2)
+    with track_child_processes():
+        yield devices
+
+
 def _make_ipc_memory_resource(kind, device):
     """Create an IPC-enabled memory resource of the given kind, or skip when the device cannot."""
     if kind == "device":
