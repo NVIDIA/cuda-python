@@ -7,7 +7,8 @@
 
 $ErrorActionPreference = 'Stop'
 
-. (Join-Path $PSScriptRoot '..\..\.github\actions\upgrade-ca-certificates\emudhra_intermediates.ps1')
+$EmudhraHelperPath = Join-Path $PSScriptRoot '..\..\.github\actions\upgrade-ca-certificates\emudhra_intermediates.ps1'
+. $EmudhraHelperPath
 
 $EmSignG3Hex = '86A1ECBA089C4A8D3BBE2734C612BA341D813E043CF9E8A862CD5C57A36BBE6B'
 # One host per path: via emSign ECC Root CA - G3, and via the Sectigo
@@ -95,6 +96,123 @@ function Record-CertutilCtl([string]$Name, [string[]]$CertutilArgs) {
     Record-Check $Name 'INFO' $details
 }
 
+# Asks certutil whether the local Disallowed CTL lists each compromised
+# certificate's key. certutil prints "Certificate match found" and exits 0 on a
+# match, and exits 0x80094005 when the CTL has no entry for the certificate.
+function Record-CtlMatch([string]$Name) {
+    $noMatchExitCode = [int]0x80094005
+    $certs = @(Get-EmudhraIntermediates)
+    $workDir = Join-Path ([System.IO.Path]::GetTempPath()) "emudhra-ctl-match-$PID"
+    New-Item -ItemType Directory -Path $workDir -Force | Out-Null
+    try {
+        $matched = @(); $notMatched = @(); $unclear = @()
+        for ($i = 0; $i -lt $certs.Count; $i++) {
+            $certFile = Join-Path $workDir "cert$i.crt"
+            [System.IO.File]::WriteAllBytes($certFile, $certs[$i].RawData)
+            $output = @(& certutil.exe -verifyCTL Disallowed $workDir $certFile 2>&1 | ForEach-Object { "$_" })
+            $exitCode = $LASTEXITCODE
+            if ($exitCode -eq 0 -and ($output -match 'match found')) {
+                $matched += $certs[$i].EmudhraLabel
+            } elseif ($exitCode -eq $noMatchExitCode) {
+                $notMatched += $certs[$i].EmudhraLabel
+            } else {
+                $unclear += "$($certs[$i].EmudhraLabel) (exit $exitCode)"
+                if ($unclear.Count -eq 1) {
+                    Write-Host "::group::certutil -verifyCTL Disallowed for $($certs[$i].EmudhraLabel) (exit $exitCode)"
+                    $output | ForEach-Object { Write-Host $_ }
+                    Write-Host '::endgroup::'
+                }
+            }
+        }
+        $details = "$($matched.Count) of $($certs.Count) matched"
+        if ($notMatched.Count -gt 0) { $details += "; no match: $($notMatched -join '; ')" }
+        if ($unclear.Count -gt 0) { $details += "; unexpected result: $($unclear -join '; ')" }
+        Record-Check $Name 'INFO' $details
+    } finally {
+        $certs | ForEach-Object { $_.Dispose() }
+        Remove-Item -LiteralPath $workDir -Recurse -Force
+    }
+}
+
+# Counts the compromised certificates that Windows reports as explicitly
+# distrusted, in a fresh pwsh process so no chain state cached by this
+# process carries over.
+function Get-ExplicitlyDistrustedCountFresh {
+    $command = ". '$EmudhraHelperPath'; " +
+        '$certs = @(Get-EmudhraIntermediates); ' +
+        'try { @($certs | Where-Object { Test-ExplicitlyDistrusted $_ }).Count } ' +
+        'finally { $certs | ForEach-Object { $_.Dispose() } }'
+    $output = @(& (Get-Process -Id $PID).Path -NoProfile -NonInteractive -Command $command 2>&1 | ForEach-Object { "$_" })
+    if ($LASTEXITCODE -ne 0 -or $output.Count -ne 1 -or $output[0] -notmatch '^\d+$') {
+        throw "Fresh distrust check failed (exit $LASTEXITCODE): $($output -join ' ')"
+    }
+    return [int]$output[0]
+}
+
+# Applies one CTL policy change, restarts the CryptSvc service that maintains
+# the CTLs, and records the explicit-distrust count and certutil matches
+# observed afterwards.
+function Invoke-PolicyExperimentStep([string]$Label, [scriptblock]$Change) {
+    & $Change
+    Restart-Service -Name CryptSvc -Force
+    $policy = "DisableRootAutoUpdate=$(Get-RegistryValueText $CtlPolicyPath 'DisableRootAutoUpdate'), " +
+        "EnableDisallowedCertAutoUpdate=$(Get-RegistryValueText $CtlPolicyPath 'EnableDisallowedCertAutoUpdate')"
+    $count = Get-ExplicitlyDistrustedCountFresh
+    # Out-Host keeps the recorded rows out of this function's return value.
+    Record-Check "Experiment: $Label" 'INFO' "$count of $EmudhraIntermediatesCount explicitly distrusted after CryptSvc restart ($policy)" | Out-Host
+    Record-CtlMatch "Experiment: $Label, CTL matches" | Out-Host
+    foreach ($endpoint in $TestEndpoints) {
+        $outcome = Get-TlsOutcomeFresh $endpoint
+        Record-Check "Experiment: $Label, Invoke-WebRequest ``$endpoint``" 'INFO' "$($outcome.Kind): $($outcome.Detail)" | Out-Host
+    }
+    return $count
+}
+
+# Connects to an endpoint with Invoke-WebRequest and classifies the result as
+# Trusted, Rejected (certificate validation error), NameMismatchOnly (chain
+# trusted, hostname check failed) or Other (non-certificate or network error).
+function Get-TlsOutcome {
+    param([string]$Endpoint)
+    $progTmp = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'
+    try {
+        $res = Invoke-WebRequest -Uri $Endpoint -UseBasicParsing -SkipHttpErrorCheck -TimeoutSec 15
+        return [pscustomobject]@{ Kind = 'Trusted'; Detail = "HTTP $($res.StatusCode)" }
+    } catch {
+        $kind = 'Other'
+        $ex = $_.Exception
+        while ($null -ne $ex) {
+            if (
+                ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'certificate chain|UntrustedRoot|RemoteCertificateChainErrors') -or
+                ($ex -is [System.Net.WebException] -and $ex.Status -eq [System.Net.WebExceptionStatus]::TrustFailure)
+            ) {
+                $kind = 'Rejected'
+                break
+            }
+            if ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'RemoteCertificateNameMismatch') {
+                $kind = 'NameMismatchOnly'
+            }
+            $ex = $ex.InnerException
+        }
+        return [pscustomobject]@{ Kind = $kind; Detail = ($_.Exception.Message -replace '[\r\n]+', ' ') }
+    } finally {
+        $ProgressPreference = $progTmp
+    }
+}
+
+# Runs Get-TlsOutcome in a fresh pwsh process so no TLS or chain state cached
+# by this process carries over.
+function Get-TlsOutcomeFresh([string]$Endpoint) {
+    $command = "function Get-TlsOutcome { ${function:Get-TlsOutcome} }; " +
+        "`$o = Get-TlsOutcome '$Endpoint'; `"`$(`$o.Kind)``t`$(`$o.Detail)`""
+    $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($command))
+    $output = @(& (Get-Process -Id $PID).Path -NoProfile -NonInteractive -EncodedCommand $encoded 2>&1 | ForEach-Object { "$_" })
+    if ($LASTEXITCODE -ne 0 -or $output.Count -ne 1 -or $output[0] -notmatch "^(\w+)`t(.*)$") {
+        throw "Fresh TLS check failed (exit $LASTEXITCODE): $($output -join ' ')"
+    }
+    return [pscustomobject]@{ Kind = $Matches[1]; Detail = $Matches[2] }
+}
+
 $GatingFailures = 0
 
 Append-Summary "### $ProbeLabel"
@@ -116,6 +234,10 @@ Record-Check 'emSign ECC Root CA - G3 store state' 'INFO' "LocalMachine\Root=$in
 # 2. CTL update state (informational). Microsoft delivers its eMudhra block
 # through the Disallowed CTL, which reaches a machine only through automatic
 # CTL updates or an explicit import.
+Invoke-Diagnostic 'Windows version' {
+    $cv = Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+    Record-Check 'Windows version' 'INFO' "$($cv.ProductName) $($cv.DisplayVersion), build $($cv.CurrentBuild).$($cv.UBR), runner environment $env:RUNNER_ENVIRONMENT"
+}
 Invoke-Diagnostic 'CTL auto-update policy' {
     Record-Check 'CTL auto-update policy' 'INFO' ("DisableRootAutoUpdate=$(Get-RegistryValueText $CtlPolicyPath 'DisableRootAutoUpdate'), " +
         "EnableDisallowedCertAutoUpdate=$(Get-RegistryValueText $CtlPolicyPath 'EnableDisallowedCertAutoUpdate')")
@@ -126,6 +248,7 @@ Invoke-Diagnostic 'CTL auto-update registry state' {
         "DisallowedCertEncodedCtl=$(Get-RegistryValueText $CtlAutoUpdatePath 'DisallowedCertEncodedCtl')")
 }
 Invoke-Diagnostic 'Local Disallowed CTL' { Record-CertutilCtl 'Local Disallowed CTL' @('-verifyCTL', 'Disallowed') }
+Invoke-Diagnostic 'Local Disallowed CTL matches' { Record-CtlMatch 'Local Disallowed CTL matches' }
 
 # 3. All compromised intermediates and cross-signs explicitly distrusted (gating)
 $certs = @(Get-EmudhraIntermediates)
@@ -142,51 +265,52 @@ if ($notDistrusted.Count -eq 0) {
 }
 
 # 4. OS-store client (Invoke-WebRequest) rejects each test endpoint (only a successful connection fails the job)
-$progTmp = $ProgressPreference
-$ProgressPreference = 'SilentlyContinue'
-try {
-    foreach ($endpoint in $TestEndpoints) {
-        $checkName = "Invoke-WebRequest rejects ``$endpoint``"
-        try {
-            $res = Invoke-WebRequest -Uri $endpoint -UseBasicParsing -SkipHttpErrorCheck -TimeoutSec 15
-            Record-Check $checkName 'FAIL' "Connection succeeded with HTTP $($res.StatusCode) (certificate was trusted)"
+foreach ($endpoint in $TestEndpoints) {
+    $checkName = "Invoke-WebRequest rejects ``$endpoint``"
+    $outcome = Get-TlsOutcome $endpoint
+    switch ($outcome.Kind) {
+        'Trusted' {
+            Record-Check $checkName 'FAIL' "Connection succeeded with $($outcome.Detail) (certificate was trusted)"
             $GatingFailures++
-        } catch {
-            $certRejected = $false
-            $hostnameMismatchOnly = $false
-            $ex = $_.Exception
-            while ($null -ne $ex) {
-                if (
-                    ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'certificate chain|UntrustedRoot|RemoteCertificateChainErrors') -or
-                    ($ex -is [System.Net.WebException] -and $ex.Status -eq [System.Net.WebExceptionStatus]::TrustFailure)
-                ) {
-                    $certRejected = $true
-                    break
-                }
-                if ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'RemoteCertificateNameMismatch') {
-                    $hostnameMismatchOnly = $true
-                }
-                $ex = $ex.InnerException
-            }
-            $cleanMsg = ($_.Exception.Message -replace '[\r\n]+', ' ')
-            if ($certRejected) {
-                Record-Check $checkName 'PASS' "Rejected with certificate validation error ($cleanMsg)"
-            } elseif ($hostnameMismatchOnly) {
-                Record-Check $checkName 'FAIL' "Certificate chain was trusted; failed only hostname check ($cleanMsg)"
-                $GatingFailures++
-            } else {
-                Record-Check $checkName 'INCONCLUSIVE' "Non-certificate or network error ($cleanMsg)"
-            }
+        }
+        'Rejected' {
+            Record-Check $checkName 'PASS' "Rejected with certificate validation error ($($outcome.Detail))"
+        }
+        'NameMismatchOnly' {
+            Record-Check $checkName 'FAIL' "Certificate chain was trusted; failed only hostname check ($($outcome.Detail))"
+            $GatingFailures++
+        }
+        default {
+            Record-Check $checkName 'INCONCLUSIVE' "Non-certificate or network error ($($outcome.Detail))"
         }
     }
-} finally {
-    $ProgressPreference = $progTmp
 }
 
 # 5. Disallowed CTL currently published on Windows Update (informational). -f
 # forces a download; this runs after the gating checks so it cannot change
 # what they observed.
 Invoke-Diagnostic 'Windows Update Disallowed CTL' { Record-CertutilCtl 'Windows Update Disallowed CTL' @('-f', '-verifyCTL', 'DisallowedWU') }
+
+# 6. CTL policy experiment (informational). Tests whether the root auto-update
+# policy is why a Disallowed CTL that lists the compromised keys is not applied.
+# It changes machine policy and restarts CryptSvc, so it runs last and only on
+# ephemeral GitHub-hosted runners where DisableRootAutoUpdate=1.
+if ($env:RUNNER_ENVIRONMENT -ne 'github-hosted') {
+    Record-Check 'Experiment: CTL policy' 'INFO' "Skipped: runner environment is '$env:RUNNER_ENVIRONMENT', not github-hosted"
+} elseif ((Get-RegistryValueText $CtlPolicyPath 'DisableRootAutoUpdate') -ne '1') {
+    Record-Check 'Experiment: CTL policy' 'INFO' 'Skipped: DisableRootAutoUpdate is not 1'
+} else {
+    Invoke-Diagnostic 'Experiment: CTL policy' {
+        $count = Invoke-PolicyExperimentStep 'EnableDisallowedCertAutoUpdate=1' {
+            Set-ItemProperty -LiteralPath $CtlPolicyPath -Name 'EnableDisallowedCertAutoUpdate' -Type DWord -Value 1
+        }
+        if ($count -lt $EmudhraIntermediatesCount) {
+            [void](Invoke-PolicyExperimentStep 'DisableRootAutoUpdate removed' {
+                Remove-ItemProperty -LiteralPath $CtlPolicyPath -Name 'DisableRootAutoUpdate'
+            })
+        }
+    }
+}
 
 Append-Summary ""
 
