@@ -13,6 +13,7 @@ from cuda_python_test_helpers.graphics import (
     gl_context_not_on_nvidia_gpu_reason,
     is_gl_context_unavailable,
     open_gl_window,
+    select_headless_egl_device_for_cuda,
     tcc_skip_reason,
 )
 
@@ -22,11 +23,19 @@ pytestmark = pytest.mark.thread_unsafe(reason="pyglet/OpenGL context is process-
 
 
 def _configure_pyglet_headless():
-    """On headless Linux: enable EGL mode or skip if EGL is absent."""
+    """On headless Linux: enable EGL mode, matched to CUDA device 0, or skip if EGL is absent."""
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         if ctypes.util.find_library("EGL") is None:
             pytest.skip("No DISPLAY and no EGL runtime available for headless context.")
         pyglet.options["headless"] = True
+
+        # CUDA_VISIBLE_DEVICES does not reorder EGL's device enumeration, so on
+        # headless multi-GPU systems EGL device 0 may not be the physical GPU
+        # behind CUDA device 0, which these tests register against. Pick the
+        # EGL device that the driver reports as corresponding to it.
+        egl_device = select_headless_egl_device_for_cuda(0)
+        if egl_device is not None:
+            pyglet.options["headless_device"] = egl_device
 
 
 def _allocate_gl_texture(win):
