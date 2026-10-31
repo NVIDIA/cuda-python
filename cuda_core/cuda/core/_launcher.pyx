@@ -22,6 +22,9 @@ from math import prod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from cuda.core._utils.pycompat import BufferProtocol
     from cuda.core.graph import GraphBuilder
     from cuda.core.typing import IsStreamType
 
@@ -70,7 +73,7 @@ def launch(
         HANDLE_RETURN(cydriver.cuLaunchKernelEx(&drv_cfg, func_handle, args_ptr, NULL))
 
 
-def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=None) -> None:
+def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> None:
     """Enqueue a host function on a stream in stream order.
 
     The function runs on a driver-owned thread once all work enqueued on the

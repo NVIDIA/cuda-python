@@ -2,7 +2,7 @@
 
 """GraphNode base class — factory, properties, and builder methods."""
 import weakref
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 
 from cuda.core._device import Device
 from cuda.core._event import Event
@@ -10,6 +10,7 @@ from cuda.core._launch_config import LaunchConfig
 from cuda.core._memory._buffer import Buffer
 from cuda.core._module import Kernel
 from cuda.core._utils.cuda_utils import driver
+from cuda.core._utils.pycompat import BufferProtocol
 from cuda.core.graph._adjacency_set_proxy import AdjacencySetProxy
 from cuda.core.graph._graph_definition import GraphCondition, GraphDefinition
 from cuda.core.graph._subclasses import (AllocNode, ChildGraphNode, EmptyNode,
@@ -297,7 +298,7 @@ class GraphNode:
         EventWaitNode
             A new EventWaitNode representing the event wait operation.
         """
-    def callback(self, fn, *, user_data=None) -> object:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None=None) -> object:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.
