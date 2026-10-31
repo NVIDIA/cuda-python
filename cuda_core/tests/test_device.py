@@ -5,6 +5,7 @@ import contextlib
 import pickle
 import subprocess
 import sys
+import textwrap
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
@@ -470,6 +471,55 @@ def test_device_properties_complete():
 
     assert len(tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
     assert tab_props == live_props  # Ensure exact match.
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+@pytest.mark.parametrize("driver_version", [12050, 12060, 12080])
+def test_host_numa_memory_pools_supported_on_pre_12_9_driver(driver_version):
+    script = textwrap.dedent(
+        """
+        import sys
+
+        from cuda.bindings import driver
+
+        simulated_driver_version = int(sys.argv[1])
+        driver.cuDriverGetVersion = lambda: (driver.CUresult.CUDA_SUCCESS, simulated_driver_version)
+        (status,) = driver.cuInit(0)
+        if int(status) == int(driver.CUresult.CUDA_ERROR_NO_DEVICE):
+            print("No CUDA device is available")
+            raise SystemExit(77)
+        assert int(status) == int(driver.CUresult.CUDA_SUCCESS), status
+        status, device_count = driver.cuDeviceGetCount()
+        if int(status) == int(driver.CUresult.CUDA_ERROR_NO_DEVICE) or (
+            int(status) == int(driver.CUresult.CUDA_SUCCESS) and device_count == 0
+        ):
+            print("No CUDA device is available")
+            raise SystemExit(77)
+        assert int(status) == int(driver.CUresult.CUDA_SUCCESS), status
+        status, device = driver.cuDeviceGet(0)
+        assert int(status) == int(driver.CUresult.CUDA_SUCCESS), status
+
+        from cuda.core._device import DeviceProperties
+
+        properties = DeviceProperties._init(device)
+        expected = (
+            False
+            if simulated_driver_version < 12060
+            else properties.memory_pools_supported and not properties.integrated
+        )
+        assert properties.host_numa_memory_pools_supported is expected
+        """
+    )
+    result = subprocess.run(  # noqa: S603 - executes a repository-owned test script
+        [sys.executable, "-c", script, str(driver_version)],
+        capture_output=True,
+        check=False,
+        text=True,
+        timeout=60,
+    )
+    if result.returncode == 77:
+        pytest.skip(result.stdout + result.stderr)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 # ============================================================================
