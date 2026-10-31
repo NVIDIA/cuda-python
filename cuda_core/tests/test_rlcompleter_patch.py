@@ -22,6 +22,7 @@ import textwrap
 
 import pytest
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+from helpers.memory import skip_if_mempool_unsupported
 
 from cuda.core import Device
 
@@ -30,9 +31,7 @@ def _gpu_with_mempool_or_skip():
     """Skip when no GPU or no mempool support — test mirrors the bug repro."""
     if len(Device.get_all_devices()) == 0:
         pytest.skip("Test requires a CUDA device")
-    dev = Device(0)
-    if not dev.properties.memory_pools_supported:
-        pytest.skip("Device 0 does not support mempool operations")
+    skip_if_mempool_unsupported()
 
 
 # Probe script: reproduces the bug-report repro literally, then runs

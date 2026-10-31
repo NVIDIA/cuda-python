@@ -139,6 +139,7 @@ namespace cuda_core::rt {
     /* cuda-bindings requests 7000 (PTDS) or 2000 (legacy) */                   \
     X(cuStreamSynchronize, 7000)                                                \
     X(cuStreamIsCapturing, 10000)                                               \
+    X(cuLaunchHostFunc, 10000)                                                  \
     X(cuThreadExchangeStreamCaptureMode, 10010)
 
 #define CUDA_CORE_DECLARE_DRIVER_FN(name, introduced) extern decltype(&name) p_##name;
