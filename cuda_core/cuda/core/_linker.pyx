@@ -271,7 +271,9 @@ class LinkerOptions:
     incremental : bool, optional
         Perform an incremental link. The result can be passed
         directly to a later :class:`Linker`. Requires nvJitLink 13.2 or newer
-        and is not supported by the driver linker backend.
+        and is not supported by the driver linker backend. Intermediate
+        caching is disabled on nvJitLink versions older than 13.6 when combined
+        with link-time optimization, to work around an nvJitLink bug.
         Default: False.
     ptx : bool, optional
         Emit PTX after linking instead of CUBIN; only supported with ``link_time_optimization=True``.
@@ -316,6 +318,9 @@ class LinkerOptions:
         Default: 1.
     no_cache : bool, optional
         Do not cache the intermediate steps of nvJitLink.
+        Caching is also disabled automatically for incremental links that use
+        link-time optimization on nvJitLink versions older than 13.6, to work
+        around an nvJitLink bug.
         Default: False.
     numba_debug : bool, optional
         Non-functional. ``numba_debug`` is an NVVM/NVRTC *compiler* option;
@@ -431,7 +436,10 @@ class LinkerOptions:
             options.append(f"-split-compile={int(self.split_compile)}")
         if self.split_compile_extended is not None:
             options.append(f"-split-compile-extended={int(self.split_compile_extended)}")
-        if self.no_cache is True:
+        # nvbugs 6659652
+        if self.no_cache is True or (
+            _nvjitlink_version < (13, 6) and self.incremental and self.link_time_optimization
+        ):
             options.append("-no-cache")
 
         if as_bytes:
