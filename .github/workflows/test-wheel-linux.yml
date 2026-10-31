@@ -16,6 +16,14 @@ on:
       build-ctk-ver:
         type: string
         required: true
+      bindings-config:
+        description: Normalized bindings registry for maintenance-only tests.
+        type: string
+        default: ''
+      bindings-only:
+        description: Test this run's maintenance bindings wheel and Cython extensions.
+        type: boolean
+        default: false
       matrix_filter:
         type: string
         default: "."
@@ -55,6 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_TYPE: ${{ inputs.build-type }}
+      BINDINGS_CONFIG: ${{ inputs.bindings-config }}
+      BINDINGS_ONLY: ${{ inputs.bindings-only }}
       ARCH: ${{ (inputs.host-platform == 'linux-64' && 'amd64') ||
                 (inputs.host-platform == 'linux-aarch64' && 'arm64') }}
     outputs:
@@ -83,6 +93,14 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
+          if [[ "$BINDINGS_ONLY" == "true" ]]; then
+            TEST_MATRIX=$(jq -c --argjson config "$BINDINGS_CONFIG" '
+              ($config.package_roots[] | select(.release_status == "maintenance")) as $package
+              | map(select(.CUDA_VER == $package.toolkit_version)
+                | . + {BINDINGS_ROOT: $package.package_root})
+            ' <<< "$TEST_MATRIX")
+          fi
+
           # Apply matrix filter; reject custom DRIVER + FLAVOR=wsl (the
           # in-container driver swap doesn't work under WSL); add a
           # RUNNER_DRIVER field that maps any custom version back to
@@ -99,10 +117,10 @@ jobs:
 
   test:
     env:
-      TEST_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test }}
-      TEST_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
-      TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test }}
-      TEST_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test }}
+      TEST_PATHFINDER: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test) }}
+      TEST_BINDINGS: ${{ inputs.bindings-only || inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
+      TEST_CORE: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test) }}
+      TEST_PYTHON: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test) }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     needs: compute-matrix
@@ -168,7 +186,9 @@ jobs:
 
       - name: Set environment variables
         env:
-          BUILD_CUDA_VER: ${{ inputs.build-ctk-ver }}
+          BUILD_CUDA_VER: ${{ inputs.bindings-only && matrix.CUDA_VER || inputs.build-ctk-ver }}
+          CUDA_BINDINGS_ROOT: ${{ matrix.BINDINGS_ROOT || 'cuda_bindings_13' }}
+          BINDINGS_ARTIFACT_PREFIX: ${{ inputs.bindings-only && 'maintenance-bindings' || 'cuda-bindings' }}
           CUDA_VER: ${{ matrix.CUDA_VER }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}

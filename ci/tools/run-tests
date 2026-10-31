@@ -68,7 +68,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   echo "Installing bindings wheel"
-  pushd ./cuda_bindings_13
+  pushd "./${CUDA_BINDINGS_ROOT:-cuda_bindings_13}"
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test "${TEST_FT_GROUP[@]}"
   else
