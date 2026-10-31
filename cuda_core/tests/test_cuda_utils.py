@@ -50,6 +50,40 @@ def test_check_runtime_error():
             assert error.name in msg
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_check_driver_error_out_of_memory_is_memory_error():
+    with pytest.raises(cuda_utils.CUDAOutOfMemoryError) as e:
+        cuda_utils._check_driver_error(driver.CUresult.CUDA_ERROR_OUT_OF_MEMORY)
+    assert isinstance(e.value, cuda_utils.CUDAError)
+    assert isinstance(e.value, MemoryError)
+    assert "CUDA_ERROR_OUT_OF_MEMORY" in str(e.value)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_check_runtime_error_out_of_memory_is_memory_error():
+    with pytest.raises(cuda_utils.CUDAOutOfMemoryError) as e:
+        cuda_utils._check_runtime_error(runtime.cudaError_t.cudaErrorMemoryAllocation)
+    assert isinstance(e.value, cuda_utils.CUDAError)
+    assert isinstance(e.value, MemoryError)
+    assert "cudaErrorMemoryAllocation" in str(e.value)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_only_out_of_memory_errors_are_memory_errors():
+    for error in driver.CUresult:
+        if error in (driver.CUresult.CUDA_SUCCESS, driver.CUresult.CUDA_ERROR_OUT_OF_MEMORY):
+            continue
+        with pytest.raises(cuda_utils.CUDAError) as e:
+            cuda_utils._check_driver_error(error)
+        assert not isinstance(e.value, MemoryError), error
+    for error in runtime.cudaError_t:
+        if error in (runtime.cudaError_t.cudaSuccess, runtime.cudaError_t.cudaErrorMemoryAllocation):
+            continue
+        with pytest.raises(cuda_utils.CUDAError) as e:
+            cuda_utils._check_runtime_error(error)
+        assert not isinstance(e.value, MemoryError), error
+
+
 def test_driver_error_enum_has_non_empty_docstring():
 
     doc = driver.CUresult.CUDA_ERROR_INVALID_VALUE.__doc__
