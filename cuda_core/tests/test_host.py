@@ -34,6 +34,29 @@ class TestHost:
         with pytest.raises(ValueError, match="numa_id must be a non-negative int"):
             Host(numa_id=False)
 
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    @pytest.mark.parametrize("value", [1, 0, "yes", None, []], ids=["int-1", "int-0", "str", "none", "list"])
+    def test_is_numa_current_rejects_non_bool(self, value):
+        # Same hazard as test_numa_id_rejects_bool, from the other side: the
+        # value lands in the singleton cache key and in the is_numa_current
+        # property untouched. `1` and `True` hash and compare equal, so
+        # Host(is_numa_current=1) would seed the numa_current singleton with
+        # an instance whose is_numa_current is the int 1 -- process-wide, and
+        # for whichever call happens to come first. Any other truthy value
+        # would mint a second "numa_current" that is neither `is` nor `==` the
+        # real one while sharing its repr.
+        with pytest.raises(ValueError, match="is_numa_current must be a bool"):
+            Host(is_numa_current=value)
+
+    @pytest.mark.agent_authored(model="claude-opus-5")
+    def test_numa_current_singleton_survives_a_rejected_construction(self):
+        with pytest.raises(ValueError, match="is_numa_current must be a bool"):
+            Host(is_numa_current=1)
+
+        h = Host.numa_current()
+        assert h.is_numa_current is True
+        assert h is Host(is_numa_current=True)
+
     def test_numa_current_constructor_and_classmethod_agree(self):
         # Host(is_numa_current=True) and Host.numa_current() return the same singleton.
         assert Host(is_numa_current=True) is Host.numa_current()
