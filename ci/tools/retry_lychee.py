@@ -135,11 +135,17 @@ def attempt_report(report: Path, attempt: int) -> Path:
 
 def finish(report: Path, data: Report, exit_codes: list[int], message: str, *, warning: bool = False) -> None:
     """Publish the final result without presenting recovered failures as current."""
+    details = render_report(data)
     summary = f"## Documentation links\n\n{message}\n\n| Attempt | Exit code |\n| --- | --- |\n"
     summary += "".join(f"| {attempt} | {code} |\n" for attempt, code in enumerate(exit_codes, start=1))
-    summary += f"\n### Final attempt\n\n{render_report(data)}\n"
+    summary += f"\n### Final attempt\n\n{details}\n"
     report.with_suffix(".md").write_text(summary, encoding="utf-8")
+    # CI console logs previously showed only the short message when LYCHEE_REPORT_DIR
+    # forced --format json. Echo the final failure table so broken URLs are visible
+    # without opening the uploaded report artifact (Fixes #3204).
     print(f"::warning::{message}" if warning else message, flush=True)
+    if data.failures:
+        print(details, flush=True)
     if summary_path := os.environ.get("GITHUB_STEP_SUMMARY"):
         with Path(summary_path).open("a", encoding="utf-8") as stream:
             stream.write(summary)
