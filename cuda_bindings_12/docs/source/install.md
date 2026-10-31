@@ -6,14 +6,24 @@
 
 * Linux (x86-64, arm64) and Windows (x86-64)
 * Python 3.11 - 3.15
-* Driver: Linux (450.80.02 or later) Windows (456.38 or later)
-* Optionally, NVRTC, nvJitLink, and NVVM from CUDA Toolkit 12.x
+* Driver: Linux (525.60.13 or later), Windows (528.33 or later)
+* Optionally, NVRTC, nvJitLink, NVVM, nvFatbin, and cuFile (Linux only) from CUDA Toolkit 12.x
+
+These driver versions are the CUDA 12 minor-version compatibility baseline in the
+[CUDA 12.9 release notes](https://docs.nvidia.com/cuda/archive/12.9.1/cuda-toolkit-release-notes/index.html#cuda-driver).
+Features introduced with newer drivers and PTX compilation can require a newer
+driver; see the
+[minor-version compatibility limitations](https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html#application-considerations-for-minor-version-compatibility).
 
 ```{note}
 The optional CUDA Toolkit components can be installed via PyPI, Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
 ```
 
-Starting from v12.8.0, `cuda-python` becomes a meta package which currently depends only on `cuda-bindings`; in the future more sub-packages will be added to `cuda-python`. In the instructions below, we still use `cuda-python` as example to serve existing users, but everything is applicable to `cuda-bindings` as well.
+The CUDA 12 releases of `cuda-python` are a metapackage that depends directly
+on `cuda-bindings`. The examples below use `cuda-python` for existing users;
+install `cuda-bindings` directly if you only need the low-level interfaces.
+
+Both main-tree CUDA 12 packages require Python 3.11 or newer.
 
 
 ## Installing from PyPI
@@ -32,6 +42,8 @@ Where the optional dependencies are:
 * nvidia-cuda-nvrtc-cu12 (Provides NVRTC shared library)
 * nvidia-nvjitlink-cu12>=12.3 (Provides nvJitLink shared library)
 * nvidia-cuda-nvcc-cu12 (Provides NVVM shared library)
+* nvidia-nvfatbin-cu12 (Provides nvFatbin shared library)
+* nvidia-cufile-cu12 (Provides cuFile shared library, Linux only)
 
 
 ## Installing from Conda
@@ -42,6 +54,19 @@ $ conda install -c conda-forge cuda-python=12.9
 
 
 ## Installing from Source
+
+Start with the repository
+[recommended clone](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone).
+On native Windows outside WSL, complete its symlink setup before cloning.
+CUDA 12 sources live in `cuda_bindings_12/`; CUDA 13 sources have a separate root.
+Both build the same `cuda-bindings` distribution, so use a separate Python
+environment for each major.
+
+Versions are derived from reachable `v12.9.*` tags using `setuptools-scm`.
+Historical tags from the old maintenance branch may not be ancestors of `main`.
+Before a suitable tag is reachable, follow the
+[maintenance preview-build guidance](https://github.com/NVIDIA/cuda-python/blob/main/ci/README.md#cuda-bindings-package-root-registry)
+in an independent clone; worktrees share tags with the rest of their repository.
 
 ### Requirements
 
@@ -67,10 +92,12 @@ Only `cydriver`, `cyruntime` and `cynvrtc` are impacted by the header requiremen
 
 ### Editable Install
 
-You can use
+From the repository root, run:
 
 ```console
-$ pip install -v -e .
+$ cd cuda_bindings_12
+$ python -m pip install -v -e .
 ```
 
-to install the module as editable in your current Python environment (e.g. for testing of porting other libraries to use the binding).
+This installs the CUDA 12 bindings as editable in your current Python environment
+for development and testing.

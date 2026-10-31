@@ -21,6 +21,10 @@ on:
         description: Normalized registry JSON, or LEGACY_CONFIG for an older source snapshot.
         type: string
         default: ''
+      legacy-backport-branch:
+        description: Backport branch from the legacy artifact source; unused with bindings-config.
+        type: string
+        default: ''
       matrix_filter:
         type: string
         default: "."
@@ -60,6 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BINDINGS_CONFIG: ${{ inputs.bindings-config }}
+      LEGACY_BACKPORT_BRANCH: ${{ inputs.legacy-backport-branch }}
       BUILD_TYPE: ${{ inputs.build-type }}
       WORKPLAN: ${{ inputs.workplan }}
       TEST_MODE: ${{ inputs.test-mode }}
@@ -106,8 +111,7 @@ jobs:
             | python3 .ci-control/ci/tools/select_test_matrix.py --platform linux)
 
           if [[ "$BINDINGS_CONFIG" == "LEGACY_CONFIG" ]]; then
-            OLD_BRANCH=$(yq -r '.backport_branch' ci/versions.yml)
-            echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
+            echo "OLD_BRANCH=${LEGACY_BACKPORT_BRANCH}" >> "$GITHUB_OUTPUT"
           else
             {
               echo '### Selected wheel test coverage'
@@ -268,6 +272,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OLD_BRANCH: ${{ needs.compute-matrix.outputs.OLD_BRANCH }}
         run: |
+          : "${OLD_BRANCH:?legacy-backport-branch is required for legacy prior-branch artifacts}"
           OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
           LOOKUP_ARGS=(
             --branch "${OLD_BRANCH}"
