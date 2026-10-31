@@ -55,6 +55,8 @@ from typing_extensions import TypeAlias
 AOTITorchError: TypeAlias = int
 AtenTensorHandle: TypeAlias = AtenTensorOpaque
 _get_cuda_stream_fn_t: TypeAlias = Callable[[int, Any], AOTITorchError]
+_tensor_from_pyobj_fn_t: TypeAlias = Callable[[Any, AtenTensorHandle], AOTITorchError]
+_delete_tensor_fn_t: TypeAlias = Callable[[AtenTensorHandle], AOTITorchError]
 
 class PyObject(TypedDict): ...
 
