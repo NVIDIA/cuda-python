@@ -6,17 +6,13 @@ import math
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.memory import POOL_SIZE, supports_memory_pools
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda import pathfinder
 from cuda.bindings import runtime
 from cuda_python_test_helpers import driver_version_less_than
-
-# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
-# virtual address space of about twice the device memory, and that reservation
-# can fail on systems with a limited virtual address space.
-POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
 
 
 def isSuccess(err):
@@ -25,11 +21,6 @@ def isSuccess(err):
 
 def assertSuccess(err):
     assert isSuccess(err)
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return isSuccess(err) and isSupported
 
 
 def supportsSparseTexturesDeviceFilter():
@@ -518,7 +509,7 @@ def test_cudart_cudaGetDeviceProperties():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_cudart_MemPool_attr():
     poolProps = cudart.cudaMemPoolProps()

@@ -13,6 +13,7 @@ from typing import Callable
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import Device, DeviceMemoryResource, EventOptions, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
@@ -133,42 +134,33 @@ def _event_record_case(device):
 
 
 def _event_wait_case(device):
-    """Keep the selected event pending to identify each exec's wait target."""
-    original = device.create_event()
-    replacement = device.create_event()
-    invalid_replacement = device.create_event()
+    """Identify each exec's wait target from device timestamps."""
+    event_options = EventOptions(timing_enabled=True)
+    original = device.create_event(options=event_options)
+    replacement = device.create_event(options=event_options)
+    invalid_replacement = device.create_event(options=event_options)
     invalid_replacement.close()
+    after_wait = device.create_event(options=event_options)
 
-    callback_called = threading.Event()
     graph_def = GraphDefinition()
     node = graph_def.wait(original)
-    node.callback(callback_called.set)
+    node.record(after_wait)
 
     def assert_exec_uses(graph, expected):
-        producer_started = threading.Event()
-        producer_release = threading.Event()
-
-        def blocking_callback():
-            producer_started.set()
-            producer_release.wait(timeout=30)
-
-        producer_def = GraphDefinition()
-        producer_def.callback(blocking_callback).record(expected)
-        producer_graph = producer_def.instantiate()
+        if device.compute_capability.major < 7:
+            pytest.skip("__nanosleep is only available starting Volta (sm70)")
+        delay = NanosleepKernel(device)
         producer_stream = device.create_stream()
         consumer_stream = device.create_stream()
 
-        callback_called.clear()
-        producer_graph.launch(producer_stream)
-        try:
-            assert producer_started.wait(timeout=5)
-            graph.launch(consumer_stream)
-            assert not callback_called.wait(timeout=0.1)
-        finally:
-            producer_release.set()
-            producer_stream.sync()
-            consumer_stream.sync()
-        assert callback_called.is_set()
+        delay.launch(producer_stream)
+        producer_stream.record(expected)
+        graph.launch(consumer_stream)
+        producer_stream.sync()
+        consumer_stream.sync()
+
+        # Waiting on any other event lets after_wait land during the delay.
+        assert after_wait - expected >= 0
 
     return _DefinitionUpdateCase(
         graph_def=graph_def,
