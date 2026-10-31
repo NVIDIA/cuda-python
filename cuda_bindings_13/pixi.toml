@@ -28,7 +28,8 @@ cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = tr
 
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
-cuda-bindings = "13.2.*"
+# Document the checkout's API, including modules absent from published packages.
+cuda-bindings = { path = "." }
 python = "3.12.*"
 cython = ">=3.2.5,<3.3"
 enum_tools = "*"
