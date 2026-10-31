@@ -20,13 +20,10 @@ PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
 # Test Tasks
 # Runs tests across all sub-packages: pathfinder → bindings → core (dependency order).
 #
-# Each sub-package has its own pixi.toml. We wrap each task in `bash -c '...'`
-# (single-quoted in TOML, double-quoted inside) because pixi `cmd` arrays do
-# not expand shell variables -- without this, the inner `pixi run` would drop
-# into the sub-package's `default` environment, which lacks a cuda-version
-# pin, causing the conda solver to pick a mismatched CUDA toolkit. Forwarding
-# `-e "$PIXI_ENVIRONMENT_NAME"` keeps the active environment consistent end
-# to end.
+# Each sub-package has its own pixi.toml. Forward `-e "$PIXI_ENVIRONMENT_NAME"`
+# so nested tasks keep the selected CUDA environment. Pixi expands variables
+# while rendering these command arrays, before Bash runs: use existing
+# environment variables, not variables assigned inside the Bash command.
 #
 # Linux-only for now; Windows/macOS root test-task parity is tracked
 # separately.
@@ -43,13 +40,7 @@ cmd = [
 cmd = [
     "bash",
     "-c",
-    '''
-case "$PIXI_ENVIRONMENT_NAME" in
-  cu12|cu13) bindings_root="cuda_bindings_${PIXI_ENVIRONMENT_NAME#cu}" ;;
-  *) printf 'Unsupported bindings test environment: %s\n' "$PIXI_ENVIRONMENT_NAME" >&2; exit 2 ;;
-esac
-pixi run --manifest-path "$PIXI_PROJECT_ROOT/$bindings_root" -e "$PIXI_ENVIRONMENT_NAME" test
-''',
+    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings_${PIXI_ENVIRONMENT_NAME#cu}" -e "$PIXI_ENVIRONMENT_NAME" test',
 ]
 
 [target.linux.tasks.test-core]
