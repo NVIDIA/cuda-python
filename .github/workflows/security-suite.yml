@@ -36,7 +36,7 @@ jobs:
     if: >-
       github.repository == 'NVIDIA/cuda-python' ||
       vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true'
-    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@c736f0454dc99764a66af6b906adfcdfbf621985  # v0.4.0
+    uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@fb0ff41f297fa9f121a92b1ea32ee57096476bb2  # Pulse shallow checkout
     with:
       enable-secret-scan: true
       enable-sast-scan: true
