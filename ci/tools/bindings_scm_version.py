@@ -59,7 +59,7 @@ def _git(repo_root: Path, *args: str) -> str:
         ["git", *args],  # noqa: S607
         cwd=repo_root,
         check=True,
-        capture_output=True,
+        stdout=subprocess.PIPE,
         text=True,
     ).stdout.strip()
 

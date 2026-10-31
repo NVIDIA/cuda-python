@@ -253,6 +253,10 @@ jobs:
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
 
+      - name: Trust the checkout for container source builds
+        # checkout's temporary Git configuration does not reach later steps.
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
