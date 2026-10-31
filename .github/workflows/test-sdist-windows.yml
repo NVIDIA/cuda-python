@@ -14,7 +14,8 @@ on:
       host-platform:
         required: true
         type: string
-      cuda-version:
+      bindings-package:
+        description: Normalized bindings root and toolkit for this sdist build.
         required: true
         type: string
       workplan:
@@ -36,7 +37,9 @@ jobs:
     name: Test sdist builds
     if: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_tests }}
     env:
-      BUILD_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build }}
+      BINDINGS_ROOT: ${{ fromJSON(inputs.bindings-package).package_root }}
+      CUDA_PYTHON_BUILD_MAJOR: ${{ fromJSON(inputs.bindings-package).cuda_major }}
+      BUILD_PATHFINDER: ${{ fromJSON(inputs.bindings-package).release_status == 'current' && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build) }}
       BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_build }}
       BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_build }}
       BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_build }}
@@ -67,8 +70,14 @@ jobs:
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
 
-      - name: Install build tools
-        run: python -m pip install build
+      - name: Install build and CI tools
+        run: python -m pip install build -e ./ci
+
+      - name: Prepare local maintenance SCM milestone
+        if: ${{ fromJSON(inputs.bindings-package).release_status == 'maintenance' }}
+        run: |
+          python -m ci.tools.bindings_scm_version \
+            --package-root "${BINDINGS_ROOT}" --sha "${{ github.sha }}"
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
@@ -109,7 +118,7 @@ jobs:
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ inputs.cuda-version }}
+          cuda-version: ${{ fromJSON(inputs.bindings-package).toolkit_version }}
 
       # cuda_bindings_13/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.
@@ -121,22 +130,22 @@ jobs:
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          python -m build --sdist cuda_bindings_13/
-          pip wheel --no-deps --wheel-dir cuda_bindings_13/dist cuda_bindings_13/dist/*.tar.gz
+          python -m build --sdist "${BINDINGS_ROOT}/"
+          pip wheel --no-deps --wheel-dir "${BINDINGS_ROOT}/dist" "${BINDINGS_ROOT}"/dist/*.tar.gz
 
       - name: Download cuda.bindings wheel
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: ./.github/actions/download-artifact-retry
         with:
-          name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
-          path: cuda_bindings_13/dist
+          name: ${{ fromJSON(inputs.bindings-package).release_status == 'maintenance' && 'maintenance-bindings' || 'cuda-bindings' }}-python312-cuda${{ fromJSON(inputs.bindings-package).toolkit_version }}-${{ inputs.host-platform }}-${{ github.sha }}
+          path: ${{ env.BINDINGS_ROOT }}/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
-          CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+          CUDA_MAJOR="$(echo '${{ fromJSON(inputs.bindings-package).toolkit_version }}' | cut -d. -f1)"
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
-          bindings_wheels=(cuda_bindings_13/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          bindings_wheels=("${BINDINGS_ROOT}"/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${pathfinder_wheels[0]}"
@@ -156,7 +165,7 @@ jobs:
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
-          export CUDA_CORE_BUILD_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
+          export CUDA_CORE_BUILD_MAJOR="$(echo '${{ fromJSON(inputs.bindings-package).toolkit_version }}' | cut -d. -f1)"
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-core.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
           python -m build --sdist cuda_core/
