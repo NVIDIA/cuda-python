@@ -170,13 +170,10 @@ def check_core_toolkit_floors(config: BindingsConfig, repo_root: Path) -> None:
     floor_path = core / "cuda" / "core" / "_bindings_floor.py"
     spec = importlib.util.spec_from_file_location("_cuda_core_bindings_floor", floor_path)
     module = importlib.util.module_from_spec(spec)
-    try:
-        spec.loader.exec_module(module)
-        with (core / "pyproject.toml").open("rb") as stream:
-            extras = tomllib.load(stream)["project"]["optional-dependencies"]
-        floors = module.floors_from_extras(extras)
-    except (OSError, ValueError, KeyError, TypeError) as error:
-        raise ValueError(f"could not read core bindings floors from {core}: {error}") from error
+    spec.loader.exec_module(module)
+    with (core / "pyproject.toml").open("rb") as stream:
+        extras = tomllib.load(stream)["project"]["optional-dependencies"]
+    floors = module.floors_from_extras(extras)
     pins = {int(package.cuda_major): package for package in config.package_roots}
     if pins.keys() != floors.keys():
         raise ValueError("registered CUDA majors must match cuda_core's cu<N> extras")
@@ -195,20 +192,12 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
     selectors: dict[str, str] = {}
     for package in config.package_roots:
         path = repo_root / package.package_root / "pyproject.toml"
-        try:
-            with path.open("rb") as stream:
-                scm = tomllib.load(stream)["tool"]["setuptools_scm"]
-        except (OSError, tomllib.TOMLDecodeError, KeyError, TypeError) as error:
-            raise ValueError(f"could not read SCM metadata from {path}: {error}") from error
-        if not isinstance(scm, dict) or "tag_regex" in scm:
+        with path.open("rb") as stream:
+            scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+        if "tag_regex" in scm:
             raise ValueError(f"{path} must use setuptools-scm's default tag parser")
-        command = scm.get("git_describe_command")
-        if (
-            not isinstance(command, list)
-            or not all(isinstance(part, str) for part in command)
-            or command.count("--match") != 1
-            or command[-1] == "--match"
-        ):
+        command = scm["git_describe_command"]
+        if command.count("--match") != 1:
             raise ValueError(f"{path} must specify one git_describe_command --match selector")
         selector = command[command.index("--match") + 1]
         expected_selector = f"v{package.ctk_target}.*"
@@ -222,11 +211,8 @@ def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
             raise ValueError(f"{path} bindings root must not declare fallback_version")
 
     path = repo_root / "cuda_python" / "pyproject.toml"
-    try:
-        with path.open("rb") as stream:
-            meta_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
-    except (OSError, ValueError, KeyError, TypeError) as error:
-        raise ValueError(f"could not read SCM selectors from {path}: {error}") from error
+    with path.open("rb") as stream:
+        meta_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
     if meta_selectors != selectors:
         raise ValueError(f"{path} scm-describe-match-by-major must match the bindings package selectors")
 
