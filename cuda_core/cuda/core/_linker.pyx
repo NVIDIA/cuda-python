@@ -790,8 +790,6 @@ def _decide_nvjitlink_or_driver() -> bool:
     if _use_nvjitlink_backend is not None:
         return not _use_nvjitlink_backend
 
-    _nvjitlink_version = None
-
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"
         " minor version compatibility or linking LTO IRs."
