@@ -25,164 +25,127 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.3.0", "numpy>=2.2.5"]
+# dependencies = ["cuda-core[cu13]>=1.3.0", "cupy-cuda13x>=14.0.0", "numpy>=2.2.5"]
 # ///
 
-"""Compare GPU reads from host, device, and managed memory on Grace Hopper."""
+"""Run CuPy directly on host memory on Grace Hopper.
+
+On Grace Hopper, NVLink-C2C makes CPU memory coherently accessible to the GPU,
+and the GPU translates addresses through the host page tables. A kernel can
+therefore read and write pinned, managed and even ordinary pageable host memory
+in place, and the CPU sees the results without a copy.
+
+The sample allocates one buffer from each cuda.core memory resource (device,
+pinned on the GPU's nearest host NUMA node, and managed) plus a plain NumPy
+array. It wraps each one as a CuPy array, runs the same CuPy operations on all
+of them and checks the results on the CPU.
+"""
 
 import os
 import sys
-import time
 
-import numpy as np
+try:
+    import cupy as cp
+    import numpy as np
 
-from cuda.core import (
-    Device,
-    DeviceMemoryResource,
-    Host,
-    LaunchConfig,
-    ManagedMemoryResource,
-    PinnedMemoryResource,
-    PinnedMemoryResourceOptions,
-    Program,
-    ProgramOptions,
-    launch,
-)
+    from cuda.core import (
+        Device,
+        DeviceMemoryResource,
+        ManagedMemoryResource,
+        PinnedMemoryResource,
+        PinnedMemoryResourceOptions,
+    )
+except ImportError as e:
+    print(f"Error: Required package not found: {e}")
+    print("Install with: pip install -r requirements.txt")
+    sys.exit(1)
 
 EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
-N = 1 << 28  # 1 GiB of float32 values
-REPS = 10
+N = 1 << 24  # 64 MiB of float32 values per buffer
 
-SOURCE = r"""
-extern "C" __global__ void read_sum(const float *x, unsigned long long n, double *out) {
-    __shared__ float part[512];
-    float acc = 0.f;
-    for (unsigned long long i = blockIdx.x * (unsigned long long)blockDim.x + threadIdx.x; i < n;
-         i += (unsigned long long)gridDim.x * blockDim.x)
-        acc += x[i];
-    part[threadIdx.x] = acc;
-    __syncthreads();
-    for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
-        if (threadIdx.x < s) part[threadIdx.x] += part[threadIdx.x + s];
-        __syncthreads();
-    }
-    if (threadIdx.x == 0) atomicAdd(out, (double)part[0]);
-}
-extern "C" __global__ void scale(float *x, unsigned long long n, float a) {
-    for (unsigned long long i = blockIdx.x * (unsigned long long)blockDim.x + threadIdx.x; i < n;
-         i += (unsigned long long)gridDim.x * blockDim.x)
-        x[i] *= a;
-}
-extern "C" __global__ void fill(float *x, unsigned long long n, float v) {
-    for (unsigned long long i = blockIdx.x * (unsigned long long)blockDim.x + threadIdx.x; i < n;
-         i += (unsigned long long)gridDim.x * blockDim.x)
-        x[i] = v;
-}
-extern "C" __global__ void zero(double *out) { *out = 0.0; }
-"""
+
+def host_as_cupy(ptr, nbytes, owner, device_id):
+    # cp.from_dlpack() does not import host memory (kDLCUDAHost or kDLCPU), so
+    # wrap the pointer directly. owner keeps the memory alive.
+    memory = cp.cuda.UnownedMemory(ptr, nbytes, owner, device_id=device_id)
+    return cp.ndarray((nbytes // 4,), cp.float32, cp.cuda.MemoryPointer(memory, 0))
+
+
+def run(label, gpu_array, cpu_array):
+    """Fill on the CPU, compute on the GPU, check on the CPU."""
+    cpu_array[:] = np.arange(N, dtype=np.float32) % 1024
+    gpu_array *= 2
+    total = int(gpu_array.sum(dtype=cp.float64))
+    cp.cuda.get_current_stream().synchronize()
+
+    expected = 2 * (np.arange(N, dtype=np.float32) % 1024)
+    if total != int(expected.sum(dtype=np.float64)) or not np.array_equal(cpu_array, expected):
+        raise RuntimeError(f"{label}: result mismatch")
+    print(f"  {label:<38} sum={total} verified on the CPU without a copy")
 
 
 def main():
     dev = Device(0)
     dev.set_current()
     props = dev.properties
-    print(f"Device: {dev.name}, compute capability {dev.compute_capability}")
-    for name in (
-        "numa_config",
-        "numa_id",
-        "host_numa_id",
-        "pageable_memory_access",
-        "pageable_memory_access_uses_host_page_tables",
-        "concurrent_managed_access",
-    ):
-        print(f"  {name}: {getattr(props, name)}")
-    print(f"  system.Device.is_c2c_enabled: {dev.to_system_device().is_c2c_enabled}")
+    cc = dev.compute_capability
+    print(f"Device: {dev.name}, compute capability {cc.major}.{cc.minor}")
+    print(f"  host_numa_id: {props.host_numa_id}")
+    print(f"  pageable_memory_access_uses_host_page_tables: {props.pageable_memory_access_uses_host_page_tables}")
+    print(f"  concurrent_managed_access: {props.concurrent_managed_access}")
+    print(f"  host_numa_memory_pools_supported: {props.host_numa_memory_pools_supported}")
 
-    if not props.pageable_memory_access_uses_host_page_tables:
-        print("Host page tables are unavailable for pageable GPU access; waiving sample.")
-        return EXIT_WAIVED
-    if (
-        not props.concurrent_managed_access
-        or not props.host_memory_pools_supported
-        or not props.host_numa_memory_pools_supported
-        or props.host_numa_id < 0
+    if not (
+        props.pageable_memory_access_uses_host_page_tables
+        and props.concurrent_managed_access
+        and props.host_numa_memory_pools_supported
+        and props.host_numa_id >= 0
     ):
-        print("Managed access, host memory pools, or host NUMA support is unavailable; waiving sample.")
+        print("This sample requires a Grace Hopper class system; waiving.")
         return EXIT_WAIVED
 
     stream = dev.create_stream()
-    arch = f"sm_{dev.compute_capability.major}{dev.compute_capability.minor}"
-    module = Program(SOURCE, code_type="c++", options=ProgramOptions(arch=arch)).compile("cubin")
-    read_sum, scale, fill, zero = (module.get_kernel(name) for name in ("read_sum", "scale", "fill", "zero"))
-    config = LaunchConfig(grid=props.multiprocessor_count * 8, block=512)
-    one = LaunchConfig(grid=1, block=1)
-    allocations = []
-    resources = []
-
-    def allocate(resource, size):
-        resources.append(resource)
-        buffer = resource.allocate(size, stream=stream)
-        allocations.append(buffer)
-        return buffer
+    nbytes = N * 4
+    device_buffer = DeviceMemoryResource(dev).allocate(nbytes, stream=stream)
+    pinned_buffer = PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=props.host_numa_id)).allocate(
+        nbytes, stream=stream
+    )
+    managed_buffer = ManagedMemoryResource().allocate(nbytes, stream=stream)
+    pageable = np.empty(N, dtype=np.float32)
+    # Allocations are ordered on stream; CuPy uses its own stream.
+    stream.sync()
 
     try:
-        result = allocate(DeviceMemoryResource(dev), 8)
-        host_result = allocate(PinnedMemoryResource(), 8)
+        print("GPU work on host-resident memory:")
+        run(
+            f"pinned, host NUMA node {props.host_numa_id}",
+            host_as_cupy(pinned_buffer.handle, nbytes, pinned_buffer, dev.device_id),
+            np.from_dlpack(pinned_buffer).view(np.float32),
+        )
+        run(
+            "managed",
+            cp.from_dlpack(managed_buffer).view(cp.float32),
+            np.from_dlpack(managed_buffer).view(np.float32),
+        )
+        run(
+            "pageable NumPy array",
+            host_as_cupy(pageable.ctypes.data, nbytes, pageable, dev.device_id),
+            pageable,
+        )
 
-        def run_once(ptr, location=None):
-            if location is not None:
-                managed.prefetch(location, stream=stream)
-                stream.sync()
-            launch(stream, one, zero, result)
-            stream.sync()
-            start = time.perf_counter()
-            launch(stream, config, read_sum, np.uint64(ptr), np.uint64(N), result)
-            stream.sync()
-            elapsed = time.perf_counter() - start
-            result.copy_to(host_result, stream=stream)
-            stream.sync()
-            actual = float(np.from_dlpack(host_result).view(np.float64)[0])
-            if actual != N:
-                raise RuntimeError(f"read_sum returned {actual}, expected {N}")
-            return elapsed
-
-        def time_read(ptr, label, location=None):
-            if location is None:
-                run_once(ptr)
-            durations = sorted(run_once(ptr, location) for _ in range(REPS))
-            elapsed = (durations[REPS // 2 - 1] + durations[REPS // 2]) / 2
-            print(f"  {label:<52} {N * 4 / elapsed / 1e9:8.1f} GB/s ({elapsed * 1e3:.2f} ms)")
-
-        print("[1] In-place kernel on pageable NumPy memory")
-        array = np.arange(1 << 20, dtype=np.float32)
-        expected = array * 3.0
-        launch(stream, config, scale, np.uint64(array.ctypes.data), np.uint64(array.size), np.float32(3.0))
-        stream.sync()
-        if not np.array_equal(array, expected):
-            raise RuntimeError("Pageable array result does not match")
-        print("  Result verified")
-
-        print("[2] Read bandwidth, 1 GiB")
-        pinned = allocate(PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=props.host_numa_id)), N * 4)
-        stream.sync()
-        np.from_dlpack(pinned).view(np.float32)[:] = 1.0
-        time_read(pinned.handle, f"pinned, host NUMA node {props.host_numa_id}")
-        pageable = np.ones(N, dtype=np.float32)
-        time_read(pageable.ctypes.data, "pageable NumPy memory")
-        device_buffer = allocate(DeviceMemoryResource(dev), N * 4)
-        launch(stream, config, fill, device_buffer, np.uint64(N), np.float32(1.0))
-        time_read(device_buffer.handle, "device memory")
-
-        print("[3] Managed memory, first kernel after each prefetch")
-        managed = allocate(ManagedMemoryResource(), N * 4)
-        stream.sync()
-        np.from_dlpack(managed).view(np.float32)[:] = 1.0
-        time_read(managed.handle, f"managed, host NUMA node {props.host_numa_id}", Host(numa_id=props.host_numa_id))
-        time_read(managed.handle, "managed, GPU", dev)
+        print("For comparison, device memory needs explicit copies:")
+        device_array = cp.from_dlpack(device_buffer).view(cp.float32)
+        device_array.set(np.arange(N, dtype=np.float32) % 1024)
+        device_array *= 2
+        if not np.array_equal(device_array.get(), 2 * (np.arange(N, dtype=np.float32) % 1024)):
+            raise RuntimeError("device: result mismatch")
+        print(f"  {'device':<38} verified after a device-to-host copy")
     finally:
-        for buffer in reversed(allocations):
+        cp.cuda.get_current_stream().synchronize()
+        for buffer in (managed_buffer, pinned_buffer, device_buffer):
             buffer.close(stream)
         stream.sync()
+
     print("Done")
     return 0
 
