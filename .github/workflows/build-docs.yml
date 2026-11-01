@@ -67,6 +67,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
+          persist-credentials: false
           ref: ${{ inputs.is-release && format('refs/tags/{0}', inputs.git-tag) || inputs.git-tag }}
 
       # Release sources and workflow tools can come from different commits.
@@ -77,6 +78,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           path: .ci-control
+          persist-credentials: false
 
       - name: Set up Python for CI tools
         # The release checkout can predate this action; use the workflow revision.
