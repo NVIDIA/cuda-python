@@ -403,7 +403,7 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-    name: Build ${{ fromJSON(needs.detect-changes.outputs.workplan).labels.build }} (${{ matrix.host-platform }})
+    name: Build (${{ matrix.host-platform }})
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     permissions:
       actions: read
@@ -426,7 +426,7 @@ jobs:
       matrix:
         host-platform:
           - linux-aarch64
-    name: Build ${{ fromJSON(needs.detect-changes.outputs.workplan).labels.build_platform }} (${{ matrix.host-platform }})
+    name: Build (${{ matrix.host-platform }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -452,7 +452,7 @@ jobs:
       matrix:
         host-platform:
           - win-64
-    name: Build ${{ fromJSON(needs.detect-changes.outputs.workplan).labels.build_platform }} (${{ matrix.host-platform }})
+    name: Build (${{ matrix.host-platform }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -474,7 +474,7 @@ jobs:
     needs:
       - should-skip
       - detect-changes
-    name: Build ${{ fromJSON(needs.detect-changes.outputs.workplan).labels.build_current }} (win-arm64)
+    name: Build (win-arm64)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -508,7 +508,7 @@ jobs:
       - should-skip
       - detect-changes
       - build-linux-64
-    name: Sdist ${{ fromJSON(needs.detect-changes.outputs.workplan).labels.sdist[matrix.package.package_root] }} (linux-64)
+    name: Sdist ${{ matrix.package.package_root }} (linux-64)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -534,7 +534,7 @@ jobs:
       - detect-changes
       - build-linux-64
       - build-windows
-    name: Sdist ${{ fromJSON(needs.detect-changes.outputs.workplan).labels.sdist[matrix.package.package_root] }} (win-64)
+    name: Sdist ${{ matrix.package.package_root }} (win-64)
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&

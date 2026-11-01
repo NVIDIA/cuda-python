@@ -275,7 +275,7 @@ jobs:
           output-dir: ${{ env.CURRENT_BINDINGS_ARTIFACTS_DIR }}
           extras: uv
           python-path: ${{ steps.host-python.outputs.python-path }}
-        env:
+        env: &bindings-wheel-env
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           # build[uv]: same PEP 517 orchestration, with uv instead of pip.
           # extras: uv puts uv on PATH (required on Windows).
@@ -644,39 +644,13 @@ jobs:
           output-dir: ${{ env.MAINTENANCE_BINDINGS_ARTIFACTS_DIR }}
           extras: uv
           python-path: ${{ steps.host-python.outputs.python-path }}
-        env:
-          CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          # Use the same frontend and constraints as the current package.
-          CIBW_BUILD_FRONTEND: "build[uv]"
-          CIBW_ENVIRONMENT_LINUX: >
-            CUDA_PATH=/host/${{ env.CUDA_PATH }}
-            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            UV_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
-            UV_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
-            CC="/host/${{ env.SCCACHE_PATH }} cc"
-            CXX="/host/${{ env.SCCACHE_PATH }} c++"
-            SCCACHE_GHA_ENABLED=true
-            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
-            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
-            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-          CIBW_ENVIRONMENT_WINDOWS: >
-            CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
-            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            UV_BUILD_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
-            UV_CONSTRAINT="$(cygpath -w ./wheel-constraints/cuda-bindings.txt)"
-          # Dump sccache stats during repair; no dummy test stage.
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            "/host/${{ env.SCCACHE_PATH }}" --show-adv-stats &&
-            "/host/${{ env.SCCACHE_PATH }}" --show-stats --stats-format=json > /host/${{ github.workspace }}/sccache_bindings_maintenance.json &&
-            auditwheel repair -w {dest_dir} {wheel}
+        env: *bindings-wheel-env
 
       - name: Report sccache stats (cuda.bindings ${{ env.MAINTENANCE_CUDA_MAJOR }})
         if: ${{ !inputs.single-cuda-major && env.BUILD_BINDINGS_MAINTENANCE == 'true' && !startsWith(inputs.host-platform, 'win') }}
         uses: ./.github/actions/sccache-summary
         with:
-          json-file: sccache_bindings_maintenance.json
+          json-file: sccache_bindings.json
           label: "cuda.bindings ${{ env.MAINTENANCE_CUDA_MAJOR }}"
           build-step: "Build cuda.bindings ${{ env.MAINTENANCE_CUDA_MAJOR }} wheel"
 
