@@ -33,7 +33,7 @@ permissions:
 
 jobs:
   test-sdist:
-    name: Sdist ${{ fromJSON(inputs.workplan).labels.sdist[fromJSON(inputs.bindings-package).package_root] }}
+    name: Sdist ${{ fromJSON(inputs.bindings-package).package_root }}
     if: ${{ fromJSON(inputs.workplan).jobs.sdist_package_roots[fromJSON(inputs.bindings-package).package_root] }}
     env:
       BINDINGS_ROOT: ${{ fromJSON(inputs.bindings-package).package_root }}

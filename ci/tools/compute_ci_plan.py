@@ -249,42 +249,7 @@ def compute_workplan(
         or any((module, package.package_root) in tests for module in ("bindings", "python"))
     }
 
-    def build_label(*, universal: bool, current_only: bool = False) -> str:
-        labels = []
-        if universal and ("pathfinder", None) in builds:
-            labels.append("pathfinder")
-        for module in ("bindings", "core", "python"):
-            component_label = "meta" if module == "python" else module
-            if module == "python" and not universal:
-                continue
-            for package in bindings_packages:
-                if current_only and package.release_status != "current":
-                    continue
-                selector = package.cuda_variant if module == "core" else package.package_root
-                if (module, selector) in builds:
-                    labels.append(f"{component_label}{package.cuda_major}")
-        return "+".join(labels) or "baseline wheels and test extensions"
-
-    sdist_labels = {}
-    for package in bindings_packages:
-        labels = []
-        if ("pathfinder", None) in builds:
-            labels.append("pathfinder")
-        if ("bindings", package.package_root) in builds:
-            labels.append(f"bindings{package.cuda_major}")
-        if ("core", package.cuda_variant) in builds:
-            labels.append(f"core{package.cuda_major}")
-        if ("python", package.package_root) in builds:
-            labels.append(f"meta{package.cuda_major}")
-        sdist_labels[package.package_root] = "+".join(labels) or "excluded"
-
     return {
-        "labels": {
-            "build": build_label(universal=True),
-            "build_platform": build_label(universal=False),
-            "build_current": build_label(universal=False, current_only=True),
-            "sdist": sdist_labels,
-        },
         "modules": modules,
         "sources": {
             # Focused bindings releases intentionally omit unrelated artifacts.
