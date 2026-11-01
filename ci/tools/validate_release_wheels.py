@@ -85,66 +85,27 @@ def version_from_tag(
     )
 
 
-def _load_yaml_mapping(path: Path) -> Mapping[str, object]:
-    try:
-        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as error:
-        raise ValueError(f"could not read release build configuration {path}: {error}") from error
-    if not isinstance(raw, dict):
-        raise ValueError(f"release build configuration {path} must contain a mapping")
-    return raw
-
-
-def _string_list(value: object, label: str) -> list[str]:
-    if not isinstance(value, list) or not value or not all(isinstance(item, str) and item for item in value):
-        raise ValueError(f"{label} must be a non-empty list of strings")
-    return value
-
-
 def _release_python_versions(release_source_root: Path) -> list[str]:
     path = release_source_root / _VERSIONS_CONFIG
-    raw = _load_yaml_mapping(path)
-    try:
-        value = raw["python"]["supported"]
-    except (KeyError, TypeError) as error:
-        raise ValueError(f"could not find python.supported in {path}") from error
-    versions = _string_list(value, f"{path} python.supported")
-    if len(versions) != len(set(versions)):
-        raise ValueError(f"{path} python.supported must not contain duplicates")
-    return versions
+    return yaml.safe_load(path.read_text(encoding="utf-8"))["python"]["supported"]
 
 
 def _release_platforms(release_source_root: Path) -> list[str]:
     path = release_source_root / _CI_WORKFLOW
-    raw = _load_yaml_mapping(path)
-    try:
-        jobs = raw["jobs"]
-    except KeyError as error:
-        raise ValueError(f"could not find jobs in {path}") from error
-    if not isinstance(jobs, dict):
-        raise ValueError(f"{path} jobs must be a mapping")
+    jobs = yaml.safe_load(path.read_text(encoding="utf-8"))["jobs"]
 
     platforms: list[str] = []
-    for job_name, value in jobs.items():
-        if not isinstance(value, dict) or value.get("uses") != "./.github/workflows/build-wheel.yml":
+    for value in jobs.values():
+        if value.get("uses") != "./.github/workflows/build-wheel.yml":
             continue
-        inputs = value.get("with", {})
-        if not isinstance(inputs, dict):
-            raise ValueError(f"{path} job {job_name!r} inputs must be a mapping")
-        platform = inputs.get("host-platform")
-        if isinstance(platform, str) and "${{" not in platform:
+        platform = value["with"]["host-platform"]
+        if "${{" not in platform:
             platforms.append(platform)
-            continue
-        try:
-            matrix = value["strategy"]["matrix"]["host-platform"]
-        except (KeyError, TypeError) as error:
-            raise ValueError(f"could not resolve the host-platform matrix for {path} job {job_name!r}") from error
-        platforms.extend(_string_list(matrix, f"{path} job {job_name!r} host-platform matrix"))
+        else:
+            platforms.extend(value["strategy"]["matrix"]["host-platform"])
 
     if not platforms:
         raise ValueError(f"could not find any build-wheel host platforms in {path}")
-    if len(platforms) != len(set(platforms)):
-        raise ValueError(f"{path} contains duplicate build-wheel host platforms")
     return platforms
 
 
