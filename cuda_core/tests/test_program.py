@@ -298,6 +298,37 @@ def test_cpp_program_pch_auto_creates(init_cuda, tmp_path):
     program.close()
 
 
+@nvrtc_pch_available
+@pytest.mark.skipif("NVRTC_DISABLE_PCH" in os.environ, reason="PCH is disabled by NVRTC_DISABLE_PCH")
+@pytest.mark.thread_unsafe(reason="resizes the process-global NVRTC PCH heap")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cpp_program_pch_heap_retry(tmp_path):
+    """PCH heap exhaustion retries compilation and returns a typed creation status."""
+    source = '\n#pragma nv_hdrstop\nextern "C" __global__ void my_kernel() {}\n'
+    pch_path = tmp_path / "retry.pch"
+    arch = min(handle_return(nvrtc.nvrtcGetSupportedArchs()))
+    options = ProgramOptions(arch=f"compute_{arch}", name="retry.cu", create_pch=str(pch_path))
+    previous_heap = handle_return(nvrtc.nvrtcGetPCHHeapSize())
+    try:
+        # NVRTC rounds this up; compare against the actual initial heap size.
+        handle_return(nvrtc.nvrtcSetPCHHeapSize(1))
+        small_heap = handle_return(nvrtc.nvrtcGetPCHHeapSize())
+        program = Program(source, "c++", options)
+        try:
+            result = program.compile("ptx")
+            assert isinstance(result, ObjectCode)
+            assert b"my_kernel" in result.code
+            assert program.pch_status is PCHStatusType.CREATED
+            assert pch_path.is_file()
+            # Success alone could miss the retry path; require automatic growth.
+            assert handle_return(nvrtc.nvrtcGetPCHHeapSize()) > small_heap
+        finally:
+            program.close()
+    finally:
+        handle_return(nvrtc.nvrtcSetPCHHeapSize(previous_heap))
+        assert handle_return(nvrtc.nvrtcGetPCHHeapSize()) == previous_heap
+
+
 @bundled_headers_available
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_use_bundled_headers_installs_and_compiles(init_cuda, tmp_path, monkeypatch):

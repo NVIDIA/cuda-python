@@ -611,12 +611,13 @@ class _NvvmBackend(_KeyBackend):
                 if isinstance(item, (tuple, list)) and len(item) == 2:
                     name, src = item
                     update("extra_source_name", str(name).encode("utf-8"))
-                    if isinstance(src, str):
-                        update("extra_source_code", src.encode("utf-8"))
-                    elif isinstance(src, (bytes, bytearray)):
-                        update("extra_source_code", bytes(src))
-                    else:
-                        update("extra_source_code", str(src).encode("utf-8"))
+                    match src:
+                        case str():
+                            update("extra_source_code", src.encode("utf-8"))
+                        case bytes() | bytearray():
+                            update("extra_source_code", bytes(src))
+                        case _:
+                            update("extra_source_code", str(src).encode("utf-8"))
                 else:
                     # Fallback for unexpected format.
                     update("extra_source", str(item).encode("utf-8"))

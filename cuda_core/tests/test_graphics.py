@@ -42,7 +42,7 @@ pytestmark = pytest.mark.thread_unsafe(reason="OpenGL context not threadable")
 
 # cuGraphicsGLRegister{Buffer,Image} returns CUDA_ERROR_OPERATING_SYSTEM on
 # environments where the driver refuses CUDA-GL interop (e.g. WSL). Treat
-# that as an acceptable skip, mirroring cuda_bindings/tests/test_graphics_apis.py.
+# that as an acceptable skip, mirroring cuda_bindings_13/tests/test_graphics_apis.py.
 def _register_gl_buffer(gl_buf, *, flags=None, stream=None):
     try:
         return GraphicsResource.from_gl_buffer(gl_buf, flags=flags, stream=stream)

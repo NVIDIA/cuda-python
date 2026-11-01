@@ -271,7 +271,9 @@ class LinkerOptions:
     incremental : bool, optional
         Perform an incremental link. The result can be passed
         directly to a later :class:`Linker`. Requires nvJitLink 13.2 or newer
-        and is not supported by the driver linker backend.
+        and is not supported by the driver linker backend. Intermediate
+        caching is disabled on nvJitLink versions older than 13.6 when combined
+        with link-time optimization, to work around an nvJitLink bug.
         Default: False.
     ptx : bool, optional
         Emit PTX after linking instead of CUBIN; only supported with ``link_time_optimization=True``.
@@ -316,6 +318,9 @@ class LinkerOptions:
         Default: 1.
     no_cache : bool, optional
         Do not cache the intermediate steps of nvJitLink.
+        Caching is also disabled automatically for incremental links that use
+        link-time optimization on nvJitLink versions older than 13.6, to work
+        around an nvJitLink bug.
         Default: False.
     numba_debug : bool, optional
         Non-functional. ``numba_debug`` is an NVVM/NVRTC *compiler* option;
@@ -400,13 +405,13 @@ class LinkerOptions:
         if self.lineinfo:
             options.append("-lineinfo")
         if self.ftz is not None:
-            options.append(f"-ftz={'true' if self.ftz else 'false'}")
+            options.append(f"-ftz={'1' if self.ftz else '0'}")
         if self.prec_div is not None:
-            options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
+            options.append(f"-prec-div={'1' if self.prec_div else '0'}")
         if self.prec_sqrt is not None:
-            options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
+            options.append(f"-prec-sqrt={'1' if self.prec_sqrt else '0'}")
         if self.fma is not None:
-            options.append(f"-fma={'true' if self.fma else 'false'}")
+            options.append(f"-fma={'1' if self.fma else '0'}")
         if self.kernels_used is not None:
             if isinstance(self.kernels_used, str):
                 options.append(f"-kernels-used={self.kernels_used}")
@@ -428,10 +433,13 @@ class LinkerOptions:
                 for opt in self.ptxas_options:
                     options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
-            options.append(f"-split-compile={self.split_compile}")
+            options.append(f"-split-compile={int(self.split_compile)}")
         if self.split_compile_extended is not None:
-            options.append(f"-split-compile-extended={self.split_compile_extended}")
-        if self.no_cache is True:
+            options.append(f"-split-compile-extended={int(self.split_compile_extended)}")
+        # nvbugs 6659652
+        if self.no_cache is True or (
+            _nvjitlink_version < (13, 6) and self.incremental and self.link_time_optimization
+        ):
             options.append("-no-cache")
 
         if as_bytes:
@@ -781,8 +789,6 @@ def _decide_nvjitlink_or_driver() -> bool:
     global _driver, _nvjitlink_version, _use_nvjitlink_backend
     if _use_nvjitlink_backend is not None:
         return not _use_nvjitlink_backend
-
-    _nvjitlink_version = None
 
     warn_txt_common = (
         "the driver APIs will be used instead, which do not support"

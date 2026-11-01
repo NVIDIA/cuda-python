@@ -2534,7 +2534,11 @@ def test_program_cache_tmp_dir_created_owner_only(tmp_path):
     """``tmp`` stages in-flight compiled device code before the atomic rename into
     ``entries``, so it must be created owner-only (0o700) regardless of the inherited
     umask. ``root``/``entries`` intentionally inherit the umask to keep deliberately
-    shared caches working (PR #2399 review), so only ``tmp`` is asserted."""
+    shared caches working (PR #2399 review), so only ``tmp`` is asserted.
+
+    Compare only the access bits (``& 0o777``). A setgid parent makes Linux inherit
+    ``S_ISGID`` onto ``tmp``; that bit does not grant access and must not fail the
+    owner-only check (issue #3214)."""
     import stat
 
     from cuda.core.utils._program_cache._file_stream import FileStreamProgramCache
@@ -2542,7 +2546,7 @@ def test_program_cache_tmp_dir_created_owner_only(tmp_path):
     root = tmp_path / "pc"
     FileStreamProgramCache(path=root)
 
-    mode = stat.S_IMODE(os.stat(root / "tmp").st_mode)
+    mode = stat.S_IMODE(os.stat(root / "tmp").st_mode) & 0o777
     assert mode == 0o700, f"tmp has mode {oct(mode)}"
 
 
@@ -2563,7 +2567,7 @@ def test_program_cache_preexisting_shared_root_used_as_is(tmp_path):
     FileStreamProgramCache(path=root)
 
     assert stat.S_IMODE(os.stat(root).st_mode) == 0o777
-    assert stat.S_IMODE(os.stat(root / "tmp").st_mode) == 0o700
+    assert (stat.S_IMODE(os.stat(root / "tmp").st_mode) & 0o777) == 0o700
 
 
 @pytest.mark.thread_unsafe(reason="monkeypatches the process-global NVVM fingerprint probe")

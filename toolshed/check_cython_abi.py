@@ -186,18 +186,19 @@ def _collect_structs_from_tree(node: object) -> dict:
     result = {}
     cls = type(node).__name__
 
-    if cls == "CStructOrUnionDefNode":
-        fields = []
-        for attr in node.attributes:
-            if type(attr).__name__ == "CVarDefNode":
-                fields.extend(_extract_fields_from_cvardef(attr))
-        if fields:
-            result[node.name] = {"fields": fields}
+    match cls:
+        case "CStructOrUnionDefNode":
+            fields = []
+            for attr in node.attributes:
+                if type(attr).__name__ == "CVarDefNode":
+                    fields.extend(_extract_fields_from_cvardef(attr))
+            if fields:
+                result[node.name] = {"fields": fields}
 
-    elif cls == "CClassDefNode":
-        fields = _collect_cvardef_fields(node.body)
-        if fields:
-            result[node.class_name] = {"fields": fields}
+        case "CClassDefNode":
+            fields = _collect_cvardef_fields(node.body)
+            if fields:
+                result[node.class_name] = {"fields": fields}
 
     for attr_name in getattr(node, "child_attrs", []):
         child = getattr(node, attr_name, None)

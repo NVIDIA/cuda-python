@@ -206,8 +206,34 @@ def test_linker_options_as_bytes_nvjitlink():
     options_str = [opt.decode() for opt in nvjitlink_options]
     assert "-arch=sm_80" in options_str
     assert "-g" in options_str
-    assert "-ftz=true" in options_str
+    assert "-ftz=1" in options_str
     assert "-maxrregcount=32" in options_str
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5")
+@pytest.mark.skipif(is_culink_backend, reason="ftz/prec_div/prec_sqrt/fma are nvjitlink-only options")
+def test_linker_lto_enabled_runtime_accepts_bool_options(compile_ltoir_functions):
+    """Regression test for nvbug 6621758: actual LTO-enabled link, not just option setter.
+
+    With ``link_time_optimization=True``, ``-ftz``/``-prec-div``/``-prec-sqrt``/``-fma``
+    are forwarded to libnvvm and actually validated at link time, unlike in a non-LTO
+    link where legacy ``true``/``false`` values are silently ignored. Only ``0``/``1``
+    reliably takes effect here on any CUDA version.
+
+    The test checks that Python ``True``/``False`` values are correctly
+    mapped to ``1``/``0`` and accepted by the nvJitLink backend during an LTO-enabled link.
+    """
+    options = LinkerOptions(
+        arch=ARCH,
+        link_time_optimization=True,
+        ftz=True,
+        prec_div=True,
+        prec_sqrt=True,
+        fma=True,
+    )
+    linker = Linker(*compile_ltoir_functions, options=options)
+    linked_code = linker.link("cubin")
+    assert isinstance(linked_code, ObjectCode)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -216,6 +242,26 @@ def test_linker_options_as_bytes_nvjitlink():
 def test_linker_options_incremental_as_bytes(value, expected_count):
     options = LinkerOptions(arch="sm_80", incremental=value)
     assert options.as_bytes().count(b"-r") == expected_count
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+@pytest.mark.skipif(is_culink_backend, reason="as_bytes() only supported for nvjitlink backend")
+@pytest.mark.parametrize(
+    "version,needs_workaround", [((13, 4), True), ((13, 5), True), ((13, 6), False), ((14, 0), False)]
+)
+@pytest.mark.parametrize(
+    "incremental,link_time_optimization", [(False, False), (False, True), (True, False), (True, True)]
+)
+@pytest.mark.parametrize("no_cache", [None, False, True])
+def test_linker_options_incremental_lto_disables_cache(
+    monkeypatch, version, needs_workaround, incremental, link_time_optimization, no_cache
+):
+    options = LinkerOptions(
+        arch="sm_80", incremental=incremental, link_time_optimization=link_time_optimization, no_cache=no_cache
+    )
+    monkeypatch.setattr(_linker, "_nvjitlink_version", version)
+    expected = no_cache is True or (needs_workaround and incremental and link_time_optimization)
+    assert options.as_bytes().count(b"-no-cache") == int(expected)
 
 
 @pytest.mark.parametrize("backend", ("invalid", "driver"))

@@ -23,9 +23,9 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   one `_cpp/<name>.cpp` or as a directory `_cpp/<name>/` whose sources all
   compile into the `_<name>` extension (`_cpp/rt/` for `_rt`).
 - **Build backend**: `build_hooks.py` handles Cython extension setup and build
-  dependency wiring. Logic shared with `cuda_bindings` (toolchain selection,
+  dependency wiring. Logic shared with `cuda-bindings` (toolchain selection,
   the compiler flag set, the Cython cache helpers and the rebuild stamps)
-  lives in `_build_shared.py`. `cuda_bindings/_build_shared.py` is canonical;
+  lives in `_build_shared.py`. `cuda_bindings_13/_build_shared.py` is canonical;
   `cuda_core/_build_shared.py` must be either a symlink to it or a byte-for-byte
   identical copy.
 
@@ -156,14 +156,17 @@ and agents should flag violations.
   objects that are not meant to be shared (e.g., the thread-local `Device`) do not
   need such guards (see #2321). Reference-count integrity is guaranteed; cache
   value-identity/idempotency is not.
-- **Entry points work with or without the GIL**: Cython calls the helpers in
-  `_cpp/rt/` both inside and outside `with nogil` blocks. They never require
-  the GIL, release it around driver calls, and never acquire it while they
-  hold a C++ lock. The only paths that acquire it are the reporting wrappers
-  (`pw_*`, `report_*`) and the one-time driver function-table fill
-  (`ensure_fn_table()`, see `_cpp/rt/DESIGN.md`). Driver and destructor
-  callbacks run at arbitrary times, so they take the GIL (`with gil`) and probe
-  for interpreter shutdown before touching Python objects.
+- **GIL handling depends on the path**: Cython calls the helpers in `_cpp/rt/`
+  both inside and outside `with nogil` blocks. Follow each helper's GIL
+  contract, release the GIL around driver calls, and never acquire it while
+  holding a C++ lock. Reporting wrappers (`pw_*`, `report_*`), the one-time
+  function-table fill (`ensure_fn_table()`), and Python-owner cleanup may
+  acquire it internally. Owner-release deleters use `GILAcquireGuard` to probe
+  for interpreter shutdown before touching Python objects. Python host
+  callbacks use `_py_host_trampoline` (`with gil`); CUDA user-object destructor
+  callbacks only enqueue deferred cleanup, without acquiring the GIL,
+  touching Python objects, or calling the driver (see `_cpp/rt/DESIGN.md` and
+  `_cpp/rt/py_deferred_cleanup.cpp`).
 - **Driver calls go through the table**: C++ calls the driver with
   `DRIVER_CALL(name, args...)`. Its pointers come from the table that
   cuda-bindings resolves, never from the Cython wrappers. If the installed
@@ -212,10 +215,10 @@ below are for contributors. Reviewers and agents should flag violations.
   `HANDLE_RETURN`; an `except` block whose rollback failed uses
   `attach_rollback_failure()`; a deleter or cleanup path uses a `pw_*`
   wrapper or `report_cuda_error()`; the same situation in Cython or Python
-  uses `warnings.warn(..., CUDAWarning)`; a CUDA callback thread does nothing
-  that needs the GIL and hands its work to the deferred-cleanup queue
-  (`Py_AddPendingCall` is GIL-free and allowed there). The table in
-  `_cpp/rt/DESIGN.md` ("Which channel to use") spells this out.
+  uses `warnings.warn(..., CUDAWarning)`; a CUDA user-object destructor
+  callback does nothing that needs the GIL and hands its work to the
+  deferred-cleanup queue (`Py_AddPendingCall` is GIL-free and allowed there).
+  The table in `_cpp/rt/DESIGN.md` ("Which channel to use") spells this out.
 - **`pw_*` runs user Python**: a `p_` pointer only calls the driver; its `pw_`
   twin also acquires the GIL on failure and runs the warning filters,
   `showwarning`, or `sys.unraisablehook`, any of which may call back into
@@ -320,7 +323,10 @@ Python or Cython type annotations should be included for all public APIs.  Avoid
 the use of `Any` unless absolutely necessary.  The argument and return types as
 defined in the docstrings should match the type annotations.
 
-Python imports should generally be outside of an if typing.TYPE_CHECK: block, even if the imported object is only used in type annotations. Use if typing.TYPE_CHECK: only to avoid creating import cycles. (This guidance maximizes compatibility with the cross-reference mechanisms in Sphinx.)
+Python imports should generally be outside of an `if typing.TYPE_CHECKING:`
+block, even if the imported object is only used in type annotations. Use
+`if typing.TYPE_CHECKING:` only to avoid creating import cycles. (This guidance
+maximizes compatibility with the cross-reference mechanisms in Sphinx.)
 
 ### Semantics
 

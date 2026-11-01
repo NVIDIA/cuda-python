@@ -259,7 +259,7 @@ descriptor either; it records only that it was imported (`is_mapped`). A
 descriptor parked in a `Queue` or sent to a `Pool` pins the memory in the
 sender until the receiver unpickles it. Besides `multiprocessing`, a process
 with its own file descriptor passing sends the descriptor's `fds`, `sizes`,
-and `size` and rebuilds it with `VirtualMemoryIPCBufferDescriptor.from_fds()`,
+and `size` and rebuilds it with `VirtualMemoryFdBufferDescriptor.from_fds()`,
 which duplicates the integers it is given and always builds a `posix_fd`
 descriptor.
 
@@ -304,7 +304,7 @@ importer needs access to the exporter's IMEX channel rather than a matching
 device index, and the memory may live on another node. The file-descriptor
 rules above (ownership, pinning, `pickle` raising, the same-device check) do
 not hold for it, so fabric sharing gets a descriptor class of its own instead
-of a widened `VirtualMemoryIPCBufferDescriptor`, whose `handles` stay
+of a widened `VirtualMemoryFdBufferDescriptor`, whose `handles` stay
 `IPCAllocationHandle`s. `from_fds()` is POSIX-only by construction for the
 same reason and takes no handle type; a fabric descriptor is plain data and
 needs no out-of-band constructor. Tracked on the VMM epic (#2980).

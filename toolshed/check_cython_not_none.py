@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-CLASS_SEARCH_ROOTS = ("cuda_core/cuda", "cuda_bindings/cuda")
+CLASS_SEARCH_ROOTS = ("cuda_core/cuda", "cuda_bindings_13/cuda")
 
 _CDEF_CLASS = re.compile(r"^\s*cdef\s+(?:public\s+|final\s+)*class\s+(\w+)", re.MULTILINE)
 _DEF_START = re.compile(r"^[ \t]*(?:cp)?def\b[^\n(]*\(", re.MULTILINE)
