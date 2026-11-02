@@ -23,3 +23,6 @@ cuda_core/third_party/**
 cuda_core/cuda/**/*.pyi
 
 qa/ctk-next.drawio.svg
+
+# Third-party eMudhra disclosure data, kept byte-identical to the published files
+ci/tools/runner_trust_probe_chains/**

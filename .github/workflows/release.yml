@@ -177,7 +177,9 @@ jobs:
           ref: ${{ inputs.git-tag }}
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # release tag checkout, which can predate this action.
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: "3.12"
 
@@ -342,16 +344,16 @@ jobs:
       EXTRA_INDEX_URL: https://pypi.org/simple/
       INDEX_NAME: TestPyPI
     steps: &verify-pathfinder-steps
-      - name: Create verification environment
+      - name: Require version output
         run: |
           [[ -n "$VERSION" ]] || { echo "::error::Empty version output"; exit 1; }
-          python3 -m venv "${RUNNER_TEMP}/verify"
 
-      - name: Harden pip
+      - name: Create verification environment
         # These jobs have no checkout; $/ loads the action from the workflow's commit.
-        uses: $/.github/actions/harden-pip
+        uses: $/.github/actions/setup-hardened-python
         with:
-          python: ${{ runner.temp }}/verify/bin/python
+          python-version: "3.12"
+          venv: ${{ runner.temp }}/verify
 
       - name: Install Pathfinder from index and verify
         run: |

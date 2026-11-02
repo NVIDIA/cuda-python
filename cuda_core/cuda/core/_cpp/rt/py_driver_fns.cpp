@@ -48,24 +48,40 @@ std::atomic<bool> unavailable_reported[kTables];
 std::mutex fill_mutex;
 char fill_error[kTables][512] = {};  // guarded by fill_mutex
 
-std::size_t index_of(FnTable table) noexcept { return static_cast<std::size_t>(table); }
+std::size_t
+index_of(FnTable table) noexcept
+{
+    return static_cast<std::size_t>(table);
+}
 
-const char* module_name(FnTable table) noexcept {
+const char *
+module_name(FnTable table) noexcept
+{
     switch (table) {
-        case FnTable::driver: return "cuda.bindings._internal.driver";
-        case FnTable::nvrtc: return "cuda.bindings._internal.nvrtc";
-        case FnTable::nvvm: return "cuda.bindings._internal.nvvm";
-        case FnTable::nvjitlink: return "cuda.bindings._internal.nvjitlink";
+        case FnTable::driver:
+            return "cuda.bindings._internal.driver";
+        case FnTable::nvrtc:
+            return "cuda.bindings._internal.nvrtc";
+        case FnTable::nvvm:
+            return "cuda.bindings._internal.nvvm";
+        case FnTable::nvjitlink:
+            return "cuda.bindings._internal.nvjitlink";
     }
     return "cuda.bindings._internal";
 }
 
-const char* library_name(FnTable table) noexcept {
+const char *
+library_name(FnTable table) noexcept
+{
     switch (table) {
-        case FnTable::driver: return "CUDA driver";
-        case FnTable::nvrtc: return "NVRTC";
-        case FnTable::nvvm: return "NVVM";
-        case FnTable::nvjitlink: return "nvJitLink";
+        case FnTable::driver:
+            return "CUDA driver";
+        case FnTable::nvrtc:
+            return "NVRTC";
+        case FnTable::nvvm:
+            return "NVVM";
+        case FnTable::nvjitlink:
+            return "nvJitLink";
     }
     return "library";
 }
@@ -82,23 +98,25 @@ const char* library_name(FnTable table) noexcept {
 // PyErr_SetInterrupt() once its own Python work (the warning) is done. Python
 // then raises KeyboardInterrupt at the next bytecode boundary, so the user
 // sees the interrupt, not the CUDAError from the failed call.
-bool take_python_error(char* buf, std::size_t size, bool* interrupted) noexcept {
-    const bool transient = PyErr_Occurred()
-                           && (!PyErr_ExceptionMatches(PyExc_Exception) || PyErr_ExceptionMatches(PyExc_MemoryError)
-                               || PyErr_ExceptionMatches(PyExc_RecursionError));
+bool
+take_python_error(char *buf, std::size_t size, bool *interrupted) noexcept
+{
+    const bool transient =
+        PyErr_Occurred() && (!PyErr_ExceptionMatches(PyExc_Exception) || PyErr_ExceptionMatches(PyExc_MemoryError) ||
+                             PyErr_ExceptionMatches(PyExc_RecursionError));
     *interrupted = PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_KeyboardInterrupt);
 #if PY_VERSION_HEX >= 0x030C0000
-    PyObject* exc = PyErr_GetRaisedException();
+    PyObject *exc = PyErr_GetRaisedException();
 #else
     PyObject *type, *value, *traceback;
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
-    PyObject* exc = value;
+    PyObject *exc = value;
     Py_XDECREF(type);
     Py_XDECREF(traceback);
 #endif
-    PyObject* text = exc ? PyObject_Str(exc) : nullptr;
-    const char* utf8 = text ? PyUnicode_AsUTF8(text) : nullptr;
+    PyObject *text = exc ? PyObject_Str(exc) : nullptr;
+    const char *utf8 = text ? PyUnicode_AsUTF8(text) : nullptr;
     if (utf8 == nullptr || *utf8 == '\0') {
         utf8 = exc ? Py_TYPE(exc)->tp_name : "unknown error";  // str(KeyboardInterrupt()) is empty
     }
@@ -109,7 +127,9 @@ bool take_python_error(char* buf, std::size_t size, bool* interrupted) noexcept 
     return transient;
 }
 
-void record_failure(FnTable table, const char* message, bool latch = true) noexcept {
+void
+record_failure(FnTable table, const char *message, bool latch = true) noexcept
+{
     {
         std::lock_guard<std::mutex> lock(fill_mutex);
         std::snprintf(fill_error[index_of(table)], sizeof(fill_error[0]), "%s", message);
@@ -122,13 +142,17 @@ void record_failure(FnTable table, const char* message, bool latch = true) noexc
 
 }  // namespace
 
-bool fn_table_ready(FnTable table) noexcept {
+bool
+fn_table_ready(FnTable table) noexcept
+{
     return table_ready[index_of(table)].load(std::memory_order_acquire);
 }
 
-bool fn_table_error(FnTable table, char* buffer, std::size_t size) noexcept {
+bool
+fn_table_error(FnTable table, char *buffer, std::size_t size) noexcept
+{
     std::lock_guard<std::mutex> lock(fill_mutex);
-    const char* text = fill_error[index_of(table)];
+    const char *text = fill_error[index_of(table)];
     if (!text[0]) {
         return false;
     }
@@ -136,7 +160,9 @@ bool fn_table_error(FnTable table, char* buffer, std::size_t size) noexcept {
     return true;
 }
 
-bool ensure_fn_table(FnTable table) noexcept {
+bool
+ensure_fn_table(FnTable table) noexcept
+{
     const std::size_t idx = index_of(table);
     if (table_ready[idx].load(std::memory_order_acquire)) {
         return true;
@@ -145,7 +171,7 @@ bool ensure_fn_table(FnTable table) noexcept {
         return false;  // latched: the fill reported its reason when it failed
     }
     std::size_t count = 0;
-    const FnEntry* entries = fn_table_entries(table, &count);
+    const FnEntry *entries = fn_table_entries(table, &count);
     if (entries == nullptr || count > kMaxEntries) {
         record_failure(table, "internal cuda.core error, please report: function table has an unexpected size");
         return false;
@@ -157,7 +183,7 @@ bool ensure_fn_table(FnTable table) noexcept {
 
     char message[640];
     char cause[384];
-    void* values[kMaxEntries] = {};
+    void *values[kMaxEntries] = {};
 
     GILAcquireGuard gil;
     if (!gil.acquired()) {
@@ -167,18 +193,23 @@ bool ensure_fn_table(FnTable table) noexcept {
     PendingExceptionGuard pending;
 
     bool interrupted = false;
-    PyObject* module = PyImport_ImportModule(module_name(table));
+    PyObject *module = PyImport_ImportModule(module_name(table));
     if (module == nullptr) {
         const bool transient = take_python_error(cause, sizeof(cause), &interrupted);
-        std::snprintf(message, sizeof(message),
-                      "cuda.core cannot import %s from the installed cuda-bindings: %s", module_name(table), cause);
+        std::snprintf(
+            message,
+            sizeof(message),
+            "cuda.core cannot import %s from the installed cuda-bindings: %s",
+            module_name(table),
+            cause
+        );
         record_failure(table, message, !transient);
         if (interrupted) {
             PyErr_SetInterrupt();  // after the warning: the handler must not consume the interrupt
         }
         return false;
     }
-    PyObject* pointers = PyObject_CallMethod(module, "_inspect_function_pointers", nullptr);
+    PyObject *pointers = PyObject_CallMethod(module, "_inspect_function_pointers", nullptr);
     Py_DECREF(module);
     if (pointers == nullptr) {
         const bool transient = take_python_error(cause, sizeof(cause), &interrupted);
@@ -191,31 +222,43 @@ bool ensure_fn_table(FnTable table) noexcept {
     }
     if (!PyDict_Check(pointers)) {
         Py_DECREF(pointers);
-        std::snprintf(message, sizeof(message),
-                      "internal cuda.core error, please report: %s._inspect_function_pointers() did not return a dict",
-                      module_name(table));
+        std::snprintf(
+            message,
+            sizeof(message),
+            "internal cuda.core error, please report: %s._inspect_function_pointers() did not return a dict",
+            module_name(table)
+        );
         record_failure(table, message);
         return false;
     }
     for (std::size_t i = 0; i < count; ++i) {
-        PyObject* item = PyDict_GetItemString(pointers, entries[i].key);  // borrowed; no error on a miss
+        PyObject *item = PyDict_GetItemString(pointers, entries[i].key);  // borrowed; no error on a miss
         if (item == nullptr) {
             Py_DECREF(pointers);
-            std::snprintf(message, sizeof(message),
-                          "the installed cuda-bindings has no entry for %s (%s). This cuda.core build used a "
-                          "cuda.h that names this symbol differently from the installed cuda-bindings. Install the "
-                          "cuda-bindings this cuda.core requires",
-                          entries[i].name, entries[i].key);
+            std::snprintf(
+                message,
+                sizeof(message),
+                "the installed cuda-bindings has no entry for %s (%s). This cuda.core build used a "
+                "cuda.h that names this symbol differently from the installed cuda-bindings. Install the "
+                "cuda-bindings this cuda.core requires",
+                entries[i].name,
+                entries[i].key
+            );
             record_failure(table, message);
             return false;
         }
-        void* address = PyLong_AsVoidPtr(item);
+        void *address = PyLong_AsVoidPtr(item);
         if (address == nullptr && PyErr_Occurred()) {
             Py_DECREF(pointers);
             take_python_error(cause, sizeof(cause), &interrupted);
-            std::snprintf(message, sizeof(message),
-                          "internal cuda.core error, please report: the entry for %s in %s is not an address: %s",
-                          entries[i].key, module_name(table), cause);
+            std::snprintf(
+                message,
+                sizeof(message),
+                "internal cuda.core error, please report: the entry for %s in %s is not an address: %s",
+                entries[i].key,
+                module_name(table),
+                cause
+            );
             record_failure(table, message);
             return false;
         }
@@ -230,11 +273,16 @@ bool ensure_fn_table(FnTable table) noexcept {
     if (table == FnTable::driver) {
         for (std::size_t i = 0; i < count; ++i) {
             if (values[i] == nullptr && entries[i].introduced <= CUDA_CORE_BUILD_MAJOR * 1000) {
-                std::snprintf(message, sizeof(message),
-                              "the installed CUDA driver lacks %s, which every CUDA %d driver provides. "
-                              "CUDA %d.%d introduced this function. This cuda.core build needs a newer driver",
-                              entries[i].name, CUDA_CORE_BUILD_MAJOR, entries[i].introduced / 1000,
-                              entries[i].introduced / 10 % 100);
+                std::snprintf(
+                    message,
+                    sizeof(message),
+                    "the installed CUDA driver lacks %s, which every CUDA %d driver provides. "
+                    "CUDA %d.%d introduced this function. This cuda.core build needs a newer driver",
+                    entries[i].name,
+                    CUDA_CORE_BUILD_MAJOR,
+                    entries[i].introduced / 1000,
+                    entries[i].introduced / 10 % 100
+                );
                 record_failure(table, message);
                 return false;
             }
@@ -254,17 +302,24 @@ bool ensure_fn_table(FnTable table) noexcept {
     return true;
 }
 
-void report_unavailable_fn(FnTable table, const char* name) noexcept {
+void
+report_unavailable_fn(FnTable table, const char *name) noexcept
+{
     char reason[sizeof(fill_error[0])];
     const bool failed_fill = fn_table_error(table, reason, sizeof(reason));
     char message[768];
     if (failed_fill) {
         std::snprintf(message, sizeof(message), "cuda.core could not call %s: %s", name, reason);
-    } else {
-        std::snprintf(message, sizeof(message),
-                      "internal cuda.core error, please report: cuda.core called %s but the installed %s does not "
-                      "provide it. A feature gate is missing or wrong. The call returned an error instead.",
-                      name, library_name(table));
+    }
+    else {
+        std::snprintf(
+            message,
+            sizeof(message),
+            "internal cuda.core error, please report: cuda.core called %s but the installed %s does not "
+            "provide it. A feature gate is missing or wrong. The call returned an error instead.",
+            name,
+            library_name(table)
+        );
     }
     if (table == FnTable::driver) {
         // The trampoline returns CUDA_ERROR_NOT_INITIALIZED. The Cython error

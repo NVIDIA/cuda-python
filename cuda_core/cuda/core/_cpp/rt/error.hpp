@@ -40,21 +40,21 @@ extern thread_local CUresult err;
 // Report a failed CUDA call. `detail` replaces the default "failed" wording,
 // e.g. "skipped (context activation failed; resource leaked)".
 // CUDA_ERROR_DEINITIALIZED (driver shutting down) is never reported.
-void report_cuda_error(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
+void report_cuda_error(const char *operation, CUresult status, const char *detail = nullptr) noexcept;
 
 // Report a message that is not tied to a CUresult.
 // Implemented in py_report.cpp
-void report_message(const char* message) noexcept;
+void report_message(const char *message) noexcept;
 
 // Report a failed NVRTC/NVVM/nvJitLink call by raw status code.
-void report_status_code(const char* operation, long code) noexcept;
+void report_status_code(const char *operation, long code) noexcept;
 
 // Attach a failed CUDA call to the Python exception currently being handled
 // (PEP 678 note, Python 3.11+): for rollback failures inside `except` blocks
 // whose original exception is about to be re-raised. When no exception is
 // being handled or notes are unavailable, falls back to report_cuda_error().
 // Implemented in py_report.cpp
-void attach_rollback_failure(const char* operation, CUresult status, const char* detail = nullptr) noexcept;
+void attach_rollback_failure(const char *operation, CUresult status, const char *detail = nullptr) noexcept;
 
 // Detail recorded by a context-scoped helper for the CUresult it is about to
 // return, e.g. that the caller's context could not be restored. The Cython
@@ -63,14 +63,14 @@ void attach_rollback_failure(const char* operation, CUresult status, const char*
 // thread) and clears it when `status` is the CUresult it was recorded for, and
 // returns nullptr otherwise, so a detail whose status was never raised cannot
 // attach to an unrelated error.
-const char* take_last_error_detail(CUresult status) noexcept;
+const char *take_last_error_detail(CUresult status) noexcept;
 void clear_last_error_detail() noexcept;
 
 // Record why the driver function table is unavailable. The reason becomes the
 // detail of the CUDA_ERROR_NOT_INITIALIZED that the trampoline is about to
 // return (see driver_api.hpp), so the raised CUDAError explains the failed
 // fill and does not suggest a missed cuInit() call. Implemented in error.cpp.
-void note_driver_table_failure(const char* reason) noexcept;
+void note_driver_table_failure(const char *reason) noexcept;
 
 // Tests only: make the next context restoration on this thread fail with
 // `status`, leaving the target context current as a real failure would.

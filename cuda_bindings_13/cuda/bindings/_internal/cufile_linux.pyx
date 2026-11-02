@@ -3,10 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=20df7b33c9628ffefdce815bf9ffa31e635a9410ef0156145ced38a6e092d7f1
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=38e48c1ea5af3be92228b849ae38423ddcf662dc7c50d1bf8fea3e01a5b05f71
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+cimport cython as _cyb_cython
+from libc.stdint cimport intptr_t
+from libcpp cimport bool as _cyb_bool
 
 cdef extern from * nogil:
     """
@@ -43,10 +47,6 @@ cdef extern from * nogil:
 cdef extern from "<dlfcn.h>":
     void* _cyb_dlsym "dlsym"(void*, const char*) nogil
     const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
-
-cimport cython as _cyb_cython
-from libc.stdint cimport intptr_t
-from libcpp cimport bool as _cyb_bool
 
 import threading as _cyb_threading
 

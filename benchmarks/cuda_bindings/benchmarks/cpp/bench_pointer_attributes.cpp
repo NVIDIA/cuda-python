@@ -9,18 +9,20 @@
 #include <cstdlib>
 #include <iostream>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup: init CUDA, allocate memory
@@ -53,7 +55,7 @@ int main(int argc, char** argv) {
     {
         unsigned int memory_type = 0;
         CUdeviceptr dev_ptr_out = 0;
-        void* host_ptr_out = nullptr;
+        void *host_ptr_out = nullptr;
         unsigned long long buffer_id = 0;
 
         CUpointer_attribute attrs[4] = {
@@ -62,13 +64,10 @@ int main(int argc, char** argv) {
             CU_POINTER_ATTRIBUTE_HOST_POINTER,
             CU_POINTER_ATTRIBUTE_BUFFER_ID,
         };
-        void* data[4] = {&memory_type, &dev_ptr_out, &host_ptr_out, &buffer_id};
+        void *data[4] = {&memory_type, &dev_ptr_out, &host_ptr_out, &buffer_id};
 
         suite.run("pointer_attributes.pointer_get_attributes", [&]() {
-            check_cu(
-                cuPointerGetAttributes(4, attrs, data, ptr),
-                "cuPointerGetAttributes failed"
-            );
+            check_cu(cuPointerGetAttributes(4, attrs, data, ptr), "cuPointerGetAttributes failed");
         });
     }
 
