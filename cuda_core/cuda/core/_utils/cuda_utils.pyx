@@ -45,6 +45,18 @@ class CUDAError(Exception):
     """
 
 
+class CUDAOutOfMemoryError(CUDAError, MemoryError):
+    """Raised when a CUDA driver or runtime call fails for lack of memory.
+
+    ``CUDA_ERROR_OUT_OF_MEMORY`` and ``cudaErrorMemoryAllocation`` raise this
+    class. It is both a :class:`CUDAError` and a :class:`MemoryError`, so code
+    that catches :class:`MemoryError` to retry with a smaller request handles
+    ``cuda.core`` the same way as other array libraries.
+
+    .. versionadded:: 1.3.0
+    """
+
+
 class CUDAWarning(RuntimeWarning):
     """Warning issued when ``cuda.core`` hits a CUDA error it cannot raise.
 
@@ -163,6 +175,7 @@ cdef int _raise_nvjitlink_error(
 
 
 _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
+cdef object _RUNTIME_OUT_OF_MEMORY = runtime.cudaError_t.cudaErrorMemoryAllocation
 _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
@@ -182,14 +195,18 @@ cdef int _raise_driver_error(cydriver.CUresult error) except -1 nogil:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
     desc_err = cydriver.cuGetErrorString(error, &desc)
     with gil:
+        exc_type = (
+            CUDAOutOfMemoryError if error == cydriver.CUresult.CUDA_ERROR_OUT_OF_MEMORY
+            else CUDAError
+        )
         # TODO: consider lower this to Cython
         expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
         if expl is not None:
-            exc = CUDAError(f"{name.decode()}: {expl}")
+            exc = exc_type(f"{name.decode()}: {expl}")
         elif desc_err != cydriver.CUresult.CUDA_SUCCESS:
-            exc = CUDAError(name.decode())
+            exc = exc_type(name.decode())
         else:
-            exc = CUDAError(f"{name.decode()}: {desc.decode()}")
+            exc = exc_type(f"{name.decode()}: {desc.decode()}")
         if detail != NULL:
             _attach_detail(exc, detail.decode())
         raise exc
@@ -199,14 +216,15 @@ cdef int _raise_runtime_error(error) except -1:
     # `_check_error()` reaches this path only for `runtime.cudaError_t` values.
     # Use the enum name directly because Windows hybrid cudart can lag that table.
     name = error.name
+    exc_type = CUDAOutOfMemoryError if error == _RUNTIME_OUT_OF_MEMORY else CUDAError
     expl = RUNTIME_CUDA_ERROR_EXPLANATIONS.get(int(error))
     if expl is not None:
-        raise CUDAError(f"{name}: {expl}")
+        raise exc_type(f"{name}: {expl}")
     desc_err, desc = runtime.cudaGetErrorString(error)
     if desc_err != _RUNTIME_SUCCESS:
-        raise CUDAError(f"{name}")
+        raise exc_type(f"{name}")
     desc = desc.decode()
-    raise CUDAError(f"{name}: {desc}")
+    raise exc_type(f"{name}: {desc}")
 
 
 cdef int _raise_nvrtc_status_error(error, handle) except -1:
