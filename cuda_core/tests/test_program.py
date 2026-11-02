@@ -873,7 +873,7 @@ def test_cpp_program_with_extra_sources():
 
 def test_program_options_as_bytes_nvrtc():
     """Test ProgramOptions.as_bytes() for NVRTC backend"""
-    options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
+    options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True, pch=True)
     nvrtc_options = options.as_bytes(CompilerBackendType.NVRTC)
     assert isinstance(nvrtc_options, list)
     assert all(isinstance(opt, bytes) for opt in nvrtc_options)
@@ -882,6 +882,7 @@ def test_program_options_as_bytes_nvrtc():
     assert "--device-debug" in options_str
     assert "--generate-line-info" in options_str
     assert "--ftz=true" in options_str
+    assert "--pch" in options_str
 
 
 @nvvm_available
