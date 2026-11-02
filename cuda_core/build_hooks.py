@@ -14,9 +14,7 @@ import os
 import re
 import sys
 import tempfile
-import threading
 import zipfile
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import Cython as _Cython
@@ -700,17 +698,7 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     debug = config_settings.get("debug", False) if config_settings else False
-    if sys.platform == "win32" and COMPILE_FOR_COVERAGE:
-        # Importing the coverage-built bindings can exhaust the interpreter's
-        # main-thread stack. Set the worker stack inside pip's build subprocess.
-        previous_stack_size = threading.stack_size(8 * 1024 * 1024)
-        try:
-            with ThreadPoolExecutor(max_workers=1) as pool:
-                config_key = pool.submit(_build_cuda_core, debug=debug).result()
-        finally:
-            threading.stack_size(previous_stack_size)
-    else:
-        config_key = _build_cuda_core(debug=debug)
+    config_key = _build_cuda_core(debug=debug)
     wheel_name = _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
     record_build_config(config_key)
     return wheel_name
