@@ -242,12 +242,15 @@ cdef class KernelAttributes:
         Requires the CUDA 13 build and CUDA driver 13.3 or newer.
         This attribute is read-only.
         """
-        if cy_driver_version() < (13, 3, 0):
-            raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
-        return bool(self._get_cached_attribute(
-            self._effective_device_id(),
-            cydriver.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED,
-        ))
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if cy_driver_version() < (13, 3, 0):
+                raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
+            return bool(self._get_cached_attribute(
+                self._effective_device_id(),
+                cydriver.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED,
+            ))
+        ELSE:
+            raise NotImplementedError("Device node update queries require the CUDA 13 build of cuda.core")
 
 
 MaxPotentialBlockSizeOccupancyResult = namedtuple(

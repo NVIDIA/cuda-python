@@ -65,7 +65,8 @@ from cuda.core._rt cimport (
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
-from cuda.core._utils.version cimport cy_driver_version
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.version cimport cy_driver_version
 
 from cuda.core._host_callback cimport (
     _resolve_host_callback,
@@ -150,12 +151,15 @@ cdef class GraphNode:
         GN_check_valid(self)
         if self._is_entry:
             raise ValueError("The entry node has no driver-assigned ID")
-        cdef unsigned int node_id
-        if cy_driver_version() < (13, 1, 0):
-            raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetLocalId(as_cu(self._h_node), &node_id))
-        return node_id
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int node_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetLocalId(as_cu(self._h_node), &node_id))
+            return node_id
+        ELSE:
+            raise NotImplementedError("Graph node IDs require the CUDA 13 build of cuda.core")
 
     @property
     def tools_id(self) -> int:
@@ -164,12 +168,15 @@ cdef class GraphNode:
         GN_check_valid(self)
         if self._is_entry:
             raise ValueError("The entry node has no driver-assigned ID")
-        cdef unsigned long long node_id
-        if cy_driver_version() < (13, 1, 0):
-            raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphNodeGetToolsId(as_cu(self._h_node), &node_id))
-        return node_id
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned long long node_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetToolsId(as_cu(self._h_node), &node_id))
+            return node_id
+        ELSE:
+            raise NotImplementedError("Graph node IDs require the CUDA 13 build of cuda.core")
 
     @property
     def graph(self) -> GraphDefinition:

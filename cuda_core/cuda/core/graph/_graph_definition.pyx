@@ -23,7 +23,8 @@ from cuda.core._rt cimport (
     create_graph_node_handle,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core._utils.version cimport cy_driver_version
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.version cimport cy_driver_version
 
 from typing import TYPE_CHECKING
 
@@ -150,12 +151,15 @@ cdef class GraphDefinition:
         Requires the CUDA 13 build and CUDA driver 13.1 or newer.
         """
         GD_check_valid(self)
-        cdef unsigned int graph_id
-        if cy_driver_version() < (13, 1, 0):
-            raise NotImplementedError("Graph IDs require CUDA driver 13.1 or newer")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuGraphGetId(as_cu(self._h_graph), &graph_id))
-        return graph_id
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int graph_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require CUDA driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphGetId(as_cu(self._h_graph), &graph_id))
+            return graph_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require the CUDA 13 build of cuda.core")
 
     @property
     def is_valid(self) -> bool:
