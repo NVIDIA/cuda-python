@@ -73,6 +73,7 @@ def test_pixi_check_reports_core_pin_drift(pixi_checkout, capsys):
 
 @pytest.mark.agent_authored(model="gpt-6")
 def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, monkeypatch):
+    current = load_config(ROOT / "ci" / "versions.yml").package_for_release_status("current")
     for package_root, filename in (("cuda_bindings_13", "pyproject.toml"), ("cuda_python", "setup.py")):
         destination = tmp_path / package_root / filename
         destination.parent.mkdir()
@@ -90,7 +91,7 @@ def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, mon
     git("init", "--quiet")
     git("add", ".")
     git("commit", "--quiet", "-m", "Current CUDA 13 release")
-    git("tag", "v13.4.3")
+    git("tag", f"v{current.toolkit_version}")
     (tmp_path / "maintenance-change").touch()
     git("add", ".")
     git("commit", "--quiet", "-m", "CUDA 12 maintenance milestone")
@@ -102,5 +103,5 @@ def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, mon
     metadata = {}
     monkeypatch.setattr(setuptools, "setup", lambda **kwargs: metadata.update(kwargs))
     runpy.run_path(str(tmp_path / "cuda_python" / "setup.py"))
-    assert Version(bindings_version).release[:2] == (13, 4)
+    assert Version(bindings_version).release[:2] == current.toolkit[:2]
     assert metadata["version"] == bindings_version
