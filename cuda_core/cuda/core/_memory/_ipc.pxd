@@ -55,7 +55,7 @@ cdef class IPCAllocationHandle:
 
 # Descriptor of a VirtualMemoryResource buffer: one exported handle per
 # physical allocation that backs the buffer, in address order.
-cdef class VirtualMemoryIPCBufferDescriptor(IPCBufferDescriptor):
+cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
     cdef readonly int   _handle_type
     cdef readonly tuple _chunk_sizes
     cdef readonly tuple _handles

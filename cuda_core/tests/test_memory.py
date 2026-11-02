@@ -3124,30 +3124,96 @@ def test_vmm_options_store_peers_as_tuple():
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
-@pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
+@pytest.mark.parametrize("location_type", ["host", "host_numa"])
 def test_vmm_host_location_types_report_host_accessible(init_cuda, location_type):
     """Every host-backed location type reports is_host_accessible; only "host" needs handle_type=None.
 
-    __init__ classifies "host", "host_numa" and "host_numa_current" alike when
+    __init__ classifies "host" and "host_numa" alike when
     deciding the resource is not bound to a device, so is_host_accessible must
     agree; otherwise a NUMA-located resource claims to be neither host- nor
     device-accessible. The driver rejects an exportable handle type for HOST
     memory only, so the default handle type is rejected at construction for
-    "host" and accepted for the NUMA location types.
+    "host" and accepted for "host_numa".
     """
     device = Device()
     device.set_current()
+    numa = {"numa_id": 0} if location_type == "host_numa" else {}
     if location_type == "host":
         with pytest.raises(ValueError, match="handle_type=None"):
             VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
     else:
-        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type, **numa))
     mr = VirtualMemoryResource(
-        device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None)
+        device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None, **numa)
     )
     assert mr.device is None
     assert mr.is_host_accessible is True
     assert mr.device_id == -1
+
+
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_vmm_host_numa_allocates_and_copies(init_cuda):
+    """A "host_numa" resource allocates on its NUMA node, and the host can use the memory.
+
+    The driver rejects CU_MEM_LOCATION_TYPE_HOST_NUMA with location id -1, so
+    the allocation works only if numa_id reaches the allocation properties
+    (#2694). The resource grants access to its own location only, so the data
+    goes through the host. A per-call config cannot move the buffer to another
+    node.
+    """
+    device = Device()
+    device.set_current()
+    props = device.properties
+    if not props.host_numa_virtual_memory_management_supported:
+        pytest.skip("Host NUMA virtual memory management is not supported on this device")
+    if props.host_numa_id < 0:
+        pytest.skip("The system reports no host NUMA node")
+    mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(location_type="host_numa", numa_id=props.host_numa_id, handle_type=None),
+    )
+    with assert_no_cuda_warning():
+        buf = mr.allocate(4096)
+        try:
+            assert buf.is_host_accessible
+            ctypes.memset(int(buf.handle), 0xAB, buf.size)
+            assert ctypes.string_at(int(buf.handle), buf.size) == b"\xab" * buf.size
+            other_node = VirtualMemoryResourceOptions(
+                location_type="host_numa", numa_id=props.host_numa_id + 1, handle_type=None
+            )
+            with pytest.raises(ValueError, match="config.numa_id"):
+                mr.modify_allocation(buf, 2 * buf.size, other_node)
+        finally:
+            buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_vmm_host_numa_current_rejected(init_cuda):
+    """The driver does not accept "host_numa_current" for physical allocations, so construction rejects it."""
+    device = Device()
+    device.set_current()
+    with pytest.raises(ValueError, match="does not accept it for physical allocations"):
+        VirtualMemoryResource(
+            device, config=VirtualMemoryResourceOptions(location_type="host_numa_current", handle_type=None)
+        )
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    ("options", "match"),
+    [
+        pytest.param({"location_type": "host_numa"}, "requires numa_id", id="host_numa-missing"),
+        pytest.param({"location_type": "host_numa", "numa_id": -1}, "numa_id must be >= 0", id="host_numa-negative"),
+        pytest.param({"location_type": "host", "numa_id": 0}, "only valid with", id="host-misplaced"),
+        pytest.param({"location_type": "device", "numa_id": 0}, "only valid with", id="device-misplaced"),
+    ],
+)
+def test_vmm_numa_id_validation(init_cuda, options, match):
+    """numa_id is required for "host_numa", must be non-negative, and is rejected for other location types."""
+    device = _vmm_device_or_skip()
+    with pytest.raises(ValueError, match=match):
+        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(handle_type=None, **options))
 
 
 def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):
