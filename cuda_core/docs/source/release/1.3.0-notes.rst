@@ -45,6 +45,12 @@ Breaking Changes
 New features
 ------------
 
+- Added read-only ``GraphDefinition.id``, ``Graph.id``, ``GraphNode.local_id``
+  and ``GraphNode.tools_id`` properties (CUDA 13.1+), and
+  ``KernelAttributes.device_node_update_supported`` (CUDA 13.3+).
+  The existing ``GraphNode.graph`` property provides containing-graph navigation.
+  (`#2360 <https://github.com/NVIDIA/cuda-python/issues/2360>`__)
+
 - Added incremental linking to :class:`Linker` through
   ``LinkerOptions(incremental=True)`` on nvJitLink 13.2 or newer. A partial
   native result is returned as a CUBIN and can be passed directly to another

@@ -235,6 +235,20 @@ cdef class KernelAttributes:
             cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         )
 
+    @property
+    def device_node_update_supported(self) -> bool:
+        """bool : Whether this kernel supports device-side graph node updates.
+
+        Requires the CUDA 13 build and CUDA driver 13.3 or newer.
+        This attribute is read-only.
+        """
+        if cy_driver_version() < (13, 3, 0):
+            raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
+        return bool(self._get_cached_attribute(
+            self._effective_device_id(),
+            cydriver.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED,
+        ))
+
 
 MaxPotentialBlockSizeOccupancyResult = namedtuple(
     "MaxPotentialBlockSizeOccupancyResult", ("min_grid_size", "max_block_size")

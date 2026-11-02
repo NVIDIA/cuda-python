@@ -42,6 +42,14 @@ class GraphNode:
             The node type enum value, or None for the entry node.
         """
     @property
+    def local_id(self) -> int:
+        """The node's ID within its graph, as used in GraphViz DOT output.
+        """
+    @property
+    def tools_id(self) -> int:
+        """The node's ID reported by CUDA profiling and tooling interfaces.
+        """
+    @property
     def graph(self) -> GraphDefinition:
         """Return the GraphDefinition this node belongs to."""
     @property

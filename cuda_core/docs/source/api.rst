@@ -137,6 +137,15 @@ CPU overhead. Graphs can be constructed in two ways:
 edges. Both produce an executable :class:`~graph.Graph` that can be
 launched on a :class:`Stream`.
 
+With CUDA >= 13.1, graph definitions and
+executable graphs expose a read-only integer, ``id``. Nodes expose ``local_id``
+(unique within their graph) and ``tools_id`` (for profiler correlation).
+Use ``node.graph`` to obtain the containing graph definition; this view
+shares ownership of the underlying graph. IDs are ephemeral, driver-assigned.
+
+``kernel.attributes.device_node_update_supported`` reports whether a kernel
+supports device-side node updates. It requires CUDA >= 13.3.
+
 .. currentmodule:: cuda.core
 
 .. autosummary::

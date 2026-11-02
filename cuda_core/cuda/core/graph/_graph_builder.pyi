@@ -469,6 +469,12 @@ class Graph:
     def is_closed(self) -> bool:
         """Whether this executable graph has been closed."""
     @property
+    def id(self) -> int:
+        """The driver-assigned executable graph ID, as used in GraphViz DOT output.
+
+        Requires the CUDA 13 build and CUDA driver 13.1 or newer.
+        """
+    @property
     def handle(self) -> driver.CUgraphExec:
         """Return the underlying ``CUgraphExec`` object.
 

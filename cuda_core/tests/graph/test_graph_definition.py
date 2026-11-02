@@ -821,6 +821,30 @@ def test_graphdef_handle_valid(init_cuda):
     assert int(sample_graphdef.handle) != 0
 
 
+def test_graph_identity_attributes(init_cuda):
+    from cuda.core._utils.version import driver_version
+
+    definition = GraphDefinition()
+    node = definition.empty()
+    other = definition.empty()
+    graph = definition.instantiate()
+
+    try:
+        if driver_version() < (13, 1, 0):
+            with pytest.raises(NotImplementedError):
+                _ = definition.id
+            with pytest.raises(NotImplementedError):
+                _ = graph.id
+            return
+        assert isinstance(definition.id, int)
+        assert isinstance(graph.id, int)
+        assert node.graph == definition
+        assert node.local_id != other.local_id
+        assert node.tools_id != other.tools_id
+    finally:
+        graph.close()
+
+
 def test_graphdef_entry_is_virtual(init_cuda):
     """Internal entry node is virtual (no pred/succ, type is None)."""
     sample_graphdef = GraphDefinition()
