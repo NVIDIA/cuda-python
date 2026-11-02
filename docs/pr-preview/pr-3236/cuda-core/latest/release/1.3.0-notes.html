@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b0bb3e6c"></script>
+    <script src="../_static/documentation_options.js?v=353d2ad3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev287';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev317';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -588,6 +588,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.launch.html">cuda.core.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.host_launch.html">cuda.core.host_launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Context.html">cuda.core.Context</a></li>
@@ -665,6 +666,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAOutOfMemoryError.html">cuda.core.CUDAOutOfMemoryError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
@@ -821,6 +823,13 @@ no longer surface as <code class="docutils literal notranslate"><span class="pre
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.host_launch.html#cuda.core.host_launch" title="cuda.core.host_launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">host_launch()</span></code></a>, which enqueues a host function on a stream in stream
+order: a Python callable, or a ctypes function pointer with the <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>
+prototype, which <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> passes to the driver as is, so a pointer to
+compiled code runs without the GIL. It is the stream-side counterpart of
+<a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.callback()</span></code></a> and accepts the same <code class="docutils literal notranslate"><span class="pre">fn</span></code> and
+<code class="docutils literal notranslate"><span class="pre">user_data</span></code> forms.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2058">#2058</a>)</p></li>
 <li><p>Added incremental linking to <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> through
 <code class="docutils literal notranslate"><span class="pre">LinkerOptions(incremental=True)</span></code> on nvJitLink 13.2 or newer. A partial
 native result is returned as a CUBIN and can be passed directly to another
@@ -858,6 +867,11 @@ method, also on the other two resources, returns unused pool memory to the
 OS. Setting an attribute and <code class="docutils literal notranslate"><span class="pre">trim()</span></code> take effect immediately, even during
 a stream capture, and leave the capture valid.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3261">#3261</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.CUDAOutOfMemoryError.html#cuda.core.CUDAOutOfMemoryError" title="cuda.core.CUDAOutOfMemoryError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAOutOfMemoryError</span></code></a>, raised for <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_OUT_OF_MEMORY</span></code>
+and <code class="docutils literal notranslate"><span class="pre">cudaErrorMemoryAllocation</span></code>. It derives from both <a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a>
+and <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#MemoryError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryError</span></code></a>, so <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">MemoryError</span></code> catches an allocation
+that fails in <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> as it does in CuPy, RMM and NumPy. Code that
+catches <a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> is unaffected.</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a>, the <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> subclass that
 <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> returns. Closing it on a capturing stream
 other than a default stream raises, because virtual memory deallocation
@@ -886,6 +900,12 @@ in the receiver. Fabric handles are not shared yet.
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">register()</span></code> on a <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> or a
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> now raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the resource
+already has a different UUID. The check used to be an <code class="docutils literal notranslate"><span class="pre">assert</span></code>, so under
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-O</span></code> a mismatched UUID silently rewrote the resource’s UUID and
+corrupted the IPC registry.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2697">#2697</a>)</p></li>
 <li><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> or a <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a>
 sent through <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> now names its device, and the
 <code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code> <code class="docutils literal notranslate"><span class="pre">peers</span></code>, by UUID. The receiving process maps
