@@ -21,6 +21,7 @@ Devices and execution
    Device
    Host
    launch
+   host_launch
 
    :template: autosummary/cyclass.rst
 
@@ -326,6 +327,7 @@ reported as a warning instead.
    :toctree: generated/
 
    CUDAError
+   CUDAOutOfMemoryError
    NVRTCError
    CUDAWarning
 

@@ -10,6 +10,7 @@ import pytest
 import cuda.cuda as cuda
 import cuda.cudart as cudart
 from cuda.bindings import runtime
+from cuda_python_test_helpers.memory import POOL_SIZE, supports_memory_pools
 
 
 def isSuccess(err):
@@ -24,11 +25,6 @@ def driverVersionLessThan(target):
     err, version = cudart.cudaDriverGetVersion()
     assertSuccess(err)
     return version < target
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return isSuccess(err) and isSupported
 
 
 def supportsSparseTexturesDeviceFilter():
@@ -418,13 +414,14 @@ def test_cudart_cudaGetDeviceProperties():
 
 
 @pytest.mark.skipif(
-    driverVersionLessThan(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driverVersionLessThan(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_cudart_MemPool_attr():
     poolProps = cudart.cudaMemPoolProps()
     poolProps.allocType = cudart.cudaMemAllocationType.cudaMemAllocationTypePinned
     poolProps.location.id = 0
     poolProps.location.type = cudart.cudaMemLocationType.cudaMemLocationTypeDevice
+    poolProps.maxSize = POOL_SIZE
 
     attr_list = [None] * 8
     err, pool = cudart.cudaMemPoolCreate(poolProps)

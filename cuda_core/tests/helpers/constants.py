@@ -3,12 +3,8 @@
 
 """Constants shared across the cuda_core test suite."""
 
-# Cap for memory pools created by tests. A pool created without an explicit
-# max_size instead reserves a system-dependent window that scales with
-# installed device memory -- hundreds of GiB on large-memory GPUs. The
-# per-process virtual address budget is bounded (~1 TB on Windows MCDM), and a
-# reservation is not returned until the pool is torn down and its
-# stream-ordered frees retire, so oversized windows accumulate across a session
-# and eventually starve later pool creations with CUDA_ERROR_OUT_OF_MEMORY
-# (issue #2381). See AGENTS.md in the tests directory.
-POOL_SIZE = 2097152  # 2 MiB
+# Cap for memory pools created by tests; see cuda_python_test_helpers.memory
+# for why it matters (issue #2381) and AGENTS.md in the tests directory.
+from cuda_python_test_helpers.memory import POOL_SIZE
+
+__all__ = ["POOL_SIZE"]

@@ -66,7 +66,7 @@ from cuda.core._rt cimport (
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
 
-from cuda.core.graph._host_callback cimport (
+from cuda.core._host_callback cimport (
     _resolve_host_callback,
 )
 

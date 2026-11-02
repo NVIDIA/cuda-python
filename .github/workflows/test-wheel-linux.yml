@@ -185,7 +185,7 @@ jobs:
 
       - name: Download cuda-pathfinder build artifacts
         if: ${{ env.TEST_PATHFINDER == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true' }}
-        uses: NVIDIA/cuda-python/.github/actions/download-artifact-retry@f20d661666a5c92b757748ca237d3592ac3e942f  # introduced in #3037
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
@@ -194,7 +194,7 @@ jobs:
 
       - name: Download cuda-python build artifacts
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'main' }}
-        uses: NVIDIA/cuda-python/.github/actions/download-artifact-retry@f20d661666a5c92b757748ca237d3592ac3e942f  # introduced in #3037
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: cuda-python-wheel
           path: .
@@ -204,21 +204,22 @@ jobs:
       - name: Download cuda.bindings build artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
                 env.BINDINGS_SOURCE == 'main' }}
-        uses: NVIDIA/cuda-python/.github/actions/download-artifact-retry@f20d661666a5c92b757748ca237d3592ac3e942f  # introduced in #3037
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
+      - name: Look up prior-branch artifacts run ID
+        id: prior
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
                 env.BINDINGS_SOURCE == 'backport' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-          # gh is needed for artifact fetching.
+          # gh is needed for lookup-run-id, which calls gh api.
           mkdir -p -m 755 /etc/apt/keyrings \
                 && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
                 && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
@@ -238,27 +239,39 @@ jobs:
           fi
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id \
             "${LOOKUP_ARGS[@]}" NVIDIA/cuda-python "CI")
+          echo "run-id=${LATEST_PRIOR_RUN_ID}" >> "${GITHUB_OUTPUT}"
+          echo "artifact-pattern=${OLD_ARTIFACT_PATTERN}" >> "${GITHUB_OUTPUT}"
 
-          gh run download \
-            "${LATEST_PRIOR_RUN_ID}" \
-            -p "${OLD_ARTIFACT_PATTERN}" \
-            -R NVIDIA/cuda-python
-          OLD_ARTIFACT_DIR=$(compgen -G "${OLD_ARTIFACT_PATTERN}")
-          test -d "${OLD_ARTIFACT_DIR}"
-          ls -al "${OLD_ARTIFACT_DIR}"
-          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
-          mv "${OLD_ARTIFACT_DIR}"/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
-          rmdir "${OLD_ARTIFACT_DIR}"
+      - name: Download prior-branch cuda.bindings build artifacts
+        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
+                env.BINDINGS_SOURCE == 'backport' }}
+        uses: $/.github/actions/download-artifact-retry
+        with:
+          pattern: ${{ steps.prior.outputs.artifact-pattern }}
+          merge-multiple: "true"
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          run-id: ${{ steps.prior.outputs.run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-          if ${{ env.TEST_PYTHON == 'true' }}; then
-            gh run download \
-              "${LATEST_PRIOR_RUN_ID}" \
-              -p cuda-python-wheel \
-              -R NVIDIA/cuda-python
-            ls -al cuda-python-wheel
-            mv cuda-python-wheel/*.whl .
-            rmdir cuda-python-wheel
+      - name: Download prior-branch cuda-python wheel
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'backport' }}
+        uses: $/.github/actions/download-artifact-retry
+        with:
+          name: cuda-python-wheel
+          path: .
+          run-id: ${{ steps.prior.outputs.run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify prior-branch artifact layout
+        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
+                env.BINDINGS_SOURCE == 'backport' }}
+        run: |
+          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-*.whl)
+          if [[ "${#bindings_wheels[@]}" -ne 1 ]] || [[ ! -f "${bindings_wheels[0]}" ]]; then
+            echo "::error::Expected exactly one cuda_bindings wheel in ${CUDA_BINDINGS_ARTIFACTS_DIR}; found: ${bindings_wheels[*]}"
+            exit 1
           fi
+          ls -al "${CUDA_BINDINGS_ARTIFACTS_DIR}"
 
       - name: Display structure of downloaded cuda-python artifacts
         if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'floor' }}
@@ -275,7 +288,7 @@ jobs:
 
       - name: Download cuda.bindings Cython tests
         if: ${{ env.TEST_BINDINGS == 'true' && env.SKIP_CYTHON_TEST == '0' }}
-        uses: NVIDIA/cuda-python/.github/actions/download-artifact-retry@f20d661666a5c92b757748ca237d3592ac3e942f  # introduced in #3037
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -290,7 +303,7 @@ jobs:
 
       - name: Download cuda.core build artifacts
         if: ${{ env.TEST_CORE == 'true' }}
-        uses: NVIDIA/cuda-python/.github/actions/download-artifact-retry@f20d661666a5c92b757748ca237d3592ac3e942f  # introduced in #3037
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -305,7 +318,7 @@ jobs:
 
       - name: Download cuda.core Cython tests
         if: ${{ env.TEST_CORE == 'true' && env.SKIP_CYTHON_TEST == '0' }}
-        uses: NVIDIA/cuda-python/.github/actions/download-artifact-retry@f20d661666a5c92b757748ca237d3592ac3e942f  # introduced in #3037
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
@@ -320,7 +333,7 @@ jobs:
 
       - name: Download cuda.core test binaries
         if: ${{ env.TEST_CORE == 'true' }}
-        uses: NVIDIA/cuda-python/.github/actions/download-artifact-retry@f20d661666a5c92b757748ca237d3592ac3e942f  # introduced in #3037
+        uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-test-binaries
           path: ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}
@@ -334,18 +347,11 @@ jobs:
           ls -lahR $CUDA_CORE_TEST_BINARIES_DIR
 
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: ${{ matrix.PY_VER }}
-          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.16') }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
-
-      - name: Harden pip
         # $/ resolves at the workflow's commit. ./ would resolve against the
         # inputs.sha checkout, which can predate this action.
-        uses: $/.github/actions/harden-pip
+        uses: $/.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ matrix.PY_VER }}
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}

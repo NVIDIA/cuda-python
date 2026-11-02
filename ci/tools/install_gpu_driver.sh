@@ -137,7 +137,21 @@ host_install() {
 
   ( cd "$d" \
     && sh installer.run --silent --dkms --no-questions \
-         --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" )
+         --accept-license --ui=none --no-cc-version-check --kernel-module-type="$KMT" ) || {
+    local installer_status=$? log
+    echo "::error::NVIDIA driver installer exited with status ${installer_status}" >&2
+    # The silent installer reports only a summary; expose the actual build errors.
+    for log in /var/log/nvidia-installer.log \
+               /var/lib/dkms/nvidia*/"$VERSION"/build/make.log \
+               /var/lib/dkms/nvidia*/"$VERSION"/*/*/log/make.log; do
+      if [ -f "$log" ]; then
+        echo "::group::${log}"
+        cat "$log" || echo "::warning::could not read ${log}" >&2
+        echo "::endgroup::"
+      fi
+    done
+    return "$installer_status"
+  }
   modprobe nvidia nvidia_uvm nvidia_modeset
 
   # Bring nvidia-persistenced back up. NVML state-changing calls from

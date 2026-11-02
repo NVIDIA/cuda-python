@@ -10,29 +10,19 @@ import tempfile
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.memory import (
+    POOL_SIZE,
+    supports_managed_memory,
+    supports_memory_pools,
+    xfail_graph_mempool_oom,
+)
 
-import cuda.bindings.runtime as cudart
 from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda.bindings._v2 import driver
 from cuda_python_test_helpers import driver_version_less_than
 
 # NULL dependency array: the node has no dependencies.
 NO_DEPS = 0
-
-# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
-# virtual address space of about twice the device memory, and that reservation
-# can fail on systems with a limited virtual address space.
-POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
-
-
-def supportsManagedMemory():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrManagedMemory, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
 def supportsCudaAPI(name):
@@ -279,7 +269,7 @@ def test_cuda_CUstreamBatchMemOpParams():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_cuda_memPool_attr():
     poolProps = driver.MemPoolProps_v1()
@@ -339,7 +329,7 @@ def test_cuda_memPool_attr():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
     ptr = driver.mem_alloc_managed(0x1000, driver.MemAttachFlags.GLOBAL.value)
@@ -381,7 +371,7 @@ def test_cuda_pointer_attr():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_pointer_get_attributes_device_ordinal():
     (value,) = driver.pointer_get_attributes([driver.PointerAttribute.DEVICE_ORDINAL], 0)
@@ -393,7 +383,7 @@ def test_pointer_get_attributes_device_ordinal():
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_pointer_allowed_handle_types_preserves_64_bits():
     ptr = driver.mem_alloc_managed(0x1000, driver.MemAttachFlags.GLOBAL.value)
@@ -403,7 +393,7 @@ def test_pointer_allowed_handle_types_preserves_64_bits():
         driver.mem_free_v2(ptr)
 
 
-@pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
+@pytest.mark.skipif(not supports_managed_memory(), reason="When new attributes were introduced")
 def test_cuda_mem_range_attr(device):
     size = 0x1000
     location_device = driver.MemLocation_v1()
@@ -452,29 +442,11 @@ def test_cuda_mem_range_attr(device):
     driver.mem_free_v2(ptr)
 
 
-@pytest.fixture
-def xfail_on_graph_mempool_oom():
-    """Return a check that xfails the calling test if the graph memory pool cannot be created.
-
-    The graph memory pool reserves virtual address space of about twice the
-    device memory, and unlike pools from cuMemPoolCreate it cannot be capped.
-    On systems with a limited virtual address space this reservation can fail
-    with CUDA_ERROR_OUT_OF_MEMORY, especially when another uncapped pool
-    already exists in the process.
-    """
-
-    def check(exc_type):
-        if exc_type is driver.OutOfMemoryError:
-            pytest.xfail("graph memory pool creation failed with CUDA_ERROR_OUT_OF_MEMORY")
-
-    return check
-
-
 @pytest.mark.skipif(
-    driver_version_less_than(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported"
+    driver_version_less_than(11040) or not supports_memory_pools(), reason="Mempool for graphs not supported"
 )
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
-def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
+def test_cuda_graphMem_attr(device):
     stream = driver.stream_create(0)
 
     graph = driver.graph_create(0)
@@ -492,8 +464,7 @@ def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
     except driver.OutOfMemoryError:
         driver.graph_destroy(graph)
         driver.stream_destroy_v2(stream)
-        xfail_on_graph_mempool_oom(driver.OutOfMemoryError)
-        raise
+        xfail_graph_mempool_oom()
     deps = node_array([allocNode])
     freeNode = driver.graph_add_mem_free_node(graph, ctypes.addressof(deps), 1, params.dptr)
 
@@ -594,7 +565,7 @@ def test_ffi_coverage_mapping_base_addr():
 
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_ffi_coverage_new_mempool_attributes():
     """Smoke-test all newly added MemPoolAttribute queries (driver errors for
@@ -603,6 +574,7 @@ def test_ffi_coverage_new_mempool_attributes():
     pool_props.alloc_type = driver.MemAllocationType.PINNED
     pool_props.location.id = 0
     pool_props.location.type = driver.MemLocationType.DEVICE
+    pool_props.max_size = POOL_SIZE
     pool = driver.mem_pool_create(pool_props)
     try:
         for attr in [
@@ -621,7 +593,7 @@ def test_ffi_coverage_new_mempool_attributes():
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
-@pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
+@pytest.mark.skipif(not supports_managed_memory(), reason="When new attributes were introduced")
 def test_ffi_coverage_new_mem_range_attributes():
     """Smoke-test all newly added MemRangeAttribute queries (scalar int)."""
     size = 0x1000

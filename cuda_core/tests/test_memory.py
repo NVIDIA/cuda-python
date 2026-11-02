@@ -45,6 +45,7 @@ from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import (
     Buffer,
+    CUDAOutOfMemoryError,
     CUDAWarning,
     Device,
     DeviceMemoryResource,
@@ -1941,6 +1942,38 @@ def test_vmm_buffers_alive_at_shutdown_are_freed_quietly(init_cuda):
     assert result.stderr == ""
 
 
+@pytest.mark.parametrize(
+    "options",
+    [
+        pytest.param({"addr_align": 3}, id="invalid-alignment"),
+        pytest.param({"peers": (-1,)}, id="invalid-peer"),
+    ],
+)
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_failed_vmm_allocation_does_not_block_another_resource(init_cuda, options):
+    """A failed allocation leaves its config unchanged and another VMM resource usable."""
+    device = _vmm_device_or_skip()
+    invalid_resource = _vmm_resource(device, **options)
+    error_match = "CUDA_ERROR_INVALID_VALUE" if "addr_align" in options else r"CUDA_ERROR_INVALID_(VALUE|DEVICE)"
+    with assert_no_cuda_warning(), pytest.raises(CUDAError, match=error_match):
+        invalid_resource.allocate(4096)
+    for name, value in options.items():
+        assert getattr(invalid_resource.config, name) == value
+
+    # Use a separate resource with valid options; the invalid configuration is unchanged.
+    resource = _vmm_resource(device)
+    buffer = resource.allocate(4096)
+    ptr, size = int(buffer.handle), buffer.size
+    try:
+        _vmm_fill(buffer, 0x5C)
+        assert _vmm_read(buffer, 0, 16) == bytes([0x5C]) * 16
+    finally:
+        with assert_no_cuda_warning():
+            buffer.close()
+    _vmm_assert_released([(ptr, size)])
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_failed_grow_leaves_input_intact(init_cuda):
@@ -2222,6 +2255,30 @@ def test_vmm_host_location_grow_and_close(init_cuda):
         grown.close()
         moved.close()
         assert moved.size == 0
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_device_memory_resource_out_of_memory_is_memory_error(init_cuda):
+    device = Device()
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    device.set_current()
+
+    mr = DeviceMemoryResource(device, options=DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    try:
+        # Larger than any device, and than the pool's max_size, which the
+        # driver rounds up to its allocation granularity.
+        with pytest.raises(MemoryError) as e:
+            mr.allocate(1 << 46, stream=device.default_stream)
+        assert isinstance(e.value, CUDAOutOfMemoryError)
+        assert isinstance(e.value, CUDAError)
+        assert "CUDA_ERROR_OUT_OF_MEMORY" in str(e.value)
+
+        # The failed request leaves the pool usable.
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+    finally:
+        mr.close()
 
 
 def test_device_memory_resource_with_options(init_cuda):

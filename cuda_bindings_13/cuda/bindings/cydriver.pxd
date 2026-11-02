@@ -3,18 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=650abadba73a2c94411e41b2ae235092bef45e6db706202bb779d8e8dd118375
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=76bc92829a6025611352b8808094ca11e65a8544a0ac60687fbd65d282d7aa77
 
 
 # <<<< PREAMBLE CONTENT >>>>
-
-cdef extern from "<type_traits>":
-    pass
 
 from libc.stdint cimport (
     uint32_t,
     uint64_t,
 )
+
+cdef extern from "<type_traits>":
+    pass
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>

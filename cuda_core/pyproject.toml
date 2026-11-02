@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
+# Keep the external tools in sync with dependency-groups.build.
 requires = [
     "setuptools>=80",
     "setuptools-scm[simple]>=8,!=10.1",
@@ -62,6 +63,12 @@ cu12 = ["cuda-bindings[all]>=12.9.8,<13", "cuda-toolkit==12.*"]
 cu13 = ["cuda-bindings[all]>=13.4.1,<14", "cuda-toolkit==13.*"]
 
 [dependency-groups]
+# Keep build in sync with build-system.requires; install local cuda-pathfinder separately.
+build = [
+    "setuptools>=80",
+    "setuptools-scm[simple]>=8,!=10.1",
+    "Cython>=3.2.5,<3.3",
+]
 test = [
     "cython>=3.2.5,<3.3",
     "setuptools>=80",
