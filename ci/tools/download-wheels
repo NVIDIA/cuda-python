@@ -87,10 +87,12 @@ else
     ARTIFACT_PATTERN="${COMPONENT}*"
 fi
 
+# Dependent-tag docs also select one metapackage using the resolved toolkit.
 IS_BINDINGS_RELEASE=false
 if [[ "$COMPONENT" != "all" \
         && "$COMPONENT" =~ ^cuda-(bindings|python)$ \
-        && "$GIT_TAG" == v* ]]; then
+        && ( "$GIT_TAG" == v* \
+            || ( "$COMPONENT" == "cuda-python" && -n "$RESOLVED_BINDINGS_PACKAGE_JSON" ) ) ]]; then
     IS_BINDINGS_RELEASE=true
 fi
 
