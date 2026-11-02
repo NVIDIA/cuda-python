@@ -11,6 +11,7 @@ import uuid
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.constants import POOL_SIZE
+from helpers.memory import is_pool_resource
 
 from cuda.core import (
     Buffer,
@@ -30,11 +31,6 @@ NBYTES = 64
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
 pytestmark = pytest.mark.parallel_threads_limit(2)
-
-
-def _is_pool(mr):
-    """Whether ``mr`` has the pool half of the IPC protocol (allocation handle, registry, is_mapped)."""
-    return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
 
 
 def test_outer_timeout_marker_is_applied(request):
@@ -64,7 +60,7 @@ def test_ipc_types_cannot_be_constructed_directly():
 def test_import_truncated_buffer_descriptor(ipc_device, ipc_memory_resource):
     """Truncated IPC buffer descriptor payload is rejected before driver import."""
     desc = IPCBufferDescriptor._init(b"\x00" * 8, NBYTES)
-    if _is_pool(ipc_memory_resource):
+    if is_pool_resource(ipc_memory_resource):
         expected = pytest.raises(ValueError, match=r"payload is 8 bytes; expected at least 64")
     else:
         # A pool descriptor cannot be imported with a VirtualMemoryResource at all.
@@ -94,6 +90,37 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
         DeviceMemoryResource.from_registry(key)
 
 
+@pytest.mark.human_authored
+def test_register_rejects_mismatched_uuid(ipc_memory_resource):
+    """register() rejects a UUID that does not match the resource's own.
+
+    The check is an explicit ValueError (not a bare ``assert``) so it remains
+    enforced even when CPython runs with ``-O``, where assertions are removed
+    (see #2697). Registering under a foreign key would otherwise rewrite the
+    resource's UUID and silently corrupt the IPC registry.
+    """
+    mr = ipc_memory_resource
+    if not is_pool_resource(mr):
+        pytest.skip("allocation handles and the registry are pool-only")
+    assert mr.is_ipc_enabled
+
+    # The resource must already carry its own UUID (assigned on creation).
+    original = mr.uuid
+    assert original is not None
+    other = uuid.uuid4()
+    while other == mr.uuid:
+        other = uuid.uuid4()
+
+    with pytest.raises(ValueError, match="already has UUID"):
+        mr.register(other)
+
+    # A rejected registration must leave the resource's own UUID unchanged.
+    assert mr.uuid == original
+
+    # Registering under the resource's own UUID still succeeds.
+    assert mr.register(mr.uuid) is mr
+
+
 @pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_ipc_allocation_handle_state_tracks_close():
@@ -114,7 +141,7 @@ def test_ipc_allocation_handle_state_tracks_close():
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_closed_ipc_allocation_handle_rejected_before_registry_hit(ipc_device, ipc_memory_resource):
     mr = ipc_memory_resource
-    if not _is_pool(mr):
+    if not is_pool_resource(mr):
         pytest.skip("allocation handles and the registry are pool-only")
     handle = IPCAllocationHandle._init(os.dup(int(mr.allocation_handle)), mr.uuid)
     assert mr.register(mr.uuid) is mr
@@ -149,7 +176,7 @@ class ChildErrorHarness:
         self.device = ipc_device
         self.mr = ipc_memory_resource
         self._extra_mrs = []
-        if self.POOL_ONLY and not _is_pool(self.mr):
+        if self.POOL_ONLY and not is_pool_resource(self.mr):
             pytest.skip("this scenario needs the pool half of the IPC protocol")
         # Clear stale 'buffer' left by a previous flaky-rerun attempt.
         # Its backing DeviceMemoryResource may already be closed, which causes
@@ -210,7 +237,7 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
         stream = self.device.default_stream
         self.buffer = self.mr.allocate(NBYTES, stream=stream)
         desc = self.buffer.ipc_descriptor
-        if _is_pool(self.mr):
+        if is_pool_resource(self.mr):
             payload, _ = desc.__reduce__()[1]
             oversized = IPCBufferDescriptor._init(payload, NBYTES * 100)
         else:
@@ -227,7 +254,7 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is ValueError
         assert "exceeds" in exc_msg
-        if _is_pool(self.mr):
+        if is_pool_resource(self.mr):
             assert "mapped allocation extent" in exc_msg
         else:
             assert "exported allocations" in exc_msg
@@ -245,7 +272,7 @@ class TestAllocFromImportedMr(ChildErrorHarness):
         buffer.close()
 
     def ASSERT(self, exc_type, exc_msg):
-        if _is_pool(self.mr):
+        if is_pool_resource(self.mr):
             assert exc_type is TypeError
             assert exc_msg == "Cannot allocate from a mapped IPC-enabled memory resource"
         else:
@@ -258,7 +285,7 @@ class TestImportWrongMR(ChildErrorHarness):
     """Importing a buffer with a resource other than the exporter's: an error for pools, fine for VMM."""
 
     def PARENT_ACTION(self, queue):
-        if _is_pool(self.mr):
+        if is_pool_resource(self.mr):
             options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
             mr2 = DeviceMemoryResource(self.device, options=options)
             self._extra_mrs.append(mr2)
@@ -274,7 +301,7 @@ class TestImportWrongMR(ChildErrorHarness):
         Buffer.from_ipc_descriptor(mr, buffer_desc, stream=self.device.default_stream).close()
 
     def ASSERT(self, exc_type, exc_msg):
-        if _is_pool(self.mr):
+        if is_pool_resource(self.mr):
             assert exc_type is CUDAError
             assert "CUDA_ERROR_INVALID_VALUE" in exc_msg
         else:

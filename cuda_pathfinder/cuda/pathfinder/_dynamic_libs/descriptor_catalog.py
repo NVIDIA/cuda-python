@@ -366,6 +366,7 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
             "cupti64_2026.3.0.dll",
             "cupti64_2026.2.1.dll",
             "cupti64_2026.2.0.dll",
+            "cupti64_2026.1.2.dll",
             "cupti64_2026.1.1.dll",
             "cupti64_2026.1.0.dll",
             "cupti64_2025.4.1.dll",

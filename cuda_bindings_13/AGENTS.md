@@ -54,6 +54,16 @@ and `nvrtc`.  These test files should not be added to, only updated when
 necessary to fix test failures.  The canonical set of tests are those outside of
 the `tests/legacy_api` subdirectory.
 
+Tests that create memory pools must cap them: set `max_size` (v2 types) or
+`maxSize` (other types) on the pool properties object to `POOL_SIZE` from
+`cuda_python_test_helpers.memory`. A pool created with a size of 0 reserves
+virtual address space of about twice the device memory, which fails on systems
+with a limited virtual address space. `ci/tools/check_mempool_hygiene.py`
+(a pre-commit hook) enforces this for `.py` tests. It cannot parse Cython, so
+cap pools in `tests/cython/*.pyx` by hand. The same module holds the shared
+`supports_memory_pools`, `supports_managed_memory`, and
+`xfail_graph_mempool_oom` helpers; reuse them rather than defining copies.
+
 ## Build and environment notes
 
 - `CUDA_HOME` or `CUDA_PATH` must point to a valid CUDA Toolkit for source

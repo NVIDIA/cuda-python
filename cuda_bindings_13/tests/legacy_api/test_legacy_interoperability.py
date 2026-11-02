@@ -3,21 +3,10 @@
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.memory import POOL_SIZE, supports_memory_pools
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
-
-# Cap for the memory pool created by test_interop_memPool. Touching the device's
-# default pool (e.g. via cuDeviceGetDefaultMemPool, cudaDeviceGetDefaultMemPool,
-# or cuDeviceGetMemPool / cudaDeviceGetMemPool before a pool has been set)
-# reserves virtual address space of about twice the device memory, which
-# cannot be satisfied in a 39-bit address space.
-POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
 def test_interop_stream():
@@ -92,7 +81,7 @@ def test_interop_graphNode():
 
 @pytest.mark.thread_unsafe(reason="changes the device's current memory pool")
 @pytest.mark.agent_authored(model="claude-sonnet-5.5")
-@pytest.mark.skipif(not supportsMemoryPool(), reason="Requires mempool operations")
+@pytest.mark.skipif(not supports_memory_pools(), reason="Requires mempool operations")
 def test_interop_memPool():
     # Use a small, capped pool instead of the device's default pool. The pool
     # must be set before it is queried below because the getters create (and

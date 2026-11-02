@@ -3,10 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d826369ce197164240eae2ca22bc88bb193a3ec936946b9d3b5b906b503fb446
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=640a4399ee31052cd30898b0e6e73d424683a67376594d4e6d92c80918cdcdaa
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    intptr_t,
+    uintptr_t,
+)
 
 cdef extern from * nogil:
     """
@@ -43,11 +48,6 @@ cdef extern from * nogil:
 cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
-
-from libc.stdint cimport (
-    intptr_t,
-    uintptr_t,
-)
 
 import threading as _cyb_threading
 

@@ -631,6 +631,7 @@ jobs:
     uses: ./.github/workflows/build-docs.yml
     with:
       is-release: ${{ github.ref_type == 'tag' }}
+      deploy-docs: ${{ github.ref_type != 'tag' }}
 
   checks:
     name: Check job status
