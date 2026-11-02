@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=df4a2ab8"></script>
+    <script src="../_static/documentation_options.js?v=5acc3e07"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev281';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev311';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -589,6 +589,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.host_launch.html">cuda.core.host_launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
@@ -1012,6 +1013,12 @@ handle. It is the caller’s responsibility to close that handle.</p></li>
 <li><p><em>with the given key, it is returned.</em></p></li>
 </ul>
 </p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If the memory resource is not IPC-enabled.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If the memory resource already has a different UUID.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
