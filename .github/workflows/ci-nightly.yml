@@ -123,7 +123,7 @@ jobs:
           git fetch --depth=1 origin "$HEAD_SHA"
           snapshot=$(mktemp -d)
           trap 'rm -rf -- "$snapshot"' EXIT
-          git archive "$HEAD_SHA" | tar -x -C "$snapshot"
+          git archive "$HEAD_SHA" ci/versions.yml | tar -x -C "$snapshot"
           python - "$snapshot/ci/versions.yml" <<'PYTHON'
           import os
           import re
