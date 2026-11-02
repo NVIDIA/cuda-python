@@ -79,6 +79,21 @@ def test_release_stages_only_wheels_for_its_exact_toolkit(tmp_path, component, m
     assert {path.name for path in (tmp_path / "dist").iterdir()} == {f"{expected}.whl"}
 
 
+@pytest.mark.parametrize("tag", ["cuda-core-v1.3.0", "cuda-pathfinder-v1.5.0"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_dependent_tag_docs_stage_one_metapackage_for_resolved_toolkit(tmp_path, tag):
+    expected = "cuda-python-wheel-cuda13.4.2"
+    result = run_download(
+        tmp_path,
+        ["cuda-python-wheel-cuda12.9.1", expected],
+        "cuda-python",
+        package={"toolkit_version": "13.4.2"},
+        tag=tag,
+    )
+    assert result.returncode == 0, result.stderr
+    assert {path.name for path in (tmp_path / "dist").iterdir()} == {f"{expected}.whl"}
+
+
 @pytest.mark.parametrize("component", ["cuda-bindings", "cuda-python"])
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_release_cannot_stage_another_toolkit_or_test_artifacts(tmp_path, component):
