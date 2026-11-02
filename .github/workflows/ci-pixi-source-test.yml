@@ -265,6 +265,8 @@ jobs:
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      bindings-packages: ${{ steps.roundtrip.outputs.bindings-packages }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -289,6 +291,10 @@ jobs:
         uses: ./.github/actions/setup-pixi
 
       - name: Build current, another ABI, then current again in one checkout
+        id: roundtrip
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
         run: |
           current_package=$(python3 -m ci.tools.bindings_config --release-status current)
           bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
@@ -296,6 +302,22 @@ jobs:
           other_env=$(jq -r --arg current_env "${current_env}" \
             '[.[] | select(.cuda_variant != $current_env) | .cuda_variant] | first // empty' \
             <<< "${bindings_packages}")
+
+          # Scheduled source tests cover both registered ABIs; manual runs
+          # retain a single selected ABI, defaulting to the current package.
+          if [[ "${EVENT_NAME}" == schedule ]]; then
+            selected_packages="${bindings_packages}"
+          else
+            selected_env="${REQUESTED_CUDA_ENV:-${current_env}}"
+            selected_packages=$(jq -c --arg cuda_env "${selected_env}" \
+              '[.[] | select(.cuda_variant == $cuda_env)]' <<< "${bindings_packages}")
+            if [[ "${selected_packages}" == '[]' ]]; then
+              registered_envs=$(jq -r '[.[].cuda_variant] | join(", ")' <<< "${bindings_packages}")
+              echo "::error::cuda-env must be a registered pixi environment: ${registered_envs}"
+              exit 1
+            fi
+          fi
+          echo "bindings-packages=${selected_packages}" >> "$GITHUB_OUTPUT"
 
           for cuda_env in "${current_env}" "${other_env}" "${current_env}"; do
             echo "::group::${cuda_env}"
@@ -328,8 +350,13 @@ jobs:
 
   # ── Nightly: full `pixi run test` on a GPU runner ──
   full-test:
-    name: "pixi run test (${{ inputs.cuda-env || 'current' }}, linux-64, GPU)"
+    name: "pixi run test (${{ matrix.bindings-package.cuda_variant }}, linux-64, GPU)"
     if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository_owner == 'nvidia' }}
+    needs: build-identity-roundtrip
+    strategy:
+      fail-fast: false
+      matrix:
+        bindings-package: ${{ fromJSON(needs.build-identity-roundtrip.outputs.bindings-packages) }}
     runs-on: "linux-amd64-gpu-l4-latest-1" # same label scheme as test-wheel-linux.yml
     timeout-minutes: 90
     container:
@@ -360,6 +387,10 @@ jobs:
           # third_party/cccl provides the CCCL headers cuda.core compiles against.
           submodules: true
 
+      - name: Trust the checkout for container source builds
+        # checkout's temporary Git configuration does not reach later steps.
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
         with:
@@ -370,27 +401,15 @@ jobs:
 
       - name: Prepare selected CUDA environment
         env:
-          REQUESTED_CUDA_ENV: ${{ inputs.cuda-env || '' }}
+          CUDA_ENV: ${{ matrix.bindings-package.cuda_variant }}
+          BINDINGS_ROOT: ${{ matrix.bindings-package.package_root }}
+          RELEASE_STATUS: ${{ matrix.bindings-package.release_status }}
         run: |
-          if [[ -n "${REQUESTED_CUDA_ENV}" ]]; then
-            bindings_packages=$(python3 -m ci.tools.bindings_config --package-roots)
-            bindings_package=$(jq -c --arg cuda_env "${REQUESTED_CUDA_ENV}" \
-              '.[] | select(.cuda_variant == $cuda_env)' <<< "${bindings_packages}")
-            if [[ -z "${bindings_package}" ]]; then
-              registered_envs=$(jq -r '[.[].cuda_variant] | join(", ")' <<< "${bindings_packages}")
-              echo "::error::cuda-env must be a registered pixi environment: ${registered_envs}"
-              exit 1
-            fi
-          else
-            bindings_package=$(python3 -m ci.tools.bindings_config --release-status current)
-          fi
-          cuda_env=$(jq -r '.cuda_variant' <<< "${bindings_package}")
-          if [[ $(jq -r '.release_status' <<< "${bindings_package}") == maintenance ]]; then
-            bindings_root=$(jq -r '.package_root' <<< "${bindings_package}")
+          if [[ "${RELEASE_STATUS}" == maintenance ]]; then
             # Match build-smoke's version preparation before any pixi source build.
-            python3 -m ci.tools.bindings_scm_version --package-root "${bindings_root}" --sha "$GITHUB_SHA"
+            python3 -m ci.tools.bindings_scm_version --package-root "${BINDINGS_ROOT}" --sha "$GITHUB_SHA"
           fi
-          echo "CUDA_ENV=${cuda_env}" | tee -a "$GITHUB_ENV"
+          echo "CUDA_ENV=${CUDA_ENV}" | tee -a "$GITHUB_ENV"
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
