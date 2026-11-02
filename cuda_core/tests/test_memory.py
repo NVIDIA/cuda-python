@@ -1940,6 +1940,38 @@ def test_vmm_buffers_alive_at_shutdown_are_freed_quietly(init_cuda):
     assert result.stderr == ""
 
 
+@pytest.mark.parametrize(
+    "options",
+    [
+        pytest.param({"addr_align": 3}, id="invalid-alignment"),
+        pytest.param({"peers": (-1,)}, id="invalid-peer"),
+    ],
+)
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_failed_vmm_allocation_does_not_block_another_resource(init_cuda, options):
+    """A failed allocation leaves its config unchanged and another VMM resource usable."""
+    device = _vmm_device_or_skip()
+    invalid_resource = _vmm_resource(device, **options)
+    error_match = "CUDA_ERROR_INVALID_VALUE" if "addr_align" in options else r"CUDA_ERROR_INVALID_(VALUE|DEVICE)"
+    with assert_no_cuda_warning(), pytest.raises(CUDAError, match=error_match):
+        invalid_resource.allocate(4096)
+    for name, value in options.items():
+        assert getattr(invalid_resource.config, name) == value
+
+    # Use a separate resource with valid options; the invalid configuration is unchanged.
+    resource = _vmm_resource(device)
+    buffer = resource.allocate(4096)
+    ptr, size = int(buffer.handle), buffer.size
+    try:
+        _vmm_fill(buffer, 0x5C)
+        assert _vmm_read(buffer, 0, 16) == bytes([0x5C]) * 16
+    finally:
+        with assert_no_cuda_warning():
+            buffer.close()
+    _vmm_assert_released([(ptr, size)])
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_failed_grow_leaves_input_intact(init_cuda):

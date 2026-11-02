@@ -1,13 +1,19 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import gc
+import weakref
+
 import numpy as np
 import pytest
+from helpers.contexts import no_current_context, use_context
 from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
 
 from cuda.core import (
+    ContextOptions,
     Device,
     ManagedMemoryResourceOptions,
+    SMResourceOptions,
     TensorMapDescriptor,
 )
 from cuda.core._tensor_map import (
@@ -20,6 +26,8 @@ from cuda.core._tensor_map import (
     TensorMapSwizzle,
     _coerce_tensor_map_descriptor_options,
 )
+from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.version import driver_version
 from cuda.core.utils import StridedMemoryView
 
 
@@ -56,6 +64,66 @@ def _as_view(obj):
     if isinstance(obj, StridedMemoryView):
         return obj
     return StridedMemoryView.from_any_interface(obj, stream_ptr=-1)
+
+
+@pytest.mark.parametrize(
+    "dtype,data_type",
+    [
+        pytest.param(np.uint8, TensorMapDataType.UINT8, id="uint8"),
+        pytest.param(np.uint16, TensorMapDataType.UINT16, id="uint16"),
+        pytest.param(np.uint32, TensorMapDataType.UINT32, id="uint32"),
+        pytest.param(np.uint64, TensorMapDataType.UINT64, id="uint64"),
+        pytest.param(np.int32, TensorMapDataType.INT32, id="int32"),
+        pytest.param(np.int64, TensorMapDataType.INT64, id="int64"),
+        pytest.param(np.float16, TensorMapDataType.FLOAT16, id="float16"),
+        pytest.param("bfloat16", TensorMapDataType.BFLOAT16, id="bfloat16"),
+        pytest.param(np.float32, TensorMapDataType.FLOAT32, id="float32"),
+        pytest.param(np.float64, TensorMapDataType.FLOAT64, id="float64"),
+        pytest.param(np.float32, TensorMapDataType.FLOAT32_FTZ, id="float32-ftz"),
+        pytest.param(np.float32, TensorMapDataType.TFLOAT32, id="tfloat32"),
+        pytest.param(np.float32, TensorMapDataType.TFLOAT32_FTZ, id="tfloat32-ftz"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_tiled_tensor_map_encodes_dtypes_with_padded_rows(dev, skip_if_no_tma, dtype, data_type):
+    """Encode a tiled descriptor for each dtype with non-contiguous row strides."""
+    if dtype == "bfloat16":
+        dtype = pytest.importorskip("ml_dtypes").bfloat16
+    dtype = np.dtype(dtype)
+    stream = dev.create_stream()
+    source = view = descriptor = None
+    try:
+        source = dev.allocate(4 * 32 * dtype.itemsize, stream=stream)
+        stream.sync()
+        view = StridedMemoryView.from_buffer(
+            source, shape=(4, 16), strides=(32, 1), itemsize=dtype.itemsize, dtype=dtype
+        )
+        descriptor = view.as_tensor_map(box_dim=(2, 16), data_type=data_type)
+        assert isinstance(descriptor, TensorMapDescriptor)
+        assert descriptor.device == dev
+        assert ", rank=2," in repr(descriptor)
+        assert f"dtype={data_type.name}," in repr(descriptor)
+    finally:
+        descriptor = view = None
+        if source is not None:
+            source.close()
+        stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_as_tensor_map_rejects_misaligned_device_pointer(dev):
+    """Tensor-map creation rejects a valid device allocation's misaligned view."""
+    source = dev.allocate(16 * 4 + 16, stream=dev.default_stream)
+    tensor = view = None
+    try:
+        tensor = _DeviceArray(source, (16,))
+        tensor.__cuda_array_interface__["data"] = (int(source.handle) + 4, False)
+        view = StridedMemoryView.from_any_interface(tensor, stream_ptr=-1)
+        with pytest.raises(ValueError, match="Global memory address must be 16-byte aligned"):
+            view.as_tensor_map(box_dim=(16,))
+    finally:
+        tensor = view = None
+        source.close()
 
 
 class TestTensorMapEnums:
@@ -765,3 +833,82 @@ class TestTensorMapHelpers:
                 l2_promotion=TensorMapL2Promotion.NONE,
                 oob_fill=TensorMapOOBFill.NONE,
             )
+
+
+@pytest.mark.parametrize("context_kind", ["missing", "different"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_tensor_map_replace_address_context_error_preserves_ownership(dev, skip_if_no_tma, context_kind):
+    """A rejected replacement retains the source; a valid one transfers ownership."""
+    if context_kind == "different" and driver_version() < (12, 4, 0):
+        pytest.skip("green contexts require CUDA driver 12.4 or newer")
+
+    def make_view(allocation):
+        tensor = _DeviceArray(allocation, (4, 16))
+        tensor.__cuda_array_interface__["strides"] = (32 * 4, 4)
+        return _as_view(tensor), weakref.ref(tensor)
+
+    stream = dev.create_stream()
+    original = replacement = None
+    original_view = replacement_view = descriptor = green_context = None
+    try:
+        original = dev.allocate(4 * 32 * 4, stream=stream)
+        replacement = dev.allocate(4 * 32 * 4, stream=stream)
+        stream.sync()
+        original_view, original_ref = make_view(original)
+        descriptor = original_view.as_tensor_map(box_dim=(2, 16))
+        original_view = None
+        gc.collect()
+        assert original_ref() is not None
+
+        replacement_view, rejected_ref = make_view(replacement)
+        if context_kind == "missing":
+            other_context = no_current_context()
+        else:
+            groups, _ = dev.resources.sm.split(SMResourceOptions(count=None))
+            green_context = dev.create_context(ContextOptions(resources=[groups[0]]))
+            other_context = use_context(dev, green_context)
+        error_match = (
+            "requires an active CUDA context"
+            if context_kind == "missing"
+            else "was created in a different CUDA context"
+        )
+        with other_context, pytest.raises(RuntimeError, match=error_match):
+            descriptor.replace_address(replacement_view)
+        replacement_view = None
+        gc.collect()
+        assert original_ref() is not None
+        assert rejected_ref() is None
+
+        replacement_view, replacement_ref = make_view(replacement)
+        assert descriptor.replace_address(replacement_view) is None
+        replacement_view = None
+        gc.collect()
+        assert original_ref() is None
+        assert replacement_ref() is not None
+        assert descriptor.device == dev
+
+        descriptor = None
+        gc.collect()
+        assert replacement_ref() is None
+    finally:
+        descriptor = original_view = replacement_view = None
+        if green_context is not None:
+            green_context.close()
+        for allocation in (replacement, original):
+            if allocation is not None:
+                allocation.close()
+        stream.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_as_tensor_map_reports_unsupported_hardware_as_cuda_error(dev):
+    """A valid tensor-map request on unsupported hardware raises CUDAError."""
+    if dev.properties.tensor_map_access_supported:
+        pytest.skip("requires a device without tensor-map access")
+    with dev.allocate(64 * 4, stream=dev.default_stream) as source:
+        view = StridedMemoryView.from_buffer(source, shape=(64,), itemsize=4, dtype=np.dtype(np.float32))
+        try:
+            with pytest.raises(CUDAError, match=r"Compute capability 9\.0 or higher is required"):
+                view.as_tensor_map(box_dim=(16,))
+        finally:
+            view = None
