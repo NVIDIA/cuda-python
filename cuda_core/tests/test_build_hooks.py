@@ -277,6 +277,67 @@ class TestBuildConfigStamp:
         assert stamp.read_text().strip() == "cu13-gnu-debug"
 
 
+class TestCoverageBuildStack:
+    @pytest.mark.parametrize("platform", ["win32", "linux"])
+    @pytest.mark.parametrize("coverage", [False, True])
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_wheel_preparation_thread_and_stack_restoration(self, monkeypatch, platform, coverage):
+        caller = threading.current_thread()
+        previous_stack_size = threading.stack_size()
+        prepared = []
+        recorded = []
+
+        def prepare(debug):
+            prepared.append((threading.current_thread(), debug))
+            return "prepared-config"
+
+        def build(wheel_directory, config_settings, metadata_directory):
+            assert threading.current_thread() is caller
+            assert (wheel_directory, config_settings, metadata_directory) == ("dist", {"debug": True}, "metadata")
+            return "cuda_core.whl"
+
+        monkeypatch.setattr(build_hooks, "sys", types.SimpleNamespace(platform=platform))
+        monkeypatch.setattr(build_hooks, "COMPILE_FOR_COVERAGE", coverage)
+        monkeypatch.setattr(build_hooks, "_build_cuda_core", prepare)
+        monkeypatch.setattr(build_hooks._build_meta, "build_wheel", build)
+        monkeypatch.setattr(build_hooks, "record_build_config", recorded.append)
+
+        assert build_hooks.build_wheel("dist", {"debug": True}, "metadata") == "cuda_core.whl"
+        worker, debug = prepared[0]
+        assert (worker is not caller) == (platform == "win32" and coverage)
+        assert debug is True
+        assert threading.stack_size() == previous_stack_size
+        assert recorded == ["prepared-config"]
+
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_preparation_failure_propagates_and_restores_stack(self, monkeypatch):
+        failure = RuntimeError("preparation failed")
+        previous_stack_size = threading.stack_size()
+
+        def fail(debug):
+            raise failure
+
+        monkeypatch.setattr(build_hooks, "sys", types.SimpleNamespace(platform="win32"))
+        monkeypatch.setattr(build_hooks, "COMPILE_FOR_COVERAGE", True)
+        monkeypatch.setattr(build_hooks, "_build_cuda_core", fail)
+        monkeypatch.setattr(
+            build_hooks._build_meta,
+            "build_wheel",
+            lambda *_args: pytest.fail("failed preparation must not build a wheel"),
+        )
+        monkeypatch.setattr(
+            build_hooks,
+            "record_build_config",
+            lambda _key: pytest.fail("failed preparation must not be stamped"),
+        )
+
+        with pytest.raises(RuntimeError) as exc_info:
+            build_hooks.build_wheel("dist")
+
+        assert exc_info.value is failure
+        assert threading.stack_size() == previous_stack_size
+
+
 class TestBuildHookStamping:
     @pytest.mark.agent_authored(model="grok-4.6")
     def test_wheel_records_exact_prepared_config_after_success(self, monkeypatch):
