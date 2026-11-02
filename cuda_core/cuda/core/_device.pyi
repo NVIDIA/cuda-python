@@ -447,7 +447,10 @@ class DeviceProperties:
         """bool: Device supports HOST_NUMA location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs."""
     @property
     def host_numa_memory_pools_supported(self) -> bool:
-        """bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs."""
+        """bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs.
+
+        The value is inferred for drivers before CUDA 12.9.
+        """
     @property
     def host_numa_multinode_ipc_supported(self) -> bool:
         """bool: Device supports HOST_NUMA location IPC between nodes in a multi-node system."""
