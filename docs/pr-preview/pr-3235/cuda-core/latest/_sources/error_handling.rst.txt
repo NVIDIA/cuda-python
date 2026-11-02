@@ -20,10 +20,10 @@ exception whose message contains the error name and its description:
 :class:`NVRTCError` for NVRTC failures, and the ``cuda.bindings`` error types
 for NVVM and nvJitLink failures. A driver or runtime call that runs out of
 memory raises :class:`CUDAOutOfMemoryError`, which derives from both
-:class:`CUDAError` and :class:`MemoryError`. These exception classes are
-importable from the top-level ``cuda.core`` namespace. Invalid arguments and
-misuse raise the usual Python exception types (``TypeError``, ``ValueError``,
-``RuntimeError``).
+:class:`CUDAError` and :class:`MemoryError`. :class:`CUDAError`,
+:class:`NVRTCError`, and :class:`CUDAOutOfMemoryError` are importable from the
+top-level ``cuda.core`` namespace. Invalid arguments and misuse raise the
+usual Python exception types (``TypeError``, ``ValueError``, ``RuntimeError``).
 
 When a ``cuda.core`` call raises, the following hold:
 

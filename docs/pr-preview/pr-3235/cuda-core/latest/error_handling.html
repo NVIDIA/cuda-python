@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=e8b2a0d2"></script>
+    <script src="_static/documentation_options.js?v=3e03ee43"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev282';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev301';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -589,6 +589,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.host_launch.html">cuda.core.host_launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Context.html">cuda.core.Context</a></li>
@@ -794,10 +795,10 @@ exception whose message contains the error name and its description:
 <a class="reference internal" href="generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NVRTCError</span></code></a> for NVRTC failures, and the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> error types
 for NVVM and nvJitLink failures. A driver or runtime call that runs out of
 memory raises <a class="reference internal" href="generated/cuda.core.CUDAOutOfMemoryError.html#cuda.core.CUDAOutOfMemoryError" title="cuda.core.CUDAOutOfMemoryError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAOutOfMemoryError</span></code></a>, which derives from both
-<a class="reference internal" href="generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> and <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#MemoryError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryError</span></code></a>. These exception classes are
-importable from the top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace. Invalid arguments and
-misuse raise the usual Python exception types (<code class="docutils literal notranslate"><span class="pre">TypeError</span></code>, <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>,
-<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>).</p>
+<a class="reference internal" href="generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> and <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#MemoryError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryError</span></code></a>. <a class="reference internal" href="generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a>,
+<a class="reference internal" href="generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NVRTCError</span></code></a>, and <a class="reference internal" href="generated/cuda.core.CUDAOutOfMemoryError.html#cuda.core.CUDAOutOfMemoryError" title="cuda.core.CUDAOutOfMemoryError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAOutOfMemoryError</span></code></a> are importable from the
+top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace. Invalid arguments and misuse raise the
+usual Python exception types (<code class="docutils literal notranslate"><span class="pre">TypeError</span></code>, <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>).</p>
 <p>When a <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> call raises, the following hold:</p>
 <ul class="simple">
 <li><p>A call that creates a resource creates nothing. If a later step of the call

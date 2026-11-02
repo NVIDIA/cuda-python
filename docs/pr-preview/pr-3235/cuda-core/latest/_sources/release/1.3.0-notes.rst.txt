@@ -45,6 +45,14 @@ Breaking Changes
 New features
 ------------
 
+- Added :func:`host_launch`, which enqueues a host function on a stream in stream
+  order: a Python callable, or a ctypes function pointer with the ``CUhostFn``
+  prototype, which ``cuda.core`` passes to the driver as is, so a pointer to
+  compiled code runs without the GIL. It is the stream-side counterpart of
+  :meth:`graph.GraphBuilder.callback` and accepts the same ``fn`` and
+  ``user_data`` forms.
+  (`#2058 <https://github.com/NVIDIA/cuda-python/issues/2058>`__)
+
 - Added incremental linking to :class:`Linker` through
   ``LinkerOptions(incremental=True)`` on nvJitLink 13.2 or newer. A partial
   native result is returned as a CUBIN and can be passed directly to another
@@ -109,6 +117,13 @@ New features
 
 Fixes and enhancements
 ----------------------
+
+- ``register()`` on a :class:`~_memory.DeviceMemoryResource` or a
+  :class:`PinnedMemoryResource` now raises ``ValueError`` when the resource
+  already has a different UUID. The check used to be an ``assert``, so under
+  ``python -O`` a mismatched UUID silently rewrote the resource's UUID and
+  corrupted the IPC registry.
+  (`#2697 <https://github.com/NVIDIA/cuda-python/issues/2697>`__)
 
 - A :class:`~_memory.DeviceMemoryResource` or a :class:`VirtualMemoryResource`
   sent through ``multiprocessing`` now names its device, and the
