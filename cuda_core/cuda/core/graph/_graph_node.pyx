@@ -145,7 +145,7 @@ cdef class GraphNode:
 
     @property
     def local_id(self) -> int:
-        """The node's ID within its graph, as used in GraphViz DOT output.
+        """The node's ID within its graph.
         """
         GN_check_valid(self)
         if self._is_entry:

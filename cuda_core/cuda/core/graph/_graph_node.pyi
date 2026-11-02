@@ -43,7 +43,7 @@ class GraphNode:
         """
     @property
     def local_id(self) -> int:
-        """The node's ID within its graph, as used in GraphViz DOT output.
+        """The node's ID within its graph.
         """
     @property
     def tools_id(self) -> int:

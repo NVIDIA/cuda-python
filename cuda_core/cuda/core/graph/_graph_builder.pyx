@@ -1256,7 +1256,7 @@ cdef class Graph:
     def id(self) -> int:
         """The driver-assigned executable graph ID, as used in GraphViz DOT output.
 
-        Requires the CUDA 13 build and CUDA driver 13.1 or newer.
+        Requires CUDA >= 13.1.
         """
         if self.is_closed:
             raise RuntimeError("Graph is closed")
