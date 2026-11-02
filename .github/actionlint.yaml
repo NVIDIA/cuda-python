@@ -15,6 +15,9 @@ paths:
   ".github/workflows/build-docs.yml":
     ignore:
       - 'unexpected key "queue" for "concurrency" section'
+      # GitHub supports self-repository ($/) action references, but the latest
+      # actionlint release does not yet recognize them (rhysd/actionlint#711).
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
   ".github/workflows/cleanup-pr-previews.yml":
     ignore:
       - 'unexpected key "queue" for "concurrency" section'

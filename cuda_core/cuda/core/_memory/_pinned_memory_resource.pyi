@@ -126,6 +126,13 @@ class PinnedMemoryResource(_MemPool):
         -------
         The registered mapped memory resource. If one was previously registered
         with the given key, it is returned.
+
+        Raises
+        ------
+        RuntimeError
+            If the memory resource is not IPC-enabled.
+        ValueError
+            If the memory resource already has a different UUID.
         """
     @classmethod
     def from_allocation_handle(cls, alloc_handle: int | IPCAllocationHandle) -> PinnedMemoryResource:

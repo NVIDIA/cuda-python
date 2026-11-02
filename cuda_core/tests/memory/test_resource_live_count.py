@@ -21,7 +21,7 @@ import threading
 
 import pytest
 from helpers.constants import POOL_SIZE
-from helpers.memory import VMM_HANDLE_TYPE
+from helpers.memory import VMM_HANDLE_TYPE, skip_if_mempool_unsupported
 
 from cuda.core import (
     DeviceMemoryResource,
@@ -34,11 +34,6 @@ from cuda.core._memory._buffer import _live_owned_mempool_count, _live_va_reserv
 _THREAD_UNSAFE_MARKER = pytest.mark.thread_unsafe(reason="asserts on the process-global owned-resource counts")
 
 
-def _skip_without_mempools(device):
-    if not device.properties.memory_pools_supported:
-        pytest.skip("Device does not support memory pools")
-
-
 def _owned_pool(device):
     """An owning DeviceMemoryResource: passing options creates its own pool."""
     return DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
@@ -47,7 +42,7 @@ def _owned_pool(device):
 @_THREAD_UNSAFE_MARKER
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_owned_pool_is_counted_until_freed(init_cuda):
-    _skip_without_mempools(init_cuda)
+    skip_if_mempool_unsupported(init_cuda)
     before = _live_owned_mempool_count()
     mr = _owned_pool(init_cuda)
     assert _live_owned_mempool_count() == before + 1
@@ -61,7 +56,7 @@ def test_borrowed_default_pool_is_not_counted(init_cuda):
     # A no-options DeviceMemoryResource borrows the device default pool
     # (cuDeviceGetMemPool), which this layer does not own or destroy, so it must
     # not move the owned-pool counter.
-    _skip_without_mempools(init_cuda)
+    skip_if_mempool_unsupported(init_cuda)
     before = _live_owned_mempool_count()
     mr = DeviceMemoryResource(init_cuda)
     assert _live_owned_mempool_count() == before
@@ -72,7 +67,7 @@ def test_borrowed_default_pool_is_not_counted(init_cuda):
 @_THREAD_UNSAFE_MARKER
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 def test_owned_pool_in_cycle_stays_counted_until_collect(init_cuda):
-    _skip_without_mempools(init_cuda)
+    skip_if_mempool_unsupported(init_cuda)
     # Disable automatic collection so a background gc cannot free the cycle
     # before the still-counted assertion is checked.
     enabled = gc.isenabled()
@@ -116,7 +111,7 @@ def test_concurrent_owned_pool_construct_and_drop_returns_to_start(init_cuda):
     # On a free-threaded build this guards against a non-atomic counter; on a
     # GIL build it passes trivially. Every thread sets the device current, then
     # creates and drops owning pools; after join the count is back at the start.
-    _skip_without_mempools(init_cuda)
+    skip_if_mempool_unsupported(init_cuda)
     before = _live_owned_mempool_count()
     n_threads = 4
     n_per_thread = 10
