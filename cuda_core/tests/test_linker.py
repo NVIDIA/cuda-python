@@ -244,6 +244,26 @@ def test_linker_options_incremental_as_bytes(value, expected_count):
     assert options.as_bytes().count(b"-r") == expected_count
 
 
+@pytest.mark.agent_authored(model="gpt-6")
+@pytest.mark.skipif(is_culink_backend, reason="as_bytes() only supported for nvjitlink backend")
+@pytest.mark.parametrize(
+    "version,needs_workaround", [((13, 4), True), ((13, 5), True), ((13, 6), False), ((14, 0), False)]
+)
+@pytest.mark.parametrize(
+    "incremental,link_time_optimization", [(False, False), (False, True), (True, False), (True, True)]
+)
+@pytest.mark.parametrize("no_cache", [None, False, True])
+def test_linker_options_incremental_lto_disables_cache(
+    monkeypatch, version, needs_workaround, incremental, link_time_optimization, no_cache
+):
+    options = LinkerOptions(
+        arch="sm_80", incremental=incremental, link_time_optimization=link_time_optimization, no_cache=no_cache
+    )
+    monkeypatch.setattr(_linker, "_nvjitlink_version", version)
+    expected = no_cache is True or (needs_workaround and incremental and link_time_optimization)
+    assert options.as_bytes().count(b"-no-cache") == int(expected)
+
+
 @pytest.mark.parametrize("backend", ("invalid", "driver"))
 def test_linker_options_as_bytes_invalid_backend(backend):
     """Test LinkerOptions.as_bytes() with invalid backend"""

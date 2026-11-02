@@ -8,6 +8,7 @@ import os
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.memory import is_pool_resource
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource, VirtualMemoryResource
 
@@ -17,11 +18,6 @@ NBYTES = 64
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
 pytestmark = pytest.mark.parallel_threads_limit(2)
-
-
-def _is_pool(mr):
-    """Whether ``mr`` has the pool half of the IPC protocol (allocation handle, registry, uuid)."""
-    return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
 
 
 class TestObjectSerializationDirect:
@@ -46,8 +42,8 @@ class TestObjectSerializationDirect:
         # Send a memory resource: a pool by its allocation handle over the raw
         # fd channel, a VirtualMemoryResource as the object itself (it holds no
         # driver object; a VMM descriptor carries its fds per allocation).
-        parent_conn.send(_is_pool(mr))
-        if _is_pool(mr):
+        parent_conn.send(is_pool_resource(mr))
+        if is_pool_resource(mr):
             alloc_handle = mr.allocation_handle
             mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
         else:
@@ -151,7 +147,7 @@ class TestObjectSerializationWithMR:
 
         # Buffer.
         buffer = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
-        if _is_pool(mr):
+        if is_pool_resource(mr):
             assert buffer.memory_resource.handle == mr.handle
         else:
             # A VMM resource pickles as (device, options); the buffer's rebuilt
@@ -178,7 +174,7 @@ class TestObjectPassing:
         # Define the objects.
         device = ipc_device
         mr = ipc_memory_resource
-        alloc_handle = mr.allocation_handle if _is_pool(mr) else None
+        alloc_handle = mr.allocation_handle if is_pool_resource(mr) else None
         stream = device.default_stream
         buffer = mr.allocate(NBYTES, stream=stream)
         buffer_desc = buffer.ipc_descriptor

@@ -6,7 +6,7 @@ from cuda.core._stream import Stream
 from cuda.core.graph import GraphBuilder
 from cuda.core.typing import IsStreamType
 
-__all__ = ['launch']
+__all__ = ['launch', 'host_launch']
 
 def launch(stream: Stream | GraphBuilder | IsStreamType, config: LaunchConfig, kernel: Kernel, *kernel_args) -> None:
     """Launches a :obj:`~_module.Kernel`
@@ -26,4 +26,66 @@ def launch(stream: Stream | GraphBuilder | IsStreamType, config: LaunchConfig, k
         Variable length argument list that is provided to the
         launching kernel.
 
+    """
+def host_launch(stream: Stream | GraphBuilder | IsStreamType, fn, *, user_data=None) -> None:
+    """Enqueue a host function on a stream in stream order.
+
+    The function runs on a driver-owned thread once all work enqueued on the
+    stream before this call has completed. Work enqueued after this call waits
+    until the function returns. This call returns when the function is enqueued;
+    observe completion with :meth:`Stream.sync` or an :class:`Event` recorded
+    after it.
+
+    Passing a :class:`~graph.GraphBuilder` forwards to
+    :meth:`~graph.GraphBuilder.callback`.
+
+    Parameters
+    ----------
+    stream : Stream or graph.GraphBuilder or IsStreamType
+        The stream establishing execution order, or a graph builder capturing
+        the callback.
+    fn : callable or ctypes function pointer
+        A Python callable taking no arguments, which runs with the GIL, or a
+        ctypes function pointer declared as ``CUhostFn``, for example
+        ``ctypes.CFUNCTYPE(None, ctypes.c_void_p)``, which ``cuda.core``
+        passes to the driver as is. A pointer to compiled code runs without
+        the GIL; a ctypes callback that wraps a Python function acquires the
+        GIL through ctypes and is subject to the same deadlock rule as a
+        Python callable. ``cuda.core`` keeps ``fn`` alive until the function
+        has run and releases it afterwards on the main thread.
+    user_data : int or bytes-like, optional
+        Only for ctypes function pointers. An ``int`` is a raw pointer that
+        the caller must keep valid until the function has run. Bytes-like data
+        is copied; ``cuda.core`` owns the copy until the function has run and
+        releases it afterwards on the main thread.
+
+    Raises
+    ------
+    TypeError
+        If ``stream`` is ``None`` or not a stream, or if ``fn`` is not
+        callable or its ctypes prototype is not ``CUhostFn``.
+    ValueError
+        If ``user_data`` is given for a Python callable.
+    RuntimeError
+        If ``stream`` is a :class:`Stream` that is capturing a graph, or a
+        :class:`~graph.GraphBuilder` that is closed or not building.
+
+    Notes
+    -----
+    An exception raised by a Python callable cannot propagate to the caller.
+    It is reported through :func:`sys.unraisablehook` and the stream continues.
+
+    .. warning::
+
+        The function must not call CUDA, directly or through a library. The
+        driver does not permit such calls. Such a call may fail with an error,
+        or it may deadlock.
+
+        A Python callable, or a ctypes callback that wraps a Python function,
+        acquires the GIL on the driver's thread. A thread
+        that holds the GIL while blocking inside a CUDA call waiting for this
+        stream therefore deadlocks with the callback. ``cuda.core`` and
+        ``cuda.bindings`` release the GIL around CUDA calls. A library that
+        calls CUDA with the GIL held must not be used to wait on a stream with
+        a pending Python callback.
     """

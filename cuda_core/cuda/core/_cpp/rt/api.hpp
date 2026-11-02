@@ -110,6 +110,14 @@ StreamHandle get_per_thread_stream();
 StreamHandle create_context_bound_legacy_stream(const ContextHandle &h_context);
 
 // ============================================================================
+// Host function launch
+// ============================================================================
+
+CUresult launch_host_function(
+    CUstream stream, CUhostFn fn, void *user_data, OpaqueHandle fn_owner, OpaqueHandle data_owner
+) noexcept;
+
+// ============================================================================
 // Event handle functions
 // ============================================================================
 
