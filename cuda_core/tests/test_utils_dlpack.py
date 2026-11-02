@@ -843,3 +843,20 @@ def test_dlpack_c_exchange_api_managed_tensor_allocator_not_supported():
         # Currently sets a Python error when `SetError` isn't passed.
         api.managed_tensor_allocator(None, ctypes.byref(out), None, None)
     assert not out.value  # set to NULL before the error
+
+
+@pytest.mark.parametrize(("dtype_name", "max_itemsize"), [("longdouble", 8), ("clongdouble", 16)])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_dlpack_export_rejects_extended_numpy_width(dtype_name, max_itemsize):
+    """Supported dtype kinds with extended widths cannot be exported as DLPack."""
+    dtype = np.dtype(getattr(np, dtype_name))
+    if dtype.itemsize <= max_itemsize:
+        pytest.skip(f"{dtype_name} has a DLPack-supported width on this platform")
+    source = np.zeros(4, dtype=dtype)
+    view = StridedMemoryView.from_array_interface(source)
+    error_match = "Unsupported floating dtype" if dtype.kind == "f" else "Unsupported complex dtype"
+    with pytest.raises(BufferError, match=error_match):
+        view.__dlpack__(max_version=(1, 0))
+    assert view.dtype == dtype
+    assert view.ptr == source.ctypes.data
+    assert view.exporting_obj is source
