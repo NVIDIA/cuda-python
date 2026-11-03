@@ -386,6 +386,14 @@ jobs:
           python-version: ${{ env.PY_VER }}
           venv: .venv
 
+      - name: Raise the interpreter's stack reserve to 8 MiB
+        # This runner has no MSVC tools. Patch a copy, then replace the base
+        # interpreter after Python exits so subprocesses also get 8 MiB stacks.
+        run: |
+          base_py="$(cygpath -u "$(.venv/Scripts/python -c 'import sys; print(sys._base_executable)')")"
+          .venv/Scripts/python ci/tools/prepare_windows_python_stack.py "$base_py" "$base_py.stack-reserve"
+          mv -f -- "$base_py.stack-reserve" "$base_py"
+
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
@@ -435,22 +443,22 @@ jobs:
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
-      # Cython linetrace under coverage on Windows needs more stack than the
-      # default 1 MB thread size.  The helper runs pytest on an 8 MB thread.
-      - name: Run cuda.bindings tests (with 8MB stack)
+      # The patched interpreter provides the larger stack on the main thread
+      # and in child interpreters. Deferred cleanup needs pytest on the main thread.
+      - name: Run cuda.bindings tests
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
 
-      - name: Run cuda.core tests (with 8MB stack)
+      - name: Run cuda.core tests
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_core/tests"
