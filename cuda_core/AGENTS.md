@@ -117,6 +117,8 @@ accepted. Do not add fallback logic for it. The order is:
   - `CUDA_PYTHON_PARALLEL_LEVEL`
   - `CUDA_PYTHON_COVERAGE`
   - `CUDA_PYTHON_WERROR` (compiler warnings become errors; CI wheel builds set it)
+  - `CUDA_PYTHON_SKIP_CLANG_TIDY` (set to `1` to skip the clang-tidy check of
+    the handwritten C++ sources during the build)
 
 ## Editing guidance
 

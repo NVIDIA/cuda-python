@@ -24,6 +24,10 @@ To run these tests:
 * `python -m pytest tests/` with editable installations
 * `pytest tests/` with installed packages
 
+### Building from source
+
+Builds run clang-tidy on the handwritten C++ sources (`cuda/core/_cpp/`) and fail on any finding. To skip this check, for example when the installed clang-tidy differs from the pinned version, set `CUDA_PYTHON_SKIP_CLANG_TIDY=1` in the build environment.
+
 ### Cython Unit Tests
 
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [those of cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:

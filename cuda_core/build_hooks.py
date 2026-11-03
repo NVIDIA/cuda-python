@@ -62,6 +62,8 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 # compilers we do not control. Meant for optimized builds: a debug build
 # (-O0) trips the _FORTIFY_SOURCE "#warning" on glibc toolchains.
 WARNINGS_AS_ERRORS = bool(int(os.environ.get("CUDA_PYTHON_WERROR", "0")))
+# CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips the clang-tidy check of the handwritten
+# C++ sources (see check_with_clang_tidy). It is read when the check runs.
 
 
 def _import_cuda_bindings():
@@ -837,7 +839,10 @@ def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
 
     When clang-tidy is not installed, the check is skipped with a prominent
     warning, whether or not the command compiles a handwritten source.
+    Setting CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips the check silently.
     """
+    if bool(int(os.environ.get("CUDA_PYTHON_SKIP_CLANG_TIDY", "0"))):
+        return
     clang_tidy = _find_clang_tidy()
     if clang_tidy is None:
         _warn_clang_tidy_missing()

@@ -1100,3 +1100,19 @@ class TestCythonAlias(CythonAliasMixin):
     """`_stable_cython_alias` tests for cuda.core."""
 
     build_hooks = build_hooks
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_clang_tidy_skipped_by_env_var(monkeypatch):
+    """CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips the check before clang-tidy is even looked up."""
+    lookups = []
+    monkeypatch.setattr(build_hooks, "_find_clang_tidy", lambda: lookups.append(1))
+    monkeypatch.setenv("CUDA_PYTHON_SKIP_CLANG_TIDY", "1")
+    build_hooks.check_with_clang_tidy(["g++", "-c", "x.cpp"])
+    assert lookups == []
+
+    monkeypatch.setenv("CUDA_PYTHON_SKIP_CLANG_TIDY", "0")
+    build_hooks._warn_clang_tidy_missing.cache_clear()
+    build_hooks.check_with_clang_tidy(["g++", "-c", "x.cpp"])
+    assert lookups == [1]
+    build_hooks._warn_clang_tidy_missing.cache_clear()
