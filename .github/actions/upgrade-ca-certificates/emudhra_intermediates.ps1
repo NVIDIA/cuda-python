@@ -29,7 +29,10 @@ function Get-CertificateSha256([System.Security.Cryptography.X509Certificates.X5
 # Returns the certificates as X509Certificate2 objects; callers dispose them.
 # Works on both Windows PowerShell 5.1 and PowerShell 7+.
 function Get-EmudhraIntermediates {
-    $entries = @(Get-Content -LiteralPath $EmudhraIntermediatesPath -Raw | ConvertFrom-Json)
+    # Windows PowerShell 5.1's ConvertFrom-Json emits a JSON array as a single
+    # object; piping it through ForEach-Object enumerates it on both versions.
+    $parsed = Get-Content -LiteralPath $EmudhraIntermediatesPath -Raw | ConvertFrom-Json
+    $entries = @($parsed | ForEach-Object { $_ })
     if ($entries.Count -ne $EmudhraIntermediatesCount) {
         throw "Expected $EmudhraIntermediatesCount certificates in $EmudhraIntermediatesPath, found $($entries.Count)."
     }
