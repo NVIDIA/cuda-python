@@ -49,9 +49,11 @@ runs:
         # Use the runtime workspace mount so this also works inside container jobs.
         CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
         CTK_BASE_URL="${{ inputs.redist-base-url }}"
+        # A trailing slash would defeat the public-server comparison below and double up in URLs.
+        CTK_BASE_URL="${CTK_BASE_URL%/}"
         # RUNNER_TEMP persists across steps, so "Get CUDA components" reuses this file.
         CTK_JSON_FILE="$RUNNER_TEMP/redistrib-${{ inputs.cuda-version }}.json"
-        curl -LSs "${CTK_BASE_URL}/redistrib_${{ inputs.cuda-version }}.json" -o "$CTK_JSON_FILE"
+        curl -LSs --fail --retry 3 --retry-delay 2 "${CTK_BASE_URL}/redistrib_${{ inputs.cuda-version }}.json" -o "$CTK_JSON_FILE"
 
         # Pin the metadata JSON: the per-archive sha256 checks below are only
         # trustworthy if the JSON that carries those hashes is itself trusted.

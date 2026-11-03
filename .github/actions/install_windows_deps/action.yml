@@ -22,8 +22,12 @@ runs:
         if ($env:DEPENDENT_EXES -notmatch '^\s*[a-zA-Z0-9_.-]+(\s+[a-zA-Z0-9_.-]+)*\s*$') {
           throw 'Expected a space-separated list of executable names.'
         }
-        $check = 'missing=0; for tool in $DEPENDENT_EXES; do command -v "$tool" || missing=1; done; exit "$missing"'
-        $bash = Get-Command bash -ErrorAction SilentlyContinue
+        # Fail the check if the list did not reach Bash (a WSL bash would not receive it).
+        $check = 'missing=0; [ -n "$DEPENDENT_EXES" ] || missing=1; for tool in $DEPENDENT_EXES; do command -v "$tool" || missing=1; done; exit "$missing"'
+        # Skip the WSL launcher in System32/WindowsApps: it is not a Git for Windows bash.
+        $bash = Get-Command bash -All -ErrorAction SilentlyContinue |
+          Where-Object { $_.Source -notmatch '\\(System32|SysWOW64|WindowsApps)\\' } |
+          Select-Object -First 1
         if ($bash) {
           & $bash.Source --noprofile --norc -c $check
           if ($LASTEXITCODE -eq 0) {
