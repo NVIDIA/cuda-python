@@ -1,0 +1,6 @@
+﻿cuda.core.system.InsufficientPowerError
+=======================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: InsufficientPowerError
