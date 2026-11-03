@@ -84,7 +84,7 @@ try {
             $ex = $_.Exception
             while ($null -ne $ex) {
                 if (
-                    ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'certificate chain|UntrustedRoot|RemoteCertificateChainErrors|remote certificate is invalid') -or
+                    ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'certificate chain|UntrustedRoot|RemoteCertificateChainErrors') -or
                     ($ex -is [System.Net.WebException] -and $ex.Status -eq [System.Net.WebExceptionStatus]::TrustFailure)
                 ) {
                     $certRejected = $true
