@@ -23,6 +23,17 @@ class CUDAError(Exception):
     documentation for the guarantees an exception provides.
     """
 
+class CUDAOutOfMemoryError(CUDAError, MemoryError):
+    """Raised when a CUDA driver or runtime call fails for lack of memory.
+
+    ``CUDA_ERROR_OUT_OF_MEMORY`` and ``cudaErrorMemoryAllocation`` raise this
+    class. It is both a :class:`CUDAError` and a :class:`MemoryError`, so code
+    that catches :class:`MemoryError` to retry with a smaller request handles
+    ``cuda.core`` the same way as other array libraries.
+
+    .. versionadded:: 1.3.0
+    """
+
 class CUDAWarning(RuntimeWarning):
     """Warning issued when ``cuda.core`` hits a CUDA error it cannot raise.
 

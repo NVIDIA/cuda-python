@@ -225,6 +225,37 @@ def test_from_dlpack_cuda_stream_none_ambiguous():
         StridedMemoryView.from_dlpack(_FakeCudaDevice(), stream_ptr=None)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(("device_type", "device_id"), [(DLDeviceType.kDLCPU, 1), (DLDeviceType.kDLCUDA, -1)])
+def test_from_dlpack_rejects_invalid_device_id(device_type, device_id):
+    """A device ordinal the DLPack device type cannot have is rejected."""
+
+    class _FakeInvalidDeviceId:
+        def __dlpack_device__(self):
+            return (int(device_type), device_id)
+
+        def __dlpack__(self, **kwargs):
+            raise AssertionError("__dlpack__ must not be reached")
+
+    with pytest.raises(ValueError, match=f"reported device_id {device_id}"):
+        StridedMemoryView.from_dlpack(_FakeInvalidDeviceId(), stream_ptr=-1)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_from_dlpack_rejects_non_capsule():
+    """``__dlpack__`` must return an unconsumed DLPack capsule."""
+
+    class _FakeNonCapsule:
+        def __dlpack_device__(self):
+            return (int(DLDeviceType.kDLCPU), 0)
+
+        def __dlpack__(self, **kwargs):
+            return object()
+
+    with pytest.raises(ValueError, match="not an unconsumed DLPack capsule"):
+        StridedMemoryView.from_dlpack(_FakeNonCapsule(), stream_ptr=-1)
+
+
 class _DLPackNoMaxVersion:
     """Wraps a StridedMemoryView but rejects the ``max_version`` kwarg, forcing the
     TypeError fallback in ``view_as_dlpack`` and an *unversioned* capsule import.
@@ -843,3 +874,20 @@ def test_dlpack_c_exchange_api_managed_tensor_allocator_not_supported():
         # Currently sets a Python error when `SetError` isn't passed.
         api.managed_tensor_allocator(None, ctypes.byref(out), None, None)
     assert not out.value  # set to NULL before the error
+
+
+@pytest.mark.parametrize(("dtype_name", "max_itemsize"), [("longdouble", 8), ("clongdouble", 16)])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_dlpack_export_rejects_extended_numpy_width(dtype_name, max_itemsize):
+    """Supported dtype kinds with extended widths cannot be exported as DLPack."""
+    dtype = np.dtype(getattr(np, dtype_name))
+    if dtype.itemsize <= max_itemsize:
+        pytest.skip(f"{dtype_name} has a DLPack-supported width on this platform")
+    source = np.zeros(4, dtype=dtype)
+    view = StridedMemoryView.from_array_interface(source)
+    error_match = "Unsupported floating dtype" if dtype.kind == "f" else "Unsupported complex dtype"
+    with pytest.raises(BufferError, match=error_match):
+        view.__dlpack__(max_version=(1, 0))
+    assert view.dtype == dtype
+    assert view.ptr == source.ctypes.data
+    assert view.exporting_obj is source

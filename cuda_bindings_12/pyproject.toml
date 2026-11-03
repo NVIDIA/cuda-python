@@ -104,6 +104,9 @@ ignore = [
 exclude = ["cuda/bindings/_version.py"]
 
 [tool.ruff.lint.per-file-ignores]
+# This config replaces ../ruff.toml for this tree, so it repeats that file's
+# S101 policy: asserts are rejected only in cuda_core/cuda/core.
+"**" = ["S101"]
 "setup.py" = ["F401"]
 "__init__.py" = ["F401"]
 "site-packages/_cuda_bindings_redirector.py" = ["F401"]
