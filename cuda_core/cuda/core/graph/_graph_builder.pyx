@@ -62,7 +62,10 @@ from cuda.core._utils.cuda_utils import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from typing import overload
+
+    from cuda.core._utils.pycompat import BufferProtocol
 
     from cuda.core.graph._graph_definition import GraphDefinition
 else:
@@ -947,7 +950,7 @@ cdef class GraphBuilder:
             )
         )
 
-    def callback(self, fn, *, user_data=None) -> None:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> None:
         """Add a host callback to the graph during stream capture.
 
         The callback runs on the host CPU when the graph reaches this point
