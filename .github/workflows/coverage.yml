@@ -386,6 +386,15 @@ jobs:
           python-version: ${{ env.PY_VER }}
           venv: .venv
 
+      # This job installs a separate Python from the wheel-build job. Give its
+      # main thread and test subprocesses enough stack for coverage-built bindings.
+      - name: Raise the test interpreter's stack reserve to 8 MiB
+        shell: powershell
+        run: |
+          $basePy = & .venv/Scripts/python.exe -c "import sys; print(sys._base_executable)"
+          if ($LASTEXITCODE -ne 0) { throw "Could not locate base Python executable" }
+          & ./ci/tools/set_windows_python_stack.ps1 -Executable $basePy -ReserveBytes 8388608
+
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
@@ -435,8 +444,8 @@ jobs:
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
-      # Cython linetrace under coverage on Windows needs more stack than the
-      # default 1 MB. The helper runs pytest on the main thread with 8 MB.
+      # The patched interpreter gives pytest's main thread and subprocesses
+      # 8 MiB; the helper gives threads created during pytest the same stack.
       - name: Run cuda.bindings tests (with 8MB stack)
         continue-on-error: true
         run: |
