@@ -250,7 +250,7 @@ cdef class KernelAttributes:
                 cydriver.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED,
             ))
         ELSE:
-            raise NotImplementedError("Device node update queries require the CUDA 13 build of cuda.core")
+            raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
 
 
 MaxPotentialBlockSizeOccupancyResult = namedtuple(

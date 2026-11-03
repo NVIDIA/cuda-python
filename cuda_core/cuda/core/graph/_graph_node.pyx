@@ -159,7 +159,7 @@ cdef class GraphNode:
                 HANDLE_RETURN(cydriver.cuGraphNodeGetLocalId(as_cu(self._h_node), &node_id))
             return node_id
         ELSE:
-            raise NotImplementedError("Graph node IDs require the CUDA 13 build of cuda.core")
+            raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
 
     @property
     def tools_id(self) -> int:
@@ -176,7 +176,7 @@ cdef class GraphNode:
                 HANDLE_RETURN(cydriver.cuGraphNodeGetToolsId(as_cu(self._h_node), &node_id))
             return node_id
         ELSE:
-            raise NotImplementedError("Graph node IDs require the CUDA 13 build of cuda.core")
+            raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
 
     @property
     def graph(self) -> GraphDefinition:

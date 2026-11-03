@@ -159,7 +159,7 @@ cdef class GraphDefinition:
                 HANDLE_RETURN(cydriver.cuGraphGetId(as_cu(self._h_graph), &graph_id))
             return graph_id
         ELSE:
-            raise NotImplementedError("Graph IDs require the CUDA 13 build of cuda.core")
+            raise NotImplementedError("Graph IDs require CUDA driver 13.1 or newer")
 
     @property
     def is_valid(self) -> bool:
