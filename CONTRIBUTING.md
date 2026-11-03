@@ -1,24 +1,13 @@
 # Contributing to CUDA Python
 
-Thank you for your interest in contributing to CUDA Python! Based on the type of contribution, it will fall into two categories:
-
-1. You want to report a bug, feature request, or documentation issue:
-    - File an [issue](https://github.com/NVIDIA/cuda-python/issues/new/choose)
-    describing what you encountered or what you want to see changed.
-    - The NVIDIA team will evaluate the issues and triage them, scheduling
-    them for a release. If you believe the issue needs priority attention
-    comment on the issue to notify the team.
-2. You want to implement a feature, improvement, or bug fix:
-   - Before starting work on an existing issue, please comment on the issue to express your interest and wait to be assigned by a maintainer. This helps avoid redundant effort in case the issue is already being worked on by another contributor or an NVIDIA team member.
-   - Please refer to each component's guideline:
-       - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
-       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
-       - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
+Thank you for your interest in contributing to CUDA Python! Bug reports,
+reproducers, documentation improvements, and code changes are welcome.
 
 ## Table of Contents
 
 - [Contributing to CUDA Python](#contributing-to-cuda-python)
   - [Table of Contents](#table-of-contents)
+  - [Coordinate before implementing](#coordinate-before-implementing)
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
     - [Updating your clone](#updating-your-clone)
@@ -26,10 +15,13 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
   - [Development on Windows](#development-on-windows)
     - [Enabling git symlinks](#enabling-git-symlinks)
-    - [Pre-commit lychee workaround](#pre-commit-lychee-workaround)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
   - [Pre-commit](#pre-commit)
+  - [CodeRabbit](#coderabbit)
+    - [Review Guidance](#review-guidance)
+    - [Pull Request Reviews](#pull-request-reviews)
   - [Pixi lockfiles](#pixi-lockfiles)
+  - [Secret Scanning](#secret-scanning)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -42,6 +34,32 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Key Infrastructure Details](#key-infrastructure-details)
   - [Code coverage](#code-coverage)
 
+
+## Coordinate before implementing
+
+Our review and CI capacities are limited. If you are contributing from outside NVIDIA:
+
+- **Existing issues:** comment and wait for a maintainer to assign it to you or
+  explicitly ask you to implement it. Check existing assignments and requests
+  to take the issue.
+- **New features, bug/documentation fixes, RFCs, or code updates/enhancements:** open an
+  issue, agree on scope and validation, and wait for the assignment before implementing.
+
+For obvious issues, opening a one-liner issue for tracking and assignment purposes is
+completely fine.
+
+For bug reports, please include a reproducer with a clear description for the expected
+versus observed behavior. Also include the CUDA driver version and the Python environment
+information (ex: `pip list`, `conda list`, ..., depending on how the environment was
+created).
+
+Please do not send unsolicited (i.e. without prior discussion and assignment) PRs, which
+could be closed without notice subject to the team's triage.
+
+NVIDIA contributors may use normal team planning and self-assignment.
+
+Keep changes focused, understand the complete diff, and report which checks
+ran and any validation gaps.
 
 ## Cloning the repository
 
@@ -167,7 +185,7 @@ The repository contains documentation and metadata symlinks, including
 `CLAUDE.md`, `cuda_python/README.md`, and the per-package `.git_archival.txt`
 files. It also currently tracks the build-critical
 `cuda_core/_build_shared.py` as a symlink to the canonical
-`cuda_bindings/_build_shared.py`. The core path may instead be maintained as a
+`cuda_bindings_13/_build_shared.py`. The core path may instead be maintained as a
 byte-for-byte identical copy, but the current tree uses a symlink. With
 `core.symlinks=false`, Git checks it out as a plain text file containing the
 target path, and `cuda-core` source builds and tests fail.
@@ -191,19 +209,6 @@ $ reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v
 ```
 
 Then return to [Recommended clone](#recommended-clone).
-
-### Pre-commit lychee workaround
-
-For development on Windows (not WSL), the `lychee` pre-commit task will not
-work when running `pre-commit run --all-files`. This problem does not occur
-if you install the pre-commit hook and run it automatically as part of your
-`git commit` workflow. To resolve this, you can either:
-
-1. Run `pre-commit` in Git Bash, rather than directly in PowerShell or cmd
-
-2. Skip it by setting the environment variable `SKIP` to `lychee`. This would
-   be `$env:SKIP = "lychee"` in PowerShell or `set SKIP=lychee` in cmd.
-
 
 ## Type stubs for cuda.core
 
@@ -237,6 +242,8 @@ To set yourself up for running pre-commit checks locally and to catch issues bef
 * Run this once per checkout: `pre-commit install`
 * You can manually check all files at any time by running: `pre-commit run --all-files`
 
+On Windows, these commands work from PowerShell, cmd, or Git Bash.
+
 This command runs all configured hooks (such as linters and formatters) across your repository, letting you review and address issues before committing.
 
 Installing the hook is required, not optional. Some of the automated checks
@@ -247,7 +254,54 @@ between commits, leaving stale headers or out-of-date stubs in the history.
 If the hook isn't installed, `pre-commit run` will print a visible warning
 reminding you to run `pre-commit install`.
 
-Windows contributors: see [Pre-commit lychee workaround](#pre-commit-lychee-workaround) under Development on Windows.
+C, C++ and CUDA sources are formatted with `clang-format` using the
+[`.clang-format`](.clang-format) at the repository root, which follows PEP 7
+except for a 120-column limit. The
+pre-commit hook installs its own pinned `clang-format` (from PyPI) into the
+hook environment, so no system-wide installation is required. Vendored code
+(for example `dlpack.h` and `cuda_core/third_party/`) is excluded in
+`.pre-commit-config.yaml`. To format in your editor, install the same version
+with `pip install clang-format==23.1.3`.
+
+## CodeRabbit
+
+This section explains how to use CodeRabbit for CUDA Python pull request review.
+For complete product documentation, see the
+[CodeRabbit documentation](https://docs.coderabbit.ai/).
+
+### Review Guidance
+
+We treat CodeRabbit feedback as review assistance, not as a merge requirement by
+itself. Maintainers remain responsible for deciding whether comments are
+actionable and whether a pull request has adequate tests and CI coverage.
+
+### Pull Request Reviews
+
+Automatic reviews may be disabled or restricted by the repository
+configuration. PR authors and maintainers can request a review explicitly by
+posting a comment on the pull request:
+
+```text
+@coderabbitai review
+```
+
+Use a full review when the pull request should be reviewed again from scratch:
+
+```text
+@coderabbitai full review
+```
+
+Other useful commands:
+
+- `@coderabbitai help` shows the current command reference.
+- `@coderabbitai configuration` shows the active configuration.
+- `@coderabbitai summary` can be placed in the pull request description as a
+  placeholder for the generated summary.
+- `@coderabbitai pause` and `@coderabbitai resume` pause or resume automatic
+  review behavior. This is useful when a pull request is still being updated
+  frequently and should not be reviewed again until it is ready.
+- `@coderabbitai ignore` can be placed in the pull request description to
+  disable automatic reviews.
 
 ## Pixi lockfiles
 
@@ -424,7 +478,3 @@ The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`
 Code coverage reports are produced nightly and posted to [GitHub Pages](https://nvidia.github.io/cuda-python/coverage).
 
 Known limitations: Code coverage is only run on Linux x86_64 with an a100 GPU.  We plan to add more platform and GPU coverage in the future.
-
----
-
-<a>1</a>: The `cuda-python` meta package shares the same license and the contributing guidelines as those of `cuda-bindings`.

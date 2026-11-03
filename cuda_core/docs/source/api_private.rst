@@ -48,8 +48,9 @@ CUDA runtime
    _device.DeviceProperties
    _memory._ipc.IPCAllocationHandle
    _memory._ipc.IPCBufferDescriptor
-   _memory._ipc.VirtualMemoryIPCBufferDescriptor
+   _memory._ipc.VirtualMemoryFdBufferDescriptor
    _memory._managed_buffer.AccessedBySetProxy
+   _memory._memory_pool._MemPoolAttributes
 
 
 CUDA graphs
@@ -138,6 +139,7 @@ NVML
    system.InsufficientSizeError
    system.InsufficientPowerError
    system.DriverNotLoadedError
+   system.NvmlTimeoutError
    system.TimeoutError
    system.IrqIssueError
    system.LibraryNotFoundError
@@ -148,6 +150,7 @@ NVML
    system.OperatingSystemError
    system.LibRmVersionMismatchError
    system.InUseError
+   system.NvmlMemoryError
    system.MemoryError
    system.NoDataError
    system.VgpuEccNotSupportedError

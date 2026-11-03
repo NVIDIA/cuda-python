@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -43,7 +43,7 @@ cmd = [
 cmd = [
     "bash",
     "-c",
-    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings" -e "$PIXI_ENVIRONMENT_NAME" test',
+    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings_13" -e "$PIXI_ENVIRONMENT_NAME" test',
 ]
 
 [target.linux.tasks.test-core]
@@ -57,7 +57,7 @@ cmd = [
 cmd = [
     "bash",
     "-c",
-    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings" test-samples',
+    'pixi run --manifest-path "$PIXI_PROJECT_ROOT/cuda_bindings_13" test-samples',
 ]
 
 [target.linux.tasks.test-samples-core]
@@ -96,7 +96,7 @@ cmd = [
     "pixi",
     "run",
     "--manifest-path",
-    "$PIXI_PROJECT_ROOT/cuda_bindings",
+    "$PIXI_PROJECT_ROOT/cuda_bindings_13",
     "-e",
     "docs",
     "build-docs",

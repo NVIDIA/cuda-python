@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -24,7 +24,7 @@ from cuda.bindings import nvvm
 
 
 def get_minimal_nvvmir_txt_template():
-    cuda_bindings_tests_dir = Path("cuda_bindings/tests")
+    cuda_bindings_tests_dir = Path("cuda_bindings_13/tests")
     assert cuda_bindings_tests_dir.is_dir(), "Please run this helper script from the cuda-python top-level directory."
     sys.path.insert(0, str(cuda_bindings_tests_dir.resolve()))
     import test_nvvm

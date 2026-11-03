@@ -25,24 +25,26 @@ namespace {
 // "__" + the macro-expanded symbol that cuda.h maps the public name to, which
 // is how cuda-bindings keys its table. #name is the public name, unexpanded.
 #define CUDA_CORE_DRIVER_FN_ENTRY(name, introduced) \
-    {"__" CUDA_CORE_XSTR(name), #name, reinterpret_cast<void**>(&p_##name), introduced},
+    {"__" CUDA_CORE_XSTR(name), #name, reinterpret_cast<void **>(&p_##name), introduced},
 
 const FnEntry driver_entries[] = {CUDA_CORE_DRIVER_FUNCTIONS(CUDA_CORE_DRIVER_FN_ENTRY)};
 #undef CUDA_CORE_DRIVER_FN_ENTRY
 
 const FnEntry nvrtc_entries[] = {
-    {"__nvrtcDestroyProgram", "nvrtcDestroyProgram", reinterpret_cast<void**>(&p_nvrtcDestroyProgram), 0},
+    {"__nvrtcDestroyProgram", "nvrtcDestroyProgram", reinterpret_cast<void **>(&p_nvrtcDestroyProgram), 0},
 };
 const FnEntry nvvm_entries[] = {
-    {"__nvvmDestroyProgram", "nvvmDestroyProgram", reinterpret_cast<void**>(&p_nvvmDestroyProgram), 0},
+    {"__nvvmDestroyProgram", "nvvmDestroyProgram", reinterpret_cast<void **>(&p_nvvmDestroyProgram), 0},
 };
 const FnEntry nvjitlink_entries[] = {
-    {"__nvJitLinkDestroy", "nvJitLinkDestroy", reinterpret_cast<void**>(&p_nvJitLinkDestroy), 0},
+    {"__nvJitLinkDestroy", "nvJitLinkDestroy", reinterpret_cast<void **>(&p_nvJitLinkDestroy), 0},
 };
 
 }  // namespace
 
-const FnEntry* fn_table_entries(FnTable table, std::size_t* count) noexcept {
+const FnEntry *
+fn_table_entries(FnTable table, std::size_t *count) noexcept
+{
     switch (table) {
         case FnTable::driver:
             *count = sizeof(driver_entries) / sizeof(driver_entries[0]);

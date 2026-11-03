@@ -33,7 +33,7 @@ input buffers, so the kernels see fully-materialized data.
 
 ### From `cuda.core`
 
-- `system.get_num_devices()` - count of visible CUDA devices
+- `Device.get_all_devices()` - the CUDA devices visible to this process
 - `Device(device_id)` / `Device.set_current()` - select and activate a device
 - `Device.create_stream()` - create a `cuda.core` stream on the current device
 - `Device.create_stream(adaptor)` - wrap a foreign stream via the `__cuda_stream__` protocol

@@ -22,8 +22,10 @@ from helpers.constants import POOL_SIZE
 mr = DeviceMemoryResource(dev, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
 ```
 
-Use a larger value only if a test genuinely requires it, and prefer adding a
-shared constant to `helpers/constants.py` over redefining one per module.
+`helpers/constants.py` re-exports `POOL_SIZE` from
+`cuda_python_test_helpers.memory`, where the `cuda.bindings` tests import it
+too. Use a larger value only if a test genuinely requires it, and prefer adding
+a shared constant over redefining one per module.
 
 ### Passing no options is different from passing empty options
 
@@ -96,11 +98,24 @@ Follow these rules when adding or moving shared test code:
   `tests/helpers/` instead.
 - Import helpers explicitly from the test root, for example:
   `from helpers.memory import create_managed_memory_resource_or_skip`.
+- Reuse `run_child` and `noop` from `helpers.child_processes` for synchronous
+  child-process tests. The runner applies the sanitizer-aware timeout, kills
+  surviving children before asserting success, and closes process handles.
+  Before measuring file-descriptor counts around spawned processes, call
+  `warmup_multiprocessing` from the same module to start the persistent
+  resource-tracker pipe outside the baseline. Keep explicit process management
+  when the test needs to communicate with a running child or inspect its lifetime;
+  use `kill_subprocesses` before assertions and `track_child_processes` for
+  fixture cleanup so a stuck child cannot block IPC resource teardown.
+- Use the skip guards in `helpers/memory.py` instead of per-module copies:
+  `skip_if_mempool_unsupported`, `skip_if_managed_mempool_unsupported` (a
+  property check only; it never constructs a managed resource), and
+  `is_pool_resource` to tell pool-backed resources from VMM ones.
 - Search `tests/helpers/` and `cuda_python_test_helpers/` for prior art
   before adding a new helper; consolidate duplicates across
 
   packages into `cuda_python_test_helpers` (both `cuda_core` and
-  `cuda_bindings` test environments already depend on it).
+  `cuda-bindings` test environments already depend on it).
 - Fixtures in a nested `conftest.py` are available to tests in its directory
   and descendants; fixtures from applicable parent `conftest.py` files remain
   available.

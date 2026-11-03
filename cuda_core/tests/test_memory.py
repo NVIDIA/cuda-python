@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import concurrent.futures
 import ctypes
 import gc
 import multiprocessing as mp
@@ -44,6 +45,7 @@ from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import (
     Buffer,
+    CUDAOutOfMemoryError,
     CUDAWarning,
     Device,
     DeviceMemoryResource,
@@ -1151,6 +1153,24 @@ def test_managed_memory_resource_buffer_dlpack_device_type(init_cuda):
     assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_managed_memory_resource_allocate_rejects_graph_builder(init_cuda):
+    device = init_cuda
+    skip_if_managed_memory_unsupported(device)
+    mr = None
+    gb = None
+    try:
+        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
+        gb = device.create_graph_builder()
+        with pytest.raises(TypeError, match="Only Stream is supported .*got GraphBuilder"):
+            mr.allocate(64, stream=gb)
+    finally:
+        if gb is not None:
+            gb.close()
+        if mr is not None:
+            mr.close()
+
+
 @pytest.mark.parametrize("mr_kind", ["device", "pinned"])
 def test_non_managed_resources_report_not_managed(init_cuda, mr_kind):
     """Non-managed memory resources must report is_managed=False."""
@@ -1940,6 +1960,38 @@ def test_vmm_buffers_alive_at_shutdown_are_freed_quietly(init_cuda):
     assert result.stderr == ""
 
 
+@pytest.mark.parametrize(
+    "options",
+    [
+        pytest.param({"addr_align": 3}, id="invalid-alignment"),
+        pytest.param({"peers": (-1,)}, id="invalid-peer"),
+    ],
+)
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_failed_vmm_allocation_does_not_block_another_resource(init_cuda, options):
+    """A failed allocation leaves its config unchanged and another VMM resource usable."""
+    device = _vmm_device_or_skip()
+    invalid_resource = _vmm_resource(device, **options)
+    error_match = "CUDA_ERROR_INVALID_VALUE" if "addr_align" in options else r"CUDA_ERROR_INVALID_(VALUE|DEVICE)"
+    with assert_no_cuda_warning(), pytest.raises(CUDAError, match=error_match):
+        invalid_resource.allocate(4096)
+    for name, value in options.items():
+        assert getattr(invalid_resource.config, name) == value
+
+    # Use a separate resource with valid options; the invalid configuration is unchanged.
+    resource = _vmm_resource(device)
+    buffer = resource.allocate(4096)
+    ptr, size = int(buffer.handle), buffer.size
+    try:
+        _vmm_fill(buffer, 0x5C)
+        assert _vmm_read(buffer, 0, 16) == bytes([0x5C]) * 16
+    finally:
+        with assert_no_cuda_warning():
+            buffer.close()
+    _vmm_assert_released([(ptr, size)])
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.thread_unsafe(reason="records process-global warnings")
 def test_vmm_failed_grow_leaves_input_intact(init_cuda):
@@ -2221,6 +2273,30 @@ def test_vmm_host_location_grow_and_close(init_cuda):
         grown.close()
         moved.close()
         assert moved.size == 0
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_device_memory_resource_out_of_memory_is_memory_error(init_cuda):
+    device = Device()
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    device.set_current()
+
+    mr = DeviceMemoryResource(device, options=DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    try:
+        # Larger than any device, and than the pool's max_size, which the
+        # driver rounds up to its allocation granularity.
+        with pytest.raises(MemoryError) as e:
+            mr.allocate(1 << 46, stream=device.default_stream)
+        assert isinstance(e.value, CUDAOutOfMemoryError)
+        assert isinstance(e.value, CUDAError)
+        assert "CUDA_ERROR_OUT_OF_MEMORY" in str(e.value)
+
+        # The failed request leaves the pool usable.
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+    finally:
+        mr.close()
 
 
 def test_device_memory_resource_with_options(init_cuda):
@@ -2775,6 +2851,168 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
+def _create_owned_pool_or_skip(memory_resource_factory, device):
+    MR, MRops = memory_resource_factory
+    if MR is DeviceMemoryResource:
+        if not device.properties.memory_pools_supported:
+            pytest.skip("Device does not support mempool operations")
+        return MR(device, options=MRops(max_size=POOL_SIZE))
+    if MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+        return MR(options=MRops(max_size=POOL_SIZE))
+    skip_if_managed_memory_unsupported(device)
+    return create_managed_memory_resource_or_skip(options=MRops())
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_attributes_set(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    attributes = mr.attributes
+    try:
+        for name in (
+            "reuse_follow_event_dependencies",
+            "reuse_allow_opportunistic",
+            "reuse_allow_internal_dependencies",
+        ):
+            for flag in (False, True):
+                setattr(attributes, name, flag)
+                assert getattr(attributes, name) is flag
+
+        attributes.release_threshold = 1 << 20
+        assert attributes.release_threshold == 1 << 20
+        attributes.release_threshold = 0
+        assert attributes.release_threshold == 0
+        for value in (-1, 2**64):
+            with pytest.raises(OverflowError):
+                attributes.release_threshold = value
+
+        for name in ("reserved_mem_high", "used_mem_high"):
+            with pytest.raises(AttributeError, match=f"'{name}' may only be set to zero"):
+                setattr(attributes, name, 1)
+        for name in ("reserved_mem_current", "used_mem_current"):
+            with pytest.raises(AttributeError):
+                setattr(attributes, name, 0)
+    finally:
+        mr.close()
+
+
+class _IntSubclass(int):
+    pass
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    "make_value",
+    [
+        pytest.param(lambda: True, id="bool"),
+        pytest.param(lambda: _IntSubclass(4096), id="int-subclass"),
+        pytest.param(lambda: np.uint64(4096), id="np-uint64"),
+    ],
+)
+def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, make_value):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        value = make_value()
+        mr.attributes.release_threshold = value
+        assert mr.attributes.release_threshold == int(value)
+    finally:
+        mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize("kind", ["reserved", "used"])
+def test_mempool_watermark_reset(memory_resource_factory, kind):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    high, current = f"{kind}_mem_high", f"{kind}_mem_current"
+    try:
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        # Return the freed memory so that the reserved watermark is above the
+        # current value too.
+        mr.trim()
+        assert getattr(mr.attributes, high) >= POOL_SIZE // 2
+        assert getattr(mr.attributes, current) < POOL_SIZE // 2
+
+        setattr(mr.attributes, high, 0)
+        assert getattr(mr.attributes, high) == getattr(mr.attributes, current)
+    finally:
+        mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_trim(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        # Keep freed memory reserved so that only trim() returns it.
+        mr.attributes.release_threshold = 2**64 - 1
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        reserved = mr.attributes.reserved_mem_current
+        assert reserved > 0
+
+        mr.trim(min_bytes_to_keep=reserved)
+        assert mr.attributes.reserved_mem_current == reserved
+
+        mr.trim()
+        assert mr.attributes.reserved_mem_current == 0
+    finally:
+        mr.close()
+
+    with pytest.raises(RuntimeError, match="has been closed"):
+        mr.trim()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize(
+    ("mode", "caller"),
+    # A thread-local capture does not restrict other threads, so pairing it
+    # with other_thread would pass without relaxed mode.
+    [("global", "same_thread"), ("global", "other_thread"), ("thread_local", "same_thread")],
+)
+def test_mempool_calls_during_capture_keep_capture_valid(memory_resource_factory, mode, caller):
+    """Pool attribute reads, writes and trim() run in relaxed capture mode.
+
+    The driver refuses these calls, and invalidates the capture, while a
+    global-mode capture is active on any thread or a thread-local one on the
+    calling thread.
+    """
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+
+    def use_pool():
+        device.set_current()
+        attributes = mr.attributes
+        attributes.release_threshold = attributes.release_threshold
+        attributes.reuse_allow_opportunistic = attributes.reuse_allow_opportunistic
+        attributes.used_mem_high = 0
+        mr.trim()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    try:
+        if caller == "same_thread":
+            use_pool()
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(use_pool).result()
+    finally:
+        # Raises if a pool call invalidated the capture.
+        gb.end_building()
+        gb.close()
+        mr.close()
+
+
 def test_mempool_attributes_repr(memory_resource_factory):
     """Test the repr of memory pool attributes for all memory resource types."""
     MR, MRops = memory_resource_factory
@@ -3116,31 +3354,104 @@ def test_vmm_options_handle_type_win32_raises():
         VirtualMemoryResourceOptions._handle_type_to_driver("win32")
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_vmm_options_store_peers_as_tuple():
+    """The options store a one-shot peers iterable as a tuple, so every reader sees all the peers."""
+    options = VirtualMemoryResourceOptions(peers=(peer for peer in (1, 2)))
+    assert options.peers == (1, 2)
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
-@pytest.mark.parametrize("location_type", ["host", "host_numa", "host_numa_current"])
+@pytest.mark.parametrize("location_type", ["host", "host_numa"])
 def test_vmm_host_location_types_report_host_accessible(init_cuda, location_type):
     """Every host-backed location type reports is_host_accessible; only "host" needs handle_type=None.
 
-    __init__ classifies "host", "host_numa" and "host_numa_current" alike when
+    __init__ classifies "host" and "host_numa" alike when
     deciding the resource is not bound to a device, so is_host_accessible must
     agree; otherwise a NUMA-located resource claims to be neither host- nor
     device-accessible. The driver rejects an exportable handle type for HOST
     memory only, so the default handle type is rejected at construction for
-    "host" and accepted for the NUMA location types.
+    "host" and accepted for "host_numa".
     """
     device = Device()
     device.set_current()
+    numa = {"numa_id": 0} if location_type == "host_numa" else {}
     if location_type == "host":
         with pytest.raises(ValueError, match="handle_type=None"):
             VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
     else:
-        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type, **numa))
     mr = VirtualMemoryResource(
-        device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None)
+        device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None, **numa)
     )
     assert mr.device is None
     assert mr.is_host_accessible is True
     assert mr.device_id == -1
+
+
+@pytest.mark.thread_unsafe(reason="records process-global warnings")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_vmm_host_numa_allocates_and_copies(init_cuda):
+    """A "host_numa" resource allocates on its NUMA node, and the host can use the memory.
+
+    The driver rejects CU_MEM_LOCATION_TYPE_HOST_NUMA with location id -1, so
+    the allocation works only if numa_id reaches the allocation properties
+    (#2694). The resource grants access to its own location only, so the data
+    goes through the host. A per-call config cannot move the buffer to another
+    node.
+    """
+    device = Device()
+    device.set_current()
+    props = device.properties
+    if not props.host_numa_virtual_memory_management_supported:
+        pytest.skip("Host NUMA virtual memory management is not supported on this device")
+    if props.host_numa_id < 0:
+        pytest.skip("The system reports no host NUMA node")
+    mr = VirtualMemoryResource(
+        device,
+        config=VirtualMemoryResourceOptions(location_type="host_numa", numa_id=props.host_numa_id, handle_type=None),
+    )
+    with assert_no_cuda_warning():
+        buf = mr.allocate(4096)
+        try:
+            assert buf.is_host_accessible
+            ctypes.memset(int(buf.handle), 0xAB, buf.size)
+            assert ctypes.string_at(int(buf.handle), buf.size) == b"\xab" * buf.size
+            other_node = VirtualMemoryResourceOptions(
+                location_type="host_numa", numa_id=props.host_numa_id + 1, handle_type=None
+            )
+            with pytest.raises(ValueError, match="config.numa_id"):
+                mr.modify_allocation(buf, 2 * buf.size, other_node)
+        finally:
+            buf.close()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_vmm_host_numa_current_rejected(init_cuda):
+    """The driver does not accept "host_numa_current" for physical allocations, so construction rejects it."""
+    device = Device()
+    device.set_current()
+    with pytest.raises(ValueError, match="does not accept it for physical allocations"):
+        VirtualMemoryResource(
+            device, config=VirtualMemoryResourceOptions(location_type="host_numa_current", handle_type=None)
+        )
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    ("options", "match"),
+    [
+        pytest.param({"location_type": "host_numa"}, "requires numa_id", id="host_numa-missing"),
+        pytest.param({"location_type": "host_numa", "numa_id": -1}, "numa_id must be >= 0", id="host_numa-negative"),
+        pytest.param({"location_type": "host", "numa_id": 0}, "only valid with", id="host-misplaced"),
+        pytest.param({"location_type": "device", "numa_id": 0}, "only valid with", id="device-misplaced"),
+    ],
+)
+def test_vmm_numa_id_validation(init_cuda, options, match):
+    """numa_id is required for "host_numa", must be non-negative, and is rejected for other location types."""
+    device = _vmm_device_or_skip()
+    with pytest.raises(ValueError, match=match):
+        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(handle_type=None, **options))
 
 
 def test_device_memory_resource_peer_accessible_by_non_owned(mempool_device):

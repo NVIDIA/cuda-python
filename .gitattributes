@@ -14,3 +14,11 @@ pixi.lock merge=binary linguist-language=YAML linguist-generated=true
 # `setuptools-scm` to correctly determine the version when building from a git
 # archive.  See #1609.
 .git_archival.txt export-subst
+
+# cuda.core compiles against the libcu++ headers of the vendored CCCL submodule
+# only; cuda_core/MANIFEST.in grafts those headers (and their licenses) into the
+# sdist explicitly.  setuptools-scm 10 lists the files of an initialized
+# submodule, which would otherwise add the entire CCCL tree to the sdist and
+# make every egg_info walk it.  "export-ignore" makes its file finder skip the
+# submodule.  See #2940.
+cuda_core/third_party/cccl export-ignore

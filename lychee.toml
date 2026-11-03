@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-# Configuration for lychee, the doc link-checker invoked from
-# .github/actions/check-doc-links. See https://lychee.cli.rs/usage/config/.
+# Configuration shared by the authored and rendered Lychee pre-commit hooks.
+# See https://lychee.cli.rs/guides/config/.
 
 exclude = [
     # PR previews are not published yet during link checking.

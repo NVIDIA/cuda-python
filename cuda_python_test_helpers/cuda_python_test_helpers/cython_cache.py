@@ -13,7 +13,7 @@ Provides:
 - ``WINDOWS_ONLY_CACHE``: shared skip marker for the complementary Windows
   disable-path tests (warn + return None when the cache dir is set).
 
-These are used by ``cuda_bindings/tests/test_build_hooks.py`` and
+These are used by ``cuda_bindings_13/tests/test_build_hooks.py`` and
 ``cuda_core/tests/test_build_hooks.py``. The helpers themselves are loaded
 through matching package-local ``_build_shared.py`` paths.
 

@@ -135,6 +135,66 @@ def test_from_dlpack_cpu_stream_none_ambiguous():
         StridedMemoryView.from_dlpack(src, stream_ptr=None)
 
 
+class _StreamHandleLike:
+    """Stand-in for a third-party stream wrapper such as numba-cuda's ``CUstream``.
+
+    It is int-convertible but has no ``__bool__``/``__len__``, so it is always
+    truthy even when it wraps 0.
+    """
+
+    def __init__(self, value):
+        self._value = value
+
+    def __int__(self):
+        return self._value
+
+
+class _RecordingDLPackSource:
+    """CPU DLPack exporter that records the ``stream`` it was asked for."""
+
+    def __init__(self, array):
+        self._array = array
+        self.streams = []
+
+    def __dlpack_device__(self):
+        return self._array.__dlpack_device__()
+
+    def __dlpack__(self, *, stream=None, **kwargs):
+        self.streams.append(stream)
+        return self._array.__dlpack__(stream=stream, **kwargs)
+
+
+def _view_via_constructor(src, stream_ptr):
+    with pytest.warns(DeprecationWarning, match="Constructing a StridedMemoryView directly"):
+        return StridedMemoryView(src, stream_ptr)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize("handle_value", [0, -1], ids=["zero", "opt-out"])
+@pytest.mark.parametrize(
+    "make_view",
+    [
+        StridedMemoryView.from_dlpack,
+        StridedMemoryView.from_any_interface,
+        _view_via_constructor,
+    ],
+    ids=["from_dlpack", "from_any_interface", "constructor"],
+)
+def test_cpu_dlpack_accepts_int_convertible_stream_ptr(make_view, handle_value):
+    """A truthy int-convertible stream wrapper is coerced before ``__dlpack__``.
+
+    CPU exporters such as NumPy only accept ``stream=None``. A wrapper around
+    0 (or the -1 opt-out) must be treated as the integer it wraps, not as an
+    opaque truthy object forwarded to ``__dlpack__`` as a stream.
+    """
+    src = _RecordingDLPackSource(np.arange(4, dtype=np.float32))
+
+    view = make_view(src, _StreamHandleLike(handle_value))
+
+    assert src.streams == [None]
+    assert view.shape == (4,)
+
+
 def test_from_dlpack_unsupported_device_type():
     """``view_as_dlpack`` rejects a DLPack device that is neither CPU, CUDA,
     CUDA-pinned, nor CUDA-managed before ever calling ``__dlpack__``."""
@@ -163,6 +223,37 @@ def test_from_dlpack_cuda_stream_none_ambiguous():
 
     with pytest.raises(BufferError, match="stream=None is ambiguous"):
         StridedMemoryView.from_dlpack(_FakeCudaDevice(), stream_ptr=None)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(("device_type", "device_id"), [(DLDeviceType.kDLCPU, 1), (DLDeviceType.kDLCUDA, -1)])
+def test_from_dlpack_rejects_invalid_device_id(device_type, device_id):
+    """A device ordinal the DLPack device type cannot have is rejected."""
+
+    class _FakeInvalidDeviceId:
+        def __dlpack_device__(self):
+            return (int(device_type), device_id)
+
+        def __dlpack__(self, **kwargs):
+            raise AssertionError("__dlpack__ must not be reached")
+
+    with pytest.raises(ValueError, match=f"reported device_id {device_id}"):
+        StridedMemoryView.from_dlpack(_FakeInvalidDeviceId(), stream_ptr=-1)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_from_dlpack_rejects_non_capsule():
+    """``__dlpack__`` must return an unconsumed DLPack capsule."""
+
+    class _FakeNonCapsule:
+        def __dlpack_device__(self):
+            return (int(DLDeviceType.kDLCPU), 0)
+
+        def __dlpack__(self, **kwargs):
+            return object()
+
+    with pytest.raises(ValueError, match="not an unconsumed DLPack capsule"):
+        StridedMemoryView.from_dlpack(_FakeNonCapsule(), stream_ptr=-1)
 
 
 class _DLPackNoMaxVersion:
@@ -783,3 +874,20 @@ def test_dlpack_c_exchange_api_managed_tensor_allocator_not_supported():
         # Currently sets a Python error when `SetError` isn't passed.
         api.managed_tensor_allocator(None, ctypes.byref(out), None, None)
     assert not out.value  # set to NULL before the error
+
+
+@pytest.mark.parametrize(("dtype_name", "max_itemsize"), [("longdouble", 8), ("clongdouble", 16)])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_dlpack_export_rejects_extended_numpy_width(dtype_name, max_itemsize):
+    """Supported dtype kinds with extended widths cannot be exported as DLPack."""
+    dtype = np.dtype(getattr(np, dtype_name))
+    if dtype.itemsize <= max_itemsize:
+        pytest.skip(f"{dtype_name} has a DLPack-supported width on this platform")
+    source = np.zeros(4, dtype=dtype)
+    view = StridedMemoryView.from_array_interface(source)
+    error_match = "Unsupported floating dtype" if dtype.kind == "f" else "Unsupported complex dtype"
+    with pytest.raises(BufferError, match=error_match):
+        view.__dlpack__(max_version=(1, 0))
+    assert view.dtype == dtype
+    assert view.ptr == source.ctypes.data
+    assert view.exporting_obj is source
