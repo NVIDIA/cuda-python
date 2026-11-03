@@ -175,15 +175,16 @@ def validate_or_fix_copyright(filepath, blob, fix):
     else:
         start_year = end_year = years
 
-    modified_year = last_modified_year(filepath)
-    if int(end_year) >= modified_year:
+    if int(end_year) >= last_modified_year(filepath):
         return True, blob
 
-    print(f"OUTDATED copyright {years!r} (expected {modified_year!r}) in {filepath!r}")
+    print(f"OUTDATED copyright {years!r} (expected {CURRENT_YEAR!r}) in {filepath!r}")
     if not fix:
         return False, blob
 
-    new_years = f"{start_year}-{modified_year}"
+    # Always write the current year: committing the fix is itself a change made
+    # this year, so an older year would be stale again immediately.
+    new_years = f"{start_year}-{CURRENT_YEAR}"
     return (
         False,
         re.sub(

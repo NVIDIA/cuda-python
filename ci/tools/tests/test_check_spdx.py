@@ -117,7 +117,7 @@ def test_staged_edit_requires_current_year_and_fix_writes_it(repo):
 
     check = run_checker(repo)
     assert check.returncode == 1, check.stdout + check.stderr
-    assert f"(expected {CURRENT_YEAR})" in check.stdout
+    assert f"(expected '{CURRENT_YEAR}')" in check.stdout
 
     # --fix reports that it changed something, as the hook always has.
     fix = run_checker(repo, "--fix")
@@ -129,11 +129,18 @@ def test_staged_edit_requires_current_year_and_fix_writes_it(repo):
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5.5")
-def test_fix_writes_last_commit_year_not_current_year(repo):
+def test_fix_of_clean_stale_file_survives_being_committed(repo):
+    # Stale relative to an old commit, with nothing staged (for example a manual
+    # `pre-commit run --all-files`).
     path = commit(repo, SAMPLE, str(CURRENT_YEAR - 3), year=CURRENT_YEAR - 2)
 
-    result = run_checker(repo, "--fix")
+    fix = run_checker(repo, "--fix")
+    assert fix.returncode == 1, fix.stdout + fix.stderr
+    # Not the older last-commit year: committing the fix is a change made this year.
+    assert f"Copyright (c) {CURRENT_YEAR - 3}-{CURRENT_YEAR} " in path.read_text(encoding="utf-8")
 
-    # --fix reports that it changed something, as the hook always has.
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert f"Copyright (c) {CURRENT_YEAR - 3}-{CURRENT_YEAR - 2} " in path.read_text(encoding="utf-8")
+    git(repo, "add", SAMPLE)
+    git(repo, "commit", "-m", "fix copyright", year=CURRENT_YEAR)
+
+    # The fix must not demand another fix once it is part of this year's history.
+    assert run_checker(repo).returncode == 0
