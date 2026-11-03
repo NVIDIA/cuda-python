@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import os
 import subprocess
 import sys
 import textwrap
@@ -474,7 +475,7 @@ def test_device_properties_complete():
 
 @pytest.mark.agent_authored(model="gpt-6")
 @pytest.mark.parametrize("driver_version", [12050, 12060, 12080])
-def test_host_numa_memory_pools_supported_on_pre_12_9_driver(driver_version):
+def test_host_numa_memory_pools_supported_on_pre_12_9_driver(driver_version, tmp_path):
     script = textwrap.dedent(
         """
         import sys
@@ -509,8 +510,11 @@ def test_host_numa_memory_pools_supported_on_pre_12_9_driver(driver_version):
         assert properties.host_numa_memory_pools_supported is expected
         """
     )
+    env = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
     result = subprocess.run(  # noqa: S603 - executes a repository-owned test script
         [sys.executable, "-c", script, str(driver_version)],
+        cwd=tmp_path,
+        env=env,
         capture_output=True,
         check=False,
         text=True,
