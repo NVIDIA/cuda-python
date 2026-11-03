@@ -12,7 +12,11 @@ import warnings
 
 import pytest
 
-# Keep in sync with cuda_bindings_13/tests/conftest.py.
+# BEGIN SYNCED PYTEST PLUGIN BOOTSTRAP
+# Keep every block with this marker byte-for-byte identical.
+# Before editing or reviewing, find all copies; see root AGENTS.md.
+# Keep the shared pytest plugin available in wheel-test jobs, which run from
+# the monorepo checkout without installing cuda-python-test-helpers.
 try:
     import cuda_python_test_helpers._pytest_plugin  # noqa: F401
 except ImportError as e:
@@ -28,6 +32,7 @@ except ImportError as e:
     importlib.invalidate_caches()
 
 pytest_plugins = ["cuda_python_test_helpers._pytest_plugin"]
+# END SYNCED PYTEST PLUGIN BOOTSTRAP
 
 from helpers.constants import POOL_SIZE
 from helpers.memory import (

@@ -44,13 +44,25 @@ subpackage in the `cuda-python` monorepo.
 - **Cython tests**:
   - build: `tests/cython/build_tests.sh` (or platform equivalent)
   - run: `pytest tests/cython/`
-- **Samples**: sample coverage is pytest-based under `../samples/cuda_bindings/`.
-- **Benchmarks**: run with `pytest --benchmark-only benchmarks/` when needed.
+- **Samples**: run pytest-based sample coverage in `tests/example_tests/`;
+  sample sources and instructions live in `../samples/cuda_bindings/`.
+- **Benchmarks**: see the [benchmark README](../benchmarks/cuda_bindings/README.md)
+  for the Pixi tasks that run the Python and C++ benchmarks.
 
-The `legacy_tests` subdirectory tests the old pre-v2 APIs of `driver`, `runtime`
+The `tests/legacy_api` subdirectory tests the old pre-v2 APIs of `driver`, `runtime`
 and `nvrtc`.  These test files should not be added to, only updated when
 necessary to fix test failures.  The canonical set of tests are those outside of
-the `legacy_tests` subdirectory.
+the `tests/legacy_api` subdirectory.
+
+Tests that create memory pools must cap them: set `max_size` (v2 types) or
+`maxSize` (other types) on the pool properties object to `POOL_SIZE` from
+`cuda_python_test_helpers.memory`. A pool created with a size of 0 reserves
+virtual address space of about twice the device memory, which fails on systems
+with a limited virtual address space. `ci/tools/check_mempool_hygiene.py`
+(a pre-commit hook) enforces this for `.py` tests. It cannot parse Cython, so
+cap pools in `tests/cython/*.pyx` by hand. The same module holds the shared
+`supports_memory_pools`, `supports_managed_memory`, and
+`xfail_graph_mempool_oom` helpers; reuse them rather than defining copies.
 
 ## Build and environment notes
 

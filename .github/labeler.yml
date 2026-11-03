@@ -8,6 +8,7 @@
 cuda.bindings:
   - changed-files:
     - any-glob-to-any-file:
+      - 'cuda_bindings_12/**'
       - 'cuda_bindings_13/**'
       - 'samples/cuda_bindings/**'
 

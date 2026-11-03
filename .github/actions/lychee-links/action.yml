@@ -26,8 +26,8 @@ outputs:
     description: "Whether the current PR label explicitly enables the HTTP 429 override"
     value: ${{ steps.lychee-policy.outputs.allow-429 }}
 
-# Callers provide Python and the checked-out repository; the build of any
-# rendered documentation must already be complete.
+# Callers provide Python through setup-hardened-python and the checked-out
+# repository; the build of any rendered documentation must already be complete.
 runs:
   using: composite
   steps:

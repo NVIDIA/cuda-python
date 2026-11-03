@@ -18,7 +18,7 @@ from cuda.core._memory._buffer cimport (
 from cuda.core._memory._ipc cimport (
     IPCAllocationHandle,
     IPCDataForBuffer,
-    VirtualMemoryIPCBufferDescriptor,
+    VirtualMemoryFdBufferDescriptor,
 )
 from cuda.core._rt cimport (
     ContextHandle,
@@ -52,11 +52,11 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, check_or_create_options
 
 import os
 import platform
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from multiprocessing import context as _mp_context
 from typing import TYPE_CHECKING, Iterable
 
-from cuda.core._device import Device
+from cuda.core._device import Device, _device_from_uuid
 from cuda.core._utils.cuda_utils import driver
 from cuda.core._utils.version import BUILD_CUDA_MAJOR
 from cuda.core.typing import (
@@ -99,7 +99,9 @@ class VirtualMemoryResourceOptions:
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
         Controls the type of allocation.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
-        Controls the location of the allocation.
+        Controls the location of the allocation. ``"host_numa"`` requires
+        ``numa_id``. ``"host_numa_current"`` is rejected because the driver
+        does not accept it for physical allocations.
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
@@ -117,10 +119,17 @@ class VirtualMemoryResourceOptions:
         Alignment for the VA reservation. If `None`, use the queried granularity.
     peers: Iterable[int]
         Extra device IDs that should be granted access in addition to ``device``.
+        The options store them as a tuple.
     self_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for the owning device.
     peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for peers.
+    numa_id: int | None
+        Host NUMA node of the allocation. Required for
+        ``location_type="host_numa"`` and rejected for every other location
+        type. Must be >= 0; ``Device.properties.host_numa_id`` is the node
+        closest to a device. On a system without NUMA, ``host_numa_id`` is -1
+        and the driver expects ``numa_id=0``.
     """
 
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
@@ -133,6 +142,7 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
     peer_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
+    numa_id: int | None = None
 
     _a = driver.CUmemAccess_flags
     _access_flags = {  # noqa: RUF012
@@ -164,6 +174,11 @@ class VirtualMemoryResourceOptions:
     _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
     if BUILD_CUDA_MAJOR >= 13:
         _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
+
+    def __post_init__(self) -> None:
+        # Allocation and pickling each read the peers, so a one-shot iterable
+        # such as a generator must not reach them.
+        self.peers = tuple(int(peer) for peer in self.peers)
 
     @staticmethod
     def _access_to_flags(spec: VirtualMemoryAccessType | None) -> int:
@@ -290,7 +305,7 @@ cdef class VirtualMemoryBuffer(Buffer):
     """
 
     @property
-    def ipc_descriptor(self) -> VirtualMemoryIPCBufferDescriptor:
+    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor:
         """A new descriptor for sharing this buffer with other processes.
 
         Every access exports the physical allocations that back the buffer
@@ -427,10 +442,13 @@ cdef class VirtualMemoryResource(MemoryResource):
     access; :meth:`Buffer.from_ipc_descriptor` imports a descriptor with a
     ``VirtualMemoryResource`` of the receiving process for the device that
     owns the memory; and a buffer sent through ``multiprocessing`` does both.
-    Plain ``pickle`` cannot carry the file descriptors; a process with its
-    own file descriptor passing sends the descriptor's ``fds``, ``sizes``,
-    and ``size`` and rebuilds it with
-    ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The importing resource
+    A pickled resource names its device and its ``peers`` by UUID, and the
+    receiving process rebuilds it for the devices with those UUIDs, whatever
+    their ordinals are there; it raises ``RuntimeError`` if one of the devices
+    is not visible. Plain ``pickle`` cannot carry the file descriptors; a
+    process with its own file descriptor passing sends the descriptor's
+    ``fds``, ``sizes``, and ``size`` and rebuilds it with
+    ``VirtualMemoryFdBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
     it exists, in every process that holds one, and nothing else does. A
@@ -459,7 +477,12 @@ cdef class VirtualMemoryResource(MemoryResource):
         # The resource holds no driver object that other processes must share;
         # the receiving process rebuilds an equivalent one from the device and
         # the options. This is what lets a Buffer pickle as (resource, descriptor).
-        return type(self), (self.device.device_id if self.device is not None else 0, self.config)
+        # Device ordinals are per process, so the owning device and the peers
+        # travel by UUID and the receiver maps them to its own devices.
+        owner_uuid = self.device.uuid if self.device is not None else None
+        peer_uuids = tuple(Device(peer).uuid for peer in self.config.peers)
+        return _reconstruct_virtual_memory_resource, (
+            type(self), owner_uuid, peer_uuids, replace(self.config, peers=()))
 
     cdef int _check_config(self, object cfg) except -1:
         """Reject options the driver would reject, before any driver call.
@@ -471,6 +494,29 @@ cdef class VirtualMemoryResource(MemoryResource):
             raise ValueError(
                 f"config.location_type {str(cfg.location_type)!r} does not match the resource's "
                 f"{str(self.config.location_type)!r}; the location of a buffer cannot change"
+            )
+        if cfg.numa_id != self.config.numa_id:
+            raise ValueError(
+                f"config.numa_id {cfg.numa_id!r} does not match the resource's "
+                f"{self.config.numa_id!r}; the location of a buffer cannot change"
+            )
+        if cfg.location_type == VirtualMemoryLocationType.HOST_NUMA_CURRENT:
+            raise ValueError(
+                'location_type="host_numa_current" is not supported: the driver does not accept it '
+                'for physical allocations; use location_type="host_numa" with numa_id'
+            )
+        if cfg.location_type == VirtualMemoryLocationType.HOST_NUMA:
+            if cfg.numa_id is None:
+                raise ValueError(
+                    'location_type="host_numa" requires numa_id; pass numa_id=<host NUMA node id>, '
+                    "e.g. device.properties.host_numa_id"
+                )
+            if cfg.numa_id < 0:
+                raise ValueError(f"numa_id must be >= 0, got {cfg.numa_id}")
+        elif cfg.numa_id is not None:
+            raise ValueError(
+                'numa_id is only valid with location_type="host_numa", '
+                f"got location_type={str(cfg.location_type)!r}"
             )
         # The driver rejects an exportable handle type for HOST memory only;
         # the NUMA location types may carry one.
@@ -499,7 +545,10 @@ cdef class VirtualMemoryResource(MemoryResource):
         memset(prop, 0, sizeof(cydriver.CUmemAllocationProp))
         prop.type = <cydriver.CUmemAllocationType>alloc_type
         prop.location.type = <cydriver.CUmemLocationType>loc_type
-        prop.location.id = self.device.device_id if self.device is not None else -1
+        if self.config.location_type == VirtualMemoryLocationType.HOST_NUMA:
+            prop.location.id = self.config.numa_id
+        else:
+            prop.location.id = self.device.device_id if self.device is not None else -1
         prop.allocFlags.gpuDirectRDMACapable = 1 if cfg.gpu_direct_rdma else 0
         prop.requestedHandleTypes = <cydriver.CUmemAllocationHandleType>handle_type
         prop.win32HandleMetaData = NULL
@@ -679,8 +728,8 @@ cdef class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type`` and ``handle_type`` and passes the same checks
-            as the constructor.
+            ``location_type``, ``handle_type``, and ``numa_id`` and pass the
+            same checks as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
             memory that is already mapped.
@@ -697,8 +746,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         TypeError
             If ``buf`` did not come from this resource.
         ValueError
-            If ``config`` names a different location or handle type than the
-            resource, or the constructor would reject it.
+            If ``config`` names a different location type, handle type, or
+            ``numa_id`` than the resource, or the constructor would reject it.
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.
@@ -902,7 +951,7 @@ cdef class VirtualMemoryResource(MemoryResource):
             and self.config.location_type not in _HOST_LOCATION_TYPES
         )
 
-    def _import_ipc_buffer(self, VirtualMemoryIPCBufferDescriptor desc not None, stream) -> VirtualMemoryBuffer:
+    def _import_ipc_buffer(self, VirtualMemoryFdBufferDescriptor desc not None, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
@@ -1069,7 +1118,16 @@ cdef class VirtualMemoryResource(MemoryResource):
         return f"<VirtualMemoryResource device={self.device}>"
 
 
-cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
+def _reconstruct_virtual_memory_resource(
+    cls: type, owner_uuid: str | None, peer_uuids: tuple[str, ...], config: VirtualMemoryResourceOptions
+) -> VirtualMemoryResource:
+    """Rebuild a pickled resource with the receiving process's device ordinals."""
+    device = _device_from_uuid(owner_uuid) if owner_uuid is not None else 0
+    peers = tuple(_device_from_uuid(peer_uuid).device_id for peer_uuid in peer_uuids)
+    return cls(device, replace(config, peers=peers))
+
+
+cdef VirtualMemoryFdBufferDescriptor _export_ipc_descriptor(Buffer buf):
     """Export the allocations that back ``buf`` as shareable handles, in address order.
 
     Only the allocations that cover ``buf.size`` are exported; a buffer's size
@@ -1124,9 +1182,11 @@ cdef VirtualMemoryIPCBufferDescriptor _export_ipc_descriptor(Buffer buf):
         try:
             handle = IPCAllocationHandle._init(fd, None)
         except:  # noqa: E722  rollback-then-raise: the fd is not owned yet
-            os.close(fd)
+            # nvbug 6977893: an Orin driver can return a negative fd despite success.
+            if fd >= 0:
+                os.close(fd)
             raise
         # The handle owns the fd now; if append fails, the handle closes it once.
         handles.append(handle)
         sizes.append(chunk)
-    return VirtualMemoryIPCBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)
+    return VirtualMemoryFdBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)

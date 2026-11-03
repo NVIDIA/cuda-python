@@ -42,7 +42,7 @@ To run these tests:
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
 1. Setup environment variable `CUDA_PATH` (or `CUDA_HOME`) with the path to the CUDA Toolkit installation. Note: If both are set, `CUDA_PATH` takes precedence.
-2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both cythonize the tests and build them.
+2. Run the `build_tests` script located in `tests/cython` appropriate to your platform. This will both cythonize the tests and build them.
 
 To run these tests:
 * `python -m pytest tests/cython/` against editable installations
@@ -50,23 +50,21 @@ To run these tests:
 
 ### Samples
 
-Various [CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) that were rewritten using CUDA Python are located in `examples`.
+Various [CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) that were rewritten using CUDA Python are located in [samples/cuda_bindings](../samples/cuda_bindings/). Each sample directory has its own README with dependencies and instructions for running it.
 
 In addition, extra examples are included:
 
-* `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
+* [jitProgram.py](../samples/cuda_bindings/extra/jitProgram/jitProgram.py): Demonstrates the use of the API to compile and
   launch a kernel on the device. Includes device memory allocation /
   deallocation, transfers between host and device, creation and usage of
   streams, and context management.
 
-To run these samples:
-* `python -m pytest tests/cython/` against editable installations
-* `pytest tests/cython/` against installed packages
+To run the automated sample coverage in `tests/example_tests/`, run
+`pixi run test-samples` from this directory.
 
 ### Benchmark
 
-Allows for analyzing binding performance using plugin [pytest-benchmark](https://github.com/ionelmc/pytest-benchmark).
-
-To run these benchmarks:
-* `python -m pytest --benchmark-only benchmarks/` against editable installations
-* `pytest --benchmark-only benchmarks/` against installed packages
+Python and C++ benchmarks for analyzing binding overhead live in
+[benchmarks/cuda_bindings](../benchmarks/cuda_bindings/). See the
+[benchmark README](../benchmarks/cuda_bindings/README.md) for the Pixi environments,
+benchmark commands, and result comparison instructions.

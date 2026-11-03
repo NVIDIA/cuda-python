@@ -14,7 +14,7 @@ cdef extern from "windows.h" nogil:
     ctypedef const char *LPCSTR
     ctypedef int BOOL
 
-    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+    const DWORD LOAD_LIBRARY_SEARCH_SYSTEM32
 
     HMODULE _LoadLibraryExW "LoadLibraryExW"(
         LPCWSTR lpLibFileName,

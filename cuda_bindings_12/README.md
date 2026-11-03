@@ -1,10 +1,13 @@
 # `cuda.bindings`: Low-level CUDA interfaces
 
-`cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html) for the workflow and performance results.
+`cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview page](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/overview.html) for the workflow and performance results.
+
+<!-- Keep documentation URLs aligned with DESCRIPTION.rst and build_hooks.py.
+Use a published CUDA 12 snapshot; latest follows the current CUDA major. -->
 
 ## Installing
 
-Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html) for instructions and required/optional dependencies.
+Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html) for instructions and required/optional dependencies.
 
 ## Developing
 
@@ -31,7 +34,7 @@ To run these tests:
 
 ### Cython Unit Tests
 
-Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
+Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
 1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
 2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both cythonize the tests and build them.
@@ -60,8 +63,5 @@ To run these samples:
 
 ### Benchmark
 
-Allows for analyzing binding performance using plugin [pytest-benchmark](https://github.com/ionelmc/pytest-benchmark).
-
-To run these benchmarks:
-* `python -m pytest --benchmark-only benchmarks/` against editable installations
-* `pytest --benchmark-only benchmarks/` against installed packages
+See the shared [cuda.bindings benchmark harness](../benchmarks/cuda_bindings/README.md)
+for performance benchmarks and usage instructions.

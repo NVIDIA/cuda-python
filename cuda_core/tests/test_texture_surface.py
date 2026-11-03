@@ -691,6 +691,10 @@ def test_resource_descriptor_from_mipmapped_array_rejects_non_mipmap():
 
 
 def test_texture_object_from_mipmapped_array(init_cuda):
+    """Mipmap texture creation forwards the requested trilinear-optimization flag."""
+    from cuda.bindings import driver
+    from cuda.core._utils.cuda_utils import handle_return
+
     mip = Device().create_mipmapped_array(
         MipmappedArrayOptions(
             shape=(32, 32),
@@ -710,11 +714,14 @@ def test_texture_object_from_mipmapped_array(init_cuda):
             mipmap_level_bias=0.0,
             min_mipmap_level_clamp=0.0,
             max_mipmap_level_clamp=float(mip.num_levels - 1),
+            disable_trilinear_optimization=True,
         )
         tex = Device().create_texture_object(resource=res, options=tex_desc)
         try:
             assert tex.handle != 0
             assert tex.resource is res
+            descriptor = handle_return(driver.cuTexObjectGetTextureDesc(tex.handle))
+            assert descriptor.flags & driver.CU_TRSF_DISABLE_TRILINEAR_OPTIMIZATION
         finally:
             tex.close()
     finally:
@@ -1244,3 +1251,159 @@ def test_array_copy_rejects_non_buffer(init_cuda):
             stream.close()
     finally:
         arr.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_resource_descriptor_public_dimensions_match_backing(init_cuda):
+    """Linear and pitched resources expose their applicable dimensions."""
+    with _alloc_device_buffer(init_cuda, 4096) as buffer:
+        linear = ResourceDescriptor.from_linear(buffer, format=ArrayFormatType.UINT32, num_channels=1, size_bytes=2048)
+        pitched = ResourceDescriptor.from_pitch2d(
+            buffer, format=ArrayFormatType.UINT32, num_channels=1, width=8, height=4, pitch_bytes=64
+        )
+        assert linear.source is pitched.source is buffer
+        assert linear.size_bytes == 2048
+        assert linear.width is linear.height is linear.pitch_bytes is None
+        assert pitched.size_bytes is None
+        assert (pitched.width, pitched.height, pitched.pitch_bytes) == (8, 4, 64)
+        assert linear.format == pitched.format == ArrayFormatType.UINT32
+        assert linear.num_channels == pitched.num_channels == 1
+
+
+@pytest.mark.parametrize("shape", [(16,), (16, 8, 4)], ids=["1d", "3d"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_mipmapped_array_rank_level_roundtrip(init_cuda, shape):
+    """Level 1 of one- and three-dimensional mipmaps preserves metadata and data."""
+    from contextlib import closing
+
+    options = MipmappedArrayOptions(shape=shape, format=ArrayFormatType.UINT8, num_channels=1, num_levels=3)
+    with closing(init_cuda.create_stream()) as stream, init_cuda.create_mipmapped_array(options) as mipmap:
+        text = repr(mipmap)
+        assert "MipmappedArray(" in text
+        assert f"shape={shape}" in text
+        assert "UINT8" in text and "num_channels=1" in text and "num_levels=3" in text
+        with mipmap.get_level(1) as level:
+            expected_shape = tuple(extent // 2 for extent in shape)
+            assert level.shape == expected_shape
+            assert level.format == ArrayFormatType.UINT8
+            assert level.num_channels == 1
+            resource = ResourceDescriptor.from_opaque_array(level)
+            assert resource.source is level
+            assert "kind='array'" in repr(resource)
+            source = np.arange(level.size_bytes, dtype=np.uint8)
+            destination = np.empty_like(source)
+            level.copy_from(source, stream=stream)
+            assert level.copy_to(destination, stream=stream) is destination
+            stream.sync()
+            np.testing.assert_array_equal(destination, source)
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_surface_invalid_resource_then_live_texture_lifecycle(init_cuda):
+    """Invalid surface resources leave subsequent array-backed objects usable."""
+    from cuda.bindings import driver
+    from cuda.core._utils.cuda_utils import handle_return
+
+    with pytest.raises(TypeError, match="resource must be a ResourceDescriptor"):
+        init_cuda.create_surface_object(resource=object())
+    with init_cuda.create_opaque_array(
+        OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=4, is_surface_load_store=True)
+    ) as array:
+        resource = ResourceDescriptor.from_opaque_array(array)
+        assert "kind='array'" in repr(resource)
+        with (
+            init_cuda.create_surface_object(resource=resource) as surface,
+            init_cuda.create_texture_object(
+                resource=resource,
+                options=TextureObjectOptions(read_mode=ReadModeType.NORMALIZED_FLOAT, srgb=True),
+            ) as texture,
+        ):
+            assert surface.device == texture.device == init_cuda
+            assert surface.handle != 0 and texture.handle != 0
+            assert f"handle=0x{int(surface.handle):x}" in repr(surface)
+            assert f"handle=0x{int(texture.handle):x}" in repr(texture)
+            descriptor = handle_return(driver.cuTexObjectGetTextureDesc(texture.handle))
+            assert descriptor.flags & driver.CU_TRSF_SRGB
+        assert surface.is_closed and texture.is_closed
+        assert repr(surface) == "SurfaceObject(handle=0x0)"
+        assert repr(texture) == "TextureObject(handle=0x0)"
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_texture_border_color_is_sampled_on_device(init_cuda):
+    """Out-of-bounds texture reads return the configured RGBA border color."""
+    from contextlib import closing
+
+    from cuda.bindings import driver
+    from cuda.core import LaunchConfig, Program, ProgramOptions, launch
+    from cuda.core._utils.cuda_utils import handle_return
+
+    code = r"""
+    extern "C" __global__ void sample_border(unsigned long long texture, float* result) {
+        float coordinate = threadIdx.x == 0 ? -1.f : 0.5f;
+        float x, y, z, w;
+        asm("tex.2d.v4.f32.f32 {%0,%1,%2,%3}, [%4,{%5,%6}];"
+            : "=f"(x), "=f"(y), "=f"(z), "=f"(w)
+            : "l"(texture), "f"(coordinate), "f"(coordinate));
+        result[4 * threadIdx.x] = x;
+        result[4 * threadIdx.x + 1] = y;
+        result[4 * threadIdx.x + 2] = z;
+        result[4 * threadIdx.x + 3] = w;
+    }
+    """
+    border = (0.25, 0.5, 0.75, 1.0)
+    texel = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float32)
+    source = np.tile(texel, (2, 2, 1))
+    actual = np.empty(8, dtype=np.float32)
+    with (
+        closing(Program(code, "c++", options=ProgramOptions(std="c++17", arch=f"sm_{init_cuda.arch}"))) as program,
+        closing(init_cuda.create_stream()) as stream,
+        init_cuda.create_opaque_array(
+            OpaqueArrayOptions(shape=(2, 2), format=ArrayFormatType.FLOAT32, num_channels=4)
+        ) as array,
+        init_cuda.allocate(actual.nbytes, stream=stream) as output,
+    ):
+        module = program.compile("cubin")
+        kernel = module.get_kernel("sample_border")
+        array.copy_from(source, stream=stream)
+        with init_cuda.create_texture_object(
+            resource=ResourceDescriptor.from_opaque_array(array),
+            options=TextureObjectOptions(
+                address_mode=AddressModeType.BORDER,
+                read_mode=ReadModeType.NORMALIZED_FLOAT,
+                border_color=border,
+            ),
+        ) as texture:
+            launch(stream, LaunchConfig(grid=1, block=2), kernel, np.uint64(texture.handle), output)
+            handle_return(driver.cuMemcpyDtoHAsync(actual.ctypes.data, output.handle, actual.nbytes, stream.handle))
+            stream.sync()
+            np.testing.assert_array_equal(actual[:4], np.asarray(border, dtype=np.float32))
+            np.testing.assert_array_equal(actual[4:], texel)
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_surface_creation_rejects_foreign_context_resource(init_cuda):
+    """Rejecting another context's array leaves owner-context surface creation usable."""
+    from helpers.contexts import use_context
+
+    from cuda.core import ContextOptions, SMResourceOptions
+    from cuda.core._utils.version import driver_version
+
+    if driver_version() < (12, 4, 0):
+        pytest.skip("green contexts require CUDA driver 12.4 or newer")
+    groups, _ = init_cuda.resources.sm.split(SMResourceOptions(count=None))
+    green_context = init_cuda.create_context(ContextOptions(resources=[groups[0]]))
+    try:
+        with init_cuda.create_opaque_array(
+            OpaqueArrayOptions(shape=(8, 8), format=ArrayFormatType.UINT8, num_channels=4, is_surface_load_store=True)
+        ) as array:
+            resource = ResourceDescriptor.from_opaque_array(array)
+            with use_context(init_cuda, green_context):
+                with pytest.raises(ValueError, match="resource is not compatible with this Device object"):
+                    init_cuda.create_surface_object(resource=resource)
+                assert current_context_handle() == int(green_context.handle)
+            with init_cuda.create_surface_object(resource=resource) as surface:
+                assert surface.resource is resource
+                assert not surface.is_closed
+    finally:
+        green_context.close()

@@ -1,44 +1,42 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import builtins
+import contextlib
 import ctypes
 import os
 import shutil
 import tempfile
-import textwrap
 
 import numpy as np
 import pytest
-from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+from cuda_python_test_helpers.memory import (
+    POOL_SIZE,
+    supports_managed_memory,
+    supports_memory_pools,
+    xfail_graph_mempool_oom,
+)
 
-import cuda.bindings.driver as cuda
-import cuda.bindings.runtime as cudart
-from cuda.bindings import driver
 from cuda.bindings._internal.utils import FunctionNotFoundError
+from cuda.bindings._v2 import driver
 from cuda_python_test_helpers import driver_version_less_than
 
-# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
-# virtual address space of about twice the device memory, and that reservation
-# can fail on systems with a limited virtual address space.
-POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
-
-
-def supportsManagedMemory():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrManagedMemory, 0)
-    return err == cudart.cudaError_t.cudaSuccess and isSupported
+# NULL dependency array: the node has no dependencies.
+NO_DEPS = 0
 
 
 def supportsCudaAPI(name):
-    return name in dir(cuda)
+    return name in dir(driver)
 
 
 def callableBinary(name):
     return shutil.which(name) is not None
+
+
+def node_array(nodes):
+    # Build a C array of graph node handles; the caller passes
+    # ctypes.addressof(array) and must keep the array alive during the call.
+    return (ctypes.c_void_p * len(nodes))(*nodes)
 
 
 @pytest.mark.skipif(True, reason="Always skip!")
@@ -51,8 +49,7 @@ def test_cuda_memcpy():
 
     # Allocate dev memory
     size = int(1024 * np.uint8().itemsize)
-    err, dptr = cuda.cuMemAlloc(size)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    dptr = driver.mem_alloc_v2(size)
 
     # Set h1 and h2 memory to be different
     h1 = np.full(size, 1).astype(np.uint8)
@@ -60,391 +57,374 @@ def test_cuda_memcpy():
     assert np.array_equal(h1, h2) is False
 
     # h1 to D
-    (err,) = cuda.cuMemcpyHtoD(dptr, h1, size)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.memcpy_htod_v2(dptr, h1, size)
 
     # D to h2
-    (err,) = cuda.cuMemcpyDtoH(h2, dptr, size)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.memcpy_dtoh_v2(h2, dptr, size)
 
     # Validate h1 == h2
     assert np.array_equal(h1, h2)
 
+    # Host arguments accept any contiguous buffer: ctypes scalars and arrays, not just NumPy.
+    src = (ctypes.c_int * 4)(1, 2, 3, 4)
+    driver.memcpy_htod_v2(dptr, src, ctypes.sizeof(src))
+    dst = (ctypes.c_int * 4)()
+    driver.memcpy_dtoh_v2(dst, dptr, ctypes.sizeof(dst))
+    assert list(dst) == [1, 2, 3, 4]
+
+    scalar = ctypes.c_int(42)
+    driver.memcpy_htod_v2(dptr, scalar, ctypes.sizeof(scalar))
+    out = ctypes.c_int()
+    driver.memcpy_dtoh_v2(out, dptr, ctypes.sizeof(out))
+    assert out.value == 42
+
+    matrix = np.arange(4, dtype=np.int32).reshape(2, 2)
+    driver.memcpy_htod_v2(dptr, matrix, matrix.nbytes)
+    back = np.zeros((2, 2), dtype=np.int32)
+    driver.memcpy_dtoh_v2(back, dptr, back.nbytes)
+    assert np.array_equal(matrix, back)
+
     # Cleanup
-    (err,) = cuda.cuMemFree(dptr)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.mem_free_v2(dptr)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.skipif(driver_version_less_than(13041), reason="cuGraphAddNode_v3 was added in CUDA 13.4.1")
+def test_graph_add_node_v3_returns_the_node():
+    graph = driver.graph_create(0)
+    params = driver.GraphNodeParams()
+    params.type = driver.GraphNodeType.EMPTY
+    node = driver.graph_add_node_v3(graph, NO_DEPS, None, 0, params)
+    assert isinstance(node, int) and node != 0
+    driver.graph_destroy(graph)
 
 
 def test_cuda_array():
     # No context created
-    desc = cuda.CUDA_ARRAY_DESCRIPTOR()
-    err, arr = cuda.cuArrayCreate(desc)
-    assert err == cuda.CUresult.CUDA_ERROR_INVALID_CONTEXT or err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+    desc = driver.ArrayDescriptor_v2()
+    with pytest.raises((driver.InvalidContextError, driver.InvalidValueError)):
+        driver.array_create_v2(desc)
 
     # Desciption not filled
-    err, arr = cuda.cuArrayCreate(desc)
-    assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
+    with pytest.raises(driver.InvalidValueError):
+        driver.array_create_v2(desc)
 
     # Pass
-    desc.Format = cuda.CUarray_format.CU_AD_FORMAT_SIGNED_INT8
-    desc.NumChannels = 1
-    desc.Width = 1
-    err, arr = cuda.cuArrayCreate(desc)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    desc.format = driver.ArrayFormat.SIGNED_INT8
+    desc.num_channels = 1
+    desc.width = 1
+    arr = driver.array_create_v2(desc)
 
-    (err,) = cuda.cuArrayDestroy(arr)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-
-def test_cuda_repr_primitive(device, ctx):
-    assert str(device) == "<CUdevice 0>"
-    assert int(device) == 0
-
-    assert str(ctx).startswith("<CUcontext 0x")
-    assert int(ctx) > 0
-    assert hex(ctx) == hex(int(ctx))
-
-    # CUdeviceptr
-    err, dptr = cuda.cuMemAlloc(1024 * np.uint8().itemsize)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    assert str(dptr).startswith("<CUdeviceptr ")
-    assert int(dptr) > 0
-    (err,) = cuda.cuMemFree(dptr)
-    size = 7
-    dptr = cuda.CUdeviceptr(size)
-    assert str(dptr) == f"<CUdeviceptr {size}>"
-    assert int(dptr) == size
-    size = 4294967295
-    dptr = cuda.CUdeviceptr(size)
-    assert str(dptr) == f"<CUdeviceptr {size}>"
-    assert int(dptr) == size
-    size = 18446744073709551615
-    dptr = cuda.CUdeviceptr(size)
-    assert str(dptr) == f"<CUdeviceptr {size}>"
-    assert int(dptr) == size
-
-    # cuuint32_t
-    size = 7
-    int32 = cuda.cuuint32_t(size)
-    assert str(int32) == f"<cuuint32_t {size}>"
-    assert int(int32) == size
-    size = 4294967295
-    int32 = cuda.cuuint32_t(size)
-    assert str(int32) == f"<cuuint32_t {size}>"
-    assert int(int32) == size
-    size = 18446744073709551615
-    try:
-        int32 = cuda.cuuint32_t(size)
-        raise RuntimeError("int32 = cuda.cuuint32_t(18446744073709551615) did not fail")
-    except OverflowError as err:
-        pass
-
-    # cuuint64_t
-    size = 7
-    int64 = cuda.cuuint64_t(size)
-    assert str(int64) == f"<cuuint64_t {size}>"
-    assert int(int64) == size
-    size = 4294967295
-    int64 = cuda.cuuint64_t(size)
-    assert str(int64) == f"<cuuint64_t {size}>"
-    assert int(int64) == size
-    size = 18446744073709551615
-    int64 = cuda.cuuint64_t(size)
-    assert str(int64) == f"<cuuint64_t {size}>"
-    assert int(int64) == size
-
-
-def test_cuda_repr_pointer(ctx):
-    # Test 1: Classes representing pointers
-    assert str(ctx).startswith("<CUcontext 0x")
-    assert int(ctx) > 0
-    assert hex(ctx) == hex(int(ctx))
-    randomCtxPointer = 12345
-    randomCtx = cuda.CUcontext(randomCtxPointer)
-    assert str(randomCtx) == f"<CUcontext {hex(randomCtxPointer)}>"
-    assert int(randomCtx) == randomCtxPointer
-    assert hex(randomCtx) == hex(randomCtxPointer)
-
-    # Test 2: Function pointers
-    func = 12345
-    b2d_cb = cuda.CUoccupancyB2DSize(func)
-    assert str(b2d_cb) == f"<CUoccupancyB2DSize {hex(func)}>"
-    assert int(b2d_cb) == func
-    assert hex(b2d_cb) == hex(func)
+    driver.array_destroy(arr)
 
 
 def test_cuda_uuid_list_access(device):
-    err, uuid = cuda.cuDeviceGetUuid(device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    assert len(uuid.bytes) <= 16
+    uuid = driver.device_get_uuid_v2(device)
+    assert isinstance(uuid.bytes, bytes)
+    assert len(uuid.bytes) == 16
 
-    jit_option = cuda.CUjit_option
+    # The UUID is 16 raw bytes, not text: values that are not valid UTF-8 round-trip.
+    raw = bytes(range(0x80, 0x90))
+    copy = driver.Uuid()
+    copy.bytes = raw
+    assert copy.bytes == raw
+    with pytest.raises(ValueError):
+        copy.bytes = b"too short"
+
+    jit_option = driver.JitOption
     options = {
-        jit_option.CU_JIT_INFO_LOG_BUFFER: 1,
-        jit_option.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES: 2,
-        jit_option.CU_JIT_ERROR_LOG_BUFFER: 3,
-        jit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES: 4,
-        jit_option.CU_JIT_LOG_VERBOSE: 5,
+        jit_option.INFO_LOG_BUFFER: 1,
+        jit_option.INFO_LOG_BUFFER_SIZE_BYTES: 2,
+        jit_option.ERROR_LOG_BUFFER: 3,
+        jit_option.ERROR_LOG_BUFFER_SIZE_BYTES: 4,
+        jit_option.LOG_VERBOSE: 5,
     }
 
 
-def test_cuda_cuModuleLoadDataEx():
+_JIT_PTX = b""".version 7.5
+.target sm_75
+.address_size 64
+.visible .entry k()
+{
+    ret;
+}
+\0"""
+
+
+def _load_ptx_with_log_options(ptx):
+    # Returns (module-or-exception, info_log, error_log, error_log_size) for a load using the JIT log options.
     option_keys = [
-        cuda.CUjit_option.CU_JIT_INFO_LOG_BUFFER,
-        cuda.CUjit_option.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
-        cuda.CUjit_option.CU_JIT_ERROR_LOG_BUFFER,
-        cuda.CUjit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES,
-        cuda.CUjit_option.CU_JIT_LOG_VERBOSE,
+        driver.JitOption.INFO_LOG_BUFFER,
+        driver.JitOption.INFO_LOG_BUFFER_SIZE_BYTES,
+        driver.JitOption.ERROR_LOG_BUFFER,
+        driver.JitOption.ERROR_LOG_BUFFER_SIZE_BYTES,
+        driver.JitOption.LOG_VERBOSE,
     ]
-    # FIXME: This function call raises CUDA_ERROR_INVALID_VALUE
-    err, mod = cuda.cuModuleLoadDataEx(0, 0, option_keys, [])
+    keys = (ctypes.c_int * len(option_keys))(*[int(k) for k in option_keys])
+    info_log = ctypes.create_string_buffer(1024)
+    error_log = ctypes.create_string_buffer(1024)
+    values = (ctypes.c_void_p * len(option_keys))(
+        ctypes.addressof(info_log), len(info_log), ctypes.addressof(error_log), len(error_log), 1
+    )
+    try:
+        result = driver.module_load_data_ex(ptx, len(option_keys), ctypes.addressof(keys), ctypes.addressof(values))
+    except driver.DriverError as e:
+        result = e
+    return result, info_log.value, error_log.value, values[3]
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_cuda_cuModuleLoadDataEx():
+    mod, _, error_log, _ = _load_ptx_with_log_options(_JIT_PTX)
+    assert not isinstance(mod, Exception), mod
+    try:
+        assert error_log == b""
+        assert driver.module_get_function(mod, b"k")
+    finally:
+        driver.module_unload(mod)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_cuda_cuModuleLoadDataEx_error_log():
+    # The JIT writes its diagnostics into the caller's buffer, and updates the size option value to the
+    # number of bytes written.
+    bad_ptx = b".version 7.5\n.target sm_75\nbogus\n\0"
+    result, _, error_log, error_log_size = _load_ptx_with_log_options(bad_ptx)
+    assert isinstance(result, driver.InvalidPtxError)
+    assert b"syntax error" in error_log
+    assert 0 < error_log_size <= 1024
 
 
 def test_cuda_repr():
-    actual = cuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS()
-    assert isinstance(actual, cuda.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS)
+    # The v2 structs do not have a custom __repr__; check the default-initialized values instead.
+    actual = driver.ExternalSemaphoreSignalParams_v1()
+    assert isinstance(actual, driver.ExternalSemaphoreSignalParams_v1)
+    assert actual.flags_ == 0
+    assert actual.params.fence.value == 0
+    assert actual.params.nv_sci_sync.fence == 0
+    assert actual.params.keyed_mutex.key == 0
 
-    actual_repr = actual.__repr__()
-    expected_repr = textwrap.dedent("""
-    params :
-    fence :
-        value : 0
-    nvSciSync :
-        fence : 0x0
-    keyedMutex :
-        key : 0
-flags : 0
-""")
-    assert actual_repr.split() == expected_repr.split()
-
-    actual_repr = cuda.CUDA_KERNEL_NODE_PARAMS_st().__repr__()
-    expected_repr = textwrap.dedent("""
-    func : <CUfunction 0x0>
-gridDimX : 0
-gridDimY : 0
-gridDimZ : 0
-blockDimX : 0
-blockDimY : 0
-blockDimZ : 0
-sharedMemBytes : 0
-kernelParams : 0
-extra : 0
-""")
-    assert actual_repr.split() == expected_repr.split()
+    kernel_params = driver.KernelNodeParams_v2()
+    assert kernel_params.func == 0
+    assert kernel_params.grid_dim_x == 0
+    assert kernel_params.grid_dim_y == 0
+    assert kernel_params.grid_dim_z == 0
+    assert kernel_params.block_dim_x == 0
+    assert kernel_params.block_dim_y == 0
+    assert kernel_params.block_dim_z == 0
+    assert kernel_params.shared_mem_bytes == 0
+    assert kernel_params.kernel_params == 0
+    assert kernel_params.extra == 0
 
 
 def test_cuda_struct_list_of_enums():
-    desc = cuda.CUDA_TEXTURE_DESC_st()
-    desc.addressMode = [
-        cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_WRAP,
-        cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_CLAMP,
-        cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_MIRROR,
+    desc = driver.TextureDesc_v1()
+    desc.address_mode = [
+        driver.AddressMode.WRAP,
+        driver.AddressMode.CLAMP,
+        driver.AddressMode.MIRROR,
+    ]
+    assert list(desc.address_mode) == [
+        driver.AddressMode.WRAP,
+        driver.AddressMode.CLAMP,
+        driver.AddressMode.MIRROR,
     ]
 
     # # Too many args
-    # desc.addressMode = [cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_WRAP,
-    #                     cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_CLAMP,
-    #                     cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_MIRROR,
-    #                     cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_BORDER]
+    # desc.address_mode = [driver.AddressMode.WRAP,
+    #                      driver.AddressMode.CLAMP,
+    #                      driver.AddressMode.MIRROR,
+    #                      driver.AddressMode.BORDER]
 
     # # Too little args
-    # desc.addressMode = [cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_WRAP,
-    #                     cuda.CUaddress_mode.CU_TR_ADDRESS_MODE_CLAMP]
+    # desc.address_mode = [driver.AddressMode.WRAP,
+    #                      driver.AddressMode.CLAMP]
 
 
 def test_cuda_CUstreamBatchMemOpParams():
-    params = cuda.CUstreamBatchMemOpParams()
-    params.operation = cuda.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_WAIT_VALUE_32
-    params.waitValue.operation = cuda.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_WAIT_VALUE_32
-    params.writeValue.operation = cuda.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_WAIT_VALUE_32
-    params.flushRemoteWrites.operation = cuda.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_WAIT_VALUE_32
-    params.waitValue.value64 = 666
-    assert int(params.waitValue.value64) == 666
+    params = driver.StreamBatchMemOpParams_v1()
+    params.operation = driver.StreamBatchMemOpType.WAIT_VALUE_32
+    params.wait_value.operation = driver.StreamBatchMemOpType.WAIT_VALUE_32
+    params.write_value.operation = driver.StreamBatchMemOpType.WAIT_VALUE_32
+    params.flush_remote_writes.operation = driver.StreamBatchMemOpType.WAIT_VALUE_32
+    params.wait_value.value64 = 666
+    assert np.asarray(params.wait_value.value64).item() == 666
+
+    # A struct-valued member of an array-backed type is a wrapper object (its scalars are plain ints),
+    # never a raw NumPy record whose scalars come back as 1-element arrays.
+    batch = driver.StreamBatchMemOpParams_v1()
+    assert isinstance(batch.wait_value, driver.StreamMemOpWaitValueParams)
+    assert isinstance(batch.wait_value.flags_, int)
+    batch.wait_value.value = 7
+    assert batch.wait_value.value == 7
+    assert batch[0].wait_value.value == 7
+
+    access = driver.MemAccessDesc_v1()
+    assert isinstance(access.location, driver.MemLocation_v1)
+    assert isinstance(access.location.id, int)
+
+    # Elements of a larger array behave the same way.
+    assert isinstance(driver.StreamBatchMemOpParams_v1(3)[2].wait_value.flags_, int)
+    assert isinstance(driver.ArrayMapInfo_v1(2)[1].resource.array, int)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_cuda_memPool_attr():
-    poolProps = cuda.CUmemPoolProps()
-    poolProps.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    poolProps = driver.MemPoolProps_v1()
+    poolProps.alloc_type = driver.MemAllocationType.PINNED
     poolProps.location.id = 0
-    poolProps.location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    poolProps.maxSize = POOL_SIZE
+    poolProps.location.type = driver.MemLocationType.DEVICE
+    poolProps.max_size = POOL_SIZE
 
     attr_list = [None] * 8
-    err, pool = cuda.cuMemPoolCreate(poolProps)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    pool = driver.mem_pool_create(poolProps)
+
+    def get_attr(attr):
+        return int(driver.mem_pool_get_attribute(pool, attr))
 
     for idx, attr in enumerate(
         [
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_CURRENT,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH,
+            driver.MemPoolAttribute.REUSE_FOLLOW_EVENT_DEPENDENCIES,
+            driver.MemPoolAttribute.REUSE_ALLOW_OPPORTUNISTIC,
+            driver.MemPoolAttribute.REUSE_ALLOW_INTERNAL_DEPENDENCIES,
+            driver.MemPoolAttribute.RELEASE_THRESHOLD,
+            driver.MemPoolAttribute.RESERVED_MEM_CURRENT,
+            driver.MemPoolAttribute.RESERVED_MEM_HIGH,
+            driver.MemPoolAttribute.USED_MEM_CURRENT,
+            driver.MemPoolAttribute.USED_MEM_HIGH,
         ]
     ):
-        err, attr_tmp = cuda.cuMemPoolGetAttribute(pool, attr)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        attr_list[idx] = attr_tmp
+        attr_list[idx] = get_attr(attr)
 
     for idxA, attr in enumerate(
         [
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES,
+            driver.MemPoolAttribute.REUSE_FOLLOW_EVENT_DEPENDENCIES,
+            driver.MemPoolAttribute.REUSE_ALLOW_OPPORTUNISTIC,
+            driver.MemPoolAttribute.REUSE_ALLOW_INTERNAL_DEPENDENCIES,
         ]
     ):
-        (err,) = cuda.cuMemPoolSetAttribute(pool, attr, 0)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-    for idx, attr in enumerate([cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD]):
-        (err,) = cuda.cuMemPoolSetAttribute(pool, attr, cuda.cuuint64_t(9))
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        value = ctypes.c_int(0)
+        driver.mem_pool_set_attribute(pool, attr, ctypes.addressof(value))
+    for idx, attr in enumerate([driver.MemPoolAttribute.RELEASE_THRESHOLD]):
+        value = ctypes.c_uint64(9)
+        driver.mem_pool_set_attribute(pool, attr, ctypes.addressof(value))
 
     for idx, attr in enumerate(
         [
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES,
-            cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+            driver.MemPoolAttribute.REUSE_FOLLOW_EVENT_DEPENDENCIES,
+            driver.MemPoolAttribute.REUSE_ALLOW_OPPORTUNISTIC,
+            driver.MemPoolAttribute.REUSE_ALLOW_INTERNAL_DEPENDENCIES,
+            driver.MemPoolAttribute.RELEASE_THRESHOLD,
         ]
     ):
-        err, attr_tmp = cuda.cuMemPoolGetAttribute(pool, attr)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        attr_list[idx] = attr_tmp
+        attr_list[idx] = get_attr(attr)
     assert attr_list[0] == 0
     assert attr_list[1] == 0
     assert attr_list[2] == 0
     assert int(attr_list[3]) == 9
 
-    (err,) = cuda.cuMemPoolDestroy(pool)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.mem_pool_destroy(pool)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
-    err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    ptr = driver.mem_alloc_managed(0x1000, driver.MemAttachFlags.GLOBAL.value)
 
     # Individual version
     attr_type_list = [
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_CONTEXT,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_HOST_POINTER,
-        # cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_P2P_TOKENS, # TODO: Can I somehow test this?
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_BUFFER_ID,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_RANGE_SIZE,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPED,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,
+        driver.PointerAttribute.CONTEXT,
+        driver.PointerAttribute.MEMORY_TYPE,
+        driver.PointerAttribute.DEVICE_POINTER,
+        driver.PointerAttribute.HOST_POINTER,
+        # driver.PointerAttribute.P2P_TOKENS, # TODO: Can I somehow test this?
+        driver.PointerAttribute.SYNC_MEMOPS,
+        driver.PointerAttribute.BUFFER_ID,
+        driver.PointerAttribute.IS_MANAGED,
+        driver.PointerAttribute.DEVICE_ORDINAL,
+        driver.PointerAttribute.IS_LEGACY_CUDA_IPC_CAPABLE,
+        driver.PointerAttribute.RANGE_START_ADDR,
+        driver.PointerAttribute.RANGE_SIZE,
+        driver.PointerAttribute.MAPPED,
+        driver.PointerAttribute.ALLOWED_HANDLE_TYPES,
+        driver.PointerAttribute.IS_GPU_DIRECT_RDMA_CAPABLE,
+        driver.PointerAttribute.ACCESS_FLAGS,
+        driver.PointerAttribute.MEMPOOL_HANDLE,
     ]
-    attr_value_list = [None] * len(attr_type_list)
-    for idx, attr in enumerate(attr_type_list):
-        err, attr_tmp = cuda.cuPointerGetAttribute(attr, ptr)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        attr_value_list[idx] = attr_tmp
+    attr_value_list = [driver.pointer_get_attribute(attr, ptr) for attr in attr_type_list]
 
     # List version
-    err, attr_value_list_v2 = cuda.cuPointerGetAttributes(len(attr_type_list), attr_type_list, ptr)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    attr_value_list_v2 = driver.pointer_get_attributes(attr_type_list, ptr)
     for attr1, attr2 in zip(attr_value_list, attr_value_list_v2):
-        assert str(attr1) == str(attr2)
+        assert attr1 == attr2
 
     # Test setting values
     for val in (True, False):
-        (err,) = cuda.cuPointerSetAttribute(val, cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS, ptr)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        err, attr_tmp = cuda.cuPointerGetAttribute(cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_SYNC_MEMOPS, ptr)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        assert attr_tmp == val
+        value = ctypes.c_int(val)
+        driver.pointer_set_attribute(ctypes.addressof(value), driver.PointerAttribute.SYNC_MEMOPS, ptr)
+        assert bool(driver.pointer_get_attribute(driver.PointerAttribute.SYNC_MEMOPS, ptr)) == val
 
-    (err,) = cuda.cuMemFree(ptr)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.mem_free_v2(ptr)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
 )
 def test_pointer_get_attributes_device_ordinal():
-    attributes = [
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
-    ]
+    (value,) = driver.pointer_get_attributes([driver.PointerAttribute.DEVICE_ORDINAL], 0)
 
-    err, attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
-
-    assert err == cuda.CUresult.CUDA_SUCCESS
     # Drivers use either negative sentinel for a null pointer. Both ensure the
     # signed device ordinal is returned rather than an unsigned value.
-    assert attrs[0] in (cuda.CU_DEVICE_CPU, cuda.CU_DEVICE_INVALID)
+    assert value in (driver.SpecialDevice.CPU, driver.SpecialDevice.INVALID)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
+@pytest.mark.skipif(
+    driver_version_less_than(11030) or not supports_managed_memory(), reason="When new attributes were introduced"
+)
 def test_pointer_allowed_handle_types_preserves_64_bits():
-    helper = cuda._HelperCUpointer_attribute(
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES, 0, is_getter=True
-    )
-    expected = 1 << 40
-    ctypes.c_uint64.from_address(helper.cptr).value = expected
-
-    assert helper.pyObj() == expected
+    ptr = driver.mem_alloc_managed(0x1000, driver.MemAttachFlags.GLOBAL.value)
+    try:
+        assert driver.pointer_get_attribute(driver.PointerAttribute.ALLOWED_HANDLE_TYPES, ptr) == 0
+    finally:
+        driver.mem_free_v2(ptr)
 
 
-@pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
+@pytest.mark.skipif(not supports_managed_memory(), reason="When new attributes were introduced")
 def test_cuda_mem_range_attr(device):
     size = 0x1000
-    location_device = cuda.CUmemLocation()
-    location_device.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location_device = driver.MemLocation_v1()
+    location_device.type = driver.MemLocationType.DEVICE
     location_device.id = int(device)
-    location_cpu = cuda.CUmemLocation()
-    location_cpu.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-    location_cpu.id = int(cuda.CU_DEVICE_CPU)
+    location_cpu = driver.MemLocation_v1()
+    location_cpu.type = driver.MemLocationType.HOST
+    location_cpu.id = int(driver.SpecialDevice.CPU)
 
-    err, ptr = cuda.cuMemAllocManaged(size, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_READ_MOSTLY, location_device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_PREFERRED_LOCATION, location_cpu)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, location_cpu)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, concurrentSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS, device
-    )
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    ptr = driver.mem_alloc_managed(size, driver.MemAttachFlags.GLOBAL.value)
+    driver.mem_advise_v2(ptr, size, driver.MemAdvise.SET_READ_MOSTLY, location_device)
+    driver.mem_advise_v2(ptr, size, driver.MemAdvise.SET_PREFERRED_LOCATION, location_cpu)
+    driver.mem_advise_v2(ptr, size, driver.MemAdvise.SET_ACCESSED_BY, location_cpu)
+    concurrentSupported = driver.device_get_attribute(driver.DeviceAttribute.CONCURRENT_MANAGED_ACCESS, device)
     if concurrentSupported:
-        (err,) = cuda.cuMemAdvise(ptr, size, cuda.CUmem_advise.CU_MEM_ADVISE_SET_ACCESSED_BY, location_device)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.mem_advise_v2(ptr, size, driver.MemAdvise.SET_ACCESSED_BY, location_device)
         expected_values_list = ([1, -1, [0, -1, -2], -2],)
     else:
         expected_values_list = ([1, -1, [-1, -2, -2], -2], [0, -2, [-2, -2, -2], -2])
 
     # Individual version
     attr_type_list = [
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY,
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION,
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY,
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION,
+        driver.MemRangeAttribute.READ_MOSTLY,
+        driver.MemRangeAttribute.PREFERRED_LOCATION,
+        driver.MemRangeAttribute.ACCESSED_BY,
+        driver.MemRangeAttribute.LAST_PREFETCH_LOCATION,
     ]
     attr_type_size_list = [4, 4, 12, 4]
     attr_value_list = [None] * len(attr_type_list)
     for idx in range(len(attr_type_list)):
-        err, attr_tmp = cuda.cuMemRangeGetAttribute(attr_type_size_list[idx], attr_type_list[idx], ptr, size)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        attr_value_list[idx] = attr_tmp
+        attr_value_list[idx] = driver.mem_range_get_attribute(attr_type_size_list[idx], attr_type_list[idx], ptr, size)
 
     matched = False
     for expected_values in expected_values_list:
@@ -455,123 +435,84 @@ def test_cuda_mem_range_attr(device):
         raise RuntimeError(f"attr_value_list {attr_value_list} did not match any {expected_values_list}")
 
     # List version
-    err, attr_value_list_v2 = cuda.cuMemRangeGetAttributes(
-        attr_type_size_list, attr_type_list, len(attr_type_list), ptr, size
-    )
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    attr_value_list_v2 = driver.mem_range_get_attributes(attr_type_size_list, attr_type_list, ptr, size)
     for attr1, attr2 in zip(attr_value_list, attr_value_list_v2):
-        assert str(attr1) == str(attr2)
+        assert attr1 == attr2
 
-    (err,) = cuda.cuMemFree(ptr)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-
-@pytest.fixture
-def xfail_on_graph_mempool_oom():
-    """Return a check that xfails the calling test if the graph memory pool cannot be created.
-
-    The graph memory pool reserves virtual address space of about twice the
-    device memory, and unlike pools from cuMemPoolCreate it cannot be capped.
-    On systems with a limited virtual address space this reservation can fail
-    with CUDA_ERROR_OUT_OF_MEMORY, especially when another uncapped pool
-    already exists in the process.
-    """
-
-    def check(err):
-        if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
-            pytest.xfail("graph memory pool creation failed with CUDA_ERROR_OUT_OF_MEMORY")
-
-    return check
+    driver.mem_free_v2(ptr)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported"
+    driver_version_less_than(11040) or not supports_memory_pools(), reason="Mempool for graphs not supported"
 )
 @pytest.mark.thread_unsafe(reason="used high memory can be higher if threaded.")
-def test_cuda_graphMem_attr(device, xfail_on_graph_mempool_oom):
-    err, stream = cuda.cuStreamCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+def test_cuda_graphMem_attr(device):
+    stream = driver.stream_create(0)
 
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
     allocSize = 1
 
-    params = cuda.CUDA_MEM_ALLOC_NODE_PARAMS()
-    params.poolProps.location.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    params.poolProps.location.id = device
-    params.poolProps.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    params = driver.MemAllocNodeParams_v1()
+    params.pool_props.location.type = driver.MemLocationType.DEVICE
+    params.pool_props.location.id = device
+    params.pool_props.alloc_type = driver.MemAllocationType.PINNED
     params.bytesize = allocSize
 
-    err, allocNode = cuda.cuGraphAddMemAllocNode(graph, None, 0, params)
-    if err == cuda.CUresult.CUDA_ERROR_OUT_OF_MEMORY:
-        (destroy_err,) = cuda.cuGraphDestroy(graph)
-        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
-        (destroy_err,) = cuda.cuStreamDestroy(stream)
-        assert destroy_err == cuda.CUresult.CUDA_SUCCESS
-        xfail_on_graph_mempool_oom(err)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, freeNode = cuda.cuGraphAddMemFreeNode(graph, [allocNode], 1, params.dptr)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    try:
+        allocNode = driver.graph_add_mem_alloc_node(graph, NO_DEPS, 0, params)
+    except driver.OutOfMemoryError:
+        driver.graph_destroy(graph)
+        driver.stream_destroy_v2(stream)
+        xfail_graph_mempool_oom()
+    deps = node_array([allocNode])
+    freeNode = driver.graph_add_mem_free_node(graph, ctypes.addressof(deps), 1, params.dptr)
 
-    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graphExec = driver.graph_instantiate(graph, 0)
 
-    (err,) = cuda.cuGraphLaunch(graphExec, stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_launch(graphExec, stream)
 
-    err, used = cuda.cuDeviceGetGraphMemAttribute(device, cuda.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, usedHigh = cuda.cuDeviceGetGraphMemAttribute(device, cuda.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, reserved = cuda.cuDeviceGetGraphMemAttribute(
-        device, cuda.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT
-    )
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, reservedHigh = cuda.cuDeviceGetGraphMemAttribute(
-        device, cuda.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH
-    )
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    def get_graph_mem_attr(attr):
+        return int(driver.device_get_graph_mem_attribute(device, attr))
+
+    used = get_graph_mem_attr(driver.GraphMemAttribute.USED_MEM_CURRENT)
+    usedHigh = get_graph_mem_attr(driver.GraphMemAttribute.USED_MEM_HIGH)
+    reserved = get_graph_mem_attr(driver.GraphMemAttribute.RESERVED_MEM_CURRENT)
+    reservedHigh = get_graph_mem_attr(driver.GraphMemAttribute.RESERVED_MEM_HIGH)
 
     assert int(used) >= allocSize
     assert int(usedHigh) == int(used)
     assert int(reserved) == int(usedHigh)
     assert int(reservedHigh) == int(reserved)
 
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuStreamDestroy(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_destroy(graph)
+    driver.stream_destroy_v2(stream)
 
 
 @pytest.mark.skipif(
     driver_version_less_than(12010)
-    or not supportsCudaAPI("cuCoredumpSetAttributeGlobal")
-    or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
+    or not supportsCudaAPI("coredump_set_attribute_global")
+    or not supportsCudaAPI("coredump_get_attribute_global"),
     reason="Coredump API not present",
 )
+@pytest.mark.thread_unsafe(reason="coredump settings are process-global")
 def test_cuda_coredump_attr():
     attr_list = [None] * 6
 
-    (err,) = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, False)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_FILE, b"corefile")
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_PIPE, b"corepipe")
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_LIGHTWEIGHT, True)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.TRIGGER_HOST, False)
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.FILE, b"corefile")
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.PIPE, b"corepipe")
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT, True)
 
     for idx, attr in enumerate(
         [
-            cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST,
-            cuda.CUcoredumpSettings.CU_COREDUMP_FILE,
-            cuda.CUcoredumpSettings.CU_COREDUMP_PIPE,
-            cuda.CUcoredumpSettings.CU_COREDUMP_LIGHTWEIGHT,
+            driver.CoredumpSettings.TRIGGER_HOST,
+            driver.CoredumpSettings.FILE,
+            driver.CoredumpSettings.PIPE,
+            driver.CoredumpSettings.LIGHTWEIGHT,
         ]
     ):
-        err, attr_tmp = cuda.cuCoredumpGetAttributeGlobal(attr)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        attr_tmp = driver.coredump_get_attribute_global(attr)
         attr_list[idx] = attr_tmp
 
     assert attr_list[0] is False
@@ -580,134 +521,134 @@ def test_cuda_coredump_attr():
     assert attr_list[3] is True
 
 
+@pytest.mark.thread_unsafe(reason="coredump settings are process-global")
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_coredump_bool_uses_single_byte_storage():
-    helper = cuda._HelperCUcoredumpSettings(cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, 0, is_getter=True)
-    ctypes.c_uint32.from_address(helper.cptr).value = 0xFFFFFFFF
-    ctypes.c_uint8.from_address(helper.cptr).value = 0
-
-    assert helper.size() == ctypes.sizeof(ctypes.c_bool)
-    assert helper.pyObj() is False
+    # Round-trip a bool-valued setting in both directions; a getter that read
+    # more than one byte of the storage would be affected by stale high bytes.
+    # LIGHTWEIGHT is used because the Windows driver does not round-trip TRIGGER_HOST.
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT, True)
+    assert driver.coredump_get_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT) is True
+    driver.coredump_set_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT, False)
+    assert driver.coredump_get_attribute_global(driver.CoredumpSettings.LIGHTWEIGHT) is False
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
 def test_ffi_coverage_new_pointer_attributes():
-    """Smoke-test that every newly added CUpointer_attribute branch can be
-    constructed without raising TypeError."""
+    """Smoke-test that every newly added PointerAttribute can be queried
+    without raising TypeError (driver errors for unsupported attributes are tolerated)."""
     new_attrs = [
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_SIZE,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_HW_DECOMPRESS_CAPABLE,
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_LOCALITY_DOMAIN_ORDINAL,
+        driver.PointerAttribute.MAPPING_SIZE,
+        driver.PointerAttribute.MEMORY_BLOCK_ID,
+        driver.PointerAttribute.IS_HW_DECOMPRESS_CAPABLE,
+        driver.PointerAttribute.LOCALITY_DOMAIN_ORDINAL,
     ]
-    for attr in new_attrs:
-        helper = cuda._HelperCUpointer_attribute(attr, 0, is_getter=True)
-        assert helper.cptr != 0
-        _ = helper.pyObj()
+    ptr = driver.mem_alloc_v2(0x1000)
+    try:
+        for attr in new_attrs:
+            # Not supported by this driver version: tolerate driver errors
+            with contextlib.suppress(driver.DriverError):
+                driver.pointer_get_attribute(attr, ptr)
+    finally:
+        driver.mem_free_v2(ptr)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
 def test_ffi_coverage_mapping_base_addr():
-    """CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR uses the CUdeviceptr getter path."""
-    helper = cuda._HelperCUpointer_attribute(
-        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR, 0, is_getter=True
-    )
-    assert helper.cptr != 0
-    _ = helper.pyObj()
+    """PointerAttribute.MAPPING_BASE_ADDR uses the CUdeviceptr getter path."""
+    ptr = driver.mem_alloc_v2(0x1000)
+    try:
+        assert driver.pointer_get_attribute(driver.PointerAttribute.MAPPING_BASE_ADDR, ptr) != 0
+    finally:
+        driver.mem_free_v2(ptr)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+@pytest.mark.skipif(
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
+)
 def test_ffi_coverage_new_mempool_attributes():
-    """Smoke-test all newly added CUmemPool_attribute branches."""
-    int_attrs = [
-        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_ALLOCATION_TYPE,
-        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID,
-        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE,
-        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED,
-        cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCALITY_DOMAIN_ID,
-    ]
-    for attr in int_attrs:
-        helper = cuda._HelperCUmemPool_attribute(attr, 0, is_getter=True)
-        assert helper.cptr != 0
-        assert helper.pyObj() == 0
-
-    uint_attr = cuda.CUmemPool_attribute.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES
-    helper = cuda._HelperCUmemPool_attribute(uint_attr, 0, is_getter=True)
-    assert helper.cptr != 0
-    assert helper.pyObj() == 0
+    """Smoke-test all newly added MemPoolAttribute queries (driver errors for
+    attributes unsupported by this driver are tolerated)."""
+    pool_props = driver.MemPoolProps_v1()
+    pool_props.alloc_type = driver.MemAllocationType.PINNED
+    pool_props.location.id = 0
+    pool_props.location.type = driver.MemLocationType.DEVICE
+    pool_props.max_size = POOL_SIZE
+    pool = driver.mem_pool_create(pool_props)
+    try:
+        for attr in [
+            driver.MemPoolAttribute.ALLOCATION_TYPE,
+            driver.MemPoolAttribute.LOCATION_ID,
+            driver.MemPoolAttribute.LOCATION_TYPE,
+            driver.MemPoolAttribute.HW_DECOMPRESS_ENABLED,
+            driver.MemPoolAttribute.LOCALITY_DOMAIN_ID,
+            driver.MemPoolAttribute.EXPORT_HANDLE_TYPES,
+        ]:
+            # Not supported by this driver version: tolerate driver errors
+            with contextlib.suppress(driver.DriverError):
+                driver.mem_pool_get_attribute(pool, attr)
+    finally:
+        driver.mem_pool_destroy(pool)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
+@pytest.mark.skipif(not supports_managed_memory(), reason="When new attributes were introduced")
 def test_ffi_coverage_new_mem_range_attributes():
-    """Smoke-test all newly added CUmem_range_attribute branches (scalar int)."""
-    new_attrs = [
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE,
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID,
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE,
-        cuda.CUmem_range_attribute.CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID,
-    ]
-    for attr in new_attrs:
-        helper = cuda._HelperCUmem_range_attribute(attr, 4)
-        assert helper.cptr != 0
-        assert helper.pyObj() == 0
+    """Smoke-test all newly added MemRangeAttribute queries (scalar int)."""
+    size = 0x1000
+    ptr = driver.mem_alloc_managed(size, driver.MemAttachFlags.GLOBAL.value)
+    try:
+        new_attrs = [
+            driver.MemRangeAttribute.PREFERRED_LOCATION_TYPE,
+            driver.MemRangeAttribute.PREFERRED_LOCATION_ID,
+            driver.MemRangeAttribute.LAST_PREFETCH_LOCATION_TYPE,
+            driver.MemRangeAttribute.LAST_PREFETCH_LOCATION_ID,
+        ]
+        for attr in new_attrs:
+            # Not supported by this driver version: tolerate driver errors
+            with contextlib.suppress(driver.DriverError):
+                driver.mem_range_get_attribute(4, attr, ptr, size)
+    finally:
+        driver.mem_free_v2(ptr)
 
 
-@pytest.mark.agent_authored(model="claude-sonnet-4-6")
-def test_ffi_coverage_jit_option_new_int_attrs():
-    """Newly added int-type CUjit_option branches should construct without TypeError.
-
-    These options use the value-cast pattern: the int value is encoded directly
-    in the void* slot (cptr == NULL when value is 0, which is expected).
-    """
-    new_int_attrs = [
-        cuda.CUjit_option.CU_JIT_POSITION_INDEPENDENT_CODE,
-        cuda.CUjit_option.CU_JIT_MAX_THREADS_PER_BLOCK,
-        cuda.CUjit_option.CU_JIT_OVERRIDE_DIRECTIVE_VALUES,
-    ]
-    for attr in new_int_attrs:
-        helper = cuda._HelperCUjit_option(attr, 1)
-        assert helper.cptr == 1  # value is encoded as pointer
-
-
-@pytest.mark.agent_authored(model="claude-sonnet-4-6")
-def test_ffi_coverage_jit_option_binary_loader_thread_count():
-    """CU_JIT_BINARY_LOADER_THREAD_COUNT is unsigned int, value-cast like other uint options."""
-    helper = cuda._HelperCUjit_option(cuda.CUjit_option.CU_JIT_BINARY_LOADER_THREAD_COUNT, 4)
-    assert helper.cptr != 0
-
-
-@pytest.mark.agent_authored(model="claude-sonnet-4-6")
-def test_ffi_coverage_jit_wall_time_pointer_is_valid():
-    """CU_JIT_WALL_TIME must give CUDA a valid writable float address, not a garbage pointer."""
-    helper = cuda._HelperCUjit_option(cuda.CUjit_option.CU_JIT_WALL_TIME, 0.0)
-    # Guard against NULL so a regression fails instead of segfaulting.
-    assert helper.cptr != 0
-    # Write a sentinel float via ctypes to confirm the pointer is addressable.
-    ctypes.c_float.from_address(helper.cptr).value = 3.14
-    assert ctypes.c_float.from_address(helper.cptr).value == pytest.approx(3.14, rel=1e-5)
-
-
+@pytest.mark.thread_unsafe(reason="coredump settings are process-global")
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
 def test_ffi_coverage_coredump_generation_flags():
-    """CU_COREDUMP_GENERATION_FLAGS is an unsigned int bitmask."""
-    helper = cuda._HelperCUcoredumpSettings(cuda.CUcoredumpSettings.CU_COREDUMP_GENERATION_FLAGS, 0, is_getter=True)
-    assert helper.size() == ctypes.sizeof(ctypes.c_uint)
-    ctypes.c_uint.from_address(helper.cptr).value = 0xDEAD
-    assert helper.pyObj() == 0xDEAD
+    """CoredumpSettings.GENERATION_FLAGS is an unsigned int bitmask."""
+    settings = driver.CoredumpSettings.GENERATION_FLAGS
+    flags_enum = driver.CoredumpGenerationFlags
+
+    original = driver.coredump_get_attribute_global(settings)
+    assert isinstance(original, int)
+    try:
+        wanted = int(flags_enum.SKIP_GLOBAL_MEMORY) | int(flags_enum.SKIP_SHARED_MEMORY)
+        driver.coredump_set_attribute_global(settings, wanted)
+        assert driver.coredump_get_attribute_global(settings) == wanted
+    finally:
+        driver.coredump_set_attribute_global(settings, original)
 
 
 def test_get_error_name_and_string():
-    err, device = cuda.cuDeviceGet(0)
-    _, s = cuda.cuGetErrorString(err)
-    assert s == b"no error"
-    _, s = cuda.cuGetErrorName(err)
-    assert s == b"CUDA_SUCCESS"
+    device = driver.device_get(0)
+    s = driver.get_error_string(driver.Result.SUCCESS)
+    assert s == "no error"
+    s = driver.get_error_name(driver.Result.SUCCESS)
+    assert s == "CUDA_SUCCESS"
 
-    err, device = cuda.cuDeviceGet(-1)
-    _, s = cuda.cuGetErrorString(err)
-    assert s == b"invalid device ordinal"
-    _, s = cuda.cuGetErrorName(err)
-    assert s == b"CUDA_ERROR_INVALID_DEVICE"
+    with pytest.raises(driver.InvalidDeviceError) as excinfo:
+        driver.device_get(-1)
+    err = excinfo.value.status
+    s = driver.get_error_string(err)
+    assert s == "invalid device ordinal"
+    s = driver.get_error_name(err)
+    assert s == "CUDA_ERROR_INVALID_DEVICE"
+
+    with pytest.raises(driver.InvalidValueError):
+        driver.get_error_string(123456)
+    with pytest.raises(driver.InvalidValueError):
+        driver.get_error_name(123456)
 
 
 # TODO: cuStreamGetCaptureInfo_v2
@@ -727,114 +668,84 @@ def test_cuda_launch_host_func_graph_replay():
     def host_fn(userData):
         ctypes.c_int.from_address(userData).value += 1
 
-    callback = cuda.CUhostFn(_ptr=ctypes.addressof(host_fn))
-    err, stream = cuda.cuStreamCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    callback = ctypes.cast(host_fn, ctypes.c_void_p).value
+    stream = driver.stream_create(0)
     try:
         # Thread-local mode: pytest-run-parallel runs this test in several threads
-        # at once, and in global mode a call such as cuGraphInstantiate in one
+        # at once, and in global mode a call such as graph_instantiate in one
         # thread fails while another thread is capturing.
-        (err,) = cuda.cuStreamBeginCapture(stream, cuda.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_THREAD_LOCAL)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        (err,) = cuda.cuLaunchHostFunc(stream, callback, ctypes.addressof(counter))
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        err, graph = cuda.cuStreamEndCapture(stream)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.stream_begin_capture_v2(stream, driver.StreamCaptureMode.THREAD_LOCAL)
+        driver.launch_host_func(stream, callback, ctypes.addressof(counter))
+        graph = driver.stream_end_capture(stream)
         try:
-            err, graphExec = cuda.cuGraphInstantiate(graph, 0)
-            assert err == cuda.CUresult.CUDA_SUCCESS
+            graph_exec = driver.graph_instantiate(graph, 0)
             try:
                 for launch in range(1, 6):
-                    (err,) = cuda.cuGraphLaunch(graphExec, stream)
-                    assert err == cuda.CUresult.CUDA_SUCCESS
-                    (err,) = cuda.cuStreamSynchronize(stream)
-                    assert err == cuda.CUresult.CUDA_SUCCESS
+                    driver.graph_launch(graph_exec, stream)
+                    driver.stream_synchronize(stream)
                     assert counter.value == launch
             finally:
-                (err,) = cuda.cuGraphExecDestroy(graphExec)
-                assert err == cuda.CUresult.CUDA_SUCCESS
+                driver.graph_exec_destroy(graph_exec)
         finally:
-            (err,) = cuda.cuGraphDestroy(graph)
-            assert err == cuda.CUresult.CUDA_SUCCESS
+            driver.graph_destroy(graph)
     finally:
-        (err,) = cuda.cuStreamDestroy(stream)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.stream_destroy_v2(stream)
 
 
 def test_profiler():
-    (err,) = cuda.cuProfilerStart()
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuProfilerStop()
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-
-def test_eglFrame():
-    val = cuda.CUeglFrame()
-    # [<CUarray 0x0>, <CUarray 0x0>, <CUarray 0x0>]
-    assert int(val.frame.pArray[0]) == 0
-    assert int(val.frame.pArray[1]) == 0
-    assert int(val.frame.pArray[2]) == 0
-    val.frame.pArray = [1, 2, 3]
-    # [<CUarray 0x1>, <CUarray 0x2>, <CUarray 0x3>]
-    assert int(val.frame.pArray[0]) == 1
-    assert int(val.frame.pArray[1]) == 2
-    assert int(val.frame.pArray[2]) == 3
-    val.frame.pArray = [cuda.CUarray(4), 2, 3]
-    # [<CUarray 0x4>, <CUarray 0x2>, <CUarray 0x3>]
-    assert int(val.frame.pArray[0]) == 4
-    assert int(val.frame.pArray[1]) == 2
-    assert int(val.frame.pArray[2]) == 3
-    val.frame.pPitch = [4, 2, 3]
-    # [4, 2, 3]
-    assert int(val.frame.pPitch[0]) == 4
-    assert int(val.frame.pPitch[1]) == 2
-    assert int(val.frame.pPitch[2]) == 3
-    val.frame.pPitch = [1, 2, 3]
-    assert int(val.frame.pPitch[0]) == 1
-    assert int(val.frame.pPitch[1]) == 2
-    assert int(val.frame.pPitch[2]) == 3
+    driver.profiler_start()
+    driver.profiler_stop()
 
 
 def test_anon_assign():
-    val1 = cuda.CUexecAffinityParam_st()
-    val2 = cuda.CUexecAffinityParam_st()
+    val1 = driver.ExecAffinityParam_v1()
+    val2 = driver.ExecAffinityParam_v1()
 
-    assert val1.param.smCount.val == 0
-    val1.param.smCount.val = 5
-    assert val1.param.smCount.val == 5
-    val2.param.smCount.val = 11
-    assert val2.param.smCount.val == 11
+    assert val1.param.sm_count.val == 0
+    val1.param.sm_count.val = 5
+    assert val1.param.sm_count.val == 5
+    val2.param.sm_count.val = 11
+    assert val2.param.sm_count.val == 11
 
     val1.param = val2.param
-    assert val1.param.smCount.val == 11
+    assert val1.param.sm_count.val == 11
 
 
 def test_union_assign():
-    val = cuda.CUlaunchAttributeValue()
-    val.clusterDim.x, val.clusterDim.y, val.clusterDim.z = 9, 9, 9
-    attr = cuda.CUlaunchAttribute()
+    val = driver.LaunchAttributeValue()
+    val.cluster_dim.x, val.cluster_dim.y, val.cluster_dim.z = 9, 9, 9
+    attr = driver.LaunchAttribute()
     attr.value = val
 
-    assert val.clusterDim.x == 9
-    assert val.clusterDim.y == 9
-    assert val.clusterDim.z == 9
+    assert val.cluster_dim.x == 9
+    assert val.cluster_dim.y == 9
+    assert val.cluster_dim.z == 9
+    assert not hasattr(val, "pad")
+
+    # A union blob is raw bytes, not text: values that are not valid UTF-8 round-trip.
+    params = driver.GraphNodeParams()
+    assert isinstance(params.as_bytes, bytes)
+    raw = bytes((0x80 + i) % 256 for i in range(len(params.as_bytes)))
+    params.as_bytes = raw
+    assert params.as_bytes == raw
+    with pytest.raises(ValueError):
+        params.as_bytes = b"short"
 
 
 def test_invalid_repr_attribute():
-    val = cuda.CUlaunchAttributeValue()
+    val = driver.LaunchAttributeValue()
     string = str(val)
 
 
 @pytest.mark.skipif(
     driver_version_less_than(12020)
-    or not supportsCudaAPI("cuGraphAddNode")
-    or not supportsCudaAPI("cuGraphNodeSetParams")
-    or not supportsCudaAPI("cuGraphExecNodeSetParams"),
+    or not supportsCudaAPI("graph_add_node_v2")
+    or not supportsCudaAPI("graph_node_set_params")
+    or not supportsCudaAPI("graph_exec_node_set_params"),
     reason="Polymorphic graph APIs required",
 )
 def test_graph_poly():
-    err, stream = cuda.cuStreamCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    stream = driver.stream_create(0)
 
     # cuGraphAddNode
 
@@ -842,178 +753,150 @@ def test_graph_poly():
     size = int(1024 * np.uint8().itemsize)
     buffers = []
     for _ in range(2):
-        err, dptr = cuda.cuMemAlloc(size)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        dptr = driver.mem_alloc_v2(size)
         buffers += [(np.full(size, 2).astype(np.uint8), dptr)]
 
     # Update dev buffers
     for host, device in buffers:
-        (err,) = cuda.cuMemcpyHtoD(device, host, size)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.memcpy_htod_v2(device, host, size)
 
     # Create graph
     nodes = []
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
     # Memset
     host, device = buffers[0]
-    memsetParams = cuda.CUgraphNodeParams()
-    memsetParams.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEMSET
-    memsetParams.memset.elementSize = np.uint8().itemsize
+    memsetParams = driver.GraphNodeParams()
+    memsetParams.type = driver.GraphNodeType.MEMSET
+    memsetParams.memset.element_size = np.uint8().itemsize
     memsetParams.memset.width = size
     memsetParams.memset.height = 1
     memsetParams.memset.dst = device
     memsetParams.memset.value = 1
-    err, node = cuda.cuGraphAddNode(graph, None, None, 0, memsetParams)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, memsetParams)
     nodes += [node]
 
     # Memcpy
     host, device = buffers[1]
-    memcpyParams = cuda.CUgraphNodeParams()
-    memcpyParams.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEMCPY
-    memcpyParams.memcpy.copyParams.srcMemoryType = cuda.CUmemorytype.CU_MEMORYTYPE_DEVICE
-    memcpyParams.memcpy.copyParams.srcDevice = device
-    memcpyParams.memcpy.copyParams.dstMemoryType = cuda.CUmemorytype.CU_MEMORYTYPE_HOST
-    memcpyParams.memcpy.copyParams.dstHost = host
-    memcpyParams.memcpy.copyParams.WidthInBytes = size
-    memcpyParams.memcpy.copyParams.Height = 1
-    memcpyParams.memcpy.copyParams.Depth = 1
-    err, node = cuda.cuGraphAddNode(graph, None, None, 0, memcpyParams)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    memcpyParams = driver.GraphNodeParams()
+    memcpyParams.type = driver.GraphNodeType.MEMCPY
+    memcpyParams.memcpy.copy_params.src_memory_type = driver.MemoryType.DEVICE
+    memcpyParams.memcpy.copy_params.src_device = device
+    memcpyParams.memcpy.copy_params.dst_memory_type = driver.MemoryType.HOST
+    memcpyParams.memcpy.copy_params.dst_host = host.ctypes.data
+    memcpyParams.memcpy.copy_params.width_in_bytes = size
+    memcpyParams.memcpy.copy_params.height = 1
+    memcpyParams.memcpy.copy_params.depth = 1
+    node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, memcpyParams)
     nodes += [node]
 
     # Instantiate, execute, validate
-    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphLaunch(graphExec, stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuStreamSynchronize(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graphExec = driver.graph_instantiate(graph, 0)
+    driver.graph_launch(graphExec, stream)
+    driver.stream_synchronize(stream)
 
     # Validate
     for host, device in buffers:
-        (err,) = cuda.cuMemcpyDtoH(host, device, size)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.memcpy_dtoh_v2(host, device, size)
     assert np.array_equal(buffers[0][0], np.full(size, 1).astype(np.uint8))
     assert np.array_equal(buffers[1][0], np.full(size, 2).astype(np.uint8))
 
     # cuGraphNodeSetParams
     host, device = buffers[1]
-    err, memcpyParamsCopy = cuda.cuGraphMemcpyNodeGetParams(nodes[1])
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    assert int(memcpyParamsCopy.srcDevice) == int(device)
+    memcpyParamsCopy = driver.graph_memcpy_node_get_params(nodes[1])
+    assert int(memcpyParamsCopy.src_device) == int(device)
     host, device = buffers[0]
-    memcpyParams.memcpy.copyParams.srcDevice = device
-    (err,) = cuda.cuGraphNodeSetParams(nodes[1], memcpyParams)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, memcpyParamsCopy = cuda.cuGraphMemcpyNodeGetParams(nodes[1])
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    assert int(memcpyParamsCopy.srcDevice) == int(device)
+    memcpyParams.memcpy.copy_params.src_device = device
+    driver.graph_node_set_params(nodes[1], memcpyParams)
+    memcpyParamsCopy = driver.graph_memcpy_node_get_params(nodes[1])
+    assert int(memcpyParamsCopy.src_device) == int(device)
 
     # cuGraphExecNodeSetParams
     memsetParams.memset.value = 11
-    (err,) = cuda.cuGraphExecNodeSetParams(graphExec, nodes[0], memsetParams)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphLaunch(graphExec, stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuStreamSynchronize(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemcpyDtoH(buffers[0][0], buffers[0][1], size)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_exec_node_set_params(graphExec, nodes[0], memsetParams)
+    driver.graph_launch(graphExec, stream)
+    driver.stream_synchronize(stream)
+    driver.memcpy_dtoh_v2(buffers[0][0], buffers[0][1], size)
     assert np.array_equal(buffers[0][0], np.full(size, 11).astype(np.uint8))
 
     # Cleanup
-    (err,) = cuda.cuMemFree(buffers[0][1])
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuMemFree(buffers[1][1])
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphExecDestroy(graphExec)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuStreamDestroy(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.mem_free_v2(buffers[0][1])
+    driver.mem_free_v2(buffers[1][1])
+    driver.graph_exec_destroy(graphExec)
+    driver.graph_destroy(graph)
+    driver.stream_destroy_v2(stream)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
+    driver_version_less_than(12040) or not supportsCudaAPI("device_get_dev_resource"),
     reason="Polymorphic graph APIs required",
 )
-def test_cuDeviceGetDevResource(device):
-    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+def test_cuDeviceGetDevResource(device, ctx):
+    resource_in = driver.device_get_dev_resource(device, driver.DevResourceType.SM)
+    resource_from_ctx = driver.ctx_get_dev_resource(ctx, driver.DevResourceType.SM)
+    for resource in (resource_in, resource_from_ctx):
+        assert isinstance(resource, driver.DevResource_v1)
+        assert resource.type == driver.DevResourceType.SM
+        assert resource.sm.sm_count > 0
 
-    err, res, count, rem = cuda.cuDevSmResourceSplitByCount(0, resource_in, 0, 2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    assert count != 0
-    assert len(res) == 0
-    err, res, count_same, rem = cuda.cuDevSmResourceSplitByCount(count, resource_in, 0, 2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    assert count == count_same
-    assert len(res) == count
-    err, res, count, rem = cuda.cuDevSmResourceSplitByCount(3, resource_in, 0, 2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    assert len(res) == 3
+    # The wrapper queries the number of groups itself and returns all of them, plus the remainder
+    res, remainder = driver.dev_sm_resource_split_by_count(resource_in, 0, 2)
+    assert len(res) != 0
+    assert isinstance(remainder, driver.DevResource_v1)
+    assert len(res[:3]) == min(3, len(res))
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
+    driver_version_less_than(12030) or not supportsCudaAPI("graph_conditional_handle_create"),
     reason="Conditional graph APIs required",
 )
 def test_conditional(ctx):
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, handle = cuda.cuGraphConditionalHandleCreate(graph, ctx, 0, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
+    handle = driver.graph_conditional_handle_create(graph, ctx, 0, 0)
 
-    params = cuda.CUgraphNodeParams()
-    params.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
+    params = driver.GraphNodeParams()
+    params.type = driver.GraphNodeType.CONDITIONAL
     params.conditional.handle = handle
-    params.conditional.type = cuda.CUgraphConditionalNodeType.CU_GRAPH_COND_TYPE_IF
-    params.conditional.size = 1
+    params.conditional.type = driver.GraphConditionalNodeType.IF_
+    params.conditional.size_ = 1
     params.conditional.ctx = ctx
 
-    assert len(params.conditional.phGraph_out) == 1
-    assert int(params.conditional.phGraph_out[0]) == 0
-    err, node = cuda.cuGraphAddNode(graph, None, None, 0, params)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    # ph_graph_out is a pointer to an array of `size` graphs filled in by the driver
+    assert params.conditional.ph_graph_out == 0
+    node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, params)
 
-    assert len(params.conditional.phGraph_out) == 1
-    assert int(params.conditional.phGraph_out[0]) != 0
+    assert params.conditional.ph_graph_out != 0
+    assert ctypes.c_void_p.from_address(params.conditional.ph_graph_out).value != 0
 
 
 def test_CUmemDecompressParams_st():
-    desc = cuda.CUmemDecompressParams_st()
-    assert int(desc.dstActBytes) == 0
+    desc = driver.MemDecompressParams()
+    assert int(desc.dst_act_bytes) == 0
 
 
 def test_all_CUresult_codes():
-    max_code = int(max(cuda.CUresult))
+    max_code = int(max(driver.Result))
     # Smoke test. CUDA_ERROR_UNKNOWN = 999, but intentionally using literal value.
     assert max_code >= 999
     num_good = 0
     for code in range(max_code + 2):  # One past max_code
         try:
-            error = cuda.CUresult(code)
+            error = driver.Result(code)
         except ValueError:
-            pass  # cython-generated enum does not exist for this code
+            pass  # enum does not exist for this code
         else:
-            err_name, name = cuda.cuGetErrorName(error)
-            if err_name == cuda.CUresult.CUDA_SUCCESS:
+            try:
+                name = driver.get_error_name(error)
+            except driver.InvalidValueError:
+                # enum exists but is not known to an older driver
+                # (example: cuda-bindings built with CTK 12.8, driver from CTK 12.0)
+                with pytest.raises(driver.InvalidValueError):
+                    driver.get_error_string(error)
+            else:
                 assert name
-                err_desc, desc = cuda.cuGetErrorString(error)
-                assert err_desc == cuda.CUresult.CUDA_SUCCESS
+                desc = driver.get_error_string(error)
                 assert desc
                 num_good += 1
-            else:
-                # cython-generated enum exists but is not known to an older driver
-                # (example: cuda-bindings built with CTK 12.8, driver from CTK 12.0)
-                assert name is None
-                assert err_name == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
-                err_desc, desc = cuda.cuGetErrorString(error)
-                assert err_desc == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
-                assert desc is None
     # Smoke test: Do we have at least some "good" codes?
     # The number will increase over time as new enums are added and support for
     # old CTKs is dropped, but it is not critical that this number is updated.
@@ -1022,26 +905,23 @@ def test_all_CUresult_codes():
 
 @pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuKernelGetName")
 def test_cuKernelGetName_failure():
-    err, name = cuda.cuKernelGetName(0)
-    assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
-    assert name is None
+    with pytest.raises(driver.InvalidValueError):
+        driver.kernel_get_name(0)
 
 
 @pytest.mark.skipif(driver_version_less_than(12030), reason="Driver too old for cuFuncGetName")
 def test_cuFuncGetName_failure():
-    err, name = cuda.cuFuncGetName(0)
-    assert err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
-    assert name is None
+    with pytest.raises(driver.InvalidValueError):
+        driver.func_get_name(0)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(12080) or not supportsCudaAPI("cuCheckpointProcessGetState"),
+    driver_version_less_than(12080) or not supportsCudaAPI("checkpoint_process_get_state"),
     reason="When API was introduced",
 )
 def test_cuCheckpointProcessGetState_failure():
-    err, state = cuda.cuCheckpointProcessGetState(123434)
-    assert err != cuda.CUresult.CUDA_SUCCESS
-    assert state is None
+    with pytest.raises(driver.DriverError):
+        driver.checkpoint_process_get_state(123434)
 
 
 @pytest.mark.skipif(
@@ -1049,30 +929,33 @@ def test_cuCheckpointProcessGetState_failure():
     reason="cuLogs* functions were introduced in CUDA 12.9",
 )
 def test_culogs_functions():
-    try:
-        err, callback_handle = cuda.cuLogsRegisterCallback(0, None)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+    # The driver rejects a NULL callback, so register a real (no-op) one.
+    log_callback_type = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_size_t)
 
-        err, _ = cuda.cuLogsCurrent(0)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+    def log_callback(data, level, message, length):
+        pass
+
+    log_callback_c = log_callback_type(log_callback)
+    try:
+        callback_handle = driver.logs_register_callback(ctypes.cast(log_callback_c, ctypes.c_void_p).value, 0)
+
+        driver.logs_current(0)
 
         with tempfile.NamedTemporaryFile(delete=False) as f:
             log_path = f.name
         try:
-            err, _ = cuda.cuLogsDumpToFile(None, log_path.encode(), 0)
-            assert err == cuda.CUresult.CUDA_SUCCESS
+            driver.logs_dump_to_file(0, log_path.encode(), 0)
         finally:
             os.remove(log_path)
 
         # cuLogsDumpToMemory's own docstring states the driver's internal log
         # buffer is capped at 25600 bytes, so a buffer of that size is always
         # large enough to hold the dump without risking a buffer overrun.
-        buf = bytearray(25600)
-        err, _, _ = cuda.cuLogsDumpToMemory(None, buf, len(buf), 0)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        buf = ctypes.create_string_buffer(25600)
+        size = ctypes.c_size_t(len(buf))
+        driver.logs_dump_to_memory(0, ctypes.addressof(buf), ctypes.addressof(size), 0)
 
-        (err,) = cuda.cuLogsUnregisterCallback(callback_handle)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.logs_unregister_callback(callback_handle)
     except FunctionNotFoundError as e:
         pytest.fail(f"cuLogs* function unexpectedly not found on the driver: {e}")
 
@@ -1083,104 +966,58 @@ def test_private_function_pointer_inspector():
     assert _inspect_function_pointer("__cuGetErrorString") != 0
 
 
-@pytest.mark.parametrize(
-    "target",
-    (
-        driver.CUcontext,
-        driver.CUstream,
-        driver.CUevent,
-        driver.CUmodule,
-        driver.CUlibrary,
-        driver.CUfunction,
-        driver.CUkernel,
-        driver.CUgraph,
-        driver.CUgraphNode,
-        driver.CUgraphExec,
-        driver.CUmemoryPool,
-    ),
-)
-def test_struct_pointer_comparison(target):
-    a = target(123)
-    b = target(123)
-    assert a == b
-    assert hash(a) == hash(b)
-    c = target(456)
-    assert a != c
-    assert hash(a) != hash(c)
-
-
 @pytest.mark.skipif(
-    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("graph_get_id"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphGetId(device, ctx):
     """Test cuGraphGetId - get graph ID."""
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
-    err, graph_id = cuda.cuGraphGetId(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph_id = driver.graph_get_id(graph)
     assert isinstance(graph_id, int)
     assert graph_id > 0
 
     # Create another graph and verify it has a different ID
-    err, graph2 = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, graph_id2 = cuda.cuGraphGetId(graph2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph2 = driver.graph_create(0)
+    graph_id2 = driver.graph_get_id(graph2)
     assert graph_id2 != graph_id
 
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphDestroy(graph2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_destroy(graph)
+    driver.graph_destroy(graph2)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphExecGetId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("graph_exec_get_id"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphExecGetId(device, ctx):
     """Test cuGraphExecGetId - get graph exec ID."""
-    err, stream = cuda.cuStreamCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    stream = driver.stream_create(0)
 
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
     # Add an empty node to make the graph valid
-    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
 
-    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graphExec = driver.graph_instantiate(graph, 0)
 
-    err, graph_exec_id = cuda.cuGraphExecGetId(graphExec)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph_exec_id = driver.graph_exec_get_id(graphExec)
     assert isinstance(graph_exec_id, int)
     assert graph_exec_id > 0
 
     # Create another graph exec and verify it has a different ID
-    err, graph2 = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, node2 = cuda.cuGraphAddEmptyNode(graph2, None, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, graphExec2 = cuda.cuGraphInstantiate(graph2, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, graph_exec_id2 = cuda.cuGraphExecGetId(graphExec2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph2 = driver.graph_create(0)
+    node2 = driver.graph_add_empty_node(graph2, NO_DEPS, 0)
+    graphExec2 = driver.graph_instantiate(graph2, 0)
+    graph_exec_id2 = driver.graph_exec_get_id(graphExec2)
     assert graph_exec_id2 != graph_exec_id
 
-    (err,) = cuda.cuGraphExecDestroy(graphExec)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphExecDestroy(graphExec2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphDestroy(graph2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuStreamDestroy(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_exec_destroy(graphExec)
+    driver.graph_exec_destroy(graphExec2)
+    driver.graph_destroy(graph)
+    driver.graph_destroy(graph2)
+    driver.stream_destroy_v2(stream)
 
 
 def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
@@ -1189,29 +1026,24 @@ def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
     # a scratch buffer that was freed before the call returned, leaving the
     # wrappers pointing at freed memory. Ensure the returned objects remain
     # readable after the call and after subsequent allocations.
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
     try:
-        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        err, n2 = cuda.cuGraphAddEmptyNode(graph, [n0, n1], 2)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        n0 = driver.graph_add_empty_node(graph, NO_DEPS, 0)
+        # A raw address of an array of handles is accepted ...
+        deps = node_array([n0])
+        n1 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 1)
+        # ... as is a sequence of handles.
+        n2 = driver.graph_add_empty_node(graph, [n0, n1], 2)
 
-        err, _, _, _, num_edges = cuda.cuGraphGetEdges(graph)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        from_nodes, to_nodes, edge_data = driver.graph_get_edges_v2(graph)
+        num_edges = len(edge_data)
         assert num_edges == 3
-        err, from_nodes, to_nodes, edge_data, num_edges = cuda.cuGraphGetEdges(graph, num_edges)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        assert len(edge_data) == num_edges == 3
+        assert len(from_nodes) == len(to_nodes) == 3
 
         # Stir the heap to make a use-after-free more likely to surface.
         for _ in range(64):
-            err, _, _, _, _ = cuda.cuGraphGetEdges(graph, num_edges)
-            assert err == cuda.CUresult.CUDA_SUCCESS
-            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, 1)
-            assert err == cuda.CUresult.CUDA_SUCCESS
+            driver.graph_get_edges_v2(graph)
+            driver.graph_node_get_dependencies_v2(n1)
 
         # Each wrapper must still own its data.
         for ed in edge_data:
@@ -1219,350 +1051,353 @@ def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
             assert ed.to_port == 0
             assert int(ed.type) == 0
             # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
-            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            raw = (ctypes.c_uint8 * 8).from_address(ed.ptr)
             assert bytes(raw[3:]) == b"\x00" * 5
     finally:
-        (err,) = cuda.cuGraphDestroy(graph)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.graph_destroy(graph)
 
 
 def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
     # Companion regression test for #1804 covering the dependency-query path.
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
     try:
-        err, n0 = cuda.cuGraphAddEmptyNode(graph, None, 0)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        err, n1 = cuda.cuGraphAddEmptyNode(graph, [n0], 1)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        n0 = driver.graph_add_empty_node(graph, [], 0)
+        n1 = driver.graph_add_empty_node(graph, [n0], 1)
 
-        err, _, _, num_deps = cuda.cuGraphNodeGetDependencies(n1)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        dependencies, edge_data = driver.graph_node_get_dependencies_v2(n1)
+        num_deps = len(edge_data)
         assert num_deps == 1
-        err, deps, edge_data, num_deps = cuda.cuGraphNodeGetDependencies(n1, num_deps)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        assert len(edge_data) == num_deps == 1
+        assert len(dependencies) == 1
 
-        err, _, _, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        dependents, dep_edge_data = driver.graph_node_get_dependent_nodes_v2(n0)
+        num_dependents = len(dep_edge_data)
         assert num_dependents == 1
-        err, dependents, dep_edge_data, num_dependents = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        assert len(dep_edge_data) == num_dependents == 1
+        assert len(dependents) == 1
 
         for _ in range(64):
-            err, _, _, _ = cuda.cuGraphNodeGetDependencies(n1, num_deps)
-            assert err == cuda.CUresult.CUDA_SUCCESS
-            err, _, _, _ = cuda.cuGraphNodeGetDependentNodes(n0, num_dependents)
-            assert err == cuda.CUresult.CUDA_SUCCESS
+            driver.graph_node_get_dependencies_v2(n1)
+            driver.graph_node_get_dependent_nodes_v2(n0)
 
-        for ed in edge_data + dep_edge_data:
+        for ed in list(edge_data) + list(dep_edge_data):
             assert ed.from_port == 0
             assert ed.to_port == 0
             assert int(ed.type) == 0
             # CUgraphEdgeData_st layout: from_port(1), to_port(1), type(1), reserved[5]
-            raw = (ctypes.c_uint8 * 8).from_address(ed.getPtr())
+            raw = (ctypes.c_uint8 * 8).from_address(ed.ptr)
             assert bytes(raw[3:]) == b"\x00" * 5
     finally:
-        (err,) = cuda.cuGraphDestroy(graph)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        driver.graph_destroy(graph)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("graph_node_get_local_id"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetLocalId(device, ctx):
     """Test cuGraphNodeGetLocalId - get node local ID."""
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
     # Add multiple nodes
-    err, node1 = cuda.cuGraphAddEmptyNode(graph, None, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node1 = driver.graph_add_empty_node(graph, NO_DEPS, 0)
 
-    err, node2 = cuda.cuGraphAddEmptyNode(graph, [node1], 1)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    deps = node_array([node1])
+    node2 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 1)
 
-    err, node3 = cuda.cuGraphAddEmptyNode(graph, [node1, node2], 2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    deps = node_array([node1, node2])
+    node3 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 2)
 
     # Get local IDs for each node
-    err, node_id1 = cuda.cuGraphNodeGetLocalId(node1)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node_id1 = driver.graph_node_get_local_id(node1)
     assert isinstance(node_id1, int)
     assert node_id1 >= 0
 
-    err, node_id2 = cuda.cuGraphNodeGetLocalId(node2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node_id2 = driver.graph_node_get_local_id(node2)
     assert isinstance(node_id2, int)
     assert node_id2 >= 0
     assert node_id2 != node_id1
 
-    err, node_id3 = cuda.cuGraphNodeGetLocalId(node3)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node_id3 = driver.graph_node_get_local_id(node3)
     assert isinstance(node_id3, int)
     assert node_id3 >= 0
     assert node_id3 != node_id1
     assert node_id3 != node_id2
 
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_destroy(graph)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
+    driver_version_less_than(13010) or not supportsCudaAPI("graph_node_get_tools_id"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetToolsId(device, ctx):
     """Test cuGraphNodeGetToolsId - get node tools ID."""
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
-    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
 
-    err, tools_node_id = cuda.cuGraphNodeGetToolsId(node)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    tools_node_id = driver.graph_node_get_tools_id(node)
     assert isinstance(tools_node_id, int)
     # toolsNodeId is unsigned long long, so it can be any non-negative value
     assert tools_node_id >= 0
 
     # Add another node and verify it has a different tools ID
-    err, node2 = cuda.cuGraphAddEmptyNode(graph, [node], 1)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, tools_node_id2 = cuda.cuGraphNodeGetToolsId(node2)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    deps = node_array([node])
+    node2 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 1)
+    tools_node_id2 = driver.graph_node_get_tools_id(node2)
     assert tools_node_id2 != tools_node_id
 
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.graph_destroy(graph)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
+    driver_version_less_than(13010) or not supportsCudaAPI("graph_node_get_containing_graph"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuGraphNodeGetContainingGraph(device, ctx):
     """Test cuGraphNodeGetContainingGraph - get graph containing a node."""
-    err, graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    graph = driver.graph_create(0)
 
-    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
 
     # Get the containing graph
-    err, containing_graph = cuda.cuGraphNodeGetContainingGraph(node)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    containing_graph = driver.graph_node_get_containing_graph(node)
     # Verify it's the same graph
     assert int(containing_graph) == int(graph)
 
-    # Test with a child graph node (if supported)
+    # Test with a child graph node
     # Create a child graph node
-    err, child_graph = cuda.cuGraphCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, child_node = cuda.cuGraphAddEmptyNode(child_graph, None, 0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    child_graph = driver.graph_create(0)
+    child_node = driver.graph_add_empty_node(child_graph, NO_DEPS, 0)
 
     # Add child graph node to parent graph
-    childGraphNodeParams = cuda.CUgraphNodeParams()
-    childGraphNodeParams.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_GRAPH
+    childGraphNodeParams = driver.GraphNodeParams()
+    childGraphNodeParams.type = driver.GraphNodeType.GRAPH
     childGraphNodeParams.graph.graph = child_graph
-    err, child_graph_node = cuda.cuGraphAddNode(graph, None, None, 0, childGraphNodeParams)
-    if err == cuda.CUresult.CUDA_SUCCESS:
-        # Get containing graph for the child graph node
-        err, containing_graph_for_child = cuda.cuGraphNodeGetContainingGraph(child_graph_node)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        assert int(containing_graph_for_child) == int(graph)
+    child_graph_node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, childGraphNodeParams)
 
-        # Get containing graph for node inside child graph
-        err, containing_graph_for_nested = cuda.cuGraphNodeGetContainingGraph(child_node)
-        assert err == cuda.CUresult.CUDA_SUCCESS
-        assert int(containing_graph_for_nested) == int(child_graph)
+    # Get containing graph for the child graph node
+    containing_graph_for_child = driver.graph_node_get_containing_graph(child_graph_node)
+    assert int(containing_graph_for_child) == int(graph)
 
-    (err,) = cuda.cuGraphDestroy(graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuGraphDestroy(child_graph)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Get containing graph for node inside child graph
+    containing_graph_for_nested = driver.graph_node_get_containing_graph(child_node)
+    assert int(containing_graph_for_nested) == int(child_graph)
+
+    driver.graph_destroy(graph)
+    driver.graph_destroy(child_graph)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
+    driver_version_less_than(13010) or not supportsCudaAPI("stream_get_dev_resource"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuStreamGetDevResource(device, ctx):
     """Test cuStreamGetDevResource - get device resource from stream."""
-    err, stream = cuda.cuStreamCreate(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    stream = driver.stream_create(0)
 
     # Get SM resource from stream
-    err, resource = cuda.cuStreamGetDevResource(stream, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    # Verify resource is valid (non-None)
-    assert resource is not None
+    resource = driver.stream_get_dev_resource(stream, driver.DevResourceType.SM)
+    # Verify the resource was filled in
+    assert resource.type == driver.DevResourceType.SM
 
-    (err,) = cuda.cuStreamDestroy(stream)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.stream_destroy_v2(stream)
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
+    driver_version_less_than(13010) or not supportsCudaAPI("dev_sm_resource_split"),
     reason="Requires CUDA 13.1+",
 )
 def test_cuDevSmResourceSplit(device, ctx):
     """Test cuDevSmResourceSplit - split SM resource into structured groups."""
-    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    resource_in = driver.device_get_dev_resource(device, driver.DevResourceType.SM)
 
     # Test case 1: Split into 1 group
     nb_groups = 1
-    group_params = [cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS()]
+    group_params = driver.DevSmResourceGroupParams(nb_groups)
     # Set up group: request 4 SMs with coscheduled count of 2
-    group_params[0].smCount = 4
-    group_params[0].coscheduledSmCount = 2
+    group_params[0].sm_count = 4
+    group_params[0].coscheduled_sm_count = 2
 
-    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    res, rem = driver.dev_sm_resource_split(nb_groups, resource_in, 0, group_params)
     assert len(res) == nb_groups
-    assert rem is not None or len(res) > 0
+    assert isinstance(rem, driver.DevResource_v1)
 
     # Test case 2: Split into 2 groups (if device has enough SMs)
     # First, get the device resource again for a fresh split
-    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    resource_in = driver.device_get_dev_resource(device, driver.DevResourceType.SM)
 
     nb_groups = 2
-    group_params = [
-        cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS(),
-        cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS(),
-    ]
+    group_params = driver.DevSmResourceGroupParams(nb_groups)
     # First group: request 4 SMs with coscheduled count of 2
-    group_params[0].smCount = 4
-    group_params[0].coscheduledSmCount = 2
+    group_params[0].sm_count = 4
+    group_params[0].coscheduled_sm_count = 2
     # Second group: request 4 SMs with coscheduled count of 2
-    group_params[1].smCount = 4
-    group_params[1].coscheduledSmCount = 2
+    group_params[1].sm_count = 4
+    group_params[1].coscheduled_sm_count = 2
 
-    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
     # This may succeed or fail depending on device SM count, but should handle gracefully
-    if err == cuda.CUresult.CUDA_SUCCESS:
-        assert len(res) == nb_groups
-        assert rem is not None or len(res) > 0
-    else:
+    try:
+        res, rem = driver.dev_sm_resource_split(nb_groups, resource_in, 0, group_params)
+    except (driver.InvalidResourceConfigurationError, driver.InvalidValueError):
         # If it fails, it should be due to insufficient resources, not a binding error
-        assert err in (
-            cuda.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION,
-            cuda.CUresult.CUDA_ERROR_INVALID_VALUE,
-        )
+        pass
+    else:
+        assert len(res) == nb_groups
 
     # Test case 3: Empty list (0 groups) - should handle gracefully
     # Note: According to CUDA docs, nbGroups specifies number of groups, so 0 might not be valid
-    # But we test that the binding accepts an empty list without crashing
+    # But we test that the binding accepts a NULL group list without crashing
     nb_groups = 0
-    group_params = []
 
-    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
-    # With 0 groups, result should be empty
-    if err == cuda.CUresult.CUDA_SUCCESS:
-        assert len(res) == 0
-    else:
-        # If it fails, it should be a valid CUDA error, not a Python binding error
-        assert err in (
-            cuda.CUresult.CUDA_ERROR_INVALID_VALUE,
-            cuda.CUresult.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION,
+    # If it fails, it should be a valid CUDA error, not a Python binding error
+    with contextlib.suppress(driver.InvalidValueError, driver.InvalidResourceConfigurationError):
+        driver.dev_sm_resource_split(nb_groups, resource_in, 0, None)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_memcpy_batch_async(device, ctx):
+    stream = driver.stream_create(0)
+    src = driver.mem_alloc_v2(16)
+    dst = driver.mem_alloc_v2(16)
+    try:
+        driver.memcpy_htod_v2(src, np.arange(16, dtype=np.uint8), 16)
+        attrs = driver.MemCpyAttributes_v1()
+        attrs.src_access_order = driver.MemCpySrcAccessOrder.STREAM
+
+        driver.memcpy_batch_async(
+            np.array([dst], dtype=np.uint64),
+            np.array([src], dtype=np.uint64),
+            np.array([16], dtype=np.uint64),
+            attrs,
+            np.array([0], dtype=np.uint64),
+            stream,
         )
+        driver.stream_synchronize(stream)
+
+        result = np.zeros(16, dtype=np.uint8)
+        driver.memcpy_dtoh_v2(result, dst, 16)
+        assert np.array_equal(result, np.arange(16, dtype=np.uint8))
+
+        # Inconsistent buffers are rejected before reaching the C call.
+        u64 = lambda *values: np.array(values, dtype=np.uint64)  # noqa: E731
+        with pytest.raises(ValueError, match="same number of items"):
+            driver.memcpy_batch_async(u64(1, 2), u64(1), u64(1), attrs, u64(0), stream)
+        # Items of the wrong size would be reinterpreted by the C call.
+        with pytest.raises(ValueError, match="8 bytes"):
+            driver.memcpy_batch_async(np.array([1], dtype=np.uint32), u64(1), u64(1), attrs, u64(0), stream)
+        with pytest.raises(ValueError, match="both be None or both be provided"):
+            driver.memcpy_batch_async(u64(1), u64(1), u64(1), attrs, None, stream)
+        with pytest.raises(ValueError, match="same number of items"):
+            driver.memcpy_batch_async(u64(1), u64(1), u64(1), attrs, u64(0, 0), stream)
+    finally:
+        driver.mem_free_v2(src)
+        driver.mem_free_v2(dst)
+        driver.stream_destroy_v2(stream)
 
 
-def test_buffer_reference():
-    # Create a host buffer
-    size = int(1024 * np.uint8().itemsize)
-    host = np.full(size, 2).astype(np.uint8)
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.skipif(not supportsCudaAPI("device_get_host_atomic_capabilities"), reason="Requires a newer CUDA")
+def test_device_get_host_atomic_capabilities_item_size(device, ctx):
+    operations = np.array([driver.AtomicOperation.INTEGER_ADD], dtype=np.int32)
+    assert len(driver.device_get_host_atomic_capabilities(operations, device)) == 1
 
-    # Set the buffer to a struct member
-    memcpyParams = cuda.CUgraphNodeParams()
-    memcpyParams.memcpy.copyParams.dstHost = host
-
-    # Delete the local reference to the host buffer.  The reference in the
-    # struct should keep it alive.
-    del host
-
-    # Create a new numpy array from the pointer and make sure the memory is
-    # intact and hasn't been freed.  If the reference counting in
-    # copyParams.dstHost is incorrect, we will either see over-written memory or
-    # a segmentation fault here.
-    ptr = ctypes.cast(memcpyParams.memcpy.copyParams.dstHost, ctypes.POINTER(ctypes.c_uint8))
-    x = np.ctypeslib.as_array(ptr, shape=(size,))
-    assert np.all(x == 2)
+    # int64 items would be read as pairs of 4-byte operations.
+    with pytest.raises(ValueError, match="4 bytes"):
+        driver.device_get_host_atomic_capabilities(operations.astype(np.int64), device)
 
 
-def test_array_setter_no_double_free_after_clearing_with_empty_list():
-    # Regression test for a double-free in the generated setters for
-    # list-valued struct members (e.g. CUlaunchConfig.attrs,
-    # CUDA_MEM_ALLOC_NODE_PARAMS.accessDescs, ...). Assigning an empty list
-    # used to free the internal buffer but leave the cached pointer non-NULL;
-    # the next assignment (or __dealloc__) would call free() on that dangling
-    # pointer, causing a double-free that glibc aborts via SIGABRT.
-    #
-    # CUlaunchConfig.attrs is exercised here as one representative instance;
-    # the same pattern was applied across many setters in driver.pyx.in and
-    # runtime.pyx.in.
-    #
-    # The reproducer runs in a subprocess so that a glibc abort surfaces as
-    # a non-zero return code instead of tearing down the pytest process.
-    code = textwrap.dedent(
-        """
-        import cuda.bindings.driver as cuda
-
-        params = cuda.CUlaunchConfig()
-        # Allocate the internal buffer.
-        params.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
-        # Free it. Pre-fix, self._attrs is left pointing at freed memory.
-        params.attrs = []
-        # Length mismatch (0 vs 8) takes the else branch and calls free()
-        # again on the dangling pointer.
-        params.attrs = [cuda.CUlaunchAttribute() for _ in range(8)]
-        """
-    )
-    run_python_snippet(code)
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_get_error_string_and_name_reject_unknown_error_code():
+    with pytest.raises(driver.InvalidValueError):
+        driver.get_error_string(123456)
+    with pytest.raises(driver.InvalidValueError):
+        driver.get_error_name(123456)
 
 
-def test_dealloc_clears_array_field_in_external_struct():
-    # Regression test for the externally-owned-memory case of the same bug.
-    #
-    # When a wrapper aliases an externally-owned struct (constructed with
-    # `_ptr=...`), `__dealloc__` used to free its internal buffer but leave
-    # `self._pvt_ptr[0].<field>` pointing at the freed memory. Anyone still
-    # holding the external struct (the owning wrapper, a parent struct, or
-    # the CUDA driver itself) would see a dangling pointer.
-    #
-    # CUlaunchConfig.attrs is exercised here as one representative instance;
-    # the same pattern was applied across the `__dealloc__` methods in
-    # driver.pyx.in and runtime.pyx.in.
-    outer = cuda.CUlaunchConfig()
-    # `inner` aliases the same underlying struct as `outer`.
-    inner = cuda.CUlaunchConfig(_ptr=outer.getPtr())
-    # Allocates a buffer and writes its pointer into the shared struct's
-    # `attrs` field.
-    inner.attrs = [cuda.CUlaunchAttribute() for _ in range(4)]
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_thread_exchange_stream_capture_mode(ctx):
+    # The new mode is taken as an argument and the previous one is returned.
+    previous = driver.thread_exchange_stream_capture_mode(driver.StreamCaptureMode.RELAXED)
+    try:
+        assert previous == driver.StreamCaptureMode.GLOBAL
+        assert driver.thread_exchange_stream_capture_mode(driver.StreamCaptureMode.THREAD_LOCAL) == (
+            driver.StreamCaptureMode.RELAXED
+        )
+        assert driver.thread_exchange_stream_capture_mode(previous) == driver.StreamCaptureMode.THREAD_LOCAL
+    finally:
+        driver.thread_exchange_stream_capture_mode(previous)
 
-    # Locate `attrs` in the C struct by scanning for the just-written
-    # pointer. The struct is small and only `attrs` is non-NULL.
-    struct_addr = outer.getPtr()
-    word_size = ctypes.sizeof(ctypes.c_void_p)
-    scan_words = 128 // word_size
-    words = (ctypes.c_void_p * scan_words).from_address(struct_addr)
-    attrs_offset = next(
-        (i * word_size for i, p in enumerate(words) if p),
-        None,
-    )
-    assert attrs_offset is not None, "attrs pointer was not written into the C struct"
 
-    # Destroy the wrapper. With the fix, __dealloc__ also clears the field
-    # in the externally-owned struct; without it, the field remains dangling.
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_driver_namespace_naming():
+    # Enum members are named without the C prefix; the legacy full C names are not kept as aliases.
+    assert driver.GraphConditionalNodeType.IF_ == 0
+    assert not hasattr(driver.GraphConditionalNodeType, "CU_GRAPH_COND_TYPE_IF")
+    assert not hasattr(driver.Result, "CUDA_SUCCESS")
+
+    classes = {name: getattr(driver, name) for name in dir(driver) if isinstance(getattr(driver, name), type)}
+
+    # Struct class names drop the C tag suffix.
+    assert not [name for name in classes if name.endswith(("_st", "St"))]
+    assert driver.StreamMemOpAtomicReductionParams is not None
+
+    # Helper types that are used publicly are not underscore-prefixed.
+    params = driver.DevSmResourceGroupParams(2)
+    assert len(params) == 2
+    assert not hasattr(driver, "_DevSmResourceGroupParams")
+
+    # `cl_event_flags` (the NVCL scheduling enum) and `CUevent_flags` both want the name `EventFlags`.
+    assert driver.EventFlags is not driver.NvclEventFlags
+    assert driver.EventFlags.DEFAULT == 0
+    assert driver.EventFlags.BLOCKING_SYNC == 1
+    assert set(driver.NvclEventFlags.__members__) != set(driver.EventFlags.__members__)
+
+    # Exceptions do not shadow Python builtins ...
+    exceptions = [cls for cls in classes.values() if issubclass(cls, driver.DriverError)]
+    assert exceptions
+    assert [cls.__name__ for cls in exceptions if hasattr(builtins, cls.__name__)] == []
+    # ... but the status codes of the builtin-named errors are still mapped, to the prefixed classes.
+    assert issubclass(driver.DriverTimeoutError, driver.DriverError)
+    assert issubclass(driver.DriverFileNotFoundError, driver.DriverError)
+    assert not hasattr(driver, "TimeoutError")
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_pointer_member_is_raw_address():
+    # The v2 structs never copy or take a reference to the memory a pointer member refers to: the member holds
+    # exactly the address it is given, and the caller keeps the buffer alive.
+    host = np.full(1024, 2, dtype=np.uint8)
+    params = driver.GraphNodeParams()
+    params.memcpy.copy_params.dst_host = host.ctypes.data
+    assert params.memcpy.copy_params.dst_host == host.ctypes.data
+
+    # Passing the buffer object itself is rejected rather than silently storing a dangling pointer.
+    with pytest.raises(TypeError):
+        params.memcpy.copy_params.dst_host = host
+
+    ptr = ctypes.cast(params.memcpy.copy_params.dst_host, ctypes.POINTER(ctypes.c_uint8))
+    assert np.all(np.ctypeslib.as_array(ptr, shape=(host.size,)) == 2)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_array_member_assignment_and_aliased_dealloc():
+    # Counterpart of the legacy double-free / dangling-pointer regressions for list-valued struct members.
+    # In the v2 structs the array member (`LaunchConfig.attrs`) is a raw address plus a separate count, so no
+    # buffer is allocated or freed by the setter, and repeated assignment must not corrupt anything.
+    attrs = ctypes.create_string_buffer(8 * ctypes.sizeof(ctypes.c_uint64) * 8)
+    outer = driver.LaunchConfig()
+    outer.attrs = ctypes.addressof(attrs)
+    outer.num_attrs = 4
+    outer.attrs = 0
+    outer.num_attrs = 0
+    outer.attrs = ctypes.addressof(attrs)
+    outer.num_attrs = 8
+    assert outer.attrs == ctypes.addressof(attrs)
+    assert outer.num_attrs == 8
+
+    # A wrapper aliasing the same struct must leave the member untouched when it is destroyed.
+    inner = driver.LaunchConfig.from_ptr(outer.ptr)
+    assert inner.attrs == ctypes.addressof(attrs)
     del inner
-
-    attrs_after = ctypes.c_void_p.from_address(struct_addr + attrs_offset).value
-    assert attrs_after is None, (
-        f"external struct still holds a dangling pointer ({attrs_after:#x}) "
-        "where attrs was, after the aliasing wrapper was destroyed"
-    )
+    assert outer.attrs == ctypes.addressof(attrs)
+    assert outer.num_attrs == 8

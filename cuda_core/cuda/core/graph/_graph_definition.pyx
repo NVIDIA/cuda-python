@@ -31,11 +31,14 @@ from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from cuda.core._device import Device
     from cuda.core._event import Event
     from cuda.core._launch_config import LaunchConfig
     from cuda.core._memory._buffer import Buffer
     from cuda.core._module import Kernel
+    from cuda.core._utils.pycompat import BufferProtocol
     from cuda.core.graph._graph_builder import (
         Graph,
         GraphCompleteOptions,
@@ -250,7 +253,7 @@ cdef class GraphDefinition:
         """
         return self._entry.wait(event)
 
-    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> HostCallbackNode:
         """Add an entry-point host callback node (no dependencies).
 
         See :meth:`GraphNode.callback` for full documentation.

@@ -45,7 +45,6 @@ try:
         Program,
         ProgramOptions,
         launch,
-        system,
     )
 except ImportError as e:
     print(f"Error: Required package not found: {e}")
@@ -99,7 +98,8 @@ def run(num_elements=1024 * 1024 * 16):
 
     # Check for multiple GPUs
     print("\nChecking for multiple GPUs...")
-    num_devices = system.get_num_devices()
+    # CUDA's device count honors CUDA_VISIBLE_DEVICES; system.get_num_devices() counts every GPU NVML sees.
+    num_devices = len(Device.get_all_devices())
     print(f"CUDA-capable device count: {num_devices}")
 
     if num_devices < 2:

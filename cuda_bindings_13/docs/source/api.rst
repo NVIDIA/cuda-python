@@ -10,8 +10,10 @@ CUDA Python API Reference
    :caption: CaptionHolder:
 
    module/driver
+   module/driver_v2
    module/runtime
    module/nvrtc
+   module/nvrtc_v2
    module/nvjitlink
    module/nvvm
    module/nvfatbin

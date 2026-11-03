@@ -37,10 +37,14 @@ IGNORED_BASENAMES = {"AGENTS.md", "CLAUDE.md", "pixi.lock", "pixi.toml"}
 IGNORED_SUFFIXES = {".md", ".svg"}
 IGNORED_PATHS = {
     ".coveragerc",
+    ".github/workflows/runner-trust-probe.yml",
     ".gitignore",
     ".pre-commit-config.yaml",
     ".spdx-ignore",
     "LICENSE",
+    "ci/tools/runner_trust_probe.ps1",
+    "ci/tools/runner_trust_probe.sh",
+    "ci/tools/runner_trust_probe_node.js",
     "context7.json",
     "greptile.json",
     "ruff.toml",
@@ -86,6 +90,8 @@ def compute_workplan(
             if path_parts[0] == "ci" or (
                 len(path_parts) >= 2 and path_parts[:2] in {(".github", "actions"), (".github", "workflows")}
             ):
+                if path in IGNORED_PATHS:
+                    continue
                 force_all = True
                 break
 

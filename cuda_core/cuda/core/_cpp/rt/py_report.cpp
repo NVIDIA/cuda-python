@@ -14,7 +14,7 @@ using namespace detail;
 
 namespace {
 // Warning category registered by _utils/cuda_utils.pyx (cuda.core.CUDAWarning).
-std::atomic<PyObject*> warning_category{nullptr};
+std::atomic<PyObject *> warning_category{nullptr};
 }  // namespace
 
 // Report a message that could not be raised. Emits cuda.core.CUDAWarning via
@@ -28,8 +28,10 @@ std::atomic<PyObject*> warning_category{nullptr};
 // table fill re-armed; see py_driver_fns.cpp) can fire inside it. The warning
 // is then emitted again and the interrupt re-armed with PyErr_SetInterrupt(),
 // so Python raises it at the next bytecode boundary in the caller's code.
-void report_message(const char* message) noexcept {
-    PyObject* category = warning_category.load(std::memory_order_acquire);
+void
+report_message(const char *message) noexcept
+{
+    PyObject *category = warning_category.load(std::memory_order_acquire);
     if (category && Py_IsInitialized() && !py_is_finalizing()) {
         GILAcquireGuard gil;
         if (gil.acquired()) {
@@ -42,7 +44,7 @@ void report_message(const char* message) noexcept {
                     PyErr_Clear();
                 }
                 if (!interrupted || PyErr_WarnEx(category, message, 1) != 0) {
-                    PyObject* subject = PyUnicode_FromString(message);
+                    PyObject *subject = PyUnicode_FromString(message);
                     PyErr_WriteUnraisable(subject);
                     Py_XDECREF(subject);
                 }
@@ -57,14 +59,18 @@ void report_message(const char* message) noexcept {
     std::fflush(stderr);
 }
 
-void register_warning_category(PyObject* category) noexcept {
+void
+register_warning_category(PyObject *category) noexcept
+{
     warning_category.store(category, std::memory_order_release);
 }
 
 namespace {
 // Attach `message` as a PEP 678 note to the exception currently being handled.
 // Returns false when there is none or the interpreter cannot be used.
-bool add_note_to_handled_exception(const char* message) noexcept {
+bool
+add_note_to_handled_exception(const char *message) noexcept
+{
 #if PY_VERSION_HEX >= 0x030B0000
     if (!Py_IsInitialized() || py_is_finalizing()) {
         return false;
@@ -73,11 +79,11 @@ bool add_note_to_handled_exception(const char* message) noexcept {
     if (!gil.acquired()) {
         return false;
     }
-    PyObject* exc = PyErr_GetHandledException();
+    PyObject *exc = PyErr_GetHandledException();
     if (!exc) {
         return false;
     }
-    PyObject* result = PyObject_CallMethod(exc, "add_note", "s", message);
+    PyObject *result = PyObject_CallMethod(exc, "add_note", "s", message);
     Py_DECREF(exc);
     if (!result) {
         PyErr_Clear();
@@ -92,7 +98,9 @@ bool add_note_to_handled_exception(const char* message) noexcept {
 }
 }  // namespace
 
-void attach_rollback_failure(const char* operation, CUresult status, const char* detail) noexcept {
+void
+attach_rollback_failure(const char *operation, CUresult status, const char *detail) noexcept
+{
     if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
         return;
     }

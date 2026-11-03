@@ -68,7 +68,7 @@ jobs:
 
       - name: Set up Python
         id: python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -79,8 +79,8 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
-          key: pre-commit-${{ runner.os }}-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: pre-commit-${{ runner.os }}-py${{ env.PYTHON_VERSION }}
+          key: pre-commit-${{ runner.os }}-uv-py${{ steps.python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: pre-commit-${{ runner.os }}-uv-py${{ env.PYTHON_VERSION }}
 
       - name: Setup pixi
         if: ${{ matrix.kind == 'rendered' }}

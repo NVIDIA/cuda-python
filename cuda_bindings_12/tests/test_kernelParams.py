@@ -863,20 +863,21 @@ def test_kernelParams_buffer_protocol_numpy():
     ASSERT_DRV(err)
 
 
+@pytest.mark.agent_authored(model="gpt-5")
 def test_kernelParams_c_int_out_of_range_raises():
-    # #363: an out-of-range Python int for a c_int / c_byte kernel argument must
-    # raise instead of being silently truncated to fit the declared width.
     (err,) = cuda.cuInit(0)
     ASSERT_DRV(err)
-    err, cuDevice = cuda.cuDeviceGet(0)
+    err, device = cuda.cuDeviceGet(0)
     ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(0, device)
     ASSERT_DRV(err)
 
+    # #363: an out-of-range Python int for a c_int / c_byte kernel argument must
+    # raise instead of being silently truncated to fit the declared width.
     kernelString = """\
     extern "C" __global__ void take_int(int i) {}
     """
-    module = common_nvrtc(kernelString, cuDevice)
+    module = common_nvrtc(kernelString, device)
     err, kernel = cuda.cuModuleGetFunction(module, b"take_int")
     ASSERT_DRV(err)
     err, stream = cuda.cuStreamCreate(0)

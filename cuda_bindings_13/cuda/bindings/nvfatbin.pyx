@@ -3,12 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.4.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a7028b3fc77724f1ea7c5c49302cfe8524b85554b73eaf754231ac9bfc26c0f7
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a7b1e6452305b24e9ce950d8adbc14639f922708f50252656f28e0fe2e3cd464
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
+from cuda.bindings._internal.utils cimport (
+    get_nested_resource_ptr as _cyb_get_nested_resource_ptr,
+    nested_resource as _cyb_nested_resource,
+)
 from libc.stdint cimport intptr_t
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
@@ -29,13 +33,12 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
             if size != -1:
                 assert view.len == size
-            assert view.ndim == 1
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
                 "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a 1D contiguous {adj}"
-                f"buffer, of size {size}"
+                f"address to a valid buffer, or a contiguous {adj}"
+                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
             ) from e
         else:
             ptr = <intptr_t>view.buf
@@ -165,8 +168,8 @@ cpdef intptr_t create(options, size_t options_count) except -1:
 
     .. seealso:: `nvFatbinCreate`
     """
-    cdef nested_resource[ char ] _options_
-    get_nested_resource_ptr[char](_options_, options, <char*>NULL)
+    cdef _cyb_nested_resource[ char ] _options_
+    _cyb_get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     cdef Handle handle_indirect
     with nogil:
         __status__ = nvFatbinCreate(&handle_indirect, <const char**>(_options_.ptrs.data()), options_count)

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7a208273ab596a5fc3e4ce5ca2f4cd474a4d3e649aa06b78bc8e5564fe2cebfd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=92945a025bf01ceb29f21539fb32be8db41c402bec2606a8d92b79e869a0c0ed
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -86,13 +86,12 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
             if size != -1:
                 assert view.len == size
-            assert view.ndim == 1
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
                 "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a 1D contiguous {adj}"
-                f"buffer, of size {size}"
+                f"address to a valid buffer, or a contiguous {adj}"
+                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
             ) from e
         else:
             ptr = <intptr_t>view.buf
@@ -1598,30 +1597,54 @@ class Status(_cyb_IntEnum):
     """
     See `cudlaStatus`.
     """
-    Success = cudlaSuccess
-    ErrorInvalidParam = cudlaErrorInvalidParam
-    ErrorOutOfResources = cudlaErrorOutOfResources
-    ErrorCreationFailed = cudlaErrorCreationFailed
-    ErrorInvalidAddress = cudlaErrorInvalidAddress
-    ErrorOs = cudlaErrorOs
-    ErrorCuda = cudlaErrorCuda
-    ErrorUmd = cudlaErrorUmd
-    ErrorInvalidDevice = cudlaErrorInvalidDevice
-    ErrorInvalidAttribute = cudlaErrorInvalidAttribute
-    ErrorIncompatibleDlaSWVersion = cudlaErrorIncompatibleDlaSWVersion
-    ErrorMemoryRegistered = cudlaErrorMemoryRegistered
-    ErrorInvalidModule = cudlaErrorInvalidModule
-    ErrorUnsupportedOperation = cudlaErrorUnsupportedOperation
-    ErrorNvSci = cudlaErrorNvSci
-    ErrorDriverNotFound = cudlaErrorDriverNotFound
-    ErrorDlaErrInvalidInput = cudlaErrorDlaErrInvalidInput
-    ErrorDlaErrInvalidPreAction = cudlaErrorDlaErrInvalidPreAction
-    ErrorDlaErrNoMem = cudlaErrorDlaErrNoMem
-    ErrorDlaErrProcessorBusy = cudlaErrorDlaErrProcessorBusy
-    ErrorDlaErrTaskStatusMismatch = cudlaErrorDlaErrTaskStatusMismatch
-    ErrorDlaErrEngineTimeout = cudlaErrorDlaErrEngineTimeout
-    ErrorDlaErrDataMismatch = cudlaErrorDlaErrDataMismatch
-    ErrorUnknown = cudlaErrorUnknown
+    SUCCESS = cudlaSuccess
+    Success = SUCCESS  # backward-compat alias
+    ERROR_INVALID_PARAM = cudlaErrorInvalidParam
+    ErrorInvalidParam = ERROR_INVALID_PARAM  # backward-compat alias
+    ERROR_OUT_OF_RESOURCES = cudlaErrorOutOfResources
+    ErrorOutOfResources = ERROR_OUT_OF_RESOURCES  # backward-compat alias
+    ERROR_CREATION_FAILED = cudlaErrorCreationFailed
+    ErrorCreationFailed = ERROR_CREATION_FAILED  # backward-compat alias
+    ERROR_INVALID_ADDRESS = cudlaErrorInvalidAddress
+    ErrorInvalidAddress = ERROR_INVALID_ADDRESS  # backward-compat alias
+    ERROR_OS = cudlaErrorOs
+    ErrorOs = ERROR_OS  # backward-compat alias
+    ERROR_CUDA = cudlaErrorCuda
+    ErrorCuda = ERROR_CUDA  # backward-compat alias
+    ERROR_UMD = cudlaErrorUmd
+    ErrorUmd = ERROR_UMD  # backward-compat alias
+    ERROR_INVALID_DEVICE = cudlaErrorInvalidDevice
+    ErrorInvalidDevice = ERROR_INVALID_DEVICE  # backward-compat alias
+    ERROR_INVALID_ATTRIBUTE = cudlaErrorInvalidAttribute
+    ErrorInvalidAttribute = ERROR_INVALID_ATTRIBUTE  # backward-compat alias
+    ERROR_INCOMPATIBLE_DLA_SW_VERSION = cudlaErrorIncompatibleDlaSWVersion
+    ErrorIncompatibleDlaSWVersion = ERROR_INCOMPATIBLE_DLA_SW_VERSION  # backward-compat alias
+    ERROR_MEMORY_REGISTERED = cudlaErrorMemoryRegistered
+    ErrorMemoryRegistered = ERROR_MEMORY_REGISTERED  # backward-compat alias
+    ERROR_INVALID_MODULE = cudlaErrorInvalidModule
+    ErrorInvalidModule = ERROR_INVALID_MODULE  # backward-compat alias
+    ERROR_UNSUPPORTED_OPERATION = cudlaErrorUnsupportedOperation
+    ErrorUnsupportedOperation = ERROR_UNSUPPORTED_OPERATION  # backward-compat alias
+    ERROR_NV_SCI = cudlaErrorNvSci
+    ErrorNvSci = ERROR_NV_SCI  # backward-compat alias
+    ERROR_DRIVER_NOT_FOUND = cudlaErrorDriverNotFound
+    ErrorDriverNotFound = ERROR_DRIVER_NOT_FOUND  # backward-compat alias
+    ERROR_DLA_ERR_INVALID_INPUT = cudlaErrorDlaErrInvalidInput
+    ErrorDlaErrInvalidInput = ERROR_DLA_ERR_INVALID_INPUT  # backward-compat alias
+    ERROR_DLA_ERR_INVALID_PRE_ACTION = cudlaErrorDlaErrInvalidPreAction
+    ErrorDlaErrInvalidPreAction = ERROR_DLA_ERR_INVALID_PRE_ACTION  # backward-compat alias
+    ERROR_DLA_ERR_NO_MEM = cudlaErrorDlaErrNoMem
+    ErrorDlaErrNoMem = ERROR_DLA_ERR_NO_MEM  # backward-compat alias
+    ERROR_DLA_ERR_PROCESSOR_BUSY = cudlaErrorDlaErrProcessorBusy
+    ErrorDlaErrProcessorBusy = ERROR_DLA_ERR_PROCESSOR_BUSY  # backward-compat alias
+    ERROR_DLA_ERR_TASK_STATUS_MISMATCH = cudlaErrorDlaErrTaskStatusMismatch
+    ErrorDlaErrTaskStatusMismatch = ERROR_DLA_ERR_TASK_STATUS_MISMATCH  # backward-compat alias
+    ERROR_DLA_ERR_ENGINE_TIMEOUT = cudlaErrorDlaErrEngineTimeout
+    ErrorDlaErrEngineTimeout = ERROR_DLA_ERR_ENGINE_TIMEOUT  # backward-compat alias
+    ERROR_DLA_ERR_DATA_MISMATCH = cudlaErrorDlaErrDataMismatch
+    ErrorDlaErrDataMismatch = ERROR_DLA_ERR_DATA_MISMATCH  # backward-compat alias
+    ERROR_UNKNOWN = cudlaErrorUnknown
+    ErrorUnknown = ERROR_UNKNOWN  # backward-compat alias
 
 class Mode(_cyb_IntEnum):
     """
@@ -1773,7 +1796,7 @@ cpdef module_unload(intptr_t h_module, uint32_t flags):
 
 
 cpdef submit_task(intptr_t dev_handle, ptr_to_tasks, uint32_t num_tasks, intptr_t stream, uint32_t flags):
-    cdef intptr_t _ptr_to_tasks_ptr_ = int(ptr_to_tasks)
+    cdef intptr_t _ptr_to_tasks_ptr_ = 0 if ptr_to_tasks is None else int(ptr_to_tasks)
     with nogil:
         __status__ = cudlaSubmitTask(<const DevHandle>dev_handle, <const cudlaTask* const>_ptr_to_tasks_ptr_, <const uint32_t>num_tasks, <void* const>stream, <const uint32_t>flags)
     check_status(__status__)

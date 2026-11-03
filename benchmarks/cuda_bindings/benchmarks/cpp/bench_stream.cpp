@@ -9,18 +9,20 @@
 #include <cstdlib>
 #include <iostream>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup
@@ -41,9 +43,7 @@ int main(int argc, char** argv) {
     // Drain the persistent stream after calibration for completeness.
     // stream_create_destroy uses a local stream, but stream_query/synchronize
     // observe the persistent one.
-    suite.set_post_calibrate([&]() {
-        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
-    });
+    suite.set_post_calibrate([&]() { check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed"); });
 
     // --- stream_create_destroy ---
     {

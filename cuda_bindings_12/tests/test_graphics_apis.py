@@ -1,12 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+import sys
+
 import pytest
 
 from cuda.bindings import runtime as cudart
 
 
 def test_graphics_api_smoketest():
+    if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
+        pytest.skip("No display available for the OpenGL smoke test")
+
     # Due to lazy importing in pyglet, pytest.importorskip doesn't work
     try:
         import pyglet

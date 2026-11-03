@@ -3,12 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d783bc46a513ae0becbc9385c3be40ba64809b0fd834e5ed3189b94bd287436d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fa69db9162a1215e162a49f33d17f368a9a3a6ac8bcd89b30f4069ba2919e3f3
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 cimport cpython as _cyb_cpython
+from cuda.bindings._internal.utils cimport (
+    get_nested_resource_ptr as _cyb_get_nested_resource_ptr,
+    nested_resource as _cyb_nested_resource,
+)
 from libc.stdint cimport (
     intptr_t,
     uint32_t,
@@ -32,13 +36,12 @@ cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) excep
             status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
             if size != -1:
                 assert view.len == size
-            assert view.ndim == 1
         except Exception as e:
             adj = "writable " if not readonly else ""
             raise ValueError(
                 "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a 1D contiguous {adj}"
-                f"buffer, of size {size}"
+                f"address to a valid buffer, or a contiguous {adj}"
+                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
             ) from e
         else:
             ptr = <intptr_t>view.buf
@@ -168,8 +171,8 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
 
     .. seealso:: `nvJitLinkCreate`
     """
-    cdef nested_resource[ char ] _options_
-    get_nested_resource_ptr[char](_options_, options, <char*>NULL)
+    cdef _cyb_nested_resource[ char ] _options_
+    _cyb_get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     cdef Handle handle
     with nogil:
         __status__ = nvJitLinkCreate(&handle, num_options, <const char**>(_options_.ptrs.data()))

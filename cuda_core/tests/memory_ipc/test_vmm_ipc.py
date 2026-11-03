@@ -12,6 +12,7 @@ the limits of re-export.
 """
 
 import ctypes
+import errno
 import gc
 import json
 import multiprocessing as mp
@@ -20,6 +21,7 @@ import os
 import pickle
 import socket
 import threading
+from contextlib import ExitStack
 
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses, noop, run_child, warmup_multiprocessing
@@ -28,7 +30,7 @@ from helpers.contexts import assert_no_cuda_warning
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, MemoryResource, VirtualMemoryResource, VirtualMemoryResourceOptions
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor, VirtualMemoryIPCBufferDescriptor
+from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor, VirtualMemoryFdBufferDescriptor
 from cuda.core._memory._virtual_memory_resource import VirtualMemoryBuffer
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
@@ -111,7 +113,7 @@ def _forge(desc, **fields):
     fields.setdefault("chunk_sizes", desc._chunk_sizes)
     fields.setdefault("handles", desc._handles)
     fields.setdefault("size", desc.size)
-    return VirtualMemoryIPCBufferDescriptor._from_exports(
+    return VirtualMemoryFdBufferDescriptor._from_exports(
         fields["handle_type"], fields["chunk_sizes"], fields["handles"], fields["size"]
     )
 
@@ -179,9 +181,8 @@ class _ReportingQueue(multiprocessing.queues.Queue):
         pytest.param({"handle_type": "fabric"}, False, id="fabric"),
         pytest.param({"handle_type": "win32_kmt"}, False, id="win32_kmt"),
         pytest.param({"location_type": "host", "handle_type": None}, False, id="host"),
-        pytest.param({"location_type": "host_numa", "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"),
         pytest.param(
-            {"location_type": "host_numa_current", "handle_type": "posix_fd"}, False, id="host_numa_current-posix_fd"
+            {"location_type": "host_numa", "numa_id": 0, "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"
         ),
     ],
 )
@@ -700,66 +701,85 @@ class TestForkserver:
         buffer.close()
 
 
+class _OrinIPCExportFDExhaustionError(Exception):
+    """nvbug 6977893: Orin export reports success with an invalid -EMFILE fd."""
+
+
 class TestFileDescriptorLimit:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     @pytest.mark.thread_unsafe(reason="changes the process-wide file descriptor limit")
-    def test_export_near_the_limit(self, vmm_ipc_device):
+    def test_export_near_the_limit(self, vmm_ipc_device, request):
         """Under a lowered RLIMIT_NOFILE an export either succeeds or fails with a readable error and no leak."""
         import resource  # POSIX-only; a module-level import breaks collection on Windows
 
         device = vmm_ipc_device
+        is_orin = device.name == "Orin"
+        xfail_reason = "Workaround for nvbug 6977893: Orin IPC export mishandles FD exhaustion"
+        if is_orin:
+            request.node.add_marker(
+                pytest.mark.xfail(reason=xfail_reason, raises=_OrinIPCExportFDExhaustionError, strict=False)
+            )
+        orin_export_bug = False
         stream = device.default_stream
         mr = _resource(device)
-        first = mr.allocate(1)
-        gran = first.size
-        second = mr.modify_allocation(first, 2 * gran)
-        buf = mr.modify_allocation(second, 3 * gran)
-        values = (0x61, 0x62, 0x63)
-        for i, value in enumerate(values):
-            _fill(buf, value, offset=i * gran, size=gran)
-        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
-        fillers = []
-        imported = desc = None
-        try:
-            # Fill the holes in the descriptor table so that the limit alone decides how many more fit.
-            highest = max(int(name) for name in os.listdir("/proc/self/fd"))
-            while True:
-                fd = os.open(os.devnull, os.O_RDONLY)
-                if fd > highest:
-                    os.close(fd)
-                    break
-                fillers.append(fd)
-            baseline = _settled_open_fds()
-            # Room for two more descriptors: a three-allocation export cannot complete.
-            resource.setrlimit(resource.RLIMIT_NOFILE, (highest + 1 + 2, hard))
-            failure = None
+        with ExitStack() as buffers:
+            first = buffers.enter_context(mr.allocate(1))
+            gran = first.size
+            second = buffers.enter_context(mr.modify_allocation(first, 2 * gran))
+            buf = buffers.enter_context(mr.modify_allocation(second, 3 * gran))
+            values = (0x61, 0x62, 0x63)
+            for i, value in enumerate(values):
+                _fill(buf, value, offset=i * gran, size=gran)
+            soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+            fillers = []
+            desc = None
             try:
+                # Fill the holes in the descriptor table so that the limit alone decides how many more fit.
+                highest = max(int(name) for name in os.listdir("/proc/self/fd"))
+                while True:
+                    fd = os.open(os.devnull, os.O_RDONLY)
+                    if fd > highest:
+                        os.close(fd)
+                        break
+                    fillers.append(fd)
+                baseline = _settled_open_fds()
+                # Room for two more descriptors: a three-allocation export cannot complete.
+                resource.setrlimit(resource.RLIMIT_NOFILE, (highest + 1 + 2, hard))
+                export_failed = False
+                try:
+                    desc = buf.ipc_descriptor
+                except CUDAError as exc:
+                    if not _has_note(exc, "file descriptor limit"):
+                        raise
+                    export_failed = True
+                except ValueError as exc:
+                    if not is_orin or str(exc) != (
+                        f"Invalid allocation handle (fd) {-errno.EMFILE}: must be non-negative"
+                    ):
+                        raise
+                    orin_export_bug = export_failed = True
+                if export_failed:
+                    assert _open_fds() == baseline, "a failed export must close the descriptors it already took"
+                else:
+                    # Acceptable only if the driver did not need one descriptor per allocation.
+                    assert len(desc.fds) == 3
+                    desc = None
+                    gc.collect()
+                # Room for the three descriptors and the listing: export and import both succeed.
+                resource.setrlimit(resource.RLIMIT_NOFILE, (highest + 1 + 6, hard))
                 desc = buf.ipc_descriptor
-            except CUDAError as exc:
-                failure = exc
-            if failure is not None:
-                assert _has_note(failure, "file descriptor limit")
-                assert _open_fds() == baseline, "a failed export must close the descriptors it already took"
-            else:
-                # Acceptable only if the driver did not need one descriptor per allocation.
                 assert len(desc.fds) == 3
+                imported = buffers.enter_context(Buffer.from_ipc_descriptor(mr, desc, stream=stream))
+                assert _open_fds() == baseline + 3, "the import must not take file descriptors of its own"
+            finally:
+                resource.setrlimit(resource.RLIMIT_NOFILE, (soft, hard))
+                for fd in fillers:
+                    os.close(fd)
                 desc = None
                 gc.collect()
-            # Room for the three descriptors and the listing: export and import both succeed.
-            resource.setrlimit(resource.RLIMIT_NOFILE, (highest + 1 + 6, hard))
-            desc = buf.ipc_descriptor
-            assert len(desc.fds) == 3
-            imported = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
-            assert _open_fds() == baseline + 3, "the import must not take file descriptors of its own"
-        finally:
-            resource.setrlimit(resource.RLIMIT_NOFILE, (soft, hard))
-            for fd in fillers:
-                os.close(fd)
-        assert [_read(imported, i * gran, 16) for i in range(3)] == [bytes([value]) * 16 for value in values]
-        del desc
-        gc.collect()
-        for buffer in (imported, buf, second, first):
-            buffer.close()
+            assert [_read(imported, i * gran, 16) for i in range(3)] == [bytes([value]) * 16 for value in values]
+        if orin_export_bug:
+            raise _OrinIPCExportFDExhaustionError(xfail_reason)
 
 
 class TestRawFileDescriptorTransport:
@@ -791,7 +811,7 @@ class TestRawFileDescriptorTransport:
         del desc
         gc.collect()
         assert _open_fds() == fds0 + 2
-        rebuilt = VirtualMemoryIPCBufferDescriptor.from_fds(wire["fds"], wire["sizes"], size=wire["size"])
+        rebuilt = VirtualMemoryFdBufferDescriptor.from_fds(wire["fds"], wire["sizes"], size=wire["size"])
         assert _open_fds() == fds0 + 4, "from_fds duplicates the integers it is given"
         for fd in wire["fds"]:
             os.close(fd)  # the caller keeps ownership of its own
@@ -817,7 +837,7 @@ class TestRawFileDescriptorTransport:
         buf = mr.allocate(1)
         gran = buf.size
         desc = buf.ipc_descriptor
-        from_fds = VirtualMemoryIPCBufferDescriptor.from_fds
+        from_fds = VirtualMemoryFdBufferDescriptor.from_fds
 
         shared = from_fds(desc.handles, desc.sizes)
         assert shared.handles[0] is desc.handles[0]  # an IPCAllocationHandle is shared, not duplicated
@@ -877,7 +897,7 @@ class TestRawFileDescriptorTransport:
         with sock:
             msg, fds, _flags, _addr = socket.recv_fds(sock, 4096, 16)
         header = json.loads(msg)
-        desc = VirtualMemoryIPCBufferDescriptor.from_fds(fds, header["sizes"], size=header["size"])
+        desc = VirtualMemoryFdBufferDescriptor.from_fds(fds, header["sizes"], size=header["size"])
         for fd in fds:
             os.close(fd)  # from_fds duplicated them; the received ones are ours to close
         imported = Buffer.from_ipc_descriptor(_resource(device), desc, stream=device.default_stream)

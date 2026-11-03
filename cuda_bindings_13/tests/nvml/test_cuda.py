@@ -4,8 +4,8 @@
 
 import pytest
 
-import cuda.bindings.driver as cuda
 from cuda.bindings import nvml
+from cuda.bindings._v2 import driver
 
 from .conftest import NVMLInitializer
 
@@ -34,20 +34,16 @@ def get_nvml_device_names():
 def get_cuda_device_names(sort_by_bus_id=True):
     result = []
 
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    driver.init(0)
 
-    err, device_count = cuda.cuDeviceGetCount()
-    assert err == cuda.CUresult.CUDA_SUCCESS
+    device_count = driver.device_get_count()
 
     for dev in range(device_count):
         size = 256
-        err, name = cuda.cuDeviceGetName(size, dev)
+        name = driver.device_get_name(size, dev)
         name = name.split(b"\x00")[0].decode()
-        assert err == cuda.CUresult.CUDA_SUCCESS
 
-        err, pci_bus_id = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_PCI_BUS_ID, dev)
-        assert err == cuda.CUresult.CUDA_SUCCESS
+        pci_bus_id = driver.device_get_attribute(driver.DeviceAttribute.PCI_BUS_ID, dev)
         assert isinstance(pci_bus_id, int)
 
         result.append({"name": name, "id": pci_bus_id})
