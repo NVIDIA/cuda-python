@@ -134,7 +134,7 @@ jobs:
 
       - name: Probe Windows OS trust store
         if: ${{ runner.os == 'Windows' }}
-        shell: pwsh
+        shell: powershell
         run: ./ci/tools/runner_trust_probe.ps1
 
       - name: Probe Node 20 action runtime (informational)
