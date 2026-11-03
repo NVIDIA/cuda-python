@@ -71,14 +71,24 @@ COPYRIGHT_SUB = r"Copyright (c) {} \g<affiliation>"
 CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.UTC).year)
 
 
-def is_staged(filepath):
-    # If the file is staged, we need to update it to the current year
-    process = subprocess.run(  # noqa: S603
-        ["git", "diff", "--staged", "--", filepath],  # noqa: S607
+def last_modified_year(filepath):
+    # Staged or unstaged working-tree changes mean the file is being modified now.
+    status = subprocess.run(  # noqa: S603
+        ["git", "status", "--porcelain", "--", filepath],  # noqa: S607
         capture_output=True,
         text=True,
     )
-    return process.stdout.strip() != ""
+    if status.stdout.strip():
+        return int(CURRENT_YEAR)
+    # Find the most recent commit that touched this file.
+    log = subprocess.run(  # noqa: S603
+        ["git", "log", "-1", "--format=%cd", "--date=format:%Y", "--", filepath],  # noqa: S607
+        capture_output=True,
+        text=True,
+    )
+    year_str = log.stdout.strip()
+    # Fall back to current year for brand-new untracked files with no git history.
+    return int(year_str) if year_str else int(CURRENT_YEAR)
 
 
 def normalize_repo_path(filepath):
@@ -165,7 +175,7 @@ def validate_or_fix_copyright(filepath, blob, fix):
     else:
         start_year = end_year = years
 
-    if not is_staged(filepath) or int(end_year) >= int(CURRENT_YEAR):
+    if int(end_year) >= last_modified_year(filepath):
         return True, blob
 
     print(f"OUTDATED copyright {years!r} (expected {CURRENT_YEAR!r}) in {filepath!r}")

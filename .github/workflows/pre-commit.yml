@@ -58,10 +58,14 @@ jobs:
 
       # PR workflows run from the merge revision; check out that same revision
       # so their helper scripts and configuration stay in sync.
+      # Full history is required so that check_spdx.py can call `git log -1`
+      # to determine when each file was last modified (used for copyright-year
+      # enforcement). A shallow clone would return no history for files not
+      # touched in the tip commit, causing false passes on stale years.
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Python
