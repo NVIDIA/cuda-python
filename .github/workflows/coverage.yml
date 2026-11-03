@@ -242,21 +242,14 @@ jobs:
           submodules: true
 
       - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
           venv: .venv
+          stack-reserve: 8388608
 
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
-
-      - name: Raise the interpreter's stack reserve to 8 MiB
-        # Importing the coverage-built cuda.bindings.driver overflows the
-        # 2,000,000-byte main-thread stack of python-build-standalone (#3330).
-        run: |
-          base_py="$(.venv/Scripts/python -c 'import sys; print(sys._base_executable)')"
-          editbin -nologo -stack:8388608 "$base_py"
-          dumpbin -nologo -headers "$base_py" | grep -i "size of stack reserve"
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -381,10 +374,11 @@ jobs:
           nvidia-smi
 
       - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
           venv: .venv
+          stack-reserve: 8388608
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -435,22 +429,22 @@ jobs:
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
-      # Cython linetrace under coverage on Windows needs more stack than the
-      # default 1 MB thread size.  The helper runs pytest on an 8 MB thread.
-      - name: Run cuda.bindings tests (with 8MB stack)
+      # The patched interpreter provides the larger stack on the main thread
+      # and in child interpreters. Deferred cleanup needs pytest on the main thread.
+      - name: Run cuda.bindings tests
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
 
-      - name: Run cuda.core tests (with 8MB stack)
+      - name: Run cuda.core tests
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_core/tests"
