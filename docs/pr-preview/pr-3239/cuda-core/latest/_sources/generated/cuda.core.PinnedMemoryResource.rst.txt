@@ -20,6 +20,7 @@ cuda.core.PinnedMemoryResource
    .. automethod:: from_allocation_handle
    .. automethod:: from_registry
    .. automethod:: register
+   .. automethod:: trim
 
    
    

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6d34b46d"></script>
+    <script src="../_static/documentation_options.js?v=795f0d08"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev312';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev319';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -589,6 +589,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.host_launch.html">cuda.core.host_launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.pack_host_copy_args.html">cuda.core.pack_host_copy_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Context.html">cuda.core.Context</a></li>
@@ -666,6 +667,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAOutOfMemoryError.html">cuda.core.CUDAOutOfMemoryError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
@@ -829,6 +831,12 @@ compiled code runs without the GIL. It is the stream-side counterpart of
 <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.callback()</span></code></a> and accepts the same <code class="docutils literal notranslate"><span class="pre">fn</span></code> and
 <code class="docutils literal notranslate"><span class="pre">user_data</span></code> forms.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2058">#2058</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../api.html#cuda.core.HOST_COPY_FN" title="cuda.core.HOST_COPY_FN"><code class="xref py py-data docutils literal notranslate"><span class="pre">HOST_COPY_FN</span></code></a>, a host function that copies host memory without
+the GIL, and <a class="reference internal" href="../generated/cuda.core.pack_host_copy_args.html#cuda.core.pack_host_copy_args" title="cuda.core.pack_host_copy_args"><code class="xref py py-func docutils literal notranslate"><span class="pre">pack_host_copy_args()</span></code></a>, which packs its <code class="docutils literal notranslate"><span class="pre">user_data</span></code>. Pass
+both to <a class="reference internal" href="../generated/cuda.core.host_launch.html#cuda.core.host_launch" title="cuda.core.host_launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">host_launch()</span></code></a> or a graph host callback method for a host copy
+in stream order, for example from a pinned staging buffer into a NumPy array,
+without a compiled extension of your own.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3256">#3256</a>)</p></li>
 <li><p>Added incremental linking to <a class="reference internal" href="../generated/cuda.core.Linker.html#cuda.core.Linker" title="cuda.core.Linker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Linker</span></code></a> through
 <code class="docutils literal notranslate"><span class="pre">LinkerOptions(incremental=True)</span></code> on nvJitLink 13.2 or newer. A partial
 native result is returned as a CUBIN and can be passed directly to another
@@ -856,6 +864,21 @@ sticky CUDA errors are handled.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> and <a class="reference internal" href="../generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NVRTCError</span></code></a> are now importable from the
 top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace, alongside <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>. Previously
 they were only available from a private module.</p></li>
+<li><p>The memory pool attributes of <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> can now be
+set: <code class="docutils literal notranslate"><span class="pre">release_threshold</span></code> takes a non-negative integer, the three
+<code class="docutils literal notranslate"><span class="pre">reuse_*</span></code> policies take a bool, and <code class="docutils literal notranslate"><span class="pre">reserved_mem_high</span></code> and
+<code class="docutils literal notranslate"><span class="pre">used_mem_high</span></code> can be set to zero to reset the watermark, as for
+<a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a>. The new <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.trim" title="cuda.core.DeviceMemoryResource.trim"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.trim()</span></code></a>
+method, also on the other two resources, returns unused pool memory to the
+OS. Setting an attribute and <code class="docutils literal notranslate"><span class="pre">trim()</span></code> take effect immediately, even during
+a stream capture, and leave the capture valid.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3261">#3261</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.CUDAOutOfMemoryError.html#cuda.core.CUDAOutOfMemoryError" title="cuda.core.CUDAOutOfMemoryError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAOutOfMemoryError</span></code></a>, raised for <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_OUT_OF_MEMORY</span></code>
+and <code class="docutils literal notranslate"><span class="pre">cudaErrorMemoryAllocation</span></code>. It derives from both <a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a>
+and <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#MemoryError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryError</span></code></a>, so <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">MemoryError</span></code> catches an allocation
+that fails in <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> as it does in CuPy, RMM and NumPy. Code that
+catches <a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> is unaffected.</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.VirtualMemoryBuffer.html#cuda.core.VirtualMemoryBuffer" title="cuda.core.VirtualMemoryBuffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryBuffer</span></code></a>, the <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> subclass that
 <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> returns. Closing it on a capturing stream
 other than a default stream raises, because virtual memory deallocation
@@ -934,6 +957,12 @@ during such a capture; it now makes them in relaxed capture mode and
 restores the thread’s previous mode, so the capture stays valid. Creating a
 new pool with options during such a capture is still refused by the driver.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2834">#2834</a>)</p></li>
+<li><p>Reading the <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.attributes" title="cuda.core.DeviceMemoryResource.attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">attributes</span></code></a> of a
+<a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>, <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> or
+<a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> no longer fails, or invalidates a stream
+capture, while the calling thread is inside a <code class="docutils literal notranslate"><span class="pre">thread_local</span></code> capture or
+any thread is inside a <code class="docutils literal notranslate"><span class="pre">global</span></code> one.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3236">#3236</a>)</p></li>
 <li><p>Ending, closing, or collecting a top-level <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>
 whose capture was invalidated, or left unjoined by a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.join" title="cuda.core.graph.GraphBuilder.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> that failed partway, no longer crashes.
@@ -1095,6 +1124,24 @@ closest to a device. <code class="docutils literal notranslate"><span class="pre
 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> at construction, because the driver does not accept it for
 physical allocations.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2694">#2694</a>)</p></li>
+<li><p>Checks that were <code class="docutils literal notranslate"><span class="pre">assert</span></code> statements now raise exceptions, so they also
+run under <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-O</span></code>, which strips asserts from Python and Cython code.
+<a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_dlpack" title="cuda.core.utils.StridedMemoryView.from_dlpack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_dlpack()</span></code></a> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when
+<code class="docutils literal notranslate"><span class="pre">__dlpack_device__()</span></code> reports a negative device ID for a CUDA tensor or a
+nonzero one for a CPU tensor, or when <code class="docutils literal notranslate"><span class="pre">__dlpack__()</span></code> returns anything
+other than an unconsumed DLPack capsule.
+<a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_cuda_array_interface" title="cuda.core.utils.StridedMemoryView.from_cuda_array_interface"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_cuda_array_interface()</span></code></a> raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the producer’s <code class="docutils literal notranslate"><span class="pre">stream</span></code> is 0 or negative.
+<a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.allocate" title="cuda.core.ManagedMemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedMemoryResource.allocate()</span></code></a> raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> when <code class="docutils literal notranslate"><span class="pre">stream</span></code>
+is not a <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>. Unpickling an <a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with an unknown
+code type raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, as do <a class="reference internal" href="../generated/cuda.core.system._device.FieldValue.html#cuda.core.system._device.FieldValue" title="cuda.core.system._device.FieldValue"><code class="xref py py-class docutils literal notranslate"><span class="pre">FieldValue</span></code></a>
+and <a class="reference internal" href="../generated/cuda.core.system._system_events.SystemEvent.html#cuda.core.system._system_events.SystemEvent" title="cuda.core.system._system_events.SystemEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SystemEvent</span></code></a> when the NVML data does not
+hold exactly one entry, and <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.performance_state" title="cuda.core.system.Device.performance_state"><code class="xref py py-attr docutils literal notranslate"><span class="pre">system.Device.performance_state</span></code></a> when
+NVML reports a P-state outside 0 to 15. Before, these raised
+<code class="docutils literal notranslate"><span class="pre">AssertionError</span></code>, or nothing under <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-O</span></code>. A failed internal check
+now raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> with a message that starts with “internal
+cuda.core error, please report”.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3202">#3202</a>)</p></li>
 </ul>
 </section>
 <section id="deprecations">

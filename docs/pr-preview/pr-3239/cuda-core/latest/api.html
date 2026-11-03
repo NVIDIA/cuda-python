@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=6d34b46d"></script>
+    <script src="_static/documentation_options.js?v=795f0d08"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev312';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev319';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -590,6 +590,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.host_launch.html">cuda.core.host_launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.pack_host_copy_args.html">cuda.core.pack_host_copy_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Context.html">cuda.core.Context</a></li>
@@ -667,6 +668,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAOutOfMemoryError.html">cuda.core.CUDAOutOfMemoryError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
@@ -802,37 +804,40 @@ with appropriate deprecation periods for breaking changes. See the
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.host_launch.html#cuda.core.host_launch" title="cuda.core.host_launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">host_launch</span></code></a>(stream, fn, *[, user_data])</p></td>
 <td><p>Enqueue a host function on a stream in stream order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.pack_host_copy_args.html#cuda.core.pack_host_copy_args" title="cuda.core.pack_host_copy_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pack_host_copy_args</span></code></a>(dst, src, nbytes)</p></td>
+<td><p>Pack the arguments of <a class="reference internal" href="#cuda.core.HOST_COPY_FN" title="cuda.core.HOST_COPY_FN"><code class="xref py py-data docutils literal notranslate"><span class="pre">HOST_COPY_FN</span></code></a> into <code class="docutils literal notranslate"><span class="pre">user_data</span></code> bytes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a queue of GPU operations that are executed in a specific order.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a record at a specific point of execution within a CUDA stream.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code></a>(*args, **kwargs)</p></td>
 <td><p>CUDA context wrapper.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.SMResource.html#cuda.core.SMResource" title="cuda.core.SMResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.SMResource.html#cuda.core.SMResource" title="cuda.core.SMResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent an SM (streaming multiprocessor) resource partition.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource" title="cuda.core.WorkqueueResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Represent a workqueue resource for a device or green context.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.StreamOptions.html#cuda.core.StreamOptions" title="cuda.core.StreamOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StreamOptions</span></code></a>([nonblocking, priority])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([timing_enabled, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>([timing_enabled, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> options.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>([grid, cluster, block, ...])</p></td>
 <td><p>Customizable launch options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.ContextOptions.html#cuda.core.ContextOptions" title="cuda.core.ContextOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextOptions</span></code></a>(resources)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.ContextOptions.html#cuda.core.ContextOptions" title="cuda.core.ContextOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextOptions</span></code></a>(resources)</p></td>
 <td><p>Options for context creation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html#cuda.core.SMResourceOptions" title="cuda.core.SMResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResourceOptions</span></code></a>([count, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.SMResourceOptions.html#cuda.core.SMResourceOptions" title="cuda.core.SMResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResourceOptions</span></code></a>([count, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.SMResource.html#cuda.core.SMResource.split" title="cuda.core.SMResource.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMResource.split</span></code></a> options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions" title="cuda.core.WorkqueueResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResourceOptions</span></code></a>([sharing_scope, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.WorkqueueResourceOptions.html#cuda.core.WorkqueueResourceOptions" title="cuda.core.WorkqueueResourceOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResourceOptions</span></code></a>([sharing_scope, ...])</p></td>
 <td><p>Customizable <a class="reference internal" href="generated/cuda.core.WorkqueueResource.html#cuda.core.WorkqueueResource.configure" title="cuda.core.WorkqueueResource.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkqueueResource.configure</span></code></a> options.</p></td>
 </tr>
 </tbody>
@@ -852,6 +857,22 @@ stream.</p>
 <dd><p>The per-thread default CUDA stream. Each host thread has its own per-thread
 default stream, and work launched on it can execute concurrently with work
 on other non-blocking streams.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cuda.core.HOST_COPY_FN">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">HOST_COPY_FN</span></span><a class="headerlink" href="#cuda.core.HOST_COPY_FN" title="Link to this definition">#</a></dt>
+<dd><p>A ctypes function pointer with the <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code> prototype that copies host
+memory. Pass it as <code class="docutils literal notranslate"><span class="pre">fn</span></code> to <a class="reference internal" href="generated/cuda.core.host_launch.html#cuda.core.host_launch" title="cuda.core.host_launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">host_launch()</span></code></a>,
+<a class="reference internal" href="generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.callback" title="cuda.core.graph.GraphBuilder.callback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphBuilder.callback()</span></code></a>, or the other host callback methods,
+with <code class="docutils literal notranslate"><span class="pre">user_data</span></code> from <a class="reference internal" href="generated/cuda.core.pack_host_copy_args.html#cuda.core.pack_host_copy_args" title="cuda.core.pack_host_copy_args"><code class="xref py py-func docutils literal notranslate"><span class="pre">pack_host_copy_args()</span></code></a>. It is compiled code, so
+it runs without the GIL. It copies <code class="docutils literal notranslate"><span class="pre">nbytes</span></code> bytes from <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">dst</span></code>
+with <code class="docutils literal notranslate"><span class="pre">memcpy</span></code>.</p>
+<p>The driver may run all host functions of a context on one thread, in order,
+whatever their stream. A long copy then delays every other host function in
+that context, including Python callbacks. Split a large copy into chunks
+that each take no longer than the other host functions can wait. Chunks of
+a few MiB keep each copy well under a millisecond on current hosts.</p>
 </dd></dl>
 
 </section>
@@ -909,7 +930,7 @@ Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.cor
 closing the buffer. Changing the recorded stream does not synchronize streams;
 the caller must order allocation and every access before the deallocation,
 using events or other CUDA synchronization mechanisms as needed. See
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/a13567c34a585b0271356ac301862760a2a6c56f/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/3fed5283f661c798e283701e42e6324948349de6/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
@@ -1204,10 +1225,13 @@ reported as a warning instead.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDAError</span></code></a></p></td>
 <td><p>Raised when a CUDA driver or runtime call fails.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTCError</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.CUDAOutOfMemoryError.html#cuda.core.CUDAOutOfMemoryError" title="cuda.core.CUDAOutOfMemoryError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDAOutOfMemoryError</span></code></a></p></td>
+<td><p>Raised when a CUDA driver or runtime call fails for lack of memory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTCError</span></code></a></p></td>
 <td><p>Raised when an NVRTC call fails; the compiler log is appended when available.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a></p></td>
 <td><p>Warning issued when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> hits a CUDA error it cannot raise.</p></td>
 </tr>
 </tbody>
@@ -1367,6 +1391,7 @@ execution.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#devices-and-execution">Devices and execution</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LEGACY_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">LEGACY_DEFAULT_STREAM</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PER_THREAD_DEFAULT_STREAM"><code class="docutils literal notranslate"><span class="pre">PER_THREAD_DEFAULT_STREAM</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.HOST_COPY_FN"><code class="docutils literal notranslate"><span class="pre">HOST_COPY_FN</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-management">Memory management</a></li>
