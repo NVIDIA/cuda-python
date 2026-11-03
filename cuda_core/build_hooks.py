@@ -709,34 +709,6 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     return wheel_name
 
 
-@functools.cache
-def _find_clang_tidy() -> str | None:
-    """The clang-tidy executable of the build environment.
-
-    Isolated builds install the clang-tidy wheel that pyproject.toml requires.
-    It is located through the wheel's ``clang_tidy`` package. The pixi build
-    uses the ``clang-tools`` conda package, which puts the executable in a
-    different location.
-
-    PATH is never searched, so a system clang-tidy cannot be picked up.
-    Returns None when neither is installed.
-    """
-    exe = f"clang-tidy{sysconfig.get_config_var('EXE')}"
-    if sys.platform == "win32":
-        conda_dir = Path("Library") / "bin"
-    else:
-        conda_dir = "bin"
-    candidates = [Path(sys.prefix) / conda_dir / exe]
-    spec = importlib.util.find_spec("clang_tidy")
-    if spec is not None and spec.submodule_search_locations is not None:
-        wheel_candidates = [Path(base) / "data" / "bin" / exe for base in spec.submodule_search_locations]
-        candidates = wheel_candidates + candidates
-    for candidate in candidates:
-        if candidate.is_file():
-            return str(candidate)
-    return None
-
-
 def _partition_handwritten_cpp_files(args: Sequence[str]) -> tuple[list[Path], list[str]]:
     """Split compiler arguments into the handwritten C++ sources and the other arguments.
 
@@ -817,10 +789,30 @@ def get_clang_tidy() -> str | None:
     Call this once, before the compiles start: it warns prominently when
     clang-tidy is not installed. Setting CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips
     the check silently.
+
+    Isolated builds install the clang-tidy wheel that pyproject.toml requires.
+    It is located through the wheel's ``clang_tidy`` package. The pixi build
+    uses the ``clang-tools`` conda package, which puts the executable in a
+    different location. PATH is never searched, so a system clang-tidy cannot
+    be picked up.
     """
     if bool(int(os.environ.get("CUDA_PYTHON_SKIP_CLANG_TIDY", "0"))):
         return None
-    clang_tidy = _find_clang_tidy()
+    exe = f"clang-tidy{sysconfig.get_config_var('EXE')}"
+    if sys.platform == "win32":
+        conda_dir = Path("Library") / "bin"
+    else:
+        conda_dir = "bin"
+    candidates = [Path(sys.prefix) / conda_dir / exe]
+    spec = importlib.util.find_spec("clang_tidy")
+    if spec is not None and spec.submodule_search_locations is not None:
+        wheel_candidates = [Path(base) / "data" / "bin" / exe for base in spec.submodule_search_locations]
+        candidates = wheel_candidates + candidates
+    clang_tidy = None
+    for candidate in candidates:
+        if candidate.is_file():
+            clang_tidy = str(candidate)
+            break
     if clang_tidy is None:
         banner = "!" * 78
         print(

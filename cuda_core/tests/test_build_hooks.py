@@ -1103,27 +1103,39 @@ class TestCythonAlias(CythonAliasMixin):
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-def test_get_clang_tidy_skipped_by_env_var(monkeypatch, capsys):
+def test_get_clang_tidy_skipped_by_env_var(monkeypatch, capsys, tmp_path):
     """CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips the check silently, even when clang-tidy is missing."""
-    monkeypatch.setattr(build_hooks, "_find_clang_tidy", lambda: None)
+    monkeypatch.setattr(sys, "prefix", str(tmp_path))
+    monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
     monkeypatch.setenv("CUDA_PYTHON_SKIP_CLANG_TIDY", "1")
     assert build_hooks.get_clang_tidy() is None
     assert capsys.readouterr().err == ""
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-def test_get_clang_tidy_warns_when_missing(monkeypatch, capsys):
-    monkeypatch.setattr(build_hooks, "_find_clang_tidy", lambda: None)
+def test_get_clang_tidy_warns_when_missing(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(sys, "prefix", str(tmp_path))
+    monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
     monkeypatch.setenv("CUDA_PYTHON_SKIP_CLANG_TIDY", "0")
     assert build_hooks.get_clang_tidy() is None
     assert "WARNING: clang-tidy is not installed" in capsys.readouterr().err
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-def test_get_clang_tidy_returns_executable(monkeypatch):
-    monkeypatch.setattr(build_hooks, "_find_clang_tidy", lambda: "/opt/clang-tidy")
+def test_get_clang_tidy_finds_executable_in_prefix(monkeypatch, tmp_path):
+    import sysconfig
+
+    if sys.platform == "win32":
+        bin_dir = tmp_path / "Library" / "bin"
+    else:
+        bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(parents=True)
+    exe = bin_dir / f"clang-tidy{sysconfig.get_config_var('EXE')}"
+    exe.write_text("")
+    monkeypatch.setattr(sys, "prefix", str(tmp_path))
+    monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
     monkeypatch.delenv("CUDA_PYTHON_SKIP_CLANG_TIDY", raising=False)
-    assert build_hooks.get_clang_tidy() == "/opt/clang-tidy"
+    assert build_hooks.get_clang_tidy() == str(exe)
 
 
 class TestClangTidyBeforeCompile:
