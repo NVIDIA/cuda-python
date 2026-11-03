@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Close issues that wait on their reporter. An issue labeled "awaiting-response" with no
+# activity for 7 days gets a warning and the "stale" label; 7 days after the warning it closes
+# as not planned. Any activity removes "stale" and restarts the clock. Pull requests are never
+# touched.
+
+name: "Triage: close issues awaiting response"
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  close-awaiting-response:
+    if: ${{ github.repository_owner == 'nvidia' || github.repository_owner == 'nvidia-dev' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      issues: write
+    steps:
+      - name: Warn and close issues awaiting response
+        uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93  # v11.0.0
+        with:
+          only-issue-labels: awaiting-response
+          days-before-issue-stale: 7
+          days-before-issue-close: 7
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          stale-issue-label: stale
+          close-issue-reason: not_planned
+          stale-issue-message: >-
+            This issue has waited 7 days for the information we asked for.
+            It will close in 7 days unless there is a reply.
+            Comment here to keep it open.
+          close-issue-message: >-
+            Closing because we did not hear back.
+            Comment here with the requested information and we'll reopen it.
