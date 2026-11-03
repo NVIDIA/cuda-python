@@ -19,6 +19,7 @@ from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, handle_return, nvrtc
+from cuda.core._utils.version import binding_version
 from cuda.core.typing import CompilerBackendType, PCHStatusType
 from cuda.pathfinder import DynamicLibNotFoundError
 
@@ -66,6 +67,17 @@ nvrtc_pch_available = pytest.mark.skipif(
 bundled_headers_available = pytest.mark.skipif(
     (_get_nvrtc_version_for_tests() or 0) < 13300,
     reason="use_bundled_headers requires NVRTC >= 13.3",
+)
+
+# The option tests check that cuda.core encodes each ProgramOptions field as a
+# flag that NVRTC accepts. One pass on a current NVRTC proves the encoding, and
+# an older NVRTC rejects flags that it predates. Run them only when NVRTC is at
+# least the CUDA version of the installed cuda-bindings, so that the gate moves
+# with cuda-bindings releases and needs no per-option version table.
+_bindings_major, _bindings_minor, _ = binding_version()
+nvrtc_at_bindings_version = pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < _bindings_major * 1000 + _bindings_minor * 100,
+    reason=f"NVRTC option tests require NVRTC >= {_bindings_major}.{_bindings_minor} (the cuda-bindings version)",
 )
 
 
@@ -211,13 +223,7 @@ def ptx_code_object():
         ),
         ProgramOptions(frandom_seed="12345"),
         ProgramOptions(ofast_compile="min"),
-        pytest.param(
-            ProgramOptions(pch=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
+        ProgramOptions(pch=True),
         # TODO: pch_dir requires actual PCH directory to exist - needs integration test
         # pytest.param(
         #     ProgramOptions(pch_dir="/tmp/pch"),
@@ -226,29 +232,12 @@ def ptx_code_object():
         #         reason="PCH requires NVRTC >= 12.8",
         #     ),
         # ),
-        pytest.param(
-            ProgramOptions(pch_verbose=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
-        pytest.param(
-            ProgramOptions(pch_messages=False),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
-        pytest.param(
-            ProgramOptions(instantiate_templates_in_pch=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
+        ProgramOptions(pch_verbose=True),
+        ProgramOptions(pch_messages=False),
+        ProgramOptions(instantiate_templates_in_pch=True),
     ],
 )
+@nvrtc_at_bindings_version
 def test_cpp_program_with_various_options(init_cuda, options):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++", options)
