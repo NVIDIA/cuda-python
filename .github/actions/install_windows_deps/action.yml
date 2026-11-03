@@ -23,7 +23,9 @@ runs:
           throw 'Expected a space-separated list of executable names.'
         }
         # Fail the check if the list did not reach Bash (a WSL bash would not receive it).
-        $check = 'missing=0; [ -n "$DEPENDENT_EXES" ] || missing=1; for tool in $DEPENDENT_EXES; do command -v "$tool" || missing=1; done; exit "$missing"'
+        # Keep double quotes out of $check: Windows PowerShell 5.1 strips them when
+        # passing arguments to native commands. The names are validated above.
+        $check = 'missing=0; set -- $DEPENDENT_EXES; [ $# -gt 0 ] || missing=1; for tool in $DEPENDENT_EXES; do command -v $tool || missing=1; done; exit $missing'
         # Skip the WSL launcher in System32/WindowsApps: it is not a Git for Windows bash.
         $bash = Get-Command bash -All -ErrorAction SilentlyContinue |
           Where-Object { $_.Source -notmatch '\\(System32|SysWOW64|WindowsApps)\\' } |
