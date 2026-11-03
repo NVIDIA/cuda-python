@@ -390,7 +390,7 @@ jobs:
         # This runner has no MSVC tools. Patch a copy, then replace the base
         # interpreter after Python exits so subprocesses also get 8 MiB stacks.
         run: |
-          base_py="$(cygpath -u "$(.venv/Scripts/python -c 'import sys; print(sys._base_executable)')")"
+          base_py="$(cygpath -u "$(.venv/Scripts/python -c 'import sys; sys.stdout.write(sys._base_executable)')")"
           .venv/Scripts/python ci/tools/prepare_windows_python_stack.py "$base_py" "$base_py.stack-reserve"
           mv -f -- "$base_py.stack-reserve" "$base_py"
 
