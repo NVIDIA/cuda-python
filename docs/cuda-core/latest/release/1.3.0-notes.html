@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=feb4ba1e"></script>
+    <script src="../_static/documentation_options.js?v=a6bd24a0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev310';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev315';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1108,6 +1108,24 @@ closest to a device. <code class="docutils literal notranslate"><span class="pre
 <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> at construction, because the driver does not accept it for
 physical allocations.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2694">#2694</a>)</p></li>
+<li><p>Checks that were <code class="docutils literal notranslate"><span class="pre">assert</span></code> statements now raise exceptions, so they also
+run under <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-O</span></code>, which strips asserts from Python and Cython code.
+<a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_dlpack" title="cuda.core.utils.StridedMemoryView.from_dlpack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_dlpack()</span></code></a> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when
+<code class="docutils literal notranslate"><span class="pre">__dlpack_device__()</span></code> reports a negative device ID for a CUDA tensor or a
+nonzero one for a CPU tensor, or when <code class="docutils literal notranslate"><span class="pre">__dlpack__()</span></code> returns anything
+other than an unconsumed DLPack capsule.
+<a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_cuda_array_interface" title="cuda.core.utils.StridedMemoryView.from_cuda_array_interface"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_cuda_array_interface()</span></code></a> raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the producer’s <code class="docutils literal notranslate"><span class="pre">stream</span></code> is 0 or negative.
+<a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource.allocate" title="cuda.core.ManagedMemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ManagedMemoryResource.allocate()</span></code></a> raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> when <code class="docutils literal notranslate"><span class="pre">stream</span></code>
+is not a <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>. Unpickling an <a class="reference internal" href="../generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with an unknown
+code type raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, as do <a class="reference internal" href="../generated/cuda.core.system._device.FieldValue.html#cuda.core.system._device.FieldValue" title="cuda.core.system._device.FieldValue"><code class="xref py py-class docutils literal notranslate"><span class="pre">FieldValue</span></code></a>
+and <a class="reference internal" href="../generated/cuda.core.system._system_events.SystemEvent.html#cuda.core.system._system_events.SystemEvent" title="cuda.core.system._system_events.SystemEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SystemEvent</span></code></a> when the NVML data does not
+hold exactly one entry, and <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.performance_state" title="cuda.core.system.Device.performance_state"><code class="xref py py-attr docutils literal notranslate"><span class="pre">system.Device.performance_state</span></code></a> when
+NVML reports a P-state outside 0 to 15. Before, these raised
+<code class="docutils literal notranslate"><span class="pre">AssertionError</span></code>, or nothing under <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-O</span></code>. A failed internal check
+now raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> with a message that starts with “internal
+cuda.core error, please report”.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3202">#3202</a>)</p></li>
 </ul>
 </section>
 <section id="deprecations">
