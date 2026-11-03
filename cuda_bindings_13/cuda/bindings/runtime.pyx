@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ea95eb12334cbd4c1bf3fc8e890fb6f9493063b12faea853bb3d8c6288934182
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4cc5d08de16bc7cac781ba6e469ffe16b0d8e30beea5ec6f5e579f0fae24e834
 from typing import Any, Optional
 import cython
 import ctypes
@@ -21228,7 +21228,7 @@ def cudaDeviceRegisterAsyncNotification(int device, callbackFunc, userData):
     if err != cyruntime.cudaSuccess:
         free(cbData)
     else:
-        m_global._allocated[int(callback)] = cbData
+        m_global._insert(int(callback), cbData)
     _helper_input_void_ptr_free(&cyuserDataHelper)
 
     if err != cyruntime.cudaSuccess:
@@ -21270,8 +21270,7 @@ def cudaDeviceUnregisterAsyncNotification(int device, callback):
     with nogil:
         err = cyruntime.cudaDeviceUnregisterAsyncNotification(device, cycallback)
     if err == cyruntime.cudaSuccess:
-        free(m_global._allocated[pcallback])
-        m_global._allocated.erase(<void_ptr>pcallback)
+        free(m_global._take(pcallback))
     return (_cudaError_t(err),)
 
 @cython.embedsignature(True)
@@ -40262,6 +40261,19 @@ def getLocalRuntimeVersion():
 
 cdef class cudaBindingsRuntimeGlobal:
     cdef map[void_ptr, void*] _allocated
+    cdef cython.pymutex _lock
+
+    cdef void _insert(self, void_ptr key, void* value) noexcept:
+        with self._lock:
+            self._allocated[key] = value
+
+    cdef void* _take(self, void_ptr key) noexcept:
+        cdef void* value = NULL
+        with self._lock:
+            if self._allocated.count(key) != 0:
+                value = self._allocated[key]
+                self._allocated.erase(key)
+        return value
 
     def __dealloc__(self):
         for item in self._allocated:

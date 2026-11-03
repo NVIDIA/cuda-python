@@ -81,7 +81,10 @@ from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from cuda.core._device import Device
+    from cuda.core._utils.pycompat import BufferProtocol
 
 __all__ = ['GraphNode']
 
@@ -531,7 +534,7 @@ cdef class GraphNode:
         """
         return GN_wait_event(self, event)
 
-    def callback(self, fn, *, user_data=None) -> object:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> object:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.
@@ -577,7 +580,8 @@ cdef class GraphNode:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
         return GN_callback(self, fn, user_data)
 
