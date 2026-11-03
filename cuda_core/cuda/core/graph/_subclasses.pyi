@@ -274,7 +274,9 @@ class HostCallbackNode(GraphNode):
         ``fn`` accepts the same forms as :meth:`~graph.GraphNode.callback`: a
         Python callable, or a ctypes function pointer whose declared prototype
         matches ``CUhostFn`` (``void (*)(void*)``). A mismatched ctypes
-        prototype raises ``TypeError``.
+        prototype raises ``TypeError``. ``user_data`` with a Python callable,
+        or :data:`HOST_COPY_FN` without a packed record, raises
+        ``ValueError``.
 
         .. warning::
 
@@ -431,7 +433,9 @@ class ExecutableHostCallbackNode(ExecutableGraphNode):
 
         ``fn`` may be a Python callable, or a ctypes function pointer whose
         declared prototype matches ``CUhostFn`` (``void (*)(void*)``); a
-        mismatched prototype raises ``TypeError``.
+        mismatched prototype raises ``TypeError``. ``user_data`` with a Python
+        callable, or :data:`HOST_COPY_FN` without a packed record, raises
+        ``ValueError``.
 
         .. warning::
 
