@@ -14,15 +14,30 @@
 $EmudhraIntermediatesPath = Join-Path $PSScriptRoot 'impacted-intermediates.json'
 $EmudhraIntermediatesCount = 16
 
+# Uppercase hex SHA-256 of the certificate's DER encoding. Computed directly
+# because X509Certificate.GetCertHashString(HashAlgorithmName) does not exist
+# in Windows PowerShell 5.1 (.NET Framework).
+function Get-CertificateSha256([System.Security.Cryptography.X509Certificates.X509Certificate2]$Cert) {
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return [System.BitConverter]::ToString($sha256.ComputeHash($Cert.RawData)).Replace('-', '')
+    } finally {
+        $sha256.Dispose()
+    }
+}
+
 # Returns the certificates as X509Certificate2 objects; callers dispose them.
+# Works on both Windows PowerShell 5.1 and PowerShell 7+.
 function Get-EmudhraIntermediates {
     $entries = @(Get-Content -LiteralPath $EmudhraIntermediatesPath -Raw | ConvertFrom-Json)
     if ($entries.Count -ne $EmudhraIntermediatesCount) {
         throw "Expected $EmudhraIntermediatesCount certificates in $EmudhraIntermediatesPath, found $($entries.Count)."
     }
     foreach ($entry in $entries) {
-        $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::CreateFromPem($entry.pem)
-        if ($cert.GetCertHashString('SHA256') -ne $entry.sha256.ToUpperInvariant()) {
+        # X509Certificate2.CreateFromPem is .NET 5+ only; decode the PEM body manually.
+        $der = [System.Convert]::FromBase64String(($entry.pem -replace '-----[A-Z ]+-----', '' -replace '\s', ''))
+        $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($der)
+        if ((Get-CertificateSha256 $cert) -ne $entry.sha256.ToUpperInvariant()) {
             $cert.Dispose()
             throw "SHA-256 mismatch for $($entry.name) (issued by $($entry.issued_by))."
         }
@@ -40,7 +55,10 @@ function Test-ExplicitlyDistrusted([System.Security.Cryptography.X509Certificate
     $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
     try {
         $chain.ChainPolicy.RevocationMode = [System.Security.Cryptography.X509Certificates.X509RevocationMode]::NoCheck
-        $chain.ChainPolicy.DisableCertificateDownloads = $true
+        # DisableCertificateDownloads does not exist on .NET Framework (Windows PowerShell 5.1).
+        if ($chain.ChainPolicy | Get-Member -Name DisableCertificateDownloads) {
+            $chain.ChainPolicy.DisableCertificateDownloads = $true
+        }
         [void]$chain.Build($Cert)
         $statuses = @($chain.ChainStatus) + @($chain.ChainElements | ForEach-Object { $_.ChainElementStatus })
         return [bool]($statuses | Where-Object { $_.Status.HasFlag($explicitDistrust) })

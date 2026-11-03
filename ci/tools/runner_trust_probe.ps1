@@ -4,6 +4,7 @@
 #
 # runner_trust_probe.ps1 -- probe the Windows certificate store on a CI runner
 # for the compromised eMudhra intermediates and their Sectigo cross-signs.
+# Compatible with Windows PowerShell 5.1 (`shell: powershell`) and PowerShell 7+.
 
 $ErrorActionPreference = 'Stop'
 
@@ -21,7 +22,8 @@ $SummaryFile = $env:GITHUB_STEP_SUMMARY
 
 function Append-Summary([string]$Line) {
     if ($SummaryFile) {
-        Add-Content -Path $SummaryFile -Value $Line -Encoding utf8
+        # Windows PowerShell 5.1's `-Encoding utf8` emits a BOM; write BOM-less UTF-8 explicitly.
+        [System.IO.File]::AppendAllText($SummaryFile, "$Line`n", [System.Text.UTF8Encoding]::new($false))
     }
 }
 
@@ -40,9 +42,9 @@ Append-Summary "| --- | --- | --- |"
 # 1. Root anchor state (informational). Microsoft's fix blocks the
 # intermediates and leaves the root in place, so this is not a pass criterion.
 $rootCerts = @(Get-ChildItem -Path 'Cert:\LocalMachine\Root' -ErrorAction Stop)
-$inRoot = [bool]($rootCerts | Where-Object { $_.GetCertHashString('SHA256') -eq $EmSignG3Hex })
+$inRoot = [bool]($rootCerts | Where-Object { (Get-CertificateSha256 $_) -eq $EmSignG3Hex })
 $inDisallowed = [bool](Get-ChildItem -Path 'Cert:\LocalMachine\Disallowed' -ErrorAction SilentlyContinue |
-    Where-Object { $_.GetCertHashString('SHA256') -eq $EmSignG3Hex })
+    Where-Object { (Get-CertificateSha256 $_) -eq $EmSignG3Hex })
 Record-Check 'emSign ECC Root CA - G3 store state' 'INFO' "LocalMachine\Root=$inRoot ($($rootCerts.Count) certs), LocalMachine\Disallowed=$inDisallowed"
 
 # 2. All compromised intermediates and cross-signs explicitly distrusted (gating)
@@ -59,23 +61,30 @@ if ($notDistrusted.Count -eq 0) {
     $GatingFailures++
 }
 
-# 3. OS-store client (Invoke-WebRequest) rejects each test endpoint (only a successful connection fails the job)
+# 3. OS-store client (Invoke-WebRequest) rejects each test endpoint (only a successful connection fails the job).
+# -SkipHttpErrorCheck is PowerShell 7+ only, so HTTP error statuses are caught below instead:
+# any response at all means the TLS handshake (and thus the certificate chain) succeeded.
 $progTmp = $ProgressPreference
 $ProgressPreference = 'SilentlyContinue'
 try {
     foreach ($endpoint in $TestEndpoints) {
         $checkName = "Invoke-WebRequest rejects ``$endpoint``"
         try {
-            $res = Invoke-WebRequest -Uri $endpoint -UseBasicParsing -SkipHttpErrorCheck -TimeoutSec 15
+            $res = Invoke-WebRequest -Uri $endpoint -UseBasicParsing -TimeoutSec 15
             Record-Check $checkName 'FAIL' "Connection succeeded with HTTP $($res.StatusCode) (certificate was trusted)"
             $GatingFailures++
         } catch {
+            if ($null -ne $_.Exception.Response) {
+                Record-Check $checkName 'FAIL' "Connection succeeded with HTTP $([int]$_.Exception.Response.StatusCode) (certificate was trusted)"
+                $GatingFailures++
+                continue
+            }
             $certRejected = $false
             $hostnameMismatchOnly = $false
             $ex = $_.Exception
             while ($null -ne $ex) {
                 if (
-                    ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'certificate chain|UntrustedRoot|RemoteCertificateChainErrors') -or
+                    ($ex -is [System.Security.Authentication.AuthenticationException] -and $ex.Message -match 'certificate chain|UntrustedRoot|RemoteCertificateChainErrors|remote certificate is invalid') -or
                     ($ex -is [System.Net.WebException] -and $ex.Status -eq [System.Net.WebExceptionStatus]::TrustFailure)
                 ) {
                     $certRejected = $true
