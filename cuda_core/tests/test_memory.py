@@ -3348,6 +3348,19 @@ def test_vmm_options_spec_validators_raise(method, spec, match):
         fn(spec)
 
 
+@pytest.mark.parametrize("system", ["Linux", "Windows"])
+@pytest.mark.thread_unsafe(reason="patches platform.system")
+def test_vmm_options_default_handle_type(monkeypatch, system):
+    monkeypatch.setattr(platform, "system", lambda: system)
+    options = VirtualMemoryResourceOptions()
+    expected = None if system == "Windows" else VirtualMemoryHandleType.POSIX_FD
+    assert options.handle_type == expected
+    assert VirtualMemoryResourceOptions(handle_type="win32_kmt").handle_type == "win32_kmt"
+    assert VirtualMemoryResourceOptions(handle_type=None).handle_type is None
+    with pytest.raises(ValueError):
+        VirtualMemoryResourceOptions(allocation_type=VirtualMemoryAllocationType.MANAGED)
+
+
 def test_vmm_options_handle_type_win32_raises():
     """_handle_type_to_driver raises NotImplementedError for 'win32'."""
     with pytest.raises(NotImplementedError, match="win32 is currently not supported"):

@@ -28,18 +28,19 @@ class VirtualMemoryResourceOptions:
     Attributes
     ----------
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
-        Controls the type of allocation.
+        Controls the type of allocation. Only ``"pinned"`` is supported;
+        use :class:`ManagedMemoryResource` for managed memory.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation. ``"host_numa"`` requires
         ``numa_id``. ``"host_numa_current"`` is rejected because the driver
         does not accept it for physical allocations.
-    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
+    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str | None
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
         :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` on
-        Linux if you plan to import/export the allocation. Use `None` if you
-        don't need an exportable handle. ``location_type="host"`` requires
-        `None`.
+        if you plan to import/export the allocation. Use `None` if you
+        don't need an exportable handle.  The default on Windows is `None`,
+        "posix_fd" otherwise. ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
     granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str
@@ -64,7 +65,7 @@ class VirtualMemoryResourceOptions:
     """
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
-    handle_type: VirtualMemoryHandleType = VirtualMemoryHandleType.POSIX_FD
+    handle_type: VirtualMemoryHandleType | None = field(default_factory=lambda: None if platform.system() == 'Windows' else VirtualMemoryHandleType.POSIX_FD)
     granularity: VirtualMemoryGranularityType = VirtualMemoryGranularityType.RECOMMENDED
     gpu_direct_rdma: bool = False
     addr_hint: int | None = 0
