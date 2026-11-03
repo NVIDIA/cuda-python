@@ -8,6 +8,8 @@ Cython's filesystem .pxd resolver only walks real directories on sys.path,
 so `cimport cuda.bindings.*` fails to locate the .pxd files. We resolve
 the namespace package's source root from `cuda.bindings.__file__` and pass
 it via `include_path=` so cythonize finds the .pxd tree on every platform.
+Tests that cimport cuda.core also need this checkout's Core source root on
+that search path; the editable install's Python finder does not supply it.
 
 When CUDA_PYTHON_CYTHON_CACHE_DIR is set, cythonize uses the same cache
 namespacing and include-path aliasing as the package build (``_build_shared.py``).
@@ -54,6 +56,7 @@ def _bindings_source_root() -> Path:
 
 
 def _cythonize_tests(pyx_files):
+    core_source_root = Path(__file__).resolve().parents[2]
     cache_path = build_shared._cython_cache_path(
         "cuda-core-cython-tests",
         compiler_directives=_COMPILER_DIRECTIVES,
@@ -68,7 +71,7 @@ def _cythonize_tests(pyx_files):
     if cache_path is None:
         return cythonize(
             pyx_files,
-            include_path=[str(_bindings_source_root())],
+            include_path=[str(core_source_root), str(_bindings_source_root())],
             **cythonize_kwargs,
         )
 
@@ -78,11 +81,12 @@ def _cythonize_tests(pyx_files):
     stdlib_target = Path(Cython.__file__).parent / "Includes"
     with (
         build_shared._stable_cython_alias(stdlib_target, Path(".cython-stdlib-tests")) as rel_stdlib,
+        build_shared._stable_cython_alias(core_source_root, Path(".cython-core-tests")) as rel_core,
         build_shared._stable_cython_alias(_bindings_source_root(), Path(".cython-bindings-tests")) as rel_bindings,
     ):
         return cythonize(
             pyx_files,
-            include_path=[".", rel_bindings, rel_stdlib],
+            include_path=[".", rel_core, rel_bindings, rel_stdlib],
             **cythonize_kwargs,
         )
 
@@ -101,6 +105,9 @@ def main() -> None:
     # are stable regardless of the invoking cwd.
     os.chdir(script_dir)
     ext_modules = _cythonize_tests(pyx_files)
+    # Core's runtime consumer headers require C++17 with either toolchain.
+    for extension in ext_modules:
+        extension.extra_compile_args.append("/std:c++17" if os.name == "nt" else "-std=c++17")
 
     sys.argv = [sys.argv[0], "build_ext", "--inplace"]
     setup(name="cuda_core_cython_tests", ext_modules=ext_modules)

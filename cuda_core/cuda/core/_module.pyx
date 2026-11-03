@@ -632,7 +632,8 @@ cdef class ObjectCode:
 
     @classmethod
     def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
-        assert code_type in _supported_code_type, f"{code_type=} is not supported"
+        if code_type not in _supported_code_type:
+            raise ValueError(f"{code_type=} is not supported")
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
         # _h_library is assigned during _lazy_load_module

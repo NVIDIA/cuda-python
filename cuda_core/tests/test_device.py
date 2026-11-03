@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import ctypes
 import pickle
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
+from helpers.buffers import DummyDeviceMemoryResource
 from helpers.contexts import (
     assert_device_operations_use_bound_context,
     current_context_handle,
@@ -18,7 +20,7 @@ from helpers.nanosleep_kernel import NanosleepKernel
 import cuda.core
 from cuda.bindings import driver, runtime
 from cuda.core import Device, StreamOptions
-from cuda.core._utils.cuda_utils import ComputeCapability, handle_return
+from cuda.core._utils.cuda_utils import ComputeCapability, CUDAError, handle_return
 from cuda.core._utils.version import driver_version
 
 
@@ -56,6 +58,95 @@ def test_device_set_current(deinit_cuda):
     device = Device()
     device.set_current()
     assert handle_return(driver.cuCtxGetCurrent()) is not None
+
+
+@pytest.mark.parametrize("ordinal_kind", ["negative", "one-past-end"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_device_rejects_out_of_range_ordinal(init_cuda, ordinal_kind):
+    """Invalid ordinals preserve the current context and cached Device."""
+    device_count = len(Device.get_all_devices())
+    ordinal = -1 if ordinal_kind == "negative" else device_count
+    original_context = current_context_handle()
+    with pytest.raises(ValueError):
+        Device(ordinal)
+    assert current_context_handle() == original_context
+    assert Device(init_cuda.device_id) is init_cuda
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_device_context_requires_initialization_on_new_thread(init_cuda):
+    """Initialization on one thread does not initialize another thread's Device."""
+    device_id = init_cuda.device_id
+    original_context = current_context_handle()
+
+    def worker():
+        device = Device(device_id)
+        assert current_context_handle() == 0
+        with pytest.raises(CUDAError):
+            _ = device.context
+        with pytest.raises(CUDAError):
+            device.create_stream()
+        device.set_current()
+        stream = None
+        try:
+            stream = device.create_stream()
+            assert int(stream.context.handle) == int(device.context.handle)
+            with device.allocate(4, stream=stream) as buffer:
+                stream.sync()
+                handle_return(driver.cuMemsetD8(int(buffer.handle), 0x29, buffer.size))
+                result = (ctypes.c_ubyte * 4)()
+                handle_return(driver.cuMemcpyDtoH(ctypes.addressof(result), int(buffer.handle), 4))
+                assert bytes(result) == b"\x29" * 4
+            stream.sync()
+        finally:
+            if stream is not None:
+                stream.close()
+            handle_return(driver.cuCtxPopCurrent())
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        executor.submit(worker).result()
+    assert current_context_handle() == original_context
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_device_memory_resource_controls_allocation(init_cuda):
+    """Device.allocate uses the public memory resource assigned to the device."""
+    device = init_cuda
+    original_resource = device.memory_resource
+    replacement = DummyDeviceMemoryResource(device)
+    try:
+        device.memory_resource = replacement
+        assert device.memory_resource is replacement
+        with device.allocate(16, stream=device.default_stream) as buffer:
+            assert buffer.memory_resource is replacement
+            handle_return(driver.cuMemsetD8(int(buffer.handle), 0x5C, buffer.size))
+            result = (ctypes.c_ubyte * 16)()
+            handle_return(driver.cuMemcpyDtoH(ctypes.addressof(result), int(buffer.handle), 16))
+            assert bytes(result) == b"\x5c" * 16
+    finally:
+        device.memory_resource = original_resource
+    assert device.memory_resource is original_resource
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_invalid_memory_resource_assignment_preserves_resource(init_cuda):
+    """A rejected replacement leaves the existing allocator operational."""
+    device = init_cuda
+    original_resource = device.memory_resource
+    try:
+        with pytest.raises(TypeError):
+            device.memory_resource = object()
+        assert device.memory_resource is original_resource
+        with device.allocate(4, stream=device.default_stream) as buffer:
+            device.default_stream.sync()
+            assert buffer.memory_resource is original_resource
+            handle_return(driver.cuMemsetD8(int(buffer.handle), 0x3A, buffer.size))
+            result = (ctypes.c_ubyte * 4)()
+            handle_return(driver.cuMemcpyDtoH(ctypes.addressof(result), int(buffer.handle), 4))
+            assert bytes(result) == b"\x3a" * 4
+        device.default_stream.sync()
+    finally:
+        device.memory_resource = original_resource
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")

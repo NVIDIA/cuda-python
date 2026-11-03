@@ -90,7 +90,7 @@ repos:
         name: Check tests do not create uncapped memory pools
         entry: python ./ci/tools/check_mempool_hygiene.py
         language: python
-        files: '^cuda_core/tests/.*\.py$'
+        files: '^(cuda_core|cuda_bindings_1[23])/tests/.*\.py$'
 
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
@@ -171,7 +171,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|.*\.pyi)$'
+      exclude: &gen_exclude '^(?:cuda_python/README\.md|(?:.*/)?CLAUDE\.md|(?:.*/)?\.git_archival\.txt|cuda_bindings_(?:12|13)/cuda/bindings/.*\.in?|cuda_bindings_(?:12|13)/docs/source/module/.*\.rst?|.*\.pyi|\.github/actions/upgrade-ca-certificates/impacted-intermediates\.json)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: |
@@ -219,8 +219,18 @@ repos:
     rev: "35dbc940c2bd4499ebf39aba00ad717e05cec9b5"  # frozen: v0.22.0
     hooks:
       - id: cython-lint
-        args: [--no-pycodestyle]
-        exclude: ^cuda_bindings_(?:12|13)/
+        # Some rules (e.g. "inline" on a function declared in a .pxd) match
+        # declarations in one file against implementations in another, and the
+        # linter only remembers that within a single invocation. Pre-commit
+        # splits filenames across parallel processes and only passes changed
+        # files, so a .pyx edited without its .pxd would escape the check.
+        # Instead, whenever any Cython file under these trees changes, lint
+        # all of them in one process. Generated cuda_bindings_* and
+        # third-party submodules are not listed.
+        args: [--no-pycodestyle, cuda_core/cuda]
+        files: ^cuda_core/cuda
+        pass_filenames: false
+        require_serial: true
         additional_dependencies:
           - Cython==3.2.9
 

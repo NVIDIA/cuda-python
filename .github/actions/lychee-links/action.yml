@@ -26,8 +26,8 @@ outputs:
     description: "Whether the current PR label explicitly enables the HTTP 429 override"
     value: ${{ steps.lychee-policy.outputs.allow-429 }}
 
-# Callers provide Python and the checked-out repository; the build of any
-# rendered documentation must already be complete.
+# Callers provide Python through setup-hardened-python and the checked-out
+# repository; the build of any rendered documentation must already be complete.
 runs:
   using: composite
   steps:
@@ -112,9 +112,6 @@ runs:
           printf '%s\n\n%s\n\n%s\n\n' "$message" "$context" "$hint"
           printf '[Open the cache refresh workflow](%s).\n' "$WORKFLOW_URL"
         } >> "$GITHUB_STEP_SUMMARY"
-
-    - name: Harden pip
-      uses: ./.github/actions/harden-pip
 
     - name: Check links through the configured pre-commit hook
       shell: bash --noprofile --norc -euo pipefail {0}

@@ -103,6 +103,9 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         cydriver.CUstream stream, object owner) except+ nogil
     void initialize_deferred_cleanup "cuda_core::rt::initialize_deferred_cleanup" () except+
     void retry_deferred_cleanup "cuda_core::rt::retry_deferred_cleanup" () noexcept
+    cydriver.CUresult launch_host_function "cuda_core::rt::launch_host_function" (
+        cydriver.CUstream stream, cydriver.CUhostFn fn, void* user_data,
+        OpaqueHandle fn_owner, OpaqueHandle data_owner) noexcept nogil
     ContextHandle get_stream_context "cuda_core::rt::get_stream_context" (
         const StreamHandle& h) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::rt::get_legacy_stream" () except+ nogil

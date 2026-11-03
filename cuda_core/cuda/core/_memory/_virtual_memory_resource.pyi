@@ -6,7 +6,7 @@ from typing import Iterable
 
 from cuda.core._device import Device
 from cuda.core._memory._buffer import Buffer, MemoryResource
-from cuda.core._memory._ipc import VirtualMemoryIPCBufferDescriptor
+from cuda.core._memory._ipc import VirtualMemoryFdBufferDescriptor
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph import GraphBuilder
@@ -30,7 +30,9 @@ class VirtualMemoryResourceOptions:
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
         Controls the type of allocation.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
-        Controls the location of the allocation.
+        Controls the location of the allocation. ``"host_numa"`` requires
+        ``numa_id``. ``"host_numa_current"`` is rejected because the driver
+        does not accept it for physical allocations.
     handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
@@ -53,6 +55,12 @@ class VirtualMemoryResourceOptions:
         Access flags for the owning device.
     peer_access: :obj:`~_memory.VirtualMemoryAccessType` | None | str
         Access flags for peers.
+    numa_id: int | None
+        Host NUMA node of the allocation. Required for
+        ``location_type="host_numa"`` and rejected for every other location
+        type. Must be >= 0; ``Device.properties.host_numa_id`` is the node
+        closest to a device. On a system without NUMA, ``host_numa_id`` is -1
+        and the driver expects ``numa_id=0``.
     """
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
@@ -64,6 +72,7 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
     peer_access: VirtualMemoryAccessType = VirtualMemoryAccessType.READ_WRITE
+    numa_id: int | None = None
     _a = driver.CUmemAccess_flags
     _access_flags = {VirtualMemoryAccessType.READ_WRITE: _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, VirtualMemoryAccessType.READ: _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}
     _h = driver.CUmemAllocationHandleType
@@ -98,7 +107,7 @@ class VirtualMemoryBuffer(Buffer):
     freed when the last buffer that maps it closes.
     """
     @property
-    def ipc_descriptor(self) -> VirtualMemoryIPCBufferDescriptor:
+    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor:
         """A new descriptor for sharing this buffer with other processes.
 
         Every access exports the physical allocations that back the buffer
@@ -205,7 +214,7 @@ class VirtualMemoryResource(MemoryResource):
     is not visible. Plain ``pickle`` cannot carry the file descriptors; a
     process with its own file descriptor passing sends the descriptor's
     ``fds``, ``sizes``, and ``size`` and rebuilds it with
-    ``VirtualMemoryIPCBufferDescriptor.from_fds()``. The importing resource
+    ``VirtualMemoryFdBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
     it exists, in every process that holds one, and nothing else does. A
@@ -273,8 +282,8 @@ class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type`` and ``handle_type`` and passes the same checks
-            as the constructor.
+            ``location_type``, ``handle_type``, and ``numa_id`` and pass the
+            same checks as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
             memory that is already mapped.
@@ -291,8 +300,8 @@ class VirtualMemoryResource(MemoryResource):
         TypeError
             If ``buf`` did not come from this resource.
         ValueError
-            If ``config`` names a different location or handle type than the
-            resource, or the constructor would reject it.
+            If ``config`` names a different location type, handle type, or
+            ``numa_id`` than the resource, or the constructor would reject it.
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.
@@ -346,7 +355,7 @@ class VirtualMemoryResource(MemoryResource):
         (``location_type`` ``"host"``, ``"host_numa"``, or
         ``"host_numa_current"``) is not shared yet.
         """
-    def _import_ipc_buffer(self, desc: VirtualMemoryIPCBufferDescriptor, stream) -> VirtualMemoryBuffer:
+    def _import_ipc_buffer(self, desc: VirtualMemoryFdBufferDescriptor, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle
