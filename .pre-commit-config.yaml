@@ -19,7 +19,7 @@ repos:
   # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
   # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
   - repo: https://github.com/NVIDIA/security-workflows
-    rev: c736f0454dc99764a66af6b906adfcdfbf621985  # frozen: v0.4.0
+    rev: 0659a2e36defdf66209a135d216f40a63b7aec94  # frozen: v0.5.0
     hooks:
       - id: secret-scan-trufflehog
 

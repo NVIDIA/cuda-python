@@ -232,3 +232,18 @@ The canonical `NVIDIA/cuda-python` repository does not need this variable
 because its standard workflow behavior is enabled directly. Before enabling a
 customization elsewhere, document the repository-specific prerequisites and
 verification procedure in that repository's own documentation.
+
+### Security Suite scan prerequisites
+
+The secret scan and CodeQL SAST need only the Vault variables already
+provisioned for this repository. The Pulse OSS vulnerability scan and the Pulse
+malware scan additionally reach NVIDIA-internal services through a Charon
+tunnel, which authorizes **per repository and per ref**, and both read the
+repository's `NSPECT_ID` Actions variable.
+
+The Charon tenant must list every ref the suite scans — `main`, `ctk-next`, and
+the `pull-request/*` mirrors — and grant the routes each scan calls, including
+`POST /v1/sourceCode/scan`, which is not granted to tenants by default. An
+unlisted ref or route surfaces as an opaque `403` from inside the scanner, so
+confirm the tenant before debugging anything else. The secret scan and SAST are
+unaffected; neither crosses the tunnel.
