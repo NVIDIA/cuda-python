@@ -133,7 +133,8 @@
   "Ib": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_cannot_infer_data_type|run",
   "Jb": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_unsupported_data_type[explicit_unsupported]|run",
   "Kb": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_unsupported_data_type[tensor_dtype_unsupported]|run",
-  "Lb": "tests/test_utils.py::test_dlpack_export_device_accessible_cai_view|run"
+  "Lb": "tests/test_tensor_map.py::test_as_tensor_map_reports_unsupported_hardware_as_cuda_error|run",
+  "Mb": "tests/test_utils.py::test_dlpack_export_device_accessible_cai_view|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -196,7 +197,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-02 20:49 +0000
+            created at 2026-11-03 01:03 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -308,10 +309,10 @@
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    ``buf`` must expose ``is_device_accessible``, ``is_host_accessible``,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    ``is_managed``, and ``device_id`` attributes.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    cdef bint d = buf.is_device_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">127 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbCbDbHbEbFbGba ubvbwbxbybIbzbAbJbKbLbBb</span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    cdef bint h = buf.is_host_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">127 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbCbDbHbEbFbGba ubvbwbxbybIbzbAbJbKbLbBb</span></p>
-    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    if d and not h:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">127 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbCbDbHbEbFbGba ubvbwbxbybIbzbAbJbKbLbBb</span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        return (_kDLCUDA, buf.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">9 ctx</label></span><span class="ctxs">2Hba IbzbAbJbKbLbBb</span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    cdef bint d = buf.is_device_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">128 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbCbDbHbEbFbGba ubvbwbxbybIbzbAbJbKbLbMbBb</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    cdef bint h = buf.is_host_accessible</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">128 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbCbDbHbEbFbGba ubvbwbxbybIbzbAbJbKbLbMbBb</span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    if d and not h:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">128 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbCbDbHbEbFbGba ubvbwbxbybIbzbAbJbKbLbMbBb</span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        return (_kDLCUDA, buf.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">10 ctx</label></span><span class="ctxs">2Hba IbzbAbJbKbLbMbBb</span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    if d and h:</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">118 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbCbDbEbFbGbubvbwbxbyb</span></p>
     <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">        return (_kDLCUDAManaged if buf.is_managed else _kDLCUDAHost, 0)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">115 ctx</label></span><span class="ctxs">2b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbFbGbubvbwbxbyb</span></p>
     <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">    if not d and h:</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">3 ctx</label></span><span class="ctxs">2CbDbEb</span></p>
@@ -394,7 +395,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__event_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-02 20:49 +0000
+            created at 2026-11-03 01:03 +0000
         </p>
     </div>
 </footer>

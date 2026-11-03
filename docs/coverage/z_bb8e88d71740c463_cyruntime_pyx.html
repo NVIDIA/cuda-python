@@ -109,13 +109,14 @@
   "kb": "tests/test_device.py::test_pci_bus_id|run",
   "lb": "tests/test_device.py::test_to_system_device|run",
   "mb": "tests/test_cuda_utils.py::test_check_runtime_error|run",
-  "nb": "tests/test_device.py::test_compute_capability|run",
-  "ob": "tests/test_device.py::test_device_id|run",
-  "pb": "tests/test_cudart.py::test_cudart_both_type|run",
-  "qb": "tests/test_cudart.py::test_cudart_cudaGetDeviceProperties|run",
-  "rb": "tests/test_cudart.py::test_cudart_list_access|run",
-  "sb": "tests/test_cudart.py::test_cudaDeviceGetDevResource|run",
-  "tb": "tests/test_cudart.py::test_getLocalRuntimeVersion|run"
+  "nb": "tests/test_cuda_utils.py::test_only_out_of_memory_errors_are_memory_errors|run",
+  "ob": "tests/test_device.py::test_compute_capability|run",
+  "pb": "tests/test_device.py::test_device_id|run",
+  "qb": "tests/test_cudart.py::test_cudart_both_type|run",
+  "rb": "tests/test_cudart.py::test_cudart_cudaGetDeviceProperties|run",
+  "sb": "tests/test_cudart.py::test_cudart_list_access|run",
+  "tb": "tests/test_cudart.py::test_cudaDeviceGetDevResource|run",
+  "ub": "tests/test_cudart.py::test_getLocalRuntimeVersion|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -178,7 +179,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-02 20:49 +0000
+            created at 2026-11-03 01:03 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -295,7 +296,7 @@
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">cdef const char* cudaGetErrorString(cudaError_t error) except?NULL nogil:</span>&nbsp;</span><span class="r"><label for="ctxs102" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">    return _runtime._cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">3 ctx</label></span><span class="ctxs">2V mbK </span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">    return _runtime._cudaGetErrorString(error)</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">4 ctx</label></span><span class="ctxs">2V mbnbK </span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDeviceCount(int* count) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs106" class="ctx">(empty)</label></span></p>
@@ -303,7 +304,7 @@
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetAttribute(int* value, cudaDeviceAttr attr, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs110" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    return _runtime._cudaDeviceGetAttribute(value, attr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">28 ctx</label></span><span class="ctxs">2a nbW X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , m n </span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    return _runtime._cudaDeviceGetAttribute(value, attr, device)</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">28 ctx</label></span><span class="ctxs">2a obW X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , m n </span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetDefaultMemPool(cudaMemPool_t* memPool, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs114" class="ctx">(empty)</label></span></p>
@@ -339,7 +340,7 @@
     <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDevice(int* device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs146" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    return _runtime._cudaGetDevice(device)</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">27 ctx</label></span><span class="ctxs">2obW X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , m n </span></p>
+    <p class="run"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    return _runtime._cudaGetDevice(device)</span>&nbsp;</span><input type="checkbox" id="ctxs147"><span class="r"><label for="ctxs147" class="ctx">27 ctx</label></span><span class="ctxs">2pbW X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , m n </span></p>
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">cdef cudaError_t cudaSetDeviceFlags(unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs150" class="ctx">(empty)</label></span></p>
@@ -427,7 +428,7 @@
     <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">cdef cudaError_t cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs234" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    return _runtime._cudaThreadExchangeStreamCaptureMode(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">1 ctx</label></span><span class="ctxs">2pb</span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    return _runtime._cudaThreadExchangeStreamCaptureMode(mode)</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">1 ctx</label></span><span class="ctxs">2qb</span></p>
     <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">cdef cudaError_t cudaStreamEndCapture(cudaStream_t stream, cudaGraph_t* pGraph) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs238" class="ctx">(empty)</label></span></p>
@@ -1383,7 +1384,7 @@
     <p class="pln"><span class="n"><a id="t1188" href="#t1188">1188</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1189" href="#t1189">1189</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1190" href="#t1190">1190</a></span><span class="t"><span class="txt">cdef cudaError_t cudaGetDeviceProperties(cudaDeviceProp* prop, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1190" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1191" href="#t1191">1191</a></span><span class="t"><span class="txt">    return _runtime._cudaGetDeviceProperties(prop, device)</span>&nbsp;</span><input type="checkbox" id="ctxs1191"><span class="r"><label for="ctxs1191" class="ctx">2 ctx</label></span><span class="ctxs">2qbrb</span></p>
+    <p class="run"><span class="n"><a id="t1191" href="#t1191">1191</a></span><span class="t"><span class="txt">    return _runtime._cudaGetDeviceProperties(prop, device)</span>&nbsp;</span><input type="checkbox" id="ctxs1191"><span class="r"><label for="ctxs1191" class="ctx">2 ctx</label></span><span class="ctxs">2rbsb</span></p>
     <p class="pln"><span class="n"><a id="t1192" href="#t1192">1192</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1193" href="#t1193">1193</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1194" href="#t1194">1194</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const cudaAtomicOperation* operations, unsigned int count, int device) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1194" class="ctx">(empty)</label></span></p>
@@ -1475,7 +1476,7 @@
     <p class="pln"><span class="n"><a id="t1280" href="#t1280">1280</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1281" href="#t1281">1281</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1282" href="#t1282">1282</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDeviceGetDevResource(int device, cudaDevResource* resource, cudaDevResourceType type) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1282" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1283" href="#t1283">1283</a></span><span class="t"><span class="txt">    return _runtime._cudaDeviceGetDevResource(device, resource, type)</span>&nbsp;</span><input type="checkbox" id="ctxs1283"><span class="r"><label for="ctxs1283" class="ctx">5 ctx</label></span><span class="ctxs">2dbebfbsbo </span></p>
+    <p class="run"><span class="n"><a id="t1283" href="#t1283">1283</a></span><span class="t"><span class="txt">    return _runtime._cudaDeviceGetDevResource(device, resource, type)</span>&nbsp;</span><input type="checkbox" id="ctxs1283"><span class="r"><label for="ctxs1283" class="ctx">5 ctx</label></span><span class="ctxs">2dbebfbtbo </span></p>
     <p class="pln"><span class="n"><a id="t1284" href="#t1284">1284</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1285" href="#t1285">1285</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1286" href="#t1286">1286</a></span><span class="t"><span class="txt">cdef cudaError_t cudaDevSmResourceSplitByCount(cudaDevResource* result, unsigned int* nbGroups, const cudaDevResource* input, cudaDevResource* remaining, unsigned int flags, unsigned int minCount) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1286" class="ctx">(empty)</label></span></p>
@@ -1589,7 +1590,7 @@
     <p class="pln"><span class="n"><a id="t1394" href="#t1394">1394</a></span><span class="t"><span class="txt">###############################################################################</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1395" href="#t1395">1395</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1396" href="#t1396">1396</a></span><span class="t"><span class="txt">cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:</span>&nbsp;</span><span class="r"><label for="ctxs1396" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t1397" href="#t1397">1397</a></span><span class="t"><span class="txt">    return _runtime._getLocalRuntimeVersion(runtimeVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs1397"><span class="r"><label for="ctxs1397" class="ctx">1 ctx</label></span><span class="ctxs">2tb</span></p>
+    <p class="run"><span class="n"><a id="t1397" href="#t1397">1397</a></span><span class="t"><span class="txt">    return _runtime._getLocalRuntimeVersion(runtimeVersion)</span>&nbsp;</span><input type="checkbox" id="ctxs1397"><span class="r"><label for="ctxs1397" class="ctx">1 ctx</label></span><span class="ctxs">2ub</span></p>
 </main>
 <footer>
     <div class="content">
@@ -1599,7 +1600,7 @@
             <a class="nav" href="z_bb8e88d71740c463_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-02 20:49 +0000
+            created at 2026-11-03 01:03 +0000
         </p>
     </div>
 </footer>
