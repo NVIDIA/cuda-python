@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.LibRmVersionMismatchError
+============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: LibRmVersionMismatchError

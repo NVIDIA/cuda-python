@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_perf\_metrics\_get\_samples\_v1
+==========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_perf_metrics_get_samples_v1

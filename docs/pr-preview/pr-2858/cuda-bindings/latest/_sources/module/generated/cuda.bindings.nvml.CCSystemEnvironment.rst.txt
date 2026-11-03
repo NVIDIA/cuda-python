@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.CCSystemEnvironment
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: CCSystemEnvironment

@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.RestrictedAPI
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: RestrictedAPI

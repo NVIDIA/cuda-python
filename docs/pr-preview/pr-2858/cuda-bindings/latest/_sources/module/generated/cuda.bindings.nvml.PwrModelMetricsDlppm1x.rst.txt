@@ -1,0 +1,36 @@
+﻿cuda.bindings.nvml.PwrModelMetricsDlppm1x
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PwrModelMetricsDlppm1x
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PwrModelMetricsDlppm1x.__init__
+      ~PwrModelMetricsDlppm1x.from_buffer
+      ~PwrModelMetricsDlppm1x.from_data
+      ~PwrModelMetricsDlppm1x.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PwrModelMetricsDlppm1x.b_valid
+      ~PwrModelMetricsDlppm1x.core_rail
+      ~PwrModelMetricsDlppm1x.fb_rail
+      ~PwrModelMetricsDlppm1x.perf_metrics
+      ~PwrModelMetricsDlppm1x.ptr
+      ~PwrModelMetricsDlppm1x.tgp_pwr_tuple
+   
+   

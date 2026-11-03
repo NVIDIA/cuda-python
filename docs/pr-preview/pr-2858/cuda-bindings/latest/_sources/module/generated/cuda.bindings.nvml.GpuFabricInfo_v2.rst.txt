@@ -1,0 +1,37 @@
+﻿cuda.bindings.nvml.GpuFabricInfo\_v2
+====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuFabricInfo_v2
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuFabricInfo_v2.__init__
+      ~GpuFabricInfo_v2.from_buffer
+      ~GpuFabricInfo_v2.from_data
+      ~GpuFabricInfo_v2.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuFabricInfo_v2.clique_id
+      ~GpuFabricInfo_v2.cluster_uuid
+      ~GpuFabricInfo_v2.health_mask
+      ~GpuFabricInfo_v2.ptr
+      ~GpuFabricInfo_v2.state
+      ~GpuFabricInfo_v2.status
+      ~GpuFabricInfo_v2.version
+   
+   

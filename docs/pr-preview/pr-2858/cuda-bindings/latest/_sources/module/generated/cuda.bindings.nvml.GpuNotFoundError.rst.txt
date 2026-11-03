@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.GpuNotFoundError
+===================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: GpuNotFoundError
