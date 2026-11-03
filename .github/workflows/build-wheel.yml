@@ -238,6 +238,7 @@ jobs:
           # extras: uv puts uv on PATH (required on Windows).
           CIBW_BUILD_FRONTEND: "build[uv]"
           # CIBW mounts the host filesystem under /host
+          # Skip startup cache probes and back off on repeated cache errors (#3273).
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -247,6 +248,9 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
+            SCCACHE_SKIP_CACHE_CHECK=true
+            SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_COUNT=5
+            SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_WINDOW_SIZE_SECS=5
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
@@ -335,6 +339,7 @@ jobs:
           # See the cuda.bindings step above for UV_* vs PIP_*.
           CIBW_BUILD_FRONTEND: "build[uv]"
           # CIBW mounts the host filesystem under /host
+          # Skip startup cache probes and back off on repeated cache errors (#3273).
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -346,6 +351,9 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
+            SCCACHE_SKIP_CACHE_CHECK=true
+            SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_COUNT=5
+            SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_WINDOW_SIZE_SECS=5
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
@@ -614,6 +622,7 @@ jobs:
           # See the cuda.bindings step above for UV_* vs PIP_*.
           CIBW_BUILD_FRONTEND: "build[uv]"
           # CIBW mounts the host filesystem under /host
+          # Skip startup cache probes and back off on repeated cache errors (#3273).
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -625,6 +634,9 @@ jobs:
             CXX="/host/${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
             SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true
+            SCCACHE_SKIP_CACHE_CHECK=true
+            SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_COUNT=5
+            SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_WINDOW_SIZE_SECS=5
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
