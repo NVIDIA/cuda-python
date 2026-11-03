@@ -1359,7 +1359,8 @@ cdef inline object _prepare_nvvm_options_impl(object opts, bint as_bytes):
     options = []
 
     # Options supported by NVVM
-    assert opts.arch is not None
+    if opts.arch is None:
+        raise RuntimeError("internal cuda.core error, please report: ProgramOptions.arch is None")
     arch = opts.arch
     if arch.startswith("sm_"):
         arch = f"compute_{arch[3:]}"

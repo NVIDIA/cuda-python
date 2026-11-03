@@ -225,6 +225,37 @@ def test_from_dlpack_cuda_stream_none_ambiguous():
         StridedMemoryView.from_dlpack(_FakeCudaDevice(), stream_ptr=None)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(("device_type", "device_id"), [(DLDeviceType.kDLCPU, 1), (DLDeviceType.kDLCUDA, -1)])
+def test_from_dlpack_rejects_invalid_device_id(device_type, device_id):
+    """A device ordinal the DLPack device type cannot have is rejected."""
+
+    class _FakeInvalidDeviceId:
+        def __dlpack_device__(self):
+            return (int(device_type), device_id)
+
+        def __dlpack__(self, **kwargs):
+            raise AssertionError("__dlpack__ must not be reached")
+
+    with pytest.raises(ValueError, match=f"reported device_id {device_id}"):
+        StridedMemoryView.from_dlpack(_FakeInvalidDeviceId(), stream_ptr=-1)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_from_dlpack_rejects_non_capsule():
+    """``__dlpack__`` must return an unconsumed DLPack capsule."""
+
+    class _FakeNonCapsule:
+        def __dlpack_device__(self):
+            return (int(DLDeviceType.kDLCPU), 0)
+
+        def __dlpack__(self, **kwargs):
+            return object()
+
+    with pytest.raises(ValueError, match="not an unconsumed DLPack capsule"):
+        StridedMemoryView.from_dlpack(_FakeNonCapsule(), stream_ptr=-1)
+
+
 class _DLPackNoMaxVersion:
     """Wraps a StridedMemoryView but rejects the ``max_version`` kwarg, forcing the
     TypeError fallback in ``view_as_dlpack`` and an *unversioned* capsule import.
