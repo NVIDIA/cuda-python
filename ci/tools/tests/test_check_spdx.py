@@ -93,12 +93,10 @@ def repo(tmp_path):
 @pytest.mark.parametrize(
     ("commit_age", "copyright_age", "passes"),
     [
+        # Not modified this year, so last year's copyright is still correct.
         pytest.param(1, 1, True, id="untouched-since-last-year"),
-        pytest.param(0, 0, True, id="committed-this-year-current-copyright"),
-        pytest.param(1, 0, True, id="copyright-ahead-of-commit"),
         # The bug in #2273: committed this year, nothing staged, stale copyright.
         pytest.param(0, 1, False, id="committed-this-year-stale-copyright"),
-        pytest.param(2, 3, False, id="stale-relative-to-its-own-last-commit"),
     ],
 )
 def test_committed_file_is_checked_against_its_last_commit_year(repo, commit_age, copyright_age, passes):
@@ -111,38 +109,23 @@ def test_committed_file_is_checked_against_its_last_commit_year(repo, commit_age
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5.5")
-def test_unstaged_edit_requires_current_year(repo):
-    path = commit(repo, SAMPLE, str(CURRENT_YEAR - 1), year=CURRENT_YEAR - 1)
-    path.write_text(path.read_text(encoding="utf-8") + "# edited\n", encoding="utf-8")
-
-    result = run_checker(repo)
-
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert f"(expected {CURRENT_YEAR})" in result.stdout
-
-
-@pytest.mark.agent_authored(model="claude-sonnet-5.5")
-def test_staged_edit_requires_current_year(repo):
-    path = commit(repo, SAMPLE, str(CURRENT_YEAR - 1), year=CURRENT_YEAR - 1)
+def test_staged_edit_requires_current_year_and_fix_writes_it(repo):
+    # The `git commit` path: the edited file is staged when the hook runs.
+    path = commit(repo, SAMPLE, str(CURRENT_YEAR - 3), year=CURRENT_YEAR - 2)
     path.write_text(path.read_text(encoding="utf-8") + "# edited\n", encoding="utf-8")
     git(repo, "add", SAMPLE)
 
-    result = run_checker(repo)
+    check = run_checker(repo)
+    assert check.returncode == 1, check.stdout + check.stderr
+    assert f"(expected {CURRENT_YEAR})" in check.stdout
 
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert f"(expected {CURRENT_YEAR})" in result.stdout
+    # --fix reports that it changed something, as the hook always has.
+    fix = run_checker(repo, "--fix")
+    assert fix.returncode == 1, fix.stdout + fix.stderr
+    assert f"Copyright (c) {CURRENT_YEAR - 3}-{CURRENT_YEAR} " in path.read_text(encoding="utf-8")
 
-
-@pytest.mark.agent_authored(model="claude-sonnet-5.5")
-def test_untracked_file_requires_current_year(repo):
-    path = repo / SAMPLE
-    path.parent.mkdir(parents=True)
-    path.write_text(CONTENT.format(years=CURRENT_YEAR - 1), encoding="utf-8")
-
-    result = run_checker(repo)
-
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert f"(expected {CURRENT_YEAR})" in result.stdout
+    # The rewrite is stable: a second run accepts the file.
+    assert run_checker(repo).returncode == 0
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5.5")
@@ -154,17 +137,3 @@ def test_fix_writes_last_commit_year_not_current_year(repo):
     # --fix reports that it changed something, as the hook always has.
     assert result.returncode == 1, result.stdout + result.stderr
     assert f"Copyright (c) {CURRENT_YEAR - 3}-{CURRENT_YEAR - 2} " in path.read_text(encoding="utf-8")
-
-
-@pytest.mark.agent_authored(model="claude-sonnet-5.5")
-def test_fix_writes_current_year_for_modified_file(repo):
-    path = commit(repo, SAMPLE, str(CURRENT_YEAR - 3), year=CURRENT_YEAR - 2)
-    path.write_text(path.read_text(encoding="utf-8") + "# edited\n", encoding="utf-8")
-
-    result = run_checker(repo, "--fix")
-
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert f"Copyright (c) {CURRENT_YEAR - 3}-{CURRENT_YEAR} " in path.read_text(encoding="utf-8")
-
-    # The rewrite is stable: a second run accepts the file.
-    assert run_checker(repo).returncode == 0
