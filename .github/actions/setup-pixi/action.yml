@@ -27,7 +27,7 @@ runs:
     - name: Setup pixi ${{ steps.version.outputs.pixi-version }}
       # Pinned to a commit SHA; install logic lives in the action and is
       # auditable/pinned (vs. a curl|bash of an unverified installer).
-      uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+      uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
       with:
         pixi-version: ${{ steps.version.outputs.pixi-version }}
         run-install: false
