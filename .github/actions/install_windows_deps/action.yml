@@ -31,6 +31,15 @@ runs:
         if ($bash) {
           & $bash.Source --noprofile --norc -c $check
           if ($LASTEXITCODE -eq 0) {
+            # Later `shell: bash` steps resolve `bash` through PATH. If that is not the
+            # Git Bash validated above (e.g. the WSL launcher comes first), put it first.
+            $pathBash = Get-Command bash -ErrorAction SilentlyContinue
+            if ($pathBash -and ($pathBash.Source -ne $bash.Source)) {
+              $bashDir = Split-Path -Parent $bash.Source
+              $env:PATH = "$bashDir;$env:PATH"
+              $bashDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              Write-Host "Prepended $bashDir to PATH so steps use Git Bash instead of $($pathBash.Source)."
+            }
             Write-Host 'All dependencies are found. Do nothing.'
             exit 0
           }
