@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a6bd24a0"></script>
+    <script src="../_static/documentation_options.js?v=353d2ad3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev315';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev317';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -864,6 +864,16 @@ sticky CUDA errors are handled.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a> and <a class="reference internal" href="../generated/cuda.core.NVRTCError.html#cuda.core.NVRTCError" title="cuda.core.NVRTCError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NVRTCError</span></code></a> are now importable from the
 top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace, alongside <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a>. Previously
 they were only available from a private module.</p></li>
+<li><p>The memory pool attributes of <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>,
+<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> can now be
+set: <code class="docutils literal notranslate"><span class="pre">release_threshold</span></code> takes a non-negative integer, the three
+<code class="docutils literal notranslate"><span class="pre">reuse_*</span></code> policies take a bool, and <code class="docutils literal notranslate"><span class="pre">reserved_mem_high</span></code> and
+<code class="docutils literal notranslate"><span class="pre">used_mem_high</span></code> can be set to zero to reset the watermark, as for
+<a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource" title="cuda.core.GraphMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a>. The new <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.trim" title="cuda.core.DeviceMemoryResource.trim"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.trim()</span></code></a>
+method, also on the other two resources, returns unused pool memory to the
+OS. Setting an attribute and <code class="docutils literal notranslate"><span class="pre">trim()</span></code> take effect immediately, even during
+a stream capture, and leave the capture valid.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3261">#3261</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.CUDAOutOfMemoryError.html#cuda.core.CUDAOutOfMemoryError" title="cuda.core.CUDAOutOfMemoryError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAOutOfMemoryError</span></code></a>, raised for <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_OUT_OF_MEMORY</span></code>
 and <code class="docutils literal notranslate"><span class="pre">cudaErrorMemoryAllocation</span></code>. It derives from both <a class="reference internal" href="../generated/cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a>
 and <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#MemoryError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryError</span></code></a>, so <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">MemoryError</span></code> catches an allocation
@@ -947,6 +957,12 @@ during such a capture; it now makes them in relaxed capture mode and
 restores the thread’s previous mode, so the capture stays valid. Creating a
 new pool with options during such a capture is still refused by the driver.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2834">#2834</a>)</p></li>
+<li><p>Reading the <a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.attributes" title="cuda.core.DeviceMemoryResource.attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">attributes</span></code></a> of a
+<a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>, <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> or
+<a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> no longer fails, or invalidates a stream
+capture, while the calling thread is inside a <code class="docutils literal notranslate"><span class="pre">thread_local</span></code> capture or
+any thread is inside a <code class="docutils literal notranslate"><span class="pre">global</span></code> one.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3236">#3236</a>)</p></li>
 <li><p>Ending, closing, or collecting a top-level <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>
 whose capture was invalidated, or left unjoined by a
 <a class="reference internal" href="../generated/cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder.join" title="cuda.core.graph.GraphBuilder.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a> that failed partway, no longer crashes.

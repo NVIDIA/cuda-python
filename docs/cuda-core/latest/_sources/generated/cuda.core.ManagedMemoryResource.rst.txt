@@ -17,6 +17,7 @@ cuda.core.ManagedMemoryResource
    .. automethod:: allocate
    .. automethod:: close
    .. automethod:: deallocate
+   .. automethod:: trim
 
    
    
