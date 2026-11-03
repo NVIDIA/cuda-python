@@ -9,7 +9,7 @@
 # Pinned by commit SHA to the security-workflows v0.5.0 release.
 # The vulnerability and malware scans cross a Charon tunnel; see ci/README.md.
 
-name: Security Suite (Pulse + CodeQL)
+name: Security Suite (Secret, Vulnerability, Malware, SAST)
 
 on:
   push:
@@ -94,8 +94,9 @@ jobs:
     uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@0659a2e36defdf66209a135d216f40a63b7aec94  # v0.5.0
     with:
       enable-secret-scan: true
-      enable-vuln-scan: true
-      enable-malware-scan: true
+      # The vulnerability and malware scans use a Charon tenant that authorizes only these refs.
+      enable-vuln-scan: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/pull-request/') }}
+      enable-malware-scan: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/pull-request/') }}
       enable-sast-scan: true
       secret-runs-on: linux-amd64-cpu4
       # Set failure_policy explicitly so enforcement can't drift with upstream defaults.
