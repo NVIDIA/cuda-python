@@ -76,7 +76,9 @@ runs:
         # Alternate redist servers (non-default) publish different manifests for the
         # same CUDA version; keying on the manifest hash keeps them from restoring
         # each other's toolkit.
-        MANIFEST_SHA8="$(sha256sum "$CTK_JSON_FILE" | cut -c1-8)"
+        # Hash via stdin: with a backslash in the path (Windows RUNNER_TEMP), sha256sum
+        # prefixes its output line with "\", which would end up in the cache key.
+        MANIFEST_SHA8="$(sha256sum < "$CTK_JSON_FILE" | cut -c1-8)"
         HASH=$(echo -n "${CTK_CACHE_COMPONENTS}" | sha256sum | awk '{print $1}')
         {
           echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH-m$MANIFEST_SHA8"
