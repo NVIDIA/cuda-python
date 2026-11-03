@@ -97,8 +97,16 @@ class build_ext(_build_ext):  # noqa: N801
 
         A source with findings does not stop the build. Every source is checked
         and compiled, and the findings of all of them are raised together once
-        the build is over, so that one run reports everything to fix.
+        the build is over, so that one run reports everything to fix. If the
+        build itself fails, that error propagates and the findings are attached
+        to it as a note.
         """
+        # Looked up here, on the main thread, because the sources compile on
+        # several threads and a missing clang-tidy must be reported only once.
+        clang_tidy = build_hooks.get_clang_tidy()
+        if clang_tidy is None:
+            yield
+            return
         compiler = self.compiler
         method = "spawn"
         if hasattr(compiler, "call"):
@@ -108,7 +116,7 @@ class build_ext(_build_ext):  # noqa: N801
 
         def run(cmd, *args, **kwargs):
             try:
-                build_hooks.check_with_clang_tidy(cmd)
+                build_hooks.check_with_clang_tidy(clang_tidy, cmd)
             except build_hooks.ClangTidyError as e:
                 failures.append(str(e))
             return stock(cmd, *args, **kwargs)
@@ -116,10 +124,17 @@ class build_ext(_build_ext):  # noqa: N801
         setattr(compiler, method, run)
         try:
             yield
-        finally:
-            setattr(compiler, method, stock)
+        except BaseException as e:
+            # The compile error is the real failure. Do not replace it with the
+            # findings; attach them so they are still reported.
+            if failures:
+                e.add_note("\n\n".join(failures))
+            raise
+        else:
             if failures:
                 raise build_hooks.ClangTidyError("\n\n".join(failures))
+        finally:
+            setattr(compiler, method, stock)
 
     @contextlib.contextmanager
     def _parallel_source_compilation(self):

@@ -737,23 +737,6 @@ def _find_clang_tidy() -> str | None:
     return None
 
 
-@functools.cache
-def _warn_clang_tidy_missing() -> None:
-    """Warn, once per build, that the clang-tidy checks do not run."""
-    banner = "!" * 78
-    print(
-        f"\n{banner}\n"
-        "WARNING: clang-tidy is not installed in the build environment, so the clang-tidy\n"
-        "checks of the handwritten C++ sources will NOT run.\n"
-        "Isolated builds install the clang-tidy wheel automatically. For other builds,\n"
-        "install the version that pyproject.toml pins, as the wheel or as the conda-forge\n"
-        "clang-tools package. The wheel does not exist on Windows ARM64.\n"
-        f"{banner}\n",
-        file=sys.stderr,
-        flush=True,
-    )
-
-
 def _partition_handwritten_cpp_files(args: Sequence[str]) -> tuple[list[Path], list[str]]:
     """Split compiler arguments into the handwritten C++ sources and the other arguments.
 
@@ -828,25 +811,42 @@ class ClangTidyError(RuntimeError):
     """clang-tidy reported errors in a handwritten source."""
 
 
-def check_with_clang_tidy(compile_command: Sequence[str]) -> None:
+def get_clang_tidy() -> str | None:
+    """The clang-tidy executable to check the build with, or None to skip the check.
+
+    Call this once, before the compiles start: it warns prominently when
+    clang-tidy is not installed. Setting CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips
+    the check silently.
+    """
+    if bool(int(os.environ.get("CUDA_PYTHON_SKIP_CLANG_TIDY", "0"))):
+        return None
+    clang_tidy = _find_clang_tidy()
+    if clang_tidy is None:
+        banner = "!" * 78
+        print(
+            f"\n{banner}\n"
+            "WARNING: clang-tidy is not installed in the build environment, so the clang-tidy\n"
+            "checks of the handwritten C++ sources will NOT run.\n"
+            "Isolated builds install the clang-tidy wheel automatically. For other builds,\n"
+            "install the version that pyproject.toml pins, as the wheel or as the conda-forge\n"
+            "clang-tools package. The wheel does not exist on Windows ARM64.\n"
+            f"{banner}\n",
+            file=sys.stderr,
+            flush=True,
+        )
+    return clang_tidy
+
+
+def check_with_clang_tidy(clang_tidy: str, compile_command: Sequence[str]) -> None:
     """Run clang-tidy on the handwritten .cpp that a compiler command line compiles.
 
+    ``clang_tidy`` is the executable from get_clang_tidy().
     ``compile_command`` is the exact command that setuptools is about to spawn,
     so clang-tidy sees the same compiler, include directories, macros and
     flags as the build. Commands that do not compile a handwritten source are
     ignored. The configuration is cuda_core/.clang-tidy, which turns every
     finding into an error. Raises ClangTidyError with the findings.
-
-    When clang-tidy is not installed, the check is skipped with a prominent
-    warning, whether or not the command compiles a handwritten source.
-    Setting CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips the check silently.
     """
-    if bool(int(os.environ.get("CUDA_PYTHON_SKIP_CLANG_TIDY", "0"))):
-        return
-    clang_tidy = _find_clang_tidy()
-    if clang_tidy is None:
-        _warn_clang_tidy_missing()
-        return
     compiler, args = _split_compile_command(compile_command)
     # MSVC passes each C++ source as /Tp<path>.
     args = [arg.removeprefix("/Tp") for arg in args]
