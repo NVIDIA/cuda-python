@@ -30,6 +30,10 @@ namespace {
 thread_local char last_error_detail[kErrorMessageSize] = {0};
 thread_local char taken_error_detail[kErrorMessageSize] = {0};
 thread_local CUresult last_error_detail_status = CUDA_SUCCESS;
+
+// The restore-failure cause is a short fixed phrase plus an error name. Keeping
+// it well below kErrorMessageSize lets the compiler prove the final message fits.
+constexpr std::size_t kCauseSize = 128;
 }  // namespace
 
 namespace detail {
@@ -122,7 +126,7 @@ note_context_not_restored(CUcontext previous, CUresult operation_status, CUresul
     if (DRIVER_CALL(cuCtxGetCurrent, &current) != CUDA_SUCCESS) {
         current = nullptr;
     }
-    char cause[kErrorMessageSize] = {0};
+    char cause[kCauseSize] = {0};
     if (operation_status != CUDA_SUCCESS) {
         const char *error_name = nullptr;
         if (DRIVER_CALL(cuGetErrorName, restore_status, &error_name) == CUDA_SUCCESS) {
