@@ -62,7 +62,7 @@ CUDA 12 sources live in `cuda_bindings_12/`; CUDA 13 sources have a separate roo
 Both build the same `cuda-bindings` distribution, so use a separate Python
 environment for each major.
 
-Versions are derived from reachable `v12.9.*` tags using `setuptools-scm`.
+Versions are derived from reachable `v12.*` tags using `setuptools-scm`.
 Historical tags from the old maintenance branch may not be ancestors of `main`.
 Before a suitable tag is reachable, follow the
 [maintenance preview-build guidance](https://github.com/NVIDIA/cuda-python/blob/main/ci/README.md#cuda-bindings-package-root-registry)

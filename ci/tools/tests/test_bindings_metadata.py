@@ -31,13 +31,13 @@ def _write_package_metadata(root):
         path.parent.mkdir(parents=True)
         path.write_text(
             '[tool.setuptools_scm]\ngit_describe_command = ["git", "describe", "--match", '
-            f'"v{package.ctk_target}.*"]\n',
+            f'"v{package.cuda_major}.*"]\n',
             encoding="utf-8",
         )
     meta = root / "cuda_python" / "pyproject.toml"
     meta.parent.mkdir()
     meta.write_text(
-        '[tool.cuda-python.scm-describe-match-by-major]\n"12" = "v12.9.*"\n"13" = "v13.4.*"\n',
+        '[tool.cuda-python.scm-describe-match-by-major]\n"12" = "v12.*"\n"13" = "v13.*"\n',
         encoding="utf-8",
     )
     core = root / "cuda_core"
@@ -61,12 +61,12 @@ def _write_package_metadata(root):
     ),
 )
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_metadata_check_catches_selectors_drifting_from_the_registered_line(tmp_path, changed_paths):
+def test_metadata_check_catches_selectors_drifting_from_the_registered_major(tmp_path, changed_paths):
     config = _write_package_metadata(tmp_path)
     check_package_metadata(config, tmp_path)
     for relative in changed_paths:
         path = tmp_path / relative
-        path.write_text(path.read_text().replace("v13.4.*", "v13.5.*"), encoding="utf-8")
+        path.write_text(path.read_text().replace("v13.*", "v14.*"), encoding="utf-8")
 
     with pytest.raises(ValueError):
         check_package_metadata(config, tmp_path)
