@@ -46,5 +46,5 @@ issues = "https://github.com/NVIDIA/cuda-python/issues/"
 # from its SCM version. Keep these selectors aligned with the bindings roots;
 # check-bindings-config verifies them against ci/versions.yml.
 [tool.cuda-python.scm-describe-match-by-major]
-"12" = "v12.9.*"
-"13" = "v13.4.*"
+"12" = "v12.*"
+"13" = "v13.*"
