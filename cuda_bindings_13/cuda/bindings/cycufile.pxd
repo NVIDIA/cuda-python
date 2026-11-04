@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f9f241649c57abeccbf6b668c54cbeaa1c2fa990ff783bfc114b617a7773aba
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4debd6e4ce762ec2cea6afca48974930c3d6972b4403bd1212825c7f839c8839
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -114,6 +115,7 @@ cdef extern from 'cufile.h':
         CU_FILE_NVME_P2P_SUPPORTED
         CU_FILE_SCATEFS_SUPPORTED
         CU_FILE_VIRTIOFS_SUPPORTED
+        CU_FILE_PANFS_SUPPORTED
         CU_FILE_MAX_TARGET_TYPES
 
 cdef extern from 'cufile.h':

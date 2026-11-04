@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=51aa8097269246ec75ca06d0fd4f4ba97a110908146a66dfed09997c052406f3
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1100d14bd3dea3d6880407efaa32281cffedbfd0237994e8a01fb792e5ab1e37
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -3324,6 +3325,7 @@ class DriverStatusFlags(_cyb_FastEnum):
     NVME_P2P_SUPPORTED = (CU_FILE_NVME_P2P_SUPPORTED, 'Do not use this macro. This is deprecated now')
     SCATEFS_SUPPORTED = (CU_FILE_SCATEFS_SUPPORTED, 'Support for ScateFS')
     VIRTIOFS_SUPPORTED = (CU_FILE_VIRTIOFS_SUPPORTED, 'Support for VirtioFS')
+    PANFS_SUPPORTED = (CU_FILE_PANFS_SUPPORTED, 'Support for PanFS')
     MAX_TARGET_TYPES = (CU_FILE_MAX_TARGET_TYPES, 'Maximum FS supported')
 
 class DriverControlFlags(_cyb_FastEnum):

@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d8933fb727fe70e6c790346a9c502409553a5f982b92288b6044a85229e6ce48
+# This code was automatically generated across versions from 12.0.1 to 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=90f0855f2c44ec303ab33a7a295adc1f822fd7458bdb6687d67cee0a23e016c4
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -323,6 +324,9 @@ cpdef compile_program(intptr_t prog, int num_options, options):
       architectures (compute capability compute_100 or greater). Using this option
       implies that the operations in incoming ``prog`` are compliant with targeted
       PTX version. If not set, highest available PTX version is used.
+    - -nvvm-latest Use the most recent LLVM-based NVVM release. Previews this newer
+      NVVM on all GPU architectures. No-op for Blackwell and later where it is
+      already the default.
 
     Args:
         prog (intptr_t): NVVM program.
@@ -453,7 +457,7 @@ cpdef int llvm_version(arch) except? 0:
         arch (str): Architecture string.
 
     Returns:
-        int: IR version number.
+        int: LLVM IR version number.
 
     .. seealso:: `nvvmLLVMVersion`
     """

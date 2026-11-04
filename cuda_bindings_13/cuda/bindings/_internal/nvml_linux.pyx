@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d9fb0bf1d20a4742bc4fc5592772f41b04cdf47d403545f57cfbd6644724a7f4
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ee7b19dfb38ccc03dd526b35dc77d344bf068658c92c0d5095a5b363b93c659e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -434,6 +435,14 @@ cdef void* __nvmlEventSetGetContextInfo_v1 = NULL
 cdef void* __nvmlEventSetGetContextData_v1 = NULL
 cdef void* __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = NULL
 cdef void* __nvmlDeviceGetBankRemapperStatus_v1 = NULL
+cdef void* __nvmlDeviceGetGpuUptime_v1 = NULL
+cdef void* __nvmlSystemGetConfComputeSettings_v2 = NULL
+cdef void* __nvmlDeviceGetNvLinkInfo_v3 = NULL
+cdef void* __nvmlDeviceGetNvlinkRemapTableInfo_v1 = NULL
+cdef void* __nvmlDeviceSetNvlinkNvleReady_v1 = NULL
+cdef void* __nvmlDeviceLockNvlinkRemapTable_v1 = NULL
+cdef void* __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 = NULL
+cdef void* __nvmlDeviceGetNvlinkNvlePrivateInfo_v1 = NULL
 
 cdef int _init_nvml() except -1 nogil:
     global _cyb___py_nvml_init
@@ -3031,6 +3040,62 @@ cdef int _init_nvml() except -1 nogil:
                 handle = load_library()
             __nvmlDeviceGetBankRemapperStatus_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetBankRemapperStatus_v1')
 
+        global __nvmlDeviceGetGpuUptime_v1
+        __nvmlDeviceGetGpuUptime_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetGpuUptime_v1')
+        if __nvmlDeviceGetGpuUptime_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetGpuUptime_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetGpuUptime_v1')
+
+        global __nvmlSystemGetConfComputeSettings_v2
+        __nvmlSystemGetConfComputeSettings_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlSystemGetConfComputeSettings_v2')
+        if __nvmlSystemGetConfComputeSettings_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlSystemGetConfComputeSettings_v2 = _cyb_dlsym(handle, 'nvmlSystemGetConfComputeSettings_v2')
+
+        global __nvmlDeviceGetNvLinkInfo_v3
+        __nvmlDeviceGetNvLinkInfo_v3 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvLinkInfo_v3')
+        if __nvmlDeviceGetNvLinkInfo_v3 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetNvLinkInfo_v3 = _cyb_dlsym(handle, 'nvmlDeviceGetNvLinkInfo_v3')
+
+        global __nvmlDeviceGetNvlinkRemapTableInfo_v1
+        __nvmlDeviceGetNvlinkRemapTableInfo_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvlinkRemapTableInfo_v1')
+        if __nvmlDeviceGetNvlinkRemapTableInfo_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetNvlinkRemapTableInfo_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetNvlinkRemapTableInfo_v1')
+
+        global __nvmlDeviceSetNvlinkNvleReady_v1
+        __nvmlDeviceSetNvlinkNvleReady_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetNvlinkNvleReady_v1')
+        if __nvmlDeviceSetNvlinkNvleReady_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceSetNvlinkNvleReady_v1 = _cyb_dlsym(handle, 'nvmlDeviceSetNvlinkNvleReady_v1')
+
+        global __nvmlDeviceLockNvlinkRemapTable_v1
+        __nvmlDeviceLockNvlinkRemapTable_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceLockNvlinkRemapTable_v1')
+        if __nvmlDeviceLockNvlinkRemapTable_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceLockNvlinkRemapTable_v1 = _cyb_dlsym(handle, 'nvmlDeviceLockNvlinkRemapTable_v1')
+
+        global __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1
+        __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceSetupNvlinkNvleEncryptionKey_v1')
+        if __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 = _cyb_dlsym(handle, 'nvmlDeviceSetupNvlinkNvleEncryptionKey_v1')
+
+        global __nvmlDeviceGetNvlinkNvlePrivateInfo_v1
+        __nvmlDeviceGetNvlinkNvlePrivateInfo_v1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvmlDeviceGetNvlinkNvlePrivateInfo_v1')
+        if __nvmlDeviceGetNvlinkNvlePrivateInfo_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetNvlinkNvlePrivateInfo_v1 = _cyb_dlsym(handle, 'nvmlDeviceGetNvlinkNvlePrivateInfo_v1')
+
         _cyb_atomic_int_store(<int *>&_cyb___py_nvml_init, 1)
         return 0
 
@@ -4157,6 +4222,30 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceGetBankRemapperStatus_v1
     data["__nvmlDeviceGetBankRemapperStatus_v1"] = <intptr_t>__nvmlDeviceGetBankRemapperStatus_v1
+
+    global __nvmlDeviceGetGpuUptime_v1
+    data["__nvmlDeviceGetGpuUptime_v1"] = <intptr_t>__nvmlDeviceGetGpuUptime_v1
+
+    global __nvmlSystemGetConfComputeSettings_v2
+    data["__nvmlSystemGetConfComputeSettings_v2"] = <intptr_t>__nvmlSystemGetConfComputeSettings_v2
+
+    global __nvmlDeviceGetNvLinkInfo_v3
+    data["__nvmlDeviceGetNvLinkInfo_v3"] = <intptr_t>__nvmlDeviceGetNvLinkInfo_v3
+
+    global __nvmlDeviceGetNvlinkRemapTableInfo_v1
+    data["__nvmlDeviceGetNvlinkRemapTableInfo_v1"] = <intptr_t>__nvmlDeviceGetNvlinkRemapTableInfo_v1
+
+    global __nvmlDeviceSetNvlinkNvleReady_v1
+    data["__nvmlDeviceSetNvlinkNvleReady_v1"] = <intptr_t>__nvmlDeviceSetNvlinkNvleReady_v1
+
+    global __nvmlDeviceLockNvlinkRemapTable_v1
+    data["__nvmlDeviceLockNvlinkRemapTable_v1"] = <intptr_t>__nvmlDeviceLockNvlinkRemapTable_v1
+
+    global __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1
+    data["__nvmlDeviceSetupNvlinkNvleEncryptionKey_v1"] = <intptr_t>__nvmlDeviceSetupNvlinkNvleEncryptionKey_v1
+
+    global __nvmlDeviceGetNvlinkNvlePrivateInfo_v1
+    data["__nvmlDeviceGetNvlinkNvlePrivateInfo_v1"] = <intptr_t>__nvmlDeviceGetNvlinkNvlePrivateInfo_v1
     _cyb_func_ptrs = data
     return data
 
@@ -7877,3 +7966,83 @@ cdef nvmlReturn_t _nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlE
             raise FunctionNotFoundError("function nvmlDeviceGetBankRemapperStatus_v1 is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEccBankRemapperStatus_v1_t*) noexcept nogil>__nvmlDeviceGetBankRemapperStatus_v1)(
         device, pBankRemapperStatus)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetGpuUptime_v1(nvmlDevice_t device, nvmlGpuUptime_v1_t* uptime) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetGpuUptime_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetGpuUptime_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetGpuUptime_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlGpuUptime_v1_t*) noexcept nogil>__nvmlDeviceGetGpuUptime_v1)(
+        device, uptime)
+
+
+cdef nvmlReturn_t _nvmlSystemGetConfComputeSettings_v2(nvmlSystemConfComputeSettings_v2_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlSystemGetConfComputeSettings_v2
+    _check_or_init_nvml()
+    if __nvmlSystemGetConfComputeSettings_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlSystemGetConfComputeSettings_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlSystemConfComputeSettings_v2_t*) noexcept nogil>__nvmlSystemGetConfComputeSettings_v2)(
+        settings)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkInfo_v3(nvmlDevice_t device, nvmlNvLinkInfo_v3_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvLinkInfo_v3
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvLinkInfo_v3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvLinkInfo_v3 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvLinkInfo_v3_t*) noexcept nogil>__nvmlDeviceGetNvLinkInfo_v3)(
+        device, info)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvlinkRemapTableInfo_v1(nvmlDevice_t device, nvmlNvlinkGetRemapTableInfo_v1_t* remapTableInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvlinkRemapTableInfo_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvlinkRemapTableInfo_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvlinkRemapTableInfo_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkGetRemapTableInfo_v1_t*) noexcept nogil>__nvmlDeviceGetNvlinkRemapTableInfo_v1)(
+        device, remapTableInfo)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetNvlinkNvleReady_v1(nvmlDevice_t device, nvmlNvlinkSetNvleReady_v1_t* setNvleReady) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetNvlinkNvleReady_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetNvlinkNvleReady_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetNvlinkNvleReady_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkSetNvleReady_v1_t*) noexcept nogil>__nvmlDeviceSetNvlinkNvleReady_v1)(
+        device, setNvleReady)
+
+
+cdef nvmlReturn_t _nvmlDeviceLockNvlinkRemapTable_v1(nvmlDevice_t device, nvmlNvlinkLockRemapTable_v1_t* remapTableLockInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceLockNvlinkRemapTable_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceLockNvlinkRemapTable_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceLockNvlinkRemapTable_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkLockRemapTable_v1_t*) noexcept nogil>__nvmlDeviceLockNvlinkRemapTable_v1)(
+        device, remapTableLockInfo)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetupNvlinkNvleEncryptionKey_v1(nvmlDevice_t device, nvmlNvlinkSetupNvleEncryptionKey_v1_t* encryptionKey) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkSetupNvleEncryptionKey_v1_t*) noexcept nogil>__nvmlDeviceSetupNvlinkNvleEncryptionKey_v1)(
+        device, encryptionKey)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvlinkNvlePrivateInfo_v1(nvmlDevice_t device, nvmlNvlinkNvlePrivateInfo_v1_t* privateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvlinkNvlePrivateInfo_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvlinkNvlePrivateInfo_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvlinkNvlePrivateInfo_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkNvlePrivateInfo_v1_t*) noexcept nogil>__nvmlDeviceGetNvlinkNvlePrivateInfo_v1)(
+        device, privateInfo)

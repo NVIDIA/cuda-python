@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f5af75e5d248a615a2165cbd490ef48486c2b9e3a3957aec27050eda3de5f329
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=199f4fd7d30daf94bbc8db51d748556933c2a21335d59171b053b4f0a95300a1
 from ._internal cimport nvml as _nvml
 
 
@@ -1490,3 +1491,35 @@ cdef nvmlReturn_t nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEven
 
 cdef nvmlReturn_t nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlEccBankRemapperStatus_v1_t* pBankRemapperStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDeviceGetBankRemapperStatus_v1(device, pBankRemapperStatus)
+
+
+cdef nvmlReturn_t nvmlDeviceGetGpuUptime_v1(nvmlDevice_t device, nvmlGpuUptime_v1_t* uptime) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetGpuUptime_v1(device, uptime)
+
+
+cdef nvmlReturn_t nvmlSystemGetConfComputeSettings_v2(nvmlSystemConfComputeSettings_v2_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlSystemGetConfComputeSettings_v2(settings)
+
+
+cdef nvmlReturn_t nvmlDeviceGetNvLinkInfo_v3(nvmlDevice_t device, nvmlNvLinkInfo_v3_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetNvLinkInfo_v3(device, info)
+
+
+cdef nvmlReturn_t nvmlDeviceGetNvlinkRemapTableInfo_v1(nvmlDevice_t device, nvmlNvlinkGetRemapTableInfo_v1_t* remapTableInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetNvlinkRemapTableInfo_v1(device, remapTableInfo)
+
+
+cdef nvmlReturn_t nvmlDeviceSetNvlinkNvleReady_v1(nvmlDevice_t device, nvmlNvlinkSetNvleReady_v1_t* setNvleReady) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetNvlinkNvleReady_v1(device, setNvleReady)
+
+
+cdef nvmlReturn_t nvmlDeviceLockNvlinkRemapTable_v1(nvmlDevice_t device, nvmlNvlinkLockRemapTable_v1_t* remapTableLockInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceLockNvlinkRemapTable_v1(device, remapTableLockInfo)
+
+
+cdef nvmlReturn_t nvmlDeviceSetupNvlinkNvleEncryptionKey_v1(nvmlDevice_t device, nvmlNvlinkSetupNvleEncryptionKey_v1_t* encryptionKey) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetupNvlinkNvleEncryptionKey_v1(device, encryptionKey)
+
+
+cdef nvmlReturn_t nvmlDeviceGetNvlinkNvlePrivateInfo_v1(nvmlDevice_t device, nvmlNvlinkNvlePrivateInfo_v1_t* privateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetNvlinkNvlePrivateInfo_v1(device, privateInfo)
