@@ -263,37 +263,36 @@ cdef int _raise_last_error() except -1:
     )
 
 
-cdef inline int _attach_note(exc, str detail) except -1:
-    # PEP 678 notes (Python 3.11+) keep the detail separable from the message;
-    # older interpreters get it appended to the message instead.
-    add_note = getattr(exc, "add_note", None)
-    if add_note is not None:
-        add_note(detail)
-    else:
-        exc.args = (f"{exc.args[0]} ({detail})", *exc.args[1:])
-    return 0
-
-
 cdef int _raise_last_error_noting(str detail) except -1:
     """Raise the status a handle factory recorded, with ``detail`` attached as a note."""
     try:
         _raise_last_error()
     except Exception as exc:
-        _attach_note(exc, detail)
+        exc.add_note(detail)
         raise
     return 0
 
 
-cdef int _raise_allocation_error(const cydriver.CUmemAllocationProp* prop) except -1:
-    """Raise the status of a failed physical allocation; a fabric resource gets the IMEX note."""
-    if prop.requestedHandleTypes == cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
-        _raise_last_error_noting(
+cdef int _raise_allocation_error(
+    cydriver.CUresult status, cydriver.CUmemAllocationHandleType requested_handle_types
+) except -1:
+    """Raise a physical-allocation failure, noting possible fabric configuration errors."""
+    if (requested_handle_types == cydriver.CU_MEM_HANDLE_TYPE_FABRIC
+            and status in (cydriver.CUDA_ERROR_NOT_PERMITTED,
+                           cydriver.CUDA_ERROR_NOT_SUPPORTED,
+                           cydriver.CUDA_ERROR_INVALID_VALUE)):
+        _check_noting(
+            status,
             "while creating a physical allocation with a fabric handle; fabric handles need an NVLink fabric "
             "and an accessible IMEX channel, and a device can report support while the allocation is refused "
             "(the attribute does not check for an NVLink fabric, and older drivers do not check for an IMEX "
             "channel)"
         )
-    return _raise_last_error()
+    HANDLE_RETURN(status)
+    raise RuntimeError(
+        "internal cuda.core error, please report: a physical allocation factory "
+        "returned an empty handle without recording a CUDA error"
+    )
 
 
 cdef int _check_noting(cydriver.CUresult status, str detail) except -1:
@@ -303,7 +302,7 @@ cdef int _check_noting(cydriver.CUresult status, str detail) except -1:
     try:
         HANDLE_RETURN(status)
     except Exception as exc:
-        _attach_note(exc, detail)
+        exc.add_note(detail)
         raise
     return 0
 
@@ -740,7 +739,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         with nogil:
             h_alloc = create_mem_allocation_handle(aligned, prop, descs.data(), descs.size())
         if not h_alloc:
-            _raise_allocation_error(&prop)
+            _raise_allocation_error(get_last_error(), prop.requestedHandleTypes)
         with nogil:
             h_res = create_va_reservation_handle(aligned, addr_align, hint)
         if not h_res:
@@ -893,7 +892,7 @@ cdef class VirtualMemoryResource(MemoryResource):
             with nogil:
                 h_alloc = create_mem_allocation_handle(add, prop, descs.data(), descs.size())
             if not h_alloc:
-                _raise_allocation_error(&prop)
+                _raise_allocation_error(get_last_error(), prop.requestedHandleTypes)
             with nogil:
                 h_map = create_va_mapping_handle(base + total, h_alloc, h_res)
             if not h_map:
@@ -926,7 +925,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         with nogil:
             h_alloc = create_mem_allocation_handle(add, prop, descs.data(), descs.size())
         if not h_alloc:
-            _raise_allocation_error(&prop)
+            _raise_allocation_error(get_last_error(), prop.requestedHandleTypes)
         with nogil:
             m2 = create_va_mapping_handle(base_new + offset, h_alloc, h_res_new)
         if not m2:
@@ -1044,7 +1043,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         handle_type = int(VirtualMemoryResourceOptions._handle_type_to_driver(cfg.handle_type))
-        if desc._handle_type != handle_type:
+        if desc.driver_handle_type() != handle_type:
             raise ValueError(
                 "the descriptor's handle type does not match this resource's "
                 f"handle_type={str(cfg.handle_type)!r}; import it with a resource configured like the exporter's"
@@ -1282,4 +1281,4 @@ cdef _VirtualMemoryDescriptor _export_ipc_descriptor(Buffer buf):
     if handle_type == <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC:
         return VirtualMemoryFabricBufferDescriptor._from_exports(
             tuple(sizes), tuple(handles), buf._size, mr.device.uuid)
-    return VirtualMemoryFdBufferDescriptor._from_exports(handle_type, tuple(sizes), tuple(handles), buf._size)
+    return VirtualMemoryFdBufferDescriptor._from_exports(tuple(sizes), tuple(handles), buf._size)

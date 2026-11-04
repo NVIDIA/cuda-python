@@ -216,7 +216,7 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
         else:
             # The VMM descriptor carries the exported handles and their sizes;
             # forge only the buffer size.
-            oversized = type(desc)._from_exports(desc._handle_type, desc._chunk_sizes, desc._handles, desc.size * 100)
+            oversized = type(desc)._from_exports(desc._chunk_sizes, desc._handles, desc.size * 100)
         stream.sync()
         queue.put(oversized)
 

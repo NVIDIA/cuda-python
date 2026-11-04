@@ -187,15 +187,19 @@ cdef class _VirtualMemoryDescriptor(IPCBufferDescriptor):
         """The export handle type; the importing resource must use the same type."""
         from cuda.core._memory._virtual_memory_resource import VirtualMemoryResourceOptions
 
+        handle_type = self.driver_handle_type()
         for spec, value in VirtualMemoryResourceOptions._handle_types.items():
-            if spec is not None and int(value) == self._handle_type:
+            if spec is not None and int(value) == handle_type:
                 return spec
-        raise ValueError(f"the descriptor carries an unknown handle type ({self._handle_type})")
+        raise ValueError(f"the descriptor carries an unknown handle type ({handle_type})")
 
     @property
     def sizes(self) -> tuple[int, ...]:
         """Size of each physical allocation, in address order; the sum is at least ``size``."""
         return self._chunk_sizes
+
+    cdef int driver_handle_type(self) except -1:
+        raise NotImplementedError("a concrete VMM descriptor is required")
 
     cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
         raise NotImplementedError("a concrete VMM descriptor is required")
@@ -237,13 +241,12 @@ cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
 
     @staticmethod
     def _from_exports(
-        handle_type: int, chunk_sizes: tuple[int, ...], handles: tuple, size: int
+        chunk_sizes: tuple[int, ...], handles: tuple, size: int
     ) -> VirtualMemoryFdBufferDescriptor:
         cdef VirtualMemoryFdBufferDescriptor self = VirtualMemoryFdBufferDescriptor.__new__(
             VirtualMemoryFdBufferDescriptor)
         self._payload = b""
         self._size = size
-        self._handle_type = handle_type
         self._chunk_sizes = tuple(chunk_sizes)
         self._handles = tuple(handles)
         return self
@@ -288,7 +291,6 @@ cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
         OSError
             If an ``int`` is not an open file descriptor.
         """
-        cdef int driver_type = <int>cydriver.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
         cdef tuple sizes_t = tuple(operator.index(n) for n in sizes)
         cdef list given = list(fds)
         if len(given) != len(sizes_t):
@@ -315,7 +317,10 @@ cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
                 raise
             # The handle owns the duplicate now; if append fails, the handle closes it once.
             handles.append(handle)
-        return VirtualMemoryFdBufferDescriptor._from_exports(driver_type, sizes_t, tuple(handles), size)
+        return VirtualMemoryFdBufferDescriptor._from_exports(sizes_t, tuple(handles), size)
+
+    cdef int driver_handle_type(self) except -1:
+        return <int>cydriver.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
 
     cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
         # fd zero is valid, so NULL is a valid result unless an exception is set.
@@ -344,7 +349,7 @@ cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
     def __reduce__(self) -> tuple[object, ...]:
         # multiprocessing duplicates the IPCAllocationHandle fds into the receiver; plain pickle raises.
         return VirtualMemoryFdBufferDescriptor._from_exports, (
-            self._handle_type, self._chunk_sizes, self._handles, self._size)
+            self._chunk_sizes, self._handles, self._size)
 
 
 cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
@@ -419,7 +424,6 @@ cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
             raise ValueError(f"size {size} is outside 0..{total}, the sum of the allocation sizes")
         cdef VirtualMemoryFabricBufferDescriptor self = VirtualMemoryFabricBufferDescriptor.__new__(cls)
         self._payload = b""
-        self._handle_type = <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC
         self._chunk_sizes = sizes_t
         self._handles = handles_t
         self._size = size
@@ -435,6 +439,9 @@ cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
     def owner_uuid(self) -> str | None:
         """The exporting device's UUID, if supplied by the exporter."""
         return self._owner_uuid
+
+    cdef int driver_handle_type(self) except -1:
+        return <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC
 
     cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
         cdef bytes handle = self._handles[i]

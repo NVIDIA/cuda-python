@@ -60,7 +60,6 @@ class IPCAllocationHandle:
 
 class _VirtualMemoryDescriptor(IPCBufferDescriptor):
     """Common allocation layout and driver-handle interface for VMM descriptors."""
-    _handle_type: int
     _chunk_sizes: tuple[Any, ...]
 
     @property
@@ -106,7 +105,7 @@ class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
     _handles: tuple[Any, ...]
 
     @staticmethod
-    def _from_exports(handle_type: int, chunk_sizes: tuple[int, ...], handles: tuple[Any, ...], size: int) -> VirtualMemoryFdBufferDescriptor: ...
+    def _from_exports(chunk_sizes: tuple[int, ...], handles: tuple[Any, ...], size: int) -> VirtualMemoryFdBufferDescriptor: ...
     @classmethod
     def from_fds(cls, fds: Iterable[int | IPCAllocationHandle], sizes: Iterable[int], *, size: int | None=None) -> VirtualMemoryFdBufferDescriptor:
         """Build a descriptor from POSIX file descriptors received outside ``multiprocessing``.

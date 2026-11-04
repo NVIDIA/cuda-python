@@ -454,9 +454,9 @@ def _require_vmm_fabric_device(device):
         except CUDAError as exc:
             # Only a refused physical allocation means "no fabric here" (NOT_PERMITTED on the CI runners,
             # INVALID_VALUE on an H200 without an IMEX channel). VirtualMemoryResource attaches its note about
-            # the fabric and IMEX requirements at that stage alone (on Python 3.10 it lands in the message);
+            # the fabric and IMEX requirements at that stage alone;
             # a failure of the reservation, the mapping, or the stream setup is a real error and propagates.
-            if "fabric handle" not in " ".join((str(exc), *getattr(exc, "__notes__", ()))):
+            if "fabric handle" not in " ".join(getattr(exc, "__notes__", ())):
                 raise
             _fabric_allocation_error[device.device_id] = str(exc).split(":", 1)[0]
         finally:
