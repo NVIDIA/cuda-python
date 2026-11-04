@@ -9,6 +9,7 @@ source =
 [run]
 plugins = Cython.Coverage
 core = ctrace
+dynamic_context = test_function
 branch = False
 relative_files = True
 # Cython.Coverage cannot build a FileReporter for .pxd/.pxi (not standalone
