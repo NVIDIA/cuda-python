@@ -1,0 +1,6 @@
+﻿cuda.core.texture.MipmappedArrayOptions
+=======================================
+
+.. currentmodule:: cuda.core.texture
+
+.. autoclass:: MipmappedArrayOptions

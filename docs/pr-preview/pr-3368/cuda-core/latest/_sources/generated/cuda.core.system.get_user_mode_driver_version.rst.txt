@@ -1,0 +1,6 @@
+﻿cuda.core.system.get\_user\_mode\_driver\_version
+=================================================
+
+.. currentmodule:: cuda.core.system
+
+.. autofunction:: get_user_mode_driver_version
