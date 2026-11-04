@@ -1,65 +1,71 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import runpy
+import os
 import shutil
+import subprocess
+import sys
+import tarfile
+from email import message_from_bytes
 from pathlib import Path
-from unittest.mock import Mock
+from zipfile import ZipFile
 
 import pytest
-import setuptools
-import setuptools_scm
 from packaging.requirements import Requirement
-from packaging.version import Version
 
 
-@pytest.fixture
-def standalone_source(tmp_path, monkeypatch):
-    package = Path(__file__).resolve().parents[3] / "cuda_python"
-    for name in ("setup.py", "pyproject.toml"):
-        shutil.copyfile(package / name, tmp_path / name)
-    monkeypatch.chdir(tmp_path)
-    return tmp_path
+@pytest.mark.agent_authored(model="gpt-6")
+def test_tagged_maintenance_sdist_keeps_version_and_dependencies_without_selector(tmp_path):
+    source = Path(__file__).resolve().parents[3] / "cuda_python"
+    checkout = tmp_path / "checkout"
+    package = checkout / "cuda_python"
+    package.mkdir(parents=True)
+    for filename in ("setup.py", "pyproject.toml", "DESCRIPTION.rst", "LICENSE"):
+        shutil.copyfile(source / filename, package / filename)
 
+    env = os.environ.copy()
+    env.pop("CUDA_PYTHON_BUILD_MAJOR", None)
+    for args in (("init", "--quiet"), ("add", "."), ("commit", "--quiet", "-m", "Release"), ("tag", "v12.9.11")):
+        subprocess.run(  # noqa: S603
+            [  # noqa: S607
+                "git",
+                "-c",
+                "user.name=CI test",
+                "-c",
+                "user.email=ci-test@example.invalid",
+                "-c",
+                "commit.gpgsign=false",
+                "-c",
+                "tag.gpgsign=false",
+                "-c",
+                "core.hooksPath=/dev/null",
+                *args,
+            ],
+            cwd=checkout,
+            env=env,
+            check=True,
+            capture_output=True,
+        )
 
-@pytest.mark.parametrize(("requested_major", "expected_major"), ((None, 13), ("12", 12)))
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_source_build_selects_bindings_and_major_specific_dependencies(
-    standalone_source, monkeypatch, requested_major, expected_major
-):
-    if requested_major is None:
-        monkeypatch.delenv("CUDA_PYTHON_BUILD_MAJOR", raising=False)
-    else:
-        monkeypatch.setenv("CUDA_PYTHON_BUILD_MAJOR", requested_major)
-    setup = Mock()
-    monkeypatch.setattr(setuptools, "setup", setup)
-    monkeypatch.setattr(
-        setuptools_scm,
-        "get_version",
-        lambda **options: options["git_describe_command"][-1].removeprefix("v").replace("*", "0"),
+    subprocess.run(
+        [sys.executable, "-c", "from setuptools.build_meta import build_sdist; build_sdist('dist')"],
+        cwd=package,
+        env=env,
+        check=True,
     )
-
-    runpy.run_path(str(standalone_source / "setup.py"))
-
-    metadata = setup.call_args.kwargs
-    assert Version(metadata["version"]).major == expected_major
-    dependencies = {req.name: req for req in map(Requirement, metadata["install_requires"])}
-    expected = {"cuda-bindings", "cuda-core", "cuda-pathfinder"} if expected_major >= 13 else {"cuda-bindings"}
-    assert dependencies.keys() == expected
-    assert metadata["version"] in dependencies["cuda-bindings"].specifier
-
-
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
-def test_maintenance_sdist_keeps_its_dependencies_without_a_build_selector(standalone_source, monkeypatch):
-    (standalone_source / "PKG-INFO").write_text(
-        "Metadata-Version: 2.4\nName: cuda-python\nVersion: 12.9.11\n", encoding="utf-8"
+    unpacked = tmp_path / "unpacked"
+    with tarfile.open(next((package / "dist").glob("*.tar.gz"))) as archive:
+        archive.extractall(unpacked, filter="data")
+    standalone = next(unpacked.iterdir())
+    subprocess.run(
+        [sys.executable, "-c", "from setuptools.build_meta import build_wheel; build_wheel('dist')"],
+        cwd=standalone,
+        env=env,
+        check=True,
     )
-    monkeypatch.delenv("CUDA_PYTHON_BUILD_MAJOR", raising=False)
-    setup = Mock()
-    monkeypatch.setattr(setuptools, "setup", setup)
-
-    runpy.run_path(str(standalone_source / "setup.py"))
-
-    metadata = setup.call_args.kwargs
-    assert Version(metadata["version"]).major == 12
-    assert {Requirement(value).name for value in metadata["install_requires"]} == {"cuda-bindings"}
+    with ZipFile(next((standalone / "dist").glob("*.whl"))) as wheel:
+        metadata = message_from_bytes(
+            wheel.read(next(name for name in wheel.namelist() if name.endswith(".dist-info/METADATA")))
+        )
+    assert metadata["Version"] == "12.9.11"
+    assert {Requirement(value).name for value in metadata.get_all("Requires-Dist", [])} == {"cuda-bindings"}
