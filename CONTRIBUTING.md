@@ -125,14 +125,16 @@ correct.** Packages select tags for their own release line:
 
 | Package | Tag pattern |
 | --- | --- |
-| `cuda-bindings` from `cuda_bindings_12/` | `v12.9.*` (e.g. `v12.9.10`) |
-| `cuda-bindings` from `cuda_bindings_13/` | `v13.4.*` (e.g. `v13.4.2`) |
-| `cuda-python` | The matching bindings selector, chosen with `CUDA_PYTHON_BUILD_MAJOR=12` or `13` (default) |
+| `cuda-bindings` from `cuda_bindings_12/` | `v12.*` (e.g. `v12.9.10`) |
+| `cuda-bindings` from `cuda_bindings_13/` | `v13.*` (e.g. `v13.4.2`) |
+| `cuda-python` | The matching bindings selector, chosen explicitly with `CUDA_PYTHON_BUILD_MAJOR=12` or `13`, or inferred as described below |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
-Git source builds of `cuda-python` default to CUDA 13. Set
-`CUDA_PYTHON_BUILD_MAJOR=12` to select CUDA 12, or `13` explicitly for CUDA 13.
+Git source builds of `cuda-python` honor `CUDA_PYTHON_BUILD_MAJOR=12` or `13`
+when set. Without it, an exact `v12.*` tag at `HEAD` selects CUDA 12 when no
+`v13.*` tag points to that commit. Untagged commits and commits tagged for
+both majors default to CUDA 13.
 The resolved version determines dependencies: CUDA 12 depends on matching
 bindings, while CUDA 13 also depends on Core and Pathfinder. A standalone
 sdist retains its version and dependency major without requiring this variable.
