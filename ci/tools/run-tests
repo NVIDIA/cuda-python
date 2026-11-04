@@ -99,13 +99,15 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     BINDINGS_FLOOR="$(python ci/tools/cuda_core_bindings_floor.py --wheel "${CORE_WHL_FOR_FLOOR[0]}" --major "${TEST_CUDA_MAJOR}")"
     echo "cuda-bindings floor of ${CORE_WHL_FOR_FLOOR[0]##*/} for CUDA ${TEST_CUDA_MAJOR}: ${BINDINGS_FLOOR}"
     BINDINGS_FLOOR_MINOR="$(cut -d '.' -f 2 <<< "${BINDINGS_FLOOR}")"
-    if [[ "${test_module}" == "core" && "${TEST_CUDA_MAJOR}" == "${BUILD_CUDA_MAJOR}" && "${BINDINGS_FLOOR_MINOR}" -lt "${BUILD_CUDA_MINOR}" ]]; then
+    if [[ "${test_module}" != "nightly-cuda-core" && "${TEST_CUDA_MAJOR}" == "${BUILD_CUDA_MAJOR}" && "${BINDINGS_FLOOR_MINOR}" -lt "${BUILD_CUDA_MINOR}" ]]; then
       # Every CTK minor bump (see "CUDA Toolkit minor bumps" in
       # cuda_core/AGENTS.md) opens a window in which the floor's minor is below
       # the minor the wheel was compiled against. No released cuda-bindings
       # at the floor can pass cuda.core's header check then, because it was
       # generated from older headers. Use the cuda-bindings built from this
-      # commit instead. The branch is taken exactly while that window is open
+      # commit for local cuda.core tests, including nightly modes. The
+      # released-core nightly keeps the floor because it tests another build.
+      # The branch is taken exactly while that window is open
       # and stops being taken once the floor is bumped to the new minor, so it
       # needs no per-release edit or revert.
       echo "Floor ${BINDINGS_FLOOR} predates CUDA ${BUILD_CUDA_MAJOR}.${BUILD_CUDA_MINOR} headers; using the just-built cuda-bindings wheel"
