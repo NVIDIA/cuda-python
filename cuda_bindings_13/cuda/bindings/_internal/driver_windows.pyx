@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=407fc621da7a0e722426cccfd66003e6769c32bc671f8ff28cf6fe979ed11b1a
+# This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2859d063dea4ba56ba991a2551674bc33ec3dbf76e31b64e4004e0555d16e3d8
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -592,6 +593,8 @@ cdef void* __cuMemGetLocationInfo = NULL
 cdef void* __cuGraphAddNode_v3 = NULL
 cdef void* __cuGraphNodeSetParams_v2 = NULL
 cdef void* __cuCheckpointOperationComplete = NULL
+cdef void* __cuFabricCpyBatchAsync = NULL
+cdef void* __cuTensorMapSetAllocationClass = NULL
 
 cdef int _init_driver() except -1 nogil:
     global _cyb___py_driver_init
@@ -2186,6 +2189,12 @@ cdef int _init_driver() except -1 nogil:
         global __cuCheckpointOperationComplete
         cuGetProcAddress_v2('cuCheckpointOperationComplete', <void **>&__cuCheckpointOperationComplete, 13041, ptds_mode, NULL)
 
+        global __cuFabricCpyBatchAsync
+        cuGetProcAddress_v2('cuFabricCpyBatchAsync', <void **>&__cuFabricCpyBatchAsync, 13050, ptds_mode, NULL)
+
+        global __cuTensorMapSetAllocationClass
+        cuGetProcAddress_v2('cuTensorMapSetAllocationClass', <void **>&__cuTensorMapSetAllocationClass, 13050, ptds_mode, NULL)
+
         _cyb_atomic_int_store(<int *>&_cyb___py_driver_init, 1)
         return 0
 
@@ -3774,6 +3783,12 @@ cpdef dict _inspect_function_pointers():
 
     global __cuCheckpointOperationComplete
     data["__cuCheckpointOperationComplete"] = <intptr_t>__cuCheckpointOperationComplete
+
+    global __cuFabricCpyBatchAsync
+    data["__cuFabricCpyBatchAsync"] = <intptr_t>__cuFabricCpyBatchAsync
+
+    global __cuTensorMapSetAllocationClass
+    data["__cuTensorMapSetAllocationClass"] = <intptr_t>__cuTensorMapSetAllocationClass
     _cyb_func_ptrs = data
     return data
 
@@ -9034,3 +9049,23 @@ cdef CUresult _cuCheckpointOperationComplete(CUcheckpointOperationHandle handle)
             raise FunctionNotFoundError("function cuCheckpointOperationComplete is not found")
     return (<CUresult (*)(CUcheckpointOperationHandle) noexcept nogil>__cuCheckpointOperationComplete)(
         handle)
+
+
+cdef CUresult _cuFabricCpyBatchAsync(size_t numOps, CUDA_FABRIC_COPY_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuFabricCpyBatchAsync
+    _check_or_init_driver()
+    if __cuFabricCpyBatchAsync == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFabricCpyBatchAsync is not found")
+    return (<CUresult (*)(size_t, CUDA_FABRIC_COPY_BATCH_OP*, unsigned long long, CUstream) noexcept nogil>__cuFabricCpyBatchAsync)(
+        numOps, opList, flags, hStream)
+
+
+cdef CUresult _cuTensorMapSetAllocationClass(CUtensorMap* tensorMap, CUtensorMapAllocClass allocClass, CUtensorMapAllocClass* outAllocClass) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuTensorMapSetAllocationClass
+    _check_or_init_driver()
+    if __cuTensorMapSetAllocationClass == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuTensorMapSetAllocationClass is not found")
+    return (<CUresult (*)(CUtensorMap*, CUtensorMapAllocClass, CUtensorMapAllocClass*) noexcept nogil>__cuTensorMapSetAllocationClass)(
+        tensorMap, allocClass, outAllocClass)

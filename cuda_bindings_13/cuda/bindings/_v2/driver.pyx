@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2aeb6615dc0c6ffb24ee43dc713535be3e3dca8dcf13c42bdc7d3a1cf3326c11
+# This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b49a013d828d765cf31540fe63c42d8d68eace7302cdc0fc42b4c59d44743442
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -592,6 +593,8 @@ class DeviceAttribute(_cyb_FastEnum):
     LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED, 'Device supports unicast logical endpoint access on the owner device')
     LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT, 'Number of multiprocessors on each locality domain')
     LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES, 'Handle types supported with logical endpoint IPC')
+    VULKAN_CIG_STREAMS_SUPPORTED = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED, 'Device supports CIG streams with Vulkan')
+    TENSOR_MAP_LARGE_TENSOR_MIN_SIZE = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE, 'Minimum contiguous, accessible size in bytes required when the large tensor-map allocation class is effective. Devices with a 128 KiB backing precondition report 131072; devices where allocation-class selection is a no-op report INT_MAX.')
     GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED, 'Device supports GPUDirect RDMA with localized memory using the default RDMA mapping link')
     MAX = cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX
 
@@ -765,7 +768,7 @@ class JitOption(_cyb_FastEnum):
     REFERENCED_VARIABLE_NAMES = (cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_NAMES, '[Deprecated]  Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0')
     REFERENCED_VARIABLE_COUNT = (cydriver.CUjit_option_enum.CU_JIT_REFERENCED_VARIABLE_COUNT, '[Deprecated]  Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0')
     OPTIMIZE_UNUSED_DEVICE_VARIABLES = (cydriver.CUjit_option_enum.CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, '[Deprecated]  Only valid with LTO-IR compiled with toolkits prior to CUDA 12.0')
-    POSITION_INDEPENDENT_CODE = (cydriver.CUjit_option_enum.CU_JIT_POSITION_INDEPENDENT_CODE, 'Generate position independent code (0: false) Option type: int Applies to: compiler only')
+    POSITION_INDEPENDENT_CODE = (cydriver.CUjit_option_enum.CU_JIT_POSITION_INDEPENDENT_CODE, '[Deprecated]')
     MIN_CTA_PER_SM = (cydriver.CUjit_option_enum.CU_JIT_MIN_CTA_PER_SM, 'This option hints to the JIT compiler the minimum number of CTAs from the kernel’s grid to be mapped to a SM. This option is ignored when used together with `CU_JIT_MAX_REGISTERS` or `CU_JIT_THREADS_PER_BLOCK`. Optimizations based on this option need `CU_JIT_MAX_THREADS_PER_BLOCK` to be specified as well. For kernels already using PTX directive .minnctapersm, this option will be ignored by default. Use `CU_JIT_OVERRIDE_DIRECTIVE_VALUES` to let this option take precedence over the PTX directive. Option type: unsigned int Applies to: compiler only')
     MAX_THREADS_PER_BLOCK = (cydriver.CUjit_option_enum.CU_JIT_MAX_THREADS_PER_BLOCK, 'Maximum number threads in a thread block, computed as the product of the maximum extent specifed for each dimension of the block. This limit is guaranteed not to be exeeded in any invocation of the kernel. Exceeding the the maximum number of threads results in runtime error or kernel launch failure. For kernels already using PTX directive .maxntid, this option will be ignored by default. Use `CU_JIT_OVERRIDE_DIRECTIVE_VALUES` to let this option take precedence over the PTX directive. Option type: int Applies to: compiler only')
     OVERRIDE_DIRECTIVE_VALUES = (cydriver.CUjit_option_enum.CU_JIT_OVERRIDE_DIRECTIVE_VALUES, 'This option lets the values specified using `CU_JIT_MAX_REGISTERS`, `CU_JIT_THREADS_PER_BLOCK`, `CU_JIT_MAX_THREADS_PER_BLOCK` and `CU_JIT_MIN_CTA_PER_SM` take precedence over any PTX directives. (0: Disable, default; 1: Enable) Option type: int Applies to: compiler only')
@@ -956,7 +959,10 @@ class GraphNodeType(_cyb_FastEnum):
     MEM_FREE = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEM_FREE, 'Memory Free Node')
     BATCH_MEM_OP = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_BATCH_MEM_OP, 'Batch MemOp Node See `cuStreamBatchMemOp` and `CUstreamBatchMemOpType` for what these nodes can do.')
     CONDITIONAL = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_CONDITIONAL, 'Conditional Node                                         May be used to implement a conditional execution path or loop                                         inside of a graph. The graph(s) contained within the body of the conditional node                                         can be selectively executed or iterated upon based on the value of a conditional                                         variable.                                          Handles must be created in advance of creating the node                                         using `cuGraphConditionalHandleCreate`.                                          The following restrictions apply to graphs which contain conditional nodes:                                          The graph cannot be used in a child node.                                          Only one instantiation of the graph may exist at any point in time.                                          The graph cannot be cloned.                                          To set the control value, supply a default value when creating the handle and/or                                         call `cudaGraphSetConditional` from device code.')
+    MEMCPY_BATCH = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEMCPY_BATCH, 'Batch Memcpy Node')
     RESERVED_16 = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_RESERVED_16, 'Reserved')
+    EXTERNAL_ENGINE = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE, 'Reserved for External Engine node')
+    FABRIC_CPY_BATCH = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH, 'Fabric copy batch node')
 
 class GraphDependencyType(_cyb_FastEnum):
     """
@@ -1680,6 +1686,8 @@ class GraphDebugDotFlags(_cyb_FastEnum):
     BATCH_MEM_OP_NODE_PARAMS = (cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS, 'Adds batch mem op node parameters to output')
     EXTRA_TOPO_INFO = (cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO, 'Adds edge numbering information')
     CONDITIONAL_NODE_PARAMS = (cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_CONDITIONAL_NODE_PARAMS, 'Adds conditional node parameters to output')
+    MEMCPY_BATCH_NODE_PARAMS = (cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_BATCH_NODE_PARAMS, 'Adds batch memcpy node parameters to the output')
+    FABRIC_CPY_BATCH_NODE_PARAMS = (cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_FABRIC_CPY_BATCH_NODE_PARAMS, 'Adds fabric copy batch node parameters')
 
 class UserObjectFlags(_cyb_FastEnum):
     """
@@ -1788,6 +1796,7 @@ class CoredumpGenerationFlags(_cyb_FastEnum):
     SKIP_CONSTBANK_MEMORY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_CONSTBANK_MEMORY
     GZIP_COMPRESS = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS
     FAULTED_CONTEXTS_ONLY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY
+    SKIP_TENSOR_MEMORY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_TENSOR_MEMORY
     NO_ERRBAR_AT_EXIT = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT
     LOG_ONLY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_LOG_ONLY
     LIGHTWEIGHT_FLAGS = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
@@ -2057,6 +2066,7 @@ class DevSmResourceGroupFlags(_cyb_FastEnum):
     DEFAULT = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT
     BACKFILL = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL
     LOCALITY_DOMAIN_ID = (cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID, 'The SMs must be located on a specific locality domain, specified by localityDomainId')
+    LOCALITY_DOMAIN_SUPPLEMENTAL_SMS = (cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS, 'Modifier to `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID` which allows selection of SMs in the locality domain exceeding the `CUdevice_attribute`::CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT')
 
 class DevSmResourceSplitByCountFlags(_cyb_FastEnum):
     """
@@ -2109,6 +2119,7 @@ class StreamCigDataType(_cyb_FastEnum):
     See `CUstreamCigDataType`.
     """
     D3D12_COMMAND_LIST = (cydriver.CUstreamCigDataType_enum.STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST, 'D3D12 Command List Handle')
+    VULKAN_COMMAND_BUFFER_HANDLE_NV = (cydriver.CUstreamCigDataType_enum.STREAM_CIG_DATA_TYPE_VULKAN_COMMAND_BUFFER_HANDLE_NV, 'Vulkan Command Buffer Internal NVIDIA Handle')
 
 class LogicalEndpointIpcHandleType(_cyb_FastEnum):
     """
@@ -2117,8 +2128,8 @@ class LogicalEndpointIpcHandleType(_cyb_FastEnum):
 
     See `CUlogicalEndpointIpcHandleType`.
     """
-    NONE = cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE
-    FABRIC = cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC
+    NONE = (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE, 'Does not allow any export mechanism')
+    FABRIC = (cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC, 'Allows export to a fabric handle (`CUlogicalEndpointFabricHandle`)')
 
 class LogicalEndpointType(_cyb_FastEnum):
     """
@@ -2157,6 +2168,35 @@ class CliqueType(_cyb_FastEnum):
     MULTICAST_POINTER = (cydriver.CUcliqueType_enum.CU_CLIQUE_TYPE_MULTICAST_POINTER, 'Multicast pointer clique')
     UNICAST_LOGICAL_ENDPOINT = (cydriver.CUcliqueType_enum.CU_CLIQUE_TYPE_UNICAST_LOGICAL_ENDPOINT, 'Unicast logical endpoint clique')
     MULTICAST_LOGICAL_ENDPOINT = (cydriver.CUcliqueType_enum.CU_CLIQUE_TYPE_MULTICAST_LOGICAL_ENDPOINT, 'Multicast logical endpoint clique')
+
+class TensorMapAllocClass(_cyb_FastEnum):
+    """
+    Tensor-map allocation class. On devices where allocation-class
+    selection affects Tensor Memory Accelerator (TMA) out-of-bounds address
+    generation, this controls the mode encoded in a `CUtensorMap`. The
+    "large" class enables a wider (128 KiB) OOB address-generation window
+    that improves performance but is only safe when the tensor's base
+    allocation is backed by a contiguous, accessible region of at least
+    `CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE` bytes. On
+    devices where allocation-class selection has no effect, all requests
+    have the same SMALL effective behavior.
+
+    See `CUtensorMapAllocClass`.
+    """
+    AUTO = (cydriver.CUtensorMapAllocClass_enum.CU_TENSOR_MAP_ALLOC_CLASS_AUTO, 'Recompute the effective allocation class from the tensor-map layout.')
+    SMALL = (cydriver.CUtensorMapAllocClass_enum.CU_TENSOR_MAP_ALLOC_CLASS_SMALL, 'Request the "small" class (safe 4 KiB OOB window).')
+    LARGE = (cydriver.CUtensorMapAllocClass_enum.CU_TENSOR_MAP_ALLOC_CLASS_LARGE, 'Request the "large" class (128 KiB OOB window); when LARGE is effective, the caller guarantees the effective base allocation is accessible for at least `CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE` bytes before use.')
+
+class FabricCpyOperandType(_cyb_FastEnum):
+    """
+    These flags allow applications to convey the operand type for
+    individual copies specified in `cuFabricCpyBatchAsync`.
+
+    See `CUfabricCpyOperandType`.
+    """
+    POINTER = (cydriver.CUfabricCpyOperandType_enum.CU_FABRIC_COPY_OPERAND_TYPE_POINTER, 'Copy operand is a valid pointer.')
+    LOGICAL_ENDPOINT = (cydriver.CUfabricCpyOperandType_enum.CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT, 'Copy operand is a logical endpoint.')
+    MAX = cydriver.CUfabricCpyOperandType_enum.CU_FABRIC_COPY_OPERAND_TYPE_MAX
 
 ###############################################################################
 # Enums for C preprocessor constants (`#define`), grouped by what they are used for.
@@ -19159,6 +19199,191 @@ cdef class EventRecordNodeParams:
         return obj
 
 
+cdef _get_fabric_cpy_batch_node_params_v1_dtype_offsets():
+    cdef CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 pod
+    return _numpy.dtype({
+        'names': ['num_ops', 'op_list', 'flags_', 'ctx', 'g_ctx'],
+        'formats': [_numpy.uint64, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.numOps)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opList)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1),
+    })
+
+fabric_cpy_batch_node_params_v1_dtype = _get_fabric_cpy_batch_node_params_v1_dtype_offsets()
+
+cdef class FabricCpyBatchNodeParamsV1:
+    """Empty-initialize an instance of `CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1`.
+
+
+    .. seealso:: `CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1`
+    """
+    cdef:
+        CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 *_ptr
+        object _owner
+        bint _owns_ptr
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 *>_cyb_calloc(1, sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating FabricCpyBatchNodeParamsV1")
+        self._owns_ptr = True
+        self._owner = None
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 *ptr
+        if self._owns_ptr and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.FabricCpyBatchNodeParamsV1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef FabricCpyBatchNodeParamsV1 other_
+        if not isinstance(other, FabricCpyBatchNodeParamsV1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This FabricCpyBatchNodeParamsV1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def num_ops(self):
+        """int: """
+        return self._ptr[0].numOps
+
+    @num_ops.setter
+    def num_ops(self, val):
+        if self._readonly:
+            raise ValueError("This FabricCpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].numOps = val
+
+    @property
+    def op_list(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].opList)
+
+    @op_list.setter
+    def op_list(self, val):
+        if self._readonly:
+            raise ValueError("This FabricCpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].opList = <CUDA_FABRIC_COPY_BATCH_OP*><intptr_t>val
+
+    @property
+    def flags_(self):
+        """int: """
+        return self._ptr[0].flags
+
+    @flags_.setter
+    def flags_(self, val):
+        if self._readonly:
+            raise ValueError("This FabricCpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].flags = val
+
+    @property
+    def ctx(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].ctx)
+
+    @ctx.setter
+    def ctx(self, val):
+        if self._readonly:
+            raise ValueError("This FabricCpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].ctx = <CUcontext><intptr_t>val
+
+    @property
+    def g_ctx(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].gCtx)
+
+    @g_ctx.setter
+    def g_ctx(self, val):
+        if self._readonly:
+            raise ValueError("This FabricCpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].gCtx = <CUgreenCtx><intptr_t>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an FabricCpyBatchNodeParamsV1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1), FabricCpyBatchNodeParamsV1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an FabricCpyBatchNodeParamsV1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `fabric_cpy_batch_node_params_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "fabric_cpy_batch_node_params_v1_dtype", fabric_cpy_batch_node_params_v1_dtype, FabricCpyBatchNodeParamsV1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an FabricCpyBatchNodeParamsV1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef FabricCpyBatchNodeParamsV1 obj = FabricCpyBatchNodeParamsV1.__new__(FabricCpyBatchNodeParamsV1)
+        if owner is None:
+            obj._ptr = <CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 *>_cyb_malloc(sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating FabricCpyBatchNodeParamsV1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1))
+            obj._owns_ptr = True
+            obj._owner = None
+        else:
+            obj._ptr = <CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 *>ptr
+            obj._owns_ptr = False
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_stream_cig_capture_params_dtype_offsets():
     cdef CUstreamCigCaptureParams pod
     return _numpy.dtype({
@@ -24727,6 +24952,239 @@ cdef class MemAllocNodeParams_v2:
         return obj
 
 
+cdef _get_memcpy_batch_node_params_v1_dtype_offsets():
+    cdef CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 pod
+    return _numpy.dtype({
+        'names': ['count', 'dsts', 'srcs', 'sizes', 'attrs', 'attrs_idxs', 'num_attrs', 'ctx', 'g_ctx'],
+        'formats': [_numpy.uint64, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.dsts)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.srcs)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sizes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.attrs)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.attrsIdxs)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.numAttrs)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1),
+    })
+
+memcpy_batch_node_params_v1_dtype = _get_memcpy_batch_node_params_v1_dtype_offsets()
+
+cdef class MemcpyBatchNodeParamsV1:
+    """Empty-initialize an instance of `CUDA_MEMCPY_BATCH_NODE_PARAMS_V1`.
+
+
+    .. seealso:: `CUDA_MEMCPY_BATCH_NODE_PARAMS_V1`
+    """
+    cdef:
+        CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 *_ptr
+        object _owner
+        bint _owns_ptr
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 *>_cyb_calloc(1, sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating MemcpyBatchNodeParamsV1")
+        self._owns_ptr = True
+        self._owner = None
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 *ptr
+        if self._owns_ptr and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.MemcpyBatchNodeParamsV1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef MemcpyBatchNodeParamsV1 other_
+        if not isinstance(other, MemcpyBatchNodeParamsV1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def count(self):
+        """int: """
+        return self._ptr[0].count
+
+    @count.setter
+    def count(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].count = val
+
+    @property
+    def dsts(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].dsts)
+
+    @dsts.setter
+    def dsts(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].dsts = <CUdeviceptr*><intptr_t>val
+
+    @property
+    def srcs(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].srcs)
+
+    @srcs.setter
+    def srcs(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].srcs = <CUdeviceptr*><intptr_t>val
+
+    @property
+    def sizes(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].sizes)
+
+    @sizes.setter
+    def sizes(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].sizes = <size_t*><intptr_t>val
+
+    @property
+    def attrs(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].attrs)
+
+    @attrs.setter
+    def attrs(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].attrs = <CUmemcpyAttributes*><intptr_t>val
+
+    @property
+    def attrs_idxs(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].attrsIdxs)
+
+    @attrs_idxs.setter
+    def attrs_idxs(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].attrsIdxs = <size_t*><intptr_t>val
+
+    @property
+    def num_attrs(self):
+        """int: """
+        return self._ptr[0].numAttrs
+
+    @num_attrs.setter
+    def num_attrs(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].numAttrs = val
+
+    @property
+    def ctx(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].ctx)
+
+    @ctx.setter
+    def ctx(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].ctx = <CUcontext><intptr_t>val
+
+    @property
+    def g_ctx(self):
+        """int: """
+        return <intptr_t>(self._ptr[0].gCtx)
+
+    @g_ctx.setter
+    def g_ctx(self, val):
+        if self._readonly:
+            raise ValueError("This MemcpyBatchNodeParamsV1 instance is read-only")
+        self._ptr[0].gCtx = <CUgreenCtx><intptr_t>val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an MemcpyBatchNodeParamsV1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1), MemcpyBatchNodeParamsV1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an MemcpyBatchNodeParamsV1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `memcpy_batch_node_params_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "memcpy_batch_node_params_v1_dtype", memcpy_batch_node_params_v1_dtype, MemcpyBatchNodeParamsV1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an MemcpyBatchNodeParamsV1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef MemcpyBatchNodeParamsV1 obj = MemcpyBatchNodeParamsV1.__new__(MemcpyBatchNodeParamsV1)
+        if owner is None:
+            obj._ptr = <CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 *>_cyb_malloc(sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating MemcpyBatchNodeParamsV1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1))
+            obj._owns_ptr = True
+            obj._owner = None
+        else:
+            obj._ptr = <CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 *>ptr
+            obj._owns_ptr = False
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get__py_anon_pod40_dtype_offsets():
     cdef cuda_bindings_driver__anon_pod40 pod
     return _numpy.dtype({
@@ -25031,8 +25489,8 @@ cdef class MemCpy3dOperand_v1:
 cdef _get_graph_node_params_dtype_offsets():
     cdef CUgraphNodeParams pod
     return _numpy.dtype({
-        'names': ['type', 'reserved0', 'reserved1', 'kernel', 'memcpy', 'memset', 'host', 'graph', 'event_wait', 'event_record', 'ext_sem_signal', 'ext_sem_wait', 'alloc', 'free', 'mem_op', 'conditional', 'as_bytes', 'reserved2'],
-        'formats': [_numpy.int32, (_numpy.int32, 3), (_numpy.int64, 29), kernel_node_params_v3_dtype, mem_cpy_node_params_dtype, mem_set_node_params_v2_dtype, host_node_params_v2_dtype, child_graph_node_params_dtype, event_wait_node_params_dtype, event_record_node_params_dtype, ext_sem_signal_node_params_v2_dtype, ext_sem_wait_node_params_v2_dtype, mem_alloc_node_params_v2_dtype, mem_free_node_params_dtype, batch_mem_op_node_params_v2_dtype, conditional_node_params_dtype, (_numpy.int8, 232), _numpy.int64],
+        'names': ['type', 'reserved0', 'reserved1', 'kernel', 'memcpy', 'memset', 'host', 'graph', 'event_wait', 'event_record', 'ext_sem_signal', 'ext_sem_wait', 'alloc', 'free', 'mem_op', 'conditional', 'memcpy_batch', 'fabric_cpy_batch', 'as_bytes', 'reserved2'],
+        'formats': [_numpy.int32, (_numpy.int32, 3), (_numpy.int64, 29), kernel_node_params_v3_dtype, mem_cpy_node_params_dtype, mem_set_node_params_v2_dtype, host_node_params_v2_dtype, child_graph_node_params_dtype, event_wait_node_params_dtype, event_record_node_params_dtype, ext_sem_signal_node_params_v2_dtype, ext_sem_wait_node_params_v2_dtype, mem_alloc_node_params_v2_dtype, mem_free_node_params_dtype, batch_mem_op_node_params_v2_dtype, conditional_node_params_dtype, memcpy_batch_node_params_v1_dtype, fabric_cpy_batch_node_params_v1_dtype, (_numpy.int8, 232), _numpy.int64],
         'offsets': [
             (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.reserved0)) - (<intptr_t>&pod),
@@ -25050,6 +25508,8 @@ cdef _get_graph_node_params_dtype_offsets():
             (<intptr_t>&(pod.free)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.memOp)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.conditional)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memcpyBatch)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fabricCpyBatch)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.asBytes)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.reserved2)) - (<intptr_t>&pod),
         ],
@@ -25329,6 +25789,38 @@ cdef class GraphNodeParams:
             raise ValueError("This GraphNodeParams instance is read-only")
         cdef ConditionalNodeParams val_ = val
         _cyb_memcpy(<void *>&(self._ptr[0].conditional), <void *>(val_._get_ptr()), sizeof(CUDA_CONDITIONAL_NODE_PARAMS) * 1)
+
+    @property
+    def memcpy_batch(self):
+        """MemcpyBatchNodeParamsV1: """
+        return MemcpyBatchNodeParamsV1.from_ptr(
+            <intptr_t>&(self._ptr[0].memcpyBatch),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @memcpy_batch.setter
+    def memcpy_batch(self, val):
+        if self._readonly:
+            raise ValueError("This GraphNodeParams instance is read-only")
+        cdef MemcpyBatchNodeParamsV1 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].memcpyBatch), <void *>(val_._get_ptr()), sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1) * 1)
+
+    @property
+    def fabric_cpy_batch(self):
+        """FabricCpyBatchNodeParamsV1: """
+        return FabricCpyBatchNodeParamsV1.from_ptr(
+            <intptr_t>&(self._ptr[0].fabricCpyBatch),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @fabric_cpy_batch.setter
+    def fabric_cpy_batch(self, val):
+        if self._readonly:
+            raise ValueError("This GraphNodeParams instance is read-only")
+        cdef FabricCpyBatchNodeParamsV1 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].fabricCpyBatch), <void *>(val_._get_ptr()), sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1) * 1)
 
     @property
     def type(self):
@@ -26836,7 +27328,7 @@ cpdef str get_error_name(int error):
 
 
 cpdef init(unsigned int flags):
-    """Initialize the CUDA driver API Initializes the driver API and must be called before any other function from the driver API in the current process. Currently, the ``flags`` parameter must be 0. If :func:`init` has not been called, any function from the driver API will return ``CUDA_ERROR_NOT_INITIALIZED``.
+    """Initialize the CUDA driver API Initializes the driver API and must be called before any other function from the driver API in the current process. Currently, the ``flags`` parameter must be 0. If :func:`init` has not been called, any function from the driver API will return ``CUDA_ERROR_NOT_INITIALIZED``. Repeated calls to :func:`init` have no additional effect.
 
     Note: cuInit preloads various libraries needed for JIT compilation. To opt-out
     of this behavior, set the environment variable CUDA_FORCE_PRELOAD_LIBRARIES=0.
@@ -34245,7 +34737,7 @@ cpdef intptr_t import_external_memory(mem_handle_desc) except? 0:
     ``CU_EXTERNAL_MEMORY_HANDLE_TYPE_DMABUF_FD``, then
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.fd`` must be a valid file descriptor
     referencing a dma_buf object and ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.flags``
-    must be zero. Importing a dma_buf object is supported only on Tegra platform
+    must be zero. Importing a dma_buf object is supported on Tegra platforms
     starting with Thor series. Mapping an imported dma_buf object as CUDA mipmapped
     array using ``cuExternalMemoryGetMappedMipmappedArray`` is not supported.
     The size of the memory object must be specified in
@@ -35926,6 +36418,9 @@ cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, size_t n
         intptr_t: Returns newly created node.
 
     .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
+    .. note::
         Kernels launched using graphs must not use texture and surface references.
         Reading or writing through any texture or surface reference is undefined
         behavior. This restriction does not apply to texture and surface objects.
@@ -35959,6 +36454,9 @@ cpdef object graph_kernel_node_get_params_v2(intptr_t h_node):
     Returns:
         CUDA_KERNEL_NODE_PARAMS_v2: Pointer to return the parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphKernelNodeGetParams_v2`
     """
     cdef KernelNodeParams_v2 node_params_py = KernelNodeParams_v2()
@@ -35978,6 +36476,9 @@ cpdef graph_kernel_node_set_params_v2(intptr_t h_node, node_params):
         h_node (intptr_t): Node to set the parameters for.
         node_params (intptr_t): Parameters to copy.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphKernelNodeSetParams_v2`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36018,6 +36519,9 @@ cpdef intptr_t graph_add_memcpy_node(intptr_t h_graph, dependencies, size_t num_
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddMemcpyNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36041,6 +36545,9 @@ cpdef object graph_memcpy_node_get_params(intptr_t h_node):
     Returns:
         CUDA_MEMCPY3D_v2: Pointer to return the parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphMemcpyNodeGetParams`
     """
     cdef MemCpy3d_v2 node_params_py = MemCpy3d_v2()
@@ -36060,6 +36567,9 @@ cpdef graph_memcpy_node_set_params(intptr_t h_node, node_params):
         h_node (intptr_t): Node to set the parameters for.
         node_params (intptr_t): Parameters to copy.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphMemcpyNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36092,6 +36602,9 @@ cpdef intptr_t graph_add_memset_node(intptr_t h_graph, dependencies, size_t num_
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddMemsetNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36115,6 +36628,9 @@ cpdef object graph_memset_node_get_params(intptr_t h_node):
     Returns:
         CUDA_MEMSET_NODE_PARAMS_v1: Pointer to return the parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphMemsetNodeGetParams`
     """
     cdef MemSetNodeParams_v1 node_params_py = MemSetNodeParams_v1()
@@ -36134,6 +36650,9 @@ cpdef graph_memset_node_set_params(intptr_t h_node, node_params):
         h_node (intptr_t): Node to set the parameters for.
         node_params (intptr_t): Parameters to copy.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphMemsetNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36166,6 +36685,9 @@ cpdef intptr_t graph_add_host_node(intptr_t h_graph, dependencies, size_t num_de
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddHostNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36189,6 +36711,9 @@ cpdef object graph_host_node_get_params(intptr_t h_node):
     Returns:
         CUDA_HOST_NODE_PARAMS_v1: Pointer to return the parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphHostNodeGetParams`
     """
     cdef HostNodeParams_v1 node_params_py = HostNodeParams_v1()
@@ -36208,6 +36733,9 @@ cpdef graph_host_node_set_params(intptr_t h_node, node_params):
         h_node (intptr_t): Node to set the parameters for.
         node_params (intptr_t): Parameters to copy.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphHostNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36241,6 +36769,9 @@ cpdef intptr_t graph_add_child_graph_node(intptr_t h_graph, dependencies, size_t
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddChildGraphNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36267,6 +36798,9 @@ cpdef intptr_t graph_child_graph_node_get_graph(intptr_t h_node) except? 0:
     Returns:
         intptr_t: Location to store a handle to the graph.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphChildGraphNodeGetGraph`
     """
     cdef CUgraph ph_graph
@@ -36300,6 +36834,9 @@ cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies, size_t num_d
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddEmptyNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36335,6 +36872,9 @@ cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, size_
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddEventRecordNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36357,6 +36897,9 @@ cpdef intptr_t graph_event_record_node_get_event(intptr_t h_node) except? 0:
     Returns:
         intptr_t: Pointer to return the event.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphEventRecordNodeGetEvent`
     """
     cdef CUevent event_out
@@ -36375,6 +36918,9 @@ cpdef graph_event_record_node_set_event(intptr_t h_node, intptr_t event):
         h_node (intptr_t): Node to set the event for.
         event (intptr_t): Event to use.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. note::
         This function will reset the node's context to the event's device context.
     .. seealso:: `cuGraphEventRecordNodeSetEvent`
@@ -36409,6 +36955,9 @@ cpdef intptr_t graph_add_event_wait_node(intptr_t h_graph, dependencies, size_t 
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddEventWaitNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36431,6 +36980,9 @@ cpdef intptr_t graph_event_wait_node_get_event(intptr_t h_node) except? 0:
     Returns:
         intptr_t: Pointer to return the event.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphEventWaitNodeGetEvent`
     """
     cdef CUevent event_out
@@ -36449,6 +37001,9 @@ cpdef graph_event_wait_node_set_event(intptr_t h_node, intptr_t event):
         h_node (intptr_t): Node to set the event for.
         event (intptr_t): Event to use.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphEventWaitNodeSetEvent`
     """
     with nogil:
@@ -36481,6 +37036,9 @@ cpdef intptr_t graph_add_external_semaphores_signal_node(intptr_t h_graph, depen
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddExternalSemaphoresSignalNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36510,6 +37068,9 @@ cpdef object graph_external_semaphores_signal_node_get_params(intptr_t h_node):
         CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1: Pointer to return the
             parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphExternalSemaphoresSignalNodeGetParams`
     """
     cdef ExtSemSignalNodeParams_v1 params_out_py = ExtSemSignalNodeParams_v1()
@@ -36530,6 +37091,9 @@ cpdef graph_external_semaphores_signal_node_set_params(intptr_t h_node, node_par
         h_node (intptr_t): Node to set the parameters for.
         node_params (intptr_t): Parameters to copy.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphExternalSemaphoresSignalNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36563,6 +37127,9 @@ cpdef intptr_t graph_add_external_semaphores_wait_node(intptr_t h_graph, depende
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddExternalSemaphoresWaitNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36592,6 +37159,9 @@ cpdef object graph_external_semaphores_wait_node_get_params(intptr_t h_node):
         CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1: Pointer to return the
             parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphExternalSemaphoresWaitNodeGetParams`
     """
     cdef ExtSemWaitNodeParams_v1 params_out_py = ExtSemWaitNodeParams_v1()
@@ -36612,6 +37182,9 @@ cpdef graph_external_semaphores_wait_node_set_params(intptr_t h_node, node_param
         h_node (intptr_t): Node to set the parameters for.
         node_params (intptr_t): Parameters to copy.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphExternalSemaphoresWaitNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36644,6 +37217,9 @@ cpdef intptr_t graph_add_batch_mem_op_node(intptr_t h_graph, dependencies, size_
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. note::
         Warning: Improper use of this API may deadlock the application. Synchronization
         ordering established through this API is not visible to CUDA. CUDA tasks that
@@ -36678,6 +37254,9 @@ cpdef object graph_batch_mem_op_node_get_params(intptr_t h_node):
         CUDA_BATCH_MEM_OP_NODE_PARAMS_v1: Pointer to return the
             parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphBatchMemOpNodeGetParams`
     """
     cdef BatchMemOpNodeParams_v1 node_params_out_py = BatchMemOpNodeParams_v1()
@@ -36699,6 +37278,9 @@ cpdef graph_batch_mem_op_node_set_params(intptr_t h_node, node_params):
         h_node (intptr_t): Node to set the parameters for.
         node_params (intptr_t): Parameters to copy.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeSetParams``.
     .. seealso:: `cuGraphBatchMemOpNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36733,6 +37315,9 @@ cpdef graph_exec_batch_mem_op_node_set_params(intptr_t h_graph_exec, intptr_t h_
             graphExec was instantiated.
         node_params (intptr_t): Updated Parameters to set.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecBatchMemOpNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -36795,6 +37380,9 @@ cpdef intptr_t graph_add_mem_alloc_node(intptr_t h_graph, dependencies, size_t n
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddMemAllocNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36821,6 +37409,9 @@ cpdef object graph_mem_alloc_node_get_params(intptr_t h_node):
     Returns:
         CUDA_MEM_ALLOC_NODE_PARAMS_v1: Pointer to return the parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphMemAllocNodeGetParams`
     """
     cdef MemAllocNodeParams_v1 params_out_py = MemAllocNodeParams_v1()
@@ -36868,6 +37459,9 @@ cpdef intptr_t graph_add_mem_free_node(intptr_t h_graph, dependencies, size_t nu
     Returns:
         intptr_t: Returns newly created node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphAddNode``.
     .. seealso:: `cuGraphAddMemFreeNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
@@ -36890,6 +37484,9 @@ cpdef uint64_t graph_mem_free_node_get_params(intptr_t h_node) except? 0:
     Returns:
         uint64_t: Pointer to return the device address.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraph_nodeGetParams``.
     .. seealso:: `cuGraphMemFreeNodeGetParams`
     """
     cdef CUdeviceptr dptr_out
@@ -37516,6 +38113,9 @@ cpdef graph_exec_kernel_node_set_params_v2(intptr_t h_graph_exec, intptr_t h_nod
             was instantiated.
         node_params (intptr_t): Updated Parameters to set.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecKernelNodeSetParams_v2`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -37549,6 +38149,9 @@ cpdef graph_exec_memcpy_node_set_params(intptr_t h_graph_exec, intptr_t h_node, 
         copy_params (intptr_t): The updated parameters to set.
         ctx (intptr_t): Context on which to run the node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecMemcpyNodeSetParams`
     """
     cdef intptr_t _copy_params_ptr_ = 0 if copy_params is None else int(copy_params)
@@ -37586,6 +38189,9 @@ cpdef graph_exec_memset_node_set_params(intptr_t h_graph_exec, intptr_t h_node, 
         memset_params (intptr_t): The updated parameters to set.
         ctx (intptr_t): Context on which to run the node.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecMemsetNodeSetParams`
     """
     cdef intptr_t _memset_params_ptr_ = 0 if memset_params is None else int(memset_params)
@@ -37612,6 +38218,9 @@ cpdef graph_exec_host_node_set_params(intptr_t h_graph_exec, intptr_t h_node, no
             instantiate graphExec.
         node_params (intptr_t): The updated parameters to set.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecHostNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -37645,6 +38254,9 @@ cpdef graph_exec_child_graph_node_set_params(intptr_t h_graph_exec, intptr_t h_n
         child_graph (intptr_t): The graph supplying the updated
             parameters.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecChildGraphNodeSetParams`
     """
     with nogil:
@@ -37669,6 +38281,9 @@ cpdef graph_exec_event_record_node_set_event(intptr_t h_graph_exec, intptr_t h_n
             graphExec was instantiated.
         event (intptr_t): Updated event to use.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecEventRecordNodeSetEvent`
     """
     with nogil:
@@ -37693,6 +38308,9 @@ cpdef graph_exec_event_wait_node_set_event(intptr_t h_graph_exec, intptr_t h_nod
             graphExec was instantiated.
         event (intptr_t): Updated event to use.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecEventWaitNodeSetEvent`
     """
     with nogil:
@@ -37719,6 +38337,9 @@ cpdef graph_exec_external_semaphores_signal_node_set_params(intptr_t h_graph_exe
             graphExec was instantiated.
         node_params (intptr_t): Updated Parameters to set.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecExternalSemaphoresSignalNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -37746,6 +38367,9 @@ cpdef graph_exec_external_semaphores_wait_node_set_params(intptr_t h_graph_exec,
             graphExec was instantiated.
         node_params (intptr_t): Updated Parameters to set.
 
+    .. note::
+        This function will be deprecated in a future CUDA release. Please migrate to
+        ``cuGraphExecNodeSetParams``.
     .. seealso:: `cuGraphExecExternalSemaphoresWaitNodeSetParams`
     """
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
@@ -37779,8 +38403,6 @@ cpdef graph_node_set_enabled(intptr_t h_graph_exec, intptr_t h_node, unsigned in
         is_enabled (unsigned int): Node is enabled if != 0, otherwise the
             node is disabled.
 
-    .. note::
-        Currently only kernel, memset and memcpy nodes are supported.
     .. seealso:: `cuGraphNodeSetEnabled`
     """
     with nogil:
@@ -37805,8 +38427,6 @@ cpdef unsigned int graph_node_get_enabled(intptr_t h_graph_exec, intptr_t h_node
     Returns:
         unsigned int: Location to return the enabled status of the node.
 
-    .. note::
-        Currently only kernel, memset and memcpy nodes are supported.
     .. note::
         This function will not reflect device-side updates for device-updatable kernel
         nodes.
@@ -39618,7 +40238,8 @@ cpdef object tensor_map_encode_tiled(int tensor_data_type, uint32_t tensor_rank,
     parameters describing a tiled region and returns it in ``tensor_map``.
     Tensor map objects are only supported on devices of compute capability 9.0 or
     higher. Additionally, a tensor map object is an opaque value, and, as such,
-    should only be accessed through CUDA APIs and PTX.
+    should only be accessed through CUDA APIs and PTX. Encoding resolves the
+    descriptor allocation class using ``CU_TENSOR_MAP_ALLOC_CLASS_AUTO``.
     The parameters passed are bound to the following requirements:.
 
     - ``tensor_map`` address must be aligned to 64 bytes.
@@ -39786,7 +40407,8 @@ cpdef object tensor_map_encode_im2col(int tensor_data_type, uint32_t tensor_rank
     parameters describing a im2col memory layout and returns it in ``tensor_map``.
     Tensor map objects are only supported on devices of compute capability 9.0 or
     higher. Additionally, a tensor map object is an opaque value, and, as such,
-    should only be accessed through CUDA APIs and PTX.
+    should only be accessed through CUDA APIs and PTX. Encoding resolves the
+    descriptor allocation class using ``CU_TENSOR_MAP_ALLOC_CLASS_AUTO``.
     The parameters passed are bound to the following requirements:.
 
     - ``tensor_map`` address must be aligned to 64 bytes.
@@ -39970,7 +40592,8 @@ cpdef object tensor_map_encode_im2col_wide(int tensor_data_type, uint32_t tensor
     layout in memory is either NDHWC, NHWC, or NWC.
     This API is only supported on devices of compute capability 10.0 or higher.
     Additionally, a tensor map object is an opaque value, and, as such, should only
-    be accessed through CUDA APIs and PTX.
+    be accessed through CUDA APIs and PTX. Encoding resolves the descriptor
+    allocation class using ``CU_TENSOR_MAP_ALLOC_CLASS_AUTO``.
     The parameters passed are bound to the following requirements:.
 
     - ``tensor_map`` address must be aligned to 64 bytes.
@@ -40591,10 +41214,7 @@ cpdef intptr_t green_ctx_create(intptr_t desc, int dev, unsigned int flags) exce
     The API does not set the green context current. In order to set it current, you
     need to explicitly set it current by first converting the green context to a
     ``CUcontext`` using ``cuCtxFromGreenCtx`` and subsequently calling
-    ``cuCtxSetCurrent`` / ``cuCtxPushCurrent``. It should be noted that a green
-    context can be current to only one thread at a time. There is no internal
-    synchronization to make API calls accessing the same green context from
-    multiple threads work.
+    ``cuCtxSetCurrent`` / ``cuCtxPushCurrent``.
     Note: The API is not supported on 32-bit platforms.
     The supported flags are:.
 
@@ -42695,12 +43315,22 @@ cpdef tuple dev_sm_resource_split(unsigned int nb_groups, input, unsigned int fl
       requested ``smCount`` using the target locality domain first, then SMs
       not attributed to any locality domain, then SMs from other locality
       domains. If no SMs can be found in the requested locality domain,
-      CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned.
+      CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned. When used with
+      ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS``, backfill
+      follows the same behavior after first consuming all SMs from the target
+      locality domain.
     - ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID:`` Specifies that the SM
       partition should be localized to the specified ``localityDomainId``.
+    - ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS:`` Modifier
+      to ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID`` which allows selection
+      of SMs in the locality domain exceeding the ``CUdevice_attribute``::CU_DE
+      VICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT.
     - ``localityDomainId:`` Specifies the locality domain that the partitioned
       SMs must be located on. Only valid when
-      CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID is set in flags.
+      ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID`` is set in flags. The
+      special value ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY`` specifies
+      that the partitioned SMs must be selected from the union of all available
+      locality domains in the input SM resource.
 
     Example params and their effect:.
     A group_params array element is defined in the following order:.
@@ -42851,15 +43481,17 @@ cpdef stream_begin_capture_to_cig(intptr_t h_stream, stream_cig_capture_params):
 
     Support for CIG streams with D3D12 can be determined using
     :func:`device_get_attribute` with
-    ``CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED``.
+    ``CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED``. Likewise support for CIG
+    streams with Vulkan can be determined using :func:`device_get_attribute` with
+    ``CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED``.
     Begin CIG (CUDA in Graphics) capture on ``h_stream`` for the graphics API as
     provided in ``stream_cig_capture_params``. When a stream is in CIG capture
     mode, all operations pushed into the stream will not be executed, but will
-    instead be captured into a graphics API command list/command buffer. All kernel
+    instead be captured into a graphics API command list/buffer. All kernel
     launches and memory copy/memory set operations on the CIG stream will be
-    recorded. When the command list is executed by the graphics API, all the
+    recorded. When the command list/buffer is executed by the graphics API, all the
     stream's operations will execute in order along with other graphics API
-    commands in the command list.
+    commands in the command list/buffer.
     CIG stream capture may not be initiated if ``stream`` is CU_STREAM_LEGACY.
     Capture must be ended on the same stream in which it was initiated, and it may
     only be initiated if the stream is not already in CIG capture mode.
@@ -42867,23 +43499,25 @@ cpdef stream_begin_capture_to_cig(intptr_t h_stream, stream_cig_capture_params):
     operation will fail and ``CUDA_ERROR_INVALID_CONTEXT`` will be returned.
     Data from the graphics client can be shared with CUDA via the
     ``streamSharedData`` in ``stream_cig_capture_params``. The format of
-    ``streamSharedData`` is dependent on the type of the graphics client. For
-    D3D12, ``streamSharedData`` is an ID3D12CommandList object pointer. The command
-    list must be in ready state for recording commands whenever kernels are
-    launched on the stream. The command list provided must belong to the graphics
-    API device that the CIG context was created with, otherwise the behavior will
-    be undefined.
-    The stream object may not be destroyed until its associated command list has
-    finished executing on the GPU. The command list/command buffer used for capture
-    may not be submitted for execution before a call to ``cuStreamEndCaptureToCig``
-    is made on the associated stream.
+    ``sharedData`` is dependent on the type of the graphics client. For D3D12,
+    ``sharedData`` is an ID3D12CommandList object pointer. For Vulkan,
+    ``sharedData`` is an internal NVIDIA handle obtained via
+    vkGetCommandBufferInternalHandleNV from the VK_NV_internal_handle extension. A
+    VkCommandBuffer cannot be passed directly. The command buffer must be in the
+    recording state whenever kernels are launched on the stream. The command
+    list/buffer provided must belong to a device corresponding to the CIG context's
+    device, otherwise the behavior will be undefined.
+    The stream object may not be destroyed until its associated command list/buffer
+    has finished executing on the GPU. The command buffer used for capture may not
+    be submitted for execution before a call to ``cuStreamEndCaptureToCig`` is made
+    on the associated stream.
     Graphics resources to be accessed by work recorded on the CIG stream must use
-    UAV barriers on the command list prior to recording work that accesses them on
-    the stream.
-    Resubmission of the same recorded command list is not allowed. Further more,
-    care must be taken for the order of execution of the recorded CUDA work with
-    regards to other CUDA work submitted under the same CIG context. Out-of-order
-    execution can lead to device hangs or exceptions.
+    UAV/pipeline barriers on the command list/buffer prior to recording work that
+    accesses them on the stream.
+    Resubmission of the same recorded command list/buffer is not allowed. Further
+    more, care must be taken for the order of execution of the recorded CUDA work
+    with regards to other CUDA work submitted under the same CIG context. Out-of-
+    order execution can lead to device hangs or exceptions.
     CIG capture mode operates similarly to ``cuStreamBeginCapture`` with the
     ``CU_STREAM_CAPTURE_MODE_RELAXED`` option. There are additional limitations to
     streams in CIG capture mode. The following functions are not allowed for CIG
@@ -43099,7 +43733,9 @@ cpdef coredump_deregister_start_callback(intptr_t callback):
 
     .. note::
         It is the caller's responsibility to deregister callbacks before they go out of
-        scope.
+        scope. The handle must identify a currently registered start callback; handles
+        returned by other registration APIs and handles that were already deregistered
+        are invalid.
     .. seealso:: `cuCoredumpDeregisterStartCallback`
     """
     with nogil:
@@ -43119,7 +43755,9 @@ cpdef coredump_deregister_complete_callback(intptr_t callback):
 
     .. note::
         It is the caller's responsibility to deregister callbacks before they go out of
-        scope.
+        scope. The handle must identify a currently registered complete callback;
+        handles returned by other registration APIs and handles that were already
+        deregistered are invalid.
     .. seealso:: `cuCoredumpDeregisterCompleteCallback`
     """
     with nogil:
@@ -43771,6 +44409,105 @@ cpdef checkpoint_operation_complete(intptr_t handle):
     """
     with nogil:
         __status__ = cuCheckpointOperationComplete(<CUcheckpointOperationHandle>handle)
+    check_status(__status__)
+
+
+cpdef fabric_cpy_batch_async(size_t num_ops, intptr_t op_list, unsigned long long flags, intptr_t h_stream):
+    """Performs a batch of copies over a fabric asynchronously.
+
+    The batch as a whole executes in stream order but copies within a batch are not
+    guaranteed to execute in any specific order. Specifying dependent copies within
+    a single batch results in undefined behavior.
+    Performs copies as specified in the ``op_list`` array. The length of this array
+    is specified in ``num_ops``. Each entry describes a copy operation including
+    source and destination operands (``CUDA_FABRIC_COPY_BATCH_OP.src`` and
+    ``CUDA_FABRIC_COPY_BATCH_OP.dst``) and the size in bytes
+    (``CUDA_FABRIC_COPY_BATCH_OP.size``). A size of zero makes that operation a no-
+    op while preserving its position in the batch. Its operands are still
+    validated.
+    The following operand type combinations are supported:.
+
+    - ``CU_FABRIC_COPY_OPERAND_TYPE_POINTER`` to
+      ``CU_FABRIC_COPY_OPERAND_TYPE_POINTER``: Copy between two device-accessible
+      pointers. At least one operand must be local to the stream's device.
+    - ``CU_FABRIC_COPY_OPERAND_TYPE_POINTER`` to
+      ``CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT``: -- copy from a local
+      pointer to a remote UNICAST or MULTICAST logical endpoint at the specified
+      offset.
+    - ``CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT`` to
+      ``CU_FABRIC_COPY_OPERAND_TYPE_POINTER``: -- copy from a remote UNICAST
+      logical endpoint at the specified offset to a local pointer.
+
+    A single batch may contain a heterogeneous mix of operation types.
+    For a POINTER operand, ``CUfabricCpyOperand.op.ptr.ptr`` must contain the
+    pointer where the copy begins. For managed memory or pageable memory on
+    supported devices, ``CUfabricCpyOperand.op.ptr.locHint`` may hint the location
+    of the operand.
+    For a LOGICAL_ENDPOINT operand, ``CUfabricCpyOperand.op.le.id`` specifies the
+    logical endpoint and ``CUfabricCpyOperand.op.le.offset`` specifies the byte
+    offset into that endpoint.
+    \notes.
+
+    Args:
+        num_ops (size_t): Total number of copy operations.
+        op_list (intptr_t): Array of size ``num_ops`` containing the copy
+            operations.
+        flags (unsigned long long): Flags for future use, must be zero.
+        h_stream (intptr_t): Stream to enqueue the operations in. Must not
+            be the legacy NULL stream.
+
+    .. seealso:: `cuFabricCpyBatchAsync`
+    """
+    with nogil:
+        __status__ = cuFabricCpyBatchAsync(num_ops, <CUDA_FABRIC_COPY_BATCH_OP*>op_list, flags, <CUstream>h_stream)
+    check_status(__status__)
+
+
+cpdef tensor_map_set_allocation_class(tensor_map, int alloc_class, intptr_t out_alloc_class):
+    """Sets the allocation class of an already-encoded tensor map.
+
+    Requests a Tensor Memory Accelerator (TMA) allocation class for an existing
+    ``tensor_map`` that was previously initialized by a tensor-map encoding API. No
+    re-encoding of the tensor is performed.
+    ``alloc_class`` selects the class:.
+
+    - ``CU_TENSOR_MAP_ALLOC_CLASS_SMALL`` requests the safe 4 KiB window.
+    - ``CU_TENSOR_MAP_ALLOC_CLASS_LARGE`` requests the 128 KiB window. When LARGE
+      is the effective class, the caller guarantees that, before the tensor map is
+      used, its effective base allocation is backed by a contiguous, accessible
+      region of at least ``CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE``
+      bytes. Violating this is undefined behavior at kernel execution time, not an
+      error of this API.
+    - ``CU_TENSOR_MAP_ALLOC_CLASS_AUTO`` re-evaluates the encoded tensor geometry
+      using the driver's conservative contiguity policy. The global address is not
+      inspected.
+
+    On architectures where allocation-class selection affects TMA OOB address
+    generation, this function adjusts only the encoded selector through an in-place
+    read-modify-write of ``tensor_map``. The caller must externally synchronize
+    this call with all other host and device access to the same descriptor storage,
+    including device-side tensormap.replace operations.
+    If ``out_alloc_class`` is non-NULL it receives the class actually in effect
+    after the call, which is always ``CU_TENSOR_MAP_ALLOC_CLASS_SMALL`` or
+    ``CU_TENSOR_MAP_ALLOC_CLASS_LARGE`` (never ``CU_TENSOR_MAP_ALLOC_CLASS_AUTO``).
+    If ``out_alloc_class`` is non-NULL, it is initialized to
+    ``CU_TENSOR_MAP_ALLOC_CLASS_SMALL`` before validation. On failure,
+    ``tensor_map`` is not modified and ``out_alloc_class`` remains SMALL.
+    On architectures where allocation-class selection has no effect, all three
+    requests succeed without changing ``tensor_map`` and report
+    ``CU_TENSOR_MAP_ALLOC_CLASS_SMALL``.
+
+    Args:
+        tensor_map (intptr_t): Tensor map to modify in place.
+        alloc_class (TensorMapAllocClass): Requested allocation class.
+        out_alloc_class (intptr_t): Optional; receives the resulting
+            allocation class.
+
+    .. seealso:: `cuTensorMapSetAllocationClass`
+    """
+    cdef intptr_t _tensor_map_ptr_ = 0 if tensor_map is None else int(tensor_map)
+    with nogil:
+        __status__ = cuTensorMapSetAllocationClass(<CUtensorMap*>_tensor_map_ptr_, <CUtensorMapAllocClass>alloc_class, <CUtensorMapAllocClass*>out_alloc_class)
     check_status(__status__)
 
 # Aliases

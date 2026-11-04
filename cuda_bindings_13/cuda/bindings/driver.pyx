@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8932ee959b6a2f1e69316f813cb8e8492c8e112094812dc1310c49970f00779a
+# This code was automatically generated with version 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7e8ddfdcb44c704e1875519c9a88ca86dd770177983cc9208f643eab6fb00723
 from typing import Any, Optional
 import cython
 import ctypes
@@ -354,6 +355,14 @@ CU_DEVICE_CPU = cydriver.CU_DEVICE_CPU
 
 #: Device that represents an invalid device
 CU_DEVICE_INVALID = cydriver.CU_DEVICE_INVALID
+
+#: Special value `localityDomainId` when :py:obj:`~.cuDevSmResourceSplit`
+#: is called with `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID`. Selects
+#: SMs from the union of all available locality domains in the input SM
+#: resource. See also:
+#: :py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID` for the set of
+#: SMs in a single locality domain.
+CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY = cydriver.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY
 
 #: Maximum number of planes per frame
 MAX_PLANES = cydriver.MAX_PLANES
@@ -2405,6 +2414,21 @@ class CUdevice_attribute(_FastEnum):
     )
 
 
+    CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED = (
+        cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED,
+        'Device supports CIG streams with Vulkan\n'
+    )
+
+
+    CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE = (
+        cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE,
+        'Minimum contiguous, accessible size in bytes required when the large\n'
+        'tensor-map allocation class is effective. Devices with a 128 KiB backing\n'
+        'precondition report 131072; devices where allocation-class selection is a\n'
+        'no-op report INT_MAX.\n'
+    )
+
+
     CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED = (
         cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED,
         'Device supports GPUDirect RDMA with localized memory using the default RDMA\n'
@@ -3243,9 +3267,7 @@ class CUjit_option(_FastEnum):
 
     CU_JIT_POSITION_INDEPENDENT_CODE = (
         cydriver.CUjit_option_enum.CU_JIT_POSITION_INDEPENDENT_CODE,
-        'Generate position independent code (0: false)\n'
-        'Option type: int\n'
-        'Applies to: compiler only\n'
+        '[Deprecated]\n'
     )
 
 
@@ -3958,9 +3980,27 @@ class CUgraphNodeType(_FastEnum):
     )
 
 
+    CU_GRAPH_NODE_TYPE_MEMCPY_BATCH = (
+        cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEMCPY_BATCH,
+        'Batch Memcpy Node\n'
+    )
+
+
     CU_GRAPH_NODE_TYPE_RESERVED_16 = (
         cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_RESERVED_16,
         'Reserved\n'
+    )
+
+
+    CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE = (
+        cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE,
+        'Reserved for External Engine node\n'
+    )
+
+
+    CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH = (
+        cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH,
+        'Fabric copy batch node\n'
     )
 
 class CUgraphDependencyType(_FastEnum):
@@ -4542,6 +4582,12 @@ class CUstreamCigDataType(_FastEnum):
     STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST = (
         cydriver.CUstreamCigDataType_enum.STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST,
         'D3D12 Command List Handle\n'
+    )
+
+
+    STREAM_CIG_DATA_TYPE_VULKAN_COMMAND_BUFFER_HANDLE_NV = (
+        cydriver.CUstreamCigDataType_enum.STREAM_CIG_DATA_TYPE_VULKAN_COMMAND_BUFFER_HANDLE_NV,
+        'Vulkan Command Buffer Internal NVIDIA Handle\n'
     )
 
 class CUlibraryOption(_FastEnum):
@@ -5744,6 +5790,41 @@ class CUtensorMapIm2ColWideMode(_FastEnum):
 
     CU_TENSOR_MAP_IM2COL_WIDE_MODE_W128 = cydriver.CUtensorMapIm2ColWideMode_enum.CU_TENSOR_MAP_IM2COL_WIDE_MODE_W128
 
+class CUtensorMapAllocClass(_FastEnum):
+    """
+    Tensor-map allocation class. On devices where allocation-class
+    selection affects Tensor Memory Accelerator (TMA) out-of-bounds
+    address generation, this controls the mode encoded in a
+    :py:obj:`~.CUtensorMap`. The "large" class enables a wider (128
+    KiB) OOB address-generation window that improves performance but is
+    only safe when the tensor's base allocation is backed by a
+    contiguous, accessible region of at least
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE`
+    bytes. On devices where allocation-class selection has no effect,
+    all requests have the same SMALL effective behavior.
+    """
+
+
+    CU_TENSOR_MAP_ALLOC_CLASS_AUTO = (
+        cydriver.CUtensorMapAllocClass_enum.CU_TENSOR_MAP_ALLOC_CLASS_AUTO,
+        'Recompute the effective allocation class from the tensor-map layout.\n'
+    )
+
+
+    CU_TENSOR_MAP_ALLOC_CLASS_SMALL = (
+        cydriver.CUtensorMapAllocClass_enum.CU_TENSOR_MAP_ALLOC_CLASS_SMALL,
+        'Request the "small" class (safe 4 KiB OOB window).\n'
+    )
+
+
+    CU_TENSOR_MAP_ALLOC_CLASS_LARGE = (
+        cydriver.CUtensorMapAllocClass_enum.CU_TENSOR_MAP_ALLOC_CLASS_LARGE,
+        'Request the "large" class (128 KiB OOB window); when LARGE is effective,\n'
+        'the caller guarantees the effective base allocation is accessible for at\n'
+        'least :py:obj:`~.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE`\n'
+        'bytes before use.\n'
+    )
+
 class CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS(_FastEnum):
     """
     Access flags that specify the level of access the current context's
@@ -6651,6 +6732,18 @@ class CUgraphDebugDot_flags(_FastEnum):
         'Adds conditional node parameters to output\n'
     )
 
+
+    CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_BATCH_NODE_PARAMS = (
+        cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_BATCH_NODE_PARAMS,
+        'Adds batch memcpy node parameters to the output\n'
+    )
+
+
+    CU_GRAPH_DEBUG_DOT_FLAGS_FABRIC_CPY_BATCH_NODE_PARAMS = (
+        cydriver.CUgraphDebugDot_flags_enum.CU_GRAPH_DEBUG_DOT_FLAGS_FABRIC_CPY_BATCH_NODE_PARAMS,
+        'Adds fabric copy batch node parameters\n'
+    )
+
 class CUuserObject_flags(_FastEnum):
     """
     Flags for user objects for graphs
@@ -6848,9 +6941,18 @@ class CUlogicalEndpointIpcHandleType(_FastEnum):
     endpoint
     """
 
-    CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE = cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE
 
-    CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC = cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC
+    CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE = (
+        cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_NONE,
+        'Does not allow any export mechanism\n'
+    )
+
+
+    CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC = (
+        cydriver.CUlogicalEndpointIpcHandleType_enum.CU_LOGICAL_ENDPOINT_IPC_HANDLE_TYPE_FABRIC,
+        'Allows export to a fabric handle\n'
+        '(:py:obj:`~.CUlogicalEndpointFabricHandle`)\n'
+    )
 
 class CUlogicalEndpointType(_FastEnum):
     """
@@ -6880,6 +6982,26 @@ class CUlogicalEndpointFlag(_FastEnum):
         "Indicate the programmer's intention to use counted operations with the\n"
         'logical endpoint\n'
     )
+
+class CUfabricCpyOperandType(_FastEnum):
+    """
+    These flags allow applications to convey the operand type for
+    individual copies specified in :py:obj:`~.cuFabricCpyBatchAsync`.
+    """
+
+
+    CU_FABRIC_COPY_OPERAND_TYPE_POINTER = (
+        cydriver.CUfabricCpyOperandType_enum.CU_FABRIC_COPY_OPERAND_TYPE_POINTER,
+        'Copy operand is a valid pointer.\n'
+    )
+
+
+    CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT = (
+        cydriver.CUfabricCpyOperandType_enum.CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT,
+        'Copy operand is a logical endpoint.\n'
+    )
+
+    CU_FABRIC_COPY_OPERAND_TYPE_MAX = cydriver.CUfabricCpyOperandType_enum.CU_FABRIC_COPY_OPERAND_TYPE_MAX
 
 class CUgraphRecaptureStatus(_FastEnum):
     """
@@ -6956,11 +7078,13 @@ class CUCoredumpGenerationFlags(_FastEnum):
 
     CU_COREDUMP_SKIP_CONSTBANK_MEMORY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_CONSTBANK_MEMORY
 
-    CU_COREDUMP_LIGHTWEIGHT_FLAGS = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
-
     CU_COREDUMP_GZIP_COMPRESS = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS
 
     CU_COREDUMP_FAULTED_CONTEXTS_ONLY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_FAULTED_CONTEXTS_ONLY
+
+    CU_COREDUMP_SKIP_TENSOR_MEMORY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_TENSOR_MEMORY
+
+    CU_COREDUMP_LIGHTWEIGHT_FLAGS = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
     CU_COREDUMP_NO_ERRBAR_AT_EXIT = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_NO_ERRBAR_AT_EXIT
 
@@ -6993,6 +7117,14 @@ class CUdevSmResourceGroup_flags(_FastEnum):
         cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID,
         'The SMs must be located on a specific locality domain, specified by\n'
         'localityDomainId\n'
+    )
+
+
+    CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS = (
+        cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS,
+        'Modifier to :py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID` which\n'
+        'allows selection of SMs in the locality domain exceeding the\n'
+        ':py:obj:`~.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT`\n'
     )
 
 class CUdevSmResourceSplitByCount_flags(_FastEnum):
@@ -23202,6 +23334,607 @@ cdef class CUDA_EVENT_WAIT_NODE_PARAMS_st:
         self._event._pvt_ptr[0] = cyevent
 
 
+cdef class CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st:
+    """
+    CUDA Batch Memcpy Node Parameters
+
+    Attributes
+    ----------
+
+    count : size_t
+        Size of `dsts`, `srcs` and `sizes` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    dsts : CUdeviceptr
+        Array of destination pointers. This field can be updated in an
+        instantiated graph.
+
+
+    srcs : CUdeviceptr
+        Array of source pointers. This field can be updated in an
+        instantiated graph.
+
+
+    sizes : size_t
+        Array of sizes for memcpy operations. This field can be updated in
+        an instantiated graph. A size of 0 disables the individual copy
+        operation.
+
+
+    attrs : CUmemcpyAttributes
+        Array of memcpy attributes. The array contents cannot be updated in
+        an instantiated graph.
+
+
+    attrsIdxs : size_t
+        Array of indices specifying which copies each entry in `attrs`
+        applies to. The array contents cannot be updated in an instantiated
+        graph.
+
+
+    numAttrs : size_t
+        Size of `attrs` and `attrsIdxs` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    ctx : CUcontext
+        Preferred context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._val_ptr = <cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st *>calloc(1, sizeof(cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st))
+            self._pvt_ptr = self._val_ptr
+        else:
+            self._pvt_ptr = <cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
+    def __dealloc__(self):
+        if self._dsts is not NULL:
+            free(self._dsts)
+            self._pvt_ptr[0].dsts = NULL
+        if self._srcs is not NULL:
+            free(self._srcs)
+            self._pvt_ptr[0].srcs = NULL
+        if self._attrs is not NULL:
+            free(self._attrs)
+            self._pvt_ptr[0].attrs = NULL
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['count : ' + str(self.count)]
+            except ValueError:
+                str_list += ['count : <ValueError>']
+
+
+            try:
+                str_list += ['dsts : ' + str(self.dsts)]
+            except ValueError:
+                str_list += ['dsts : <ValueError>']
+
+
+            try:
+                str_list += ['srcs : ' + str(self.srcs)]
+            except ValueError:
+                str_list += ['srcs : <ValueError>']
+
+
+            try:
+                str_list += ['sizes : ' + str(self.sizes)]
+            except ValueError:
+                str_list += ['sizes : <ValueError>']
+
+
+            try:
+                str_list += ['attrs : ' + str(self.attrs)]
+            except ValueError:
+                str_list += ['attrs : <ValueError>']
+
+
+            try:
+                str_list += ['attrsIdxs : ' + str(self.attrsIdxs)]
+            except ValueError:
+                str_list += ['attrsIdxs : <ValueError>']
+
+
+            try:
+                str_list += ['numAttrs : ' + str(self.numAttrs)]
+            except ValueError:
+                str_list += ['numAttrs : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
+
+
+            try:
+                str_list += ['gCtx : ' + str(self.gCtx)]
+            except ValueError:
+                str_list += ['gCtx : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def count(self):
+        return self._pvt_ptr[0].count
+    @count.setter
+    def count(self, size_t count):
+        self._pvt_ptr[0].count = count
+
+
+    @property
+    def dsts(self):
+        if self._pvt_ptr[0].dsts == NULL:
+            return []
+        return [
+            CUdeviceptr(init_value=self._pvt_ptr[0].dsts[x])
+            for x in range(self._pvt_ptr[0].count)
+        ]
+    @dsts.setter
+    def dsts(self, val):
+        raise AttributeError(
+            "dsts shares its count field with srcs on this "
+            "struct and cannot be set independently; use "
+            "set_dsts_srcs(...) to set them together."
+        )
+
+
+    @property
+    def srcs(self):
+        if self._pvt_ptr[0].srcs == NULL:
+            return []
+        return [
+            CUdeviceptr(init_value=self._pvt_ptr[0].srcs[x])
+            for x in range(self._pvt_ptr[0].count)
+        ]
+    @srcs.setter
+    def srcs(self, val):
+        raise AttributeError(
+            "srcs shares its count field with dsts on this "
+            "struct and cannot be set independently; use "
+            "set_dsts_srcs(...) to set them together."
+        )
+
+
+    @property
+    def sizes(self):
+        return <void_ptr>self._pvt_ptr[0].sizes
+    @sizes.setter
+    def sizes(self, sizes):
+        self._cysizes = _HelperInputVoidPtr(sizes)
+        self._pvt_ptr[0].sizes = <size_t*><void_ptr>self._cysizes.cptr
+
+
+    @property
+    def attrs(self):
+        if self._pvt_ptr[0].attrs == NULL:
+            return []
+        out_attrs = [CUmemcpyAttributes() for _idx in range(self._pvt_ptr[0].numAttrs)]
+        for _idx in range(len(out_attrs)):
+            string.memcpy(<cydriver.CUmemcpyAttributes*><void_ptr>out_attrs[_idx].getPtr(), &self._pvt_ptr[0].attrs[_idx], sizeof(cydriver.CUmemcpyAttributes))
+        return out_attrs
+    @attrs.setter
+    def attrs(self, val):
+        cdef cydriver.CUmemcpyAttributes* _attrs_new
+        if len(val) == 0:
+            free(self._attrs)
+            self._attrs = NULL
+            self._attrs_length = 0
+            self._pvt_ptr[0].numAttrs = 0
+            self._pvt_ptr[0].attrs = NULL
+        else:
+            if self._attrs_length != <size_t>len(val):
+                _attrs_new = <cydriver.CUmemcpyAttributes*> calloc(len(val), sizeof(cydriver.CUmemcpyAttributes))
+                if _attrs_new is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUmemcpyAttributes)))
+                for idx in range(len(val)):
+                    string.memcpy(&_attrs_new[idx], (<CUmemcpyAttributes>val[idx])._pvt_ptr, sizeof(cydriver.CUmemcpyAttributes))
+                free(self._attrs)
+                self._attrs = _attrs_new
+                self._attrs_length = <size_t>len(val)
+                self._pvt_ptr[0].numAttrs = <size_t>len(val)
+                self._pvt_ptr[0].attrs = _attrs_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._attrs[idx], (<CUmemcpyAttributes>val[idx])._pvt_ptr, sizeof(cydriver.CUmemcpyAttributes))
+                self._pvt_ptr[0].numAttrs = <size_t>len(val)
+
+
+    @property
+    def attrsIdxs(self):
+        return <void_ptr>self._pvt_ptr[0].attrsIdxs
+    @attrsIdxs.setter
+    def attrsIdxs(self, attrsIdxs):
+        self._cyattrsIdxs = _HelperInputVoidPtr(attrsIdxs)
+        self._pvt_ptr[0].attrsIdxs = <size_t*><void_ptr>self._cyattrsIdxs.cptr
+
+
+    @property
+    def numAttrs(self):
+        return self._pvt_ptr[0].numAttrs
+    @numAttrs.setter
+    def numAttrs(self, size_t numAttrs):
+        self._pvt_ptr[0].numAttrs = numAttrs
+
+
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cydriver.CUcontext cyctx
+        if ctx is None:
+            cyctx = <cydriver.CUcontext><void_ptr>0
+        elif isinstance(ctx, (CUcontext,)):
+            pctx = int(ctx)
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        else:
+            pctx = int(CUcontext(ctx))
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
+
+
+    @property
+    def gCtx(self):
+        return self._gCtx
+    @gCtx.setter
+    def gCtx(self, gCtx):
+        cdef cydriver.CUgreenCtx cygCtx
+        if gCtx is None:
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>0
+        elif isinstance(gCtx, (CUgreenCtx,)):
+            pgCtx = int(gCtx)
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        else:
+            pgCtx = int(CUgreenCtx(gCtx))
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        self._gCtx._pvt_ptr[0] = cygCtx
+
+    def set_dsts_srcs(self, dsts, srcs):
+        """Set dsts, srcs together: they share this struct's count field and can't be set independently."""
+        if len(srcs) != len(dsts):
+            raise ValueError('dsts and srcs must all have the same length')
+
+        _dsts_converted = [int(v) for v in dsts]
+        _srcs_converted = [int(v) for v in srcs]
+        cdef cydriver.CUdeviceptr* _dsts_new = NULL
+        if len(_dsts_converted) > 0:
+            _dsts_new = <cydriver.CUdeviceptr*> calloc(len(_dsts_converted), sizeof(cydriver.CUdeviceptr))
+            if _dsts_new is NULL:
+                raise MemoryError('Failed to allocate length x size memory for dsts')
+            for _idx in range(len(_dsts_converted)):
+                _dsts_new[_idx] = <cydriver.CUdeviceptr><void_ptr>_dsts_converted[_idx]
+
+        cdef cydriver.CUdeviceptr* _srcs_new = NULL
+        if len(_srcs_converted) > 0:
+            _srcs_new = <cydriver.CUdeviceptr*> calloc(len(_srcs_converted), sizeof(cydriver.CUdeviceptr))
+            if _srcs_new is NULL:
+                free(_dsts_new); raise MemoryError('Failed to allocate length x size memory for srcs')
+            for _idx in range(len(_srcs_converted)):
+                _srcs_new[_idx] = <cydriver.CUdeviceptr><void_ptr>_srcs_converted[_idx]
+
+        free(self._dsts)
+        self._dsts = _dsts_new
+        self._dsts_length = <size_t>len(dsts)
+        self._pvt_ptr[0].dsts = _dsts_new
+
+        free(self._srcs)
+        self._srcs = _srcs_new
+        self._srcs_length = <size_t>len(srcs)
+        self._pvt_ptr[0].srcs = _srcs_new
+
+        self._pvt_ptr[0].count = <size_t>len(dsts)
+
+cdef class CUDA_FABRIC_COPY_BATCH_OP_st:
+    """
+    Struct representing a single copy operation for use with
+    cuFabricCpyBatchAsync
+
+    Attributes
+    ----------
+
+    src : CUfabricCpyOperand
+        Source copy operand.
+
+
+    dst : CUfabricCpyOperand
+        Destination copy operand.
+
+
+    size : size_t
+        Size in bytes. Zero makes this operation a no-op.
+
+
+    flags : unsigned int
+        Additional flags for fabric copy. Must be 0.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CUDA_FABRIC_COPY_BATCH_OP_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._src = CUfabricCpyOperand(_ptr=<void_ptr>&self._pvt_ptr[0].src)
+        self._src._owner = self
+        self._dst = CUfabricCpyOperand(_ptr=<void_ptr>&self._pvt_ptr[0].dst)
+        self._dst._owner = self
+    def __dealloc__(self):
+        self._src = None
+        self._dst = None
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['src :\n' + '\n'.join(['    ' + line for line in str(self.src).splitlines()])]
+            except ValueError:
+                str_list += ['src : <ValueError>']
+
+
+            try:
+                str_list += ['dst :\n' + '\n'.join(['    ' + line for line in str(self.dst).splitlines()])]
+            except ValueError:
+                str_list += ['dst : <ValueError>']
+
+
+            try:
+                str_list += ['size : ' + str(self.size)]
+            except ValueError:
+                str_list += ['size : <ValueError>']
+
+
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def src(self):
+        return self._src
+    @src.setter
+    def src(self, src not None : CUfabricCpyOperand):
+        string.memcpy(&self._pvt_ptr[0].src, <void*><void_ptr>src.getPtr(), sizeof(self._pvt_ptr[0].src))
+
+
+    @property
+    def dst(self):
+        return self._dst
+    @dst.setter
+    def dst(self, dst not None : CUfabricCpyOperand):
+        string.memcpy(&self._pvt_ptr[0].dst, <void*><void_ptr>dst.getPtr(), sizeof(self._pvt_ptr[0].dst))
+
+
+    @property
+    def size(self):
+        return self._pvt_ptr[0].size
+    @size.setter
+    def size(self, size_t size):
+        self._pvt_ptr[0].size = size
+
+
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        self._pvt_ptr[0].flags = flags
+
+
+cdef class CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st:
+    """
+    CUDA fabric copy batch node parameters  The application must keep
+    every logical endpoint ID referenced by `opList` valid and bound
+    for as long as a graph or executable graph may use the node. Fabric
+    copy batch nodes are not supported in device-launched graphs or
+    conditional nodes.
+
+    Attributes
+    ----------
+
+    numOps : size_t
+        Number of entries in `opList`. This field cannot be updated after
+        instantiation.
+
+
+    opList : CUDA_FABRIC_COPY_BATCH_OP
+        Array of fabric copy operations. Logical endpoint IDs and operand
+        types cannot be updated after instantiation.
+
+
+    flags : unsigned long long
+        Flags for future use. Must be zero and cannot be updated after
+        instantiation.
+
+
+    ctx : CUcontext
+        Preferred context. This field cannot be updated after
+        instantiation.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context. This field cannot be updated after
+        instantiation.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._val_ptr = <cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st *>calloc(1, sizeof(cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st))
+            self._pvt_ptr = self._val_ptr
+        else:
+            self._pvt_ptr = <cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._ctx = CUcontext(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        self._gCtx = CUgreenCtx(_ptr=<void_ptr>&self._pvt_ptr[0].gCtx)
+    def __dealloc__(self):
+        if self._opList is not NULL:
+            free(self._opList)
+            self._pvt_ptr[0].opList = NULL
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['numOps : ' + str(self.numOps)]
+            except ValueError:
+                str_list += ['numOps : <ValueError>']
+
+
+            try:
+                str_list += ['opList : ' + str(self.opList)]
+            except ValueError:
+                str_list += ['opList : <ValueError>']
+
+
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+
+
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
+
+
+            try:
+                str_list += ['gCtx : ' + str(self.gCtx)]
+            except ValueError:
+                str_list += ['gCtx : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def numOps(self):
+        return self._pvt_ptr[0].numOps
+    @numOps.setter
+    def numOps(self, size_t numOps):
+        self._pvt_ptr[0].numOps = numOps
+
+
+    @property
+    def opList(self):
+        if self._pvt_ptr[0].opList == NULL:
+            return []
+        out_opList = [CUDA_FABRIC_COPY_BATCH_OP() for _idx in range(self._pvt_ptr[0].numOps)]
+        for _idx in range(len(out_opList)):
+            string.memcpy(<cydriver.CUDA_FABRIC_COPY_BATCH_OP*><void_ptr>out_opList[_idx].getPtr(), &self._pvt_ptr[0].opList[_idx], sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP))
+        return out_opList
+    @opList.setter
+    def opList(self, val):
+        cdef cydriver.CUDA_FABRIC_COPY_BATCH_OP* _opList_new
+        if len(val) == 0:
+            free(self._opList)
+            self._opList = NULL
+            self._opList_length = 0
+            self._pvt_ptr[0].numOps = 0
+            self._pvt_ptr[0].opList = NULL
+        else:
+            if self._opList_length != <size_t>len(val):
+                _opList_new = <cydriver.CUDA_FABRIC_COPY_BATCH_OP*> calloc(len(val), sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP))
+                if _opList_new is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP)))
+                for idx in range(len(val)):
+                    string.memcpy(&_opList_new[idx], (<CUDA_FABRIC_COPY_BATCH_OP>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP))
+                free(self._opList)
+                self._opList = _opList_new
+                self._opList_length = <size_t>len(val)
+                self._pvt_ptr[0].numOps = <size_t>len(val)
+                self._pvt_ptr[0].opList = _opList_new
+            else:
+                for idx in range(len(val)):
+                    string.memcpy(&self._opList[idx], (<CUDA_FABRIC_COPY_BATCH_OP>val[idx])._pvt_ptr, sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP))
+                self._pvt_ptr[0].numOps = <size_t>len(val)
+
+
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned long long flags):
+        self._pvt_ptr[0].flags = flags
+
+
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cydriver.CUcontext cyctx
+        if ctx is None:
+            cyctx = <cydriver.CUcontext><void_ptr>0
+        elif isinstance(ctx, (CUcontext,)):
+            pctx = int(ctx)
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        else:
+            pctx = int(CUcontext(ctx))
+            cyctx = <cydriver.CUcontext><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
+
+
+    @property
+    def gCtx(self):
+        return self._gCtx
+    @gCtx.setter
+    def gCtx(self, gCtx):
+        cdef cydriver.CUgreenCtx cygCtx
+        if gCtx is None:
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>0
+        elif isinstance(gCtx, (CUgreenCtx,)):
+            pgCtx = int(gCtx)
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        else:
+            pgCtx = int(CUgreenCtx(gCtx))
+            cygCtx = <cydriver.CUgreenCtx><void_ptr>pgCtx
+        self._gCtx._pvt_ptr[0] = cygCtx
+
+
 cdef class CUgraphNodeParams_st:
     """
     Graph node parameters. See cuGraphAddNode.
@@ -23265,6 +23998,14 @@ cdef class CUgraphNodeParams_st:
         Conditional node parameters.
 
 
+    memcpyBatch : CUDA_MEMCPY_BATCH_NODE_PARAMS_V1
+        Batch memcpy node parameters.
+
+
+    fabricCpyBatch : CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1
+        Fabric copy batch node parameters.
+
+
     asBytes : bytes
         Padding as bytes
 
@@ -23307,6 +24048,10 @@ cdef class CUgraphNodeParams_st:
         self._memOp._owner = self
         self._conditional = CUDA_CONDITIONAL_NODE_PARAMS(_ptr=<void_ptr>&self._pvt_ptr[0].conditional)
         self._conditional._owner = self
+        self._memcpyBatch = CUDA_MEMCPY_BATCH_NODE_PARAMS_V1(_ptr=<void_ptr>&self._pvt_ptr[0].memcpyBatch)
+        self._memcpyBatch._owner = self
+        self._fabricCpyBatch = CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1(_ptr=<void_ptr>&self._pvt_ptr[0].fabricCpyBatch)
+        self._fabricCpyBatch._owner = self
     def __dealloc__(self):
         self._kernel = None
         self._memcpy = None
@@ -23321,6 +24066,8 @@ cdef class CUgraphNodeParams_st:
         self._free = None
         self._memOp = None
         self._conditional = None
+        self._memcpyBatch = None
+        self._fabricCpyBatch = None
         if self._val_ptr is not NULL:
             free(self._val_ptr)
     def getPtr(self):
@@ -23411,6 +24158,18 @@ cdef class CUgraphNodeParams_st:
                 str_list += ['conditional :\n' + '\n'.join(['    ' + line for line in str(self.conditional).splitlines()])]
             except ValueError:
                 str_list += ['conditional : <ValueError>']
+
+
+            try:
+                str_list += ['memcpyBatch :\n' + '\n'.join(['    ' + line for line in str(self.memcpyBatch).splitlines()])]
+            except ValueError:
+                str_list += ['memcpyBatch : <ValueError>']
+
+
+            try:
+                str_list += ['fabricCpyBatch :\n' + '\n'.join(['    ' + line for line in str(self.fabricCpyBatch).splitlines()])]
+            except ValueError:
+                str_list += ['fabricCpyBatch : <ValueError>']
 
 
             try:
@@ -23532,6 +24291,22 @@ cdef class CUgraphNodeParams_st:
     @conditional.setter
     def conditional(self, conditional not None : CUDA_CONDITIONAL_NODE_PARAMS):
         string.memcpy(&self._pvt_ptr[0].conditional, <void*><void_ptr>conditional.getPtr(), sizeof(self._pvt_ptr[0].conditional))
+
+
+    @property
+    def memcpyBatch(self):
+        return self._memcpyBatch
+    @memcpyBatch.setter
+    def memcpyBatch(self, memcpyBatch not None : CUDA_MEMCPY_BATCH_NODE_PARAMS_V1):
+        string.memcpy(&self._pvt_ptr[0].memcpyBatch, <void*><void_ptr>memcpyBatch.getPtr(), sizeof(self._pvt_ptr[0].memcpyBatch))
+
+
+    @property
+    def fabricCpyBatch(self):
+        return self._fabricCpyBatch
+    @fabricCpyBatch.setter
+    def fabricCpyBatch(self, fabricCpyBatch not None : CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1):
+        string.memcpy(&self._pvt_ptr[0].fabricCpyBatch, <void*><void_ptr>fabricCpyBatch.getPtr(), sizeof(self._pvt_ptr[0].fabricCpyBatch))
 
 
     @property
@@ -24595,6 +25370,299 @@ cdef class CUlogicalEndpointProp_struct:
         self._pvt_ptr[0].flags = flags
 
 
+cdef class anon_struct28:
+    """
+    Attributes
+    ----------
+
+    ptr : CUdeviceptr
+
+
+
+    locHint : CUmemLocation
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cydriver.CUfabricCpyOperand_st *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        self._ptr = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].op.ptr.ptr)
+        self._locHint = CUmemLocation(_ptr=<void_ptr>&self._pvt_ptr[0].op.ptr.locHint)
+        self._locHint._owner = self
+    def __dealloc__(self):
+        self._locHint = None
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].op.ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['ptr : ' + str(self.ptr)]
+            except ValueError:
+                str_list += ['ptr : <ValueError>']
+
+
+            try:
+                str_list += ['locHint :\n' + '\n'.join(['    ' + line for line in str(self.locHint).splitlines()])]
+            except ValueError:
+                str_list += ['locHint : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def ptr(self):
+        return self._ptr
+    @ptr.setter
+    def ptr(self, ptr):
+        cdef cydriver.CUdeviceptr cyptr
+        if ptr is None:
+            cyptr = <cydriver.CUdeviceptr><void_ptr>0
+        elif isinstance(ptr, (CUdeviceptr)):
+            pptr = int(ptr)
+            cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
+        else:
+            pptr = int(CUdeviceptr(ptr))
+            cyptr = <cydriver.CUdeviceptr><void_ptr>pptr
+        self._ptr._pvt_ptr[0] = cyptr
+
+
+
+    @property
+    def locHint(self):
+        return self._locHint
+    @locHint.setter
+    def locHint(self, locHint not None : CUmemLocation):
+        string.memcpy(&self._pvt_ptr[0].op.ptr.locHint, <void*><void_ptr>locHint.getPtr(), sizeof(self._pvt_ptr[0].op.ptr.locHint))
+
+
+cdef class anon_struct29:
+    """
+    Attributes
+    ----------
+
+    id : CUlogicalEndpointId
+
+
+
+    offset : cuuint64_t
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cydriver.CUfabricCpyOperand_st *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        self._id = CUlogicalEndpointId(_ptr=<void_ptr>&self._pvt_ptr[0].op.le.id)
+        self._offset = cuuint64_t(_ptr=<void_ptr>&self._pvt_ptr[0].op.le.offset)
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].op.le
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['id : ' + str(self.id)]
+            except ValueError:
+                str_list += ['id : <ValueError>']
+
+
+            try:
+                str_list += ['offset : ' + str(self.offset)]
+            except ValueError:
+                str_list += ['offset : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def id(self):
+        return self._id
+    @id.setter
+    def id(self, id):
+        cdef cydriver.CUlogicalEndpointId cyid
+        if id is None:
+            cyid = <cydriver.CUlogicalEndpointId><void_ptr>0
+        elif isinstance(id, (CUlogicalEndpointId)):
+            pid = int(id)
+            cyid = <cydriver.CUlogicalEndpointId><void_ptr>pid
+        else:
+            pid = int(CUlogicalEndpointId(id))
+            cyid = <cydriver.CUlogicalEndpointId><void_ptr>pid
+        self._id._pvt_ptr[0] = cyid
+
+
+
+    @property
+    def offset(self):
+        return self._offset
+    @offset.setter
+    def offset(self, offset):
+        cdef cydriver.cuuint64_t cyoffset
+        if offset is None:
+            cyoffset = <cydriver.cuuint64_t><void_ptr>0
+        elif isinstance(offset, (cuuint64_t)):
+            poffset = int(offset)
+            cyoffset = <cydriver.cuuint64_t><void_ptr>poffset
+        else:
+            poffset = int(cuuint64_t(offset))
+            cyoffset = <cydriver.cuuint64_t><void_ptr>poffset
+        self._offset._pvt_ptr[0] = cyoffset
+
+
+
+cdef class anon_union22:
+    """
+    Attributes
+    ----------
+
+    ptr : anon_struct28
+
+
+
+    le : anon_struct29
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cydriver.CUfabricCpyOperand_st *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        self._ptr = anon_struct28(_ptr=<void_ptr>self._pvt_ptr)
+        self._ptr._owner = self
+        self._le = anon_struct29(_ptr=<void_ptr>self._pvt_ptr)
+        self._le._owner = self
+    def __dealloc__(self):
+        self._ptr = None
+        self._le = None
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].op
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['ptr :\n' + '\n'.join(['    ' + line for line in str(self.ptr).splitlines()])]
+            except ValueError:
+                str_list += ['ptr : <ValueError>']
+
+
+            try:
+                str_list += ['le :\n' + '\n'.join(['    ' + line for line in str(self.le).splitlines()])]
+            except ValueError:
+                str_list += ['le : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def ptr(self):
+        return self._ptr
+    @ptr.setter
+    def ptr(self, ptr not None : anon_struct28):
+        string.memcpy(&self._pvt_ptr[0].op.ptr, <void*><void_ptr>ptr.getPtr(), sizeof(self._pvt_ptr[0].op.ptr))
+
+
+    @property
+    def le(self):
+        return self._le
+    @le.setter
+    def le(self, le not None : anon_struct29):
+        string.memcpy(&self._pvt_ptr[0].op.le, <void*><void_ptr>le.getPtr(), sizeof(self._pvt_ptr[0].op.le))
+
+
+cdef class CUfabricCpyOperand_st:
+    """
+    Struct representing an operand for copy with cuFabricCpyBatchAsync
+
+    Attributes
+    ----------
+
+    type : CUfabricCpyOperandType
+
+
+
+    op : anon_union22
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._val_ptr = <cydriver.CUfabricCpyOperand_st *>calloc(1, sizeof(cydriver.CUfabricCpyOperand_st))
+            self._pvt_ptr = self._val_ptr
+        else:
+            self._pvt_ptr = <cydriver.CUfabricCpyOperand_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        self._op = anon_union22(_ptr=<void_ptr>self._pvt_ptr)
+        self._op._owner = self
+    def __dealloc__(self):
+        self._op = None
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+
+
+            try:
+                str_list += ['op :\n' + '\n'.join(['    ' + line for line in str(self.op).splitlines()])]
+            except ValueError:
+                str_list += ['op : <ValueError>']
+
+            return '\n'.join(str_list)
+        else:
+            return ''
+
+    @property
+    def type(self):
+        return CUfabricCpyOperandType(self._pvt_ptr[0].type)
+    @type.setter
+    def type(self, type not None : CUfabricCpyOperandType):
+        self._pvt_ptr[0].type = int(type)
+
+
+    @property
+    def op(self):
+        return self._op
+    @op.setter
+    def op(self, op not None : anon_union22):
+        string.memcpy(&self._pvt_ptr[0].op, <void*><void_ptr>op.getPtr(), sizeof(self._pvt_ptr[0].op))
+
+
 cdef class CUdevSmResource_st:
     """
     Attributes
@@ -25160,7 +26228,7 @@ cdef class CUdevResource_st:
                     string.memcpy(&self._nextResource[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
 
 
-cdef class anon_union21:
+cdef class anon_union24:
     """
     Attributes
     ----------
@@ -25240,7 +26308,7 @@ cdef class CUeglFrame_st:
     Attributes
     ----------
 
-    frame : anon_union21
+    frame : anon_union24
 
 
 
@@ -25292,7 +26360,7 @@ cdef class CUeglFrame_st:
         else:
             self._pvt_ptr = <cydriver.CUeglFrame_st *>_ptr
     def __init__(self, void_ptr _ptr = 0):
-        self._frame = anon_union21(_ptr=<void_ptr>self._pvt_ptr)
+        self._frame = anon_union24(_ptr=<void_ptr>self._pvt_ptr)
         self._frame._owner = self
     def __dealloc__(self):
         self._frame = None
@@ -25371,7 +26439,7 @@ cdef class CUeglFrame_st:
     def frame(self):
         return self._frame
     @frame.setter
-    def frame(self, frame not None : anon_union21):
+    def frame(self, frame not None : anon_union24):
         string.memcpy(&self._pvt_ptr[0].frame, <void*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
 
 
@@ -25898,7 +26966,7 @@ def cuGetErrorName(error not None : CUresult):
 
 @cython.embedsignature(True)
 def cuInit(unsigned int Flags):
-    """ Initialize the CUDA driver API Initializes the driver API and must be called before any other function from the driver API in the current process. Currently, the `Flags` parameter must be 0. If :py:obj:`~.cuInit()` has not been called, any function from the driver API will return :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`.
+    """ Initialize the CUDA driver API Initializes the driver API and must be called before any other function from the driver API in the current process. Currently, the `Flags` parameter must be 0. If :py:obj:`~.cuInit()` has not been called, any function from the driver API will return :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`. Repeated calls to :py:obj:`~.cuInit()` have no additional effect.
 
     Note: cuInit preloads various libraries needed for JIT compilation. To
     opt-out of this behavior, set the environment variable
@@ -38139,8 +39207,8 @@ def cuLogicalEndpointExport(leId, handleType not None : CUlogicalEndpointIpcHand
     that can be used to share the logical endpoint with other processes.
     The recipient process can convert the shareable handle back into a
     logical endpoint id using :py:obj:`~.cuLogicalEndpointImport`. The
-    implementation of what this `handle` is and how it can be transfered is
-    defined by the requested handle type in `handletype`.
+    implementation of what this `handle` is and how it can be transferred
+    is defined by the requested handle type in `handletype`.
 
     Parameters
     ----------
@@ -38329,6 +39397,103 @@ def cuLogicalEndpointQuery(leId, count):
     if err != cydriver.CUDA_SUCCESS:
         return (_CUresult(err), None)
     return (_CUresult_SUCCESS, queryStatus)
+
+@cython.embedsignature(True)
+def cuFabricCpyBatchAsync(size_t numOps, opList : Optional[tuple[CUDA_FABRIC_COPY_BATCH_OP] | list[CUDA_FABRIC_COPY_BATCH_OP]], unsigned long long flags, hStream):
+    """ Performs a batch of copies over a fabric asynchronously.
+
+    The batch as a whole executes in stream order but copies within a batch
+    are not guaranteed to execute in any specific order. Specifying
+    dependent copies within a single batch results in undefined behavior.
+
+    Performs copies as specified in the `opList` array. The length of this
+    array is specified in `numOps`. Each entry describes a copy operation
+    including source and destination operands
+    (:py:obj:`~.CUDA_FABRIC_COPY_BATCH_OP.src` and
+    :py:obj:`~.CUDA_FABRIC_COPY_BATCH_OP.dst`) and the size in bytes
+    (:py:obj:`~.CUDA_FABRIC_COPY_BATCH_OP.size`). A size of zero makes that
+    operation a no-op while preserving its position in the batch. Its
+    operands are still validated.
+
+    The following operand type combinations are supported:
+
+    - :py:obj:`~.CU_FABRIC_COPY_OPERAND_TYPE_POINTER` to
+      :py:obj:`~.CU_FABRIC_COPY_OPERAND_TYPE_POINTER`: Copy between two
+      device-accessible pointers. At least one operand must be local to the
+      stream's device.
+
+    - :py:obj:`~.CU_FABRIC_COPY_OPERAND_TYPE_POINTER` to
+      :py:obj:`~.CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT`: -- copy
+      from a local pointer to a remote UNICAST or MULTICAST logical
+      endpoint at the specified offset.
+
+    - :py:obj:`~.CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT` to
+      :py:obj:`~.CU_FABRIC_COPY_OPERAND_TYPE_POINTER`: -- copy from a
+      remote UNICAST logical endpoint at the specified offset to a local
+      pointer.
+
+    A single batch may contain a heterogeneous mix of operation types.
+
+    For a POINTER operand, :py:obj:`~.CUfabricCpyOperand.op.ptr.ptr` must
+    contain the pointer where the copy begins. For managed memory or
+    pageable memory on supported devices,
+    :py:obj:`~.CUfabricCpyOperand.op.ptr.locHint` may hint the location of
+    the operand.
+
+    For a LOGICAL_ENDPOINT operand, :py:obj:`~.CUfabricCpyOperand.op.le.id`
+    specifies the logical endpoint and
+    :py:obj:`~.CUfabricCpyOperand.op.le.offset` specifies the byte offset
+    into that endpoint.
+
+    \notes
+
+    Parameters
+    ----------
+    numOps : size_t
+        Total number of copy operations.
+    opList : list[:py:obj:`~.CUDA_FABRIC_COPY_BATCH_OP`]
+        Array of size `numOps` containing the copy operations.
+    flags : unsigned long long
+        Flags for future use, must be zero.
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream to enqueue the operations in. Must not be the legacy NULL
+        stream.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+
+    See Also
+    --------
+    :py:obj:`~.cuLogicalEndpointCreate`, :py:obj:`~.cuLogicalEndpointBindAddr`, :py:obj:`~.cuLogicalEndpointBindMem`
+    """
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    opList = [] if opList is None else opList
+    if not all(isinstance(_x, (CUDA_FABRIC_COPY_BATCH_OP,)) for _x in opList):
+        raise TypeError("Argument 'opList' is not instance of type (expected tuple[cydriver.CUDA_FABRIC_COPY_BATCH_OP,] or list[cydriver.CUDA_FABRIC_COPY_BATCH_OP,]")
+    if numOps > <size_t>len(opList): raise RuntimeError("List is too small: " + str(len(opList)) + " < " + str(numOps))
+    cdef cydriver.CUDA_FABRIC_COPY_BATCH_OP* cyopList = NULL
+    if len(opList) > 1:
+        cyopList = <cydriver.CUDA_FABRIC_COPY_BATCH_OP*> calloc(len(opList), sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP))
+        if cyopList is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(opList)) + 'x' + str(sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP)))
+        for idx in range(len(opList)):
+            string.memcpy(&cyopList[idx], (<CUDA_FABRIC_COPY_BATCH_OP>opList[idx])._pvt_ptr, sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP))
+    elif len(opList) == 1:
+        cyopList = (<CUDA_FABRIC_COPY_BATCH_OP>opList[0])._pvt_ptr
+    with nogil:
+        err = cydriver.cuFabricCpyBatchAsync(numOps, cyopList, flags, cyhStream)
+    if len(opList) > 1 and cyopList is not NULL:
+        free(cyopList)
+    return (_CUresult(err),)
 
 @cython.embedsignature(True)
 def cuPointerGetAttribute(attribute not None : CUpointer_attribute, ptr):
@@ -39764,16 +40929,20 @@ def cuStreamBeginCaptureToCig(hStream, streamCigCaptureParams : Optional[CUstrea
 
     Support for CIG streams with D3D12 can be determined using
     :py:obj:`~.cuDeviceGetAttribute()` with
-    :py:obj:`~.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED`.
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_D3D12_CIG_STREAMS_SUPPORTED`. Likewise
+    support for CIG streams with Vulkan can be determined using
+    :py:obj:`~.cuDeviceGetAttribute()` with
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED`.
 
     Begin CIG (CUDA in Graphics) capture on `hStream` for the graphics API
     as provided in `streamCigCaptureParams`. When a stream is in CIG
     capture mode, all operations pushed into the stream will not be
     executed, but will instead be captured into a graphics API command
-    list/command buffer. All kernel launches and memory copy/memory set
-    operations on the CIG stream will be recorded. When the command list is
+    list/buffer. All kernel launches and memory copy/memory set operations
+    on the CIG stream will be recorded. When the command list/buffer is
     executed by the graphics API, all the stream's operations will execute
-    in order along with other graphics API commands in the command list.
+    in order along with other graphics API commands in the command
+    list/buffer.
 
     CIG stream capture may not be initiated if `stream` is
     CU_STREAM_LEGACY. Capture must be ended on the same stream in which it
@@ -39786,26 +40955,30 @@ def cuStreamBeginCaptureToCig(hStream, streamCigCaptureParams : Optional[CUstrea
 
     Data from the graphics client can be shared with CUDA via the
     `streamSharedData` in `streamCigCaptureParams`. The format of
-    `streamSharedData` is dependent on the type of the graphics client. For
-    D3D12, `streamSharedData` is an ID3D12CommandList object pointer. The
-    command list must be in ready state for recording commands whenever
-    kernels are launched on the stream. The command list provided must
-    belong to the graphics API device that the CIG context was created
-    with, otherwise the behavior will be undefined.
+    `sharedData` is dependent on the type of the graphics client. For
+    D3D12, `sharedData` is an ID3D12CommandList object pointer. For Vulkan,
+    `sharedData` is an internal NVIDIA handle obtained via
+    vkGetCommandBufferInternalHandleNV from the VK_NV_internal_handle
+    extension. A VkCommandBuffer cannot be passed directly. The command
+    buffer must be in the recording state whenever kernels are launched on
+    the stream. The command list/buffer provided must belong to a device
+    corresponding to the CIG context's device, otherwise the behavior will
+    be undefined.
 
     The stream object may not be destroyed until its associated command
-    list has finished executing on the GPU. The command list/command buffer
-    used for capture may not be submitted for execution before a call to
+    list/buffer has finished executing on the GPU. The command buffer used
+    for capture may not be submitted for execution before a call to
     :py:obj:`~.cuStreamEndCaptureToCig` is made on the associated stream.
 
     Graphics resources to be accessed by work recorded on the CIG stream
-    must use UAV barriers on the command list prior to recording work that
-    accesses them on the stream.
+    must use UAV/pipeline barriers on the command list/buffer prior to
+    recording work that accesses them on the stream.
 
-    Resubmission of the same recorded command list is not allowed. Further
-    more, care must be taken for the order of execution of the recorded
-    CUDA work with regards to other CUDA work submitted under the same CIG
-    context. Out-of-order execution can lead to device hangs or exceptions.
+    Resubmission of the same recorded command list/buffer is not allowed.
+    Further more, care must be taken for the order of execution of the
+    recorded CUDA work with regards to other CUDA work submitted under the
+    same CIG context. Out-of-order execution can lead to device hangs or
+    exceptions.
 
     CIG capture mode operates similarly to `cuStreamBeginCapture` with the
     `CU_STREAM_CAPTURE_MODE_RELAXED` option. There are additional
@@ -41183,7 +42356,7 @@ def cuStreamDestroy(hStream):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE` :py:obj:`~.CUDA_ERROR_EXTERNAL_DEVICE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
 
     See Also
     --------
@@ -41797,7 +42970,7 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.fd` must be a valid
     file descriptor referencing a dma_buf object and
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.flags` must be zero.
-    Importing a dma_buf object is supported only on Tegra platform starting
+    Importing a dma_buf object is supported on Tegra platforms starting
     with Thor series. Mapping an imported dma_buf object as CUDA mipmapped
     array using :py:obj:`~.cuExternalMemoryGetMappedMipmappedArray` is not
     supported.
@@ -41886,7 +43059,7 @@ def cuExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[CUDA_EXTERNAL_
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_ALREADY_MAPPED`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
     devPtr : :py:obj:`~.CUdeviceptr`
         Returned device pointer to buffer
 
@@ -44799,6 +45972,8 @@ def cuGraphAddKernelNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
 
     Notes
     -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
+
     Kernels launched using graphs must not use texture and surface references. Reading or writing through any texture or surface reference is undefined behavior. This restriction does not apply to texture and surface objects.
     """
     dependencies = [] if dependencies is None else dependencies
@@ -44863,6 +46038,10 @@ def cuGraphKernelNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuLaunchKernel`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphKernelNodeSetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -44900,6 +46079,10 @@ def cuGraphKernelNodeSetParams(hNode, nodeParams : Optional[CUDA_KERNEL_NODE_PAR
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuLaunchKernel`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphKernelNodeGetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -44961,6 +46144,10 @@ def cuGraphAddMemcpyNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuGraphMemcpyNodeGetParams`, :py:obj:`~.cuGraphMemcpyNodeSetParams`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     cdef cydriver.CUcontext cyctx
     if ctx is None:
@@ -45023,6 +46210,10 @@ def cuGraphMemcpyNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphMemcpyNodeSetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45060,6 +46251,10 @@ def cuGraphMemcpyNodeSetParams(hNode, nodeParams : Optional[CUDA_MEMCPY3D]):
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuMemcpy3D`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphMemcpyNodeGetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45111,6 +46306,10 @@ def cuGraphAddMemsetNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | li
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuGraphMemsetNodeGetParams`, :py:obj:`~.cuGraphMemsetNodeSetParams`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphAddMemcpyNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     cdef cydriver.CUcontext cyctx
     if ctx is None:
@@ -45173,6 +46372,10 @@ def cuGraphMemsetNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuGraphAddMemsetNode`, :py:obj:`~.cuGraphMemsetNodeSetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45210,6 +46413,10 @@ def cuGraphMemsetNodeSetParams(hNode, nodeParams : Optional[CUDA_MEMSET_NODE_PAR
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuMemsetD2D32`, :py:obj:`~.cuGraphAddMemsetNode`, :py:obj:`~.cuGraphMemsetNodeGetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45259,6 +46466,10 @@ def cuGraphAddHostNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | list
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuLaunchHostFunc`, :py:obj:`~.cuGraphHostNodeGetParams`, :py:obj:`~.cuGraphHostNodeSetParams`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
@@ -45313,6 +46524,10 @@ def cuGraphHostNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuLaunchHostFunc`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphHostNodeSetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45350,6 +46565,10 @@ def cuGraphHostNodeSetParams(hNode, nodeParams : Optional[CUDA_HOST_NODE_PARAMS]
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuLaunchHostFunc`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphHostNodeGetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45402,6 +46621,10 @@ def cuGraphAddChildGraphNode(hGraph, dependencies : Optional[tuple[CUgraphNode] 
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphChildGraphNodeGetGraph`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`, :py:obj:`~.cuGraphClone`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     cdef cydriver.CUgraph cychildGraph
     if childGraph is None:
@@ -45468,6 +46691,10 @@ def cuGraphChildGraphNodeGetGraph(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphNodeFindInClone`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45520,6 +46747,10 @@ def cuGraphAddEmptyNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | lis
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
@@ -45587,6 +46818,10 @@ def cuGraphAddEventRecordNode(hGraph, dependencies : Optional[tuple[CUgraphNode]
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     cdef cydriver.CUevent cyevent
     if event is None:
@@ -45648,6 +46883,10 @@ def cuGraphEventRecordNodeGetEvent(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuGraphEventRecordNodeSetEvent`, :py:obj:`~.cuGraphEventWaitNodeGetEvent`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45688,6 +46927,8 @@ def cuGraphEventRecordNodeSetEvent(hNode, event):
 
     Notes
     -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
+
     This function will reset the node's context to the event's device context.
     """
     cdef cydriver.CUevent cyevent
@@ -45747,6 +46988,10 @@ def cuGraphAddEventWaitNode(hGraph, dependencies : Optional[tuple[CUgraphNode] |
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     cdef cydriver.CUevent cyevent
     if event is None:
@@ -45808,6 +47053,10 @@ def cuGraphEventWaitNodeGetEvent(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuGraphEventWaitNodeSetEvent`, :py:obj:`~.cuGraphEventRecordNodeGetEvent`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -45845,6 +47094,10 @@ def cuGraphEventWaitNodeSetEvent(hNode, event):
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuGraphEventWaitNodeGetEvent`, :py:obj:`~.cuGraphEventRecordNodeSetEvent`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUevent cyevent
     if event is None:
@@ -45902,6 +47155,10 @@ def cuGraphAddExternalSemaphoresSignalNode(hGraph, dependencies : Optional[tuple
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphExternalSemaphoresSignalNodeGetParams`, :py:obj:`~.cuGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuImportExternalSemaphore`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
@@ -45962,6 +47219,10 @@ def cuGraphExternalSemaphoresSignalNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuLaunchKernel`, :py:obj:`~.cuGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cuGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46000,6 +47261,10 @@ def cuGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[CU
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cuGraphExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46050,6 +47315,10 @@ def cuGraphAddExternalSemaphoresWaitNode(hGraph, dependencies : Optional[tuple[C
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphExternalSemaphoresWaitNodeGetParams`, :py:obj:`~.cuGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cuImportExternalSemaphore`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
@@ -46110,6 +47379,10 @@ def cuGraphExternalSemaphoresWaitNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuLaunchKernel`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46148,6 +47421,10 @@ def cuGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[CUDA
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuGraphExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46200,6 +47477,8 @@ def cuGraphAddBatchMemOpNode(hGraph, dependencies : Optional[tuple[CUgraphNode] 
 
     Notes
     -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
+
     Warning: Improper use of this API may deadlock the application. Synchronization ordering established through this API is not visible to CUDA. CUDA tasks that are (even indirectly) ordered by this API should also have that order expressed with CUDA-visible dependencies such as events. This ensures that the scheduler does not serialize them in an improper order.
     """
     dependencies = [] if dependencies is None else dependencies
@@ -46260,6 +47539,10 @@ def cuGraphBatchMemOpNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuStreamBatchMemOp`, :py:obj:`~.cuGraphAddBatchMemOpNode`, :py:obj:`~.cuGraphBatchMemOpNodeSetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46300,6 +47583,10 @@ def cuGraphBatchMemOpNodeSetParams(hNode, nodeParams : Optional[CUDA_BATCH_MEM_O
     See Also
     --------
     :py:obj:`~.cuGraphNodeSetParams`, :py:obj:`~.cuStreamBatchMemOp`, :py:obj:`~.cuGraphAddBatchMemOpNode`, :py:obj:`~.cuGraphBatchMemOpNodeGetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46360,6 +47647,10 @@ def cuGraphExecBatchMemOpNodeSetParams(hGraphExec, hNode, nodeParams : Optional[
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuStreamBatchMemOp`, :py:obj:`~.cuGraphAddBatchMemOpNode`, :py:obj:`~.cuGraphBatchMemOpNodeGetParams`, :py:obj:`~.cuGraphBatchMemOpNodeSetParams`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46458,6 +47749,10 @@ def cuGraphAddMemAllocNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | 
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphAddMemFreeNode`, :py:obj:`~.cuGraphMemAllocNodeGetParams`, :py:obj:`~.cuDeviceGraphMemTrim`, :py:obj:`~.cuDeviceGetGraphMemAttribute`, :py:obj:`~.cuDeviceSetGraphMemAttribute`, :py:obj:`~.cuMemAllocAsync`, :py:obj:`~.cuMemFreeAsync`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (CUgraphNode,)) for _x in dependencies):
@@ -46515,6 +47810,10 @@ def cuGraphMemAllocNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuGraphAddMemAllocNode`, :py:obj:`~.cuGraphMemFreeNodeGetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -46584,6 +47883,10 @@ def cuGraphAddMemFreeNode(hGraph, dependencies : Optional[tuple[CUgraphNode] | l
     See Also
     --------
     :py:obj:`~.cuGraphAddNode`, :py:obj:`~.cuGraphAddMemAllocNode`, :py:obj:`~.cuGraphMemFreeNodeGetParams`, :py:obj:`~.cuDeviceGraphMemTrim`, :py:obj:`~.cuDeviceGetGraphMemAttribute`, :py:obj:`~.cuDeviceSetGraphMemAttribute`, :py:obj:`~.cuMemAllocAsync`, :py:obj:`~.cuMemFreeAsync`, :py:obj:`~.cuGraphCreate`, :py:obj:`~.cuGraphDestroyNode`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphAddEmptyNode`, :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphAddMemsetNode`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphAddNode`.
     """
     cdef cydriver.CUdeviceptr cydptr
     if dptr is None:
@@ -46645,6 +47948,10 @@ def cuGraphMemFreeNodeGetParams(hNode):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetParams`, :py:obj:`~.cuGraphAddMemFreeNode`, :py:obj:`~.cuGraphMemAllocNodeGetParams`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphNodeGetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -48052,6 +49359,10 @@ def cuGraphExecKernelNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddKernelNode`, :py:obj:`~.cuGraphKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -48116,6 +49427,10 @@ def cuGraphExecMemcpyNodeSetParams(hGraphExec, hNode, copyParams : Optional[CUDA
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddMemcpyNode`, :py:obj:`~.cuGraphMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUcontext cyctx
     if ctx is None:
@@ -48193,6 +49508,10 @@ def cuGraphExecMemsetNodeSetParams(hGraphExec, hNode, memsetParams : Optional[CU
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddMemsetNode`, :py:obj:`~.cuGraphMemsetNodeSetParams`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUcontext cyctx
     if ctx is None:
@@ -48253,6 +49572,10 @@ def cuGraphExecHostNodeSetParams(hGraphExec, hNode, nodeParams : Optional[CUDA_H
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddHostNode`, :py:obj:`~.cuGraphHostNodeSetParams`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -48313,6 +49636,10 @@ def cuGraphExecChildGraphNodeSetParams(hGraphExec, hNode, childGraph):
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddChildGraphNode`, :py:obj:`~.cuGraphChildGraphNodeGetGraph`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUgraph cychildGraph
     if childGraph is None:
@@ -48373,6 +49700,10 @@ def cuGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event):
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddEventRecordNode`, :py:obj:`~.cuGraphEventRecordNodeGetEvent`, :py:obj:`~.cuGraphEventWaitNodeSetEvent`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUevent cyevent
     if event is None:
@@ -48433,6 +49764,10 @@ def cuGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event):
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddEventWaitNode`, :py:obj:`~.cuGraphEventWaitNodeGetEvent`, :py:obj:`~.cuGraphEventRecordNodeSetEvent`, :py:obj:`~.cuEventRecordWithFlags`, :py:obj:`~.cuStreamWaitEvent`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUevent cyevent
     if event is None:
@@ -48497,6 +49832,10 @@ def cuGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePara
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresSignalNode`, :py:obj:`~.cuImportExternalSemaphore`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresWaitNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -48554,6 +49893,10 @@ def cuGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams
     See Also
     --------
     :py:obj:`~.cuGraphExecNodeSetParams`, :py:obj:`~.cuGraphAddExternalSemaphoresWaitNode`, :py:obj:`~.cuImportExternalSemaphore`, :py:obj:`~.cuSignalExternalSemaphoresAsync`, :py:obj:`~.cuWaitExternalSemaphoresAsync`, :py:obj:`~.cuGraphExecKernelNodeSetParams`, :py:obj:`~.cuGraphExecMemcpyNodeSetParams`, :py:obj:`~.cuGraphExecMemsetNodeSetParams`, :py:obj:`~.cuGraphExecHostNodeSetParams`, :py:obj:`~.cuGraphExecChildGraphNodeSetParams`, :py:obj:`~.cuGraphExecEventRecordNodeSetEvent`, :py:obj:`~.cuGraphExecEventWaitNodeSetEvent`, :py:obj:`~.cuGraphExecExternalSemaphoresSignalNodeSetParams`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate`
+
+    Notes
+    -----
+    This function will be deprecated in a future CUDA release. Please migrate to :py:obj:`~.cuGraphExecNodeSetParams`.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -48617,10 +49960,6 @@ def cuGraphNodeSetEnabled(hGraphExec, hNode, unsigned int isEnabled):
     See Also
     --------
     :py:obj:`~.cuGraphNodeGetEnabled`, :py:obj:`~.cuGraphExecUpdate`, :py:obj:`~.cuGraphInstantiate` :py:obj:`~.cuGraphLaunch`
-
-    Notes
-    -----
-    Currently only kernel, memset and memcpy nodes are supported.
     """
     cdef cydriver.CUgraphNode cyhNode
     if hNode is None:
@@ -48673,8 +50012,6 @@ def cuGraphNodeGetEnabled(hGraphExec, hNode):
 
     Notes
     -----
-    Currently only kernel, memset and memcpy nodes are supported.
-
     This function will not reflect device-side updates for device-updatable kernel nodes.
     """
     cdef cydriver.CUgraphNode cyhNode
@@ -52139,6 +53476,8 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
     Tensor map objects are only supported on devices of compute capability
     9.0 or higher. Additionally, a tensor map object is an opaque value,
     and, as such, should only be accessed through CUDA APIs and PTX.
+    Encoding resolves the descriptor allocation class using
+    :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_AUTO`.
 
     The parameters passed are bound to the following requirements:
 
@@ -52445,6 +53784,8 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     Tensor map objects are only supported on devices of compute capability
     9.0 or higher. Additionally, a tensor map object is an opaque value,
     and, as such, should only be accessed through CUDA APIs and PTX.
+    Encoding resolves the descriptor allocation class using
+    :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_AUTO`.
 
     The parameters passed are bound to the following requirements:
 
@@ -52787,7 +54128,9 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
 
     This API is only supported on devices of compute capability 10.0 or
     higher. Additionally, a tensor map object is an opaque value, and, as
-    such, should only be accessed through CUDA APIs and PTX.
+    such, should only be accessed through CUDA APIs and PTX. Encoding
+    resolves the descriptor allocation class using
+    :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_AUTO`.
 
     The parameters passed are bound to the following requirements:
 
@@ -53138,6 +54481,78 @@ def cuTensorMapReplaceAddress(tensorMap : Optional[CUtensorMap], globalAddress):
         err = cydriver.cuTensorMapReplaceAddress(cytensorMap_ptr, cyglobalAddress)
     _helper_input_void_ptr_free(&cyglobalAddressHelper)
     return (_CUresult(err),)
+
+@cython.embedsignature(True)
+def cuTensorMapSetAllocationClass(tensorMap : Optional[CUtensorMap], allocClass not None : CUtensorMapAllocClass):
+    """ Sets the allocation class of an already-encoded tensor map.
+
+    Requests a Tensor Memory Accelerator (TMA) allocation class for an
+    existing `tensorMap` that was previously initialized by a tensor-map
+    encoding API. No re-encoding of the tensor is performed.
+
+    `allocClass` selects the class:
+
+    - :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_SMALL` requests the safe 4 KiB
+      window.
+
+    - :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_LARGE` requests the 128 KiB
+      window. When LARGE is the effective class, the caller guarantees
+      that, before the tensor map is used, its effective base allocation is
+      backed by a contiguous, accessible region of at least
+      :py:obj:`~.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE`
+      bytes. Violating this is undefined behavior at kernel execution time,
+      not an error of this API.
+
+    - :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_AUTO` re-evaluates the encoded
+      tensor geometry using the driver's conservative contiguity policy.
+      The global address is not inspected.
+
+    On architectures where allocation-class selection affects TMA OOB
+    address generation, this function adjusts only the encoded selector
+    through an in-place read-modify-write of `tensorMap`. The caller must
+    externally synchronize this call with all other host and device access
+    to the same descriptor storage, including device-side tensormap.replace
+    operations.
+
+    If `outAllocClass` is non-NULL it receives the class actually in effect
+    after the call, which is always
+    :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_SMALL` or
+    :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_LARGE` (never
+    :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_AUTO`). If `outAllocClass` is non-
+    NULL, it is initialized to :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_SMALL`
+    before validation. On failure, `tensorMap` is not modified and
+    `outAllocClass` remains SMALL.
+
+    On architectures where allocation-class selection has no effect, all
+    three requests succeed without changing `tensorMap` and report
+    :py:obj:`~.CU_TENSOR_MAP_ALLOC_CLASS_SMALL`.
+
+    Parameters
+    ----------
+    tensorMap : :py:obj:`~.CUtensorMap`
+        Tensor map to modify in place
+    allocClass : :py:obj:`~.CUtensorMapAllocClass`
+        Requested allocation class
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    outAllocClass : :py:obj:`~.CUtensorMapAllocClass`
+        Optional; receives the resulting allocation class
+
+    See Also
+    --------
+    :py:obj:`~.cuTensorMapEncodeTiled`, :py:obj:`~.cuTensorMapEncodeIm2col`, :py:obj:`~.cuTensorMapEncodeIm2colWide`, :py:obj:`~.cuTensorMapReplaceAddress`
+    """
+    cdef cydriver.CUtensorMap* cytensorMap_ptr = <cydriver.CUtensorMap*>tensorMap._pvt_ptr if tensorMap is not None else NULL
+    cdef cydriver.CUtensorMapAllocClass cyallocClass = int(allocClass)
+    cdef cydriver.CUtensorMapAllocClass outAllocClass
+    with nogil:
+        err = cydriver.cuTensorMapSetAllocationClass(cytensorMap_ptr, cyallocClass, &outAllocClass)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_CUresult(err), None)
+    return (_CUresult_SUCCESS, CUtensorMapAllocClass(outAllocClass))
 
 @cython.embedsignature(True)
 def cuDeviceCanAccessPeer(dev, peerDev):
@@ -53876,7 +55291,7 @@ def cuGetProcAddress(char* symbol, int cudaVersion, flags):
         would be cuMemAlloc and `cudaVersion` would be the ABI compatible
         CUDA version for the _v2 variant.
     cudaVersion : int
-        The CUDA version to look for the requested driver symbol
+        The CUDA version to look for the requested driver symbol.
     flags : Any
         Flags to specify search options.
 
@@ -54001,6 +55416,10 @@ def cuCoredumpGetAttribute(attrib not None : CUcoredumpSettings):
 
       - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
         include constbank memory.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_TENSOR_MEMORY` - Coredump will not
+        include tensor memory data. Tensor memory metadata may still be
+        included.
 
       - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
         be compressed with gzip, and .gz suffix will be appended to the
@@ -54136,6 +55555,10 @@ def cuCoredumpGetAttributeGlobal(attrib not None : CUcoredumpSettings):
 
       - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
         include constbank memory.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_TENSOR_MEMORY` - Coredump will not
+        include tensor memory data. Tensor memory metadata may still be
+        included.
 
       - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
         be compressed with gzip, and .gz suffix will be appended to the
@@ -54278,6 +55701,10 @@ def cuCoredumpSetAttribute(attrib not None : CUcoredumpSettings, value):
 
       - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
         include constbank memory.
+
+      - :py:obj:`~.CU_COREDUMP_SKIP_TENSOR_MEMORY` - Coredump will not
+        include tensor memory data. Tensor memory metadata may still be
+        included.
 
       - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
         be compressed with gzip, and .gz suffix will be appended to the
@@ -54428,6 +55855,10 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
       - :py:obj:`~.CU_COREDUMP_SKIP_CONSTBANK_MEMORY` - Coredump will not
         include constbank memory.
 
+      - :py:obj:`~.CU_COREDUMP_SKIP_TENSOR_MEMORY` - Coredump will not
+        include tensor memory data. Tensor memory metadata may still be
+        included.
+
       - :py:obj:`~.CU_COREDUMP_GZIP_COMPRESS` - The generated coredump will
         be compressed with gzip, and .gz suffix will be appended to the
         filename, if it's not a part of it already.
@@ -54499,7 +55930,7 @@ def cuCoredumpRegisterStartCallback(callback, userData):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`
     callbackOut : :py:obj:`~.CUcoredumpCallbackHandle`
         Location to store the callback handle (optional, may be NULL)
 
@@ -54549,7 +55980,7 @@ def cuCoredumpRegisterCompleteCallback(callback, userData):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`
     callbackOut : :py:obj:`~.CUcoredumpCallbackHandle`
         Location to store the callback handle (optional, may be NULL)
 
@@ -54595,7 +56026,7 @@ def cuCoredumpDeregisterStartCallback(callback):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`
 
     See Also
     --------
@@ -54603,7 +56034,7 @@ def cuCoredumpDeregisterStartCallback(callback):
 
     Notes
     -----
-    It is the caller's responsibility to deregister callbacks before they go out of scope.
+    It is the caller's responsibility to deregister callbacks before they go out of scope. The handle must identify a currently registered start callback; handles returned by other registration APIs and handles that were already deregistered are invalid.
     """
     cdef cydriver.CUcoredumpCallbackHandle cycallback
     if callback is None:
@@ -54633,7 +56064,7 @@ def cuCoredumpDeregisterCompleteCallback(callback):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`
 
     See Also
     --------
@@ -54641,7 +56072,7 @@ def cuCoredumpDeregisterCompleteCallback(callback):
 
     Notes
     -----
-    It is the caller's responsibility to deregister callbacks before they go out of scope.
+    It is the caller's responsibility to deregister callbacks before they go out of scope. The handle must identify a currently registered complete callback; handles returned by other registration APIs and handles that were already deregistered are invalid.
     """
     cdef cydriver.CUcoredumpCallbackHandle cycallback
     if callback is None:
@@ -54695,10 +56126,7 @@ def cuGreenCtxCreate(desc, dev, unsigned int flags):
     current, you need to explicitly set it current by first converting the
     green context to a :py:obj:`~.CUcontext` using
     :py:obj:`~.cuCtxFromGreenCtx` and subsequently calling
-    :py:obj:`~.cuCtxSetCurrent` / :py:obj:`~.cuCtxPushCurrent`. It should
-    be noted that a green context can be current to only one thread at a
-    time. There is no internal synchronization to make API calls accessing
-    the same green context from multiple threads work.
+    :py:obj:`~.cuCtxSetCurrent` / :py:obj:`~.cuCtxPushCurrent`.
 
     Note: The API is not supported on 32-bit platforms.
 
@@ -55199,14 +56627,25 @@ def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource]
     requested `smCount` using the target locality domain first, then SMs
     not attributed to any locality domain, then SMs from other locality
     domains. If no SMs can be found in the requested locality domain,
-    CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned.
+    CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned. When used with
+    `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS`, backfill
+    follows the same behavior after first consuming all SMs from the target
+    locality domain.
 
     - `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID:` Specifies that the SM
     partition should be localized to the specified `localityDomainId`.
 
+    - `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS:` Modifier
+    to :py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID` which allows
+    selection of SMs in the locality domain exceeding the
+    :py:obj:`~.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT`.
+
       - `localityDomainId:` Specifies the locality domain that the
         partitioned SMs must be located on. Only valid when
-        CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID is set in flags.
+        `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID` is set in flags. The
+        special value `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY`
+        specifies that the partitioned SMs must be selected from the union
+        of all available locality domains in the input SM resource.
 
     Example params and their effect:
 
@@ -58120,6 +59559,33 @@ def sizeof(objType):
     if objType == CUDA_EVENT_WAIT_NODE_PARAMS:
         return sizeof(cydriver.CUDA_EVENT_WAIT_NODE_PARAMS)
 
+    if objType == CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st:
+        return sizeof(cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st)
+
+    if objType == CUDA_MEMCPY_BATCH_NODE_PARAMS_V1:
+        return sizeof(cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1)
+
+    if objType == CUDA_MEMCPY_BATCH_NODE_PARAMS:
+        return sizeof(cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS)
+
+    if objType == CUDA_FABRIC_COPY_BATCH_OP_st:
+        return sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP_st)
+
+    if objType == CUDA_FABRIC_COPY_BATCH_OP_v1:
+        return sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP_v1)
+
+    if objType == CUDA_FABRIC_COPY_BATCH_OP:
+        return sizeof(cydriver.CUDA_FABRIC_COPY_BATCH_OP)
+
+    if objType == CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st:
+        return sizeof(cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st)
+
+    if objType == CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1:
+        return sizeof(cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1)
+
+    if objType == CUDA_FABRIC_CPY_BATCH_NODE_PARAMS:
+        return sizeof(cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS)
+
     if objType == CUgraphNodeParams_st:
         return sizeof(cydriver.CUgraphNodeParams_st)
 
@@ -58197,6 +59663,12 @@ def sizeof(objType):
 
     if objType == CUlogicalEndpointProp:
         return sizeof(cydriver.CUlogicalEndpointProp)
+
+    if objType == CUfabricCpyOperand_st:
+        return sizeof(cydriver.CUfabricCpyOperand_st)
+
+    if objType == CUfabricCpyOperand:
+        return sizeof(cydriver.CUfabricCpyOperand)
 
     if objType == CUgraphRecaptureCallback:
         return sizeof(cydriver.CUgraphRecaptureCallback)

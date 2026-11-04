@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6fcf904a35d5aa857ef919763d56c49656afa5977ed8be2f91f7cad840af7ed6
+# This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=610c082a452fc1862d3c71545cbccfc2607ab446b3c6ad74f390894678ac84bb
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -66,6 +67,8 @@ ctypedef CUcheckpointCustomStoragePerDeviceData CheckpointCustomStoragePerDevice
 ctypedef CUcoredumpStatusCallback coredumpStatusCallback
 ctypedef CUcheckpointCustomStorageInfo CheckpointCustomStorageInfo
 ctypedef CUasyncCallback asyncCallback
+ctypedef CUfabricCpyOperand FabricCpyOperand
+ctypedef CUDA_FABRIC_COPY_BATCH_OP_st FabricCopyBatchOp
 ctypedef CUgraphRecaptureCallback graphRecaptureCallback
 
 
@@ -199,6 +202,8 @@ ctypedef CUlogicalEndpointType _LogicalEndpointType
 ctypedef CUlogicalEndpointFlag _LogicalEndpointFlag
 ctypedef CUgraphRecaptureStatus _GraphRecaptureStatus
 ctypedef CUcliqueType _CliqueType
+ctypedef CUtensorMapAllocClass _TensorMapAllocClass
+ctypedef CUfabricCpyOperandType _FabricCpyOperandType
 
 
 ###############################################################################
@@ -719,3 +724,5 @@ cpdef object mem_get_location_info(uint64_t ptr, size_t size, size_t summary_gra
 cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data, size_t num_dependencies, node_params) except? 0
 cpdef graph_node_set_params_v2(intptr_t h_node, node_params)
 cpdef checkpoint_operation_complete(intptr_t handle)
+cpdef fabric_cpy_batch_async(size_t num_ops, intptr_t op_list, unsigned long long flags, intptr_t h_stream)
+cpdef tensor_map_set_allocation_class(tensor_map, int alloc_class, intptr_t out_alloc_class)
