@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-core[cu13]>=1.3.0", "cupy-cuda13x>=14.0.0", "numpy>=2.2.5"]
+# dependencies = ["cuda-core[cu13]>=1.2.2", "cupy-cuda13x>=14.0.0", "numpy>=2.2.5"]
 # ///
 
 """Run CuPy directly on host memory on Grace Hopper.

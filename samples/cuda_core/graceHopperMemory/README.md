@@ -28,7 +28,7 @@ pointers with `cupy.cuda.UnownedMemory`.
   page tables, support concurrent managed access and support host NUMA memory
   pools. Other systems waive with exit code 2 (configurable via
   `CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE`).
-- `cuda-core` 1.3.0 or newer with CUDA 13, CuPy for CUDA 13 and NumPy 2.2.5
+- `cuda-core` 1.2.2 or newer with CUDA 13, CuPy for CUDA 13 and NumPy 2.2.5
   or newer.
 
 ```bash
