@@ -67,8 +67,13 @@ def _no_such_file_in_dir(directory: Path, filename: str, error_messages: list[st
     error_messages.append(f"No such file: {directory / filename}")
     if directory.is_dir():
         attachments.append(f'  listdir("{directory}"):')
-        for node in sorted(node_path.name for node_path in directory.iterdir()):
-            attachments.append(f"    {node}")
+        try:
+            entries = sorted(node_path.name for node_path in directory.iterdir())
+        except OSError as exc:
+            attachments.append(f"    {type(exc).__name__}: {exc}")
+        else:
+            for node in entries:
+                attachments.append(f"    {node}")
     else:
         attachments.append(f'  Directory does not exist: "{directory}"')
 
