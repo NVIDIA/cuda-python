@@ -99,9 +99,9 @@ class KernelAttributes:
         """int : The block scheduling policy of a function."""
     @property
     def device_node_update_supported(self) -> bool:
-        """bool : Whether this kernel supports device-side graph node updates.
+        """bool : Whether this kernel can be the target of device-side graph node updates.
 
-        Requires the CUDA 13 build and CUDA driver 13.3 or newer.
+        Requires CUDA 13 build and CUDA driver 13.3+.
         This attribute is read-only.
         """
 

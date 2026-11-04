@@ -812,7 +812,7 @@ def test_graphdef_handle_valid(init_cuda):
 
 
 def test_graph_identity_attributes(init_cuda):
-    from cuda.core._utils.version import driver_version
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 
     definition = GraphDefinition()
     node = definition.empty()
@@ -820,11 +820,15 @@ def test_graph_identity_attributes(init_cuda):
     graph = definition.instantiate()
 
     try:
-        if driver_version() < (13, 1, 0):
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 1, 0):
             with pytest.raises(NotImplementedError):
                 _ = definition.id
             with pytest.raises(NotImplementedError):
                 _ = graph.id
+            with pytest.raises(NotImplementedError):
+                _ = node.local_id
+            with pytest.raises(NotImplementedError):
+                _ = node.tools_id
             return
         assert isinstance(definition.id, int)
         assert isinstance(graph.id, int)

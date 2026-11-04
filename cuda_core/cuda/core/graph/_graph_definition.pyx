@@ -151,7 +151,7 @@ cdef class GraphDefinition:
     def id(self) -> int:
         """The driver-assigned graph ID, as used in GraphViz DOT output.
 
-        Requires the CUDA 13 build and CUDA driver 13.1 or newer.
+        Requires CUDA 13 build and driver 13.1+
         """
         GD_check_valid(self)
         IF CUDA_CORE_BUILD_MAJOR >= 13:

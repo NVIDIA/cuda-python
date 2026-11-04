@@ -46,8 +46,8 @@ New features
 ------------
 
 - Added read-only ``GraphDefinition.id``, ``Graph.id``, ``GraphNode.local_id``
-  and ``GraphNode.tools_id`` properties (CUDA 13.1+), and
-  ``KernelAttributes.device_node_update_supported`` (CUDA 13.3+).
+  and ``GraphNode.tools_id`` properties (CUDA 13 build and driver 13.1+), and
+  ``KernelAttributes.device_node_update_supported`` (CUDA 13 build and driver 13.3+).
   The existing ``GraphNode.graph`` property provides containing-graph navigation.
   (`#2360 <https://github.com/NVIDIA/cuda-python/issues/2360>`__)
 

@@ -150,6 +150,8 @@ cdef class GraphNode:
     @property
     def local_id(self) -> int:
         """The node's ID within its graph.
+
+        Requires CUDA 13 build and driver 13.1+
         """
         GN_check_valid(self)
         if self._is_entry:
@@ -157,16 +159,18 @@ cdef class GraphNode:
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             cdef unsigned int node_id
             if cy_driver_version() < (13, 1, 0):
-                raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
+                raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
             with nogil:
                 HANDLE_RETURN(cydriver.cuGraphNodeGetLocalId(as_cu(self._h_node), &node_id))
             return node_id
         ELSE:
-            raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
+            raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
 
     @property
     def tools_id(self) -> int:
         """The node's ID reported by CUDA profiling and tooling interfaces.
+
+        Requires CUDA 13 build and driver 13.1+
         """
         GN_check_valid(self)
         if self._is_entry:
@@ -174,12 +178,12 @@ cdef class GraphNode:
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             cdef unsigned long long node_id
             if cy_driver_version() < (13, 1, 0):
-                raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
+                raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
             with nogil:
                 HANDLE_RETURN(cydriver.cuGraphNodeGetToolsId(as_cu(self._h_node), &node_id))
             return node_id
         ELSE:
-            raise NotImplementedError("Graph node IDs require CUDA driver 13.1 or newer")
+            raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
 
     @property
     def graph(self) -> GraphDefinition:
