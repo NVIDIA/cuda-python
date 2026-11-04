@@ -81,6 +81,7 @@ def _put(root, relative_dir, filename):
 
 
 @pytest.mark.parametrize("kind", ("bitcode", "static", "header", "binary", "linux_dynamic", "windows_dynamic"))
+@pytest.mark.thread_unsafe(reason="Patches process-wide site and sys state and clears caches.")
 @pytest.mark.agent_authored(model="gpt-6")
 def test_venv_layout_takes_priority_over_user_and_system(kind, site_roots):
     venv, user, system = site_roots
@@ -94,6 +95,7 @@ def test_venv_layout_takes_priority_over_user_and_system(kind, site_roots):
 
 
 @pytest.mark.parametrize("kind", ("bitcode", "static", "header", "binary", "linux_dynamic", "windows_dynamic"))
+@pytest.mark.thread_unsafe(reason="Patches process-wide site and sys state and clears caches.")
 @pytest.mark.agent_authored(model="gpt-6")
 def test_layout_order_is_preserved_within_a_site_root(kind, site_roots):
     venv, _, _ = site_roots
@@ -106,6 +108,7 @@ def test_layout_order_is_preserved_within_a_site_root(kind, site_roots):
 
 
 @pytest.mark.parametrize("kind", ("bitcode", "static", "header", "binary", "linux_dynamic", "windows_dynamic"))
+@pytest.mark.thread_unsafe(reason="Patches process-wide site and sys state and clears caches.")
 @pytest.mark.agent_authored(model="gpt-6")
 def test_lower_priority_root_is_used_when_higher_root_has_no_file(kind, site_roots):
     venv, user, _ = site_roots
@@ -119,6 +122,7 @@ def test_lower_priority_root_is_used_when_higher_root_has_no_file(kind, site_roo
 
 @pytest.mark.parametrize("in_venv", (True, False))
 @pytest.mark.parametrize("kind", ("bitcode", "static", "header", "binary", "linux_dynamic", "windows_dynamic"))
+@pytest.mark.thread_unsafe(reason="Patches process-wide site and sys state and clears caches.")
 @pytest.mark.agent_authored(model="gpt-6")
 def test_user_layout_takes_priority_over_system(kind, in_venv, site_roots, monkeypatch):
     _, user, system = site_roots
