@@ -49,7 +49,7 @@ def find_sub_dirs_sys_path(sub_dirs: Sequence[str]) -> list[str]:
     return find_sub_dirs(sys.path, sub_dirs)
 
 
-def find_sub_dirs_all_sitepackages(sub_dirs: Sequence[str]) -> list[str]:
+def _sitepackages_in_order() -> list[str]:
     parent_dirs = list(site.getsitepackages())
     if site.ENABLE_USER_SITE:
         user_site = site.getusersitepackages()
@@ -62,4 +62,18 @@ def find_sub_dirs_all_sitepackages(sub_dirs: Sequence[str]) -> list[str]:
             # Detect venv by checking if sys.prefix differs from sys.base_prefix
             insert_idx = 1 if sys.prefix != sys.base_prefix else 0
             parent_dirs.insert(insert_idx, user_site)
-    return find_sub_dirs(parent_dirs, sub_dirs)
+    return parent_dirs
+
+
+def find_sub_dirs_all_sitepackages(sub_dirs: Sequence[str]) -> list[str]:
+    return find_sub_dirs(_sitepackages_in_order(), sub_dirs)
+
+
+def find_sub_dirs_all_sitepackages_ordered(sub_dir_patterns: Sequence[Sequence[str]]) -> list[str]:
+    """Search site roots in priority order, then the wheel layouts within each root."""
+    return [
+        directory
+        for parent in _sitepackages_in_order()
+        for pattern in sub_dir_patterns
+        for directory in find_sub_dirs((parent,), pattern)
+    ]

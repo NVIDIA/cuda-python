@@ -91,7 +91,7 @@ def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, 
         {"nvcc": (site_key,)},
     )
     find_sub_dirs_mock = mocker.patch.object(
-        binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir]
+        binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[site_dir]
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
@@ -107,7 +107,7 @@ def test_find_binary_search_path_includes_site_packages_conda_cuda(monkeypatch, 
 
     # No directory contains the binary, so every trusted dir is probed in order.
     assert result is None
-    find_sub_dirs_mock.assert_called_once_with(site_key.split(os.sep))
+    find_sub_dirs_mock.assert_called_once_with((tuple(site_key.split(os.sep)),))
     assert checked == [os.path.join(d, "nvcc") for d in expected_dirs]
 
 
@@ -125,7 +125,7 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
         {"nvcc": (site_key,)},
     )
     find_sub_dirs_mock = mocker.patch.object(
-        binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir]
+        binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[site_dir]
     )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
@@ -143,7 +143,7 @@ def test_find_binary_windows_extension_and_search_dirs(monkeypatch, mocker):
 
     # The .exe extension is appended and the Windows-specific dirs are probed in order.
     assert result is None
-    find_sub_dirs_mock.assert_called_once_with(site_key.split(os.sep))
+    find_sub_dirs_mock.assert_called_once_with((tuple(site_key.split(os.sep)),))
     assert checked == [os.path.join(d, "nvcc.exe") for d in expected_dirs]
 
 
@@ -219,7 +219,7 @@ def test_find_binary_windows_nsight_conda_precedes_registry(monkeypatch, mocker,
     expected = os.path.join(conda_bin, candidate_names[0])
 
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[site_dir])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     candidate_paths = mocker.patch.object(binary_finder_module.windows_nsight, f"{utility_name}_candidate_paths")
     get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
@@ -269,7 +269,7 @@ def test_find_binary_windows_nsight_composes_registry_and_native_target(
     expected = os.path.join(install_root, target_rel)
 
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[site_dir])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     registry_root = mocker.patch.object(
         binary_finder_module.windows_nsight, "_installed_product_root", return_value=install_root
@@ -355,7 +355,9 @@ def test_find_windows_nsight_legacy_names_remain_literal_in_early_search(monkeyp
         "SITE_PACKAGES_BINDIRS",
         {utility_name: (site_key,)},
     )
-    find_sub_dirs = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    find_sub_dirs = mocker.patch.object(
+        binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[site_dir]
+    )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     get_cuda_path = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home")
     nsys_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "nsys_candidate_paths")
@@ -364,7 +366,7 @@ def test_find_windows_nsight_legacy_names_remain_literal_in_early_search(monkeyp
 
     assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
     assert checked == [os.path.join(site_dir, f"{utility_name}.exe"), expected]
-    find_sub_dirs.assert_called_once_with(site_key.split(os.sep))
+    find_sub_dirs.assert_called_once_with((tuple(site_key.split(os.sep)),))
     get_cuda_path.assert_not_called()
     nsys_candidates.assert_not_called()
     ncu_candidates.assert_not_called()
@@ -410,7 +412,7 @@ def test_find_binary_first_matching_dir_wins(monkeypatch, mocker):
         "SITE_PACKAGES_BINDIRS",
         {"nvcc": (site_key,)},
     )
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[site_dir])
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[site_dir])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
     mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
@@ -433,7 +435,7 @@ def test_find_binary_ctk_root_canary_fallback(monkeypatch, mocker):
 
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
     canary_mock = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=ctk_root)
@@ -454,7 +456,7 @@ def test_find_binary_canary_windows_bin_layout(monkeypatch, mocker):
 
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=True)
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
     mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=ctk_root)
@@ -478,7 +480,7 @@ def test_find_binary_canary_not_consulted_when_found_earlier(monkeypatch, mocker
 
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[])
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
     canary_mock = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
@@ -501,7 +503,9 @@ def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker):
         "SITE_PACKAGES_BINDIRS",
         {"nvcc": (site_key,)},
     )
-    find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    find_sub_dirs_mock = mocker.patch.object(
+        binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[]
+    )
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
     mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
@@ -510,7 +514,7 @@ def test_find_binary_returns_none_with_no_candidates(monkeypatch, mocker):
     result = find_nvidia_binary_utility("nvcc")
 
     assert result is None
-    find_sub_dirs_mock.assert_called_once_with(site_key.split(os.sep))
+    find_sub_dirs_mock.assert_called_once_with((tuple(site_key.split(os.sep)),))
     # No trusted dirs were assembled, so nothing is probed at all.
     assert checked == []
 
@@ -522,7 +526,9 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
 
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
-    find_sub_dirs_mock = mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    find_sub_dirs_mock = mocker.patch.object(
+        binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[]
+    )
     monkeypatch.setenv("CONDA_PREFIX", conda_prefix)
     mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=cuda_home)
     mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
@@ -543,7 +549,7 @@ def test_find_binary_without_site_packages_entry(monkeypatch, mocker):
 def test_find_binary_cache_negative_result(monkeypatch, mocker):
     mocker.patch.object(binary_finder_module, "IS_WINDOWS", new=False)
     mocker.patch.object(binary_finder_module.supported_nvidia_binaries, "SITE_PACKAGES_BINDIRS", {})
-    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages", return_value=[])
+    mocker.patch.object(binary_finder_module, "find_sub_dirs_all_sitepackages_ordered", return_value=[])
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     cuda_home_mock = mocker.patch.object(binary_finder_module, "get_cuda_path_or_home", return_value=None)
     canary_mock = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=None)
