@@ -145,26 +145,26 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installing bindings (source: ${BINDINGS_SOURCE})"
     pip install "${BINDINGS_ARGS[@]}"
     echo "Installing core wheel"
-    # Constrain cuda-toolkit to the requested CTK version to avoid
-    # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
-    # Skip the constraint for a local CTK of the build's own (newest) minor:
-    # its toolkit wheels may not be on PyPI yet, and the local CTK is what the
-    # job tests.
+    # Local jobs get CuPy's headers and libraries from the mini CTK; installing
+    # component wheels would take precedence over those local libraries.
+    CORE_TEST_GROUP="test-cu${TEST_CUDA_MAJOR}"
     TOOLKIT_PIN=("cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*")
-    if [[ "${LOCAL_CTK}" == 1 && "${TEST_CUDA_MAJOR}" == "${BUILD_CUDA_MAJOR}" && "${TEST_CUDA_MINOR}" == "${BUILD_CUDA_MINOR}" ]]; then
+    if [[ "${LOCAL_CTK}" == 1 ]]; then
+      CORE_TEST_GROUP+="-local"
       TOOLKIT_PIN=()
     fi
-    pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}" "${TEST_FT_GROUP[@]}" "${TOOLKIT_PIN[@]}"
+    pip install "${CORE_WHL[@]}" --group "${CORE_TEST_GROUP}" "${TEST_FT_GROUP[@]}" "${TOOLKIT_PIN[@]}"
     # Optional deps needed by some cuda.core samples exercised in this suite.
     # CuPy already comes from the
     # test-cuXX group; install the rest best-effort so those samples run
     # instead of being waived. Samples with heavier/unavailable deps stay waived.
     echo "Installing optional sample deps (nvtx, pillow)"
     pip install nvtx pillow || echo "Warning: optional sample deps install failed; affected samples will be waived"
-    # curand: some samples (vectorAdd, parallelHistogram) call cp.random,
-    # which dlopens libcurand at runtime.
-    echo "Installing optional sample deps (curand)"
-    pip install "cuda-toolkit[curand]==${TEST_CUDA_MAJOR_MINOR}.*" || echo "Warning: curand install failed; affected samples will be waived"
+    # Local jobs already get cuRAND from the mini CTK.
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      echo "Installing optional sample deps (curand)"
+      pip install "cuda-toolkit[curand]==${TEST_CUDA_MAJOR_MINOR}.*" || echo "Warning: curand install failed; affected samples will be waived"
+    fi
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"

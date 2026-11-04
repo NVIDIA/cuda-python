@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tomllib
 import zipfile
 from pathlib import Path
 
@@ -97,6 +98,17 @@ def run_tests(tmp_path, monkeypatch):
             for args in installs
             if any(arg.startswith("cuda-core[") or Path(arg).name.startswith("cuda_core-") for arg in args)
         )
+        if mode == "core":
+            major = cuda_version.split(".")[0]
+            group = core_install[core_install.index("--group") + 1]
+            assert group == f"test-cu{major}" + ("-local" if local_ctk else "")
+            toolkit_args = [arg for args in installs for arg in args if arg.startswith("cuda-toolkit")]
+            if local_ctk:
+                assert toolkit_args == []
+            else:
+                minor = ".".join(cuda_version.split(".")[:2])
+                assert f"cuda-toolkit=={minor}.*" in core_install
+                assert f"cuda-toolkit[curand]=={minor}.*" in toolkit_args
         return bindings_install, core_install, str(bindings_wheel)
 
     return run
@@ -109,24 +121,42 @@ def test_floor_uses_current_bindings_only_during_toolkit_bump(run_tests, local_c
     bindings, core, wheel = run_tests(local_ctk=local_ctk, floor=floor)
     expected = wheel + ("" if local_ctk else "[all]") if floor == "13.4.1" else "cuda-bindings==13.5.0"
     assert bindings == ["install", expected]
-    assert "cuda-toolkit==13.0.*" in core
 
 
 @pytest.mark.parametrize("local_ctk", [True, False], ids=["local", "wheels"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_current_minor_requires_toolkit_wheels_only_for_wheel_jobs(run_tests, local_ctk):
+def test_current_minor_uses_local_or_wheel_test_dependencies(run_tests, local_ctk):
     bindings, core, wheel = run_tests(source="main", cuda_version="13.5.0", local_ctk=local_ctk)
     assert bindings == ["install", wheel + ("" if local_ctk else "[all]")]
-    pins = [arg for arg in core if arg.startswith("cuda-toolkit==")]
-    assert pins == ([] if local_ctk else ["cuda-toolkit==13.5.*"])
 
 
 @pytest.mark.parametrize(("source", "cuda_version"), [("floor", "12.6.3"), ("backport", "12.9.1")])
+@pytest.mark.parametrize("local_ctk", [True, False], ids=["local", "wheels"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_prior_major_keeps_its_floor_or_backport_bindings(run_tests, source, cuda_version):
-    bindings, core, wheel = run_tests(source=source, cuda_version=cuda_version, local_ctk=False)
-    assert bindings == ["install", "cuda-bindings==12.9.8" if source == "floor" else wheel + "[all]"]
-    assert f"cuda-toolkit=={'.'.join(cuda_version.split('.')[:2])}.*" in core
+def test_prior_major_keeps_its_floor_or_backport_bindings(run_tests, source, cuda_version, local_ctk):
+    bindings, core, wheel = run_tests(source=source, cuda_version=cuda_version, local_ctk=local_ctk)
+    expected = "cuda-bindings==12.9.8" if source == "floor" else wheel + ("" if local_ctk else "[all]")
+    assert bindings == ["install", expected]
+
+
+@pytest.mark.parametrize("major", [12, 13])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_local_core_groups_keep_test_dependencies_without_toolkit_wheels(major):
+    pyproject = TOOLS.parents[1] / "cuda_core" / "pyproject.toml"
+    groups = tomllib.loads(pyproject.read_text(encoding="utf-8"))["dependency-groups"]
+
+    def requirements(name):
+        for item in groups[name]:
+            if isinstance(item, str):
+                yield item
+            else:
+                yield from requirements(item["include-group"])
+
+    local = set(requirements(f"test-cu{major}-local"))
+    assert set(requirements("test")) | set(requirements("ml-dtypes")) <= local
+    assert any(requirement.partition(";")[0].strip() == f"cupy-cuda{major}x" for requirement in local)
+    assert not any(requirement.startswith("cuda-toolkit") for requirement in local)
+    assert set(requirements(f"test-cu{major}")) == local | {f"cuda-toolkit[cudart]=={major}.*"}
 
 
 @pytest.mark.parametrize("mode", ["nightly-pytorch", "nightly-numba-cuda", "nightly-numba-cuda-mlir"])

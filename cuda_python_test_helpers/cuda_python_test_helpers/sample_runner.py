@@ -335,6 +335,20 @@ def _distribution_mismatches(requirement: Requirement, dist: importlib.metadata.
     return mismatches
 
 
+def _native_curand_available() -> bool:
+    try:
+        pathfinder = importlib.import_module("cuda.pathfinder")
+    except ModuleNotFoundError as exc:
+        if exc.name in {"cuda", "cuda.pathfinder"}:
+            return False
+        raise
+    try:
+        pathfinder.load_nvidia_dynamic_lib("curand")
+    except pathfinder.DynamicLibNotFoundError:
+        return False
+    return True
+
+
 def missing_dependencies(example: Path) -> list[str]:
     """Return useful diagnostics for unmet PEP 723 dependency requirements.
 
@@ -367,6 +381,13 @@ def missing_dependencies(example: Path) -> list[str]:
                 break
             installed.append(f"{provider} {dist.version}: {', '.join(mismatches)}")
         else:
+            # A local Toolkit can provide cuRAND without a Python distribution.
+            if (
+                canonicalize_name(requirement.name) == "nvidia-curand"
+                and not (requirement.specifier or requirement.extras or requirement.url)
+                and _native_curand_available()
+            ):
+                continue
             if installed:
                 detail = "; ".join(installed)
             else:

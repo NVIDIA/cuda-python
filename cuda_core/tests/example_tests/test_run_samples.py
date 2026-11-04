@@ -462,6 +462,63 @@ def test_cupy_cuda_requirement_accepts_conda_cupy_distribution(tmp_path: Path, i
     assert requested == ["cupy-cuda13x", "cupy"]
 
 
+@pytest.mark.parametrize("available", [True, False], ids=["local-library", "missing-library"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_unversioned_curand_requirement_accepts_native_library(
+    tmp_path: Path, installed_distributions, monkeypatch: pytest.MonkeyPatch, available: bool
+) -> None:
+    pathfinder = ModuleType("cuda.pathfinder")
+
+    class DynamicLibNotFoundError(RuntimeError):
+        pass
+
+    def load_library(name: str) -> object:
+        assert name == "curand"
+        if not available:
+            raise DynamicLibNotFoundError("cuRAND is not installed")
+        return object()
+
+    pathfinder.DynamicLibNotFoundError = DynamicLibNotFoundError
+    pathfinder.load_nvidia_dynamic_lib = load_library
+    monkeypatch.setattr(run_samples._runner.importlib, "import_module", lambda _name: pathfinder)
+
+    missing = run_samples.missing_dependencies(_sample(tmp_path, "['nvidia-curand']"))
+
+    assert (missing == []) is available
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_native_curand_check_tolerates_missing_pathfinder(
+    tmp_path: Path, installed_distributions, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def import_module(name: str) -> ModuleType:
+        raise ModuleNotFoundError(name=name)
+
+    monkeypatch.setattr(run_samples._runner.importlib, "import_module", import_module)
+
+    missing = run_samples.missing_dependencies(_sample(tmp_path, "['nvidia-curand']"))
+
+    assert len(missing) == 1
+    assert "no provider distribution installed" in missing[0]
+
+
+@pytest.mark.parametrize(
+    "requirement", ["nvidia-curand>=11", "nvidia-curand[extra]", "nvidia-curand @ https://example.com/curand.whl"]
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_curand_constraints_require_a_provider_distribution(
+    tmp_path: Path, installed_distributions, monkeypatch: pytest.MonkeyPatch, requirement: str
+) -> None:
+    def unexpected_import(name: str) -> ModuleType:
+        raise AssertionError("constrained requirements must use distribution metadata")
+
+    monkeypatch.setattr(run_samples._runner.importlib, "import_module", unexpected_import)
+
+    missing = run_samples.missing_dependencies(_sample(tmp_path, f"[{requirement!r}]"))
+
+    assert len(missing) == 1
+
+
 @pytest.mark.agent_authored(model="gpt-5")
 def test_environment_markers_control_dependency_checks(tmp_path: Path, installed_distributions) -> None:
     _, requested = installed_distributions

@@ -93,8 +93,10 @@ test = [
 ]
 ml-dtypes = ["ml-dtypes>=0.5.4"]
 test-ft = ["pytest-run-parallel==0.10.0"]
-test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.15'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
-test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.15'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
+test-cu12-local = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.15'"]
+test-cu13-local = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.15'"]
+test-cu12 = [ {include-group = "test-cu12-local" }, "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
+test-cu13 = [ {include-group = "test-cu13-local" }, "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
 
 [tool.uv]
 conflicts = [
@@ -105,6 +107,10 @@ conflicts = [
     [
         { group = "test-cu12" },
         { group = "test-cu13" },
+    ],
+    [
+        { group = "test-cu12-local" },
+        { group = "test-cu13-local" },
     ],
 ]
 
