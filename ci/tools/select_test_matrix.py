@@ -35,7 +35,8 @@ def select_test_matrix(
         variant = f"cu{major}"
         if not enabled.get(variant, False):
             continue
-        package = next((package for package in packages if package["toolkit_version"] == source_row["CUDA_VER"]), None)
+        ctk_target = ".".join(source_row["CUDA_VER"].split(".")[:2])
+        package = next((package for package in packages if package["ctk_target"] == ctk_target), None)
         root = "" if package is None else package["package_root"]
         suites = []
         if test_mode != "standard":
@@ -63,6 +64,7 @@ def select_test_matrix(
                 "CUDA_VARIANT": variant,
                 "BINDINGS_SOURCE": "floor" if package is None else "local",
                 "BINDINGS_SOURCE_DIR": root,
+                "BINDINGS_BUILD_VERSION": "" if package is None else package["toolkit_version"],
                 "DEFAULT_BINDINGS_SOURCE_DIR": current_root,
                 "PATHFINDER_SOURCE": "artifact" if workplan is None else workplan["sources"]["pathfinder"],
                 "SUITES": "+".join(suites),
