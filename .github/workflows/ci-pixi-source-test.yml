@@ -103,7 +103,7 @@ jobs:
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci
@@ -292,7 +292,7 @@ jobs:
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci
@@ -409,7 +409,7 @@ jobs:
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install CI tool dependencies
         run: python3 -m pip install -e ./ci

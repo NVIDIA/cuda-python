@@ -182,6 +182,7 @@ jobs:
 
       - name: Set environment variables
         env:
+          BUILD_CUDA_VER: ${{ matrix.BINDINGS_BUILD_VERSION }}
           BINDINGS_SOURCE: ${{ matrix.BINDINGS_SOURCE }}
           BINDINGS_SOURCE_DIR: ${{ matrix.BINDINGS_SOURCE_DIR }}
           DEFAULT_BINDINGS_SOURCE_DIR: ${{ matrix.DEFAULT_BINDINGS_SOURCE_DIR }}

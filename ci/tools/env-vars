@@ -82,7 +82,7 @@ else
 
   if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
     : "${BINDINGS_SOURCE_DIR:?BINDINGS_SOURCE_DIR is required for local bindings}"
-    BINDINGS_BUILD_CUDA_VER="${CUDA_VER}"
+    BINDINGS_BUILD_CUDA_VER="${BUILD_CUDA_VER}"
     CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"
   elif [[ "${BINDINGS_SOURCE}" == "floor" ]]; then
     # The matrix selects floor bindings for toolkit rows without an exact

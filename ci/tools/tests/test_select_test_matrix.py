@@ -9,10 +9,17 @@ PACKAGES = [
     {
         "package_root": "bindings12",
         "toolkit_version": "12.9.1",
+        "ctk_target": "12.9",
         "cuda_variant": "cu12",
         "release_status": "maintenance",
     },
-    {"package_root": "bindings13", "toolkit_version": "13.4.2", "cuda_variant": "cu13", "release_status": "current"},
+    {
+        "package_root": "bindings13",
+        "toolkit_version": "13.4.2",
+        "ctk_target": "13.4",
+        "cuda_variant": "cu13",
+        "release_status": "current",
+    },
 ]
 
 
@@ -69,3 +76,15 @@ def test_nightly_subsets_may_use_published_floor_bindings(test_mode):
     matrix = select_test_matrix(rows("12.6.3"), PACKAGES, build_type="nightly", test_mode=test_mode)
 
     assert [row["BINDINGS_SOURCE"] for row in matrix["include"]] == ["floor"]
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_toolkit_patch_updates_keep_nightly_bindings_coverage():
+    packages = [dict(package) for package in PACKAGES]
+    packages[1]["toolkit_version"] = "13.4.3"
+
+    row = select_test_matrix(rows("13.4.2"), packages, build_type="nightly")["include"][0]
+
+    assert row["BINDINGS_SOURCE"] == "local"
+    assert row["BINDINGS_BUILD_VERSION"] == "13.4.3"
+    assert {"bindings13", "meta13"} <= set(row["SUITES"].split("+"))
