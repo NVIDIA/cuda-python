@@ -142,11 +142,12 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
     """
     finder = _FindStaticLib(name)
 
+    # Path.absolute preserves symlink/.. traversal rather than normalizing it.
     abs_path = finder.try_site_packages()
     if abs_path is not None:
         return LocatedStaticLib(
             name=name,
-            abs_path=str(abs_path),
+            abs_path=str(abs_path.absolute()),
             filename=finder.filename,
             found_via="site-packages",
         )
@@ -155,7 +156,7 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
     if abs_path is not None:
         return LocatedStaticLib(
             name=name,
-            abs_path=str(abs_path),
+            abs_path=str(abs_path.absolute()),
             filename=finder.filename,
             found_via="conda",
         )
@@ -164,7 +165,7 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
     if abs_path is not None:
         return LocatedStaticLib(
             name=name,
-            abs_path=str(abs_path),
+            abs_path=str(abs_path.absolute()),
             filename=finder.filename,
             found_via="CUDA_PATH",
         )
