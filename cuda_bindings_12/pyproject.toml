@@ -47,14 +47,6 @@ all = [
     "nvidia-cufile-cu12; sys_platform == 'linux'",
 ]
 
-test = [
-    "cython>=3.2.5,<3.3",
-    "setuptools>=80.0.0",
-    "numpy>=1.21.1",
-    "pytest==9.1.0",
-    "pytest-benchmark>=3.4.1",
-    "pyglet>=2.1.9"
-]
 
 [dependency-groups]
 # Keep build in sync with build-system.requires.
@@ -172,7 +164,7 @@ exclude = ["cuda/bindings/_version.py"]
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/bindings/_version.py"
-git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v12.9.*"]
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v12.*"]
 
 [tool.cuda-python]
 scm-bootstrap-release = "12.9.11"

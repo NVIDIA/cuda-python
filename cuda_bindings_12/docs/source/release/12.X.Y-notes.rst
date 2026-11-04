@@ -5,8 +5,8 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` Upcoming CUDA 12 Release Notes
-================================================
+``cuda-bindings`` 12.X.Y Release notes
+======================================
 
 Unreleased
 

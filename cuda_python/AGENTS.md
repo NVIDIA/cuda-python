@@ -20,10 +20,12 @@ monorepo.
   component packages rather than here.
 - Be careful when changing dependency/version logic in `setup.py`; preserve
   compatibility between metapackage versioning and subpackage constraints.
-- Git source builds default to CUDA 13; set `CUDA_PYTHON_BUILD_MAJOR=12` to
-  select CUDA 12. Selectors live in `pyproject.toml`. Standalone sdists retain
-  their fixed version, which also determines their dependency major. Check
-  default CUDA 13, explicit CUDA 12, and CUDA 12 sdist rebuilds when changing
+- Git source builds select CUDA 12 at an exact CUDA 12 tag when no CUDA 13
+  tag points to the same commit; otherwise they default to CUDA 13.
+  `CUDA_PYTHON_BUILD_MAJOR` explicitly selects either major. Selectors live
+  in `pyproject.toml`; setuptools-scm derives the version. Standalone
+  sdists retain their fixed version and dependency major. Validate a
+  tagged CUDA 12 build and a selector-free sdist rebuild when changing
   this shared packaging logic.
 
 ## Release coupling

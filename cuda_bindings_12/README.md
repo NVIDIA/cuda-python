@@ -16,8 +16,8 @@ This subpackage adheres to the developing practices described in the parent meta
 ## Testing
 
 Run the commands below from `cuda_bindings_12/`, in an environment containing
-the CUDA 12 bindings. Install the package and its `test` dependency group with
-`python -m pip install -v -e . --group test`.
+the CUDA 12 bindings. With pip 25.1 or newer, install the package and its
+`test` dependency group with `python -m pip install -v -e . --group test`.
 
 Multiple testing options are available:
 

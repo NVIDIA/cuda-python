@@ -21,8 +21,8 @@ Debuggable builds are not supported on Windows.
 ## Testing
 
 Run the commands below from `cuda_bindings_13/`, in an environment containing
-the CUDA 13 bindings. Install the package and its `test` dependency group with
-`python -m pip install -v -e . --group test`.
+the CUDA 13 bindings. With pip 25.1 or newer, install the package and its
+`test` dependency group with `python -m pip install -v -e . --group test`.
 
 Multiple testing options are available:
 
