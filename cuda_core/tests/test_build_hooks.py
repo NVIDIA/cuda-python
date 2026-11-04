@@ -423,6 +423,7 @@ class TestGeneratedSourceDirIsKeyed:
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_majors_use_different_dirs(self, monkeypatch):
+        monkeypatch.setattr(build_hooks, "COMPILE_FOR_COVERAGE", False)
         dir_12 = _capture_cythonize_build_dir(monkeypatch, "12")
         dir_13 = _capture_cythonize_build_dir(monkeypatch, "13")
 
@@ -433,6 +434,7 @@ class TestGeneratedSourceDirIsKeyed:
 
     @pytest.mark.agent_authored(model="glm-5.2")
     def test_dir_is_anchored_not_relative_to_cwd(self, monkeypatch):
+        monkeypatch.setattr(build_hooks, "COMPILE_FOR_COVERAGE", False)
         # Anchored to build_hooks.py, so it must agree with the stamp
         # regardless of where the build was invoked from.
         build_dir = _capture_cythonize_build_dir(monkeypatch, "13")
