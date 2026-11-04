@@ -7,17 +7,13 @@
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_expands_program_files_and_prefers_newest_cudnn|run",
-  "b": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[cudnn-/usr/include]|run",
-  "c": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[cudnn-/usr/local/include]|run",
-  "d": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[nccl-/usr/include]|run",
-  "e": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[nccl-/usr/local/include]|run",
-  "f": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_running_linux_multiarch|run",
-  "g": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[cudnn]|run",
-  "h": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
-  "i": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
-  "j": "(empty)",
-  "k": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers[nccl]|run"
+  "a": "test_find_nvidia_headers.test_find_in_system_install_dirs_expands_program_files_and_prefers_newest_cudnn",
+  "b": "test_find_nvidia_headers.test_find_in_system_install_dirs_uses_native_linux_layouts",
+  "c": "test_find_nvidia_headers.test_find_in_system_install_dirs_uses_running_linux_multiarch",
+  "d": "test_find_nvidia_headers.test_locate_non_ctk_headers",
+  "e": "test_search_steps.TestWindowsInstallRoots.test_program_files_finds_versioned_cudnn_install",
+  "f": "test_search_steps.TestWindowsInstallRoots.test_program_files_prefers_newest_numeric_cudnn_version_across_layouts",
+  "g": "(empty)"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -80,7 +76,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_platform_aware_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 01:21 +0000
+            created at 2026-11-04 13:13 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -110,14 +106,14 @@
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="key">def</span> <span class="nam">numeric_aware_path_sort_key</span><span class="op">(</span><span class="nam">path</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">tuple</span><span class="op">[</span><span class="nam">tuple</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="op">...</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs14" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Return a key that compares embedded digit runs by numeric value.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">    <span class="nam">key</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">tuple</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefgkhi</span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">    <span class="key">for</span> <span class="nam">part</span> <span class="key">in</span> <span class="nam">_DIGIT_RUN</span><span class="op">.</span><span class="nam">split</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefgkhi</span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">if</span> <span class="nam">part</span><span class="op">.</span><span class="nam">isdigit</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefgkhi</span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">            <span class="nam">normalized</span> <span class="op">=</span> <span class="nam">part</span><span class="op">.</span><span class="nam">lstrip</span><span class="op">(</span><span class="str">&quot;0&quot;</span><span class="op">)</span> <span class="key">or</span> <span class="str">&quot;0&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
-    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">            <span class="nam">key</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="nam">len</span><span class="op">(</span><span class="nam">normalized</span><span class="op">)</span><span class="op">,</span> <span class="nam">normalized</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">9 ctx</label></span><span class="ctxs">1abcdefghi</span></p>
+    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">    <span class="nam">key</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">tuple</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><input type="checkbox" id="ctxs16"><span class="r"><label for="ctxs16" class="ctx">6 ctx</label></span><span class="ctxs">1abcdef</span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">    <span class="key">for</span> <span class="nam">part</span> <span class="key">in</span> <span class="nam">_DIGIT_RUN</span><span class="op">.</span><span class="nam">split</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs17"><span class="r"><label for="ctxs17" class="ctx">6 ctx</label></span><span class="ctxs">1abcdef</span></p>
+    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="key">if</span> <span class="nam">part</span><span class="op">.</span><span class="nam">isdigit</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs18"><span class="r"><label for="ctxs18" class="ctx">6 ctx</label></span><span class="ctxs">1abcdef</span></p>
+    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">            <span class="nam">normalized</span> <span class="op">=</span> <span class="nam">part</span><span class="op">.</span><span class="nam">lstrip</span><span class="op">(</span><span class="str">&quot;0&quot;</span><span class="op">)</span> <span class="key">or</span> <span class="str">&quot;0&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs19"><span class="r"><label for="ctxs19" class="ctx">6 ctx</label></span><span class="ctxs">1abcdef</span></p>
+    <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">            <span class="nam">key</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="nam">len</span><span class="op">(</span><span class="nam">normalized</span><span class="op">)</span><span class="op">,</span> <span class="nam">normalized</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs20"><span class="r"><label for="ctxs20" class="ctx">6 ctx</label></span><span class="ctxs">1abcdef</span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">            <span class="nam">key</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="op">(</span><span class="num">0</span><span class="op">,</span> <span class="num">0</span><span class="op">,</span> <span class="nam">part</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefgkhi</span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">return</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">key</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">10 ctx</label></span><span class="ctxs">1abcdefgkhi</span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">            <span class="nam">key</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="op">(</span><span class="num">0</span><span class="op">,</span> <span class="num">0</span><span class="op">,</span> <span class="nam">part</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">6 ctx</label></span><span class="ctxs">1abcdef</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="key">return</span> <span class="nam">tuple</span><span class="op">(</span><span class="nam">key</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">6 ctx</label></span><span class="ctxs">1abcdef</span></p>
 </main>
 <footer>
     <div class="content">
@@ -127,7 +123,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_platform_aware_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 01:21 +0000
+            created at 2026-11-04 13:13 +0000
         </p>
     </div>
 </footer>

@@ -7,201 +7,88 @@
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "tests/test_memory.py::test_synchronous_memory_resource_basic|run",
-  "b": "tests/test_memory.py::test_synchronous_memory_resource_deallocate_accepts_stream|run",
-  "c": "tests/graph/test_graph_node_update.py::test_memcpy_update_captured_node_host_operand[cumemalloc]|run",
-  "d": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_cannot_infer_data_type|run",
-  "e": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_element_strides_must_be_positive[negative]|run",
-  "f": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_element_strides_must_be_positive[zero]|run",
-  "g": "tests/test_tensor_map.py::test_as_tensor_map_reports_unsupported_hardware_as_cuda_error|run",
-  "h": "tests/test_utils_dlpack.py::test_dlpack_view_of_buffer_reuses_exporting_buffer|run",
-  "i": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_per_thread_default_stream_token_is_accepted|run",
-  "j": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_options_on_per_thread_default_stream|run",
-  "k": "tests/test_device.py::test_device_alloc|run",
-  "l": "tests/test_texture_surface.py::test_texture_object_from_linear|run",
-  "m": "tests/test_texture_surface.py::test_texture_object_from_pitch2d|run",
-  "n": "tests/test_utils.py::test_from_buffer[False-C-int8-(2, 3)]|run",
-  "o": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 10)]|run",
-  "p": "tests/test_utils.py::test_from_buffer[False-C-int8-(10, 13, 11)]|run",
-  "q": "tests/test_utils.py::test_from_buffer[False-C-int8-()]|run",
-  "r": "tests/test_utils.py::test_from_buffer[False-C-uint32-(2, 3)]|run",
-  "s": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 10)]|run",
-  "t": "tests/test_utils.py::test_from_buffer[False-C-uint32-(10, 13, 11)]|run",
-  "u": "tests/test_utils.py::test_from_buffer[False-C-uint32-()]|run",
-  "v": "tests/test_utils.py::test_from_buffer[False-F-int8-(2, 3)]|run",
-  "w": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 10)]|run",
-  "x": "tests/test_utils.py::test_from_buffer[False-F-int8-(10, 13, 11)]|run",
-  "y": "tests/test_utils.py::test_from_buffer[False-F-int8-()]|run",
-  "z": "tests/test_utils.py::test_from_buffer[False-F-uint32-(2, 3)]|run",
-  "A": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 10)]|run",
-  "B": "tests/test_utils.py::test_from_buffer[False-F-uint32-(10, 13, 11)]|run",
-  "C": "tests/test_utils.py::test_from_buffer[False-F-uint32-()]|run",
-  "D": "tests/test_utils.py::test_from_buffer[True-C-int8-(2, 3)]|run",
-  "E": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 10)]|run",
-  "F": "tests/test_utils.py::test_from_buffer[True-C-int8-(10, 13, 11)]|run",
-  "G": "tests/test_utils.py::test_from_buffer[True-C-int8-()]|run",
-  "H": "tests/test_utils.py::test_from_buffer[True-C-uint32-(2, 3)]|run",
-  "I": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 10)]|run",
-  "J": "tests/test_utils.py::test_from_buffer[True-C-uint32-(10, 13, 11)]|run",
-  "K": "tests/test_utils.py::test_from_buffer[True-C-uint32-()]|run",
-  "L": "tests/test_utils.py::test_from_buffer[True-F-int8-(2, 3)]|run",
-  "M": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 10)]|run",
-  "N": "tests/test_utils.py::test_from_buffer[True-F-int8-(10, 13, 11)]|run",
-  "O": "tests/test_utils.py::test_from_buffer[True-F-int8-()]|run",
-  "P": "tests/test_utils.py::test_from_buffer[True-F-uint32-(2, 3)]|run",
-  "Q": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 10)]|run",
-  "R": "tests/test_utils.py::test_from_buffer[True-F-uint32-(10, 13, 11)]|run",
-  "S": "tests/test_utils.py::test_from_buffer[True-F-uint32-()]|run",
-  "T": "tests/test_utils.py::test_from_buffer_sliced[C]|run",
-  "U": "tests/test_utils.py::test_from_buffer_sliced[F]|run",
-  "V": "tests/test_utils.py::test_from_buffer_with_non_power_of_two_itemsize|run",
-  "W": "tests/test_utils.py::test_strided_memory_view_dlpack_export_requires_dtype|run",
-  "X": "tests/test_utils.py::test_strided_memory_view_repr_with_none_dtype|run",
-  "Y": "tests/test_utils_dlpack.py::test_dlpack_c_exchange_api_export_failure_sets_exception[dltensor_from_py_object_no_sync]|run",
-  "Z": "tests/test_utils_dlpack.py::test_dlpack_c_exchange_api_export_failure_sets_exception[managed_tensor_from_py_object_no_sync]|run",
-  "0": "tests/test_device.py::test_invalid_memory_resource_assignment_preserves_resource|run",
-  "1": "tests/test_memory.py::test_buffer_external_device[False]|run",
-  "2": "tests/test_memory.py::test_buffer_external_device[True]|run",
-  "3": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_unsupported_data_type[explicit_unsupported]|run",
-  "4": "tests/test_tensor_map.py::TestTensorMapDescriptorValidation::test_unsupported_data_type[tensor_dtype_unsupported]|run",
-  "5": "tests/test_tensor_map.py::test_as_tensor_map_rejects_misaligned_device_pointer|run",
-  "6": "tests/test_texture_surface.py::test_array_copy_rejects_undersized_device_buffer|run",
-  "7": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_defaults_size|run",
-  "8": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_bad_channels|run",
-  "9": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_non_multiple|run",
-  "!": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_oversize|run",
-  "#": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_rejects_zero_size|run",
-  "$": "tests/test_texture_surface.py::test_resource_descriptor_from_linear_size_override|run",
-  "%": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_channels|run",
-  "'": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_bad_format|run",
-  "(": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_rejects_zero_dims|run",
-  ")": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_buffer_size|run",
-  "*": "tests/test_texture_surface.py::test_resource_descriptor_from_pitch2d_validates_pitch|run",
-  "+": "tests/test_texture_surface.py::test_resource_descriptor_public_dimensions_match_backing|run",
-  ",": "tests/test_texture_surface.py::test_surface_rejects_linear_and_pitch2d|run",
-  "-": "tests/test_utils.py::test_dlpack_export_device_accessible_cai_view|run",
-  ".": "tests/test_utils.py::test_from_buffer_disallowed_negative_offset|run",
-  "/": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[None-None-itemsize or dtype must be specified]|run",
-  ":": "tests/test_utils.py::test_from_buffer_incompatible_dtype_and_itemsize[dtype0-1-itemsize .+ does not match dtype.itemsize .+]|run",
-  ";": "tests/test_utils.py::test_from_buffer_too_small|run",
-  "=": "tests/test_utils.py::test_view_as_cai_device_pointer_and_stream_ordering|run",
-  "?": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_single_element_batch|run",
-  "@": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_various_sizes|run",
-  "[": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_device_buffer|run",
-  "]": "(empty)",
-  "^": "tests/graph/test_graph_node_update.py::test_executable_memcpy_update_on_captured_node|run",
-  "_": "tests/graph/test_graph_node_update.py::test_memcpy_update_captured_node_operand[dst]|run",
-  "`": "tests/graph/test_graph_node_update.py::test_memcpy_update_captured_node_operand[src]|run",
-  "{": "tests/graph/test_graph_node_update.py::test_memcpy_update_captured_node_size|run",
-  "|": "tests/graph/test_host_callback_contracts.py::test_python_callback_exception_is_reported_as_unraisable|run",
-  "}": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_varied_sizes|run",
-  "~": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[1024-2048]|run",
-  "ab": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[2048-1024]|run",
-  "bb": "tests/memory/test_copy_single_options.py::test_dst_none_with_options|run",
-  "cb": "tests/test_device.py::test_device_context_requires_initialization_on_new_thread|run",
-  "db": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_launch_and_verify|run",
-  "eb": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_two_green_contexts_independent|run",
-  "fb": "tests/test_green_context.py::TestGreenContextKernelLaunch::test_with_workqueue_resource|run",
-  "gb": "tests/test_host_copy.py::test_host_copy_orders_between_prior_and_later_work|run",
-  "hb": "tests/test_host_launch.py::test_host_launch_orders_between_prior_and_later_work|run",
-  "ib": "tests/test_host_launch.py::test_host_launch_two_streams_keep_their_own_data|run",
-  "jb": "tests/test_linker.py::test_complete_ltoir_round_trip_matches_direct_cubin|run",
-  "kb": "tests/test_linker.py::test_incremental_cubin_round_trip|run",
-  "lb": "tests/test_linker.py::test_incremental_lto_cubin_round_trip|run",
-  "mb": "tests/test_linker.py::test_incremental_ltoir_round_trip|run",
-  "nb": "tests/test_module.py::test_kernel_keeps_library_alive|run",
-  "ob": "tests/test_program.py::test_nvrtc_automatic_pch_preserves_compiled_kernel|run",
-  "pb": "tests/test_stream.py::test_borrowed_external_stream_resolves_context_without_taking_ownership|run",
-  "qb": "tests/test_texture_surface.py::test_array_copy_accepts_graph_builder|run",
-  "rb": "tests/test_texture_surface.py::test_texture_border_color_is_sampled_on_device|run",
-  "sb": "tests/test_device.py::test_device_alloc_zero_bytes|run",
-  "tb": "tests/test_error_handling.py::test_failed_call_raises_its_own_error_with_the_restore_failure_attached|run",
-  "ub": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|run",
-  "vb": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|run",
-  "wb": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_buffer]|setup",
-  "xb": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|setup",
-  "yb": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-\u003clambda\u003e]|setup",
-  "zb": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|setup",
-  "Ab": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|setup",
-  "Bb": "tests/test_object_protocols.py::test_no_cross_type_equality|setup",
-  "Cb": "tests/test_object_protocols.py::test_repr_format[sample_buffer-\u003cBuffer ptr=0x[0-9a-f]+ size=\\\\d+\u003e]|setup",
-  "Db": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|setup",
-  "Eb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|setup",
-  "Fb": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|setup",
-  "Gb": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|setup",
-  "Hb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|setup",
-  "Ib": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|setup",
-  "Jb": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|setup",
-  "Kb": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[device-to-host]|run",
-  "Lb": "tests/graph/test_graph_node_update.py::test_memcpy_update_between_host_and_device[host-to-device]|run",
-  "Mb": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|setup",
-  "Nb": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|setup",
-  "Ob": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|setup",
-  "Pb": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|setup",
-  "Qb": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|setup",
-  "Rb": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|setup",
-  "Sb": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_graph_builder_is_rejected|setup",
-  "Tb": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|setup",
-  "Ub": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|setup",
-  "Vb": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|setup",
-  "Wb": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|setup",
-  "Xb": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|setup",
-  "Yb": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|setup",
-  "Zb": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|setup",
-  "0b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|setup",
-  "1b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|setup",
-  "2b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|setup",
-  "3b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|setup",
-  "4b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|setup",
-  "5b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|setup",
-  "6b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|setup",
-  "7b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|setup",
-  "8b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|setup",
-  "9b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|teardown",
-  "!b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2h_batch|teardown",
-  "#b": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|teardown",
-  "$b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_copy_to|teardown",
-  "%b": "tests/memory/test_copy_batch.py::TestCopyBatchEquivalence::test_batch_matches_sequential_d2d|teardown",
-  "'b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|teardown",
-  "(b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_graph_builder_is_rejected|teardown",
-  ")b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|teardown",
-  "*b": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|teardown",
-  "+b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_default_overlap_mode_does_not_warn|teardown",
-  ",b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|teardown",
-  "-b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|teardown",
-  ".b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|teardown",
-  "/b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|teardown",
-  ":b": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|teardown",
-  ";b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|teardown",
-  "=b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|teardown",
-  "?b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|teardown",
-  "@b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|teardown",
-  "[b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|teardown",
-  "]b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|teardown",
-  "^b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|teardown",
-  "_b": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|teardown",
-  "`b": "tests/test_object_protocols.py::test_closeable_object_state_and_safe_inspection[sample_buffer]|run",
-  "{b": "tests/test_object_protocols.py::test_equality_basic[sample_buffer]|teardown",
-  "|b": "tests/test_object_protocols.py::test_equality_same_handle[sample_buffer-\u003clambda\u003e]|teardown",
-  "}b": "tests/test_object_protocols.py::test_hash_consistency[sample_buffer]|teardown",
-  "~b": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_buffer-sample_buffer_alt]|teardown",
-  "ac": "tests/test_object_protocols.py::test_repr_format[sample_buffer-\u003cBuffer ptr=0x[0-9a-f]+ size=\\\\d+\u003e]|teardown",
-  "bc": "tests/test_object_protocols.py::test_same_type_inequality[sample_buffer-sample_buffer_alt]|teardown",
-  "cc": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_buffer]|teardown",
-  "dc": "tests/test_object_protocols.py::test_usable_in_set[sample_buffer]|teardown",
-  "ec": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_buffer]|teardown",
-  "fc": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_buffer]|teardown",
-  "gc": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_buffer]|teardown",
-  "hc": "tests/test_object_protocols.py::test_weakref_supported[sample_buffer]|teardown",
-  "ic": "tests/test_device.py::test_device_memory_resource_controls_allocation|run",
-  "jc": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_d2d_batch|run",
-  "kc": "tests/memory/test_copy_batch.py::TestCopyBatchCore::test_h2d_batch|run",
-  "lc": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_ordered_between_prior_and_later_stream_work|run",
-  "mc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_during_api_call|run",
-  "nc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_overlap_mode_copies_correctly|run",
-  "oc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_per_copy_options|run",
-  "pc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[any-33]|run",
-  "qc": "tests/memory/test_copy_batch_options.py::TestCopyBatchOptions::test_src_access_order[stream-31]|run"
+  "a": "(empty)",
+  "b": "test_memory.test_synchronous_memory_resource_basic",
+  "c": "test_memory.test_synchronous_memory_resource_deallocate_accepts_stream",
+  "d": "test_tensor_map.test_as_tensor_map_reports_unsupported_hardware_as_cuda_error",
+  "e": "test_utils_dlpack.test_dlpack_view_of_buffer_reuses_exporting_buffer",
+  "f": "test_copy_batch.TestCopyBatchStreamSemantics.test_per_thread_default_stream_token_is_accepted",
+  "g": "test_copy_batch_options.TestCopyBatchOptions.test_options_on_per_thread_default_stream",
+  "h": "test_texture_surface.test_texture_object_from_linear",
+  "i": "test_texture_surface.test_texture_object_from_pitch2d",
+  "j": "test_utils_dlpack.test_dlpack_c_exchange_api_export_failure_sets_exception",
+  "k": "test_device.test_invalid_memory_resource_assignment_preserves_resource",
+  "l": "test_memory.test_buffer_external_device",
+  "m": "test_tensor_map.test_as_tensor_map_rejects_misaligned_device_pointer",
+  "n": "test_texture_surface.test_array_copy_rejects_undersized_device_buffer",
+  "o": "test_texture_surface.test_resource_descriptor_from_linear_defaults_size",
+  "p": "test_texture_surface.test_resource_descriptor_from_linear_rejects_bad_channels",
+  "q": "test_texture_surface.test_resource_descriptor_from_linear_rejects_non_multiple",
+  "r": "test_texture_surface.test_resource_descriptor_from_linear_rejects_oversize",
+  "s": "test_texture_surface.test_resource_descriptor_from_linear_rejects_zero_size",
+  "t": "test_texture_surface.test_resource_descriptor_from_linear_size_override",
+  "u": "test_texture_surface.test_resource_descriptor_from_pitch2d_rejects_bad_channels",
+  "v": "test_texture_surface.test_resource_descriptor_from_pitch2d_rejects_bad_format",
+  "w": "test_texture_surface.test_resource_descriptor_from_pitch2d_rejects_zero_dims",
+  "x": "test_texture_surface.test_resource_descriptor_from_pitch2d_validates_buffer_size",
+  "y": "test_texture_surface.test_resource_descriptor_from_pitch2d_validates_pitch",
+  "z": "test_texture_surface.test_resource_descriptor_public_dimensions_match_backing",
+  "A": "test_texture_surface.test_surface_rejects_linear_and_pitch2d",
+  "B": "test_copy_batch.TestCopyBatchCore.test_single_element_batch",
+  "C": "test_copy_batch.TestCopyBatchCore.test_various_sizes",
+  "D": "test_host_copy.test_pack_host_copy_args_rejects_device_buffer",
+  "E": "test_copy_batch.TestCopyBatchEquivalence.test_batch_matches_sequential_varied_sizes",
+  "F": "test_copy_batch_options.TestCopyBatchValidation.test_size_mismatch",
+  "G": "test_copy_single_options.test_dst_none_with_options",
+  "H": "test_device.test_device_context_requires_initialization_on_new_thread",
+  "I": "test_green_context.TestGreenContextKernelLaunch.test_launch_and_verify",
+  "J": "test_green_context.TestGreenContextKernelLaunch.test_two_green_contexts_independent",
+  "K": "test_green_context.TestGreenContextKernelLaunch.test_with_workqueue_resource",
+  "L": "test_host_copy.test_host_copy_orders_between_prior_and_later_work",
+  "M": "test_host_launch.test_host_launch_orders_between_prior_and_later_work",
+  "N": "test_host_launch.test_host_launch_two_streams_keep_their_own_data",
+  "O": "test_linker.test_complete_ltoir_round_trip_matches_direct_cubin",
+  "P": "test_linker.test_incremental_cubin_round_trip",
+  "Q": "test_linker.test_incremental_lto_cubin_round_trip",
+  "R": "test_linker.test_incremental_ltoir_round_trip",
+  "S": "test_program.test_nvrtc_automatic_pch_preserves_compiled_kernel",
+  "T": "test_stream.test_borrowed_external_stream_resolves_context_without_taking_ownership",
+  "U": "test_texture_surface.test_array_copy_accepts_graph_builder",
+  "V": "test_texture_surface.test_texture_border_color_is_sampled_on_device",
+  "W": "test_graph_node_update.test_memcpy_update_captured_node_host_operand",
+  "X": "test_tensor_map.TestTensorMapDescriptorValidation.test_cannot_infer_data_type",
+  "Y": "test_tensor_map.TestTensorMapDescriptorValidation.test_element_strides_must_be_positive",
+  "Z": "test_device.test_device_alloc",
+  "0": "test_error_handling.test_failed_call_raises_its_own_error_with_the_restore_failure_attached",
+  "1": "test_utils.test_from_buffer",
+  "2": "test_utils.test_from_buffer_sliced",
+  "3": "test_utils.test_from_buffer_with_non_power_of_two_itemsize",
+  "4": "test_utils.test_strided_memory_view_dlpack_export_requires_dtype",
+  "5": "test_utils.test_strided_memory_view_repr_with_none_dtype",
+  "6": "test_copy_batch.TestCopyBatchEquivalence.test_batch_matches_sequential_copy_to",
+  "7": "test_copy_batch.TestCopyBatchEquivalence.test_batch_matches_sequential_d2d",
+  "8": "test_tensor_map.TestTensorMapDescriptorValidation.test_unsupported_data_type",
+  "9": "test_utils.test_dlpack_export_device_accessible_cai_view",
+  "!": "test_utils.test_from_buffer_disallowed_negative_offset",
+  "#": "test_utils.test_from_buffer_incompatible_dtype_and_itemsize",
+  "$": "test_utils.test_from_buffer_too_small",
+  "%": "test_utils.test_view_as_cai_device_pointer_and_stream_ordering",
+  "'": "test_device.test_device_alloc_zero_bytes",
+  "(": "test_graph_node_update.test_executable_memcpy_update_on_captured_node",
+  ")": "test_graph_node_update.test_memcpy_update_between_host_and_device",
+  "*": "test_graph_node_update.test_memcpy_update_captured_node_operand",
+  "+": "test_graph_node_update.test_memcpy_update_captured_node_size",
+  ",": "test_host_callback_contracts.test_python_callback_exception_is_reported_as_unraisable",
+  "-": "test_module.test_kernel_keeps_library_alive",
+  ".": "test_object_protocols.test_closeable_object_state_and_safe_inspection",
+  "/": "test_device.test_device_memory_resource_controls_allocation",
+  ":": "test_copy_batch.TestCopyBatchCore.test_d2d_batch",
+  ";": "test_copy_batch.TestCopyBatchCore.test_h2d_batch",
+  "=": "test_copy_batch.TestCopyBatchStreamSemantics.test_ordered_between_prior_and_later_stream_work",
+  "?": "test_copy_batch_options.TestCopyBatchOptions.test_during_api_call",
+  "@": "test_copy_batch_options.TestCopyBatchOptions.test_overlap_mode_copies_correctly",
+  "[": "test_copy_batch_options.TestCopyBatchOptions.test_per_copy_options",
+  "]": "test_copy_batch_options.TestCopyBatchOptions.test_src_access_order"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -264,7 +151,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__virtual_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 01:21 +0000
+            created at 2026-11-04 13:13 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -313,23 +200,23 @@
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">    __slots__ = (&quot;_context&quot;, &quot;_device_id&quot;)</span>&nbsp;</span><span class="r"><label for="ctxs32" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    def __init__(self, device_id: int, context=None) -&gt; None:</span>&nbsp;</span><span class="r"><label for="ctxs34" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">149 ctx</label></span><span class="ctxs">2] ^ KbLbc _ ` { | MbNbOb? @ PbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cbic0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">72 ctx</label></span><span class="ctxs">1aBCEfgFGZ'H/k0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        self._device_id = Device(device_id).device_id</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">148 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ PbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cbic0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        self._device_id = Device(device_id).device_id</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">72 ctx</label></span><span class="ctxs">1aBCEfgFGZ'H/k0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">        # Resolved lazily (in _resolve_context) so that construction with</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">        # context=None does no CUDA work; the primary context is retained</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">        # only once actually needed, on the first allocate()/deallocate().</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        self._context = context</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">148 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ PbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cbic0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">        self._context = context</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">72 ctx</label></span><span class="ctxs">1aBCEfgFGZ'H/k0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">    def _resolve_context(self) -&gt; Context:</span>&nbsp;</span><span class="r"><label for="ctxs43" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">        cdef ContextHandle h_context</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        if self._context is None:</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">150 ctx</label></span><span class="ctxs">2] ^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">            h_context = get_primary_context(self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">4 ctx</label></span><span class="ctxs">2c tba b </span></p>
-    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">            if not h_context:</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">4 ctx</label></span><span class="ctxs">2c tba b </span></p>
+    <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="txt">        if self._context is None:</span>&nbsp;</span><input type="checkbox" id="ctxs45"><span class="r"><label for="ctxs45" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="txt">            h_context = get_primary_context(self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs46"><span class="r"><label for="ctxs46" class="ctx">4 ctx</label></span><span class="ctxs">10Wbc</span></p>
+    <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="txt">            if not h_context:</span>&nbsp;</span><input type="checkbox" id="ctxs47"><span class="r"><label for="ctxs47" class="ctx">4 ctx</label></span><span class="ctxs">10Wbc</span></p>
     <p class="mis show_mis"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t"><span class="txt">                HANDLE_RETURN(get_last_error())</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">            self._context = Context._from_handle(</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">4 ctx</label></span><span class="ctxs">2c tba b </span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">                Context, h_context, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">5 ctx</label></span><span class="ctxs">2] c tba b </span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        return self._context</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">149 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">            self._context = Context._from_handle(</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">4 ctx</label></span><span class="ctxs">10Wbc</span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">                Context, h_context, self._device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">5 ctx</label></span><span class="ctxs">1a0Wbc</span></p>
+    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        return self._context</span>&nbsp;</span><input type="checkbox" id="ctxs51"><span class="r"><label for="ctxs51" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">    def allocate(</span>&nbsp;</span><span class="r"><label for="ctxs53" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">        self,</span>&nbsp;</span><span class="r"></span></p>
@@ -340,11 +227,11 @@
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">        # cuMemAlloc/cuMemFree are synchronous; a caller-supplied stream is</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">        # accepted (and validated) for interface conformance and, if it is a</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">        # real stream, recorded as the stream that orders deallocation.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">        cdef Context context = self._resolve_context()</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">149 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        cdef Stream dealloc_stream = None</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">149 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs64"><span class="r"><label for="ctxs64" class="ctx">149 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">            dealloc_stream = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs65"><span class="r"><label for="ctxs65" class="ctx">147 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        if dealloc_stream is None or Stream_is_default_token(dealloc_stream):</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">149 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">        cdef Context context = self._resolve_context()</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        cdef Stream dealloc_stream = None</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs64"><span class="r"><label for="ctxs64" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">            dealloc_stream = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs65"><span class="r"><label for="ctxs65" class="ctx">71 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk()W*+IJK,LDMNOPQRlb-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">        if dealloc_stream is None or Stream_is_default_token(dealloc_stream):</span>&nbsp;</span><input type="checkbox" id="ctxs66"><span class="r"><label for="ctxs66" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">            # A default-stream token carries no context of its own; Buffer._init</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">            # would bind it to whichever context is current when it records the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">            # deallocation stream (and fail if none is). Bind it to this</span>&nbsp;</span><span class="r"></span></p>
@@ -352,14 +239,14 @@
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">            # context no matter what is current then. Always the legacy token:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">            # a per-thread token would also arm the cross-thread PTDS warning,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">            # which is noise for a synchronous resource.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">            dealloc_stream = Stream._from_handle(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">93 ctx</label></span><span class="ctxs">2i j sbk 0 tb1 2 a b wbxbybzbAbBbCbDbEbFbGbHbIbJbd e f 3 4 5 g 6 7 8 9 ! # $ % ' ( ) * + , l m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">                Stream, create_context_bound_legacy_stream(context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">94 ctx</label></span><span class="ctxs">2] i j sbk 0 tb1 2 a b wbxbybzbAbBbCbDbEbFbGbHbIbJbd e f 3 4 5 g 6 7 8 9 ! # $ % ' ( ) * + , l m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">            dealloc_stream = Stream._from_handle(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">43 ctx</label></span><span class="ctxs">1afgZ'k0lbcXY8mdnopqrstuvwxyzAhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">                Stream, create_context_bound_legacy_stream(context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">43 ctx</label></span><span class="ctxs">1afgZ'k0lbcXY8mdnopqrstuvwxyzAhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        cdef cydriver.CUdeviceptr ptr = 0</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">149 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">149 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">148 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                HANDLE_RETURN(deviceptr_alloc_raw(&amp;ptr, size, context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">148 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbk cb0 tbdbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">        return Buffer._init(&lt;uintptr_t&gt;ptr, size, self, stream=dealloc_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">149 ctx</label></span><span class="ctxs">2] ^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">        cdef cydriver.CUdeviceptr ptr = 0</span>&nbsp;</span><input type="checkbox" id="ctxs77"><span class="r"><label for="ctxs77" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">73 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">72 ctx</label></span><span class="ctxs">1aBC67EfgFGZHk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                HANDLE_RETURN(deviceptr_alloc_raw(&amp;ptr, size, context._h_context))</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">72 ctx</label></span><span class="ctxs">1aBC67EfgFGZHk0()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">        return Buffer._init(&lt;uintptr_t&gt;ptr, size, self, stream=dealloc_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">72 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">    def deallocate(</span>&nbsp;</span><span class="r"><label for="ctxs83" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        self,</span>&nbsp;</span><span class="r"></span></p>
@@ -368,8 +255,8 @@
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        *,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">        stream: Stream | GraphBuilder | None = None,</span>&nbsp;</span><span class="r"><label for="ctxs88" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">    ) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">145 ctx</label></span><span class="ctxs">2^ c _ ` { | 9b!b#b? @ ub$bvb%b} 'b(b)b*bi +b,bj -b.b/b:b;b=b?b@b[b]b^b_b~ abbbsbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nb`b{b|b}b~bacbcccdcecfcgchcobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            Stream_accept(stream).sync()</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">145 ctx</label></span><span class="ctxs">2^ c _ ` { | 9b!b#b? @ ub$bvb%b} 'b(b)b*bi +b,bj -b.b/b:b;b=b?b@b[b]b^b_b~ abbbsbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nb`b{b|b}b~bacbcccdcecfcgchcobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">        if stream is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs90"><span class="r"><label for="ctxs90" class="ctx">51 ctx</label></span><span class="ctxs">1aBC67EfgFGHkIJKLDMNOPQRlbc.STmdUnopqrstuvwxyzAVhije</span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">            Stream_accept(stream).sync()</span>&nbsp;</span><input type="checkbox" id="ctxs91"><span class="r"><label for="ctxs91" class="ctx">51 ctx</label></span><span class="ctxs">1aBC67EfgFGHkIJKLDMNOPQRlbc.STmdUnopqrstuvwxyzAVhije</span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">        # No context switch here, by design (settled in the review of #2750):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">        # cuMemFree does not need a current context. The driver resolves the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        # allocation&#x27;s owning context from the pointer through unified</span>&nbsp;</span><span class="r"></span></p>
@@ -378,22 +265,22 @@
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        # teardown path the C++ deleter has additionally already made the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        # recorded deallocation context, bound by allocate() above, current.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">        cdef cydriver.CUdeviceptr devptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">145 ctx</label></span><span class="ctxs">2^ c _ ` { | 9b!b#b? @ ub$bvb%b} 'b(b)b*bi +b,bj -b.b/b:b;b=b?b@b[b]b^b_b~ abbbsbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nb`b{b|b}b~bacbcccdcecfcgchcobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">            devptr = &lt;cydriver.CUdeviceptr&gt;&lt;uintptr_t&gt;int(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">144 ctx</label></span><span class="ctxs">2^ c _ ` { | 9b!b#b? @ ub$bvb%b} 'b(b)b*bi +b,bj -b.b/b:b;b=b?b@b[b]b^b_b~ abbbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nb`b{b|b}b~bacbcccdcecfcgchcobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">144 ctx</label></span><span class="ctxs">2^ c _ ` { | 9b!b#b? @ ub$bvb%b} 'b(b)b*bi +b,bj -b.b/b:b;b=b?b@b[b]b^b_b~ abbbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nb`b{b|b}b~bacbcccdcecfcgchcobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
-    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">                HANDLE_RETURN(cydriver.cuMemFree(devptr))</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">144 ctx</label></span><span class="ctxs">2^ c _ ` { | 9b!b#b? @ ub$bvb%b} 'b(b)b*bi +b,bj -b.b/b:b;b=b?b@b[b]b^b_b~ abbbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nb`b{b|b}b~bacbcccdcecfcgchcobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        if size:</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">51 ctx</label></span><span class="ctxs">1aBC67EfgFGHkIJKLDMNOPQRlbc.STmdUnopqrstuvwxyzAVhije</span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">            devptr = &lt;cydriver.CUdeviceptr&gt;&lt;uintptr_t&gt;int(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">51 ctx</label></span><span class="ctxs">1aBC67EfgFGHkIJKLDMNOPQRlbc.STmdUnopqrstuvwxyzAVhije</span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">            with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">51 ctx</label></span><span class="ctxs">1aBC67EfgFGHkIJKLDMNOPQRlbc.STmdUnopqrstuvwxyzAVhije</span></p>
+    <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">                HANDLE_RETURN(cydriver.cuMemFree(devptr))</span>&nbsp;</span><input type="checkbox" id="ctxs103"><span class="r"><label for="ctxs103" class="ctx">51 ctx</label></span><span class="ctxs">1aBC67EfgFGHkIJKLDMNOPQRlbc.STmdUnopqrstuvwxyzAVhije</span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"><label for="ctxs105" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    def is_device_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">148 ctx</label></span><span class="ctxs">2^ KbLbc _ ` { | MbNbOb? @ ubPbvbQb} RbSbTbUbi VbWbj XbYbZb0b1b2b3b4b5b6b7b8b~ abbbsbk cb0 dbebfbgb[ hbibjbkblbmb1 2 a b nbwbxbybzbAbBbCbDbEbFbGbHbIbJbobpbd e f 3 4 5 g qb6 7 8 9 ! # $ % ' ( ) * + , rbl m - n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S . / : T U ; V W X = Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">72 ctx</label></span><span class="ctxs">1aBC67EfgFGZ'Hk()W*+IJK,LDMNOPQRlbc-STXY8mdUnopqrstuvwxyzAVhi91!#2$345%je</span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"><label for="ctxs109" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    def is_host_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        return False</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">7 ctx</label></span><span class="ctxs">1[adefgh</span></p>
+    <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        return False</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">6 ctx</label></span><span class="ctxs">1DbXYde</span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"><label for="ctxs113" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">    def device_id(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        return self._device_id</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">62 ctx</label></span><span class="ctxs">2] jckc? @ lci mcj ncocpcqcsbk a d e f g l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z h </span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        return self._device_id</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">27 ctx</label></span><span class="ctxs">1a:;BC=f?g@[]Z'bXYdhi12345je</span></p>
 </main>
 <footer>
     <div class="content">
@@ -403,7 +290,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__virtual_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 01:21 +0000
+            created at 2026-11-04 13:13 +0000
         </p>
     </div>
 </footer>
