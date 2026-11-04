@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=76bc92829a6025611352b8808094ca11e65a8544a0ac60687fbd65d282d7aa77
+# This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2927ba6081022d5e0e3bd10ebda9ac8b3deacb27af81ab343ae4e86b67ff9b17
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -419,6 +419,8 @@ cdef extern from 'cuda.h':
         CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_UNICAST_ACCESS_ON_OWNER_DEVICE_SUPPORTED
         CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT
         CU_DEVICE_ATTRIBUTE_LOGICAL_ENDPOINT_SUPPORTED_HANDLE_TYPES
+        CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED
+        CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE
         CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_LOCALIZED_MEMORY_SUPPORTED
         CU_DEVICE_ATTRIBUTE_MAX
     ctypedef CUdevice_attribute_enum CUdevice_attribute
@@ -720,7 +722,10 @@ cdef extern from 'cuda.h':
         CU_GRAPH_NODE_TYPE_MEM_FREE
         CU_GRAPH_NODE_TYPE_BATCH_MEM_OP
         CU_GRAPH_NODE_TYPE_CONDITIONAL
+        CU_GRAPH_NODE_TYPE_MEMCPY_BATCH
         CU_GRAPH_NODE_TYPE_RESERVED_16
+        CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE
+        CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH
     ctypedef CUgraphNodeType_enum CUgraphNodeType
 
 cdef extern from 'cuda.h':
@@ -1277,6 +1282,8 @@ cdef extern from 'cuda.h':
         CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS
         CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO
         CU_GRAPH_DEBUG_DOT_FLAGS_CONDITIONAL_NODE_PARAMS
+        CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_BATCH_NODE_PARAMS
+        CU_GRAPH_DEBUG_DOT_FLAGS_FABRIC_CPY_BATCH_NODE_PARAMS
     ctypedef CUgraphDebugDot_flags_enum CUgraphDebugDot_flags
 
 cdef extern from 'cuda.h':
@@ -1357,6 +1364,7 @@ cdef extern from 'cuda.h':
         CU_COREDUMP_SKIP_CONSTBANK_MEMORY
         CU_COREDUMP_GZIP_COMPRESS
         CU_COREDUMP_FAULTED_CONTEXTS_ONLY
+        CU_COREDUMP_SKIP_TENSOR_MEMORY
         CU_COREDUMP_NO_ERRBAR_AT_EXIT
         CU_COREDUMP_LOG_ONLY
         CU_COREDUMP_LIGHTWEIGHT_FLAGS
@@ -1568,6 +1576,7 @@ cdef extern from 'cuda.h':
         CU_DEV_SM_RESOURCE_GROUP_DEFAULT
         CU_DEV_SM_RESOURCE_GROUP_BACKFILL
         CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID
+        CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS
 
 cdef extern from 'cuda.h':
     ctypedef enum CUdevSmResourceSplitByCount_flags "CUdevSmResourceSplitByCount_flags":
@@ -1604,6 +1613,7 @@ cdef extern from 'cuda.h':
 cdef extern from 'cuda.h':
     ctypedef enum CUstreamCigDataType_enum:
         STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST
+        STREAM_CIG_DATA_TYPE_VULKAN_COMMAND_BUFFER_HANDLE_NV
     ctypedef CUstreamCigDataType_enum CUstreamCigDataType
 
 cdef extern from 'cuda.h':
@@ -1639,8 +1649,22 @@ cdef extern from 'cuda.h':
         CU_CLIQUE_TYPE_UNICAST_LOGICAL_ENDPOINT
         CU_CLIQUE_TYPE_MULTICAST_LOGICAL_ENDPOINT
     ctypedef CUcliqueType_enum CUcliqueType
+
+cdef extern from 'cuda.h':
+    ctypedef enum CUtensorMapAllocClass_enum:
+        CU_TENSOR_MAP_ALLOC_CLASS_AUTO
+        CU_TENSOR_MAP_ALLOC_CLASS_SMALL
+        CU_TENSOR_MAP_ALLOC_CLASS_LARGE
+    ctypedef CUtensorMapAllocClass_enum CUtensorMapAllocClass
+
+cdef extern from 'cuda.h':
+    ctypedef enum CUfabricCpyOperandType_enum:
+        CU_FABRIC_COPY_OPERAND_TYPE_POINTER
+        CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT
+        CU_FABRIC_COPY_OPERAND_TYPE_MAX
+    ctypedef CUfabricCpyOperandType_enum CUfabricCpyOperandType
 cdef enum: _CURESULT_INTERNAL_LOADING_ERROR = CUresult.CUDA_ERROR_NOT_FOUND
-cdef enum: CUDA_VERSION = 13040
+cdef enum: CUDA_VERSION = 13050
 
 
 # TYPES
@@ -1819,6 +1843,8 @@ cdef extern from 'cuda.h':
 cdef extern from 'cuda.h':
     ctypedef unsigned int CUlogIterator 'CUlogIterator'
 
+
+ctypedef CUDA_FABRIC_COPY_BATCH_OP_st CUDA_FABRIC_COPY_BATCH_OP_v1
 
 cdef extern from 'cuda.h':
     ctypedef struct CUctx_st:
@@ -2308,6 +2334,10 @@ cdef extern from 'cuda.h':
 
 
 cdef extern from 'cuda.h':
+    ctypedef CUDA_FABRIC_COPY_BATCH_OP_v1 CUDA_FABRIC_COPY_BATCH_OP 'CUDA_FABRIC_COPY_BATCH_OP'
+
+
+cdef extern from 'cuda.h':
     cdef struct CUDA_KERNEL_NODE_PARAMS_st:
         CUfunction func
         unsigned int gridDimX
@@ -2490,6 +2520,11 @@ cdef extern from 'cuda.h':
     cdef struct CUstreamCigCaptureParams_st:
         CUstreamCigParam* streamCigParams
     ctypedef CUstreamCigCaptureParams_st CUstreamCigCaptureParams
+
+cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod53 "std::remove_all_extents<decltype(((CUfabricCpyOperand*)0)->op.le)>::type":
+        CUlogicalEndpointId id
+        cuuint64_t offset
 
 cdef extern from 'cuda.h':
     ctypedef struct CUDA_CONDITIONAL_NODE_PARAMS 'CUDA_CONDITIONAL_NODE_PARAMS':
@@ -2745,6 +2780,15 @@ cdef extern from 'cuda.h':
     ctypedef CUDA_EVENT_RECORD_NODE_PARAMS_st CUDA_EVENT_RECORD_NODE_PARAMS
 
 cdef extern from 'cuda.h':
+    cdef struct CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st:
+        size_t numOps
+        CUDA_FABRIC_COPY_BATCH_OP* opList
+        unsigned long long flags
+        CUcontext ctx
+        CUgreenCtx gCtx
+    ctypedef CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1
+
+cdef extern from 'cuda.h':
     cdef struct CUasyncNotificationInfo_st:
         CUasyncNotificationType type
         cuda_bindings_driver__anon_pod2 info
@@ -2876,6 +2920,10 @@ cdef extern from 'cuda.h':
         CUlaunchAttributeID id
         CUlaunchAttributeValue value
     ctypedef CUlaunchAttribute_st CUlaunchAttribute
+
+cdef extern from 'cuda.h':
+    ctypedef CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 CUDA_FABRIC_CPY_BATCH_NODE_PARAMS 'CUDA_FABRIC_CPY_BATCH_NODE_PARAMS'
+
 
 cdef extern from 'cuda.h':
     ctypedef void (*CUasyncCallback 'CUasyncCallback')(
@@ -3065,6 +3113,11 @@ cdef extern from 'cuda.h':
         CUmemLocation locHint
 
 cdef extern from 'cuda.h':
+    ctypedef struct cuda_bindings_driver__anon_pod52 "std::remove_all_extents<decltype(((CUfabricCpyOperand*)0)->op.ptr)>::type":
+        CUdeviceptr ptr
+        CUmemLocation locHint
+
+cdef extern from 'cuda.h':
     cdef struct CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
         CUcontext ctx
         unsigned int count
@@ -3125,6 +3178,11 @@ cdef extern from 'cuda.h':
         cuda_bindings_driver__anon_pod42 array
 
 cdef extern from 'cuda.h':
+    ctypedef union cuda_bindings_driver__anon_pod51 "std::remove_all_extents<decltype(((CUfabricCpyOperand*)0)->op)>::type":
+        cuda_bindings_driver__anon_pod52 ptr
+        cuda_bindings_driver__anon_pod53 le
+
+cdef extern from 'cuda.h':
     ctypedef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1 CUDA_BATCH_MEM_OP_NODE_PARAMS 'CUDA_BATCH_MEM_OP_NODE_PARAMS'
 
 
@@ -3147,18 +3205,48 @@ cdef extern from 'cuda.h':
     ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v2_st CUDA_MEM_ALLOC_NODE_PARAMS_v2
 
 cdef extern from 'cuda.h':
+    cdef struct CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st:
+        size_t count
+        CUdeviceptr* dsts
+        CUdeviceptr* srcs
+        size_t* sizes
+        CUmemcpyAttributes* attrs
+        size_t* attrsIdxs
+        size_t numAttrs
+        CUcontext ctx
+        CUgreenCtx gCtx
+    ctypedef CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st CUDA_MEMCPY_BATCH_NODE_PARAMS_V1
+
+cdef extern from 'cuda.h':
     cdef struct CUmemcpy3DOperand_st:
         CUmemcpy3DOperandType type
         cuda_bindings_driver__anon_pod40 op
     ctypedef CUmemcpy3DOperand_st CUmemcpy3DOperand_v1
 
 cdef extern from 'cuda.h':
+    cdef struct CUfabricCpyOperand_st:
+        CUfabricCpyOperandType type
+        cuda_bindings_driver__anon_pod51 op
+    ctypedef CUfabricCpyOperand_st CUfabricCpyOperand
+
+cdef extern from 'cuda.h':
     ctypedef CUDA_MEM_ALLOC_NODE_PARAMS_v1 CUDA_MEM_ALLOC_NODE_PARAMS 'CUDA_MEM_ALLOC_NODE_PARAMS'
+
+
+cdef extern from 'cuda.h':
+    ctypedef CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 CUDA_MEMCPY_BATCH_NODE_PARAMS 'CUDA_MEMCPY_BATCH_NODE_PARAMS'
 
 
 cdef extern from 'cuda.h':
     ctypedef CUmemcpy3DOperand_v1 CUmemcpy3DOperand 'CUmemcpy3DOperand'
 
+
+cdef extern from 'cuda.h':
+    ctypedef struct CUDA_FABRIC_COPY_BATCH_OP_st 'CUDA_FABRIC_COPY_BATCH_OP_st':
+        CUfabricCpyOperand src
+        CUfabricCpyOperand dst
+        size_t size
+        unsigned int flags
 
 cdef extern from 'cuda.h':
     cdef struct CUgraphNodeParams_st:
@@ -3178,6 +3266,8 @@ cdef extern from 'cuda.h':
         CUDA_MEM_FREE_NODE_PARAMS free
         CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 memOp
         CUDA_CONDITIONAL_NODE_PARAMS conditional
+        CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 memcpyBatch
+        CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 fabricCpyBatch
         char asBytes[232]
         long long reserved2
     ctypedef CUgraphNodeParams_st CUgraphNodeParams
@@ -3767,6 +3857,8 @@ cdef CUresult cuMemGetLocationInfo(CUdeviceptr ptr, size_t size, size_t summaryG
 cdef CUresult cuGraphAddNode_v3(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuGraphNodeSetParams_v2(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult cuCheckpointOperationComplete(CUcheckpointOperationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuFabricCpyBatchAsync(size_t numOps, CUDA_FABRIC_COPY_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuTensorMapSetAllocationClass(CUtensorMap* tensorMap, CUtensorMapAllocClass allocClass, CUtensorMapAllocClass* outAllocClass) except ?CUDA_ERROR_NOT_FOUND nogil
 
 
 # TODO: Extract these defines somehow?
@@ -3918,3 +4010,5 @@ cdef enum: CUDA_EGL_INFINITE_TIMEOUT = 4294967295
 cdef enum: RESOURCE_ABI_VERSION = 1
 
 cdef enum: RESOURCE_ABI_EXTERNAL_BYTES = 42
+
+cdef enum: CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY = 4294967295

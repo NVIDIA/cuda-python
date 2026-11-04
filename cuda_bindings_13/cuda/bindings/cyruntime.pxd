@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f686e003b0aa5d1800d2f631b8927a9a6fe84f33dc46f1764070ad7480f2821c
+# This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=946dfd0c4e22f5055de2b2d7fc4fab6a870125c70e398ae9ae88a99e4a47e148
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -729,6 +729,7 @@ cdef extern from 'driver_types.h':
         cudaDevAttrOversizedSharedMemoryPerBlock
         cudaDevAttrCigStreamsSupported
         cudaDevAttrLocalityDomainMultiprocessorCount
+        cudaDevAttrTensorMapLargeTensorMinSize
         cudaDevAttrMax
         cudaDevAttrCooperativeMultiDeviceLaunch
         cudaDevAttrMaxTimelineSemaphoreInteropSupported
@@ -912,7 +913,9 @@ cdef extern from 'driver_types.h':
         cudaGraphNodeTypeMemAlloc
         cudaGraphNodeTypeMemFree
         cudaGraphNodeTypeConditional
+        cudaGraphNodeTypeMemcpyBatch
         cudaGraphNodeTypeReserved16
+        cudaGraphNodeTypeExternalEngine
         cudaGraphNodeTypeCount
 
 cdef extern from 'driver_types.h':
@@ -980,6 +983,7 @@ cdef extern from 'driver_types.h':
         cudaGraphDebugDotFlagsKernelNodeAttributes
         cudaGraphDebugDotFlagsHandles
         cudaGraphDebugDotFlagsConditionalNodeParams
+        cudaGraphDebugDotFlagsMemcpyBatchNodeParams
 
 cdef extern from 'driver_types.h':
     cdef enum cudaGraphInstantiateFlags:
@@ -1293,6 +1297,7 @@ cdef extern from 'driver_types.h':
         cudaDevSmResourceGroupDefault
         cudaDevSmResourceGroupBackfill
         cudaDevSmResourceGroupLocalityDomainId
+        cudaDevSmResourceGroupLocalityDomainSupplementalSms
 
 cdef extern from 'driver_types.h':
     cdef enum cudaDevSmResourceSplitByCount_flags:
@@ -2117,7 +2122,8 @@ cdef extern from 'driver_types.h':
         void* win32SecurityAttributes
         size_t maxSize
         unsigned short usage
-        unsigned char reserved[54]
+        unsigned char reserved[53]
+        unsigned char reserved1
 
 cdef extern from 'driver_types.h':
     cdef struct cudaMemcpyAttributes:
@@ -2176,6 +2182,17 @@ cdef extern from 'driver_types.h':
         void* dptr
 
 cdef extern from 'driver_types.h':
+    cdef struct cudaMemcpyBatchNodeParams:
+        size_t count
+        void** dsts
+        void** srcs
+        size_t* sizes
+        cudaMemcpyAttributes* attrs
+        size_t* attrsIdxs
+        size_t numAttrs
+        cudaExecutionContext_t ctx
+
+cdef extern from 'driver_types.h':
     ctypedef union cuda_bindings_runtime__anon_pod10 "std::remove_all_extents<decltype(((cudaMemcpy3DOperand*)0)->op)>::type":
         cuda_bindings_runtime__anon_pod11 ptr
         cuda_bindings_runtime__anon_pod12 array
@@ -2202,6 +2219,7 @@ cdef extern from 'driver_types.h':
         cudaMemAllocNodeParamsV2 alloc
         cudaMemFreeNodeParams free
         cudaConditionalNodeParams conditional
+        cudaMemcpyBatchNodeParams memcpyBatch
         long long reserved2
 
 cdef extern from 'driver_types.h':
@@ -2714,6 +2732,11 @@ cdef extern from 'cuda_runtime_api.h':
 # CUDA_EGL_MAX_PLANES is defined as 3 in cuda_egl_interop.h; hardcoded to avoid EGL deps
 cdef enum:
     CUDA_EGL_MAX_PLANES = 3
+
+# cudaDevSmResourceGroupLocalityDomainIdAny is defined as (~0u) in driver_types.h; the
+# pyclibrary-based cython-gen parser can't evaluate that expression, so hardcode the value
+cdef enum:
+    cudaDevSmResourceGroupLocalityDomainIdAny = 4294967295
 
 # libraryPropertyType_t (starts lowercase, outside type pattern)
 cdef extern from 'library_types.h':
