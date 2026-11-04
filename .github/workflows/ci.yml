@@ -45,7 +45,7 @@ jobs:
       - name: Set up Python for CI tools
         uses: ./.github/actions/setup-hardened-python
         with:
-          python-version: "3.12"
+          python-version: "3.11"
       - name: Install CI tool dependencies
         run: python -m pip install -e ./ci
       - name: Get CUDA build versions
@@ -673,7 +673,7 @@ jobs:
       host-platform: linux-64
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
-      bindings-only: true
+      maintenance-bindings: true
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -700,7 +700,7 @@ jobs:
       host-platform: linux-aarch64
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
-      bindings-only: true
+      maintenance-bindings: true
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
@@ -727,7 +727,7 @@ jobs:
       host-platform: win-64
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       bindings-config: ${{ needs.ci-vars.outputs.BINDINGS_CONFIG }}
-      bindings-only: true
+      maintenance-bindings: true
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1 }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
