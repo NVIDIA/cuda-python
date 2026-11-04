@@ -51,7 +51,7 @@ The list of available interfaces is:
 ## Bindings source roots
 
 Current CUDA 13 bindings live in [`cuda_bindings_13/`](cuda_bindings_13/), and
-CUDA 12.9 sources have a separate
+CUDA 12 bindings sources have a separate
 [developer environment](cuda_bindings_12/README.md). Both roots build the same
 `cuda-bindings` distribution and `cuda.bindings` namespace; develop and test
 them in separate environments.
