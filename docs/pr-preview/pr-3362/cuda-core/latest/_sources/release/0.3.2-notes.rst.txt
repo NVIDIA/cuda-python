@@ -1,0 +1,40 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.3.2 Release Notes
+=================================
+
+Released on Aug 7, 2025
+
+
+Highlights
+----------
+
+- Support CUDA 13. ``pip install cuda-core[cu13]`` also works now.
+- This is the last release that officially supports CUDA 11.
+
+
+Breaking Changes
+----------------
+
+None.
+
+
+New features
+------------
+
+- :class:`Stream` and :class:`Event` can be subclassed now.
+
+
+New examples
+------------
+
+None.
+
+
+Fixes and enhancements
+----------------------
+
+- :meth:`Device.set_current` is made faster.
