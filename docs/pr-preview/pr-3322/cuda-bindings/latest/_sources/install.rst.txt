@@ -138,7 +138,7 @@ Requirements
 
 [^3]: The version is derived from git tags via ``setuptools-scm``, so the clone
 must include a reachable tag matching the release line configured in this
-package's ``pyproject.toml`` (currently ``v13.4.*``). A tag from the other CUDA
+package's ``pyproject.toml`` (currently ``v13.*``). A tag from the other CUDA
 major does not determine this package's version. Do not use ``--depth`` or
 ``--no-tags``: a clone without matching reachable tags can build with a
 bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository
