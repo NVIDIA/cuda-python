@@ -80,15 +80,15 @@ def last_modified_year(filepath):
     )
     if status.stdout.strip():
         return int(CURRENT_YEAR)
-    # Find the most recent commit that touched this file.
+    # Use the last commit's UTC year, matching the year for working-tree changes.
     log = subprocess.run(  # noqa: S603
-        ["git", "log", "-1", "--format=%cd", "--date=format:%Y", "--", filepath],  # noqa: S607
+        ["git", "log", "-1", "--no-show-signature", "--format=%ct", "--", filepath],  # noqa: S607
         capture_output=True,
         text=True,
     )
-    year_str = log.stdout.strip()
+    timestamp = log.stdout.strip()
     # Fall back to current year for brand-new untracked files with no git history.
-    return int(year_str) if year_str else int(CURRENT_YEAR)
+    return datetime.datetime.fromtimestamp(int(timestamp), tz=datetime.UTC).year if timestamp else int(CURRENT_YEAR)
 
 
 def normalize_repo_path(filepath):

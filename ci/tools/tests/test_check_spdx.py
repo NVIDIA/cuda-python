@@ -144,3 +144,52 @@ def test_fix_of_clean_stale_file_survives_being_committed(repo):
 
     # The fix must not demand another fix once it is part of this year's history.
     assert run_checker(repo).returncode == 0
+
+
+@pytest.mark.parametrize(
+    ("date", "passes"),
+    [
+        pytest.param(f"{CURRENT_YEAR - 1}-12-31T23:30:00-0800", False, id="utc-year-after-recorded-year"),
+        pytest.param(f"{CURRENT_YEAR}-01-01T00:30:00+1400", True, id="utc-year-before-recorded-year"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_committed_file_uses_utc_year_across_new_year(repo, monkeypatch, date, passes):
+    monkeypatch.setenv("GIT_AUTHOR_DATE", date)
+    monkeypatch.setenv("GIT_COMMITTER_DATE", date)
+    commit(repo, SAMPLE, str(CURRENT_YEAR - 1), year=None)
+
+    result = run_checker(repo)
+
+    assert (result.returncode == 0) is passes, result.stdout + result.stderr
+    assert ("OUTDATED" in result.stdout) is (not passes)
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_signed_last_commit_with_show_signature_enabled(repo):
+    ssh_keygen = shutil.which("ssh-keygen")
+    if ssh_keygen is None:
+        pytest.skip("ssh-keygen is required to create a signed commit")
+
+    signing_key = repo / "signing_key"
+    subprocess.run(  # noqa: S603
+        [ssh_keygen, "-q", "-t", "ed25519", "-N", "", "-f", str(signing_key)],
+        check=True,
+        capture_output=True,
+    )
+    allowed_signers = repo / "allowed_signers"
+    allowed_signers.write_text(
+        "test@example.com " + signing_key.with_suffix(".pub").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    git(repo, "config", "gpg.format", "ssh")
+    git(repo, "config", "user.signingkey", str(signing_key))
+    git(repo, "config", "gpg.ssh.allowedSignersFile", str(allowed_signers))
+    git(repo, "config", "log.showSignature", "true")
+    path = commit(repo, SAMPLE, str(CURRENT_YEAR), year=CURRENT_YEAR)
+    path.write_text(path.read_text(encoding="utf-8") + "# signed edit\n", encoding="utf-8")
+    git(repo, "add", SAMPLE)
+    git(repo, "-c", "commit.gpgsign=true", "commit", "-m", "signed edit", year=CURRENT_YEAR)
+
+    result = run_checker(repo)
+
+    assert result.returncode == 0, result.stdout + result.stderr
