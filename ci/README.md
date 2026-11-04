@@ -482,7 +482,7 @@ as the maintenance source and introduce a distinct CUDA 14 root. Then:
    13 root `maintenance`, mark the CUDA 14 root `current`, and set each exact
    toolkit build/test version.
 2. Align each root's `pyproject.toml` `git_describe_command --match` selector
-   and any preview bootstrap target with its release family. Update per-root packaging,
+   with its CUDA ABI major. Update per-root packaging,
    pixi environments, documentation, and dependent package constraints for the
    supported lines.
 3. Build and test both roots and their dependent packages on the supported
