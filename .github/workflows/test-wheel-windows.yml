@@ -20,7 +20,7 @@ on:
         description: Normalized bindings registry for maintenance-only tests.
         type: string
         default: ''
-      bindings-only:
+      maintenance-bindings:
         description: Test this run's maintenance bindings wheel and Cython extensions.
         type: boolean
         default: false
@@ -63,7 +63,7 @@ jobs:
     env:
       BUILD_TYPE: ${{ inputs.build-type }}
       BINDINGS_CONFIG: ${{ inputs.bindings-config }}
-      BINDINGS_ONLY: ${{ inputs.bindings-only }}
+      BINDINGS_ONLY: ${{ inputs.maintenance-bindings }}
       ARCH: ${{ (inputs.host-platform == 'win-64' && 'amd64') }}
     outputs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
@@ -107,10 +107,10 @@ jobs:
 
   test:
     env:
-      TEST_PATHFINDER: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test) }}
-      TEST_BINDINGS: ${{ inputs.bindings-only || inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
-      TEST_CORE: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test) }}
-      TEST_PYTHON: ${{ !inputs.bindings-only && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test) }}
+      TEST_PATHFINDER: ${{ !inputs.maintenance-bindings && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test) }}
+      TEST_BINDINGS: ${{ inputs.maintenance-bindings || inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_test }}
+      TEST_CORE: ${{ !inputs.maintenance-bindings && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_test) }}
+      TEST_PYTHON: ${{ !inputs.maintenance-bindings && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_test) }}
     name: Python ${{ matrix.PY_VER }}, CUDA ${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }} (${{ matrix.DRIVER_MODE }})${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     # The build stage could fail but we want the CI to keep moving.
@@ -175,9 +175,9 @@ jobs:
 
       - name: Set environment variables
         env:
-          BUILD_CUDA_VER: ${{ inputs.bindings-only && matrix.CUDA_VER || inputs.build-ctk-ver }}
+          BUILD_CUDA_VER: ${{ inputs.maintenance-bindings && matrix.CUDA_VER || inputs.build-ctk-ver }}
           CUDA_BINDINGS_ROOT: ${{ matrix.BINDINGS_ROOT || 'cuda_bindings_13' }}
-          BINDINGS_ARTIFACT_PREFIX: ${{ inputs.bindings-only && 'maintenance-bindings' || 'cuda-bindings' }}
+          BINDINGS_ARTIFACT_PREFIX: ${{ inputs.maintenance-bindings && 'maintenance-bindings' || 'cuda-bindings' }}
           CUDA_VER: ${{ matrix.CUDA_VER }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
