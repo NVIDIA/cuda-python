@@ -84,7 +84,7 @@ else
     core_cython_suffix="-cu${TEST_CUDA_MAJOR}-tests"
     if [[ "${BINDINGS_SOURCE}" == local ]]; then
       CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"
-      BINDINGS_BUILD_CUDA_VER="${CUDA_VER}"
+      BINDINGS_BUILD_CUDA_VER="${BUILD_CUDA_VER}"
       SKIP_CUDA_BINDINGS_TEST="${SKIP_BINDINGS_TEST_OVERRIDE:-0}"
       SKIP_CYTHON_TEST=0
     elif [[ "${BINDINGS_SOURCE}" == floor ]]; then
