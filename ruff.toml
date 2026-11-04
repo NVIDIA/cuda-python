@@ -62,7 +62,6 @@ ignore = [
   "S404",   # allow subprocess imports
 
   # style preferences
-  "C408",   # unnecessary dict/list/tuple call (dict() is fine)
   "E501",   # line too long (formatter handles what it can; the rest is intentional)
   "E741",   # ambiguous variable name (I, l, O)
   "B007",   # unused loop control variable
