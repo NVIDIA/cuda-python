@@ -46,7 +46,7 @@ std::atomic<bool> table_ready[kTables];
 std::atomic<bool> table_failed[kTables];
 std::atomic<bool> unavailable_reported[kTables];
 std::mutex fill_mutex;
-char fill_error[kTables][512] = {};  // guarded by fill_mutex
+char fill_error[kTables][kErrorMessageSize] = {};  // guarded by fill_mutex
 
 std::size_t
 index_of(FnTable table) noexcept
@@ -108,7 +108,9 @@ take_python_error(char *buf, std::size_t size, bool *interrupted) noexcept
 #if PY_VERSION_HEX >= 0x030C0000
     PyObject *exc = PyErr_GetRaisedException();
 #else
-    PyObject *type, *value, *traceback;
+    PyObject *type = nullptr;
+    PyObject *value = nullptr;
+    PyObject *traceback = nullptr;
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
     PyObject *exc = value;
@@ -131,7 +133,7 @@ void
 record_failure(FnTable table, const char *message, bool latch = true) noexcept
 {
     {
-        std::lock_guard<std::mutex> lock(fill_mutex);
+        std::scoped_lock lock(fill_mutex);
         std::snprintf(fill_error[index_of(table)], sizeof(fill_error[0]), "%s", message);
     }
     if (latch) {
@@ -151,7 +153,7 @@ fn_table_ready(FnTable table) noexcept
 bool
 fn_table_error(FnTable table, char *buffer, std::size_t size) noexcept
 {
-    std::lock_guard<std::mutex> lock(fill_mutex);
+    std::scoped_lock lock(fill_mutex);
     const char *text = fill_error[index_of(table)];
     if (!text[0]) {
         return false;
@@ -181,8 +183,8 @@ ensure_fn_table(FnTable table) noexcept
         return false;
     }
 
-    char message[640];
-    char cause[384];
+    char message[kNestedMessageSize];
+    char cause[kErrorMessageSize];
     void *values[kMaxEntries] = {};
 
     GILAcquireGuard gil;
@@ -270,6 +272,7 @@ ensure_fn_table(FnTable table) noexcept
     // major series is present in every driver cuda.core supports. A null one
     // means the driver is older than that. A newer function may be null, and
     // the Cython layer gates its use on the driver version.
+    // NOLINTBEGIN(readability-magic-numbers): version-number decoding, e.g. 13040 -> 13.4
     if (table == FnTable::driver) {
         for (std::size_t i = 0; i < count; ++i) {
             if (values[i] == nullptr && entries[i].introduced <= CUDA_CORE_BUILD_MAJOR * 1000) {
@@ -288,9 +291,10 @@ ensure_fn_table(FnTable table) noexcept
             }
         }
     }
+    // NOLINTEND(readability-magic-numbers)
 
     {
-        std::lock_guard<std::mutex> lock(fill_mutex);
+        std::scoped_lock lock(fill_mutex);
         if (!table_ready[idx].load(std::memory_order_relaxed)) {
             for (std::size_t i = 0; i < count; ++i) {
                 *entries[i].slot = values[i];
@@ -307,7 +311,7 @@ report_unavailable_fn(FnTable table, const char *name) noexcept
 {
     char reason[sizeof(fill_error[0])];
     const bool failed_fill = fn_table_error(table, reason, sizeof(reason));
-    char message[768];
+    char message[kNestedMessageSize];
     if (failed_fill) {
         std::snprintf(message, sizeof(message), "cuda.core could not call %s: %s", name, reason);
     }

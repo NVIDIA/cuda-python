@@ -124,7 +124,7 @@ def _make_key(**overrides):
     unspecified defaults to a valid cubin-from-c++ compile over "a"."""
     from cuda.core.utils import make_program_cache_key
 
-    base = dict(code="a", code_type="c++", options=_opts(), target_type="cubin")
+    base = {"code": "a", "code_type": "c++", "options": _opts(), "target_type": "cubin"}
     return make_program_cache_key(**{**base, **overrides})
 
 
