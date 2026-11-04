@@ -2946,6 +2946,7 @@ def test_mempool_watermark_reset(memory_resource_factory, kind):
         mr.close()
 
 
+@pytest.mark.thread_unsafe(reason="CUDA legacy-default-stream mempool teardown/sync race (gh-3350)")
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 def test_mempool_trim(memory_resource_factory):
     device = Device()
