@@ -1100,3 +1100,78 @@ class TestCythonAlias(CythonAliasMixin):
     """`_stable_cython_alias` tests for cuda.core."""
 
     build_hooks = build_hooks
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_get_clang_tidy_skipped_by_env_var(monkeypatch, capsys, tmp_path):
+    """CUDA_PYTHON_SKIP_CLANG_TIDY=1 skips the check silently, even when clang-tidy is missing."""
+    monkeypatch.setattr(sys, "prefix", str(tmp_path))
+    monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
+    monkeypatch.setenv("CUDA_PYTHON_SKIP_CLANG_TIDY", "1")
+    assert build_hooks.get_clang_tidy() is None
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_get_clang_tidy_warns_when_missing(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(sys, "prefix", str(tmp_path))
+    monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
+    monkeypatch.setenv("CUDA_PYTHON_SKIP_CLANG_TIDY", "0")
+    assert build_hooks.get_clang_tidy() is None
+    assert "WARNING: clang-tidy is not installed" in capsys.readouterr().err
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_get_clang_tidy_finds_executable_in_prefix(monkeypatch, tmp_path):
+    import sysconfig
+
+    if sys.platform == "win32":
+        bin_dir = tmp_path / "Library" / "bin"
+    else:
+        bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(parents=True)
+    exe = bin_dir / f"clang-tidy{sysconfig.get_config_var('EXE')}"
+    exe.write_text("")
+    monkeypatch.setattr(sys, "prefix", str(tmp_path))
+    monkeypatch.setattr(importlib.util, "find_spec", lambda _name: None)
+    monkeypatch.delenv("CUDA_PYTHON_SKIP_CLANG_TIDY", raising=False)
+    assert build_hooks.get_clang_tidy() == str(exe)
+
+
+class TestClangTidyBeforeCompile:
+    """_clang_tidy_before_compile: findings are raised after a good build, noted on a failed one."""
+
+    @staticmethod
+    def _run(monkeypatch, body):
+        from setuptools.dist import Distribution
+
+        setup_py = _load_setup_py(monkeypatch)
+
+        def fake_check(clang_tidy, cmd):
+            raise build_hooks.ClangTidyError("finding in x.cpp")
+
+        monkeypatch.setattr(build_hooks, "get_clang_tidy", lambda: "clang-tidy")
+        monkeypatch.setattr(build_hooks, "check_with_clang_tidy", fake_check)
+        cmd = setup_py.build_ext(Distribution({"name": "cuda-core", "version": "0"}))
+
+        def stock_spawn(cmd, *args, **kwargs):
+            del cmd, args, kwargs
+
+        cmd.compiler = types.SimpleNamespace(spawn=stock_spawn)
+        with cmd._clang_tidy_before_compile():
+            body(cmd.compiler)
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_findings_raised_when_build_succeeds(self, monkeypatch):
+        with pytest.raises(build_hooks.ClangTidyError, match="finding in x.cpp"):
+            self._run(monkeypatch, lambda compiler: compiler.spawn(["g++", "x.cpp"]))
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_compile_error_is_not_replaced(self, monkeypatch):
+        def body(compiler):
+            compiler.spawn(["g++", "x.cpp"])
+            raise OSError("compile failed")
+
+        with pytest.raises(OSError, match="compile failed") as info:
+            self._run(monkeypatch, body)
+        assert any("finding in x.cpp" in note for note in info.value.__notes__)

@@ -58,7 +58,7 @@ struct StreamBox {
     ContextHandle h_context;
 };
 
-static const StreamBox *
+const StreamBox *
 get_box(const StreamHandle &h) noexcept
 {
     const CUstream *p = h.get();
@@ -66,7 +66,7 @@ get_box(const StreamHandle &h) noexcept
 }
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUstream, StreamHandle> stream_registry;
+HandleRegistry<CUstream, StreamHandle> stream_registry;
 }  // namespace
 
 StreamHandle
@@ -224,7 +224,7 @@ make_deallocation_stream(const StreamHandle &h, DeallocationStream &out) noexcep
         return true;
     }
 
-    const CUstream stream = as_cu(h);
+    CUstream stream = as_cu(h);
     if (!is_default_stream(stream)) {
         out = DeallocationStream{h, {}};
         return true;
@@ -241,7 +241,7 @@ make_deallocation_stream(const StreamHandle &h, DeallocationStream &out) noexcep
         }
         // Do not register in stream_registry: the token value alone is not
         // a unique stream identity (context is part of the meaning).
-        auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream, h_ctx});
+        auto box = std::make_shared<const StreamBox>(StreamBox{stream, h_ctx});
         h_bound = StreamHandle(box, &box->resource);
     }
 
