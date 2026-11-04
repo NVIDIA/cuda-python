@@ -11,7 +11,7 @@ from setuptools_scm import get_version
 version = get_version(
     root="..",
     relative_to=__file__,
-    git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.4.*"],
+    git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.*"],
 )
 
 

@@ -9,21 +9,17 @@ import sys
 import tomllib
 from pathlib import Path
 
-from .bindings_config import load_config
+from . import bindings_config
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSIONS_FILE_PATH = ROOT / "ci" / "versions.yml"
 
 
 def main() -> int:
     """Verify current bindings and cuda_core pixi pins match ci/versions.yml."""
-    if not VERSIONS_FILE_PATH.is_file():
-        print(f"error: {VERSIONS_FILE_PATH} not found", file=sys.stderr)
-        return 2
     try:
-        current = load_config(VERSIONS_FILE_PATH).package_for_release_status("current")
+        current = bindings_config.load_config().package_for_release_status("current")
     except (KeyError, TypeError, ValueError) as exc:
-        print(f"error: invalid CUDA toolkit pins in {VERSIONS_FILE_PATH}: {exc}", file=sys.stderr)
+        print(f"error: invalid CUDA toolkit pins in {bindings_config.DEFAULT_CONFIG}: {exc}", file=sys.stderr)
         return 2
 
     build_version = current.toolkit_version

@@ -50,7 +50,7 @@ def pixi_checkout(tmp_path, monkeypatch, legacy_config):
             '[feature.cu13.dependencies]\ncuda-version = "13.4.*"\n'
         )
     monkeypatch.setattr(check_pixi_cuda_version, "ROOT", tmp_path)
-    monkeypatch.setattr(check_pixi_cuda_version, "VERSIONS_FILE_PATH", legacy_config)
+    monkeypatch.setattr(check_pixi_cuda_version.bindings_config, "load_config", lambda: load_config(legacy_config))
     return tmp_path
 
 
@@ -81,7 +81,20 @@ def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, mon
 
     def git(*args):
         return subprocess.run(  # noqa: S603
-            ["git", "-c", "user.name=CI test", "-c", "user.email=ci-test@example.invalid", *args],  # noqa: S607
+            [  # noqa: S607
+                "git",
+                "-c",
+                "user.name=CI test",
+                "-c",
+                "user.email=ci-test@example.invalid",
+                "-c",
+                "commit.gpgsign=false",
+                "-c",
+                "tag.gpgsign=false",
+                "-c",
+                "core.hooksPath=/dev/null",
+                *args,
+            ],
             cwd=tmp_path,
             check=True,
             capture_output=True,
@@ -99,9 +112,11 @@ def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, mon
 
     with (tmp_path / "cuda_bindings_13" / "pyproject.toml").open("rb") as stream:
         scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+    assert scm["git_describe_command"][-1] == f"v{current.cuda_major}.*"
     bindings_version = get_version(root=tmp_path, git_describe_command=scm["git_describe_command"])
     metadata = {}
     monkeypatch.setattr(setuptools, "setup", lambda **kwargs: metadata.update(kwargs))
+    monkeypatch.setenv("CUDA_PYTHON_BUILD_MAJOR", "13")
     runpy.run_path(str(tmp_path / "cuda_python" / "setup.py"))
     assert Version(bindings_version).release[:2] == current.toolkit[:2]
     assert metadata["version"] == bindings_version
