@@ -1768,7 +1768,11 @@ def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
     buf = mr.allocate(4096)
     try:
         with pytest.raises(ValueError, match="handle_type=None"):
-            mr.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions(location_type="host"))
+            mr.modify_allocation(
+                buf,
+                2 * buf.size,
+                config=VirtualMemoryResourceOptions(location_type="host", handle_type=VirtualMemoryHandleType.POSIX_FD),
+            )
     finally:
         buf.close()
 
@@ -3384,17 +3388,19 @@ def test_vmm_host_location_types_report_host_accessible(init_cuda, location_type
     deciding the resource is not bound to a device, so is_host_accessible must
     agree; otherwise a NUMA-located resource claims to be neither host- nor
     device-accessible. The driver rejects an exportable handle type for HOST
-    memory only, so the default handle type is rejected at construction for
-    "host" and accepted for "host_numa".
+    memory only, so an exportable default handle type is rejected at
+    construction for "host" and accepted for "host_numa". The Windows
+    default, None, is accepted for both location types.
     """
     device = Device()
     device.set_current()
     numa = {"numa_id": 0} if location_type == "host_numa" else {}
-    if location_type == "host":
+    config = VirtualMemoryResourceOptions(location_type=location_type, **numa)
+    if location_type == "host" and config.handle_type is not None:
         with pytest.raises(ValueError, match="handle_type=None"):
-            VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+            VirtualMemoryResource(device, config=config)
     else:
-        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type, **numa))
+        VirtualMemoryResource(device, config=config)
     mr = VirtualMemoryResource(
         device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None, **numa)
     )

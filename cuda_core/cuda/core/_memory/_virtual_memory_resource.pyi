@@ -65,7 +65,7 @@ class VirtualMemoryResourceOptions:
     """
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
-    handle_type: VirtualMemoryHandleType | None = field(default_factory=lambda: None if platform.system() == 'Windows' else VirtualMemoryHandleType.POSIX_FD)
+    handle_type: VirtualMemoryHandleType | str | None = field(default_factory=lambda: None if platform.system() == 'Windows' else VirtualMemoryHandleType.POSIX_FD)
     granularity: VirtualMemoryGranularityType = VirtualMemoryGranularityType.RECOMMENDED
     gpu_direct_rdma: bool = False
     addr_hint: int | None = 0
@@ -93,7 +93,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _location_type_to_driver(spec: VirtualMemoryLocationType) -> int: ...
     @staticmethod
-    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None) -> int: ...
+    def _handle_type_to_driver(spec: VirtualMemoryHandleType | str | None) -> int: ...
     @staticmethod
     def _granularity_to_driver(spec: VirtualMemoryGranularityType) -> int: ...
 

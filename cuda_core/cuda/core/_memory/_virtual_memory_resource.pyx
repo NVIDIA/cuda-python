@@ -134,7 +134,7 @@ class VirtualMemoryResourceOptions:
 
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
-    handle_type: VirtualMemoryHandleType | None = field(
+    handle_type: VirtualMemoryHandleType | str | None = field(
         default_factory=lambda: None if platform.system() == "Windows" else VirtualMemoryHandleType.POSIX_FD
     )
     granularity: VirtualMemoryGranularityType = VirtualMemoryGranularityType.RECOMMENDED
@@ -203,7 +203,7 @@ class VirtualMemoryResourceOptions:
         return loc_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None) -> int:
+    def _handle_type_to_driver(spec: VirtualMemoryHandleType | str | None) -> int:
         if spec == "win32":
             raise NotImplementedError("win32 is currently not supported, please reach out to the CUDA Python team")
         handle_type = VirtualMemoryResourceOptions._handle_types.get(spec)
