@@ -1,0 +1,238 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# The cuda-python-private-automation GitHub App supplies a short-lived token
+# with Contents and Workflows write access. This permits mirrored-main updates
+# even when public commits change workflow files, and permits public tags to be
+# synchronized automatically. Existing tag mismatches still require explicit
+# human review and lease-protected deletion before this workflow will update
+# any tags.
+
+name: "Mirror public main"
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+# All repository writes use the explicitly down-scoped GitHub App token.
+permissions: {}
+
+concurrency:
+  group: mirror-public-main
+  cancel-in-progress: false
+
+jobs:
+  mirror-public-main:
+    name: Mirror public main and tags
+    if: github.repository == 'NVIDIA-dev/cuda-python-private'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        with:
+          client-id: ${{ vars.CUDA_PYTHON_PRIVATE_AUTOMATION_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CUDA_PYTHON_PRIVATE_AUTOMATION_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-workflows: write
+
+      - name: Checkout private repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          # Persist the App token so both branch and tag pushes use it.
+          persist-credentials: true
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Fetch public main and tags
+        run: |
+          set -euo pipefail
+
+          git remote add public_repo https://github.com/NVIDIA/cuda-python.git
+          git fetch --force --no-tags public_repo \
+            '+refs/heads/main:refs/remotes/public_repo/main' \
+            '+refs/tags/*:refs/public-tags/*'
+
+      - name: Mirror public main
+        run: |
+          set -euo pipefail
+
+          public_main_oid="$(git rev-parse refs/remotes/public_repo/main)"
+          echo "Public main target: $public_main_oid"
+
+          # Keep continuous public history and refuse an unexpected rewrite.
+          git push origin \
+            'refs/remotes/public_repo/main:refs/heads/mirrored-main'
+
+          echo "::notice title=Public main mirrored::mirrored-main now points to $public_main_oid."
+
+      - name: Synchronize public tags
+        run: |
+          set -euo pipefail
+
+          declare -A private_tag_oids=()
+          missing_tags=()
+          missing_public_oids=()
+          mismatched_tags=()
+          mismatched_private_oids=()
+          mismatched_public_oids=()
+          public_tag_count=0
+          private_tags_file="$RUNNER_TEMP/private-tags"
+          public_tags_file="$RUNNER_TEMP/public-tags"
+
+          print_missing_tags() {
+            local index
+            for index in "${!missing_tags[@]}"; do
+              printf '  %s  %s\n' \
+                "${missing_tags[$index]}" "${missing_public_oids[$index]}"
+            done
+          }
+
+          print_mismatched_tags() {
+            local index
+            for index in "${!mismatched_tags[@]}"; do
+              printf '  %s\n' "${mismatched_tags[$index]}"
+              printf '    cuda-python-private: %s\n' \
+                "${mismatched_private_oids[$index]}"
+              printf '    public cuda-python: %s\n' \
+                "${mismatched_public_oids[$index]}"
+            done
+          }
+
+          print_mismatched_tag_deletions() {
+            local delete_ref index lease tag_name
+            for index in "${!mismatched_tags[@]}"; do
+              tag_name="${mismatched_tags[$index]}"
+              lease="refs/tags/$tag_name:${mismatched_private_oids[$index]}"
+              delete_ref=":refs/tags/$tag_name"
+              printf 'git push --force-with-lease=%q git@github.com:NVIDIA-dev/cuda-python-private.git %q\n' \
+                "$lease" "$delete_ref"
+            done
+          }
+
+          # Materialize both listings so set -e catches either query failing
+          # before synchronization interprets any partial results.
+          git ls-remote --tags --refs origin > "$private_tags_file"
+          git for-each-ref \
+            --format='%(objectname) %(refname)' refs/public-tags/ \
+            | sed 's# refs/public-tags/# refs/tags/#' \
+            > "$public_tags_file"
+
+          if [[ ! -s "$public_tags_file" ]]; then
+            echo "::error title=Public tag synchronization unavailable::The public repository returned no tags; refusing to treat an empty result as synchronized."
+            exit 1
+          fi
+
+          while read -r private_oid private_ref; do
+            private_tag_oids["$private_ref"]="$private_oid"
+          done < "$private_tags_file"
+
+          while read -r public_oid public_ref; do
+            ((public_tag_count += 1))
+            tag_name="${public_ref#refs/tags/}"
+            private_oid="${private_tag_oids[$public_ref]-}"
+
+            if [[ -z "$private_oid" ]]; then
+              missing_tags+=("$tag_name")
+              missing_public_oids+=("$public_oid")
+            elif [[ "$private_oid" != "$public_oid" ]]; then
+              mismatched_tags+=("$tag_name")
+              mismatched_private_oids+=("$private_oid")
+              mismatched_public_oids+=("$public_oid")
+            fi
+          done < "$public_tags_file"
+
+          # A mismatched tag may reflect an intentional private tag. Require a
+          # human to review and remove it before creating any missing tags.
+          if (( ${#mismatched_tags[@]} != 0 )); then
+            echo "::error title=Public tag mismatch requires review::One or more public CUDA Python tags differ in cuda-python-private; no tags were modified."
+            echo
+            echo "Mismatched public tags:"
+            print_mismatched_tags
+
+            if (( ${#missing_tags[@]} != 0 )); then
+              echo
+              echo "Missing public tags awaiting synchronization:"
+              print_missing_tags
+            fi
+
+            echo
+            echo "Review each mismatch. If the public tag should be authoritative,"
+            echo "delete the cuda-python-private tag manually:"
+            print_mismatched_tag_deletions | sed 's/^/  /'
+            echo "The object-ID lease prevents a stale command from deleting a tag"
+            echo "that changed after this audit. Then rerun this workflow."
+
+            {
+              echo "## Action required: resolve mismatched public tags"
+              echo
+              echo "One or more public CUDA Python tags differ in"
+              echo '`cuda-python-private`.'
+              echo
+              echo "### Mismatched public tags"
+              echo
+              echo '```text'
+              print_mismatched_tags
+              echo '```'
+
+              if (( ${#missing_tags[@]} != 0 )); then
+                echo
+                echo "### Missing public tags awaiting synchronization"
+                echo
+                echo '```text'
+                print_missing_tags
+                echo '```'
+              fi
+
+              echo
+              echo "### Resolution"
+              echo
+              echo "Review each mismatch. If the public tag should be authoritative,"
+              echo "delete the cuda-python-private tag manually:"
+              echo
+              echo '```console'
+              print_mismatched_tag_deletions
+              echo '```'
+              echo
+              echo "The object-ID lease prevents a stale command from deleting a tag"
+              echo "that changed after this audit. Then rerun this workflow; it will"
+              echo "restore the removed tag and create any other missing public tags."
+              echo
+              echo '> **Workflow context:** The `mirrored-main` branch was updated successfully.'
+              echo '> No tags were modified because an existing tag mismatch requires human review.'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            exit 1
+          fi
+
+          if (( ${#missing_tags[@]} == 0 )); then
+            echo "::notice title=Public tags synchronized::All $public_tag_count public tags exist identically in cuda-python-private."
+            exit 0
+          fi
+
+          echo "Missing public tags to synchronize:"
+          print_missing_tags
+
+          # Push only refs fetched from the public repository. Private-only
+          # tags are left untouched, and a concurrent conflict fails safely.
+          git push origin 'refs/public-tags/*:refs/tags/*'
+
+          missing_tag_count="${#missing_tags[@]}"
+          echo "::notice title=Public tags synchronized::Created $missing_tag_count missing public tag(s); all $public_tag_count public tags now exist in cuda-python-private."
+
+          {
+            echo "## Public tags synchronized"
+            echo
+            echo "Created $missing_tag_count missing public tag(s):"
+            echo
+            echo '```text'
+            print_missing_tags
+            echo '```'
+            echo
+            echo "All $public_tag_count public CUDA Python tags now exist identically"
+            echo 'in `cuda-python-private`.'
+          } >> "$GITHUB_STEP_SUMMARY"

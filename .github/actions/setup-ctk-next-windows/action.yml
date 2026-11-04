@@ -1,0 +1,335 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Set up ctk-next Windows toolchain
+
+description: Set up native Python, MSVC, and a released or kitpick CUDA mini-toolkit
+
+inputs:
+  host-platform:
+    description: Windows host platform (win-64 or win-arm64)
+    required: true
+  cuda-version:
+    description: Short CUDA version used by the runbooks
+    required: true
+  cuda-kitpick-version:
+    description: Full CUDA kitpick version
+    default: ''
+  cuda-kitpick:
+    description: CUDA kitpick number
+    default: ''
+  cuda-release-version:
+    description: Released toolkit version; empty preserves the private kitpick selection
+    default: ''
+  python-version:
+    description: Native Python version
+    required: true
+
+outputs:
+  python-path:
+    description: Absolute path of the venv's interpreter (from setup-hardened-python).
+    value: ${{ steps.hardened-python.outputs.python-path }}
+  python-version:
+    description: Full resolved Python version, e.g. "3.12.16".
+    value: ${{ steps.hardened-python.outputs.python-version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Configure Windows architecture
+      shell: powershell
+      run: |
+        switch ("${{ inputs.host-platform }}") {
+          "win-64" {
+            $processorArchitecture = "AMD64"
+            $pythonArchitecture = "x64"
+            $pythonPlatform = "win-amd64"
+            $msvcComponent = "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+            $kitpickArchitecture = "win-64"
+            $kitpickInstallerGlob = "cuda_*_windows_x86_64_kitpick*.exe"
+          }
+          "win-arm64" {
+            $processorArchitecture = "ARM64"
+            $pythonArchitecture = "arm64"
+            $pythonPlatform = "win-arm64"
+            $msvcComponent = "Microsoft.VisualStudio.Component.VC.Tools.ARM64"
+            $kitpickArchitecture = "win-arm64"
+            $kitpickInstallerGlob = "cuda_*_windows_arm64_kitpick*.exe"
+          }
+          default {
+            throw "Unsupported Windows host platform: ${{ inputs.host-platform }}"
+          }
+        }
+
+        @(
+          "HOST_PLATFORM=${{ inputs.host-platform }}"
+          "EXPECTED_PROCESSOR_ARCHITECTURE=$processorArchitecture"
+          "PYTHON_ARCHITECTURE=$pythonArchitecture"
+          "PYTHON_PLATFORM=$pythonPlatform"
+          "MSVC_COMPONENT=$msvcComponent"
+          "KITPICK_ARCHITECTURE=$kitpickArchitecture"
+          "KITPICK_INSTALLER_GLOB=$kitpickInstallerGlob"
+          "CUDA_VERSION=${{ inputs.cuda-version }}"
+          "CUDA_KITPICK_VERSION=${{ inputs.cuda-kitpick-version }}"
+          "CUDA_KITPICK=${{ inputs.cuda-kitpick }}"
+          "CUDA_MAJOR=${{ inputs.cuda-version }}".Split('.')[0]
+        ) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Set up Python ${{ inputs.python-version }}
+      id: hardened-python
+      uses: ./.github/actions/setup-hardened-python
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Verify Python architecture
+      shell: powershell
+      run: |
+        python -VV
+        python -c "import os, sys, sysconfig; platform = sysconfig.get_platform(); print('Python platform:', platform); sys.exit(platform != os.environ['PYTHON_PLATFORM'])"
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    - name: Install MSVC Build Tools
+      shell: powershell
+      run: |
+        $programFilesX86 = [Environment]::GetFolderPath("ProgramFilesX86")
+        $vswhere = Join-Path $programFilesX86 "Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsRequirements = @(
+          $env:MSVC_COMPONENT
+          "Microsoft.VisualStudio.Component.Windows11SDK.26100"
+        )
+        if (Test-Path $vswhere) {
+          $existingInstall = & $vswhere -latest -products "*" -requires $vsRequirements -property installationPath
+          if ($existingInstall) {
+            Write-Host "Using existing $env:EXPECTED_PROCESSOR_ARCHITECTURE MSVC installation: $existingInstall"
+            exit 0
+          }
+        }
+
+        $bootstrapper = Join-Path $env:RUNNER_TEMP "vs_buildtools.exe"
+        $bootstrapperUrl = "https://aka.ms/vs/17/release/vs_buildtools.exe"
+        $installPath = Join-Path $env:SystemDrive "BuildTools"
+
+        Invoke-WebRequest -UseBasicParsing -Uri $bootstrapperUrl -OutFile $bootstrapper
+        $signature = Get-AuthenticodeSignature -FilePath $bootstrapper
+        if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Microsoft Corporation") {
+          throw "Visual Studio Build Tools bootstrapper does not have a valid Microsoft signature."
+        }
+
+        $arguments = @(
+          "--quiet"
+          "--wait"
+          "--norestart"
+          "--nocache"
+          "--installPath"
+          $installPath
+          "--add"
+          "Microsoft.VisualStudio.Workload.VCTools"
+          "--add"
+          $env:MSVC_COMPONENT
+          "--add"
+          "Microsoft.VisualStudio.Component.Windows11SDK.26100"
+        )
+        $process = Start-Process -FilePath $bootstrapper -ArgumentList $arguments -PassThru
+        while (-not $process.WaitForExit(60000)) {
+          Write-Host "Visual Studio Build Tools installer is still running."
+        }
+        if ($process.ExitCode -notin @(0, 3010)) {
+          throw "Visual Studio Build Tools installer exited with code $($process.ExitCode)."
+        }
+
+        if (-not (Test-Path $vswhere)) {
+          throw "vswhere.exe not found after installing Visual Studio Build Tools: $vswhere"
+        }
+        $installedPath = & $vswhere -latest -products "*" -requires $vsRequirements -property installationPath
+        if (-not $installedPath) {
+          throw "Visual Studio Build Tools component $env:MSVC_COMPONENT was not found after installation."
+        }
+        $vcvars = Join-Path $installedPath "VC\Auxiliary\Build\vcvarsall.bat"
+        if (-not (Test-Path $vcvars)) {
+          throw "vcvarsall.bat not found after installing Visual Studio Build Tools: $vcvars"
+        }
+        Write-Host "Installed $env:EXPECTED_PROCESSOR_ARCHITECTURE MSVC toolchain: $installedPath"
+
+    - name: Activate MSVC
+      shell: powershell
+      run: |
+        $programFilesX86 = [Environment]::GetFolderPath("ProgramFilesX86")
+        $vswhere = Join-Path $programFilesX86 "Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsRequirements = @(
+          $env:MSVC_COMPONENT
+          "Microsoft.VisualStudio.Component.Windows11SDK.26100"
+        )
+        $installedPath = & $vswhere -latest -products "*" -requires $vsRequirements -property installationPath
+        if (-not $installedPath) {
+          throw "Visual Studio Build Tools component $env:MSVC_COMPONENT was not found."
+        }
+        $vcvars = Join-Path $installedPath "VC\Auxiliary\Build\vcvarsall.bat"
+        $vcvarsArch = if ($env:HOST_PLATFORM -eq "win-arm64") { "arm64" } else { "x64" }
+
+        $originalEnvironment = @{}
+        Get-ChildItem Env: | ForEach-Object {
+          $originalEnvironment[$_.Name] = $_.Value
+        }
+
+        $command = "`"$vcvars`" $vcvarsArch >nul && set"
+        $vcvarsEnvironment = & $env:ComSpec /d /s /c $command
+        if ($LASTEXITCODE -ne 0) {
+          throw "vcvarsall.bat exited with code $LASTEXITCODE."
+        }
+
+        $encoding = [System.Text.UTF8Encoding]::new($false)
+        foreach ($line in $vcvarsEnvironment) {
+          $separator = $line.IndexOf("=")
+          if ($separator -le 0) {
+            continue
+          }
+          $name = $line.Substring(0, $separator)
+          $value = $line.Substring($separator + 1)
+          if (-not $originalEnvironment.ContainsKey($name) -or $originalEnvironment[$name] -ne $value) {
+            [Environment]::SetEnvironmentVariable($name, $value, "Process")
+            [System.IO.File]::AppendAllText($env:GITHUB_ENV, "$name=$value`n", $encoding)
+          }
+        }
+
+        where.exe cl.exe
+        if ($LASTEXITCODE -ne 0) {
+          throw "cl.exe is not available after activating $vcvars."
+        }
+
+    - name: Restore CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }} cache
+      id: cuda-cache
+      if: ${{ inputs.cuda-release-version == '' }}
+      uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+      with:
+        path: cuda_toolkit
+        key: ctk-next-windows-ci-mini-ctk-assembler-v1-${{ inputs.cuda-kitpick-version }}-kitpick${{ inputs.cuda-kitpick }}-${{ inputs.host-platform }}
+
+    - name: Extract CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }}
+      if: ${{ inputs.cuda-release-version == '' && steps.cuda-cache.outputs.cache-hit != 'true' }}
+      shell: powershell
+      run: |
+        $cudaDownloadDir = Join-Path $env:RUNNER_TEMP "kitpicks"
+        $sevenZip = Join-Path $env:RUNNER_TEMP "7zr.exe"
+        $sevenZipUrl = "https://github.com/ip7z/7zip/releases/download/26.02/7zr.exe"
+        $sevenZipHash = "56b8cc9f4971cef253644fafe54063ed7fdca551d4dee0f8c6baa81b855acd72"
+        $extractRoot = Join-Path $env:RUNNER_TEMP "cuda-$($env:CUDA_KITPICK_VERSION)-kitpick$($env:CUDA_KITPICK)-installer"
+        $cudaPath = Join-Path $env:GITHUB_WORKSPACE "cuda_toolkit"
+        $components = "cuda_nvcc,cuda_cudart,cuda_crt,libnvvm,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_cupti,libnvjitlink,libnvfatbin"
+
+        Invoke-WebRequest -Uri $sevenZipUrl -OutFile $sevenZip
+        $actualHash = (Get-FileHash -Path $sevenZip -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actualHash -ne $sevenZipHash) {
+          throw "7-Zip checksum mismatch: expected $sevenZipHash, got $actualHash."
+        }
+
+        New-Item -ItemType Directory -Force -Path $cudaDownloadDir | Out-Null
+        Push-Location $cudaDownloadDir
+        try {
+          python "$env:GITHUB_WORKSPACE\qa\forge\download_from_kitpicks.py" $env:CUDA_KITPICK_VERSION $env:CUDA_KITPICK "--arch=$env:KITPICK_ARCHITECTURE"
+          if ($LASTEXITCODE -ne 0) {
+            throw "CUDA kitpick download failed with exit code $LASTEXITCODE."
+          }
+        }
+        finally {
+          Pop-Location
+        }
+
+        $installers = @(Get-ChildItem -Path $cudaDownloadDir -File -Filter $env:KITPICK_INSTALLER_GLOB)
+        if ($installers.Count -ne 1) {
+          throw "Expected exactly one $env:HOST_PLATFORM kitpick installer, found $($installers.Count)."
+        }
+        $cudaInstaller = $installers[0].FullName
+
+        New-Item -ItemType Directory -Force -Path $extractRoot | Out-Null
+        $archivePatterns = @(
+          "cccl\*"
+          "cuda_crt\*"
+          "cuda_cudart\*"
+          "cuda_cupti\*"
+          "cuda_nvcc\*"
+          "cuda_nvrtc\*"
+          "cuda_profiler_api\*"
+          "libnvfatbin\*"
+          "libnvjitlink\*"
+          "libnvvm\*"
+        )
+        & $sevenZip x -y $cudaInstaller $archivePatterns "-o$extractRoot"
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
+
+        $mergeArgs = @(
+          "$env:GITHUB_WORKSPACE\qa\forge\merge_windows_kitpick.py"
+          "--host-platform"
+          $env:HOST_PLATFORM
+          "--components"
+          $components
+          "--extract-root"
+          $extractRoot
+          "--destination"
+          $cudaPath
+        )
+        python @mergeArgs
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
+
+    - name: Save CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }} cache
+      if: ${{ inputs.cuda-release-version == '' && steps.cuda-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+      with:
+        path: cuda_toolkit
+        key: ctk-next-windows-ci-mini-ctk-assembler-v1-${{ inputs.cuda-kitpick-version }}-kitpick${{ inputs.cuda-kitpick }}-${{ inputs.host-platform }}
+
+    - name: Configure CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }}
+      if: ${{ inputs.cuda-release-version == '' }}
+      shell: powershell
+      run: |
+        $cudaPath = (Resolve-Path cuda_toolkit).Path
+        $nvcc = Join-Path $cudaPath "bin\nvcc.exe"
+        if (-not (Test-Path $nvcc)) {
+          throw "CUDA compiler not found at: $nvcc"
+        }
+        "$cudaPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        @(
+          "CUDA_PATH=$cudaPath"
+          "CUDA_HOME=$cudaPath"
+          "CUDA_PYTHON_PARALLEL_LEVEL=$([Math]::Min(61, [int]$env:NUMBER_OF_PROCESSORS))"
+        ) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        & $nvcc --version
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
+
+    - name: Fetch released CUDA toolkit
+      if: ${{ inputs.cuda-release-version != '' }}
+      uses: ./.github/actions/fetch_ctk
+      with:
+        host-platform: ${{ inputs.host-platform }}
+        cuda-version: ${{ inputs.cuda-release-version }}
+        cuda-components: cuda_nvcc,cuda_cudart,cuda_crt,libnvvm,cuda_nvrtc,cuda_profiler_api,cuda_cccl,cuda_cupti,libnvjitlink,libnvfatbin
+        cuda-path: ./cuda_toolkit-${{ inputs.cuda-release-version }}
+
+    - name: Configure released CUDA toolkit
+      if: ${{ inputs.cuda-release-version != '' }}
+      env:
+        CUDA_RELEASE_VERSION: ${{ inputs.cuda-release-version }}
+      shell: powershell
+      run: |
+        $cudaPath = (Resolve-Path "cuda_toolkit-$env:CUDA_RELEASE_VERSION").Path
+        $archBin = Join-Path $cudaPath "bin\$env:PYTHON_ARCHITECTURE"
+        if (Test-Path -LiteralPath $archBin) {
+          Get-ChildItem -LiteralPath $archBin | Copy-Item -Destination (Join-Path $cudaPath 'bin') -Recurse -Force
+        }
+        @("CUDA_PATH=$cudaPath", "CUDA_HOME=$cudaPath") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        "$cudaPath\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        $nvccOutput = & "$cudaPath\bin\nvcc.exe" --version
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
+        $nvccOutput | Write-Host
+        $expectedVersion = ($env:CUDA_RELEASE_VERSION.Split('.')[0..1] -join '.')
+        if (($nvccOutput -join "`n") -notmatch "release $([regex]::Escape($expectedVersion)),") {
+          throw "Expected CUDA $expectedVersion compiler, got: $nvccOutput"
+        }

@@ -1,0 +1,102 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Set up Windows ARM64 GB300
+description: Install the attested MCDM driver and ARM64 runtime on a fresh GB300 VM
+
+runs:
+  using: composite
+  steps:
+    # See https://gitlab-master.nvidia.com/jcichra/projects/-/blob/main/2026/woa/WOA-RUNNER-GUIDE.md
+    # This package starts in MCDM. Restarting the GPU can pause the VM.
+    - name: Download the GB300 MCDM driver
+      shell: pwsh
+      env:
+        DRIVER_BASE_URL: http://10.176.221.215:8080/AttestedDriverSigning/Attested_logod/wddm2-aarch64-dch
+        DRIVER_VERSION: 620.77-NProfile
+      run: |
+        $root = "$env:DRIVER_BASE_URL/$env:DRIVER_VERSION/WoA/Disk1/Display.Driver/"
+        $dir = Join-Path $env:RUNNER_TEMP "gb300-driver\Display.Driver"
+        function Get-Files([string] $url) {
+          $html = (Invoke-WebRequest -UseBasicParsing -Uri $url).Content
+          foreach ($match in [regex]::Matches($html, '<a href="([^"?#]+)"')) {
+            $href = $match.Groups[1].Value
+            if ($href -eq "../" -or $href.StartsWith("/")) { continue }
+            if ($href.EndsWith("/")) { Get-Files ($url + $href) } else { $url + $href }
+          }
+        }
+        $files = @(Get-Files $root)
+        if (-not ($files -like "*/nv_disp_woa.inf")) {
+          throw "No nv_disp_woa.inf under $env:DRIVER_VERSION"
+        }
+        $failed = @($files | ForEach-Object -ThrottleLimit 8 -Parallel {
+          $rel = [Uri]::UnescapeDataString($_.Substring($using:root.Length)) -replace '/', '\'
+          $dest = Join-Path $using:dir $rel
+          New-Item -ItemType Directory -Force (Split-Path $dest) | Out-Null
+          curl.exe -fsS --retry 3 -o $dest $_
+          if ($LASTEXITCODE -ne 0) { $rel }
+        })
+        if ($failed.Count -gt 0) {
+          throw "$($failed.Count) downloads failed: $($failed | Select-Object -First 5)"
+        }
+
+    - name: Verify and install the MCDM driver
+      shell: pwsh
+      run: |
+        $dir = Join-Path $env:RUNNER_TEMP "gb300-driver\Display.Driver"
+        $signature = Get-AuthenticodeSignature (Join-Path $dir "nv_disp_woa.cat")
+        if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "O=Microsoft Corporation") {
+          throw "Driver catalog is not validly signed by Microsoft: $($signature.Status)"
+        }
+        pnputil.exe /add-driver (Join-Path $dir "nv_disp_woa.inf") /install
+        if ($LASTEXITCODE -ne 0) { throw "pnputil failed ($LASTEXITCODE)" }
+
+    - name: Wait for the GB300 GPU
+      shell: pwsh
+      run: |
+        $deadline = (Get-Date).AddMinutes(2)
+        $ok = 0
+        do {
+          Start-Sleep -Seconds 2
+          $gpu = @(Get-PnpDevice -PresentOnly | Where-Object InstanceId -like 'PCI\VEN_10DE&DEV_31C2*')
+          $service = Get-Service nvlddmkm -ErrorAction SilentlyContinue
+          $smi = Get-Command nvidia-smi.exe -ErrorAction SilentlyContinue
+          $ready = $false
+          if ($smi) {
+            & $smi.Source -L *> $null
+            $ready = $LASTEXITCODE -eq 0 -and $gpu.Count -eq 1 -and $gpu[0].Status -eq "OK" -and "$($gpu[0].Problem)" -eq "CM_PROB_NONE" -and $service.Status -eq "Running"
+          }
+          $ok = if ($ready) { $ok + 1 } else { 0 }
+        } while ($ok -lt 3 -and (Get-Date) -lt $deadline)
+        if ($ok -lt 3) {
+          throw "GPU not ready after 2 minutes: $($gpu.Status) / $($gpu.Problem), nvlddmkm $($service.Status)"
+        }
+        nvidia-smi
+        if ($LASTEXITCODE -ne 0) { throw "nvidia-smi failed ($LASTEXITCODE)" }
+
+    - name: Install the ARM64 VC++ runtime
+      shell: pwsh
+      run: |
+        $redist = Join-Path $env:RUNNER_TEMP "vc_redist.arm64.exe"
+        curl.exe -fsSL --retry 3 -o $redist https://aka.ms/vs/17/release/vc_redist.arm64.exe
+        if ($LASTEXITCODE -ne 0) { throw "VC++ runtime download failed ($LASTEXITCODE)" }
+        $signature = Get-AuthenticodeSignature $redist
+        if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "O=Microsoft Corporation") {
+          throw "VC++ runtime is not validly signed by Microsoft: $($signature.Status)"
+        }
+        $process = Start-Process $redist -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
+        if ($process.ExitCode -notin 0, 1638, 3010) { throw "VC++ runtime installer failed: $($process.ExitCode)" }
+
+    - name: Configure GB300 test prerequisites
+      shell: pwsh
+      run: |
+        Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name LongPathsEnabled -Value 1
+        git config --global core.symlinks true
+        if ($LASTEXITCODE -ne 0) { throw "Failed to enable Git symlinks" }
+        # The sample requires OpenGL 2.0; MCDM only exposes Windows' OpenGL 1.1.
+        # The runbook and installed-wheel jobs invoke pytest from different directories.
+        $deselect = @(
+          '--deselect=tests/example_tests/test_samples.py::test_sample[cuda_core/glInteropMipmapLod]'
+          '--deselect=cuda_core/tests/example_tests/test_samples.py::test_sample[cuda_core/glInteropMipmapLod]'
+        ) -join ' '
+        "PYTEST_ADDOPTS=$env:PYTEST_ADDOPTS $deselect" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append

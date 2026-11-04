@@ -30,6 +30,9 @@
 #                    how it was obtained; reviewers should recompute it. Treat a
 #                    CI hash mismatch as possible tampering -- never copy the
 #                    "got" value from a job log into this file.
+# - DRIVER_SHA256: required whenever DRIVER is a version string. The install
+#         script verifies the download against it and fails closed on a mismatch
+#         or when it is missing.
 # - DRIVER: 'earliest' does not work with CUDA 12.9.1
 # - DRIVER: a custom version is not supported with FLAVOR=wsl on Linux.
 # - ENV: optional map of extra environment variables to inject into the test

@@ -1,0 +1,120 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# TODO: Remove or replace this PID-drop-specific action after the CUDA 13.5 PID drop.
+
+name: Set up ctk-next Linux toolkit
+
+description: Restore or install an exact CUDA kitpick on a Linux runner
+
+inputs:
+  host-platform:
+    description: Linux host platform (linux-64 or linux-aarch64)
+    required: true
+  cuda-version:
+    description: CUDA version used in artifact names
+    required: true
+  cuda-kitpick-version:
+    description: Full CUDA kitpick version
+    required: true
+  cuda-kitpick:
+    description: CUDA kitpick number
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Configure Linux architecture
+      shell: bash
+      run: |
+        case "${{ inputs.host-platform }}" in
+          linux-64)
+            expected_machine=x86_64
+            kitpick_architecture=linux-64
+            installer_glob='cuda_*_linux_kitpick*.run'
+            ;;
+          linux-aarch64)
+            expected_machine=aarch64
+            kitpick_architecture=linux-aarch64
+            installer_glob='cuda_*_linux_sbsa_kitpick*.run'
+            ;;
+          *)
+            echo "Unsupported Linux host platform: ${{ inputs.host-platform }}" >&2
+            exit 1
+            ;;
+        esac
+
+        actual_machine="$(uname -m)"
+        if [[ "$actual_machine" != "$expected_machine" ]]; then
+          echo "Expected '$expected_machine', got '$actual_machine'." >&2
+          exit 1
+        fi
+
+        {
+          echo "KITPICK_ARCHITECTURE=$kitpick_architecture"
+          echo "KITPICK_INSTALLER_GLOB=$installer_glob"
+        } >> "$GITHUB_ENV"
+
+    - name: Restore CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }} cache
+      id: cuda-cache
+      uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+      with:
+        path: cuda_toolkit
+        key: ctk-next-linux-wheel-full-toolkit-v1-${{ inputs.cuda-kitpick-version }}-kitpick${{ inputs.cuda-kitpick }}-${{ inputs.host-platform }}
+
+    - name: Download CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }} kitpick
+      if: ${{ steps.cuda-cache.outputs.cache-hit != 'true' }}
+      shell: bash
+      run: |
+        download_dir="$RUNNER_TEMP/kitpicks-${{ inputs.host-platform }}"
+        mkdir -p "$download_dir"
+        cd "$download_dir"
+        python "$GITHUB_WORKSPACE/qa/forge/download_from_kitpicks.py" \
+          "${{ inputs.cuda-kitpick-version }}" \
+          "${{ inputs.cuda-kitpick }}" \
+          --arch="$KITPICK_ARCHITECTURE"
+
+        mapfile -t installers < <(find "$download_dir" -maxdepth 1 -type f -name "$KITPICK_INSTALLER_GLOB" -print)
+        if ((${#installers[@]} != 1)); then
+          printf 'Expected exactly one %s kitpick installer, found %d:\n' \
+            "${{ inputs.host-platform }}" "${#installers[@]}" >&2
+          printf '  %s\n' "${installers[@]}" >&2
+          exit 1
+        fi
+
+        chmod +x "${installers[0]}"
+        echo "CUDA_INSTALLER=${installers[0]}" >> "$GITHUB_ENV"
+
+    - name: Install CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }}
+      if: ${{ steps.cuda-cache.outputs.cache-hit != 'true' }}
+      shell: bash
+      run: |
+        cuda_root="$GITHUB_WORKSPACE/cuda_toolkit"
+        "$CUDA_INSTALLER" \
+          --toolkit \
+          --toolkitpath="$cuda_root" \
+          --silent \
+          --no-man-page \
+          --override
+        test -x "$cuda_root/bin/nvcc"
+        "$cuda_root/bin/nvcc" --version
+
+    - name: Save CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }} cache
+      if: ${{ steps.cuda-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+      with:
+        path: cuda_toolkit
+        key: ctk-next-linux-wheel-full-toolkit-v1-${{ inputs.cuda-kitpick-version }}-kitpick${{ inputs.cuda-kitpick }}-${{ inputs.host-platform }}
+
+    - name: Configure CUDA ${{ inputs.cuda-kitpick-version }}/${{ inputs.cuda-kitpick }}
+      shell: bash
+      run: |
+        cuda_root="$(realpath cuda_toolkit)"
+        test -x "$cuda_root/bin/nvcc"
+        "$cuda_root/bin/nvcc" --version
+        echo "$cuda_root/bin" >> "$GITHUB_PATH"
+        {
+          echo "CUDA_PATH=$cuda_root"
+          echo "CUDA_HOME=$cuda_root"
+          echo "CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)"
+        } >> "$GITHUB_ENV"

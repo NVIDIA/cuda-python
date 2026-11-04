@@ -1,0 +1,380 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Linux wheels"
+
+on:
+  workflow_call:
+    inputs:
+      host-platform:
+        description: Linux host platform (`linux-64` or `linux-aarch64`)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.13'
+
+jobs:
+  build-wheels:
+    name: Build installed-test wheels
+    if: ${{ github.repository_owner == 'nvidia-dev' }}
+    runs-on:
+      group: nv-cpu-general-internal
+      labels: ${{ inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu16-internal' || 'linux-amd64-cpu16-internal' }}
+    timeout-minutes: ${{ inputs.host-platform == 'linux-aarch64' && 180 || 120 }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    env:
+      HOST_PLATFORM: ${{ inputs.host-platform }}
+      EXPECTED_MACHINE: ${{ inputs.host-platform == 'linux-aarch64' && 'aarch64' || 'x86_64' }}
+      KITPICK_ARCHITECTURE: ${{ inputs.host-platform == 'linux-aarch64' && 'linux-aarch64' || 'linux-64' }}
+      KITPICK_INSTALLER_GLOB: ${{ inputs.host-platform == 'linux-aarch64' && 'cuda_*_linux_sbsa_kitpick*.run' || 'cuda_*_linux_kitpick*.run' }}
+    steps:
+      - name: Checkout cuda-python-private
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          # setuptools-scm needs tags and complete commit ancestry.
+          fetch-depth: 0
+          # cuda.core builds against the pinned CCCL headers.
+          submodules: true
+          persist-credentials: false
+
+      - name: Resolve CTK kitpick
+        uses: ./.github/actions/resolve-ctk-next
+
+      - name: Verify Linux runner architecture
+        run: |
+          case "$HOST_PLATFORM" in
+            linux-64|linux-aarch64) ;;
+            *)
+              echo "::error title=Unsupported Linux host platform::Expected linux-64 or linux-aarch64, got '$HOST_PLATFORM'."
+              exit 1
+              ;;
+          esac
+
+          actual_machine="$(uname -m)"
+          if [[ "$actual_machine" != "$EXPECTED_MACHINE" ]]; then
+            echo "::error title=Unexpected runner architecture::Expected '$EXPECTED_MACHINE', got '$actual_machine'."
+            exit 1
+          fi
+
+          uname -a
+          df -h "$GITHUB_WORKSPACE"
+
+      - name: Set up Python 3.13
+        id: host-python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Download configured CUDA Linux kitpick
+        run: |
+          download_dir="$RUNNER_TEMP/kitpicks"
+          mkdir -p "$download_dir"
+          cd "$download_dir"
+          python3 "$GITHUB_WORKSPACE/qa/forge/download_from_kitpicks.py" \
+            "$CUDA_KITPICK_VERSION" \
+            "$CUDA_KITPICK" \
+            --arch="$KITPICK_ARCHITECTURE"
+
+          mapfile -t installers < <(find "$download_dir" -maxdepth 1 -type f -name "$KITPICK_INSTALLER_GLOB" -print)
+          if ((${#installers[@]} != 1)); then
+            printf 'Expected exactly one %s kitpick installer, found %d:\n' "$HOST_PLATFORM" "${#installers[@]}" >&2
+            printf '  %s\n' "${installers[@]}" >&2
+            exit 1
+          fi
+
+          chmod +x "${installers[0]}"
+          ls -lh "${installers[0]}"
+          echo "CUDA_INSTALLER=${installers[0]}" >> "$GITHUB_ENV"
+
+      - name: Install selected CUDA toolkit for wheel builds
+        run: |
+          cuda_root="$RUNNER_TEMP/cuda-$CUDA_VERSION"
+          "$CUDA_INSTALLER" \
+            --toolkit \
+            --toolkitpath="$cuda_root" \
+            --silent \
+            --no-man-page \
+            --override
+
+          test -d "$cuda_root"
+          "$cuda_root/bin/nvcc" --version
+          echo "CUDA_PATH=$cuda_root" >> "$GITHUB_ENV"
+          echo "CUDA_HOME=$cuda_root" >> "$GITHUB_ENV"
+          echo "CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)" >> "$GITHUB_ENV"
+
+      - name: Install wheel build tools
+        run: python3 -m pip install --upgrade pip twine
+
+      - name: Build cuda.pathfinder wheel
+        run: |
+          mkdir -p wheelhouse
+          python3 -m pip wheel --verbose --no-deps --wheel-dir wheelhouse ./cuda_pathfinder
+
+      - name: Constrain cuda.bindings to the local cuda.pathfinder wheel
+        run: |
+          pathfinder_wheels=(wheelhouse/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+          printf 'cuda-pathfinder @ %s\n' "$pathfinder_uri" > wheel-constraints/cuda-bindings.txt
+
+      - name: Build cuda.bindings wheel
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
+        with:
+          package-dir: ./cuda_bindings_13
+          output-dir: wheelhouse
+          extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
+        env:
+          CIBW_BUILD: cp313-*
+          CIBW_ARCHS_LINUX: native
+          # build[uv]: uv, not the build interpreter's ssl module, does all downloads.
+          CIBW_BUILD_FRONTEND: "build[uv]"
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PATH=/host${{ runner.temp }}/cuda-${{ env.CUDA_VERSION }}
+            CUDA_HOME=/host${{ runner.temp }}/cuda-${{ env.CUDA_VERSION }}
+            UV_BUILD_CONSTRAINT=/host${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+            UV_CONSTRAINT=/host${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+          CIBW_ENVIRONMENT_PASS_LINUX: CUDA_PYTHON_PARALLEL_LEVEL
+
+      - name: Constrain cuda.core to the local dependency wheels
+        run: |
+          pathfinder_wheels=(wheelhouse/cuda_pathfinder-*.whl)
+          bindings_wheels=(wheelhouse/cuda_bindings-"$CUDA_MAJOR".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
+          pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+          bindings_uri="file:///host$(realpath "${bindings_wheels[0]}")"
+          {
+            printf 'cuda-pathfinder @ %s\n' "$pathfinder_uri"
+            printf 'cuda-bindings @ %s\n' "$bindings_uri"
+          } > wheel-constraints/cuda-core.txt
+
+      - name: Build cuda.core wheel
+        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
+        with:
+          package-dir: ./cuda_core
+          output-dir: wheelhouse
+          extras: uv
+          python-path: ${{ steps.host-python.outputs.python-path }}
+        env:
+          CIBW_BUILD: cp313-*
+          CIBW_ARCHS_LINUX: native
+          # build[uv]: uv, not the build interpreter's ssl module, does all downloads.
+          CIBW_BUILD_FRONTEND: "build[uv]"
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PATH=/host${{ runner.temp }}/cuda-${{ env.CUDA_VERSION }}
+            CUDA_HOME=/host${{ runner.temp }}/cuda-${{ env.CUDA_VERSION }}
+            CUDA_CORE_BUILD_MAJOR=${{ env.CUDA_MAJOR }}
+            UV_BUILD_CONSTRAINT=/host${{ github.workspace }}/wheel-constraints/cuda-core.txt
+            UV_CONSTRAINT=/host${{ github.workspace }}/wheel-constraints/cuda-core.txt
+          CIBW_ENVIRONMENT_PASS_LINUX: CUDA_PYTHON_PARALLEL_LEVEL
+
+      - name: Check wheel artifacts
+        run: |
+          ls -lh wheelhouse
+          test "$(find wheelhouse -maxdepth 1 -type f -name '*.whl' | wc -l)" -eq 3
+          python3 -m twine check --strict wheelhouse/*.whl
+
+      - name: Upload wheel artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ctk-next-${{ inputs.host-platform }}-wheels-${{ github.sha }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+          retention-days: 14
+
+  test-wheels:
+    name: Test installed wheels
+    needs: build-wheels
+    if: ${{ github.repository_owner == 'nvidia-dev' }}
+    runs-on:
+      group: ${{ inputs.host-platform == 'linux-aarch64' && 'nv-gpu-arm64-l4-1gpu-internal' || 'nv-gpu-general-internal' }}
+      labels: ${{ inputs.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-l4-latest-1-internal' || 'linux-amd64-gpu-l4-latest-1-internal' }}
+    timeout-minutes: ${{ inputs.host-platform == 'linux-aarch64' && 180 || 120 }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    env:
+      HOST_PLATFORM: ${{ inputs.host-platform }}
+      EXPECTED_MACHINE: ${{ inputs.host-platform == 'linux-aarch64' && 'aarch64' || 'x86_64' }}
+      DRIVER_URL: ${{ inputs.host-platform == 'linux-aarch64' && 'https://kitmaker-web.nvidia.com/kitpicks/nvidia-driver-r620/TRD1/018/local_installers/NVIDIA-Linux-aarch64-620.43.run' || 'https://kitmaker-web.nvidia.com/kitpicks/nvidia-driver-r620/TRD1/018/local_installers/NVIDIA-Linux-x86_64-620.43.run' }}
+      DRIVER_SHA256: ${{ inputs.host-platform == 'linux-aarch64' && 'fdac0a85d2fe656d00ec22b46508fac731770b6fc6850fa8519a080c88735f4f' || 'a3e551e7996fbea2fb2d29997f027319bbcef874d5b411ecb640319fe936de7b' }}
+      KITPICK_ARCHITECTURE: ${{ inputs.host-platform == 'linux-aarch64' && 'linux-aarch64' || 'linux-64' }}
+      KITPICK_INSTALLER_GLOB: ${{ inputs.host-platform == 'linux-aarch64' && 'cuda_*_linux_sbsa_kitpick*.run' || 'cuda_*_linux_kitpick*.run' }}
+    container:
+      image: ubuntu:24.04
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g --privileged --pid=host
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+        PIP_CACHE_DIR: /tmp/pip-cache
+    steps:
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install \
+            --no-install-recommends \
+            --yes \
+            build-essential \
+            ca-certificates \
+            git \
+            libegl1 \
+            libgl1 \
+            util-linux \
+            wget \
+            xz-utils
+
+      - name: Checkout cuda-python-private
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          # cuda.core builds against the pinned CCCL headers.
+          submodules: true
+          persist-credentials: false
+
+      - name: Resolve CTK kitpick
+        uses: ./.github/actions/resolve-ctk-next
+
+      - name: Configure Git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Verify Linux runner architecture
+        run: |
+          actual_machine="$(uname -m)"
+          if [[ "$actual_machine" != "$EXPECTED_MACHINE" ]]; then
+            echo "::error title=Unexpected runner architecture::Expected '$EXPECTED_MACHINE', got '$actual_machine'."
+            exit 1
+          fi
+          uname -a
+          df -h "$GITHUB_WORKSPACE"
+
+      - name: Install NVIDIA driver 620.43
+        env:
+          DRIVER: '620.43'
+          GPU_TYPE: l4
+        run: ./ci/tools/install_gpu_driver.sh
+
+      - name: Set up Python 3.13
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Download configured CUDA Linux kitpick
+        run: |
+          download_dir="$RUNNER_TEMP/kitpicks"
+          mkdir -p "$download_dir"
+          cd "$download_dir"
+          python3 "$GITHUB_WORKSPACE/qa/forge/download_from_kitpicks.py" \
+            "$CUDA_KITPICK_VERSION" \
+            "$CUDA_KITPICK" \
+            --arch="$KITPICK_ARCHITECTURE"
+
+          mapfile -t installers < <(find "$download_dir" -maxdepth 1 -type f -name "$KITPICK_INSTALLER_GLOB" -print)
+          if ((${#installers[@]} != 1)); then
+            printf 'Expected exactly one %s kitpick installer, found %d:\n' "$HOST_PLATFORM" "${#installers[@]}" >&2
+            printf '  %s\n' "${installers[@]}" >&2
+            exit 1
+          fi
+
+          chmod +x "${installers[0]}"
+          ls -lh "${installers[0]}"
+          echo "CUDA_INSTALLER=${installers[0]}" >> "$GITHUB_ENV"
+
+      - name: Install and configure selected CUDA toolkit
+        run: |
+          cuda_root="/usr/local/cuda-$CUDA_VERSION"
+          "$CUDA_INSTALLER" \
+            --toolkit \
+            --toolkitpath="$cuda_root" \
+            --silent \
+            --no-man-page \
+            --override
+
+          test -d "$cuda_root"
+          printf '%s\n' "$cuda_root/lib64" > /etc/ld.so.conf.d/ctk-next.conf
+          ldconfig
+          echo "CUDA_PATH=$cuda_root" >> "$GITHUB_ENV"
+          echo "CUDA_HOME=$cuda_root" >> "$GITHUB_ENV"
+          echo "$cuda_root/bin" >> "$GITHUB_PATH"
+          "$cuda_root/bin/nvcc" --version
+          ldconfig -p | grep -F libnvrtc.so
+
+      - name: Download wheel artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ctk-next-${{ inputs.host-platform }}-wheels-${{ github.sha }}
+          path: wheelhouse
+
+      - name: Install only the wheel artifacts
+        run: |
+          pathfinder_wheels=(wheelhouse/cuda_pathfinder-*.whl)
+          bindings_wheels=(wheelhouse/cuda_bindings-*.whl)
+          core_wheels=(wheelhouse/cuda_core-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test "${#core_wheels[@]}" -eq 1
+
+          python3 -m venv "$RUNNER_TEMP/wheel-test-venv"
+          echo "WHEEL_TEST_VENV=$RUNNER_TEMP/wheel-test-venv" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/wheel-test-venv/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/wheel-test-venv/bin/python" -m pip install \
+            "${pathfinder_wheels[0]}" \
+            --group ./cuda_pathfinder/pyproject.toml:test
+          "$RUNNER_TEMP/wheel-test-venv/bin/python" -m pip install \
+            "${bindings_wheels[0]}" \
+            --group ./cuda_bindings_13/pyproject.toml:test
+          "$RUNNER_TEMP/wheel-test-venv/bin/python" -m pip install \
+            "${core_wheels[0]}" \
+            --group ./cuda_core/pyproject.toml:test
+          "$RUNNER_TEMP/wheel-test-venv/bin/python" -m pip check
+
+      - name: Build wheel-dependent test artifacts
+        run: |
+          export VIRTUAL_ENV="$WHEEL_TEST_VENV"
+          export PATH="$WHEEL_TEST_VENV/bin:$CUDA_PATH/bin:$PATH"
+          bash cuda_bindings_13/tests/cython/build_tests.sh
+          bash cuda_core/tests/cython/build_tests.sh
+
+      - name: Verify wheel imports
+        run: |
+          "$WHEEL_TEST_VENV/bin/python" - <<'PY'
+          import os
+          from pathlib import Path
+
+          import cuda.bindings
+          import cuda.core
+          import cuda.pathfinder
+
+          workspace = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          for module in (cuda.pathfinder, cuda.bindings, cuda.core):
+              module_path = Path(module.__file__).resolve()
+              print(f"{module.__name__}: {module_path}")
+              if module_path.is_relative_to(workspace):
+                  raise SystemExit(f"{module.__name__} imported from the checkout: {module_path}")
+          PY
+
+      - name: Test installed wheels
+        run: |
+          export VIRTUAL_ENV="$WHEEL_TEST_VENV"
+          export PATH="$WHEEL_TEST_VENV/bin:$CUDA_PATH/bin:$PATH"
+          test_result=0
+
+          # Keep child Python processes in the checkout root, away from package sources.
+          "$WHEEL_TEST_VENV/bin/pytest" -ra -s -vv cuda_pathfinder/tests/ || test_result=1
+          "$WHEEL_TEST_VENV/bin/pytest" -ra -s -vv cuda_bindings_13/tests/ || test_result=1
+          CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=1 "$WHEEL_TEST_VENV/bin/pytest" -ra -s -vv cuda_bindings_13/tests/ || test_result=1
+          "$WHEEL_TEST_VENV/bin/pytest" -ra -s -vv cuda_bindings_13/tests/cython/ || test_result=1
+          "$WHEEL_TEST_VENV/bin/pytest" -ra -s -vv cuda_core/tests/ || test_result=1
+          "$WHEEL_TEST_VENV/bin/pytest" -ra -s -vv cuda_core/tests/cython/ || test_result=1
+
+          exit "$test_result"

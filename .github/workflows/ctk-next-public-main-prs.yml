@@ -1,0 +1,225 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# WORK IN PROGRESS: this workflow currently validates the runner and external
+# dependencies needed for ctk-next public-main PR generation; it does not create
+# PRs yet. Keeping it under its permanent filename registers the workflow with
+# GitHub, allowing development branches to use workflow_dispatch with --ref
+# while the implementation is built incrementally.
+
+name: "Prepare ctk-next public-main PR group"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Milestone 0: prove that the workflow can start on the intended runner.
+  # Later milestones will replace this probe with the PR-group preparation.
+  runner-smoke-test:
+    name: Runner smoke test
+    runs-on:
+      group: nv-cpu-general-internal
+      labels: linux-amd64-cpu16-internal
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          # Forge operations require tags and complete commit ancestry.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Report runner environment
+        if: ${{ !cancelled() }}
+        run: |
+          echo "Hello world from GitHub Actions."
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Ref: $GITHUB_REF"
+          echo "Commit: $(git rev-parse HEAD)"
+          echo "Runner: $RUNNER_NAME ($RUNNER_OS/$RUNNER_ARCH)"
+          uname -a
+          git --version
+          gh --version
+          if command -v node >/dev/null 2>&1; then
+            node --version
+          else
+            echo "node: not available (not required)"
+          fi
+          if command -v npm >/dev/null 2>&1; then
+            npm --version
+          else
+            echo "npm: not available (not required)"
+          fi
+          python3 --version
+          df -h "$GITHUB_WORKSPACE"
+
+      - name: Verify Inference Hub authentication is configured
+        if: ${{ !cancelled() }}
+        env:
+          INFERENCEHUB_API_KEY_IS_CONFIGURED: ${{ secrets.INFERENCEHUB_API_KEY != '' }}
+        run: |
+          if [[ "$INFERENCEHUB_API_KEY_IS_CONFIGURED" != "true" ]]; then
+            echo "::error title=Inference Hub authentication unavailable::The INFERENCEHUB_API_KEY repository secret is not configured."
+            exit 1
+          else
+            echo "::notice title=Inference Hub authentication available::The INFERENCEHUB_API_KEY repository secret is configured."
+          fi
+
+      - name: Run Inference Hub authentication and inference smoke test
+        if: ${{ !cancelled() }}
+        env:
+          INFERENCEHUB_API_KEY: ${{ secrets.INFERENCEHUB_API_KEY }}
+          INFERENCEHUB_MODEL: azure/openai/gpt-5.6-terra
+        run: |
+          set -euo pipefail
+
+          expected_response=CUDA_PYTHON_INFERENCEHUB_GHA_OK
+          response_file="$RUNNER_TEMP/inferencehub-response.json"
+          request=$(jq -n \
+            --arg model "$INFERENCEHUB_MODEL" \
+            --arg expected_response "$expected_response" \
+            '{
+              model: $model,
+              reasoning_effort: "medium",
+              max_completion_tokens: 128,
+              messages: [
+                {
+                  role: "user",
+                  content: ("Reply with exactly " + $expected_response + " and nothing else.")
+                }
+              ]
+            }')
+
+          curl --fail --silent --show-error \
+            --connect-timeout 10 \
+            --max-time 90 \
+            --request POST \
+            --header "Authorization: Bearer ${INFERENCEHUB_API_KEY}" \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data-raw "$request" \
+            --output "$response_file" \
+            https://inference-api.nvidia.com/v1/chat/completions
+
+          jq --exit-status \
+            --arg expected_response "$expected_response" \
+            '(.model | type == "string" and length > 0) and
+             (.choices | type == "array" and length > 0) and
+             (.choices[0].message.content | type == "string") and
+             (.choices[0].message.content
+              | gsub("^[[:space:]]+|[[:space:]]+$"; "")
+              == $expected_response)' \
+            "$response_file" >/dev/null
+
+          # Server response metadata is more reliable than model self-identification.
+          reported_model=$(jq --raw-output '.model' "$response_file")
+          echo "Hello world from ${reported_model} in GitHub Actions."
+
+      - name: Probe direct Kitmaker access
+        if: ${{ !cancelled() }}
+        run: |
+          python3 qa/forge/download_from_kitpicks.py 13.5
+          download_dir="$RUNNER_TEMP/kitpicks"
+          mkdir -p "$download_dir"
+          (
+            cd "$download_dir"
+            python3 "$GITHUB_WORKSPACE/qa/forge/download_from_kitpicks.py" 13.5 --latest
+          )
+
+      - name: Verify cybind authentication is configured
+        id: cybind-auth
+        if: ${{ !cancelled() }}
+        env:
+          CYBIND_GITLAB_DEPLOY_USER_IS_CONFIGURED: ${{ secrets.CYBIND_GITLAB_DEPLOY_USER != '' }}
+          CYBIND_GITLAB_DEPLOY_TOKEN_IS_CONFIGURED: ${{ secrets.CYBIND_GITLAB_DEPLOY_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+
+          missing_secrets=()
+          if [[ "$CYBIND_GITLAB_DEPLOY_USER_IS_CONFIGURED" != "true" ]]; then
+            missing_secrets+=(CYBIND_GITLAB_DEPLOY_USER)
+          fi
+          if [[ "$CYBIND_GITLAB_DEPLOY_TOKEN_IS_CONFIGURED" != "true" ]]; then
+            missing_secrets+=(CYBIND_GITLAB_DEPLOY_TOKEN)
+          fi
+          if [[ "${#missing_secrets[@]}" -ne 0 ]]; then
+            echo "::error title=cybind authentication unavailable::Missing repository secret(s): ${missing_secrets[*]}"
+            exit 1
+          fi
+
+          askpass="$RUNNER_TEMP/cybind-git-askpass.sh"
+          umask 077
+          cat >"$askpass" <<'EOF'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' "$CYBIND_GITLAB_DEPLOY_USER" ;;
+            *Password*) printf '%s\n' "$CYBIND_GITLAB_DEPLOY_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          EOF
+          chmod 700 "$askpass"
+          echo "CYBIND_GIT_ASKPASS=$askpass" >>"$GITHUB_ENV"
+          echo "::notice title=cybind authentication available::The cybind GitLab deploy-token secrets are configured."
+
+      - name: Probe authenticated cybind repository access
+        if: ${{ !cancelled() && steps.cybind-auth.outcome == 'success' }}
+        env:
+          CYBIND_REPOSITORY_URL: https://gitlab-master.nvidia.com/leof/cybind.git
+          CYBIND_GITLAB_DEPLOY_USER: ${{ secrets.CYBIND_GITLAB_DEPLOY_USER }}
+          CYBIND_GITLAB_DEPLOY_TOKEN: ${{ secrets.CYBIND_GITLAB_DEPLOY_TOKEN }}
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+
+          probe_output="$RUNNER_TEMP/cybind-ls-remote.txt"
+          set +e
+          timeout 30 git -c credential.helper= -c core.askPass="$CYBIND_GIT_ASKPASS" \
+            ls-remote --exit-code "$CYBIND_REPOSITORY_URL" HEAD \
+            >"$probe_output" 2>&1
+          probe_exit=$?
+          set -e
+
+          if [[ "$probe_exit" -ne 0 ]]; then
+            echo "::error title=Authenticated cybind repository access unavailable::The deploy-token git ls-remote probe failed; its diagnostic follows."
+            sed -n '1,120p' "$probe_output"
+            exit "$probe_exit"
+          fi
+
+          cybind_head=$(awk '$2 == "HEAD" {print $1}' "$probe_output")
+          if [[ -z "$cybind_head" ]]; then
+            echo "::error title=Unexpected cybind response::git ls-remote succeeded but did not return HEAD."
+            sed -n '1,120p' "$probe_output"
+            exit 1
+          fi
+
+          echo "::notice title=Authenticated cybind repository access available::cybind HEAD is $cybind_head."
+
+      - name: Clone cybind main
+        if: ${{ !cancelled() && steps.cybind-auth.outcome == 'success' }}
+        env:
+          CYBIND_REPOSITORY_URL: https://gitlab-master.nvidia.com/leof/cybind.git
+          CYBIND_GITLAB_DEPLOY_USER: ${{ secrets.CYBIND_GITLAB_DEPLOY_USER }}
+          CYBIND_GITLAB_DEPLOY_TOKEN: ${{ secrets.CYBIND_GITLAB_DEPLOY_TOKEN }}
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+
+          clone_dir="$RUNNER_TEMP/cybind"
+          if [[ -e "$clone_dir" ]]; then
+            echo "::error title=cybind clone destination already exists::$clone_dir"
+            exit 1
+          fi
+
+          timeout 120 git -c credential.helper= -c core.askPass="$CYBIND_GIT_ASKPASS" \
+            clone --branch main --single-branch "$CYBIND_REPOSITORY_URL" "$clone_dir"
+
+          cybind_head=$(git -C "$clone_dir" rev-parse HEAD)
+          git -C "$clone_dir" status --short --branch
+          echo "::notice title=cybind clone complete::Cloned cybind main at $cybind_head."
+
+      - name: Remove cybind authentication helper
+        if: ${{ always() }}
+        run: rm -f "${CYBIND_GIT_ASKPASS:-$RUNNER_TEMP/cybind-git-askpass.sh}"

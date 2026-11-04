@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Resolve ctk-next toolkit
+description: Read the checked-out CTK kitpick configuration and export its version fields
+
+inputs:
+  ctk-kitpick:
+    description: Optional major.minor.patch/NNN override for the checked-out configuration
+    default: ''
+
+outputs:
+  ctk-kitpick:
+    description: Combined full CUDA version and three-digit kitpick
+    value: ${{ steps.resolve.outputs.ctk-kitpick }}
+  cuda-version:
+    description: CUDA major.minor version
+    value: ${{ steps.resolve.outputs.cuda-version }}
+  cuda-kitpick-version:
+    description: CUDA major.minor.patch version
+    value: ${{ steps.resolve.outputs.cuda-kitpick-version }}
+  cuda-kitpick:
+    description: Three-digit kitpick number
+    value: ${{ steps.resolve.outputs.cuda-kitpick }}
+
+runs:
+  using: composite
+  steps:
+    - name: Read CTK kitpick configuration
+      id: resolve
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+      env:
+        CTK_NEXT_KITPICK_OVERRIDE: ${{ inputs.ctk-kitpick }}
+      with:
+        script: |
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const workspace = process.env.GITHUB_WORKSPACE;
+          const { resolveActionValues } = require(path.join(workspace, 'ci/tools/ctk_next_config.cjs'));
+          const configText = fs.readFileSync(path.join(workspace, 'ci/ctk-next.json'), 'utf8');
+          const { outputs, environment } = resolveActionValues(configText, process.env.CTK_NEXT_KITPICK_OVERRIDE);
+          for (const [name, value] of Object.entries(outputs)) core.setOutput(name, value);
+          for (const [name, value] of Object.entries(environment)) core.exportVariable(name, value);
+          core.info(`CTK kitpick: ${outputs['ctk-kitpick']}`);

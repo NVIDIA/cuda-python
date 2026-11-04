@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Linux ARM64"
+
+on:
+  push:
+    branches:
+      - "pull-request/[0-9]+"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  runbook:
+    uses: ./.github/workflows/ci-linux.yml
+    with:
+      host-platform: linux-aarch64
+
+  wheels:
+    uses: ./.github/workflows/ci-linux-wheel.yml
+    with:
+      host-platform: linux-aarch64

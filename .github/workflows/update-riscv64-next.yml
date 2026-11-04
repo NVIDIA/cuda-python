@@ -1,0 +1,114 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Keeps the riscv64-next branch up to date with ctk-next by merging new
+# ctk-next commits into it. Runs on every push to ctk-next and on demand.
+# The merge fast-forwards while riscv64-next carries no commits of its own
+# and records a merge commit once it does. A conflicting merge fails the
+# job and requires manual conflict resolution.
+#
+# Merging (rather than rebasing) keeps riscv64-next commit IDs stable, so
+# no force-push is needed and local clones stay usable with a plain
+# `git pull`. It also records each conflict resolution once instead of
+# replaying it on every subsequent ctk-next push.
+#
+# This workflow is specific to NVIDIA-dev/cuda-python-private and is not
+# meant to ever be merged to NVIDIA/cuda-python.
+name: "Update riscv64-next"
+
+on:
+  push:
+    branches:
+      - ctk-next
+  workflow_dispatch:
+
+# All repository writes use the explicitly down-scoped GitHub App token.
+permissions: {}
+
+concurrency:
+  group: update-riscv64-next
+  cancel-in-progress: false
+
+jobs:
+  update-riscv64-next:
+    name: Merge ctk-next into riscv64-next
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        with:
+          client-id: ${{ vars.CUDA_PYTHON_PRIVATE_AUTOMATION_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CUDA_PYTHON_PRIVATE_AUTOMATION_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          # Merged ctk-next commits may touch workflow files.
+          permission-workflows: write
+
+      - name: Checkout private repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          # Persist the App token so the branch push uses it.
+          persist-credentials: true
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Merge ctk-next into riscv64-next
+        run: |
+          set -euo pipefail
+
+          git config user.name "cuda-python-private-automation[bot]"
+          git config user.email "cuda-python-private-automation[bot]@users.noreply.github.com"
+
+          git fetch --no-tags origin \
+            '+refs/heads/ctk-next:refs/remotes/origin/ctk-next'
+
+          base_oid="$(git rev-parse refs/remotes/origin/ctk-next)"
+          echo "ctk-next tip: $base_oid"
+
+          # Nothing to do if riscv64-next does not exist on the remote.
+          if ! git ls-remote --exit-code origin refs/heads/riscv64-next > /dev/null; then
+            echo "::notice title=Nothing to do::riscv64-next does not exist on the remote; skipping merge."
+            exit 0
+          fi
+
+          git fetch --no-tags origin \
+            '+refs/heads/riscv64-next:refs/remotes/origin/riscv64-next'
+
+          old_tip="$(git rev-parse refs/remotes/origin/riscv64-next)"
+          echo "riscv64-next tip: $old_tip"
+
+          if git merge-base --is-ancestor "$base_oid" "$old_tip"; then
+            echo "::notice title=Merge no-op::riscv64-next already contains the ctk-next tip ($base_oid)."
+            exit 0
+          fi
+
+          git checkout -B riscv64-next refs/remotes/origin/riscv64-next
+          if ! git merge --no-edit refs/remotes/origin/ctk-next; then
+            git merge --abort
+            echo "::error title=Merge conflict::Merging ctk-next ($base_oid) into riscv64-next failed; manual conflict resolution is required."
+            {
+              echo "## Action required: merge ctk-next into riscv64-next manually"
+              echo
+              echo "Merging \`ctk-next\` (\`$base_oid\`) into \`riscv64-next\` hit"
+              echo "conflicts. Resolve them manually:"
+              echo
+              echo '```console'
+              echo "git fetch origin ctk-next riscv64-next"
+              echo "git checkout riscv64-next"
+              echo "git merge origin/ctk-next"
+              echo "# resolve conflicts, then:"
+              echo "git push origin riscv64-next"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          new_tip="$(git rev-parse HEAD)"
+
+          # A plain push is a fast-forward of the branch we just merged into.
+          # It is rejected safely if riscv64-next moved since the fetch.
+          git push origin refs/heads/riscv64-next:refs/heads/riscv64-next
+          echo "::notice title=Updated::riscv64-next now points to $new_tip (merged ctk-next $base_oid)."

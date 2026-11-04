@@ -6,8 +6,15 @@
 # Without this config, actionlint rejects non-GitHub-hosted labels.
 self-hosted-runner:
   labels:
+    - linux-amd64-cpu16-internal
     - linux-amd64-cpu8
     - linux-amd64-gpu-l4-latest-1
+    - linux-amd64-gpu-l4-latest-1-internal
+    - linux-arm64-gpu-l4-latest-1-internal
+    - linux-riscv64-1xrtx6000
+    - linux-riscv64-4cpu-1gpu
+    - windows-arm64-1xgb10
+    - windows-arm64-gpu-gb300-latest-1-internal
 
 # GitHub supports queued concurrency runs, but the latest actionlint release
 # does not yet recognize the concurrency.queue key.
@@ -45,5 +52,8 @@ paths:
     ignore:
       - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
   ".github/workflows/coverage.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/ctk-next-woa-validation.yml":
     ignore:
       - 'specifying action "\$/[^"]+" in invalid format because ref is missing'

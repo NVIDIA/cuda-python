@@ -13,8 +13,8 @@
 #   DRIVER         Driver version, e.g. "610.47". Must NOT be 'latest' or
 #                  'earliest' -- those are runner-pre-installed and the
 #                  workflow is expected to skip this script for them.
-#   DRIVER_SHA256  Expected SHA-256 hex digest of the downloaded driver
-#                  installer.
+#   DRIVER_SHA256  Required. Expected SHA-256 hex digest of the downloaded
+#                  driver installer; verified before the installer runs.
 #   GPU_TYPE       Lower-case GPU label from the matrix (e.g. "l4", "rtx4090").
 #                  Selects the data-center vs desktop installer variant.
 
@@ -28,7 +28,8 @@ function Install-Driver {
         exit 1
     }
 
-    if (-not $env:DRIVER_SHA256) {
+    $expected = $env:DRIVER_SHA256
+    if (-not $expected) {
         Write-Error "DRIVER_SHA256 env var is required to verify the driver installer."
         exit 1
     }
@@ -75,12 +76,13 @@ function Install-Driver {
     $ProgressPreference = $ProgressPreference_tmp
     Write-Output 'Download complete!'
 
-    $actual_sha256 = (Get-FileHash -Algorithm SHA256 -Path $filepath).Hash
-    if ($actual_sha256 -ne $env:DRIVER_SHA256) {
-        Write-Error "SHA256 mismatch for ${filepath}: expected $($env:DRIVER_SHA256), got $actual_sha256"
+    # Verify the installer against the pinned sha256 before running it.
+    $actual = (Get-FileHash -Algorithm SHA256 -Path $filepath).Hash.ToLower()
+    if ($actual -ne $expected.ToLower()) {
+        Write-Error "SHA256 mismatch for ${filepath}: expected $expected, got $actual"
         exit 1
     }
-    Write-Output "SHA256 verified: $actual_sha256"
+    Write-Output "Driver installer sha256 verified: $actual"
 
     # Install the file with the specified path from earlier
     Write-Output 'Running the driver installer...'

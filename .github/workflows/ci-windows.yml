@@ -1,0 +1,237 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Windows runbook"
+
+on:
+  workflow_call:
+    inputs:
+      host-platform:
+        description: Windows host platform (win-64 or win-arm64)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test cuda-bindings and cuda-core (${{ matrix.runner }})
+    if: ${{ github.repository_owner == 'nvidia-dev' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: ${{ fromJSON(inputs.host-platform == 'win-arm64' && '["windows-arm64-1xgb10", "windows-arm64-gpu-gb300-latest-1-internal"]' || '["windows-amd64-gpu-l4-latest-1-internal"]') }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: ${{ inputs.host-platform == 'win-arm64' && 180 || 120 }}
+    env:
+      GCM_INTERACTIVE: "never"
+      GIT_TERMINAL_PROMPT: "0"
+      HOST_PLATFORM: ${{ inputs.host-platform }}
+      EXPECTED_PROCESSOR_ARCHITECTURE: ${{ inputs.host-platform == 'win-arm64' && 'ARM64' || 'AMD64' }}
+      GIT_VERSION: '2.55.0.3'
+      PYTHON_VERSION: '3.13'
+    steps:
+      # Keep identical to the other "Set up Git for Windows ARM64" steps in .github/workflows.
+      - name: Set up Git for Windows ARM64
+        if: ${{ inputs.host-platform == 'win-arm64' }}
+        timeout-minutes: 10
+        shell: powershell
+        run: |
+          if (-not $env:RUNNER_TOOL_CACHE) {
+            throw "RUNNER_TOOL_CACHE is not set."
+          }
+
+          $gitRoot = Join-Path $env:RUNNER_TOOL_CACHE "PortableGit\$env:GIT_VERSION\arm64"
+          $git = Join-Path $gitRoot "cmd\git.exe"
+          # `shell: bash` steps (e.g. setup-hardened-python) need Git's bash on PATH;
+          # otherwise bash resolves to the WSL launcher in System32.
+          $bash = Join-Path $gitRoot "bin\bash.exe"
+          $complete = "$gitRoot.complete"
+          if (-not ((Test-Path $git) -and (Test-Path $bash) -and (Test-Path $complete))) {
+            $archive = Join-Path $env:RUNNER_TEMP "PortableGit-$env:GIT_VERSION-arm64.7z.exe"
+            $archiveUrl = "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/PortableGit-2.55.0.3-arm64.7z.exe"
+            $expectedHash = "3bf26b94d9399b16a890776e468334f501742861576cbcdea2d9134643c374bd"
+
+            Invoke-WebRequest -UseBasicParsing -Uri $archiveUrl -OutFile $archive
+            $actualHash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne $expectedHash) {
+              throw "PortableGit checksum mismatch: expected $expectedHash, got $actualHash."
+            }
+
+            if (Test-Path $gitRoot) {
+              Remove-Item -Recurse -Force $gitRoot
+            }
+            New-Item -ItemType Directory -Force -Path $gitRoot | Out-Null
+            # PortableGit is a 7-Zip self-extractor; -y suppresses its prompts.
+            $process = Start-Process -FilePath $archive -ArgumentList @("-y", "-o`"$gitRoot`"") -Wait -PassThru
+            if ($process.ExitCode -ne 0) {
+              throw "PortableGit extraction exited with code $($process.ExitCode)."
+            }
+            Remove-Item -Force $archive
+
+            foreach ($required in @($git, $bash)) {
+              if (-not (Test-Path $required)) {
+                throw "Not found after extracting PortableGit: $required"
+              }
+            }
+            New-Item -ItemType File -Force -Path $complete | Out-Null
+          }
+
+          & $git version --build-options
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          & $bash --version
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          # Only cmd\ and bin\: usr\bin would shadow MSVC's link.exe and Windows' find.exe.
+          @((Split-Path $git), (Split-Path $bash)) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        shell: powershell
+        run: |
+          git config --global core.symlinks true
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          # A reused runner workspace can override the global setting locally.
+          if (Test-Path -LiteralPath (Join-Path $env:GITHUB_WORKSPACE ".git")) {
+            git -C "$env:GITHUB_WORKSPACE" config --local core.symlinks true
+            if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+            }
+          }
+
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          # setuptools-scm needs tags and complete commit ancestry.
+          fetch-depth: 0
+          # cuda.core builds against the pinned CCCL headers.
+          submodules: true
+          persist-credentials: false
+
+      - name: Resolve CTK kitpick
+        uses: ./.github/actions/resolve-ctk-next
+
+      - name: Verify Git checkout
+        shell: powershell
+        run: |
+          git version --build-options
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          $insideWorkTree = git rev-parse --is-inside-work-tree
+          if ($LASTEXITCODE -ne 0 -or $insideWorkTree -ne "true") {
+            throw "actions/checkout did not create a Git worktree."
+          }
+          git rev-parse --verify HEAD
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          $tagPatterns = @(
+            "v*[0-9]*"
+            "cuda-core-v*[0-9]*"
+            "cuda-pathfinder-v*[0-9]*"
+          )
+          foreach ($tagPattern in $tagPatterns) {
+            git describe --dirty --tags --long --match $tagPattern
+            if ($LASTEXITCODE -ne 0) {
+              throw "Git history does not contain a tag matching: $tagPattern"
+            }
+          }
+
+      - name: Set up GB300 MCDM driver and runtime
+        if: ${{ matrix.runner == 'windows-arm64-gpu-gb300-latest-1-internal' }}
+        timeout-minutes: 15
+        uses: ./.github/actions/setup-woa-gb300
+
+      - name: Verify Windows runner architecture
+        shell: cmd
+        run: |
+          if /I not "%HOST_PLATFORM%"=="win-64" if /I not "%HOST_PLATFORM%"=="win-arm64" (
+            echo Unsupported Windows host platform: %HOST_PLATFORM%.
+            exit /b 1
+          )
+          if /I not "%PROCESSOR_ARCHITECTURE%"=="%EXPECTED_PROCESSOR_ARCHITECTURE%" (
+            echo Expected %EXPECTED_PROCESSOR_ARCHITECTURE%, got %PROCESSOR_ARCHITECTURE%.
+            exit /b 1
+          )
+          nvidia-smi || exit /b 1
+
+      - name: Set up Windows toolchain
+        uses: ./.github/actions/setup-ctk-next-windows
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ env.CUDA_VERSION }}
+          cuda-kitpick-version: ${{ env.CUDA_KITPICK_VERSION }}
+          cuda-kitpick: ${{ env.CUDA_KITPICK }}
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Build cuda-bindings and cuda-core
+        shell: cmd
+        env:
+          PYTHON_CMD: python
+        run: call qa\runbook\qa_bindings_windows_build.cmd %CUDA_VERSION%
+
+      - name: Verify build
+        shell: powershell
+        run: |
+          TestVenv\Scripts\python -m pip check
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          TestVenv\Scripts\python -c "import cuda.bindings.driver; import cuda.core; import os, sys, sysconfig; sys.exit(sysconfig.get_platform() != os.environ['PYTHON_PLATFORM'])"
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          $head = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          $metadataCheck = @'
+          import importlib.metadata
+          import sys
+
+          from cuda.bindings._version import __commit_id__ as bindings_commit
+          from cuda.core._version import __commit_id__ as core_commit
+          from cuda.pathfinder._version import __commit_id__ as pathfinder_commit
+
+          packages = {
+              "cuda-bindings": bindings_commit,
+              "cuda-core": core_commit,
+              "cuda-pathfinder": pathfinder_commit,
+          }
+          head = sys.argv[1]
+          for package, commit in packages.items():
+              print(f"{package} {importlib.metadata.version(package)} ({commit})")
+          mismatches = {
+              package: commit
+              for package, commit in packages.items()
+              if commit is None or not head.startswith(commit.removeprefix("g"))
+          }
+          if mismatches:
+              raise SystemExit(f"Package versions were not derived from HEAD {head}: {mismatches}")
+          '@
+          $metadataCheckPath = Join-Path $env:RUNNER_TEMP "verify-scm-metadata.py"
+          $metadataCheck | Out-File -FilePath $metadataCheckPath -Encoding utf8
+          TestVenv\Scripts\python $metadataCheckPath $head
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          $cythonTests = Get-ChildItem cuda_bindings_13\tests\cython -Filter "test_*.pyd"
+          if ($cythonTests.Count -eq 0) {
+            throw "The cuda.bindings Cython tests were not built."
+          }
+
+      - name: Test cuda-bindings and cuda-core
+        shell: cmd
+        run: call qa\runbook\qa_bindings_windows_tests.cmd %CUDA_VERSION%

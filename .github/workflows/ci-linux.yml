@@ -1,0 +1,159 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Linux runbook"
+
+on:
+  workflow_call:
+    inputs:
+      host-platform:
+        description: Linux host platform (`linux-64` or `linux-aarch64`)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test cuda-bindings and cuda-core
+    if: ${{ github.repository_owner == 'nvidia-dev' }}
+    runs-on:
+      group: ${{ inputs.host-platform == 'linux-aarch64' && 'nv-gpu-arm64-l4-1gpu-internal' || 'nv-gpu-general-internal' }}
+      labels: ${{ inputs.host-platform == 'linux-aarch64' && 'linux-arm64-gpu-l4-latest-1-internal' || 'linux-amd64-gpu-l4-latest-1-internal' }}
+    timeout-minutes: ${{ inputs.host-platform == 'linux-aarch64' && 180 || 120 }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    env:
+      GCM_INTERACTIVE: "never"
+      GIT_TERMINAL_PROMPT: "0"
+      HOST_PLATFORM: ${{ inputs.host-platform }}
+      EXPECTED_MACHINE: ${{ inputs.host-platform == 'linux-aarch64' && 'aarch64' || 'x86_64' }}
+      DRIVER_URL: ${{ inputs.host-platform == 'linux-aarch64' && 'https://kitmaker-web.nvidia.com/kitpicks/nvidia-driver-r620/TRD1/018/local_installers/NVIDIA-Linux-aarch64-620.43.run' || 'https://kitmaker-web.nvidia.com/kitpicks/nvidia-driver-r620/TRD1/018/local_installers/NVIDIA-Linux-x86_64-620.43.run' }}
+      DRIVER_SHA256: ${{ inputs.host-platform == 'linux-aarch64' && 'fdac0a85d2fe656d00ec22b46508fac731770b6fc6850fa8519a080c88735f4f' || 'a3e551e7996fbea2fb2d29997f027319bbcef874d5b411ecb640319fe936de7b' }}
+      KITPICK_ARCHITECTURE: ${{ inputs.host-platform == 'linux-aarch64' && 'linux-aarch64' || 'linux-64' }}
+      KITPICK_INSTALLER_GLOB: ${{ inputs.host-platform == 'linux-aarch64' && 'cuda_*_linux_sbsa_kitpick*.run' || 'cuda_*_linux_kitpick*.run' }}
+      PYTHON_VERSION: '3.13'
+      RUN_TESTS: 'true'
+    container:
+      image: ubuntu:24.04
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g --privileged --pid=host
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+        PIP_CACHE_DIR: /tmp/pip-cache
+    steps:
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install \
+            --no-install-recommends \
+            --yes \
+            build-essential \
+            ca-certificates \
+            git \
+            libegl1 \
+            libgl1 \
+            util-linux \
+            wget \
+            xz-utils
+
+      - name: Checkout cuda-python-private
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          # setuptools-scm needs tags and complete commit ancestry.
+          fetch-depth: 0
+          # cuda.core builds against the pinned CCCL headers.
+          submodules: true
+          persist-credentials: false
+
+      - name: Resolve CTK kitpick
+        uses: ./.github/actions/resolve-ctk-next
+
+      - name: Configure Git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Verify Linux runner architecture
+        run: |
+          case "$HOST_PLATFORM" in
+            linux-64|linux-aarch64) ;;
+            *)
+              echo "::error title=Unsupported Linux host platform::Expected linux-64 or linux-aarch64, got '$HOST_PLATFORM'."
+              exit 1
+              ;;
+          esac
+
+          actual_machine="$(uname -m)"
+          if [[ "$actual_machine" != "$EXPECTED_MACHINE" ]]; then
+            echo "::error title=Unexpected runner architecture::Expected '$EXPECTED_MACHINE', got '$actual_machine'."
+            exit 1
+          fi
+
+          uname -a
+          df -h "$GITHUB_WORKSPACE"
+
+      - name: Install NVIDIA driver 620.43
+        env:
+          DRIVER: '620.43'
+          GPU_TYPE: l4
+        run: ./ci/tools/install_gpu_driver.sh
+
+      - name: Set up Python 3.13
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Verify Python architecture
+        run: |
+          python3 -VV
+          python3 -c "import os, platform, sys; machine = platform.machine().lower(); expected = os.environ['EXPECTED_MACHINE']; print('Python machine:', machine); sys.exit(machine != expected)"
+
+      - name: Download configured CUDA Linux kitpick
+        run: |
+          download_dir="$RUNNER_TEMP/kitpicks"
+          mkdir -p "$download_dir"
+          cd "$download_dir"
+          python3 "$GITHUB_WORKSPACE/qa/forge/download_from_kitpicks.py" \
+            "$CUDA_KITPICK_VERSION" \
+            "$CUDA_KITPICK" \
+            --arch="$KITPICK_ARCHITECTURE"
+
+          mapfile -t installers < <(find "$download_dir" -maxdepth 1 -type f -name "$KITPICK_INSTALLER_GLOB" -print)
+          if ((${#installers[@]} != 1)); then
+            printf 'Expected exactly one %s kitpick installer, found %d:\n' "$HOST_PLATFORM" "${#installers[@]}" >&2
+            printf '  %s\n' "${installers[@]}" >&2
+            exit 1
+          fi
+
+          chmod +x "${installers[0]}"
+          ls -lh "${installers[0]}"
+          echo "CUDA_INSTALLER=${installers[0]}" >> "$GITHUB_ENV"
+
+      - name: Install and configure selected CUDA toolkit
+        run: |
+          cuda_root="/usr/local/cuda-$CUDA_VERSION"
+          "$CUDA_INSTALLER" \
+            --toolkit \
+            --toolkitpath="$cuda_root" \
+            --silent \
+            --no-man-page \
+            --override
+
+          test -d "$cuda_root"
+          printf '%s\n' "$cuda_root/lib64" > /etc/ld.so.conf.d/ctk-next.conf
+          ldconfig
+          "$cuda_root/bin/nvcc" --version
+          ldconfig -p | grep -F libnvrtc.so
+
+      - name: Build cuda-bindings and cuda-core
+        run: bash qa/runbook/qa_bindings_linux_build.sh "$CUDA_VERSION"
+
+      - name: Verify build
+        run: |
+          TestVenv/bin/python -m pip check
+          TestVenv/bin/python -c "import cuda.bindings.driver; import cuda.core; import os, platform, sys; sys.exit(platform.machine().lower() != os.environ['EXPECTED_MACHINE'])"
+
+      - name: Test cuda-bindings and cuda-core
+        if: ${{ env.RUN_TESTS == 'true' }}
+        run: bash qa/runbook/qa_bindings_linux_tests.sh "$CUDA_VERSION"

@@ -1,0 +1,637 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Native riscv64 wheel build for cuda-python (pathfinder -> bindings -> core).
+#
+# Standalone -- not threaded through ci-linux.yml's workplan/baseline
+# machinery, which is built for per-PR CI across the full Python/CUDA-major
+# matrix and is overkill for a lane that triggers on-demand and on push to
+# riscv64-next. Tests run in a separate workflow
+# (test-wheel-linux-riscv64.yml), per repo convention. This workflow's
+# CIBW_REPAIR_WHEEL_COMMAND_LINUX prints sccache stats (text) to the
+# build log and writes them (JSON) to a /host-mounted file, calls
+# ci/tools/chown-sccache-files.sh to fix ownership (the sccache server runs as root in the container), then
+# runs auditwheel repair. Dumping stats during repair (rather than in
+# CIBW_TEST_COMMAND) keeps stats collection independent of the test
+# stage. CIBW_TEST_COMMAND_LINUX then compiles the Cython test
+# extensions inside the container and copies the .so files back to the
+# host for upload as NAME-tests artifacts. The "Report sccache stats"
+# always() steps parse that file via ./.github/actions/sccache-summary and
+# write a table to the job summary (GITHUB_STEP_SUMMARY). If the build
+# was cancelled before repair ran, the "Recover ... sccache stats" step
+# falls back to `docker exec` calling the same chown script into the
+# still-running orphan container (idempotent, no guard needed).
+#
+# SCCACHE_ERROR_LOG is intentionally NOT set in CIBW_ENVIRONMENT_LINUX: it
+# would write a root-owned file to the host workspace immediately when the
+# sccache server starts, and if the job is cancelled before the chown
+# runs, the file lingers and triggers the runner's "Found root-owned
+# files" abort on the next job. sccache still logs via SCCACHE_LOG=info
+# to stderr (captured in the job log), so diagnostics aren't lost.
+# Stats filenames are per-matrix-job (e.g. sccache-stats-bindings-3.12.json)
+# to avoid concurrent-write races when py3.12/3.13/3.14 run in parallel.
+#
+# sccache uses a two-tier cache: local disk (L1, /var/cache/sccache on the
+# host) and the GitHub Actions cache service (L2, gha). SCCACHE_MULTILEVEL_CHAIN
+# =disk,gha is set explicitly for clarity; rapidsai/sccache defaults to
+# disk-first when the chain is omitted, but setting it makes the intent
+# unambiguous. The ACTIONS_* vars are read by a github-script step (the runner
+# only injects them into JS actions), which exports a ready-made
+# SCCACHE_GHA_CIBW_ENV string that CIBW_ENVIRONMENT_LINUX passes into the
+# container. If the credentials are missing or the endpoint is unreachable,
+# that string is empty and sccache runs disk-only. A later step runs
+# `sccache --start-server` in the build image with that environment. The
+# HEAD probe can succeed and the storage check can still fail (Azure
+# ServerBusy when egress is over the account limit). With
+# SCCACHE_GHA_ENABLED set, sccache then refuses to start and fails the
+# compile. When the startup check fails, the step clears
+# SCCACHE_GHA_CIBW_ENV and the build keeps the local disk cache.
+#
+# See native_risc-v64_cibuildwheel_+_runtime_tests_870f5cf4.plan.md, stage 2.
+#
+# Single job. The riscv64 build inputs (CUDA headers + riscv64
+# libcudart_static.a + clang/lld) are baked into a derived cibuildwheel
+# manylinux image, built locally on each riscv64 runner (no registry push)
+# by ci/docker/riscv64-build/ensure-image.sh from the checked-out source
+# commit. See that script for the image tag and how the build context is
+# assembled. cibuildwheel 4.3.4 honors a local linux/riscv64 image
+# (--pull=never).
+#
+# This workflow is specific to NVIDIA-dev/cuda-python-private and is not
+# meant to ever be merged to NVIDIA/cuda-python.
+name: "CI: Build wheels (linux-riscv64)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      toolchain:
+        description: >-
+          C/C++ toolchain inside the cibuildwheel container, via
+          CUDA_PYTHON_TOOLCHAIN: "llvm" (clang + lld, default) or "gnu"
+          (gcc).
+        required: false
+        type: choice
+        options:
+          - llvm
+          - gnu
+        default: llvm
+      force_image_rebuild:
+        description: >-
+          Force a rebuild of the derived cibuildwheel image, ignoring any
+          existing local image with the same tag. Default: no (reuse the
+          cached image if present).
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches:
+      - riscv64-next
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  CACHE_MAX_AGE_DAYS: '90'
+
+jobs:
+  # -------------------------------------------------------------------------
+  # resolve-source: pick the one commit every matrix job builds, so the
+  # checked-out source, the artifact names (which embed the SHA via
+  # ci/tools/env-vars) and the downstream test workflow all agree.
+  # On push, that is the pushed commit. On workflow_dispatch, it is the
+  # current tip of riscv64-next, resolved once here: the dispatched ref only
+  # supplies this workflow file, so a branch that carries just workflow
+  # changes can be tested against the riscv64-next sources, scripts and
+  # actions. Resolving once (rather than per matrix job) keeps the matrix on
+  # a single commit even if riscv64-next advances while jobs are queued.
+  #
+  # TEMPORARY: this job is only needed until the riscv64-next branch goes
+  # away (it will become ctk-next). Once that happens, the dispatched ref
+  # can be built directly and this job, its `needs:` wiring and the SHA
+  # plumbing that depends on it can be removed.
+  # -------------------------------------------------------------------------
+  resolve-source:
+    name: Resolve source commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+    steps:
+      - name: Resolve source commit
+        id: resolve
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            SHA="$(gh api "repos/${GH_REPO}/commits/riscv64-next" --jq .sha)"
+          else
+            SHA="${TRIGGER_SHA}"
+          fi
+          if [[ ! "${SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=Source commit::expected a 40-hex SHA, got: ${SHA}" >&2
+            exit 1
+          fi
+          echo "Building source commit ${SHA} (event: ${EVENT_NAME}, workflow commit: ${TRIGGER_SHA})"
+          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+
+  # -------------------------------------------------------------------------
+  # build: native cibuildwheel as a Python CLI (not pypa/cibuildwheel; that
+  # action calls setup-python, which has no riscv64 binary). Image is
+  # built-if-missing here because the docker store is per-machine and this
+  # runner executes one job at a time.
+  # -------------------------------------------------------------------------
+  build:
+    needs: resolve-source
+    runs-on: linux-riscv64-1xrtx6000
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        # Narrower than build-wheel.yml's full matrix: no free-threaded
+        # variants yet.
+        python-version: ["3.12", "3.13", "3.14"]
+    name: py${{ matrix.python-version }}
+    steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          # Single source commit for the whole matrix; see resolve-source.
+          ref: ${{ needs.resolve-source.outputs.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          # third_party/cccl provides the CCCL headers cuda.core compiles against.
+          submodules: true
+
+      - name: Trim the CCCL submodule worktree to the libcu++ headers
+        # cuda.core only compiles against third_party/cccl/libcudacxx/include
+        # (build_hooks._get_cccl_include_dirs). Dropping the rest of the tree
+        # means less for cibuildwheel to copy into its container.
+        run: git -C cuda_core/third_party/cccl sparse-checkout set --cone libcudacxx/include
+
+      - name: Resolve CTK kitpick
+        uses: ./.github/actions/resolve-ctk-next
+
+      - name: Bootstrap uv
+        # uv drives the host cibuildwheel venv and is copied into the manylinux
+        # container by build[uv]. Pin the same static musl binary as
+        # test-wheel-linux-riscv64.yml (uv 0.13.5 removes the compromised
+        # eMudhra CAs; NVIDIA/cuda-python#3195).
+        run: |
+          UV_VERSION="0.13.5"
+          UV_TARBALL="uv-riscv64gc-unknown-linux-musl.tar.gz"
+          UV_SHA256="485ffd2d7623fd98f791cb6ab45aa967f1605e3f691666fc49713e3feb2362b9"
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL \
+            "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/${UV_TARBALL}" \
+            -o /tmp/uv.tgz
+          echo "${UV_SHA256}  /tmp/uv.tgz" | sha256sum -c
+          tar -xzf /tmp/uv.tgz -C "$HOME/.local/bin" --strip-components=1 --no-same-owner \
+            "uv-riscv64gc-unknown-linux-musl/uv"
+          chmod +x "$HOME/.local/bin/uv"
+          rm /tmp/uv.tgz
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/uv" --version
+
+      - name: Install cibuildwheel
+        # uv tool install is idempotent: a no-op when cibuildwheel 4.3.4 is
+        # already installed from a previous run (this runner reuses $HOME), so
+        # there is no per-leg venv rebuild. The entrypoint lands in
+        # ~/.local/bin, already on PATH from the Bootstrap uv step. No
+        # hash-pinned pip bootstrap needed: uv ships the fixed eMudhra CA store
+        # (NVIDIA/cuda-python#3195).
+        run: |
+          uv tool install --python python3 "cibuildwheel==4.3.4"
+          # Allow CPython pre-release builds (currently cp314); mirrors build-wheel.yml.
+          echo "CIBW_ENABLE=cpython-prerelease" >> "$GITHUB_ENV"
+          echo "CUDA_PYTHON_TOOLCHAIN=${{ github.event.inputs.toolchain || 'llvm' }}" >> "$GITHUB_ENV"
+
+      - name: Prune derived build images and kitpick components older than ${{ env.CACHE_MAX_AGE_DAYS }} days
+        # Scope image pruning to images built by this workflow. Run before the
+        # image-tag/ensure step so an expired current image is rebuilt normally.
+        # Kitpick tarballs: mtime is the download time (cache hits do not
+        # refresh mtime), so age-based deletion means "downloaded >N days ago".
+        # download-kitpick-component.sh re-fetches and sha256-checks anything
+        # missing, so expiring a tarball is safe.
+        run: |
+          docker image prune -a -f \
+            --filter "label=com.nvidia.cuda-python.riscv64-build=true" \
+            --filter "until=$((CACHE_MAX_AGE_DAYS * 24))h"
+          kitpick_cache="$HOME/.cibw-kitpick-components"
+          if [ -d "${kitpick_cache}" ]; then
+            find "${kitpick_cache}" -type f -mmin "+$((CACHE_MAX_AGE_DAYS * 24 * 60))" -print -delete
+            find "${kitpick_cache}" -mindepth 1 -type d -empty -print -delete
+          fi
+
+      - name: Ensure build image
+        # Tag computation, local-image check and build (if missing) live in
+        # ci/docker/riscv64-build/ensure-image.sh on the source commit.
+        id: image-tag
+        env:
+          FORCE_IMAGE_REBUILD: ${{ inputs.force_image_rebuild || 'false' }}
+        run: ci/docker/riscv64-build/ensure-image.sh
+
+      - name: Prune Cython and uv caches
+        # Both caches are root-owned (written inside the cibuildwheel container),
+        # so pruning runs inside a throwaway docker run of the build image.
+        # Cython's load_from_cache refreshes mtime on every hit, so mtime-based
+        # deletion removes entries unused for CACHE_MAX_AGE_DAYS days.
+        # uv cache prune --ci keeps wheels built from source and drops pre-built
+        # wheels, unzipped wheels, stale environments, and outdated buckets. It
+        # also removes unknown files at the uv cache root, so the quarter stamp
+        # lives in $HOME (outside the uv cache) so it survives the prune.
+        env:
+          BUILD_IMAGE: ${{ steps.image-tag.outputs.image-tag }}
+        run: |
+          # Prune Cython cache entries unused for CACHE_MAX_AGE_DAYS days.
+          docker run --rm --pull=never \
+            -v /var/cache/cython-cache:/cython-cache \
+            "${BUILD_IMAGE}" \
+            bash -euo pipefail -c '
+              find /cython-cache -type f -mmin "+$1" -print -delete
+              find /cython-cache -mindepth 1 -type d -empty -print -delete
+            ' _ "$((CACHE_MAX_AGE_DAYS * 24 * 60))"
+          # Prune uv cache once per calendar quarter.
+          quarter="$(date -u +%Y)-Q$(( ($(date -u +%-m) + 2) / 3 ))"
+          stamp="$HOME/.cibw-uv-cache-last-pruned"
+          if [ ! -f "${stamp}" ] || [ "$(<"${stamp}")" != "${quarter}" ]; then
+            docker run --rm --pull=never \
+              -v /var/cache/uv-cache:/uv-cache \
+              -e UV_CACHE_DIR=/uv-cache \
+              "${BUILD_IMAGE}" \
+              uv cache prune --ci
+            echo "${quarter}" > "${stamp}"
+          else
+            echo "uv cache already pruned this quarter (${quarter}); skipping"
+          fi
+
+      - name: Configure sccache GHA cache tier
+        # The runner injects ACTIONS_RUNTIME_TOKEN / ACTIONS_RESULTS_URL only
+        # into JavaScript actions, not into `run:` steps, so read them here
+        # and hand the cibuildwheel container a ready-made environment string
+        # (SCCACHE_GHA_CIBW_ENV) for CIBW_ENVIRONMENT_LINUX.
+        # ACTIONS_CACHE_URL / ACTIONS_RUNTIME_URL are not needed: sccache's
+        # GHA v2 backend does not read them.
+        # If the credentials are missing or the endpoint is unreachable,
+        # SCCACHE_GHA_CIBW_ENV stays empty and sccache runs disk-only.
+        # This HEAD probe cannot see a storage-check failure. The next step
+        # runs `sccache --start-server` and clears SCCACHE_GHA_CIBW_ENV when
+        # that fails, so the build continues on the local disk cache.
+        # setSecret masks the token in logs (the "Dump environment" step and
+        # cibuildwheel both print env vars). Doing this in JS rather than in
+        # a `run:` step also keeps the token out of the shell trace.
+        # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const token = process.env['ACTIONS_RUNTIME_TOKEN'] || '';
+            const url = process.env['ACTIONS_RESULTS_URL'] || '';
+            if (token) core.setSecret(token);
+
+            const diskOnly = (why) => {
+              core.warning(`${why}; sccache will use disk only`, {title: 'GHA cache'});
+              core.exportVariable('SCCACHE_GHA_CIBW_ENV', '');
+            };
+
+            if (!token || !url) {
+              diskOnly('ACTIONS_RUNTIME_TOKEN / ACTIONS_RESULTS_URL not set');
+              return;
+            }
+
+            // The results receiver returns 404 at its root; only specific
+            // upload paths respond. Any HTTP response means "reachable" --
+            // only a connection failure or timeout falls back to disk-only.
+            try {
+              const resp = await fetch(url, {method: 'HEAD', signal: AbortSignal.timeout(10000)});
+              core.info(`GHA cache endpoint reachable (HTTP ${resp.status})`);
+            } catch (err) {
+              diskOnly(`could not reach ${url} (${err})`);
+              return;
+            }
+
+            core.exportVariable('SCCACHE_GHA_CIBW_ENV', [
+              'SCCACHE_GHA_ENABLED=true',
+              // Set explicitly for clarity; rapidsai/sccache defaults to disk-first when omitted.
+              'SCCACHE_MULTILEVEL_CHAIN=disk,gha',
+              `ACTIONS_RUNTIME_TOKEN=${token}`,
+              `ACTIONS_RESULTS_URL=${url}`,
+              'ACTIONS_CACHE_SERVICE_V2=on',
+              // Preprocessor cache GHA tier: also cache preprocessed source
+              // files in GHA (stored under /sccache/preprocessor/). Must stay
+              // inside SCCACHE_GHA_CIBW_ENV -- an unusable GHA preprocessor
+              // tier stops the sccache server.
+              'SCCACHE_PREPROCESSOR_CACHE_GHA_ENABLED=true',
+              'SCCACHE_PREPROCESSOR_CACHE_MULTILEVEL_CHAIN=disk,gha',
+            ].join(' '));
+
+      - name: Drop the GHA cache tier if sccache cannot start
+        # Same sccache binary and GHA settings the build will use. A private
+        # cache dir keeps the probe from attaching to the host sccache server.
+        # Credentials stay in an env file so the xtrace does not print them.
+        env:
+          BUILD_IMAGE: ${{ steps.image-tag.outputs.image-tag }}
+        run: |
+          if [ -z "${SCCACHE_GHA_CIBW_ENV}" ]; then
+            echo "GHA cache tier is disabled; sccache will use the local disk cache"
+            exit 0
+          fi
+          set +x
+          env_file="$(mktemp)"
+          chmod 600 "${env_file}"
+          read -r -a gha_env <<< "${SCCACHE_GHA_CIBW_ENV}"
+          printf '%s\n' "${gha_env[@]}" > "${env_file}"
+          printf '%s\n' 'SCCACHE_DIR=/tmp/sccache-gha-probe' >> "${env_file}"
+          set -x
+          if timeout 60 docker run --rm --pull=never \
+            --env-file "${env_file}" \
+            "${BUILD_IMAGE}" \
+            bash -euo pipefail -c 'sccache --start-server && sccache --stop-server'
+          then
+            echo "sccache started with the GitHub Actions cache tier"
+          else
+            echo "::warning title=GHA cache::sccache --start-server failed; sccache will use the local disk cache"
+            echo "SCCACHE_GHA_CIBW_ENV=" >> "${GITHUB_ENV}"
+          fi
+          rm -f "${env_file}"
+
+      - name: Set environment variables
+        env:
+          CUDA_VER: ${{ env.CUDA_VERSION }}
+          HOST_PLATFORM: linux-riscv64
+          PY_VER: ${{ matrix.python-version }}
+          SHA: ${{ needs.resolve-source.outputs.sha }}
+        run: |
+          ./ci/tools/env-vars build
+          # FIXME: remove this once ci/tools/env-vars is fixed
+          echo "SCCACHE_DIR=/var/cache/sccache" >> "$GITHUB_ENV"
+
+      - name: Dump environment
+        run: |
+          env | sort
+          echo "=== Filesystem space ==="
+          df -h "$GITHUB_WORKSPACE"
+          echo "=== Docker disk usage ==="
+          docker system df
+          echo "=== Persistent CI caches ==="
+          du -sh \
+            "$HOME/.cache/uv" \
+            "$HOME/.cibw-kitpick-components" \
+            /var/cache/sccache \
+            /var/cache/cython-cache \
+            /var/cache/uv-cache \
+            2>/dev/null || true
+          echo "uv cache last pruned: $(cat "$HOME/.cibw-uv-cache-last-pruned" 2>/dev/null || echo never)"
+
+      # ── cuda.pathfinder (pure Python, no CTK link) ──
+      - name: Build cuda.pathfinder wheel
+        run: uv build --wheel --python python3 --out-dir cuda_pathfinder cuda_pathfinder
+
+      - name: Constrain builds to the local cuda.pathfinder wheel
+        run: |
+          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          mkdir -p wheel-constraints
+          # CIBW mounts the host filesystem under /host.
+          pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+          printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
+
+      # ── cuda.bindings ──
+      - name: Build cuda.bindings wheel
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_MANYLINUX_RISCV64_IMAGE: ${{ steps.image-tag.outputs.image-tag }}
+          # build[uv]: same PEP 517 orchestration, installs the isolated
+          # build env (and the built wheel, for testing) with uv instead of
+          # pip -- so only UV_* knobs matter below, not PIP_*.
+          CIBW_BUILD_FRONTEND: "build[uv]"
+          # UV_EXTRA_INDEX_URL: RISE wheels for riscv64 (e.g. Cython).
+          # UV_CACHE_DIR: persistent host dir, survives across runs.
+          # UV_CONSTRAINT / UV_BUILD_CONSTRAINT: pin to the local
+          # cuda-pathfinder wheel instead of an index-resolved one.
+          # CUDA_PYTHON_PARALLEL_LEVEL controls both Cython transpilation and
+          # C++ compile parallelism (both setup.py files set self.parallel
+          # from this var in build_extensions()). CUDA_PATH is baked into
+          # the image (Dockerfile ENV).
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CUDA_PYTHON_TOOLCHAIN=${{ env.CUDA_PYTHON_TOOLCHAIN }}
+            CC="sccache cc"
+            CXX="sccache c++"
+            CUDA_PYTHON_CYTHON_CACHE_DIR=/host/var/cache/cython-cache
+            UV_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+            UV_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-bindings.txt
+            UV_EXTRA_INDEX_URL=https://pypi.riseproject.dev/simple/
+            UV_CACHE_DIR=/host/var/cache/uv-cache
+            GITHUB_WORKSPACE=/host${{ github.workspace }}
+            SCCACHE_STATS_FILE=/host${{ github.workspace }}/sccache-stats-bindings-${{ matrix.python-version }}.json
+            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
+            SCCACHE_LOG=info
+            SCCACHE_IDLE_TIMEOUT=0
+            SCCACHE_CACHE_READ_TIMEOUT_SECS=10
+            ${{ env.SCCACHE_GHA_CIBW_ENV }}
+          # No CIBW_BEFORE_BUILD_LINUX pip upgrade: build[uv] never invokes pip.
+          # --init injects tini as PID 1, which correctly forwards SIGTERM to
+          # g++/cc1plus subprocesses when the job is cancelled or fails -- without
+          # it, Python's ThreadPoolExecutor does not propagate signals to its
+          # spawned subprocesses and they survive as orphans on the host.
+          CIBW_CONTAINER_ENGINE: "docker; create_args: --init"
+          # Dump sccache stats during repair. The test stage compiles
+          # Cython test extensions (see CIBW_TEST_COMMAND_LINUX).
+          # Per-matrix-job filename avoids concurrent-write races. chown
+          # immediately after the dump so a cancel during auditwheel does
+          # not leave a root-owned stats file on the host.
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            sccache --show-config &&
+            sccache --show-stats &&
+            sccache --show-stats --stats-format=json > /host${{ github.workspace }}/sccache-stats-bindings-${{ matrix.python-version }}.json &&
+            /host${{ github.workspace }}/ci/tools/chown-sccache-files.sh &&
+            auditwheel repair -w {dest_dir} {wheel}
+          # Cython + setuptools only; pins match the `test` groups in
+          # cuda_bindings_13/pyproject.toml and cuda_core/pyproject.toml.
+          # The full test group is not needed to compile the extensions
+          # and may not be installable on riscv64.
+          CIBW_TEST_REQUIRES: "cython>=3.2.5,<3.3 setuptools>=80.0.0"
+          CIBW_TEST_COMMAND_LINUX: >
+            bash /host${{ github.workspace }}/ci/tools/build-cython-tests-in-cibw.sh
+            {package}/tests/cython
+            /host${{ github.workspace }}/cuda_bindings_13/tests/cython
+        run: |
+          SECONDS=0
+          cibuildwheel --output-dir "${CUDA_BINDINGS_ARTIFACTS_DIR}" ./cuda_bindings_13/
+          echo "=== cuda.bindings build time: ${SECONDS}s ==="
+
+      - name: Recover cuda.bindings sccache stats
+        if: always()
+        run: |
+          # If the build was cancelled before CIBW_REPAIR_WHEEL_COMMAND_LINUX
+          # ran, no stats file exists. Try to chown any root-owned files via
+          # docker exec into the still-running orphan container (idempotent,
+          # no guard needed). If the container is already gone (build
+          # completed), the stats file was already chowned during repair.
+          if [ ! -f "${GITHUB_WORKSPACE}/sccache-stats-bindings-${{ matrix.python-version }}.json" ]; then
+            CONTAINER_ID="$(docker ps -q --filter "name=cibuildwheel-" | head -n1)"
+            if [ -n "${CONTAINER_ID}" ]; then
+              docker exec "${CONTAINER_ID}" "/host${GITHUB_WORKSPACE}/ci/tools/chown-sccache-files.sh" || echo "(docker exec failed)"
+            fi
+          fi
+
+      - name: Report sccache stats (cuda.bindings)
+        if: always()
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache-stats-bindings-${{ matrix.python-version }}.json
+          label: "cuda.bindings"
+          build-step: "Build cuda.bindings wheel"
+
+      - name: List cuda.bindings artifacts
+        run: |
+          ls -lahR "${CUDA_BINDINGS_ARTIFACTS_DIR}"
+          ls -lah "${CUDA_BINDINGS_CYTHON_TESTS_DIR}"/test_*.so
+
+      - name: Constrain cuda.core to the local wheels
+        run: |
+          pathfinder_wheels=(cuda_pathfinder/cuda_pathfinder-*.whl)
+          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-"${BUILD_CUDA_MAJOR}".*.whl)
+          test "${#pathfinder_wheels[@]}" -eq 1
+          test "${#bindings_wheels[@]}" -eq 1
+          test -f "${pathfinder_wheels[0]}"
+          test -f "${bindings_wheels[0]}"
+          mkdir -p wheel-constraints
+          pathfinder_uri="file:///host$(realpath "${pathfinder_wheels[0]}")"
+          bindings_uri="file:///host$(realpath "${bindings_wheels[0]}")"
+          {
+            printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}"
+            printf 'cuda-bindings @ %s\n' "${bindings_uri}"
+          } | tee wheel-constraints/cuda-core.txt
+
+      # ── cuda.core ──
+      - name: Build cuda.core wheel
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          CIBW_MANYLINUX_RISCV64_IMAGE: ${{ steps.image-tag.outputs.image-tag }}
+          # See the cuda.bindings step above for UV_* vs PIP_*.
+          CIBW_BUILD_FRONTEND: "build[uv]"
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CUDA_PYTHON_TOOLCHAIN=${{ env.CUDA_PYTHON_TOOLCHAIN }}
+            CC="sccache cc"
+            CXX="sccache c++"
+            CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
+            CUDA_PYTHON_CYTHON_CACHE_DIR=/host/var/cache/cython-cache
+            UV_BUILD_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
+            UV_CONSTRAINT=/host/${{ github.workspace }}/wheel-constraints/cuda-core.txt
+            UV_EXTRA_INDEX_URL=https://pypi.riseproject.dev/simple/
+            UV_CACHE_DIR=/host/var/cache/uv-cache
+            GITHUB_WORKSPACE=/host${{ github.workspace }}
+            SCCACHE_STATS_FILE=/host${{ github.workspace }}/sccache-stats-core-${{ matrix.python-version }}.json
+            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
+            SCCACHE_LOG=info
+            SCCACHE_IDLE_TIMEOUT=0
+            SCCACHE_CACHE_READ_TIMEOUT_SECS=10
+            ${{ env.SCCACHE_GHA_CIBW_ENV }}
+          # No CIBW_BEFORE_BUILD_LINUX pip upgrade: build[uv] never invokes pip.
+          CIBW_CONTAINER_ENGINE: "docker; create_args: --init"
+          # See the cuda.bindings step above for the repair / stats-file approach.
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            sccache --show-config &&
+            sccache --show-stats &&
+            sccache --show-stats --stats-format=json > /host${{ github.workspace }}/sccache-stats-core-${{ matrix.python-version }}.json &&
+            /host${{ github.workspace }}/ci/tools/chown-sccache-files.sh &&
+            auditwheel repair -w {dest_dir} {wheel}
+          # cuda.core does not hard-depend on cuda-bindings (it is an extra).
+          # The test builder imports it; UV_CONSTRAINT pins the local wheel.
+          CIBW_TEST_REQUIRES: "cython>=3.2.5,<3.3 setuptools>=80.0.0 cuda-bindings"
+          CIBW_TEST_COMMAND_LINUX: >
+            bash /host${{ github.workspace }}/ci/tools/build-cython-tests-in-cibw.sh
+            {package}/tests/cython
+            /host${{ github.workspace }}/cuda_core/tests/cython
+        run: |
+          SECONDS=0
+          cibuildwheel --output-dir "${CUDA_CORE_ARTIFACTS_DIR}" ./cuda_core/
+          echo "=== cuda.core build time: ${SECONDS}s ==="
+
+      - name: Recover cuda.core sccache stats
+        if: always()
+        run: |
+          # If the build was cancelled before CIBW_REPAIR_WHEEL_COMMAND_LINUX
+          # ran, no stats file exists. Try to chown any root-owned files via
+          # docker exec into the still-running orphan container (idempotent,
+          # no guard needed). If the container is already gone (build
+          # completed), the stats file was already chowned during repair.
+          if [ ! -f "${GITHUB_WORKSPACE}/sccache-stats-core-${{ matrix.python-version }}.json" ]; then
+            CONTAINER_ID="$(docker ps -q --filter "name=cibuildwheel-" | head -n1)"
+            if [ -n "${CONTAINER_ID}" ]; then
+              docker exec "${CONTAINER_ID}" "/host${GITHUB_WORKSPACE}/ci/tools/chown-sccache-files.sh" || echo "(docker exec failed)"
+            fi
+          fi
+
+      - name: Report sccache stats (cuda.core)
+        if: always()
+        uses: ./.github/actions/sccache-summary
+        with:
+          json-file: sccache-stats-core-${{ matrix.python-version }}.json
+          label: "cuda.core"
+          build-step: "Build cuda.core wheel"
+
+      - name: List cuda.core artifacts
+        run: |
+          ls -lahR "${CUDA_CORE_ARTIFACTS_DIR}"
+          ls -lah "${CUDA_CORE_CYTHON_TESTS_DIR}"/test_*.so
+
+      # cuda.pathfinder is a pure-Python wheel, so every matrix job produces
+      # the same file. Upload it once from the lowest Python-version job.
+      - name: Upload cuda.pathfinder build artifact
+        if: ${{ matrix.python-version == '3.12' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: cuda-pathfinder-wheel
+          path: cuda_pathfinder/cuda_pathfinder-*.whl
+          if-no-files-found: error
+
+      - name: Upload cuda.bindings build artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+
+      - name: Upload cuda.bindings Cython tests
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*.so
+          if-no-files-found: error
+
+      - name: Upload cuda.core build artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          if-no-files-found: error
+
+      - name: Upload cuda.core Cython tests
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
+          path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*.so
+          if-no-files-found: error
+
+      - name: Kill any orphaned cibuildwheel containers
+        # When the job is cancelled or cibuildwheel's Python process is killed
+        # abruptly, its atexit handler may not run, leaving the manylinux
+        # container running on the host. Kill all cibuildwheel-* containers
+        # before touching workspace files so subsequent matrix jobs start clean.
+        if: always()
+        run: |
+          sccache --stop-server 2>/dev/null || true
+          docker ps -q --filter "name=cibuildwheel-" | xargs -r docker kill || true
+          docker ps -aq --filter "name=cibuildwheel-" | xargs -r docker rm || true

@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Inference Hub smoke test"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/inferencehub-smoke-test.yml"
+  schedule:
+    # Avoid minute 0, when scheduled GitHub Actions jobs are more likely to be delayed.
+    - cron: "17 3 * * *"
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  smoke-test:
+    name: Inference Hub API
+    if: >-
+      ${{ github.repository_owner == 'NVIDIA-dev' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Verify GPT-5.6 Terra prompt response
+        env:
+          INFERENCEHUB_API_KEY: ${{ secrets.INFERENCEHUB_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          test -n "${INFERENCEHUB_API_KEY}"
+          # Inference Hub exposes GPT-5.6 Terra through this Azure OpenAI alias.
+          curl --fail --silent --show-error \
+            --connect-timeout 10 \
+            --max-time 90 \
+            --request POST \
+            --header "Authorization: Bearer ${INFERENCEHUB_API_KEY}" \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+              "model": "azure/openai/gpt-5.6-terra",
+              "reasoning_effort": "medium",
+              "max_completion_tokens": 128,
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Reply with exactly CUDA_PYTHON_INFERENCEHUB_SMOKETEST_OK and nothing else."
+                }
+              ]
+            }' \
+            https://inference-api.nvidia.com/v1/chat/completions \
+            | jq --exit-status '
+                (.choices | type == "array" and length > 0) and
+                (.choices[0].message.content | type == "string") and
+                (.choices[0].message.content
+                 | gsub("^[[:space:]]+|[[:space:]]+$"; "")
+                 == "CUDA_PYTHON_INFERENCEHUB_SMOKETEST_OK")
+              ' >/dev/null
+
+          echo "Inference Hub GPT-5.6 Terra (medium) returned the expected response."

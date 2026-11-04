@@ -1,5 +1,69 @@
 # Continuous Integration
 
+## CTK-Next Toolkit
+
+The private Linux and Windows runbook and wheel workflows read the kitpick
+from `ci/ctk-next.json` in the commit under test. Keep `ctk_kitpick` in
+`major.minor.patch/NNN` form, including the three-digit kitpick number.
+The file also records `cybind_sha`, the full 40-character lowercase commit
+SHA used for generation. Both fields are required; no other fields are accepted.
+
+Each job runs `.github/actions/resolve-ctk-next` after checkout. It exports
+`CUDA_VERSION` (major.minor), `CUDA_KITPICK_VERSION` (major.minor.patch),
+`CUDA_KITPICK` (NNN), and `CUDA_MAJOR`. The action exposes `cuda-version`,
+`cuda-kitpick-version`, `cuda-kitpick`, and the combined `ctk-kitpick` as
+outputs for passing the selection between workflow jobs. `CUDA_MAJOR` is
+exported only as an environment variable. The optional `ctk-kitpick` input
+overrides the configured value for that job; it does not edit the file.
+Persist an override in the generated review branch's configuration when later
+CI must use the same kitpick.
+
+This selects the installed toolkit, not cybind's stored generator headers.
+Choose a cybind revision containing the corresponding headers separately.
+Run the resolver tests with `node --test ci/tools/tests/test_ctk_next_config.cjs`.
+
+## Windows Installed-Wheel Tests
+
+`ci-windows-wheel.yml` accepts an optional `cuda-version` such as `13.4.2`.
+Omitting it preserves the private kitpick selection. Released toolkits are
+downloaded from NVIDIA's redistribution manifest, checked against component
+SHA-256 digests, cached by version and architecture, and unpacked into a
+version-specific workspace directory. Toolkit selection is job-local; it does
+not replace the machine's driver or change system-wide CUDA settings.
+
+Both Windows wheel CI and cross-repository WoA CI invoke
+`ci/tools/test_windows_wheels.ps1`. It installs the three wheel artifacts and
+test dependency groups into a fresh virtual environment, verifies Python and
+CUDA runtime/NVRTC versions and installed-package import paths, builds Cython
+test extensions, and runs pathfinder, bindings (including per-thread default
+streams), Cython, and core tests. Existing platform-dependent skips still apply.
+
+Cross-repository CI reads the released CUDA version and Python matrix from
+`ci/versions.yml` at `PUBLIC_SHA`, and checks out test sources at that same SHA.
+It uses the private workflow's shared test runner and toolchain setup, without
+rebuilding public wheels. The run-specific wheelhouse, virtual environment,
+and public test checkout are removed by the existing always-run cleanup step.
+Admission creates one public check per Python version in addition to the
+aggregate check used by batching. Once the matrix finishes, the Ubuntu reporter
+publishes each Python job's success, failure, or cancellation status using an
+inline Bash/`jq` loop; no separate reporting script or repository checkout is
+needed.
+Each leg uploads a provenance-tagged result record and five distinct JUnit XML
+reports as private artifacts before cleanup, including on failure. Missing or
+invalid result records never count as success. JUnit XML is retained only for
+debugging; the reporter does not parse it or publish test counts. Setup failures
+and cancellations are reported separately from successful testing. Raw test names, tracebacks,
+and captured output are not published to the public repository.
+Each public check's Details link points to the private workflow run containing
+the job logs and JUnit artifacts. Following that link requires private-repository
+access; the URL itself exposes the private repository name and run ID.
+
+Both wheel workflows retain private JUnit artifacts for seven days. Reporting
+App credentials remain on the Ubuntu admission/reporting jobs, not GB10. Results
+are published after the whole matrix, not immediately after each leg. Recovery
+from a whole-workflow cancellation or reporting API outage remains a separate
+concern.
+
 ## Checkout History
 
 Use the default shallow checkout for jobs that only read files or test prebuilt

@@ -1,0 +1,597 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Consumer workflow for riscv64 wheel artifacts produced by
+# build-wheel-riscv64.yml.
+#
+# GitHub has no artifact-upload event. workflow_run fires once after the
+# complete build run finishes. This workflow then downloads per-ABI wheel
+# sets identified by the source build run ID and head SHA.
+#
+# Artifact naming (set by ci/tools/env-vars with HOST_PLATFORM=linux-riscv64):
+#   cuda-pathfinder-wheel
+#   cuda-bindings-python{312,313,314}-cuda{ver}-linux-riscv64-{sha}
+#   cuda-bindings-python{312,313,314}-cuda{ver}-linux-riscv64-{sha}-tests
+#   cuda-core-python{312,313,314}-linux-riscv64-{sha}
+# (cuda-core-python*-tests are uploaded by the build but not yet consumed here;
+#  see TODO(#469) in the test job.)
+#
+# This workflow is specific to NVIDIA-dev/cuda-python-private and is not
+# meant to ever be merged to NVIDIA/cuda-python.
+name: "CI: Test wheels (linux-riscv64)"
+
+run-name: >-
+  ${{
+    github.event_name == 'workflow_run'
+    && format('Test riscv64 wheels @ {0} (build {1})',
+              github.event.workflow_run.head_sha,
+              github.event.workflow_run.id)
+    || 'Test riscv64 wheels (manual)'
+  }}
+
+on:
+  workflow_run:
+    workflows:
+      - "CI: Build wheels (linux-riscv64)"
+    types:
+      - completed
+    branches:
+      - riscv64-next
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: >-
+          Build run ID from build-wheel-riscv64.yml to test. Leave empty to
+          resolve the latest successful run on riscv64-next automatically.
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  statuses: write
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # resolve: determine the source build run and validate its artifacts.
+  # For workflow_run events, the run ID and head SHA come directly from the
+  # event payload. For workflow_dispatch, they are resolved via the GitHub API.
+  # Skips automatically when the triggering build did not succeed (the build
+  # workflow's cancel-in-progress concurrency group emits 'cancelled' for
+  # superseded pushes on riscv64-next).
+  # ---------------------------------------------------------------------------
+  resolve:
+    name: Resolve build run
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    outputs:
+      run-id: ${{ steps.resolve.outputs.run-id }}
+      head-sha: ${{ steps.resolve.outputs.head-sha }}
+      cuda-ver: ${{ steps.validate.outputs.cuda-ver }}
+      matrix: ${{ steps.validate.outputs.matrix }}
+    steps:
+      - name: Resolve source build run
+        id: resolve
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          INPUT_RUN_ID: ${{ inputs.run-id }}
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            RUN_ID="${{ github.event.workflow_run.id }}"
+            HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
+            echo "Automatic trigger: build run ${RUN_ID} @ ${HEAD_SHA:0:7}"
+
+          elif [[ -n "${INPUT_RUN_ID}" ]]; then
+            # Manual dispatch with an explicit run ID: validate its conclusion.
+            RUN_DATA=$(gh api "repos/${GH_REPO}/actions/runs/${INPUT_RUN_ID}" \
+              --jq '{conclusion: .conclusion, head_sha: .head_sha}')
+            CONCLUSION=$(echo "${RUN_DATA}" | jq -r .conclusion)
+            if [[ "${CONCLUSION}" != "success" ]]; then
+              echo "::error title=Build run not successful::Run ${INPUT_RUN_ID} has conclusion '${CONCLUSION}', expected 'success'."
+              exit 1
+            fi
+            RUN_ID="${INPUT_RUN_ID}"
+            HEAD_SHA=$(echo "${RUN_DATA}" | jq -r .head_sha)
+            echo "Manual trigger: explicit run ID ${RUN_ID} @ ${HEAD_SHA:0:7}"
+
+          else
+            # Manual dispatch with no run ID: find the latest successful build
+            # on riscv64-next.
+            RUN_DATA=$(gh api \
+              "repos/${GH_REPO}/actions/workflows/build-wheel-riscv64.yml/runs?branch=riscv64-next&status=success&per_page=1" \
+              --jq '.workflow_runs[0] | {id: .id, head_sha: .head_sha}')
+            RUN_ID=$(echo "${RUN_DATA}" | jq -r .id)
+            HEAD_SHA=$(echo "${RUN_DATA}" | jq -r .head_sha)
+            if [[ "${RUN_ID}" == "null" || -z "${RUN_ID}" ]]; then
+              echo "::error title=No build found::No successful build-wheel-riscv64.yml run on riscv64-next."
+              exit 1
+            fi
+            echo "Manual trigger: resolved latest build run ${RUN_ID} @ ${HEAD_SHA:0:7}"
+          fi
+
+          # The artifact names embed the commit the build actually compiled.
+          # That is the run's head SHA, except for a build dispatched from
+          # another ref, which builds the riscv64-next tip instead (see
+          # resolve-source in build-wheel-riscv64.yml). Test, and report
+          # status on, the commit that was built.
+          BUILT_SHA=$(gh api \
+            "repos/${GH_REPO}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+            --jq '[.artifacts[] | select(.expired == false) | .name
+                   | capture("^cuda-core-python[0-9]+-linux-riscv64-(?<sha>[0-9a-f]{40})$").sha] | first // empty')
+          if [[ -n "${BUILT_SHA}" && "${BUILT_SHA}" != "${HEAD_SHA}" ]]; then
+            echo "::notice title=Built commit differs from run head::Run ${RUN_ID} was triggered at ${HEAD_SHA:0:7} but built ${BUILT_SHA:0:7}; testing ${BUILT_SHA:0:7}."
+            HEAD_SHA="${BUILT_SHA}"
+          fi
+
+          echo "run-id=${RUN_ID}" >> "$GITHUB_OUTPUT"
+          echo "head-sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate artifacts
+        id: validate
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.resolve.outputs.run-id }}
+          HEAD_SHA: ${{ steps.resolve.outputs.head-sha }}
+        run: |
+          # Fetch all unexpired artifact names for this run (up to 100; riscv64
+          # builds produce 1 + 3 per Python version, so one page is sufficient).
+          ARTIFACTS=$(gh api \
+            "repos/${GH_REPO}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired == false) | .name')
+
+          # Detect the CUDA version from the bindings artifact name so callers
+          # do not need to hardcode it (e.g. "13.5" from cuda-bindings-python312-cuda13.5-...).
+          BUILD_CUDA_VER=$(grep -oP '^cuda-bindings-python[0-9]+-cuda\K[0-9]+\.[0-9]+(?=-linux-riscv64-)' \
+            <<< "${ARTIFACTS}" | head -1 || true)
+          if [[ -z "${BUILD_CUDA_VER}" ]]; then
+            echo "::error title=Cannot detect CUDA version::No cuda-bindings-python*-cuda*-linux-riscv64 artifact found."
+            exit 1
+          fi
+          echo "Detected build CUDA version: ${BUILD_CUDA_VER}"
+          echo "cuda-ver=${BUILD_CUDA_VER}" >> "$GITHUB_OUTPUT"
+
+          # Derive the Python versions to test from the cuda.core wheel
+          # artifacts of the tested commit, so the test matrix follows the
+          # build matrix (build-wheel-riscv64.yml) without being duplicated
+          # here. workflow_run gives no access to the build's job outputs;
+          # the artifact names are the build's published record.
+          PY_TAGS=$(grep -oP "^cuda-core-python\K[0-9]+(?=-linux-riscv64-${HEAD_SHA}\$)" \
+            <<< "${ARTIFACTS}" | sort -nu || true)
+          if [[ -z "${PY_TAGS}" ]]; then
+            echo "::error title=No Python versions found::No cuda-core-python*-linux-riscv64-${HEAD_SHA} artifact found."
+            exit 1
+          fi
+          # "312" -> {"python-version": "3.12", "py-nodot": "312"}
+          MATRIX=$(jq -cn --arg tags "${PY_TAGS}" \
+            '{include: [$tags | split("\n")[] | select(. != "")
+                        | {"python-version": ("3." + .[1:]), "py-nodot": .}]}')
+          echo "Test matrix: ${MATRIX}"
+          echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
+
+          MISSING=()
+          check_artifact() {
+            if ! grep -qxF "$1" <<< "${ARTIFACTS}"; then
+              MISSING+=("$1")
+            fi
+          }
+
+          check_artifact "cuda-pathfinder-wheel"
+          for PY in ${PY_TAGS}; do
+            check_artifact "cuda-bindings-python${PY}-cuda${BUILD_CUDA_VER}-linux-riscv64-${HEAD_SHA}"
+            check_artifact "cuda-bindings-python${PY}-cuda${BUILD_CUDA_VER}-linux-riscv64-${HEAD_SHA}-tests"
+            check_artifact "cuda-core-python${PY}-linux-riscv64-${HEAD_SHA}"
+          done
+
+          if [[ ${#MISSING[@]} -gt 0 ]]; then
+            for A in "${MISSING[@]}"; do
+              echo "::error title=Missing or expired artifact::${A}"
+            done
+            exit 1
+          fi
+          echo "All expected artifacts are present and unexpired (Python: ${PY_TAGS//$'\n'/ })."
+
+      - name: Post pending commit status
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ steps.resolve.outputs.head-sha }}
+        run: |
+          gh api --method POST \
+            "repos/${GH_REPO}/statuses/${HEAD_SHA}" \
+            -f state=pending \
+            -f context="riscv64 wheel tests" \
+            -f description="Tests running..." \
+            -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+  # ---------------------------------------------------------------------------
+  # test: installed-wheel GPU tests run directly on the linux-riscv64-1xrtx6000
+  # host (no container). The NVIDIA Container Toolkit is not installed on this
+  # runner, so containers with --gpus fail; running on the host gives native
+  # GPU access.
+  #
+  # uv is bootstrapped by downloading a pinned static musl binary. Python
+  # interpreters come from the host, not uv's managed downloads: the lane uses
+  # the non-PIE CPython builds installed under /opt/python/cp<XY>-cp<XY> on each
+  # runner (provisioning script in #738). uv's managed python-build-standalone
+  # builds are PIE and fragment the Sv39 address space, which breaks the CUDA
+  # default-mempool reservation (#640); a non-PIE interpreter loads low and
+  # leaves one contiguous gap. UV_PYTHON_DOWNLOADS=never ensures uv never
+  # silently falls back to a managed (PIE) download. uv uses its default user
+  # cache (~/.cache/uv) to avoid the root-owned /var/cache/uv-cache written by
+  # the build container.
+  #
+  # Each matrix leg creates a fresh venv in RUNNER_TEMP (--clear) so a
+  # leftover from an aborted job cannot leak state into a subsequent run.
+  # All pytest invocations use --import-mode=importlib and run from the
+  # checkout root so the package source directories never enter sys.path;
+  # an import-origin check verifies this before tests run.
+  #
+  # The CUDA runtime libraries the tests load (libcudart, libnvJitLink,
+  # libnvvm, libnvfatbin, libcurand, ptxas, ...) come from the riscv64 kitpick,
+  # staged once per host by ci/tools/ensure-riscv64-test-ctk.sh into
+  # ~/.cache/cuda-python-riscv64-ctk/. CUDA_PATH points at the staged tree;
+  # cuda.pathfinder discovers all libraries via CUDA_PATH without LD_LIBRARY_PATH.
+  # ---------------------------------------------------------------------------
+  test:
+    name: py${{ matrix.python-version }}
+    needs: resolve
+    runs-on: linux-riscv64-1xrtx6000
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      # One leg per Python version built by the source run; see the
+      # "Validate artifacts" step in the resolve job.
+      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    env:
+      UV_EXTRA_INDEX_URL: https://pypi.riseproject.dev/simple/
+      # Do not let uv download a managed Python: python-build-standalone riscv64
+      # builds are PIE and trigger the Sv39 default-mempool OOM (#640/#738). The
+      # venv is built from the host's non-PIE interpreter under /opt/python.
+      UV_PYTHON_DOWNLOADS: never
+    steps:
+      - name: Checkout source at build SHA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          ref: ${{ needs.resolve.outputs.head-sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify GPU, driver, and glibc (preflight)
+        run: |
+          # Print diagnostics useful for catching host-environment issues:
+          #   - nvidia-smi: confirms GPU and driver are accessible on the host.
+          #   - ldd/uname: confirms glibc >= 2.39 so manylinux_2_39 wheels load.
+          uname -m
+          ldd --version 2>/dev/null | head -1
+          if ! command -v nvidia-smi > /dev/null 2>&1; then
+            echo "::error title=GPU unavailable (nvidia-smi not found)::nvidia-smi is missing. Check that the NVIDIA driver is installed and on PATH on linux-riscv64-1xrtx6000."
+            exit 1
+          fi
+          if ! nvidia-smi > /dev/null 2>&1; then
+            echo "::error title=GPU driver error::nvidia-smi returned a non-zero exit code. The NVIDIA driver may not be loaded or the GPU may be unavailable."
+            nvidia-smi || true
+            exit 1
+          fi
+          nvidia-smi
+
+      - name: Bootstrap uv
+        run: |
+          # Download a pinned static musl binary for riscv64gc.
+          # NVIDIA Container Toolkit is absent on this runner so we run on the
+          # host directly (GPU access is native). uv uses the host's non-PIE
+          # Python (see the job header), never a managed download.
+          # See: https://github.com/astral-sh/uv/releases
+          UV_VERSION="0.13.5"
+          UV_TARBALL="uv-riscv64gc-unknown-linux-musl.tar.gz"
+          UV_SHA256="485ffd2d7623fd98f791cb6ab45aa967f1605e3f691666fc49713e3feb2362b9"
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL \
+            "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/${UV_TARBALL}" \
+            -o /tmp/uv.tgz
+          echo "${UV_SHA256}  /tmp/uv.tgz" | sha256sum -c
+          tar -xzf /tmp/uv.tgz -C "$HOME/.local/bin" --strip-components=1 --no-same-owner \
+            "uv-riscv64gc-unknown-linux-musl/uv"
+          chmod +x "$HOME/.local/bin/uv"
+          rm /tmp/uv.tgz
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/uv" --version
+
+      - name: Stage riscv64 CUDA runtime libraries
+        # ci/tools/ensure-riscv64-test-ctk.sh comes from the build SHA checkout.
+        # LD_LIBRARY_PATH is intentionally not set: cuda.pathfinder discovers all
+        # CTK libraries via CUDA_PATH, which is the mechanism this lane tests.
+        run: |
+          ctk_root="$(ci/tools/ensure-riscv64-test-ctk.sh)"
+          echo "CUDA_PATH=${ctk_root}" >> "$GITHUB_ENV"
+
+      - name: Download cuda.pathfinder wheel
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: cuda-pathfinder-wheel
+          path: wheels/pathfinder
+          run-id: ${{ needs.resolve.outputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Download cuda.bindings wheel
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: cuda-bindings-python${{ matrix.py-nodot }}-cuda${{ needs.resolve.outputs.cuda-ver }}-linux-riscv64-${{ needs.resolve.outputs.head-sha }}
+          path: wheels/bindings
+          run-id: ${{ needs.resolve.outputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Download cuda.core wheel
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: cuda-core-python${{ matrix.py-nodot }}-linux-riscv64-${{ needs.resolve.outputs.head-sha }}
+          path: wheels/core
+          run-id: ${{ needs.resolve.outputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Download cuda.bindings Cython tests
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: cuda-bindings-python${{ matrix.py-nodot }}-cuda${{ needs.resolve.outputs.cuda-ver }}-linux-riscv64-${{ needs.resolve.outputs.head-sha }}-tests
+          path: cuda_bindings_13/tests/cython
+          run-id: ${{ needs.resolve.outputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Set up Python interpreter and test venv
+        run: |
+          VENV="${RUNNER_TEMP}/test-venv"
+          # Use the host's non-PIE CPython (installed under /opt/python by the
+          # runner-provisioning script in #738), not a uv-managed PIE build, to
+          # avoid the Sv39 default-mempool OOM (#640).
+          PYBIN="/opt/python/cp${{ matrix.py-nodot }}-cp${{ matrix.py-nodot }}/bin/python${{ matrix.python-version }}"
+          if [[ ! -x "${PYBIN}" ]]; then
+            echo "::error title=Missing non-PIE interpreter::${PYBIN} not found. Provision the runner with the install-nonpie-python.sh script from #738 (sudo ./install-nonpie-python.sh ${{ matrix.python-version }})."
+            exit 1
+          fi
+          # Fail loudly if the interpreter is not non-PIE (ET_EXEC); a PIE
+          # interpreter reintroduces the #640 address-space fragmentation.
+          ELF_TYPE="$(readelf -h "${PYBIN}" | awk '/Type:/ {print $2}')"
+          if [[ "${ELF_TYPE}" != "EXEC" ]]; then
+            echo "::error title=Interpreter is PIE::${PYBIN} is ${ELF_TYPE}, expected EXEC (non-PIE). Rebuild it with the #738 script."
+            exit 1
+          fi
+          # --clear removes any leftover from an aborted previous run.
+          # Export VIRTUAL_ENV so later `uv pip` and pytest steps target this
+          # venv without repeating --python.
+          uv venv --clear "${VENV}" --python "${PYBIN}"
+          echo "VIRTUAL_ENV=${VENV}" >> "$GITHUB_ENV"
+
+      - name: Install wheels and test dependencies
+        run: |
+          # pathfinder and bindings test groups are used directly as source of
+          # truth; all their deps (including matplotlib and numpy) resolve from
+          # the RISE index for cp312/cp313.
+          #
+          # cuda_core's test group is NOT used because it includes cffi, which
+          # has no riscv64 binary wheel for any version on either PyPI or the
+          # RISE index (cp313 is missing from RISE's cffi 1.17.0 build, and
+          # cffi 2.0.0 has no riscv64 wheel at all). Track riscv64 cffi support:
+          # https://github.com/riseproject-dev/python-wheels/issues/64
+          # pytest is provided by the pathfinder and bindings test groups above;
+          # no additional packages are needed for test_stream.py and test_context.py.
+          uv pip install \
+            wheels/pathfinder/*.whl \
+            wheels/bindings/*.whl \
+            wheels/core/*.whl \
+            ./cuda_python_test_helpers \
+            --group ./cuda_pathfinder/pyproject.toml:test \
+            --group ./cuda_bindings_13/pyproject.toml:test
+          uv pip check
+
+      - name: Verify wheel imports (isolation check)
+        run: |
+          # Verify that all three packages import from the installed wheels,
+          # not from the source tree. Running from the checkout root (not from
+          # within a package sub-directory) keeps the individual package
+          # directories out of sys.path, so the cuda/ namespace packages resolve
+          # only to the venv site-packages. The pytest steps below reinforce
+          # this with --import-mode=importlib.
+          "${VIRTUAL_ENV}/bin/python" - <<'PY'
+          import os
+          from pathlib import Path
+
+          import cuda.bindings
+          import cuda.core
+          import cuda.pathfinder
+
+          workspace = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          for module in (cuda.pathfinder, cuda.bindings, cuda.core):
+              module_path = Path(module.__file__).resolve()
+              print(f"{module.__name__}: {module_path}")
+              if module_path.is_relative_to(workspace):
+                  raise SystemExit(
+                      f"::error title=Import from checkout::"
+                      f"{module.__name__} was imported from the source tree at "
+                      f"{module_path} instead of the installed wheel."
+                  )
+          PY
+
+      - name: Test cuda.pathfinder (all tests)
+        run: |
+          # Run the full pathfinder test suite. Tests that need CUDA libraries
+          # absent on riscv64 skip gracefully because
+          # CUDA_PATHFINDER_TEST_*_STRICTNESS defaults to 'see_what_works'.
+          # PYTHONPATH adds tests/ so bare helper imports (e.g.
+          # child_load_nvidia_dynamic_lib_helper, conftest) resolve under
+          # --import-mode=importlib without exposing cuda_pathfinder/ itself.
+          # Temporary: curand probe fails with kitpick 13.6/006; revert with the next kitpick (PR #746).
+          PYTHONPATH="${GITHUB_WORKSPACE}/cuda_pathfinder/tests" \
+            "${VIRTUAL_ENV}/bin/python" -m pytest -ra -v \
+            --import-mode=importlib \
+            --rootdir cuda_pathfinder \
+            --junitxml="${RUNNER_TEMP}/junit-pathfinder-py${{ matrix.py-nodot }}.xml" \
+            --deselect tests/test_load_nvidia_dynamic_lib.py::test_load_nvidia_dynamic_lib[curand] \
+            cuda_pathfinder/tests/
+
+      - name: Test cuda.bindings (Python tests)
+        run: |
+          # Run the full cuda.bindings Python suite; tests for components
+          # absent on riscv64 skip cleanly. cython/ runs in the dedicated
+          # step below; example_tests/ needs deps (e.g. CuPy) unavailable on
+          # riscv64.
+          "${VIRTUAL_ENV}/bin/python" -m pytest -ra -v \
+            --import-mode=importlib \
+            --rootdir cuda_bindings_13 \
+            --junitxml="${RUNNER_TEMP}/junit-bindings-py${{ matrix.py-nodot }}.xml" \
+            --ignore=cuda_bindings_13/tests/cython \
+            --ignore=cuda_bindings_13/tests/example_tests \
+            cuda_bindings_13/tests/
+
+      - name: Test cuda.bindings Cython tests
+        run: |
+          # test_cython.py imports test_ccuda / test_ccudart /
+          # test_interoperability_cython from the .so files downloaded into
+          # tests/cython. PYTHONPATH adds that directory so bare-module imports
+          # from the compiled .so files resolve without pytest mutating sys.path.
+          PYTHONPATH="${GITHUB_WORKSPACE}/cuda_bindings_13/tests/cython" \
+            "${VIRTUAL_ENV}/bin/python" -m pytest -ra -v \
+            --import-mode=importlib \
+            --rootdir cuda_bindings_13 \
+            --randomly-dont-reorganize \
+            --junitxml="${RUNNER_TEMP}/junit-bindings-cython-py${{ matrix.py-nodot }}.xml" \
+            cuda_bindings_13/tests/cython
+
+      # TODO(#469): add cuda.core Cython test (download cuda-core-python*-tests
+      # into cuda_core/tests/cython, run pytest tests/cython) once libnvrtc
+      # ships for riscv64.
+      - name: Test cuda.core
+        run: |
+          # --rootdir cuda_core picks up pytest.ini (pythonpath = tests), so
+          # helpers.* imports resolve. --import-mode=importlib prevents pytest
+          # from adding cuda_core/ to sys.path on top of that.
+          "${VIRTUAL_ENV}/bin/python" -m pytest -ra -v \
+            --import-mode=importlib \
+            --rootdir cuda_core \
+            --junitxml="${RUNNER_TEMP}/junit-core-py${{ matrix.py-nodot }}.xml" \
+            cuda_core/tests/graph/test_graph_definition_mutation.py::test_destroyed_node \
+            cuda_core/tests/test_enum_coverage.py \
+            cuda_core/tests/test_green_context.py \
+            cuda_core/tests/test_strided_layout.py \
+            cuda_core/tests/test_tensor_map.py \
+            cuda_core/tests/test_utils.py \
+            cuda_core/tests/test_device.py::test_device_alloc \
+            cuda_core/tests/test_device.py::test_device_alloc_zero_bytes \
+            cuda_core/tests/test_stream.py \
+            cuda_core/tests/test_context.py \
+            cuda_core/tests/test_program.py \
+            cuda_core/tests/test_module.py \
+            cuda_core/tests/test_launcher.py \
+            cuda_core/tests/test_linker.py \
+            cuda_core/tests/test_program_cache.py \
+            cuda_core/tests/test_program_compile_cache.py \
+            --deselect tests/test_green_context.py::TestGreenContextKernelLaunch
+
+      - name: Write step summary
+        if: always()
+        run: |
+          {
+            echo "## py${{ matrix.python-version }} results"
+            echo ""
+            echo "| Suite | Tests | Failures | Errors | Skipped |"
+            echo "|-------|------:|---------:|-------:|--------:|"
+            for f in \
+                "${RUNNER_TEMP}/junit-pathfinder-py${{ matrix.py-nodot }}.xml" \
+                "${RUNNER_TEMP}/junit-bindings-py${{ matrix.py-nodot }}.xml" \
+                "${RUNNER_TEMP}/junit-bindings-cython-py${{ matrix.py-nodot }}.xml" \
+                "${RUNNER_TEMP}/junit-core-py${{ matrix.py-nodot }}.xml"; do
+              if [[ -f "$f" ]]; then
+                label=$(basename "$f" .xml | sed 's/junit-//;s/-py.*//')
+                tests=$(grep -oP 'tests="\K[0-9]+' "$f" || echo '?')
+                failures=$(grep -oP 'failures="\K[0-9]+' "$f" || echo '?')
+                errors=$(grep -oP 'errors="\K[0-9]+' "$f" || echo '?')
+                skipped=$(grep -oP 'skipped="\K[0-9]+' "$f" || echo '?')
+                echo "| ${label} | ${tests} | ${failures} | ${errors} | ${skipped} |"
+              fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload JUnit test results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: junit-riscv64-py${{ matrix.py-nodot }}
+          path: ${{ runner.temp }}/junit-*.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # report: post the final commit status on the tested SHA and write an
+  # overall summary. Runs even when test fails (if: always()), but skips if
+  # resolve was skipped (which only happens for non-success workflow_run
+  # completions). Uses needs.resolve.outputs.head-sha which is empty if
+  # resolve's first step failed, in which case status posting is also skipped.
+  # ---------------------------------------------------------------------------
+  report:
+    name: Post commit status
+    needs: [resolve, test]
+    if: >-
+      always() &&
+      needs.resolve.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
+    steps:
+      - name: Determine overall result
+        id: result
+        run: |
+          RESOLVE_RESULT="${{ needs.resolve.result }}"
+          TEST_RESULT="${{ needs.test.result }}"
+          if [[ "${RESOLVE_RESULT}" != "success" ]]; then
+            STATE="failure"
+            DESC="Resolver failed (bad run ID or missing/expired artifacts)"
+          elif [[ "${TEST_RESULT}" == "success" ]]; then
+            STATE="success"
+            DESC="All tests passed"
+          else
+            STATE="failure"
+            DESC="Tests failed or were cancelled (see Actions run for details)"
+          fi
+          echo "state=${STATE}" >> "$GITHUB_OUTPUT"
+          echo "description=${DESC}" >> "$GITHUB_OUTPUT"
+
+      - name: Post final commit status
+        if: needs.resolve.outputs.head-sha != ''
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ needs.resolve.outputs.head-sha }}
+        run: |
+          gh api --method POST \
+            "repos/${GH_REPO}/statuses/${HEAD_SHA}" \
+            -f state="${{ steps.result.outputs.state }}" \
+            -f context="riscv64 wheel tests" \
+            -f description="${{ steps.result.outputs.description }}" \
+            -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+      - name: Write run summary
+        if: always()
+        run: |
+          {
+            echo "## riscv64 wheel test summary"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| Build run ID | \`${{ needs.resolve.outputs.run-id }}\` |"
+            echo "| Head SHA | \`${{ needs.resolve.outputs.head-sha }}\` |"
+            echo "| Resolver | ${{ needs.resolve.result }} |"
+            echo "| Tests | ${{ needs.test.result }} |"
+            echo "| Commit status | **${{ steps.result.outputs.state }}** |"
+          } >> "$GITHUB_STEP_SUMMARY"

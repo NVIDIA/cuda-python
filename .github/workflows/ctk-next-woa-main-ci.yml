@@ -1,0 +1,706 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "ctk-next WoA main CI"
+run-name: "WoA validation ${{ inputs.correlation_id }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      schema_version:
+        description: Dispatch schema version
+        required: true
+        type: string
+      public_repository:
+        description: Public source repository
+        required: true
+        type: string
+      public_workflow_id:
+        description: Approved public CI workflow ID
+        required: true
+        type: string
+      public_run_id:
+        description: Exact public Actions run ID
+        required: true
+        type: string
+      public_sha:
+        description: Exact public source SHA
+        required: true
+        type: string
+      correlation_id:
+        description: Opaque cross-repository correlation ID
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: woa-source-${{ inputs.public_repository }}-${{ inputs.public_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  admit-and-stage:
+    if: ${{ github.repository == 'NVIDIA-dev/cuda-python-private' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      check-id: ${{ steps.admit.outputs.check_id }}
+      python-check-ids: ${{ steps.python-checks.outputs.check_ids }}
+      should-run: ${{ steps.admit.outputs.should_run }}
+      python-versions: ${{ steps.versions.outputs.python_versions }}
+      cuda-version: ${{ steps.versions.outputs.cuda_version }}
+      staging-artifact: ${{ steps.stage.outputs.staging_artifact }}
+      artifact-names: ${{ steps.stage.outputs.artifact_names }}
+    steps:
+      - name: Create public admission and reporting token
+        id: public-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          client-id: ${{ vars.CUDA_PYTHON_WOA_XREPO_CI_PUBLIC_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CUDA_PYTHON_WOA_XREPO_CI_PUBLIC_APP_PRIVATE_KEY }}
+          owner: NVIDIA
+          repositories: cuda-python
+          permission-actions: read
+          permission-checks: write
+
+      - name: Verify public source and open Check Run
+        id: admit
+        env:
+          CORRELATION_ID: ${{ inputs.correlation_id }}
+          GH_TOKEN: ${{ steps.public-app-token.outputs.token }}
+          PUBLIC_REPOSITORY: ${{ inputs.public_repository }}
+          PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
+          PUBLIC_SHA: ${{ inputs.public_sha }}
+          PUBLIC_WORKFLOW_ID: ${{ inputs.public_workflow_id }}
+          SCHEMA_VERSION: ${{ inputs.schema_version }}
+        run: |
+          set -euo pipefail
+          validation_errors=()
+          [[ "$SCHEMA_VERSION" == "1" ]] || validation_errors+=('`schema_version` must be exactly `1`.')
+          [[ "$PUBLIC_REPOSITORY" == "NVIDIA/cuda-python" ]] || validation_errors+=('`public_repository` must be `NVIDIA/cuda-python`.')
+          [[ "$PUBLIC_WORKFLOW_ID" == "155304118" ]] || validation_errors+=('`public_workflow_id` must be approved CI workflow ID `155304118`.')
+          [[ "$PUBLIC_RUN_ID" =~ ^[1-9][0-9]*$ ]] || validation_errors+=('`public_run_id` must be a positive decimal integer.')
+          [[ "$PUBLIC_SHA" =~ ^[0-9a-f]{40}$ ]] || validation_errors+=('`public_sha` must be a 40-character lowercase hexadecimal SHA.')
+          [[ "$CORRELATION_ID" =~ ^[A-Za-z0-9._:/-]{1,200}$ ]] || validation_errors+=('`correlation_id` must contain 1-200 letters, digits, periods, underscores, colons, slashes, or hyphens.')
+
+          if (( ${#validation_errors[@]} > 0 )); then
+            {
+              echo "## WoA admission input validation failed"
+              echo
+              printf -- '- %s\n' "${validation_errors[@]}"
+            } | tee -a "$GITHUB_STEP_SUMMARY" >&2
+            for validation_error in "${validation_errors[@]}"; do
+              echo "::error title=Invalid WoA dispatch input::$validation_error"
+            done
+            exit 1
+          fi
+
+          run=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
+          run_validation_errors=$(jq -r \
+            --arg sha "$PUBLIC_SHA" \
+            '
+            def mismatch($field; $expected; $actual):
+              "`\($field)`: expected `\($expected | tojson)`, got `\($actual | tojson)`.";
+            (if type != "object" then
+               ["API response: expected a JSON object, got `\(type)`." ]
+             else
+               [
+                 if .repository.full_name != "NVIDIA/cuda-python" then mismatch("repository.full_name"; "NVIDIA/cuda-python"; .repository.full_name) else empty end,
+                 if .workflow_id != 155304118 then mismatch("workflow_id"; 155304118; .workflow_id) else empty end,
+                 if .path != ".github/workflows/ci.yml" then mismatch("path"; ".github/workflows/ci.yml"; .path) else empty end,
+                 if .event != "push" then mismatch("event"; "push"; .event) else empty end,
+                 if .head_branch != "main" then mismatch("head_branch"; "main"; .head_branch) else empty end,
+                 if ((.status == "in_progress" and .conclusion == null) or
+                     (.status == "completed" and .conclusion == "success")) then empty
+                 else mismatch("run state"; "in_progress or successful completion"; {status, conclusion}) end,
+                 if .head_sha != $sha then mismatch("head_sha"; $sha; .head_sha) else empty end
+               ]
+             end) | .[]
+            ' <<< "$run")
+
+          if [[ -n "$run_validation_errors" ]]; then
+            mapfile -t validation_errors <<< "$run_validation_errors"
+            {
+              echo "## Public workflow run validation failed"
+              echo
+              echo "Public run: https://github.com/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID"
+              echo
+              printf -- '- %s\n' "${validation_errors[@]}"
+            } | tee -a "$GITHUB_STEP_SUMMARY" >&2
+            for validation_error in "${validation_errors[@]}"; do
+              annotation=${validation_error//'%'/'%25'}
+              annotation=${annotation//$'\r'/'%0D'}
+              annotation=${annotation//$'\n'/'%0A'}
+              echo "::error title=Public workflow run mismatch::$annotation"
+            done
+            exit 1
+          fi
+
+          comparison=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/compare/$PUBLIC_SHA...main")
+          jq -e '.status == "ahead" or .status == "identical"' <<< "$comparison" >/dev/null
+
+          existing_checks=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/commits/$PUBLIC_SHA/check-runs?check_name=cuda-python%20WoA%20integration&filter=all&per_page=100")
+          if jq -e --arg id "woa:$CORRELATION_ID" '
+            any(.check_runs[]; .app.id == 4954254 and .external_id == $id)
+          ' <<< "$existing_checks" >/dev/null; then
+            echo "An App-owned Check Run already records this correlation; dispatch is a no-op."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+
+          started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          summary="Testing public Windows Arm64 wheels from exact run $PUBLIC_RUN_ID."
+          create_payload=$(jq -n \
+            --arg details_url "https://github.com/NVIDIA-dev/cuda-python-private/actions/runs/$GITHUB_RUN_ID" \
+            --arg external_id "woa:$CORRELATION_ID" \
+            --arg sha "$PUBLIC_SHA" \
+            --arg started_at "$started_at" \
+            --arg summary "$summary" \
+            '{
+              name: "cuda-python WoA integration",
+              head_sha: $sha,
+              status: "in_progress",
+              started_at: $started_at,
+              details_url: $details_url,
+              external_id: $external_id,
+              output: {
+                title: "Windows on Arm integration testing is running",
+                summary: $summary
+              }
+            }')
+          check_id=$(gh api \
+            --method POST \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            repos/NVIDIA/cuda-python/check-runs \
+            --input - <<< "$create_payload" \
+            --jq .id)
+          echo "check_id=$check_id" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve public build versions
+        id: versions
+        if: ${{ steps.admit.outputs.should_run == 'true' }}
+        env:
+          PUBLIC_SHA: ${{ inputs.public_sha }}
+        run: |
+          set -euo pipefail
+          versions=$(curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/NVIDIA/cuda-python/$PUBLIC_SHA/ci/versions.yml")
+          cuda_version=$(yq -r '.cuda.build.version' <<< "$versions")
+          python_versions=$(yq -o json -I 0 '.python.supported' <<< "$versions")
+          if [[ ! "$cuda_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid CUDA build version at public commit $PUBLIC_SHA: $cuda_version" >&2
+            exit 1
+          fi
+          jq -e '
+            type == "array" and length > 0 and
+            all(.[]; type == "string" and test("^3\\.[0-9]+t?$")) and
+            (unique | length) == length
+          ' <<< "$python_versions" >/dev/null
+          echo "cuda_version=$cuda_version" >> "$GITHUB_OUTPUT"
+          echo "python_versions=$python_versions" >> "$GITHUB_OUTPUT"
+          echo "Public commit $PUBLIC_SHA: CUDA $cuda_version; Python variants $python_versions." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open per-Python public Check Runs
+        id: python-checks
+        if: ${{ steps.admit.outputs.should_run == 'true' }}
+        env:
+          CORRELATION_ID: ${{ inputs.correlation_id }}
+          CUDA_VERSION: ${{ steps.versions.outputs.cuda_version }}
+          GH_TOKEN: ${{ steps.public-app-token.outputs.token }}
+          PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
+          PUBLIC_SHA: ${{ inputs.public_sha }}
+          PYTHON_VERSIONS: ${{ steps.versions.outputs.python_versions }}
+        run: |
+          set -euo pipefail
+          check_ids='{}'
+          while IFS= read -r version; do
+            payload=$(jq -n \
+              --arg version "$version" \
+              --arg cuda_version "$CUDA_VERSION" \
+              --arg sha "$PUBLIC_SHA" \
+              --arg external_id "woa:$CORRELATION_ID:python:$version" \
+              --arg details_url "https://github.com/NVIDIA-dev/cuda-python-private/actions/runs/$GITHUB_RUN_ID" '
+              {
+                name: ("CI (internal) / Test win-arm64 / Python " + $version + ", CUDA " + $cuda_version + " (local), GPU gb10 (push)"),
+                head_sha: $sha,
+                external_id: $external_id,
+                details_url: $details_url,
+                status: "queued",
+                output: {
+                  title: ("Python " + $version + " validation is queued"),
+                  summary: "Waiting for Windows Arm64 wheel validation."
+                }
+              }')
+            check_id=$(gh api --method POST \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              repos/NVIDIA/cuda-python/check-runs \
+              --input - <<< "$payload" --jq .id)
+            check_ids=$(jq -c --arg version "$version" --argjson id "$check_id" \
+              '.[$version] = $id' <<< "$check_ids")
+            echo "check_ids=$check_ids" >> "$GITHUB_OUTPUT"
+          done < <(jq -r '.[]' <<< "$PYTHON_VERSIONS")
+
+      - name: Validate and stage exact public wheels
+        id: stage
+        if: ${{ steps.admit.outputs.should_run == 'true' }}
+        env:
+          CUDA_VERSION: ${{ steps.versions.outputs.cuda_version }}
+          PYTHON_VERSIONS: ${{ steps.versions.outputs.python_versions }}
+          CORRELATION_ID: ${{ inputs.correlation_id }}
+          GH_TOKEN: ${{ steps.public-app-token.outputs.token }}
+          PUBLIC_REPOSITORY: ${{ inputs.public_repository }}
+          PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
+          PUBLIC_SHA: ${{ inputs.public_sha }}
+        run: |
+          set -euo pipefail
+
+          artifact_names=$(jq -nc \
+            --arg sha "$PUBLIC_SHA" \
+            --arg cuda "$CUDA_VERSION" \
+            --argjson versions "$PYTHON_VERSIONS" '
+              {
+                pathfinder: "cuda-pathfinder-wheel",
+                python: (reduce $versions[] as $version ({};
+                  ($version | gsub("\\."; "")) as $digits |
+                  .[$version] = {
+                    bindings: ("cuda-bindings-python" + $digits + "-cuda" + $cuda + "-win-arm64-" + $sha),
+                    core: ("cuda-core-python" + $digits + "-win-arm64-" + $sha)
+                  }
+                ))
+              }
+            ')
+          expected_names=$(jq -c '[.pathfinder, (.python[] | .bindings, .core)]' <<< "$artifact_names")
+          ARTIFACTS_JSON='[]'
+          while IFS= read -r artifact_name; do
+            response=$(gh api --method GET \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID/artifacts" \
+              -f name="$artifact_name" \
+              -F per_page=100)
+            artifact=$(jq -c -e \
+              --arg name "$artifact_name" '
+                if .total_count == 1 and
+                   (.artifacts | length) == 1 and
+                   .artifacts[0].name == $name and
+                   .artifacts[0].expired == false
+                then .artifacts[0] | {id, name, digest}
+                else error("expected exactly one unexpired artifact named " + $name)
+                end
+              ' <<< "$response")
+            ARTIFACTS_JSON=$(jq -c \
+              --argjson artifact "$artifact" \
+              '. + [$artifact] | sort_by(.name)' <<< "$ARTIFACTS_JSON")
+          done < <(jq -r '.[]' <<< "$expected_names")
+          expected_count=$(jq '1 + 2 * length' <<< "$PYTHON_VERSIONS")
+          jq -e --argjson count "$expected_count" '
+            length == $count and
+            all(.[ ];
+              (.id | type == "number") and
+              (.digest | test("^sha256:[0-9a-f]{64}$")))
+          ' <<< "$ARTIFACTS_JSON" >/dev/null
+
+          {
+            echo "Exact Windows Arm64 artifacts from public run $PUBLIC_RUN_ID:"
+            jq -r '.[] | "- `\(.name)` (`\(.digest)`)"' <<< "$ARTIFACTS_JSON"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          mkdir -p downloads wheelhouse
+          while IFS= read -r artifact; do
+            artifact_id=$(jq -r .id <<< "$artifact")
+            expected_name=$(jq -r .name <<< "$artifact")
+            expected_digest=$(jq -r '.digest | sub("^sha256:"; "")' <<< "$artifact")
+
+            metadata=$(gh api \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/actions/artifacts/$artifact_id")
+            jq -e \
+              --arg digest "sha256:$expected_digest" \
+              --arg name "$expected_name" \
+              --arg run_id "$PUBLIC_RUN_ID" \
+              '.expired == false and
+               .name == $name and
+               .digest == $digest and
+               (.workflow_run.id | tostring) == $run_id' <<< "$metadata" >/dev/null
+
+            archive="downloads/$artifact_id.zip"
+            gh api \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/actions/artifacts/$artifact_id/zip" > "$archive"
+            echo "$expected_digest  $archive" | sha256sum --check
+            mkdir "downloads/$artifact_id"
+            unzip -q "$archive" -d "downloads/$artifact_id"
+            mapfile -t wheels < <(find "downloads/$artifact_id" -type f -name '*.whl')
+            if (( ${#wheels[@]} != 1 )); then
+              echo "::error::Expected one wheel in artifact $expected_name, found ${#wheels[@]}." >&2
+              exit 1
+            fi
+            mkdir "wheelhouse/$expected_name"
+            cp "${wheels[0]}" "wheelhouse/$expected_name/"
+          done < <(jq -c '.[]' <<< "$ARTIFACTS_JSON")
+
+          jq -n \
+            --arg correlation_id "$CORRELATION_ID" \
+            --arg repository "$PUBLIC_REPOSITORY" \
+            --arg run_id "$PUBLIC_RUN_ID" \
+            --arg sha "$PUBLIC_SHA" \
+            --argjson artifacts "$ARTIFACTS_JSON" \
+            --arg cuda_version "$CUDA_VERSION" \
+            --argjson python_versions "$PYTHON_VERSIONS" \
+            '{
+              schema_version: 1,
+              correlation_id: $correlation_id,
+              public_repository: $repository,
+              public_run_id: $run_id,
+              public_sha: $sha,
+              artifacts: $artifacts,
+              cuda_version: $cuda_version,
+              python_versions: $python_versions
+            }' > wheelhouse/PROVENANCE.json
+
+          staging_artifact="woa-stage-$PUBLIC_RUN_ID"
+          echo "staging_artifact=$staging_artifact" >> "$GITHUB_OUTPUT"
+          echo "artifact_names=$artifact_names" >> "$GITHUB_OUTPUT"
+
+      - name: Upload verified WoA payload
+        if: ${{ steps.admit.outputs.should_run == 'true' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ${{ steps.stage.outputs.staging_artifact }}
+          path: wheelhouse
+          if-no-files-found: error
+          retention-days: 3
+
+  gb10-test:
+    name: Test win-arm64 / Python ${{ matrix.python-version }}, CUDA ${{ needs.admit-and-stage.outputs.cuda-version }} (local), GPU gb10
+    needs: admit-and-stage
+    if: ${{ needs.admit-and-stage.outputs.should-run == 'true' }}
+    runs-on: windows-arm64-1xgb10
+    timeout-minutes: 180
+    permissions:
+      contents: read
+    env:
+      PYTHON_VERSION: ${{ matrix.python-version }}
+      GIT_VERSION: '2.55.0.3'
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        python-version: ${{ fromJSON(needs.admit-and-stage.outputs.python-versions) }}
+    steps:
+      # Keep identical to the other "Set up Git for Windows ARM64" steps in .github/workflows.
+      - name: Set up Git for Windows ARM64
+        timeout-minutes: 10
+        shell: powershell
+        run: |
+          if (-not $env:RUNNER_TOOL_CACHE) {
+            throw "RUNNER_TOOL_CACHE is not set."
+          }
+
+          $gitRoot = Join-Path $env:RUNNER_TOOL_CACHE "PortableGit\$env:GIT_VERSION\arm64"
+          $git = Join-Path $gitRoot "cmd\git.exe"
+          # `shell: bash` steps (e.g. setup-hardened-python) need Git's bash on PATH;
+          # otherwise bash resolves to the WSL launcher in System32.
+          $bash = Join-Path $gitRoot "bin\bash.exe"
+          $complete = "$gitRoot.complete"
+          if (-not ((Test-Path $git) -and (Test-Path $bash) -and (Test-Path $complete))) {
+            $archive = Join-Path $env:RUNNER_TEMP "PortableGit-$env:GIT_VERSION-arm64.7z.exe"
+            $archiveUrl = "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/PortableGit-2.55.0.3-arm64.7z.exe"
+            $expectedHash = "3bf26b94d9399b16a890776e468334f501742861576cbcdea2d9134643c374bd"
+
+            Invoke-WebRequest -UseBasicParsing -Uri $archiveUrl -OutFile $archive
+            $actualHash = (Get-FileHash -Path $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne $expectedHash) {
+              throw "PortableGit checksum mismatch: expected $expectedHash, got $actualHash."
+            }
+
+            if (Test-Path $gitRoot) {
+              Remove-Item -Recurse -Force $gitRoot
+            }
+            New-Item -ItemType Directory -Force -Path $gitRoot | Out-Null
+            # PortableGit is a 7-Zip self-extractor; -y suppresses its prompts.
+            $process = Start-Process -FilePath $archive -ArgumentList @("-y", "-o`"$gitRoot`"") -Wait -PassThru
+            if ($process.ExitCode -ne 0) {
+              throw "PortableGit extraction exited with code $($process.ExitCode)."
+            }
+            Remove-Item -Force $archive
+
+            foreach ($required in @($git, $bash)) {
+              if (-not (Test-Path $required)) {
+                throw "Not found after extracting PortableGit: $required"
+              }
+            }
+            New-Item -ItemType File -Force -Path $complete | Out-Null
+          }
+
+          & $git version --build-options
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          & $bash --version
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          # Only cmd\ and bin\: usr\bin would shadow MSVC's link.exe and Windows' find.exe.
+          @((Split-Path $git), (Split-Path $bash)) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Enable Git symlinks (Windows, must precede checkout)
+        shell: powershell
+        run: |
+          git config --global core.symlinks true
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          if (Test-Path -LiteralPath (Join-Path $env:GITHUB_WORKSPACE ".git")) {
+            git -C "$env:GITHUB_WORKSPACE" config --local core.symlinks true
+            if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+            }
+          }
+
+      - name: Checkout private CI tools
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Checkout exact public test sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          repository: NVIDIA/cuda-python
+          ref: ${{ inputs.public_sha }}
+          path: gb10-wheelhouse-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.python-version }}/source
+          persist-credentials: false
+
+      - name: Download verified payload
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ${{ needs.admit-and-stage.outputs.staging-artifact }}
+          path: gb10-wheelhouse-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.python-version }}
+
+      - name: Verify credential isolation, runner, and source
+        env:
+          PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
+          PUBLIC_SHA: ${{ inputs.public_sha }}
+        shell: powershell
+        run: |
+          $sensitiveNames = Get-ChildItem Env: | Where-Object {
+            $_.Name -match 'APP.*PRIVATE.*KEY|PRIVATE.*KEY|APP.*TOKEN'
+          }
+          if ($sensitiveNames) {
+            throw "Unexpected long-lived credential environment variable present."
+          }
+          if ($env:PROCESSOR_ARCHITECTURE -ne 'ARM64') {
+            throw "Expected ARM64, got $env:PROCESSOR_ARCHITECTURE."
+          }
+          nvidia-smi
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          $headers = @{
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2026-03-10'
+          }
+          $sourceRun = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/NVIDIA/cuda-python/actions/runs/$env:PUBLIC_RUN_ID"
+          $validState = (($sourceRun.status -eq 'in_progress' -and $null -eq $sourceRun.conclusion) -or
+                         ($sourceRun.status -eq 'completed' -and $sourceRun.conclusion -eq 'success'))
+          if ($sourceRun.id.ToString() -ne $env:PUBLIC_RUN_ID -or
+              $sourceRun.head_sha -ne $env:PUBLIC_SHA -or
+              $sourceRun.repository.full_name -ne 'NVIDIA/cuda-python' -or
+              -not $validState) {
+            throw "The exact public source run is no longer admissible."
+          }
+
+      - name: Set up public CUDA and Windows toolchain
+        id: toolchain
+        uses: ./.github/actions/setup-ctk-next-windows
+        with:
+          host-platform: win-arm64
+          python-version: ${{ matrix.python-version }}
+          cuda-version: ${{ needs.admit-and-stage.outputs.cuda-version }}
+          cuda-release-version: ${{ needs.admit-and-stage.outputs.cuda-version }}
+
+      - name: Test exact public wheels
+        env:
+          ARTIFACT_NAMES: ${{ needs.admit-and-stage.outputs.artifact-names }}
+          WHEEL_TEST_PYTHON: ${{ steps.toolchain.outputs.python-path }}
+          WHEEL_TEST_CUDA: ${{ needs.admit-and-stage.outputs.cuda-version }}
+        shell: powershell
+        run: |
+          $wheelhouse = "gb10-wheelhouse-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT-$env:PYTHON_VERSION"
+          & ./ci/tools/test_windows_wheels.ps1 -PythonExecutable $env:WHEEL_TEST_PYTHON -PythonVersion $env:PYTHON_VERSION -CudaVersion $env:WHEEL_TEST_CUDA -SourceDirectory "$wheelhouse/source" -Wheelhouse $wheelhouse -ArtifactNames $env:ARTIFACT_NAMES
+
+      - name: Record Python result
+        if: ${{ always() }}
+        env:
+          JOB_STATUS: ${{ job.status }}
+          PUBLIC_SHA: ${{ inputs.public_sha }}
+        shell: powershell
+        run: |
+          $results = "gb10-wheelhouse-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT-$env:PYTHON_VERSION/test-results"
+          New-Item -ItemType Directory -Force -Path $results | Out-Null
+          $record = @{
+            schema_version = 1
+            python_version = $env:PYTHON_VERSION
+            public_sha = $env:PUBLIC_SHA
+            private_run_id = $env:GITHUB_RUN_ID
+            private_run_attempt = $env:GITHUB_RUN_ATTEMPT
+            result = $env:JOB_STATUS
+          } | ConvertTo-Json
+          [IO.File]::WriteAllText((Join-Path (Resolve-Path $results).Path 'result.json'), $record, [Text.UTF8Encoding]::new($false))
+
+      - name: Upload private Python results and JUnit reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: woa-results-${{ github.run_id }}-${{ github.run_attempt }}-py${{ matrix.python-version }}
+          path: gb10-wheelhouse-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.python-version }}/test-results
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Remove downloaded wheelhouse
+        if: ${{ always() }}
+        shell: powershell
+        run: |
+          $wheelhouseName = "gb10-wheelhouse-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT-$env:PYTHON_VERSION"
+          $workspace = [IO.Path]::GetFullPath($env:GITHUB_WORKSPACE)
+          $wheelhouse = [IO.Path]::GetFullPath((Join-Path $workspace $wheelhouseName))
+          $workspacePrefix = $workspace.TrimEnd([char[]]@('\', '/')) + [IO.Path]::DirectorySeparatorChar
+
+          if (-not $wheelhouse.StartsWith($workspacePrefix, [StringComparison]::OrdinalIgnoreCase) -or
+              [IO.Path]::GetFileName($wheelhouse) -ne $wheelhouseName) {
+            throw "Refusing to remove unexpected wheelhouse path: $wheelhouse"
+          }
+
+          if (Test-Path -LiteralPath $wheelhouse) {
+            Remove-Item -LiteralPath $wheelhouse -Recurse -Force
+          }
+          if (Test-Path -LiteralPath $wheelhouse) {
+            throw "Wheelhouse cleanup did not remove: $wheelhouse"
+          }
+          Write-Host "Removed run-specific wheelhouse: $wheelhouse"
+
+  report:
+    name: Report sanitized public result
+    needs:
+      - admit-and-stage
+      - gb10-test
+    if: ${{ always() && needs.admit-and-stage.outputs.check-id != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Download private Python results
+        if: ${{ needs.admit-and-stage.outputs.python-check-ids != '' }}
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          pattern: woa-results-${{ github.run_id }}-*-py*
+          path: python-results
+          merge-multiple: false
+
+      - name: Create fresh public reporting token
+        id: public-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3
+        with:
+          client-id: ${{ vars.CUDA_PYTHON_WOA_XREPO_CI_PUBLIC_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CUDA_PYTHON_WOA_XREPO_CI_PUBLIC_APP_PRIVATE_KEY }}
+          owner: NVIDIA
+          repositories: cuda-python
+          permission-actions: read
+          permission-checks: write
+
+      - name: Complete aggregate and per-Python public Check Runs
+        env:
+          ADMISSION_RESULT: ${{ needs.admit-and-stage.result }}
+          CHECK_ID: ${{ needs.admit-and-stage.outputs.check-id }}
+          PYTHON_CHECK_IDS: ${{ needs.admit-and-stage.outputs.python-check-ids }}
+          GH_TOKEN: ${{ steps.public-app-token.outputs.token }}
+          TEST_RESULT: ${{ needs.gb10-test.result }}
+          PUBLIC_RUN_ID: ${{ inputs.public_run_id }}
+          PUBLIC_SHA: ${{ inputs.public_sha }}
+        run: |
+          set -euo pipefail
+          source_run=$(gh api \
+            -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/NVIDIA/cuda-python/actions/runs/$PUBLIC_RUN_ID")
+          source_is_valid=$(jq -r \
+            --arg sha "$PUBLIC_SHA" \
+            '.repository.full_name == "NVIDIA/cuda-python" and
+             .head_sha == $sha and
+             ((.status == "in_progress" and .conclusion == null) or
+              (.status == "completed" and .conclusion == "success"))' <<< "$source_run")
+          python_check_ids="$PYTHON_CHECK_IDS"
+          if [[ -z "$python_check_ids" ]]; then
+            python_check_ids='{}'
+          fi
+          jq -e 'type == "object" and all(to_entries[];
+            (.key | test("^3\\.[0-9]+t?$")) and
+            (.value | type == "number") and .value > 0)' <<< "$python_check_ids" >/dev/null
+          completed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          details_url="https://github.com/NVIDIA-dev/cuda-python-private/actions/runs/$GITHUB_RUN_ID"
+          report_failed=false
+          publish_check() {
+            local check_id=$1 conclusion=$2 payload
+            payload=$(jq -n --arg conclusion "$conclusion" \
+              --arg completed_at "$completed_at" --arg details_url "$details_url" '
+              {status: "completed", conclusion: $conclusion, completed_at: $completed_at,
+               details_url: $details_url, output: {
+                 title: ("Windows on Arm validation: " + $conclusion),
+                 summary: "See Details for private test logs and JUnit reports."
+               }}')
+            if ! gh api --method PATCH \
+              -H 'X-GitHub-Api-Version: 2026-03-10' \
+              "repos/NVIDIA/cuda-python/check-runs/$check_id" \
+              --input - <<< "$payload" >/dev/null; then
+              echo "::error::Could not complete public Check Run $check_id."
+              report_failed=true
+            fi
+          }
+
+          aggregate=failure
+          if [[ "$ADMISSION_RESULT" == "success" && "$TEST_RESULT" == "success" ]] && jq -e 'length > 0' <<< "$python_check_ids" >/dev/null; then
+            aggregate=success
+          fi
+          while IFS=$'\t' read -r version check_id; do
+            conclusion=failure
+            result_file=''
+            for ((result_attempt = GITHUB_RUN_ATTEMPT; result_attempt >= 1; result_attempt--)); do
+              result_directory="python-results/woa-results-$GITHUB_RUN_ID-$result_attempt-py$version"
+              if [[ -d "$result_directory" ]]; then
+                result_file="$result_directory/result.json"
+                echo "Python $version: using results from private run $GITHUB_RUN_ID, attempt $result_attempt."
+                break
+              fi
+            done
+            if [[ "$source_is_valid" != "true" || "$ADMISSION_RESULT" == "cancelled" ]]; then
+              conclusion=cancelled
+            elif [[ "$ADMISSION_RESULT" == "success" ]]; then
+              if [[ -f "$result_file" ]]; then
+                conclusion=$(jq -er --arg version "$version" --arg sha "$PUBLIC_SHA" \
+                  --arg run "$GITHUB_RUN_ID" --arg attempt "$result_attempt" '
+                  select(type == "object" and .schema_version == 1 and
+                    .python_version == $version and .public_sha == $sha and
+                    .private_run_id == $run and .private_run_attempt == $attempt and
+                    (.result == "success" or .result == "failure" or .result == "cancelled"))
+                  | .result' "$result_file") || conclusion=failure
+              elif [[ "$TEST_RESULT" == "cancelled" ]]; then
+                conclusion=cancelled
+              fi
+            fi
+            if [[ "$conclusion" != "success" ]]; then aggregate=failure; fi
+            publish_check "$check_id" "$conclusion"
+          done < <(jq -r 'to_entries[] | [.key, .value] | @tsv' <<< "$python_check_ids")
+          if [[ "$report_failed" == "true" ]]; then aggregate=failure; fi
+          if [[ "$source_is_valid" != "true" || "$ADMISSION_RESULT" == "cancelled" || "$TEST_RESULT" == "cancelled" ]]; then
+            aggregate=cancelled
+          fi
+          publish_check "$CHECK_ID" "$aggregate"
+          [[ "$report_failed" == "false" ]]

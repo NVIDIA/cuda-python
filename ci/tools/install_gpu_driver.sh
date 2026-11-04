@@ -16,12 +16,15 @@
 #   DRIVER         Driver version, e.g. "580.65.06". Must NOT be 'latest' or
 #                  'earliest' -- those are runner-pre-installed and the
 #                  workflow is expected to skip this script for them.
-#   DRIVER_SHA256  Expected lowercase SHA-256 hex digest of the downloaded
-#                  driver installer.
+#   DRIVER_SHA256  Required. Expected lowercase SHA-256 hex digest of the
+#                  downloaded driver installer; verified before it runs as
+#                  root. Inherited across the sudo and nsenter re-execs.
 #   GPU_TYPE       Lower-case GPU label from the matrix (e.g. "v100", "l4",
 #                  "h100"). Used only to pick the kernel module flavor
 #                  (Volta needs the proprietary/legacy module; everything
 #                  newer can use the open module).
+#   DRIVER_URL     Optional full installer URL. Defaults to the public NVIDIA
+#                  driver download for DRIVER and the detected architecture.
 #
 # Arch is detected from `uname -m`.
 #
@@ -69,11 +72,11 @@ case "$(uname -m)" in
     ;;
 esac
 
-URL="https://us.download.nvidia.com/XFree86/${ARCH_DIR}/${VERSION}/NVIDIA-Linux-${ARCH_SUFFIX}-${VERSION}.run"
+URL="${DRIVER_URL:-https://us.download.nvidia.com/XFree86/${ARCH_DIR}/${VERSION}/NVIDIA-Linux-${ARCH_SUFFIX}-${VERSION}.run}"
 
 # Re-elevate to root if needed (sudo is preinstalled on the runner image).
 if [ "$(id -u)" != 0 ]; then
-  exec sudo -E DRIVER="$DRIVER" DRIVER_SHA256="$DRIVER_SHA256" GPU_TYPE="$GPU_TYPE" "$0" "$@"
+  exec sudo -E DRIVER="$DRIVER" GPU_TYPE="$GPU_TYPE" DRIVER_URL="${DRIVER_URL:-}" DRIVER_SHA256="$DRIVER_SHA256" "$0" "$@"
 fi
 
 echo "install_gpu_driver.sh is ALPHA -- it performs live modifications to the host driver stack and may cause issues" >&2
@@ -232,8 +235,8 @@ if [ -z "${_NVDRV_NSENTERED:-}" ] && in_container; then
   # ours lives in the GH workspace mount (container-only), so we pipe the
   # script body in via stdin instead -- the `< "$0"` fd is opened before
   # nsenter and stays valid across the namespace switch. Env vars (DRIVER,
-  # DRIVER_SHA256, GPU_TYPE, _NVDRV_NSENTERED) are inherited by the
-  # host-side bash.
+  # DRIVER_URL, DRIVER_SHA256, GPU_TYPE, _NVDRV_NSENTERED) are inherited by
+  # the host-side bash.
   _NVDRV_NSENTERED=1 nsenter -t 1 -m -p -n -i -u -- bash -s < "$0" \
     || { echo "::error::host-side driver install failed (see output above; also check container has 'options: --privileged --pid=host')" >&2; exit 1; }
   refresh_container_libs
