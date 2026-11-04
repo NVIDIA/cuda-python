@@ -52,11 +52,6 @@ select = [
 ]
 
 ignore = [
-  # typing backward compat — support older Python versions
-  "UP006",  # non-pep585-annotation (e.g. Dict vs dict)
-  "UP007",  # non-pep604-annotation (e.g. Union[X, Y] vs X | Y)
-  "UP035",  # deprecated-import from typing
-
   # security rules too strict for this project
   "S311",   # allow random.* (not cryptographic)
   "S404",   # allow subprocess imports

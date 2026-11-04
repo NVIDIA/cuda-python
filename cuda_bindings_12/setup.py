@@ -92,8 +92,7 @@ class TopLevelFinderWithRedirector(_TopLevelFinder):
     """Include the redirector files in the editable wheel."""
 
     def get_implementation(self):
-        for item in super().get_implementation():  # noqa: UP028
-            yield item
+        yield from super().get_implementation()
 
         with open(SITE_PACKAGES / REDIRECTOR_PTH) as f:
             yield (REDIRECTOR_PTH, f.read())
