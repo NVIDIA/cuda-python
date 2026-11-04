@@ -260,8 +260,8 @@ record declares an exact toolkit build/test pin and a `release_status` of
 `current` or `maintenance`. Release routing uses the tag's CUDA major/minor
 and the toolkit pin to select a root. Bindings and metapackage builds use
 setuptools-scm's default tag parser. Each root's `git_describe_command`
-selects its tag series for source builds; update its `--match` pattern when
-the root moves to a new toolkit minor.
+selects its CUDA ABI major for source builds (`v12.*` or `v13.*`),
+independently of the toolkit minor used to build it.
 
 The Python helpers share registry parsing and package consistency checks. The small,
 repository-private `cuda-python-ci-tools` package installs their common
@@ -287,7 +287,7 @@ Install the test extra to run the CI-tool tests:
 
 ```console
 python -m pip install -e './ci[test]'
-python -m pytest --noconftest ci/tools/tests
+python -m pytest ci/tools/tests
 ```
 
 The public wheel builder requires one `current` package root and one
@@ -339,21 +339,16 @@ or replace such a tag to reuse its name on main. Keep the same target across
 PRs and builds until release coordination calls for a change.
 
 Temporary bootstrap tags must stay local to an independent disposable clone;
-worktrees share tags. For a newly integrated maintenance root, wait until the
-validated integration group is merged on `main` before creating its first
-retained internal `X.Y.Za0` milestone, by explicit maintainer decision. Once that
-milestone is reachable, remove the temporary bootstrap machinery and its
-workflow calls as a follow-up; ordinary SCM history governs subsequent builds.
-This guidance does not create or publish a milestone.
+worktrees share tags. After CUDA 13 tag isolation lands on `main`, maintainers
+can establish the retained CUDA 12 milestone on that validated state. Rebase
+remaining migration work onto the tagged commit before removing the temporary
+bootstrap machinery and its workflow calls. Ordinary SCM history then governs
+subsequent builds. Creating or publishing a milestone requires an explicit
+maintainer decision.
 
-A toolkit minor rollover also changes the bindings root's `--match` selector
-and the metapackage selector table. Before relying on builds from that new
-series, arrange an appropriate reachable milestone, such as `v13.5.0a0` for a
-validated CUDA 13.5 line. A selector change without matching history can yield
-a plausible but wrong `0.1.dev...` version. The maintenance bootstrap does not
-automatically establish milestones for the current-major root. Use the same
-local-preview safeguards while preparing the new source and confirm the
-resolved version and `git describe` output before retaining its milestone.
+A toolkit minor rollover does not change the major-specific SCM selectors.
+Let reachable tags govern preview versions; release tags establish the
+intended release number.
 
 ## Nightly Artifact Sources And Rollout
 
@@ -518,7 +513,7 @@ as the maintenance source and introduce a distinct CUDA 14 root. Then:
    13 root `maintenance`, mark the CUDA 14 root `current`, and set each exact
    toolkit build/test version.
 2. Align each root's `pyproject.toml` `git_describe_command --match` selector
-   and any preview bootstrap target with its release family. Update per-root packaging,
+   with its CUDA ABI major. Update per-root packaging,
    pixi environments, documentation, and dependent package constraints for the
    supported lines.
 3. Build and test both roots and their dependent packages on the supported
