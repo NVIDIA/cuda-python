@@ -116,36 +116,6 @@ def test_verify_metadata_unknown_version_fails_closed(tmp_path, capsys):
 
 
 @pytest.mark.agent_authored(model="claude-opus-5.5")
-def test_verify_metadata_unknown_version_allowed_warns(tmp_path, capsys):
-    f = tmp_path / "redistrib.json"
-    f.write_bytes(b"whatever")
-    assert verify_metadata_sha256(cuda_version="99.9.9", metadata_path=str(f), allow_unpinned=True) == 0
-    assert "WARNING" in capsys.readouterr().err
-
-
-@pytest.mark.agent_authored(model="claude-opus-5.5")
-def test_verify_metadata_allow_unpinned_does_not_bypass_mismatch(tmp_path, monkeypatch):
-    f = tmp_path / "redistrib.json"
-    f.write_bytes(b"tampered-metadata")
-    monkeypatch.setitem(
-        sys.modules["fetch_ctk_redistrib"].KNOWN_REDISTRIB_SHA256,
-        "1.2.3",
-        "f" * 64,
-    )
-    assert verify_metadata_sha256(cuda_version="1.2.3", metadata_path=str(f), allow_unpinned=True) == 1
-
-
-@pytest.mark.agent_authored(model="claude-opus-5.5")
-def test_main_verify_metadata_allow_unpinned_flag(tmp_path, capsys):
-    f = tmp_path / "redistrib.json"
-    f.write_bytes(b"whatever")
-    assert main(["verify-metadata", "--cuda-version", "99.9.9", "--metadata-path", str(f)]) == 1
-    rc = main(["verify-metadata", "--cuda-version", "99.9.9", "--metadata-path", str(f), "--allow-unpinned"])
-    assert rc == 0
-    assert "WARNING" in capsys.readouterr().err
-
-
-@pytest.mark.agent_authored(model="claude-opus-5.5")
 def test_known_redistrib_sha256_covers_ci_cuda_versions():
     # Every CUDA version CI fetches from the public server must be pinned, so a
     # version bump fails here instead of in the fetch_ctk step.

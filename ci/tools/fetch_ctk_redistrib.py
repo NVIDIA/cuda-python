@@ -30,10 +30,10 @@ COMPONENT_ALIASES: dict[str, tuple[str, ...]] = {
 # Known-good sha256 of the redistrib metadata JSON, keyed by CUDA version.
 # Per-archive verification is only trustworthy if the JSON that carries the
 # archive hashes is itself trusted, so we pin the metadata too. `verify-metadata`
-# fails on a public-server version that is absent here unless the caller opts
-# out with `--allow-unpinned`. Add a version's hash below in the same change
-# that adds it to ci/versions.yml or a LOCAL_CTK row of ci/test-matrix.yml;
-# tests/test_fetch_ctk_redistrib.py enforces this. Regenerate with:
+# fails on a public-server version that is absent here, so add a version's hash
+# below in the same change that adds it to ci/versions.yml or a LOCAL_CTK row of
+# ci/test-matrix.yml; tests/test_fetch_ctk_redistrib.py enforces this.
+# Regenerate with:
 #   curl -fsSL \
 #     https://developer.download.nvidia.com/compute/cuda/redist/redistrib_<ver>.json \
 #     | sha256sum
@@ -148,9 +148,7 @@ def compute_file_sha256(path: str) -> str:
     return digest.hexdigest()
 
 
-def verify_metadata_sha256(
-    *, cuda_version: str, metadata_path: str, metadata_source: str = "public", allow_unpinned: bool = False
-) -> int:
+def verify_metadata_sha256(*, cuda_version: str, metadata_path: str, metadata_source: str = "public") -> int:
     """Verify the redistrib JSON against the pinned hash for its CUDA version.
 
     The pins describe the public developer.download.nvidia.com manifests. A
@@ -159,9 +157,7 @@ def verify_metadata_sha256(
     them; it only gets a warning.
 
     Returns a process exit code: 1 on a mismatch or an unpinned public version
-    (fail closed), 0 when the hash matches, the source is custom, or the version
-    is unpinned and ``allow_unpinned`` is set (warn only). ``allow_unpinned``
-    never overrides a mismatch against an existing pin.
+    (fail closed), 0 when the hash matches or the source is custom (warn only).
     """
     actual = compute_file_sha256(metadata_path)
     if metadata_source == "custom":
@@ -173,17 +169,9 @@ def verify_metadata_sha256(
         return 0
     expected = KNOWN_REDISTRIB_SHA256.get(cuda_version)
     if expected is None:
-        if allow_unpinned:
-            print(
-                f"WARNING: no pinned redistrib sha256 for CUDA {cuda_version!r}; got {actual}. "
-                "Continuing because unpinned versions are explicitly allowed.",
-                file=sys.stderr,
-            )
-            return 0
         print(
             f"ERROR: no pinned redistrib sha256 for CUDA {cuda_version!r}; got {actual}. "
-            f"Add it to KNOWN_REDISTRIB_SHA256 in {Path(__file__).name}, "
-            "or pass --allow-unpinned (fetch_ctk input allow-unpinned) to accept it unverified.",
+            f"Add it to KNOWN_REDISTRIB_SHA256 in {Path(__file__).name} to pin it.",
             file=sys.stderr,
         )
         return 1
@@ -221,8 +209,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     verify_parser.add_argument("--cuda-version", required=True)
     verify_parser.add_argument("--metadata-path", required=True)
     verify_parser.add_argument("--metadata-source", choices=("public", "custom"), default="public")
-    verify_parser.add_argument("--allow-unpinned", action="store_true")
-
     return parser.parse_args(argv)
 
 
@@ -236,7 +222,6 @@ def main(argv: list[str] | None = None) -> int:
                 cuda_version=args.cuda_version,
                 metadata_path=args.metadata_path,
                 metadata_source=args.metadata_source,
-                allow_unpinned=args.allow_unpinned,
             )
 
         metadata = load_metadata(args.metadata_path)

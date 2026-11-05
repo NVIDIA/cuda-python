@@ -26,13 +26,6 @@ inputs:
       Override to install from an alternate redistrib server.
     required: false
     default: "https://developer.download.nvidia.com/compute/cuda/redist"
-  allow-unpinned:
-    description: >
-      Set to "true" to accept a public-server CUDA version whose manifest hash is
-      not pinned in ci/tools/fetch_ctk_redistrib.py (warn instead of fail).
-      A mismatch against an existing pin always fails.
-    required: false
-    default: "false"
 
 runs:
   using: composite
@@ -70,16 +63,10 @@ runs:
         else
           METADATA_SOURCE=custom
         fi
-        case "${{ inputs.allow-unpinned }}" in
-          true) ALLOW_UNPINNED_FLAG=--allow-unpinned ;;
-          false) ALLOW_UNPINNED_FLAG= ;;
-          *) echo "ERROR: allow-unpinned must be 'true' or 'false'" >&2; exit 1 ;;
-        esac
         python "$CTK_REDIST_TOOL" verify-metadata \
           --cuda-version "${{ inputs.cuda-version }}" \
           --metadata-path "$CTK_JSON_FILE" \
-          --metadata-source "$METADATA_SOURCE" \
-          ${ALLOW_UNPINNED_FLAG}
+          --metadata-source "$METADATA_SOURCE"
 
         # Pre-process the component list to ensure hash uniqueness
         CTK_CACHE_COMPONENTS="$(python "$CTK_REDIST_TOOL" filter-components \
