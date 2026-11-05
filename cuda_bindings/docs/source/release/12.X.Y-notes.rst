@@ -33,6 +33,8 @@ Highlights
 Bug fixes
 ---------
 
+* Fixed a crash on free-threaded Python when callbacks (for example ``cuLogsRegisterCallback``) are registered or
+  unregistered from multiple threads at the same time. Access to the internal callback registry is now synchronized.
 
 Miscellaneous
 -------------
