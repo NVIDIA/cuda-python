@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7048bf2a5eceb5c31e99d2264b739f2234592cb6b05443fdd32f10e868592504
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cbb01e3cfa7e64dc3172a979f20859a8ead856f7993e1d949bdced45d4f5b61c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -4011,4 +4011,5 @@ cdef enum: RESOURCE_ABI_VERSION = 1
 
 cdef enum: RESOURCE_ABI_EXTERNAL_BYTES = 42
 
-cdef const uint32_t CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY = 0xffffffff
+cdef extern from "cuda.h":
+    const uint32_t CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=299362274ed3a011e1c567ea13e77ef2ac175a1214f973afd972d178340efa2d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=954df8ef058bb13213696a889e371949b55720bf8fe69e6f8eb90b898dbebb04
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2733,7 +2733,8 @@ cdef extern from 'cuda_runtime_api.h':
 cdef enum:
     CUDA_EGL_MAX_PLANES = 3
 
-cdef const uint32_t cudaDevSmResourceGroupLocalityDomainIdAny = 0xffffffff
+cdef extern from 'cuda_runtime_api.h':
+    const uint32_t cudaDevSmResourceGroupLocalityDomainIdAny
 
 # libraryPropertyType_t (starts lowercase, outside type pattern)
 cdef extern from 'library_types.h':
