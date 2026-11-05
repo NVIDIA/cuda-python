@@ -108,6 +108,13 @@ jobs:
           dependencies: "jq wget"
           dependent_exes: "jq wget"
 
+      - name: Update CA certificates in the test container
+        # The host-level upgrade-ca-certificates action does not affect this
+        # container. Upgrade ca-certificates before the first HTTPS operation
+        # so the container distrusts the compromised eMudhra/emSign intermediates.
+        run: |
+          apt-get install --only-upgrade -y ca-certificates
+
       - name: Set environment variables
         env:
           BUILD_CUDA_VER: ${{ inputs.build-ctk-ver }}
