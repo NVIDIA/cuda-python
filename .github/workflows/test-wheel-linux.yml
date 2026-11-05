@@ -108,6 +108,13 @@ jobs:
           dependencies: "jq wget"
           dependent_exes: "jq wget"
 
+      - name: Update CA certificates in the test container
+        # The host-level upgrade-ca-certificates action does not affect this
+        # container. Upgrade ca-certificates before the first HTTPS operation
+        # so the container distrusts the compromised eMudhra/emSign intermediates.
+        run: |
+          apt-get install --only-upgrade -y ca-certificates
+
       - name: Set environment variables
         env:
           BUILD_CUDA_VER: ${{ inputs.build-ctk-ver }}
@@ -215,17 +222,9 @@ jobs:
 
 
       - name: Set up Python ${{ matrix.PY_VER }}
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ matrix.PY_VER }}
-          # TODO: remove allow-prereleases once 3.15 is officially supported
-          allow-prereleases: ${{ startsWith(matrix.PY_VER, '3.15') }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
