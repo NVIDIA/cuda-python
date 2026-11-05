@@ -51,22 +51,40 @@ Record-Check 'emSign ECC Root CA - G3 store state' 'INFO' "LocalMachine\Root=$in
 # Pass = explicitly distrusted, or the chain no longer reaches a trusted root
 # (the hosted images have removed the roots rather than enabling the disallowed CTL).
 $certs = @(Get-EmudhraIntermediates)
+# The vendored host chains carry the non-root issuer (emSign Root TLS CA - G3). Supplying
+# it keeps a missing parent from being mistaken for a missing trust anchor.
+$issuerCerts = @(
+    Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'runner_trust_probe_chains') -Filter '*.pem' |
+        ForEach-Object {
+            [regex]::Matches((Get-Content -LiteralPath $_.FullName -Raw), '-----BEGIN CERTIFICATE-----([^-]+)-----END CERTIFICATE-----') |
+                ForEach-Object {
+                    [System.Security.Cryptography.X509Certificates.X509Certificate2]::new([System.Convert]::FromBase64String(($_.Groups[1].Value -replace '\s', '')))
+                }
+        }
+)
+if ($issuerCerts.Count -eq 0) {
+    throw "No certificates found in $PSScriptRoot\runner_trust_probe_chains."
+}
 $usable = @()
 $states = @()
+$statusNames = @()
 try {
     foreach ($c in $certs) {
-        $r = Get-ChainTrustState $c
+        $r = Get-ChainTrustState $c $issuerCerts
         $states += $r.State
+        $statusNames += $r.Statuses -split ',' | Where-Object { $_ }
         if ($r.State -notin @('ExplicitDistrust', 'NoTrustAnchor')) {
             $usable += "$($c.EmudhraLabel) [$($r.State): $($r.Statuses)]"
         }
     }
 } finally {
     $certs | ForEach-Object { $_.Dispose() }
+    $issuerCerts | ForEach-Object { $_.Dispose() }
 }
 $counts = ($states | Group-Object | ForEach-Object { "$($_.Name)=$($_.Count)" }) -join ', '
+$flags = ($statusNames | Sort-Object -Unique) -join ','
 if ($usable.Count -eq 0) {
-    Record-Check 'Compromised intermediates distrusted' 'PASS' "All $($certs.Count) rejected ($counts)"
+    Record-Check 'Compromised intermediates distrusted' 'PASS' "All $($certs.Count) rejected ($counts; chain status: $flags)"
 } else {
     Record-Check 'Compromised intermediates distrusted' 'FAIL' "$($usable.Count) of $($certs.Count) usable or indeterminate: $($usable -join '; ')"
     $GatingFailures++
