@@ -88,8 +88,13 @@ jobs:
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
           filter: blob:none
-          # third_party/cccl provides the CCCL headers cuda.core compiles against.
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -147,8 +152,13 @@ jobs:
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
           filter: blob:none
-          # third_party/cccl provides the CCCL headers cuda.core compiles against.
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -215,8 +225,13 @@ jobs:
           # cuda.core's "cuda.bindings 12.x or 13.x must be installed" guard.
           fetch-depth: 0
           filter: blob:none
-          # third_party/cccl provides the CCCL headers cuda.core compiles against.
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
