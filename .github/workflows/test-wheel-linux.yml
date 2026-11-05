@@ -143,6 +143,13 @@ jobs:
           dependencies: "jq wget libgl1 libegl1 g++ util-linux"
           dependent_exes: "jq wget"
 
+      - name: Update CA certificates in the test container
+        # The host-level upgrade-ca-certificates action does not affect this
+        # container. Upgrade ca-certificates before the first HTTPS operation
+        # so the container distrusts the compromised eMudhra/emSign intermediates.
+        run: |
+          apt-get install --only-upgrade -y ca-certificates
+
       - name: Checkout driver install scripts (workflow revision)
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
