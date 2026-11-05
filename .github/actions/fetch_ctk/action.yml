@@ -38,8 +38,11 @@ runs:
           --metadata-url "$CTK_JSON_URL")"
 
         HASH=$(echo -n "${CTK_CACHE_COMPONENTS}" | sha256sum | awk '{print $1}')
-        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
-        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH.tar.gz" >> $GITHUB_ENV
+        # "verified" prefix ensures cached entries from before hash-verification
+        # was introduced never match; bump this prefix when the verification
+        # logic changes in a way that old caches should not satisfy.
+        echo "CTK_CACHE_KEY=mini-ctk-verified-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
+        echo "CTK_CACHE_FILENAME=mini-ctk-verified-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH.tar.gz" >> $GITHUB_ENV
         echo "CTK_CACHE_COMPONENTS=${CTK_CACHE_COMPONENTS}" >> $GITHUB_ENV
 
     - name: Install dependencies
@@ -75,6 +78,11 @@ runs:
         CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
         CTK_JSON_FILE="$CACHE_TMP_DIR/redistrib.json"
         curl -LSs "$CTK_JSON_URL" -o "$CTK_JSON_FILE"
+        # Pin the metadata JSON: the per-archive sha256 checks below are only
+        # trustworthy if the JSON that carries those hashes is itself trusted.
+        python "$CTK_REDIST_TOOL" verify-metadata \
+          --cuda-version "${{ inputs.cuda-version }}" \
+          --metadata-path "$CTK_JSON_FILE"
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
           function extract() {
             tar -xvf $1 -C $CACHE_TMP_DIR --strip-components=1
@@ -102,6 +110,13 @@ runs:
           CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
           CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
           download $CTK_COMPONENT_URL $CTK_COMPONENT_COMPONENT_FILENAME
+          # Verify the downloaded archive against the sha256 in the (pinned)
+          # metadata before extracting; fail closed on any mismatch.
+          CTK_COMPONENT_SHA256="$(python "$CTK_REDIST_TOOL" component-sha256 \
+            --host-platform "${{ inputs.host-platform }}" \
+            --component "$CTK_COMPONENT" \
+            --metadata-path "$CTK_JSON_FILE")"
+          echo "${CTK_COMPONENT_SHA256}  ${CTK_COMPONENT_COMPONENT_FILENAME}" | sha256sum --check --strict -
           extract $CTK_COMPONENT_COMPONENT_FILENAME
           rm $CTK_COMPONENT_COMPONENT_FILENAME
         }

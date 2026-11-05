@@ -20,9 +20,24 @@ paths:
   ".github/workflows/release-cuda-pathfinder.yml":
     ignore:
       - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/release.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
   ".github/workflows/test-wheel-linux.yml":
     ignore:
       - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
   ".github/workflows/test-wheel-windows.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/build-wheel.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/ci.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/test-sdist-windows.yml":
+    ignore:
+      - 'specifying action "\$/[^"]+" in invalid format because ref is missing'
+  ".github/workflows/coverage.yml":
     ignore:
       - 'specifying action "\$/[^"]+" in invalid format because ref is missing'

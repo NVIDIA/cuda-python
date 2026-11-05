@@ -100,12 +100,10 @@ jobs:
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
-        env:
-          # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+          venv: .venv
 
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
@@ -114,15 +112,6 @@ jobs:
         with:
           host-platform: ${{ env.HOST_PLATFORM }}
           cuda-version: ${{ env.CUDA_VER }}
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
-        with:
-          python: .venv/bin/python
 
       - name: Build and install cuda-pathfinder wheel
         run: |
@@ -234,6 +223,9 @@ jobs:
       CUDA_PYTHON_COVERAGE: "1"
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
+      - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
+        uses: $/.github/actions/upgrade-ca-certificates
+
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -243,9 +235,11 @@ jobs:
           filter: blob:none
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
+          venv: .venv
+          stack-reserve: 8388608
 
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
@@ -256,15 +250,6 @@ jobs:
         with:
           host-platform: win-64
           cuda-version: ${{ env.CUDA_VER }}
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
-        with:
-          python: .venv/Scripts/python
 
       - name: Build cuda.pathfinder wheel
         run: |
@@ -379,9 +364,11 @@ jobs:
           nvidia-smi
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
+          venv: .venv
+          stack-reserve: 8388608
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -400,15 +387,6 @@ jobs:
         run: |
           echo "=== Downloaded wheel artifacts ==="
           ls -lahR ./wheels/
-
-      - name: Create venv
-        run: |
-          python -m venv .venv
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
-        with:
-          python: .venv/Scripts/python
 
       - name: Install wheels from build job
         run: |
@@ -441,22 +419,22 @@ jobs:
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
-      # Cython linetrace under coverage on Windows needs more stack than the
-      # default 1 MB thread size.  The helper runs pytest on an 8 MB thread.
-      - name: Run cuda.bindings tests (with 8MB stack)
+      # The patched interpreter provides the larger stack on the main thread
+      # and in child interpreters. Deferred cleanup needs pytest on the main thread.
+      - name: Run cuda.bindings tests
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings/tests"
 
-      - name: Run cuda.core tests (with 8MB stack)
+      - name: Run cuda.core tests
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_core/tests"
@@ -489,12 +467,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
-
-      - name: Harden pip
-        uses: ./.github/actions/harden-pip
 
       - name: Install coverage
         run: |

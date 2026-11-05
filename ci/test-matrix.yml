@@ -20,7 +20,16 @@
 #                  - install that version via ci/tools/install_gpu_driver.sh (Linux)
 #                    or ci/tools/install_gpu_driver.ps1 (Windows) at the start of the
 #                    job. The matrix row is routed to the 'latest' runner image (the
-#                    install scripts swap the driver themselves).
+#                    install scripts swap the driver themselves). A version-string
+#                    row must also set DRIVER_SHA256: the SHA-256 of the exact
+#                    installer the script downloads (see the URL construction in
+#                    install_gpu_driver.sh / .ps1; Windows data-center and desktop
+#                    installers differ). Whoever changes DRIVER owns this value:
+#                    compute it on a machine with an up-to-date trust store, e.g.
+#                    `curl -fsSL <installer-url> | sha256sum`, and state in the PR
+#                    how it was obtained; reviewers should recompute it. Treat a
+#                    CI hash mismatch as possible tampering -- never copy the
+#                    "got" value from a job log into this file.
 # - DRIVER: 'earliest' does not work with CUDA 12.9.1
 # - DRIVER: a custom version is not supported with FLAVOR=wsl on Linux.
 # - ENV: optional map of extra environment variables to inject into the test
@@ -53,10 +62,10 @@ linux:
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'v100',       GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.4.2', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: '610.43.02' }
+    - { ARCH: 'amd64', PY_VER: '3.13',  CUDA_VER: '13.4.2', LOCAL_CTK: '1', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: '610.43.02', DRIVER_SHA256: '3034a054bb4cdf7752ff8dc272564cb105513804bff53538945901b16ca77463' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
-    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.4.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '610.43.02' }
+    - { ARCH: 'amd64', PY_VER: '3.14',  CUDA_VER: '13.4.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '610.43.02', DRIVER_SHA256: '3034a054bb4cdf7752ff8dc272564cb105513804bff53538945901b16ca77463' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '12.9.1', LOCAL_CTK: '1', GPU: 't4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.0.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
     - { ARCH: 'amd64', PY_VER: '3.14t', CUDA_VER: '13.4.2', LOCAL_CTK: '1', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest' }
@@ -101,7 +110,7 @@ linux:
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' } }
     # nightly-numba-cuda
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '580.65.06',  ENV: { MODE: 'nightly-numba-cuda' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '580.65.06', DRIVER_SHA256: '04b10867af585e765cfbfdcf39ed5f4bd112375bebab0172eaa187c6aa5024ff', ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
     - { ARCH: 'arm64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',     ENV: { MODE: 'nightly-numba-cuda' } }
     # nightly-numba-cuda-mlir (MLIR backend, linux-64 only)
@@ -148,7 +157,7 @@ windows:
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.0.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-pytorch', TORCH_VER: '2.9.1',  TORCH_CUDA: 'cu130' } }
     # nightly-numba-cuda
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-numba-cuda' } }
-    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '596.36',  DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-numba-cuda' } }
+    - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'l4',         GPU_COUNT: '1', DRIVER: '596.36', DRIVER_SHA256: '99182c2fdf3f23c503c74608945d84be99f036b5ec969f2945062069a15acd2e', DRIVER_MODE: 'TCC',  ENV: { MODE: 'nightly-numba-cuda' } }
     # nightly-numba-cuda-mlir (MLIR backend, win-64)
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-numba-cuda-mlir' } }
     - { ARCH: 'amd64', PY_VER: '3.12',  CUDA_VER: '13.4.2', LOCAL_CTK: '0', GPU: 'rtxpro6000', GPU_COUNT: '1', DRIVER: 'latest',  DRIVER_MODE: 'MCDM', ENV: { MODE: 'nightly-numba-cuda-mlir' } }
