@@ -371,6 +371,15 @@ Fixes and enhancements
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
 
+- :class:`VirtualMemoryResourceOptions` rejects ``allocation_type="managed"``
+  with ``ValueError`` as ``cuMemCreate`` only supports
+  pinned allocations. Use :class:`ManagedMemoryResource` for managed memory.
+  (`#2910 <https://github.com/NVIDIA/cuda-python/issues/2910>`__)
+
+- The default :class:`VirtualMemoryResourceOptions` ``handle_type`` on Windows
+  is now ``None``, avoiding the unsupported POSIX descriptor; Linux keeps its ``"posix_fd"`` default.
+  (`#2910 <https://github.com/NVIDIA/cuda-python/issues/2910>`__)
+
 - :class:`VirtualMemoryResource` can now allocate with
   ``location_type="host_numa"``. Every such allocation failed with
   ``CUDA_ERROR_INVALID_VALUE``, because the driver received ``-1`` as the NUMA
