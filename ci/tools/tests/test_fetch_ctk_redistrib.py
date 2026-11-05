@@ -4,19 +4,25 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from fetch_ctk_redistrib import (
+    KNOWN_REDISTRIB_SHA256,
     compute_file_sha256,
     get_component_relative_path,
     get_component_sha256,
     main,
     verify_metadata_sha256,
 )
+
+CI_DIR = Path(__file__).resolve().parents[2]
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 # Minimal redistrib-shaped metadata. "cccl" exercises the cuda_cccl -> cccl
 # alias; "no_sha" lacks the sha256 field.
@@ -101,14 +107,62 @@ def test_verify_metadata_mismatch_fails_closed(tmp_path, monkeypatch):
     assert verify_metadata_sha256(cuda_version="1.2.3", metadata_path=str(f)) == 1
 
 
-@pytest.mark.agent_authored(model="claude-opus-4.8")
-def test_verify_metadata_unknown_version_warns(tmp_path, capsys):
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_verify_metadata_unknown_version_fails_closed(tmp_path, capsys):
     f = tmp_path / "redistrib.json"
     f.write_bytes(b"whatever")
-    # An unpinned version must not fail closed (it would break CI on every new
-    # CTK), but it must emit a warning.
-    assert verify_metadata_sha256(cuda_version="99.9.9", metadata_path=str(f)) == 0
+    assert verify_metadata_sha256(cuda_version="99.9.9", metadata_path=str(f)) == 1
+    assert "ERROR" in capsys.readouterr().err
+
+
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_verify_metadata_unknown_version_allowed_warns(tmp_path, capsys):
+    f = tmp_path / "redistrib.json"
+    f.write_bytes(b"whatever")
+    assert verify_metadata_sha256(cuda_version="99.9.9", metadata_path=str(f), allow_unpinned=True) == 0
     assert "WARNING" in capsys.readouterr().err
+
+
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_verify_metadata_allow_unpinned_does_not_bypass_mismatch(tmp_path, monkeypatch):
+    f = tmp_path / "redistrib.json"
+    f.write_bytes(b"tampered-metadata")
+    monkeypatch.setitem(
+        sys.modules["fetch_ctk_redistrib"].KNOWN_REDISTRIB_SHA256,
+        "1.2.3",
+        "f" * 64,
+    )
+    assert verify_metadata_sha256(cuda_version="1.2.3", metadata_path=str(f), allow_unpinned=True) == 1
+
+
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_main_verify_metadata_allow_unpinned_flag(tmp_path, capsys):
+    f = tmp_path / "redistrib.json"
+    f.write_bytes(b"whatever")
+    assert main(["verify-metadata", "--cuda-version", "99.9.9", "--metadata-path", str(f)]) == 1
+    rc = main(["verify-metadata", "--cuda-version", "99.9.9", "--metadata-path", str(f), "--allow-unpinned"])
+    assert rc == 0
+    assert "WARNING" in capsys.readouterr().err
+
+
+@pytest.mark.agent_authored(model="claude-opus-5.5")
+def test_known_redistrib_sha256_covers_ci_cuda_versions():
+    # Every CUDA version CI fetches from the public server must be pinned, so a
+    # version bump fails here instead of in the fetch_ctk step.
+    versions = yaml.safe_load((CI_DIR / "versions.yml").read_text(encoding="utf-8"))
+    matrix = yaml.safe_load((CI_DIR / "test-matrix.yml").read_text(encoding="utf-8"))
+    required = {str(entry["version"]) for entry in versions["cuda"].values()}
+    required |= {
+        str(row["CUDA_VER"])
+        for platform in ("linux", "windows")
+        for rows in matrix[platform].values()
+        for row in rows
+        if str(row.get("LOCAL_CTK")) == "1"
+    }
+    assert required
+    assert sorted(required - KNOWN_REDISTRIB_SHA256.keys()) == []
+    for version, sha256 in KNOWN_REDISTRIB_SHA256.items():
+        assert SHA256_RE.fullmatch(sha256), f"invalid pinned sha256 for CUDA {version}"
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
