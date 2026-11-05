@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.CancelledError
+=======================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autoexception:: CancelledError

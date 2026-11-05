@@ -1,0 +1,36 @@
+﻿cuda.bindings.\_v2.driver.HostNodeParams\_v2
+============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: HostNodeParams_v2
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HostNodeParams_v2.__init__
+      ~HostNodeParams_v2.from_buffer
+      ~HostNodeParams_v2.from_data
+      ~HostNodeParams_v2.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HostNodeParams_v2.ctx
+      ~HostNodeParams_v2.fn
+      ~HostNodeParams_v2.g_ctx
+      ~HostNodeParams_v2.ptr
+      ~HostNodeParams_v2.sync_mode
+      ~HostNodeParams_v2.user_data
+   
+   

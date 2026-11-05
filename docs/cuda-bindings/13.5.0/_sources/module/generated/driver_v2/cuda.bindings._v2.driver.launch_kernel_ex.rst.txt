@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.launch\_kernel\_ex
+============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: launch_kernel_ex

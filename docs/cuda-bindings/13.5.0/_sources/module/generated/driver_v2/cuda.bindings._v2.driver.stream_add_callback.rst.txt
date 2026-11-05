@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.stream\_add\_callback
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: stream_add_callback

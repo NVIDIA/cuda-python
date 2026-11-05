@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_clock\_info
+===========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_clock_info

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.OutOfMemoryError
+=========================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autoexception:: OutOfMemoryError

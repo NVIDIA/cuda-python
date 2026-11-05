@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.StreamCaptureWrongThreadError
+=======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: StreamCaptureWrongThreadError

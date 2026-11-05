@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.get\_vgpu\_compatibility
+===========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: get_vgpu_compatibility

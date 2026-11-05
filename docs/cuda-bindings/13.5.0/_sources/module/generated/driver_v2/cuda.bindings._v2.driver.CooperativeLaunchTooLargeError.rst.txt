@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.CooperativeLaunchTooLargeError
+========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: CooperativeLaunchTooLargeError

@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.GpuUptime\_v1
+================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuUptime_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuUptime_v1.__init__
+      ~GpuUptime_v1.from_buffer
+      ~GpuUptime_v1.from_data
+      ~GpuUptime_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuUptime_v1.ptr
+      ~GpuUptime_v1.uptime
+   
+   

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.surf\_ref\_set\_array
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: surf_ref_set_array

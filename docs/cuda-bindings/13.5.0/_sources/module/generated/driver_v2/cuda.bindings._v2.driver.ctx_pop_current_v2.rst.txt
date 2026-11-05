@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ctx\_pop\_current\_v2
+===============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: ctx_pop_current_v2

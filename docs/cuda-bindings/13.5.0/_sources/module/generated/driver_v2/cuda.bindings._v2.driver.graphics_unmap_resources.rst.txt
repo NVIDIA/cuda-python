@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graphics\_unmap\_resources
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graphics_unmap_resources

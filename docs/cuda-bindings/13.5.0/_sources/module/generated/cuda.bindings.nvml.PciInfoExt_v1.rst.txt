@@ -1,0 +1,40 @@
+﻿cuda.bindings.nvml.PciInfoExt\_v1
+=================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: PciInfoExt_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PciInfoExt_v1.__init__
+      ~PciInfoExt_v1.from_buffer
+      ~PciInfoExt_v1.from_data
+      ~PciInfoExt_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PciInfoExt_v1.base_class
+      ~PciInfoExt_v1.bus
+      ~PciInfoExt_v1.bus_id
+      ~PciInfoExt_v1.device_
+      ~PciInfoExt_v1.domain
+      ~PciInfoExt_v1.pci_device_id
+      ~PciInfoExt_v1.pci_sub_system_id
+      ~PciInfoExt_v1.ptr
+      ~PciInfoExt_v1.sub_class
+      ~PciInfoExt_v1.version
+   
+   

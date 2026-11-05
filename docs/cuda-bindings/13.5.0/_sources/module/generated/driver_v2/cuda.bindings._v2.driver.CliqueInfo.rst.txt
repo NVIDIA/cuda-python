@@ -1,0 +1,33 @@
+﻿cuda.bindings.\_v2.driver.CliqueInfo
+====================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: CliqueInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CliqueInfo.__init__
+      ~CliqueInfo.from_buffer
+      ~CliqueInfo.from_data
+      ~CliqueInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CliqueInfo.id
+      ~CliqueInfo.ptr
+      ~CliqueInfo.type
+   
+   

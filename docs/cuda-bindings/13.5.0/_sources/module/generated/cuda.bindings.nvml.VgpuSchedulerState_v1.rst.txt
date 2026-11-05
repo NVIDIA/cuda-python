@@ -1,0 +1,36 @@
+﻿cuda.bindings.nvml.VgpuSchedulerState\_v1
+=========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: VgpuSchedulerState_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VgpuSchedulerState_v1.__init__
+      ~VgpuSchedulerState_v1.from_buffer
+      ~VgpuSchedulerState_v1.from_data
+      ~VgpuSchedulerState_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VgpuSchedulerState_v1.enable_arr_mode
+      ~VgpuSchedulerState_v1.engine_id
+      ~VgpuSchedulerState_v1.ptr
+      ~VgpuSchedulerState_v1.scheduler_params
+      ~VgpuSchedulerState_v1.scheduler_policy
+      ~VgpuSchedulerState_v1.version
+   
+   

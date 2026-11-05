@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ExternalMemoryFlags
+=============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: ExternalMemoryFlags

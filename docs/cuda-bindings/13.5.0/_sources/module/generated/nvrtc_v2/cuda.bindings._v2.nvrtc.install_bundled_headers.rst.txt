@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.install\_bundled\_headers
+==================================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autofunction:: install_bundled_headers

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ipc\_open\_event\_handle
+==================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: ipc_open_event_handle

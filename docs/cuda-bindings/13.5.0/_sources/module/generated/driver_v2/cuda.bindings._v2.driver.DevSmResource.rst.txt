@@ -1,0 +1,36 @@
+﻿cuda.bindings.\_v2.driver.DevSmResource
+=======================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: DevSmResource
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DevSmResource.__init__
+      ~DevSmResource.from_buffer
+      ~DevSmResource.from_data
+      ~DevSmResource.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DevSmResource.flags_
+      ~DevSmResource.locality_domain_id
+      ~DevSmResource.min_sm_partition_size
+      ~DevSmResource.ptr
+      ~DevSmResource.sm_coscheduled_alignment
+      ~DevSmResource.sm_count
+   
+   

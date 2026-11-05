@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ProfilerNotInitializedError
+=====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: ProfilerNotInitializedError

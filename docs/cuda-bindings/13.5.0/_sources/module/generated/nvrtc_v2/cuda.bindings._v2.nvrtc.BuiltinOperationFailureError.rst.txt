@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.BuiltinOperationFailureError
+=====================================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autoexception:: BuiltinOperationFailureError

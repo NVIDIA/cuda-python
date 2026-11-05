@@ -1,0 +1,37 @@
+﻿cuda.bindings.\_v2.nvrtc.BundledHeadersInfo
+===========================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autoclass:: BundledHeadersInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BundledHeadersInfo.__init__
+      ~BundledHeadersInfo.from_buffer
+      ~BundledHeadersInfo.from_data
+      ~BundledHeadersInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BundledHeadersInfo.available
+      ~BundledHeadersInfo.compressed_size
+      ~BundledHeadersInfo.cuda_version_major
+      ~BundledHeadersInfo.cuda_version_minor
+      ~BundledHeadersInfo.num_files
+      ~BundledHeadersInfo.ptr
+      ~BundledHeadersInfo.uncompressed_size
+   
+   

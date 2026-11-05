@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.mem\_export\_to\_shareable\_handle
+============================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: mem_export_to_shareable_handle

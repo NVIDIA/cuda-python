@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.multicast\_bind\_mem
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: multicast_bind_mem

@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_gpu\_uptime\_v1
+===============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_gpu_uptime_v1

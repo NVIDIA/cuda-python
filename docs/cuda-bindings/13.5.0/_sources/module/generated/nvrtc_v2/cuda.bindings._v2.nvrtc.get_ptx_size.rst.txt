@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.get\_ptx\_size
+=======================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autofunction:: get_ptx_size

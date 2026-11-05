@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_node\_get\_dependent\_nodes\_v2
+================================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_node_get_dependent_nodes_v2

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.DeviceNumaConfig
+==========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: DeviceNumaConfig

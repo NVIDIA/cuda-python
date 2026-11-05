@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ctx\_get\_stream\_priority\_range
+===========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: ctx_get_stream_priority_range

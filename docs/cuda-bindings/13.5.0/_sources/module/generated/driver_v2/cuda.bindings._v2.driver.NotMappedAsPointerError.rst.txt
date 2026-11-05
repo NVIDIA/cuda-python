@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.NotMappedAsPointerError
+=================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: NotMappedAsPointerError

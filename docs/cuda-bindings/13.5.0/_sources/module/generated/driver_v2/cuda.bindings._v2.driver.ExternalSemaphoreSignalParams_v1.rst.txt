@@ -1,0 +1,33 @@
+﻿cuda.bindings.\_v2.driver.ExternalSemaphoreSignalParams\_v1
+===========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: ExternalSemaphoreSignalParams_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExternalSemaphoreSignalParams_v1.__init__
+      ~ExternalSemaphoreSignalParams_v1.from_buffer
+      ~ExternalSemaphoreSignalParams_v1.from_data
+      ~ExternalSemaphoreSignalParams_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ExternalSemaphoreSignalParams_v1.flags_
+      ~ExternalSemaphoreSignalParams_v1.params
+      ~ExternalSemaphoreSignalParams_v1.ptr
+   
+   

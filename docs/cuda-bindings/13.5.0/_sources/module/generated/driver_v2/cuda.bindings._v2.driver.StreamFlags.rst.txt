@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.StreamFlags
+=====================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: StreamFlags

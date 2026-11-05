@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.memcpy\_htod\_v2
+==========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: memcpy_htod_v2

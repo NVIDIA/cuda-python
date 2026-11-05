@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.module\_get\_function\_count
+======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: module_get_function_count
