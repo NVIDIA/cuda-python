@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=946dfd0c4e22f5055de2b2d7fc4fab6a870125c70e398ae9ae88a99e4a47e148
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=299362274ed3a011e1c567ea13e77ef2ac175a1214f973afd972d178340efa2d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2733,10 +2733,7 @@ cdef extern from 'cuda_runtime_api.h':
 cdef enum:
     CUDA_EGL_MAX_PLANES = 3
 
-# cudaDevSmResourceGroupLocalityDomainIdAny is defined as (~0u) in driver_types.h; the
-# pyclibrary-based cython-gen parser can't evaluate that expression, so hardcode the value
-cdef enum:
-    cudaDevSmResourceGroupLocalityDomainIdAny = 4294967295
+cdef const uint32_t cudaDevSmResourceGroupLocalityDomainIdAny = 0xffffffff
 
 # libraryPropertyType_t (starts lowercase, outside type pattern)
 cdef extern from 'library_types.h':

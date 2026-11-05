@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2927ba6081022d5e0e3bd10ebda9ac8b3deacb27af81ab343ae4e86b67ff9b17
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=7048bf2a5eceb5c31e99d2264b739f2234592cb6b05443fdd32f10e868592504
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -4011,4 +4011,4 @@ cdef enum: RESOURCE_ABI_VERSION = 1
 
 cdef enum: RESOURCE_ABI_EXTERNAL_BYTES = 42
 
-cdef enum: CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY = 4294967295
+cdef const uint32_t CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY = 0xffffffff
