@@ -7,17 +7,34 @@
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "test_envvar.test_envvar_bool_parsing",
-  "b": "test_version_check.TestVersionCompatibilityCheck.test_warning_not_suppressed_when_env_var_is_zero",
-  "c": "(empty)",
-  "d": "test_version_check.TestVersionCompatibilityCheck.test_warning_suppressed_by_env_var",
-  "e": "test_envvar.test_envvar_bool_blank_returns_default",
-  "f": "test_envvar.test_envvar_bool_unset_returns_default",
-  "g": "test_version_check.TestVersionCompatibilityCheck.test_error_when_driver_version_fails",
-  "h": "test_version_check.TestVersionCompatibilityCheck.test_no_warning_when_driver_newer",
-  "i": "test_version_check.TestVersionCompatibilityCheck.test_no_warning_when_same_major_version",
-  "j": "test_version_check.TestVersionCompatibilityCheck.test_warning_only_issued_once",
-  "k": "test_version_check.TestVersionCompatibilityCheck.test_warning_when_compile_major_newer"
+  "a": "tests/test_envvar.py::test_envvar_bool_parsing[unrecognised]|run",
+  "b": "tests/test_envvar.py::test_envvar_bool_parsing[negative-zero]|run",
+  "c": "tests/test_envvar.py::test_envvar_bool_parsing[two]|run",
+  "d": "tests/test_envvar.py::test_envvar_bool_parsing[false-upper]|run",
+  "e": "tests/test_envvar.py::test_envvar_bool_parsing[false]|run",
+  "f": "tests/test_envvar.py::test_envvar_bool_parsing[no]|run",
+  "g": "tests/test_envvar.py::test_envvar_bool_parsing[off]|run",
+  "h": "tests/test_envvar.py::test_envvar_bool_parsing[zero-padded]|run",
+  "i": "tests/test_envvar.py::test_envvar_bool_parsing[zero]|run",
+  "j": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_not_suppressed_when_env_var_is_zero|run",
+  "k": "(empty)",
+  "l": "tests/test_envvar.py::test_envvar_bool_parsing[on]|run",
+  "m": "tests/test_envvar.py::test_envvar_bool_parsing[one]|run",
+  "n": "tests/test_envvar.py::test_envvar_bool_parsing[true-capitalised]|run",
+  "o": "tests/test_envvar.py::test_envvar_bool_parsing[true]|run",
+  "p": "tests/test_envvar.py::test_envvar_bool_parsing[yes]|run",
+  "q": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_suppressed_by_env_var|run",
+  "r": "tests/test_envvar.py::test_envvar_bool_blank_returns_default[   ]|run",
+  "s": "tests/test_envvar.py::test_envvar_bool_blank_returns_default[]|run",
+  "t": "tests/test_envvar.py::test_envvar_bool_parsing[blank]|run",
+  "u": "tests/test_envvar.py::test_envvar_bool_parsing[empty]|run",
+  "v": "tests/test_envvar.py::test_envvar_bool_unset_returns_default[False]|run",
+  "w": "tests/test_envvar.py::test_envvar_bool_unset_returns_default[True]|run",
+  "x": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_error_when_driver_version_fails|run",
+  "y": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_no_warning_when_driver_newer|run",
+  "z": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_no_warning_when_same_major_version|run",
+  "A": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_only_issued_once|run",
+  "B": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_when_compile_major_newer|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -79,8 +96,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_94f9e761dee70a67__nvvm_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -115,19 +132,19 @@
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="str">    behaviour rather than raising, because these variables are read during</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="str">    import and a raise would turn a typo into an import failure.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="str">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="nam">raw</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">11 ctx</label></span><span class="ctxs">1ceafghibjdk</span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="key">if</span> <span class="nam">raw</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">11 ctx</label></span><span class="ctxs">1ceafghibjdk</span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">        <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">7 ctx</label></span><span class="ctxs">1cfghijk</span></p>
-    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="nam">raw</span> <span class="op">=</span> <span class="nam">raw</span><span class="op">.</span><span class="nam">strip</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">4 ctx</label></span><span class="ctxs">1eabd</span></p>
-    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">raw</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">4 ctx</label></span><span class="ctxs">1eabd</span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">2 ctx</label></span><span class="ctxs">1ea</span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="nam">lowered</span> <span class="op">=</span> <span class="nam">raw</span><span class="op">.</span><span class="nam">lower</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">3 ctx</label></span><span class="ctxs">1abd</span></p>
-    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="key">if</span> <span class="nam">lowered</span> <span class="key">in</span> <span class="nam">_TRUE_VALUES</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">3 ctx</label></span><span class="ctxs">1abd</span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">2 ctx</label></span><span class="ctxs">1ad</span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="key">if</span> <span class="nam">lowered</span> <span class="key">in</span> <span class="nam">_FALSE_VALUES</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
-    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">2 ctx</label></span><span class="ctxs">1ab</span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
-    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="key">return</span> <span class="nam">int</span><span class="op">(</span><span class="nam">raw</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span> <span class="op">!=</span> <span class="num">0</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
+    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="nam">raw</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs21"><span class="r"><label for="ctxs21" class="ctx">28 ctx</label></span><span class="ctxs">1krstudebfglmnocaphivwxyzjAqB</span></p>
+    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="key">if</span> <span class="nam">raw</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs22"><span class="r"><label for="ctxs22" class="ctx">28 ctx</label></span><span class="ctxs">1krstudebfglmnocaphivwxyzjAqB</span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">        <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs23"><span class="r"><label for="ctxs23" class="ctx">8 ctx</label></span><span class="ctxs">1kvwxyzAB</span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="nam">raw</span> <span class="op">=</span> <span class="nam">raw</span><span class="op">.</span><span class="nam">strip</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs24"><span class="r"><label for="ctxs24" class="ctx">20 ctx</label></span><span class="ctxs">1rstudebfglmnocaphijq</span></p>
+    <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">raw</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs25"><span class="r"><label for="ctxs25" class="ctx">20 ctx</label></span><span class="ctxs">1rstudebfglmnocaphijq</span></p>
+    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs26"><span class="r"><label for="ctxs26" class="ctx">4 ctx</label></span><span class="ctxs">1rstu</span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="nam">lowered</span> <span class="op">=</span> <span class="nam">raw</span><span class="op">.</span><span class="nam">lower</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">16 ctx</label></span><span class="ctxs">1debfglmnocaphijq</span></p>
+    <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="key">if</span> <span class="nam">lowered</span> <span class="key">in</span> <span class="nam">_TRUE_VALUES</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs28"><span class="r"><label for="ctxs28" class="ctx">16 ctx</label></span><span class="ctxs">1debfglmnocaphijq</span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs29"><span class="r"><label for="ctxs29" class="ctx">6 ctx</label></span><span class="ctxs">1lmnopq</span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="key">if</span> <span class="nam">lowered</span> <span class="key">in</span> <span class="nam">_FALSE_VALUES</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">10 ctx</label></span><span class="ctxs">1debfgcahij</span></p>
+    <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">7 ctx</label></span><span class="ctxs">1defghij</span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">3 ctx</label></span><span class="ctxs">1bca</span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="key">return</span> <span class="nam">int</span><span class="op">(</span><span class="nam">raw</span><span class="op">,</span> <span class="num">0</span><span class="op">)</span> <span class="op">!=</span> <span class="num">0</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">3 ctx</label></span><span class="ctxs">1bca</span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">    <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
 </main>
@@ -138,8 +155,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_94f9e761dee70a67__nvvm_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
     </div>
 </footer>

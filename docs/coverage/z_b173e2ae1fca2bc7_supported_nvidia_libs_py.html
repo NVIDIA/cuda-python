@@ -8,22 +8,27 @@
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "test_ctk_root_discovery.test_canary_finds_nvvm",
-  "c": "test_ctk_root_discovery.test_canary_fires_only_after_all_earlier_steps_fail",
-  "d": "test_ctk_root_discovery.test_cuda_home_takes_priority_over_canary",
-  "e": "test_ctk_root_discovery.test_try_via_ctk_root_finds_nvvm",
-  "f": "test_ctk_root_discovery.test_try_via_ctk_root_regular_lib",
-  "g": "test_ctk_root_discovery.test_try_via_ctk_root_windows_arm64_prefers_arch_dir",
-  "h": "test_load_nvidia_dynamic_lib_using_mocker.test_cudnn_arm64_archive_layout_reaches_loader",
-  "i": "test_search_steps.TestFindInConda.test_found_windows",
-  "j": "test_search_steps.TestFindInConda.test_found_windows_arm64_prefers_arch_dir",
-  "k": "test_search_steps.TestFindInCudaHome.test_found_windows",
-  "l": "test_search_steps.TestFindInCudaHome.test_found_windows_arm64_prefers_arch_dir",
-  "m": "test_search_steps.TestFindInCudaHome.test_nvvm_windows_checks_binary_arch",
-  "n": "test_search_steps.TestFindInSitePackages.test_windows_known_cupti_names_follow_declared_preference_order",
-  "o": "test_search_steps.TestWindowsInstallRoots.test_cudnn_path_finds_supported_archive_layouts",
-  "p": "test_search_steps.TestWindowsInstallRoots.test_program_files_finds_versioned_cudnn_install",
-  "q": "test_search_steps.TestWindowsInstallRoots.test_program_files_prefers_newest_numeric_cudnn_version_across_layouts"
+  "b": "tests/test_ctk_root_discovery.py::test_canary_finds_nvvm|run",
+  "c": "tests/test_ctk_root_discovery.py::test_canary_fires_only_after_all_earlier_steps_fail|run",
+  "d": "tests/test_ctk_root_discovery.py::test_cuda_home_takes_priority_over_canary|run",
+  "e": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_finds_nvvm|run",
+  "f": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_regular_lib|run",
+  "g": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_windows_arm64_prefers_arch_dir|run",
+  "h": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cudnn_arm64_archive_layout_reaches_loader|run",
+  "i": "tests/test_search_steps.py::TestFindInConda::test_found_windows_arm64_prefers_arch_dir|run",
+  "j": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
+  "k": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows_arm64_prefers_arch_dir|run",
+  "l": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run",
+  "m": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-34404-False]|run",
+  "n": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-43620-True]|run",
+  "o": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-34404-True]|run",
+  "p": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-43620-False]|run",
+  "q": "tests/test_search_steps.py::TestFindInSitePackages::test_windows_known_cupti_names_follow_declared_preference_order|run",
+  "r": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[arm64-bin/arm64]|run",
+  "s": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
+  "t": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
+  "u": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
+  "v": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -85,8 +90,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_6650cae04eb59e5d_find_nvidia_headers_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -232,14 +237,14 @@
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="key">def</span> <span class="nam">is_suppressed_dll_file</span><span class="op">(</span><span class="nam">path_basename</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs131" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">if</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">&quot;nvrtc&quot;</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">17 ctx</label></span><span class="ctxs">1abcdefghijklmnopq</span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">if</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">&quot;nvrtc&quot;</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuv</span></p>
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">        <span class="com"># nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">        <span class="com">#     nvidia\cuda_nvrtc\bin\</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">        <span class="com">#         nvrtc-builtins64_128.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">        <span class="com">#         nvrtc64_120_0.alt.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">        <span class="com">#         nvrtc64_120_0.dll</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">        <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">endswith</span><span class="op">(</span><span class="str">&quot;.alt.dll&quot;</span><span class="op">)</span> <span class="key">or</span> <span class="str">&quot;-builtins&quot;</span> <span class="key">in</span> <span class="nam">path_basename</span>&nbsp;</span><span class="r"><label for="ctxs138" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">    <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="op">(</span><span class="str">&quot;cudart32_&quot;</span><span class="op">,</span> <span class="str">&quot;nvvm32&quot;</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">17 ctx</label></span><span class="ctxs">1abcdefghijklmnopq</span></p>
+    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">    <span class="key">return</span> <span class="nam">path_basename</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="op">(</span><span class="str">&quot;cudart32_&quot;</span><span class="op">,</span> <span class="str">&quot;nvvm32&quot;</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">22 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuv</span></p>
 </main>
 <footer>
     <div class="content">
@@ -248,8 +253,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_6650cae04eb59e5d_find_nvidia_headers_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
     </div>
 </footer>

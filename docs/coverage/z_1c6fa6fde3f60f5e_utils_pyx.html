@@ -8,72 +8,194 @@
     <script type="text/javascript">
         contexts = {
   "a": "(empty)",
-  "b": "test_nvvm.test_compile_program_with_minimal_nvvm_ir",
-  "c": "test_legacy_nvjitlink.test_create_and_destroy_bytes_options",
-  "d": "test_nvjitlink.test_create_and_destroy_bytes_options",
-  "e": "test_legacy_nvfatbin.test_nvfatbin_invalid_input_create",
-  "f": "test_legacy_nvjitlink.test_add_data",
-  "g": "test_legacy_nvjitlink.test_add_file",
-  "h": "test_legacy_nvjitlink.test_complete_empty",
-  "i": "test_legacy_nvjitlink.test_create_and_destroy",
-  "j": "test_legacy_nvjitlink.test_get_error_log",
-  "k": "test_legacy_nvjitlink.test_get_info_log",
-  "l": "test_legacy_nvjitlink.test_get_linked_cubin",
-  "m": "test_legacy_nvjitlink.test_get_linked_ltoir",
-  "n": "test_legacy_nvjitlink.test_get_linked_ptx",
-  "o": "test_legacy_nvjitlink.test_invalid_arch_error",
-  "p": "test_legacy_nvjitlink.test_unrecognized_option_error",
-  "q": "test_nvfatbin.test_nvfatbin_invalid_input_create",
-  "r": "test_nvjitlink.test_add_data",
-  "s": "test_nvjitlink.test_add_file",
-  "t": "test_nvjitlink.test_complete_empty",
-  "u": "test_nvjitlink.test_create_and_destroy",
-  "v": "test_nvjitlink.test_get_error_log",
-  "w": "test_nvjitlink.test_get_info_log",
-  "x": "test_nvjitlink.test_get_linked_cubin",
-  "y": "test_nvjitlink.test_get_linked_ltoir",
-  "z": "test_nvjitlink.test_get_linked_ptx",
-  "A": "test_nvjitlink.test_invalid_arch_error",
-  "B": "test_nvjitlink.test_unrecognized_option_error",
-  "C": "test_nvvm.test_c_or_v_program_fail_bad_option",
-  "D": "test_nvvm.test_verify_program_with_minimal_nvvm_ir",
-  "E": "test_utils.test_check_nvvm_compiler_options_arch_detection",
-  "F": "test_utils.test_check_nvvm_compiler_options_invalid",
-  "G": "test_utils.test_check_nvvm_compiler_options_multiple_valid",
-  "H": "test_utils.test_check_nvvm_compiler_options_valid",
-  "I": "test_legacy_nvfatbin.test_nvdfatbin_add_ltoir",
-  "J": "test_legacy_nvfatbin.test_nvfatbin_add_cubin",
-  "K": "test_legacy_nvfatbin.test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH",
-  "L": "test_legacy_nvfatbin.test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH",
-  "M": "test_legacy_nvfatbin.test_nvfatbin_add_ptx",
-  "N": "test_legacy_nvfatbin.test_nvfatbin_add_reloc",
-  "O": "test_legacy_nvfatbin.test_nvfatbin_add_tile_ir",
-  "P": "test_legacy_nvfatbin.test_nvfatbin_empty_create_and_destroy",
-  "Q": "test_legacy_nvfatbin.test_nvfatbin_get_empty",
-  "R": "test_nvfatbin.test_nvdfatbin_add_ltoir",
-  "S": "test_nvfatbin.test_nvfatbin_add_cubin",
-  "T": "test_nvfatbin.test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH",
-  "U": "test_nvfatbin.test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH",
-  "V": "test_nvfatbin.test_nvfatbin_add_ptx",
-  "W": "test_nvfatbin.test_nvfatbin_add_reloc",
-  "X": "test_nvfatbin.test_nvfatbin_add_tile_ir",
-  "Y": "test_nvfatbin.test_nvfatbin_empty_create_and_destroy",
-  "Z": "test_nvfatbin.test_nvfatbin_get_empty",
-  "0": "test_nvvm.test_c_or_v_program_fail_invalid_ir",
-  "1": "test_nvvm.test_c_or_v_program_fail_no_module",
-  "2": "test_utils.test_check_nvvm_compiler_options_empty",
-  "3": "test_cuda.test_cuGraphGetEdges_edgeData_outlives_call",
-  "4": "test_cuda.test_cuGraphNodeGetDependencies_edgeData_outlives_call",
-  "5": "test_cuda.test_conditional",
-  "6": "test_cuda.test_cuGraphExecGetId",
-  "7": "test_cuda.test_cuGraphNodeGetContainingGraph",
-  "8": "test_cuda.test_cuGraphNodeGetLocalId",
-  "9": "test_cuda.test_cuGraphNodeGetToolsId",
-  "!": "test_cuda.test_cuda_graphMem_attr",
-  "#": "test_cuda.test_graph_poly",
-  "$": "test_interoperability.test_interop_graphExec",
-  "%": "test_interoperability.test_interop_graphNode",
-  "'": "test_utils.test_get_c_compiler"
+  "b": "tests/legacy_api/test_legacy_nvjitlink.py::test_create_and_destroy_bytes_options|run",
+  "c": "tests/test_nvjitlink.py::test_create_and_destroy_bytes_options|run",
+  "d": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options3]|run",
+  "e": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options3]|run",
+  "f": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_invalid_input_create|run",
+  "g": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_data[sm_75_6.4]|run",
+  "h": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_data[sm_80_7.0]|run",
+  "i": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_data[sm_90_8.5]|run",
+  "j": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_data[sm_100_8.8]|run",
+  "k": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_file[sm_75_6.4]|run",
+  "l": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_file[sm_80_7.0]|run",
+  "m": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_file[sm_90_8.5]|run",
+  "n": "tests/legacy_api/test_legacy_nvjitlink.py::test_add_file[sm_100_8.8]|run",
+  "o": "tests/legacy_api/test_legacy_nvjitlink.py::test_complete_empty[sm_75]|run",
+  "p": "tests/legacy_api/test_legacy_nvjitlink.py::test_complete_empty[sm_80]|run",
+  "q": "tests/legacy_api/test_legacy_nvjitlink.py::test_complete_empty[sm_90]|run",
+  "r": "tests/legacy_api/test_legacy_nvjitlink.py::test_complete_empty[sm_100]|run",
+  "s": "tests/legacy_api/test_legacy_nvjitlink.py::test_create_and_destroy[sm_75]|run",
+  "t": "tests/legacy_api/test_legacy_nvjitlink.py::test_create_and_destroy[sm_80]|run",
+  "u": "tests/legacy_api/test_legacy_nvjitlink.py::test_create_and_destroy[sm_90]|run",
+  "v": "tests/legacy_api/test_legacy_nvjitlink.py::test_create_and_destroy[sm_100]|run",
+  "w": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_error_log[sm_75]|run",
+  "x": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_error_log[sm_80]|run",
+  "y": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_error_log[sm_90]|run",
+  "z": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_error_log[sm_100]|run",
+  "A": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_info_log[sm_75_6.4]|run",
+  "B": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_info_log[sm_80_7.0]|run",
+  "C": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_info_log[sm_90_8.5]|run",
+  "D": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_info_log[sm_100_8.8]|run",
+  "E": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_cubin[sm_75_6.4]|run",
+  "F": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_cubin[sm_80_7.0]|run",
+  "G": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_cubin[sm_90_8.5]|run",
+  "H": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_cubin[sm_100_8.8]|run",
+  "I": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ltoir[sm_75]|run",
+  "J": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ltoir[sm_80]|run",
+  "K": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ltoir[sm_90]|run",
+  "L": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ltoir[sm_100]|run",
+  "M": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ptx[sm_75]|run",
+  "N": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ptx[sm_80]|run",
+  "O": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ptx[sm_90]|run",
+  "P": "tests/legacy_api/test_legacy_nvjitlink.py::test_get_linked_ptx[sm_100]|run",
+  "Q": "tests/legacy_api/test_legacy_nvjitlink.py::test_invalid_arch_error|run",
+  "R": "tests/legacy_api/test_legacy_nvjitlink.py::test_unrecognized_option_error|run",
+  "S": "tests/test_nvfatbin.py::test_nvfatbin_invalid_input_create|run",
+  "T": "tests/test_nvjitlink.py::test_add_data[sm_75_6.4]|run",
+  "U": "tests/test_nvjitlink.py::test_add_data[sm_80_7.0]|run",
+  "V": "tests/test_nvjitlink.py::test_add_data[sm_90_8.5]|run",
+  "W": "tests/test_nvjitlink.py::test_add_data[sm_100_8.8]|run",
+  "X": "tests/test_nvjitlink.py::test_add_file[sm_75_6.4]|run",
+  "Y": "tests/test_nvjitlink.py::test_add_file[sm_80_7.0]|run",
+  "Z": "tests/test_nvjitlink.py::test_add_file[sm_90_8.5]|run",
+  "0": "tests/test_nvjitlink.py::test_add_file[sm_100_8.8]|run",
+  "1": "tests/test_nvjitlink.py::test_complete_empty[sm_75]|run",
+  "2": "tests/test_nvjitlink.py::test_complete_empty[sm_80]|run",
+  "3": "tests/test_nvjitlink.py::test_complete_empty[sm_90]|run",
+  "4": "tests/test_nvjitlink.py::test_complete_empty[sm_100]|run",
+  "5": "tests/test_nvjitlink.py::test_create_and_destroy[sm_75]|run",
+  "6": "tests/test_nvjitlink.py::test_create_and_destroy[sm_80]|run",
+  "7": "tests/test_nvjitlink.py::test_create_and_destroy[sm_90]|run",
+  "8": "tests/test_nvjitlink.py::test_create_and_destroy[sm_100]|run",
+  "9": "tests/test_nvjitlink.py::test_get_error_log[sm_75]|run",
+  "!": "tests/test_nvjitlink.py::test_get_error_log[sm_80]|run",
+  "#": "tests/test_nvjitlink.py::test_get_error_log[sm_90]|run",
+  "$": "tests/test_nvjitlink.py::test_get_error_log[sm_100]|run",
+  "%": "tests/test_nvjitlink.py::test_get_info_log[sm_75_6.4]|run",
+  "'": "tests/test_nvjitlink.py::test_get_info_log[sm_80_7.0]|run",
+  "(": "tests/test_nvjitlink.py::test_get_info_log[sm_90_8.5]|run",
+  ")": "tests/test_nvjitlink.py::test_get_info_log[sm_100_8.8]|run",
+  "*": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_75_6.4]|run",
+  "+": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_80_7.0]|run",
+  ",": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_90_8.5]|run",
+  "-": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_100_8.8]|run",
+  ".": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_75]|run",
+  "/": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_80]|run",
+  ":": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_90]|run",
+  ";": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_100]|run",
+  "=": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_75]|run",
+  "?": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_80]|run",
+  "@": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_90]|run",
+  "[": "tests/test_nvjitlink.py::test_get_linked_ptx[sm_100]|run",
+  "]": "tests/test_nvjitlink.py::test_invalid_arch_error|run",
+  "^": "tests/test_nvjitlink.py::test_unrecognized_option_error|run",
+  "_": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-compile_program]|run",
+  "`": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|run",
+  "{": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[txt-compile_program]|run",
+  "|": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[txt-verify_program]|run",
+  "}": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options1]|run",
+  "~": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options2]|run",
+  "ab": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options1]|run",
+  "bb": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options2]|run",
+  "cb": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options1]|run",
+  "db": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options2]|run",
+  "eb": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options1]|run",
+  "fb": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|run",
+  "gb": "tests/test_utils.py::test_check_nvvm_compiler_options_arch_detection|run",
+  "hb": "tests/test_utils.py::test_check_nvvm_compiler_options_invalid|run",
+  "ib": "tests/test_utils.py::test_check_nvvm_compiler_options_multiple_valid|run",
+  "jb": "tests/test_utils.py::test_check_nvvm_compiler_options_valid|run",
+  "kb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_75]|run",
+  "lb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_80]|run",
+  "mb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_90]|run",
+  "nb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_100]|run",
+  "ob": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_cubin[sm_75]|run",
+  "pb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_cubin[sm_80]|run",
+  "qb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_cubin[sm_90]|run",
+  "rb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|run",
+  "sb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH|run",
+  "tb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH|run",
+  "ub": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-6.4]|run",
+  "vb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-7.0]|run",
+  "wb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-8.5]|run",
+  "xb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-8.8]|run",
+  "yb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-6.4]|run",
+  "zb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-7.0]|run",
+  "Ab": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-8.5]|run",
+  "Bb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-8.8]|run",
+  "Cb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-6.4]|run",
+  "Db": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-7.0]|run",
+  "Eb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-8.5]|run",
+  "Fb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-8.8]|run",
+  "Gb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-6.4]|run",
+  "Hb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-7.0]|run",
+  "Ib": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-8.5]|run",
+  "Jb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-8.8]|run",
+  "Kb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_reloc[sm_75]|run",
+  "Lb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_reloc[sm_80]|run",
+  "Mb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_reloc[sm_90]|run",
+  "Nb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_reloc[sm_100]|run",
+  "Ob": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_add_tile_ir|run",
+  "Pb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_empty_create_and_destroy|run",
+  "Qb": "tests/legacy_api/test_legacy_nvfatbin.py::test_nvfatbin_get_empty|run",
+  "Rb": "tests/test_module.py::test_object_code_load_fatbin_from_file[path]|setup",
+  "Sb": "tests/test_module.py::test_object_code_load_fatbin_from_file[str]|setup",
+  "Tb": "tests/test_module.py::test_object_code_load_fatbin|setup",
+  "Ub": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_75]|run",
+  "Vb": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_80]|run",
+  "Wb": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_90]|run",
+  "Xb": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_100]|run",
+  "Yb": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_75]|run",
+  "Zb": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_80]|run",
+  "0b": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_90]|run",
+  "1b": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|run",
+  "2b": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH|run",
+  "3b": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH|run",
+  "4b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-6.4]|run",
+  "5b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-7.0]|run",
+  "6b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-8.5]|run",
+  "7b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_75-8.8]|run",
+  "8b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-6.4]|run",
+  "9b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-7.0]|run",
+  "!b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-8.5]|run",
+  "#b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-8.8]|run",
+  "$b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-6.4]|run",
+  "%b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-7.0]|run",
+  "'b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-8.5]|run",
+  "(b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_90-8.8]|run",
+  ")b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-6.4]|run",
+  "*b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-7.0]|run",
+  "+b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-8.5]|run",
+  ",b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_100-8.8]|run",
+  "-b": "tests/test_nvfatbin.py::test_nvfatbin_add_reloc[sm_75]|run",
+  ".b": "tests/test_nvfatbin.py::test_nvfatbin_add_reloc[sm_80]|run",
+  "/b": "tests/test_nvfatbin.py::test_nvfatbin_add_reloc[sm_90]|run",
+  ":b": "tests/test_nvfatbin.py::test_nvfatbin_add_reloc[sm_100]|run",
+  ";b": "tests/test_nvfatbin.py::test_nvfatbin_add_tile_ir|run",
+  "=b": "tests/test_nvfatbin.py::test_nvfatbin_empty_create_and_destroy|run",
+  "?b": "tests/test_nvfatbin.py::test_nvfatbin_get_empty|run",
+  "@b": "tests/test_nvvm.py::test_c_or_v_program_fail_invalid_ir[compile_program]|run",
+  "[b": "tests/test_nvvm.py::test_c_or_v_program_fail_invalid_ir[verify_program]|run",
+  "]b": "tests/test_nvvm.py::test_c_or_v_program_fail_no_module[compile_program]|run",
+  "^b": "tests/test_nvvm.py::test_c_or_v_program_fail_no_module[verify_program]|run",
+  "_b": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[bitcode_static-options0]|run",
+  "`b": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options0]|run",
+  "{b": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options0]|run",
+  "|b": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options0]|run",
+  "}b": "tests/test_utils.py::test_check_nvvm_compiler_options_empty|run",
+  "~b": "tests/test_cuda.py::test_cuGraphGetEdges_edgeData_outlives_call|run",
+  "ac": "tests/test_cuda.py::test_cuGraphNodeGetDependencies_edgeData_outlives_call|run",
+  "bc": "tests/test_cuda.py::test_conditional|run",
+  "cc": "tests/test_cuda.py::test_cuGraphExecGetId|run",
+  "dc": "tests/test_cuda.py::test_cuGraphNodeGetContainingGraph|run",
+  "ec": "tests/test_cuda.py::test_cuGraphNodeGetLocalId|run",
+  "fc": "tests/test_cuda.py::test_cuGraphNodeGetToolsId|run",
+  "gc": "tests/test_cuda.py::test_cuda_graphMem_attr|run",
+  "hc": "tests/test_cuda.py::test_graph_poly|run",
+  "ic": "tests/test_interoperability.py::test_interop_graphExec|run",
+  "jc": "tests/test_interoperability.py::test_interop_graphNode|run",
+  "kc": "tests/test_utils.py::test_get_c_compiler|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -135,8 +257,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_455c44172918477c_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -180,18 +302,18 @@
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">    Returns a string describing the C compiler used to build cuda.bindings</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">    return _COMPILER_VERSION.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">1 ctx</label></span><span class="ctxs">1'</span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">    return _COMPILER_VERSION.decode()</span>&nbsp;</span><input type="checkbox" id="ctxs30"><span class="r"><label for="ctxs30" class="ctx">1 ctx</label></span><span class="ctxs">2kc</span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef bint is_nested_sequence(data):</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if not cpython.PySequence_Check(data):</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    if not cpython.PySequence_Check(data):</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">        return False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        for i in data:</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">            if not cpython.PySequence_Check(i):</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="txt">        for i in data:</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="txt">            if not cpython.PySequence_Check(i):</span>&nbsp;</span><input type="checkbox" id="ctxs38"><span class="r"><label for="ctxs38" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="txt">                return False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="txt">        else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">            return True</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="txt">            return True</span>&nbsp;</span><input type="checkbox" id="ctxs41"><span class="r"><label for="ctxs41" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="txt">cdef void* get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except*:</span>&nbsp;</span><span class="r"><label for="ctxs44" class="ctx">(empty)</label></span></p>
@@ -243,52 +365,52 @@
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">cdef int get_resource_ptrs(nullable_unique_ptr[ vector[PtrT*] ] &amp;in_out_ptr, object obj, PtrT* __unused) except 1:</span>&nbsp;</span><span class="r"><label for="ctxs92" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    if cpython.PySequence_Check(obj):</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">11 ctx</label></span><span class="ctxs">15637489!#$%</span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        vec = new vector[PtrT*](len(obj))</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">2 ctx</label></span><span class="ctxs">134</span></p>
+    <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    if cpython.PySequence_Check(obj):</span>&nbsp;</span><input type="checkbox" id="ctxs93"><span class="r"><label for="ctxs93" class="ctx">11 ctx</label></span><span class="ctxs">2bccc~bdcacecfcgchcicjc</span></p>
+    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">        vec = new vector[PtrT*](len(obj))</span>&nbsp;</span><input type="checkbox" id="ctxs94"><span class="r"><label for="ctxs94" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">        # set the ownership immediately to avoid leaking the `vec` memory in</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">        # case of exception in the following loop</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        in_out_ptr.reset(vec, True)</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">2 ctx</label></span><span class="ctxs">134</span></p>
-    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        for i in range(len(obj)):</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">2 ctx</label></span><span class="ctxs">134</span></p>
-    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            deref(vec)[i] = &lt;PtrT*&gt;&lt;intptr_t&gt;(obj[i])</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">2 ctx</label></span><span class="ctxs">134</span></p>
+    <p class="run"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">        in_out_ptr.reset(vec, True)</span>&nbsp;</span><input type="checkbox" id="ctxs97"><span class="r"><label for="ctxs97" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
+    <p class="run"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">        for i in range(len(obj)):</span>&nbsp;</span><input type="checkbox" id="ctxs98"><span class="r"><label for="ctxs98" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
+    <p class="run"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">            deref(vec)[i] = &lt;PtrT*&gt;&lt;intptr_t&gt;(obj[i])</span>&nbsp;</span><input type="checkbox" id="ctxs99"><span class="r"><label for="ctxs99" class="ctx">2 ctx</label></span><span class="ctxs">2~bac</span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        in_out_ptr.reset(&lt;vector[PtrT*]*&gt;&lt;intptr_t&gt;obj, False)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">10 ctx</label></span><span class="ctxs">1563789!#$%</span></p>
-    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">11 ctx</label></span><span class="ctxs">15637489!#$%</span></p>
+    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">        in_out_ptr.reset(&lt;vector[PtrT*]*&gt;&lt;intptr_t&gt;obj, False)</span>&nbsp;</span><input type="checkbox" id="ctxs101"><span class="r"><label for="ctxs101" class="ctx">10 ctx</label></span><span class="ctxs">2bccc~bdcecfcgchcicjc</span></p>
+    <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs102"><span class="r"><label for="ctxs102" class="ctx">11 ctx</label></span><span class="ctxs">2bccc~bdcacecfcgchcicjc</span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">cdef int get_nested_resource_ptr(nested_resource[ResT] &amp;in_out_ptr, object obj, ResT* __unused) except 1:</span>&nbsp;</span><span class="r"><label for="ctxs105" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    cdef nullable_unique_ptr[ vector[intptr_t] ] nested_ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">    cdef nullable_unique_ptr[ vector[vector[ResT]] ] nested_res_ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    cdef vector[intptr_t]* nested_vec = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    cdef vector[vector[ResT]]* nested_res_vec = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    cdef size_t i = 0, length = 0</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
+    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    cdef vector[intptr_t]* nested_vec = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    cdef vector[vector[ResT]]* nested_res_vec = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    cdef size_t i = 0, length = 0</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">    cdef intptr_t addr</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    if is_nested_sequence(obj):</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">        length = len(obj)</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        nested_res_vec = new vector[vector[ResT]](length)</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        nested_vec = new vector[intptr_t](length)</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    if is_nested_sequence(obj):</span>&nbsp;</span><input type="checkbox" id="ctxs113"><span class="r"><label for="ctxs113" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">        length = len(obj)</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">        nested_res_vec = new vector[vector[ResT]](length)</span>&nbsp;</span><input type="checkbox" id="ctxs115"><span class="r"><label for="ctxs115" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">        nested_vec = new vector[intptr_t](length)</span>&nbsp;</span><input type="checkbox" id="ctxs116"><span class="r"><label for="ctxs116" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
     <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        # set the ownership immediately to avoid leaking memory in case of</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t118" href="#t118">118</a></span><span class="t"><span class="txt">        # exception in the following loop</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        nested_res_ptr.reset(nested_res_vec, True)</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">        nested_ptr.reset(nested_vec, True)</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        for i, obj_i in enumerate(obj):</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
+    <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">        nested_res_ptr.reset(nested_res_vec, True)</span>&nbsp;</span><input type="checkbox" id="ctxs119"><span class="r"><label for="ctxs119" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">        nested_ptr.reset(nested_vec, True)</span>&nbsp;</span><input type="checkbox" id="ctxs120"><span class="r"><label for="ctxs120" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">        for i, obj_i in enumerate(obj):</span>&nbsp;</span><input type="checkbox" id="ctxs121"><span class="r"><label for="ctxs121" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">            if ResT is char:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                obj_i_type = type(obj_i)</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">                if obj_i_type is str:</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
-    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">                    obj_i_bytes = obj_i.encode(&quot;utf-8&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs125"><span class="r"><label for="ctxs125" class="ctx">32 ctx</label></span><span class="ctxs">1aefghijklmnopqrstuvwxyzABCbDEFGH</span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">                elif obj_i_type is bytes:</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">3 ctx</label></span><span class="ctxs">1cdb</span></p>
-    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">                    obj_i_bytes = obj_i</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">3 ctx</label></span><span class="ctxs">1cdb</span></p>
+    <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">                obj_i_type = type(obj_i)</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">                if obj_i_type is str:</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">                    obj_i_bytes = obj_i.encode(&quot;utf-8&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs125"><span class="r"><label for="ctxs125" class="ctx">95 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">                elif obj_i_type is bytes:</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
+    <p class="run"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">                    obj_i_bytes = obj_i</span>&nbsp;</span><input type="checkbox" id="ctxs127"><span class="r"><label for="ctxs127" class="ctx">4 ctx</label></span><span class="ctxs">1bcde</span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">                else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">                    raise TypeError(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">                        f&quot;Expected str or bytes, got {obj_i_type.__name__}&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">                str_len = &lt;size_t&gt;(len(obj_i_bytes)) + 1  # including null termination</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">                deref(nested_res_vec)[i].resize(str_len)</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
-    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">                obj_i_ptr = &lt;char*&gt;(obj_i_bytes)</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">                str_len = &lt;size_t&gt;(len(obj_i_bytes)) + 1  # including null termination</span>&nbsp;</span><input type="checkbox" id="ctxs131"><span class="r"><label for="ctxs131" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">                deref(nested_res_vec)[i].resize(str_len)</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">                obj_i_ptr = &lt;char*&gt;(obj_i_bytes)</span>&nbsp;</span><input type="checkbox" id="ctxs133"><span class="r"><label for="ctxs133" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">                # cast to size_t explicitly to work around a potentially Cython bug</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">                deref(nested_res_vec)[i].assign(obj_i_ptr, obj_i_ptr + &lt;size_t&gt;str_len)</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">                deref(nested_res_vec)[i].assign(obj_i_ptr, obj_i_ptr + &lt;size_t&gt;str_len)</span>&nbsp;</span><input type="checkbox" id="ctxs135"><span class="r"><label for="ctxs135" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
     <p class="pln"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">            else:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">                deref(nested_res_vec)[i] = obj_i</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">            deref(nested_vec)[i] = &lt;intptr_t&gt;(deref(nested_res_vec)[i].data())</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">34 ctx</label></span><span class="ctxs">1aefghicjklmnopqrstudvwxyzABCbDEFGH</span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">            deref(nested_vec)[i] = &lt;intptr_t&gt;(deref(nested_res_vec)[i].data())</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">99 ctx</label></span><span class="ctxs">2a f g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ d abbbe cbdbebfbgbhbibjb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">    elif cpython.PySequence_Check(obj):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        length = len(obj)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        nested_vec = new vector[intptr_t](length)</span>&nbsp;</span><span class="r"></span></p>
@@ -301,9 +423,9 @@
     <p class="mis show_mis"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">        nested_res_ptr.reset(NULL, False)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">        nested_ptr.reset(&lt;vector[intptr_t]*&gt;&lt;intptr_t&gt;obj, False)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    in_out_ptr.ptrs = move(nested_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">    in_out_ptr.nested_resource_ptr = move(nested_res_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
-    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">55 ctx</label></span><span class="ctxs">1aIJKLMNOPQefghicjklmnopRSTUVWXYZqrstudvwxyzABC01bDE2FGH</span></p>
+    <p class="run"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">    in_out_ptr.ptrs = move(nested_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs151"><span class="r"><label for="ctxs151" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">    in_out_ptr.nested_resource_ptr = move(nested_res_ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">177 ctx</label></span><span class="ctxs">2a kblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbf g h i j k l m n o p q r s t u v b w x y z A B C D E F G H I J K L M N O P Q R RbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?bS T U V W X Y Z 0 1 2 3 4 5 6 7 8 c 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | @b[b]b^b_b} ~ d `babbbe {bcbdb|bebfbgb}bhbibjb</span></p>
     <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">class FunctionNotFoundError(RuntimeError): pass</span>&nbsp;</span><span class="r"><label for="ctxs156" class="ctx">(empty)</label></span></p>
@@ -317,8 +439,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_455c44172918477c_driver_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
     </div>
 </footer>

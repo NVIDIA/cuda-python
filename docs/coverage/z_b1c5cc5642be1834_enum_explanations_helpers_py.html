@@ -2,55 +2,75 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_utils/enum_explanations_helpers.py: 100.00%</title>
+    <title>Coverage for cuda/core/_utils/enum_explanations_helpers.py: 67.57%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "(empty)",
-  "b": "test_cuda_utils.test_check_driver_error",
-  "c": "test_cuda_utils.test_check_driver_error_attaches_explanation",
-  "d": "test_cuda_utils.test_check_driver_error_out_of_memory_is_memory_error",
-  "e": "test_cuda_utils.test_check_runtime_error",
-  "f": "test_cuda_utils.test_check_runtime_error_attaches_explanation",
-  "g": "test_cuda_utils.test_check_runtime_error_out_of_memory_is_memory_error",
-  "h": "test_cuda_utils.test_enum_doc_cleanup_examples_are_reviewed_on_change",
-  "i": "test_cuda_utils.test_only_out_of_memory_errors_are_memory_errors",
-  "j": "test_error_handling.test_create_stream_raises_when_context_cannot_be_restored",
-  "k": "test_error_handling.test_failed_call_raises_its_own_error_with_the_restore_failure_attached",
-  "l": "test_error_handling.test_sync_raises_when_context_cannot_be_restored",
-  "m": "test_graph_builder.test_close_invalidated_capture",
-  "n": "test_graph_builder.test_collect_invalidated_capture",
-  "o": "test_graph_builder.test_end_building_invalidated_capture",
-  "p": "test_graph_builder.test_graph_join_failure_closes_unjoined_forks",
-  "q": "test_graph_builder.test_graph_join_failure_survives_failing_close",
-  "r": "test_graph_definition.test_alloc_memory_type_host",
-  "s": "test_graph_definition.test_alloc_zero_size_fails",
-  "t": "test_graph_definition_errors.test_condition_from_different_graph",
-  "u": "test_graph_definition_errors.test_free_null_pointer",
-  "v": "test_graph_definition_errors.test_switch_zero_branches",
-  "w": "test_graph_definition_lifetime.test_updating_child_node_replaces_embedded_handles",
-  "x": "test_graph_definition_mutation.test_failed_destroy_preserves_node_and_attachments",
-  "y": "test_graph_definition_mutation.test_self_edge",
-  "z": "test_graph_node_update.test_failed_definition_node_update_preserves_state",
-  "A": "test_graph_node_update.test_memcpy_update_captured_node_host_operand",
-  "B": "test_graph_node_update.test_rejected_executable_update_rolls_back_owners",
-  "C": "test_memory.test_device_memory_resource_out_of_memory_is_memory_error",
-  "D": "test_memory.test_failed_vmm_allocation_does_not_block_another_resource",
-  "E": "test_memory.test_mr_deallocate_raises_on_driver_error",
-  "F": "test_memory.test_pinned_memory_resource_rejects_unsupported_host_pool",
-  "G": "test_memory.test_vmm_failed_grow_leaves_input_intact",
-  "H": "test_module.test_num_args_error_handling",
-  "I": "test_module.test_object_code_rejects_invalid_payload_on_load",
-  "J": "test_options.test_graph_complete_invalid_options_raise_cuda_error",
-  "K": "test_program.test_nvvm_program_creation_compilation",
-  "L": "test_vmm_ipc.TestDescriptorValidation.test_rejected_before_import",
-  "M": "test_vmm_ipc.TestDescriptorValidation.test_wrong_chunk_size_fails_at_map_and_rolls_back",
-  "N": "test_vmm_ipc.TestFileDescriptorLimit.test_export_near_the_limit",
-  "O": "test_utils_enum_explanations_helpers.test_clean_enum_member_docstring_examples",
-  "P": "test_utils_enum_explanations_helpers.test_docstring_backed_get_returns_default_for_missing_docstring",
-  "Q": "test_utils_enum_explanations_helpers.test_docstring_backed_get_returns_default_for_non_enum_code",
-  "R": "test_utils_enum_explanations_helpers.test_clean_enum_member_docstring_none_input"
+  "a": "tests/test_cuda_utils.py::test_check_runtime_error|run",
+  "b": "tests/test_cuda_utils.py::test_only_out_of_memory_errors_are_memory_errors|run",
+  "c": "tests/graph/test_graph_builder.py::test_close_invalidated_capture|run",
+  "d": "tests/graph/test_graph_builder.py::test_collect_invalidated_capture|run",
+  "e": "tests/graph/test_graph_builder.py::test_end_building_invalidated_capture[global]|run",
+  "f": "tests/graph/test_graph_builder.py::test_end_building_invalidated_capture[relaxed]|run",
+  "g": "tests/graph/test_graph_builder.py::test_end_building_invalidated_capture[thread_local]|run",
+  "h": "tests/graph/test_graph_builder.py::test_graph_join_failure_closes_unjoined_forks|run",
+  "i": "tests/graph/test_graph_builder.py::test_graph_join_failure_survives_failing_close|run",
+  "j": "tests/graph/test_graph_definition.py::test_alloc_memory_type_host|run",
+  "k": "tests/graph/test_graph_definition.py::test_alloc_zero_size_fails|run",
+  "l": "tests/graph/test_graph_definition_errors.py::test_condition_from_different_graph|run",
+  "m": "tests/graph/test_graph_definition_errors.py::test_free_null_pointer|run",
+  "n": "tests/graph/test_graph_definition_errors.py::test_switch_zero_branches|run",
+  "o": "tests/graph/test_graph_definition_lifetime.py::test_updating_child_node_replaces_embedded_handles|run",
+  "p": "tests/graph/test_graph_definition_mutation.py::test_failed_destroy_preserves_node_and_attachments|run",
+  "q": "tests/graph/test_graph_definition_mutation.py::test_self_edge|run",
+  "r": "tests/graph/test_graph_node_update.py::test_failed_definition_node_update_preserves_state[child-graph]|run",
+  "s": "tests/graph/test_graph_node_update.py::test_memcpy_update_captured_node_host_operand[pool]|run",
+  "t": "tests/graph/test_graph_node_update.py::test_rejected_executable_update_rolls_back_owners|run",
+  "u": "tests/graph/test_options.py::test_graph_complete_invalid_options_raise_cuda_error|run",
+  "v": "tests/memory_ipc/test_vmm_ipc.py::TestDescriptorValidation::test_rejected_before_import|run",
+  "w": "tests/memory_ipc/test_vmm_ipc.py::TestDescriptorValidation::test_wrong_chunk_size_fails_at_map_and_rolls_back|run",
+  "x": "tests/memory_ipc/test_vmm_ipc.py::TestFileDescriptorLimit::test_export_near_the_limit|run",
+  "y": "tests/test_cuda_utils.py::test_check_driver_error_attaches_explanation|run",
+  "z": "tests/test_cuda_utils.py::test_check_driver_error_out_of_memory_is_memory_error|run",
+  "A": "tests/test_cuda_utils.py::test_check_driver_error|run",
+  "B": "tests/test_cuda_utils.py::test_check_runtime_error_attaches_explanation|run",
+  "C": "tests/test_cuda_utils.py::test_check_runtime_error_out_of_memory_is_memory_error|run",
+  "D": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[driver_invalid_context_multiple_roles]|run",
+  "E": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[driver_not_initialized_role_cleanup]|run",
+  "F": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[runtime_incompatible_driver_context_codegen_bug]|run",
+  "G": "tests/test_cuda_utils.py::test_enum_doc_cleanup_examples_are_reviewed_on_change[runtime_launch_timeout_role_cleanup]|run",
+  "H": "tests/test_error_handling.py::test_create_stream_raises_when_context_cannot_be_restored|run",
+  "I": "tests/test_error_handling.py::test_failed_call_raises_its_own_error_with_the_restore_failure_attached|run",
+  "J": "tests/test_error_handling.py::test_sync_raises_when_context_cannot_be_restored|run",
+  "K": "tests/test_memory.py::test_device_memory_resource_out_of_memory_is_memory_error|run",
+  "L": "tests/test_memory.py::test_failed_vmm_allocation_does_not_block_another_resource[invalid-alignment]|run",
+  "M": "tests/test_memory.py::test_failed_vmm_allocation_does_not_block_another_resource[invalid-peer]|run",
+  "N": "tests/test_memory.py::test_mr_deallocate_raises_on_driver_error|run",
+  "O": "tests/test_memory.py::test_pinned_memory_resource_rejects_unsupported_host_pool|run",
+  "P": "tests/test_memory.py::test_vmm_failed_grow_leaves_input_intact|run",
+  "Q": "tests/test_module.py::test_num_args_error_handling|run",
+  "R": "tests/test_module.py::test_object_code_rejects_invalid_payload_on_load[invalid_binary]|run",
+  "S": "tests/test_program.py::test_nvvm_program_creation_compilation|run",
+  "T": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[codegen_broken_interactions_role]|run",
+  "U": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[collapse_whitespace]|run",
+  "V": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[deprecated_line]|run",
+  "W": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_after]|run",
+  "X": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_after_digit]|run",
+  "Y": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_after_uppercase]|run",
+  "Z": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_before]|run",
+  "0": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[hyphen_space_before_uppercase]|run",
+  "1": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[preserve_dash_separator]|run",
+  "2": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_non_py_domain_role]|run",
+  "3": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_py_domain_role]|run",
+  "4": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_py_role]|run",
+  "5": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[rst_role_without_domain]|run",
+  "6": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[strip_bold]|run",
+  "7": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[strip_italic]|run",
+  "8": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_examples[strip_padding]|run",
+  "9": "tests/test_utils_enum_explanations_helpers.py::test_docstring_backed_get_returns_default_for_missing_docstring|run",
+  "!": "tests/test_utils_enum_explanations_helpers.py::test_docstring_backed_get_returns_default_for_non_enum_code|run",
+  "#": "tests/test_utils_enum_explanations_helpers.py::test_clean_enum_member_docstring_none_input|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -60,7 +80,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_utils<span class="sep">/</span>enum_explanations_helpers.py</b>:
-            <span class="pc_cov">100.00%</span>
+            <span class="pc_cov">67.57%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -103,8 +123,8 @@
         </aside>
         <h2>
             <span class="text">37 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">37<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">25<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">12<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -112,8 +132,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_b1c5cc5642be1834_pycompat_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -143,31 +163,31 @@
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="str">in PR #1805. Keep them narrow. When the codegen quirks are gone, remove them.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="str">&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"><label for="ctxs16" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">__future__</span> <span class="key">import</span> <span class="nam">annotations</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="key">import</span> <span class="nam">re</span>&nbsp;</span><span class="r"><label for="ctxs18" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">Any</span>&nbsp;</span><span class="r"><label for="ctxs19" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t"><span class="key">import</span> <span class="nam">re</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">Any</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="nam">_RST_INLINE_ROLE_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r&quot;:(?:[a-z]+:)?[a-z]+:`([^`]+)`&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs21" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="nam">_WORDWRAP_HYPHEN_AFTER_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r&quot;(?&lt;=[0-9A-Za-z_])- (?=[0-9A-Za-z_])&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs22" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="nam">_WORDWRAP_HYPHEN_BEFORE_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r&quot;(?&lt;=[0-9A-Za-z_]) -(?=[0-9A-Za-z_])&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs23" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="nam">_RST_INLINE_ROLE_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r&quot;:(?:[a-z]+:)?[a-z]+:`([^`]+)`&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="nam">_WORDWRAP_HYPHEN_AFTER_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r&quot;(?&lt;=[0-9A-Za-z_])- (?=[0-9A-Za-z_])&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="nam">_WORDWRAP_HYPHEN_BEFORE_RE</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">r&quot;(?&lt;=[0-9A-Za-z_]) -(?=[0-9A-Za-z_])&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="key">def</span> <span class="nam">_fix_hyphenation_wordwrap_spacing</span><span class="op">(</span><span class="nam">s</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="key">def</span> <span class="nam">_fix_hyphenation_wordwrap_spacing</span><span class="op">(</span><span class="nam">s</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Remove spaces around hyphens introduced by line wrapping in generated ``__doc__`` text.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="str">    This targets asymmetric wrap artifacts such as ``non- linear`` or</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="str">    ``GPU- Direct`` while leaving intentional ``a - b`` separators alone.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="str">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="nam">prev</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
-    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="key">while</span> <span class="nam">prev</span> <span class="op">!=</span> <span class="nam">s</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="nam">prev</span> <span class="op">=</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="nam">s</span> <span class="op">=</span> <span class="nam">_WORDWRAP_HYPHEN_AFTER_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">&quot;-&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="nam">s</span> <span class="op">=</span> <span class="nam">_WORDWRAP_HYPHEN_BEFORE_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">&quot;-&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="key">return</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
+    <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="nam">prev</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs32"><span class="r"><label for="ctxs32" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="key">while</span> <span class="nam">prev</span> <span class="op">!=</span> <span class="nam">s</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs33"><span class="r"><label for="ctxs33" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="nam">prev</span> <span class="op">=</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="nam">s</span> <span class="op">=</span> <span class="nam">_WORDWRAP_HYPHEN_AFTER_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">&quot;-&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="nam">s</span> <span class="op">=</span> <span class="nam">_WORDWRAP_HYPHEN_BEFORE_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">&quot;-&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="key">return</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="key">def</span> <span class="nam">clean_enum_member_docstring</span><span class="op">(</span><span class="nam">doc</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs40" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="key">def</span> <span class="nam">clean_enum_member_docstring</span><span class="op">(</span><span class="nam">doc</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Turn an enum member ``__doc__`` into plain text.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t"><span class="str">    The generated enum docstrings are already close to user-facing prose, but</span>&nbsp;</span><span class="r"></span></p>
@@ -175,46 +195,46 @@
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t"><span class="str">    codegen defect. Normalize only those differences so the text is suitable</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t"><span class="str">    for error messages.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t"><span class="str">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">    <span class="key">if</span> <span class="nam">doc</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">42 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKORLMN</span></p>
-    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">1 ctx</label></span><span class="ctxs">1R</span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">doc</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
+    <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">    <span class="key">if</span> <span class="nam">doc</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs48"><span class="r"><label for="ctxs48" class="ctx">62 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678#</span></p>
+    <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><input type="checkbox" id="ctxs49"><span class="r"><label for="ctxs49" class="ctx">1 ctx</label></span><span class="ctxs">1#</span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">doc</span>&nbsp;</span><input type="checkbox" id="ctxs50"><span class="r"><label for="ctxs50" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="com"># Known codegen bug on cudaErrorIncompatibleDriverContext. Remove once fixed</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">    <span class="com"># in cuda-bindings code generation.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">s</span><span class="op">.</span><span class="nam">replace</span><span class="op">(</span><span class="str">&quot;\n:py:obj:`~.Interactions`&quot;</span><span class="op">,</span> <span class="str">&#x27; &quot;Interactions &#x27;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
+    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">s</span><span class="op">.</span><span class="nam">replace</span><span class="op">(</span><span class="str">&quot;\n:py:obj:`~.Interactions`&quot;</span><span class="op">,</span> <span class="str">&#x27; &quot;Interactions &#x27;</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs53"><span class="r"><label for="ctxs53" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">    <span class="com"># Drop a leading &quot;~.&quot; or &quot;.&quot; after removing the surrounding RST inline role.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">_RST_INLINE_ROLE_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="key">lambda</span> <span class="nam">m</span><span class="op">:</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;^~?\.&quot;</span><span class="op">,</span> <span class="str">&quot;&quot;</span><span class="op">,</span> <span class="nam">m</span><span class="op">.</span><span class="nam">group</span><span class="op">(</span><span class="num">1</span><span class="op">)</span><span class="op">)</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">_RST_INLINE_ROLE_RE</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="key">lambda</span> <span class="nam">m</span><span class="op">:</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;^~?\.&quot;</span><span class="op">,</span> <span class="str">&quot;&quot;</span><span class="op">,</span> <span class="nam">m</span><span class="op">.</span><span class="nam">group</span><span class="op">(</span><span class="num">1</span><span class="op">)</span><span class="op">)</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs55"><span class="r"><label for="ctxs55" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">    <span class="com"># Strip simple bold emphasis markers.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;\*\*([^*]+)\*\*&quot;</span><span class="op">,</span> <span class="str">r&quot;\1&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs57"><span class="r"><label for="ctxs57" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;\*\*([^*]+)\*\*&quot;</span><span class="op">,</span> <span class="str">r&quot;\1&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs57"><span class="r"><label for="ctxs57" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">    <span class="com"># Strip simple italic emphasis markers.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;\*([^*]+)\*&quot;</span><span class="op">,</span> <span class="str">r&quot;\1&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;\*([^*]+)\*&quot;</span><span class="op">,</span> <span class="str">r&quot;\1&quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">    <span class="com"># Collapse wrapped lines and repeated spaces.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;\s+&quot;</span><span class="op">,</span> <span class="str">&quot; &quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span><span class="op">.</span><span class="nam">strip</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs61"><span class="r"><label for="ctxs61" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
-    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">_fix_hyphenation_wordwrap_spacing</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
-    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">    <span class="key">return</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKOLMN</span></p>
+    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">sub</span><span class="op">(</span><span class="str">r&quot;\s+&quot;</span><span class="op">,</span> <span class="str">&quot; &quot;</span><span class="op">,</span> <span class="nam">s</span><span class="op">)</span><span class="op">.</span><span class="nam">strip</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs61"><span class="r"><label for="ctxs61" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">    <span class="nam">s</span> <span class="op">=</span> <span class="nam">_fix_hyphenation_wordwrap_spacing</span><span class="op">(</span><span class="nam">s</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs62"><span class="r"><label for="ctxs62" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">    <span class="key">return</span> <span class="nam">s</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">61 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRSTUVWXYZ012345678</span></p>
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="key">class</span> <span class="nam">DocstringBackedExplanations</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs66" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="key">class</span> <span class="nam">DocstringBackedExplanations</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Expose enum-member ``__doc__`` text via ``dict.get``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="str">    Keeps the ``.get(int(error))`` lookup shape used by ``cuda_utils.pyx``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="str">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">    <span class="nam">__slots__</span> <span class="op">=</span> <span class="op">(</span><span class="str">&quot;_enum_type&quot;</span><span class="op">,</span><span class="op">)</span>&nbsp;</span><span class="r"><label for="ctxs72" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">    <span class="nam">__slots__</span> <span class="op">=</span> <span class="op">(</span><span class="str">&quot;_enum_type&quot;</span><span class="op">,</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">enum_type</span><span class="op">:</span> <span class="nam">Any</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs74" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_enum_type</span> <span class="op">=</span> <span class="nam">enum_type</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">3 ctx</label></span><span class="ctxs">1aPQ</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">enum_type</span><span class="op">:</span> <span class="nam">Any</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_enum_type</span> <span class="op">=</span> <span class="nam">enum_type</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">2 ctx</label></span><span class="ctxs">19!</span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="key">def</span> <span class="nam">get</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">code</span><span class="op">:</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">default</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs77" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">42 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKPQLMN</span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">            <span class="nam">member</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_enum_type</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">42 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKPQLMN</span></p>
-    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">        <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">1 ctx</label></span><span class="ctxs">1Q</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">    <span class="key">def</span> <span class="nam">get</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">code</span><span class="op">:</span> <span class="nam">int</span><span class="op">,</span> <span class="nam">default</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">47 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRS9!</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">            <span class="nam">member</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_enum_type</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">47 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRS9!</span></p>
+    <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">        <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">1 ctx</label></span><span class="ctxs">1!</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">1 ctx</label></span><span class="ctxs">1!</span></p>
     <p class="pln"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">        <span class="nam">raw_doc</span> <span class="op">=</span> <span class="nam">member</span><span class="op">.</span><span class="nam">__doc__</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKPLMN</span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">        <span class="key">if</span> <span class="nam">raw_doc</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">41 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKPLMN</span></p>
-    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">2 ctx</label></span><span class="ctxs">1aP</span></p>
+    <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">        <span class="nam">raw_doc</span> <span class="op">=</span> <span class="nam">member</span><span class="op">.</span><span class="nam">__doc__</span>&nbsp;</span><input type="checkbox" id="ctxs83"><span class="r"><label for="ctxs83" class="ctx">46 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRS9</span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">        <span class="key">if</span> <span class="nam">raw_doc</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">46 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRS9</span></p>
+    <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t">            <span class="key">return</span> <span class="nam">default</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">3 ctx</label></span><span class="ctxs">1ab9</span></p>
     <p class="pln"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">        <span class="key">return</span> <span class="nam">clean_enum_member_docstring</span><span class="op">(</span><span class="nam">raw_doc</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">40 ctx</label></span><span class="ctxs">1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN</span></p>
+    <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">        <span class="key">return</span> <span class="nam">clean_enum_member_docstring</span><span class="op">(</span><span class="nam">raw_doc</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">45 ctx</label></span><span class="ctxs">1cdefghijklmnopqrstuvwxyzABCaDEFGbHIJKLMNOPQRS</span></p>
 </main>
 <footer>
     <div class="content">
@@ -223,8 +243,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_b1c5cc5642be1834_pycompat_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.1">coverage.py v7.17.1</a>,
-            created at 2026-11-04 13:13 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-05 01:11 +0000
         </p>
     </div>
 </footer>
