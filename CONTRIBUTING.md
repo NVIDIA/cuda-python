@@ -72,19 +72,24 @@ running the clone command.
 From the directory where you want to create the checkout, run:
 
 ```console
-$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+$ git clone --config core.symlinks=true --config submodule.recurse=true --filter=blob:none https://github.com/NVIDIA/cuda-python.git
 $ cd cuda-python
+$ git submodule update --init --depth=1 --filter=blob:none --recursive
 ```
 
 This recipe sets up the repository for source builds and development:
 
 - `core.symlinks=true` materializes symlinks during checkout, including the
   build-critical `cuda_core/_build_shared.py`.
-- `--recurse-submodules` initializes the CCCL headers needed to build `cuda.core`.
+- The separate submodule update initializes the pinned CCCL headers needed to
+  build `cuda.core`, fetching only one commit of submodule history.
+- `--filter=blob:none` skips historical file contents in both repositories.
+  Git downloads file contents as needed for checkout.
 - `submodule.recurse=true` keeps initialized submodules in sync on `git pull`,
   `git checkout`, and `git switch`.
-- The clone retains history and release tags for correct package versions.
-  Do not add `--depth` or `--no-tags`.
+- The root clone retains history and release tags for correct package versions.
+  Do not add `--depth` or `--no-tags` to `git clone`; the depth limit applies
+  only to submodules.
 
 Both configuration settings are stored in the new clone. Next, follow the
 build and test instructions for
@@ -97,13 +102,15 @@ build and test instructions for
 From the repository root, run:
 
 ```console
-$ git pull --recurse-submodules
-$ git submodule update --init
+$ git pull --no-recurse-submodules
+$ git submodule sync --recursive
+$ git submodule update --init --depth=1 --filter=blob:none --recursive
 ```
 
-The recommended clone configures `submodule.recurse=true`, so you can omit
-`--recurse-submodules` from `git pull`. The second command initializes any
-newly added submodules; it is usually a no-op.
+Pull the root repository first, then sync submodule URLs and update the pinned
+revisions, including any newly added submodules. The explicit
+`--no-recurse-submodules` overrides `submodule.recurse=true` for the pull so
+submodules are fetched separately with the requested depth and filter.
 
 If you work from a fork, periodically fetch release tags from NVIDIA upstream
 so package versions stay current:

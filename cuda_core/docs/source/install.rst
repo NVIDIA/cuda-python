@@ -130,24 +130,29 @@ recipe below. On native Windows outside WSL, complete its Windows setup
 
 .. code-block:: console
 
-   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
-   $ cd cuda-python/cuda_core
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --filter=blob:none https://github.com/NVIDIA/cuda-python.git
+   $ cd cuda-python
+   $ git submodule update --init --depth=1 --filter=blob:none --recursive
+   $ cd cuda_core
    $ pip install .
 
 .. note::
 
-   ``--recurse-submodules`` is required: the build compiles against the CCCL
+   The submodule update is required: the build compiles against the CCCL
    headers pinned in the ``cuda_core/third_party/cccl`` submodule, and fails
    without them. For a clone that already exists, run the following from the
    repository root:
-   ``git submodule update --init cuda_core/third_party/cccl``.
+   ``git submodule update --init --depth=1 --filter=blob:none --recursive``.
+   Only the submodule history is shallow; the root clone retains its history
+   and release tags.
 
 .. note::
 
    The version is derived from git tags via ``setuptools-scm``, so the clone
    must include tags reaching back to at least the latest ``cuda-core-v*`` tag.
-   Do not use ``--depth`` or ``--no-tags``: a shallow clone builds without
-   error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
+   Do not add ``--depth`` or ``--no-tags`` to ``git clone``: a shallow root
+   clone builds without error but produces a bogus version such as
+   ``0.1.dev1+g0d22cb444``. See
    `Cloning the repository
    <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
    for details.
@@ -161,8 +166,10 @@ For example, to work on ``cuda-core`` against CUDA 13:
 
 .. code-block:: console
 
-   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
-   $ cd cuda-python/cuda_core
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --filter=blob:none https://github.com/NVIDIA/cuda-python.git
+   $ cd cuda-python
+   $ git submodule update --init --depth=1 --filter=blob:none --recursive
+   $ cd cuda_core
    $ uv venv
    $ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
    $ uv pip install -e .[cu13] --group test
@@ -184,8 +191,9 @@ For example, to work against CUDA 13:
 
 .. code-block:: console
 
-   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --filter=blob:none https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python
+   $ git submodule update --init --depth=1 --filter=blob:none --recursive
    $ pixi run -e cu13 test-core
 
 To run all repository tests (pathfinder → bindings → core):
