@@ -365,16 +365,26 @@ class TestFindInSitePackages:
 
         assert result is None
 
-    @pytest.mark.agent_authored(model="gpt-5.6-sol")
-    def test_windows_known_cupti_names_follow_declared_preference_order(self, tmp_path):
-        preferred_dll = tmp_path / "cupti64_2026.3.0.dll"
-        fallback_dll = tmp_path / "cupti64_2026.2.1.dll"
+    @pytest.mark.parametrize(
+        ("preferred_name", "fallback_name"),
+        [
+            ("cupti64_13.dll", "cupti64_2026.3.1.dll"),
+            ("cupti64_2026.3.0.dll", "cupti64_2026.2.1.dll"),
+        ],
+    )
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_windows_known_cupti_names_follow_declared_preference_order(self, tmp_path, preferred_name, fallback_name):
+        preferred_dll = tmp_path / preferred_name
+        fallback_dll = tmp_path / fallback_name
         preferred_dll.touch()
         fallback_dll.touch()
 
         result = _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS["cupti"])
 
         assert result == str(preferred_dll)
+
+        preferred_dll.unlink()
+        assert _find_descriptor_dll_under_dir(str(tmp_path), LIB_DESCRIPTORS["cupti"]) == str(fallback_dll)
 
     @pytest.mark.parametrize(
         ("libname", "sibling_dll"),

@@ -98,7 +98,26 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     CORE_WHL_FOR_FLOOR=("${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)
     BINDINGS_FLOOR="$(python ci/tools/cuda_core_bindings_floor.py --wheel "${CORE_WHL_FOR_FLOOR[0]}" --major "${TEST_CUDA_MAJOR}")"
     echo "cuda-bindings floor of ${CORE_WHL_FOR_FLOOR[0]##*/} for CUDA ${TEST_CUDA_MAJOR}: ${BINDINGS_FLOOR}"
-    BINDINGS_ARGS+=("cuda-bindings==${BINDINGS_FLOOR}")
+    BINDINGS_FLOOR_MINOR="$(cut -d '.' -f 2 <<< "${BINDINGS_FLOOR}")"
+    if [[ "${test_module}" != "nightly-cuda-core" && "${TEST_CUDA_MAJOR}" == "${BUILD_CUDA_MAJOR}" && "${BINDINGS_FLOOR_MINOR}" -lt "${BUILD_CUDA_MINOR}" ]]; then
+      # Every CTK minor bump (see "CUDA Toolkit minor bumps" in
+      # cuda_core/AGENTS.md) opens a window in which the floor's minor is below
+      # the minor the wheel was compiled against. No released cuda-bindings
+      # at the floor can pass cuda.core's header check then, because it was
+      # generated from older headers. Use the cuda-bindings built from this
+      # commit for local cuda.core tests, including nightly modes. The
+      # released-core nightly keeps the floor because it tests another build.
+      # The branch is taken exactly while that window is open
+      # and stops being taken once the floor is bumped to the new minor, so it
+      # needs no per-release edit or revert.
+      echo "Floor ${BINDINGS_FLOOR} predates CUDA ${BUILD_CUDA_MAJOR}.${BUILD_CUDA_MINOR} headers; using the just-built cuda-bindings wheel"
+      BINDINGS_ARGS=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
+      if [[ "${LOCAL_CTK}" != 1 ]]; then
+        BINDINGS_ARGS=("${BINDINGS_ARGS[0]}[all]")
+      fi
+    else
+      BINDINGS_ARGS+=("cuda-bindings==${BINDINGS_FLOOR}")
+    fi
   else
     BINDINGS_ARGS=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)
     if [[ "${LOCAL_CTK}" != 1 ]]; then
@@ -126,19 +145,26 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     echo "Installing bindings (source: ${BINDINGS_SOURCE})"
     pip install "${BINDINGS_ARGS[@]}"
     echo "Installing core wheel"
-    # Constrain cuda-toolkit to the requested CTK version to avoid
-    # pip pulling in a newer nvidia-cuda-runtime that conflicts with it.
-    pip install "${CORE_WHL[@]}" --group "test-cu${TEST_CUDA_MAJOR}" "${TEST_FT_GROUP[@]}" "cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*"
+    # Local jobs get CuPy's headers and libraries from the mini CTK; installing
+    # component wheels would take precedence over those local libraries.
+    CORE_TEST_GROUP="test-cu${TEST_CUDA_MAJOR}"
+    TOOLKIT_PIN=("cuda-toolkit==${TEST_CUDA_MAJOR_MINOR}.*")
+    if [[ "${LOCAL_CTK}" == 1 ]]; then
+      CORE_TEST_GROUP+="-local"
+      TOOLKIT_PIN=()
+    fi
+    pip install "${CORE_WHL[@]}" --group "${CORE_TEST_GROUP}" "${TEST_FT_GROUP[@]}" "${TOOLKIT_PIN[@]}"
     # Optional deps needed by some cuda.core samples exercised in this suite.
     # CuPy already comes from the
     # test-cuXX group; install the rest best-effort so those samples run
     # instead of being waived. Samples with heavier/unavailable deps stay waived.
     echo "Installing optional sample deps (nvtx, pillow)"
     pip install nvtx pillow || echo "Warning: optional sample deps install failed; affected samples will be waived"
-    # curand: some samples (vectorAdd, parallelHistogram) call cp.random,
-    # which dlopens libcurand at runtime.
-    echo "Installing optional sample deps (curand)"
-    pip install "cuda-toolkit[curand]==${TEST_CUDA_MAJOR_MINOR}.*" || echo "Warning: curand install failed; affected samples will be waived"
+    # Local jobs already get cuRAND from the mini CTK.
+    if [[ "${LOCAL_CTK}" != 1 ]]; then
+      echo "Installing optional sample deps (curand)"
+      pip install "cuda-toolkit[curand]==${TEST_CUDA_MAJOR_MINOR}.*" || echo "Warning: curand install failed; affected samples will be waived"
+    fi
     echo "Installed packages before core tests:"
     pip list
     echo "Running core tests"

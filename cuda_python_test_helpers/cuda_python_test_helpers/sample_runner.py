@@ -335,6 +335,29 @@ def _distribution_mismatches(requirement: Requirement, dist: importlib.metadata.
     return mismatches
 
 
+def _native_curand_available() -> bool:
+    # Samples cannot inherit libraries loaded into the parent by packages such as PyTorch.
+    code = f"""\
+try:
+    import cuda.pathfinder as pathfinder
+except ModuleNotFoundError as exc:
+    if exc.name not in {{"cuda", "cuda.pathfinder"}}:
+        raise
+    raise SystemExit({EXIT_WAIVED})
+try:
+    pathfinder.load_nvidia_dynamic_lib("curand")
+except pathfinder.DynamicLibNotFoundError:
+    raise SystemExit({EXIT_WAIVED})
+"""
+    result = subprocess.run(  # noqa: S603 - current interpreter and fixed probe code
+        [sys.executable, "-c", code], capture_output=True, text=True, check=False
+    )
+    if result.returncode == EXIT_WAIVED:
+        return False
+    result.check_returncode()
+    return True
+
+
 def missing_dependencies(example: Path) -> list[str]:
     """Return useful diagnostics for unmet PEP 723 dependency requirements.
 
@@ -367,6 +390,13 @@ def missing_dependencies(example: Path) -> list[str]:
                 break
             installed.append(f"{provider} {dist.version}: {', '.join(mismatches)}")
         else:
+            # A local Toolkit can provide cuRAND without a Python distribution.
+            if (
+                canonicalize_name(requirement.name) == "nvidia-curand"
+                and not (requirement.specifier or requirement.extras or requirement.url)
+                and _native_curand_available()
+            ):
+                continue
             if installed:
                 detail = "; ".join(installed)
             else:
