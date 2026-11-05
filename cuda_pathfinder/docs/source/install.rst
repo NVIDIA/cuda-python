@@ -64,10 +64,8 @@ before cloning.
 
 .. code-block:: console
 
-   $ git clone --config core.symlinks=true --config submodule.recurse=true --filter=blob:none https://github.com/NVIDIA/cuda-python.git
-   $ cd cuda-python
-   $ git submodule update --init --depth=1 --filter=blob:none --recursive
-   $ cd cuda_pathfinder
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules --filter=blob:none --also-filter-submodules https://github.com/NVIDIA/cuda-python.git
+   $ cd cuda-python/cuda_pathfinder
    $ pip install .
 
 For an editable install (e.g. when developing ``cuda.pathfinder`` itself):
@@ -80,9 +78,8 @@ For an editable install (e.g. when developing ``cuda.pathfinder`` itself):
 
    The version is derived from git tags via ``setuptools-scm``, so the clone
    must include tags reaching back to at least the latest ``cuda-pathfinder-v*``
-   tag. Do not add ``--depth`` or ``--no-tags`` to ``git clone``: a shallow root
-   clone builds without error but produces a bogus version such as
-   ``0.1.dev1+g0d22cb444``. See
+   tag. Do not use ``--depth`` or ``--no-tags``: a shallow clone builds without
+   error but produces a bogus version such as ``0.1.dev1+g0d22cb444``. See
    `Cloning the repository
    <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md>`_
    for details.
