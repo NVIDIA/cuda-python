@@ -361,13 +361,13 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
-      - name: Set up latest cuda_sanitizer_api
+      - name: Set up cuda_sanitizer_api
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && env.SETUP_SANITIZER == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ env.LATEST_CUDA_VERSION }}
+          cuda-version: ${{ matrix.CUDA_VER }}
           cuda-components: "cuda_sanitizer_api"
 
       - name: Set up compute-sanitizer
