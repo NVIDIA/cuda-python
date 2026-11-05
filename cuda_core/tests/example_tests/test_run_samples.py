@@ -468,6 +468,7 @@ def native_pathfinder(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     cuda = modules / "cuda"
     cuda.mkdir(parents=True)
     (cuda / "__init__.py").write_text("", encoding="utf-8")
+    (cuda / "pathfinder.py").write_text("raise ModuleNotFoundError(name='cuda.pathfinder')\n", encoding="utf-8")
     monkeypatch.setenv("PYTHONPATH", str(modules))
 
     def provide(body: str) -> None:
