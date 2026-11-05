@@ -130,7 +130,12 @@ def test_known_redistrib_sha256_covers_ci_cuda_versions():
         if str(row.get("LOCAL_CTK")) == "1"
     }
     assert required
-    assert sorted(required - KNOWN_REDISTRIB_SHA256.keys()) == []
+    missing = sorted(required - KNOWN_REDISTRIB_SHA256.keys())
+    assert not missing, (
+        f"CUDA versions used by CI have no pinned redistrib manifest hash: {missing}. "
+        "Add them to KNOWN_REDISTRIB_SHA256 in ci/tools/fetch_ctk_redistrib.py; compute each hash with "
+        "`curl -fsSL https://developer.download.nvidia.com/compute/cuda/redist/redistrib_<ver>.json | sha256sum`."
+    )
     for version, sha256 in KNOWN_REDISTRIB_SHA256.items():
         assert SHA256_RE.fullmatch(sha256), f"invalid pinned sha256 for CUDA {version}"
 
