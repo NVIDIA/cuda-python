@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cbb01e3cfa7e64dc3172a979f20859a8ead856f7993e1d949bdced45d4f5b61c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8a46dfdd68219b4a7117e7934ac83710287f47e9481442445ae9fbb888df019e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -4005,7 +4005,11 @@ cdef enum: CU_DEVICE_INVALID = -2
 
 cdef enum: MAX_PLANES = 3
 
-cdef enum: CUDA_EGL_INFINITE_TIMEOUT = 4294967295
+cdef extern from *:
+    """
+    const uint32_t CUDA_EGL_INFINITE_TIMEOUT = 0xffffffff;
+    """
+    const uint32_t CUDA_EGL_INFINITE_TIMEOUT
 
 cdef enum: RESOURCE_ABI_VERSION = 1
 
