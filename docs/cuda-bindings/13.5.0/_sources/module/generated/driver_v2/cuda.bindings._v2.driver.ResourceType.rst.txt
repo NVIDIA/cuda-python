@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ResourceType
+======================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: ResourceType

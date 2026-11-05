@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.GpuFabricHealthMaskDegradedBw
+================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: GpuFabricHealthMaskDegradedBw

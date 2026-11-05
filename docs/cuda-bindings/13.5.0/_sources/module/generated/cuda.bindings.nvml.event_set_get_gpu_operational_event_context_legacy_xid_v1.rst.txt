@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.event\_set\_get\_gpu\_operational\_event\_context\_legacy\_xid\_v1
+=====================================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: event_set_get_gpu_operational_event_context_legacy_xid_v1

@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_conf\_compute\_protected\_memory\_usage
+=======================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_conf_compute_protected_memory_usage

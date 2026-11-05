@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.VgpuGuestInfoState
+=====================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: VgpuGuestInfoState

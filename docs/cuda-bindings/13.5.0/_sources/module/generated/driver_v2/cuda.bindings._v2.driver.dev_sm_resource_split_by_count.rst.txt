@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.dev\_sm\_resource\_split\_by\_count
+=============================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: dev_sm_resource_split_by_count

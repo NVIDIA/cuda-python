@@ -1,0 +1,32 @@
+﻿cuda.bindings.\_v2.driver.EventWaitNodeParams
+=============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: EventWaitNodeParams
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EventWaitNodeParams.__init__
+      ~EventWaitNodeParams.from_buffer
+      ~EventWaitNodeParams.from_data
+      ~EventWaitNodeParams.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EventWaitNodeParams.event
+      ~EventWaitNodeParams.ptr
+   
+   

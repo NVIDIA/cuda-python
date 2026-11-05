@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.OperatingSystemError
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: OperatingSystemError

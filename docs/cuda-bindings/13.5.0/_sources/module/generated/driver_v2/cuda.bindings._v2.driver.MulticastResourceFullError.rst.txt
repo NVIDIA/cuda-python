@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.MulticastResourceFullError
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: MulticastResourceFullError

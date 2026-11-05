@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.checkpoint\_process\_unlock
+=====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: checkpoint_process_unlock

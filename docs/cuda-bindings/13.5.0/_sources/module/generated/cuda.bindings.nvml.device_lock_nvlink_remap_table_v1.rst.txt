@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_lock\_nvlink\_remap\_table\_v1
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_lock_nvlink_remap_table_v1

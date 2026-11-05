@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_setup\_nvlink\_nvle\_encryption\_key\_v1
+===================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_setup_nvlink_nvle_encryption_key_v1

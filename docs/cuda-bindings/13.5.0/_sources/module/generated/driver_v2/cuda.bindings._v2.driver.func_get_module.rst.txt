@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.func\_get\_module
+===========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: func_get_module

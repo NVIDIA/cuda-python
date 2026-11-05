@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.memset\_d16\_async
+============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: memset_d16_async

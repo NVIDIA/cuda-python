@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.occupancy\_max\_active\_clusters
+==========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: occupancy_max_active_clusters

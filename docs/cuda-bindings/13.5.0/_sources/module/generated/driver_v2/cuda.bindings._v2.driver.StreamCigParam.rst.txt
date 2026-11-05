@@ -1,0 +1,33 @@
+﻿cuda.bindings.\_v2.driver.StreamCigParam
+========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: StreamCigParam
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StreamCigParam.__init__
+      ~StreamCigParam.from_buffer
+      ~StreamCigParam.from_data
+      ~StreamCigParam.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StreamCigParam.ptr
+      ~StreamCigParam.stream_shared_data
+      ~StreamCigParam.stream_shared_data_type
+   
+   

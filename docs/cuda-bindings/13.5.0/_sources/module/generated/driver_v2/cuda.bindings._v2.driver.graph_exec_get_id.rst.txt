@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.graph\_exec\_get\_id
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: graph_exec_get_id

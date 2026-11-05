@@ -1,0 +1,33 @@
+﻿cuda.bindings.\_v2.driver.ArrayMemoryRequirements\_v1
+=====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: ArrayMemoryRequirements_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ArrayMemoryRequirements_v1.__init__
+      ~ArrayMemoryRequirements_v1.from_buffer
+      ~ArrayMemoryRequirements_v1.from_data
+      ~ArrayMemoryRequirements_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ArrayMemoryRequirements_v1.alignment
+      ~ArrayMemoryRequirements_v1.ptr
+      ~ArrayMemoryRequirements_v1.size_
+   
+   

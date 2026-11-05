@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.destroy\_external\_semaphore
+======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: destroy_external_semaphore

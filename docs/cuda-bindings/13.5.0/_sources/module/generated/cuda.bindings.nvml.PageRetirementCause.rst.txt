@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.PageRetirementCause
+======================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: PageRetirementCause

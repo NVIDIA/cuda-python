@@ -1,0 +1,36 @@
+﻿cuda.bindings.\_v2.driver.MemAllocNodeParams\_v2
+================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: MemAllocNodeParams_v2
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MemAllocNodeParams_v2.__init__
+      ~MemAllocNodeParams_v2.from_buffer
+      ~MemAllocNodeParams_v2.from_data
+      ~MemAllocNodeParams_v2.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MemAllocNodeParams_v2.access_desc_count
+      ~MemAllocNodeParams_v2.access_descs
+      ~MemAllocNodeParams_v2.bytesize
+      ~MemAllocNodeParams_v2.dptr
+      ~MemAllocNodeParams_v2.pool_props
+      ~MemAllocNodeParams_v2.ptr
+   
+   

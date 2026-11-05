@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.GpuDynamicPstatesInfo
+========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: GpuDynamicPstatesInfo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GpuDynamicPstatesInfo.__init__
+      ~GpuDynamicPstatesInfo.from_buffer
+      ~GpuDynamicPstatesInfo.from_data
+      ~GpuDynamicPstatesInfo.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GpuDynamicPstatesInfo.flags_
+      ~GpuDynamicPstatesInfo.ptr
+      ~GpuDynamicPstatesInfo.utilization
+   
+   

@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.AlreadyInitializedError
+==========================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoexception:: AlreadyInitializedError

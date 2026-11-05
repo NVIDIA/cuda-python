@@ -1,0 +1,33 @@
+﻿cuda.bindings.cufile.IOVec
+==========================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: IOVec
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IOVec.__init__
+      ~IOVec.from_buffer
+      ~IOVec.from_data
+      ~IOVec.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IOVec.base_
+      ~IOVec.len
+      ~IOVec.ptr
+   
+   

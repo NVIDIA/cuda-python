@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.tex\_ref\_get\_max\_anisotropy
+========================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: tex_ref_get_max_anisotropy

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.EglColorFormat
+========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoenum:: EglColorFormat

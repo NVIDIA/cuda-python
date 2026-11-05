@@ -1,0 +1,32 @@
+﻿cuda.bindings.nvml.NvlinkNvlePrivateInfo\_v1
+============================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: NvlinkNvlePrivateInfo_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NvlinkNvlePrivateInfo_v1.__init__
+      ~NvlinkNvlePrivateInfo_v1.from_buffer
+      ~NvlinkNvlePrivateInfo_v1.from_data
+      ~NvlinkNvlePrivateInfo_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NvlinkNvlePrivateInfo_v1.data_
+      ~NvlinkNvlePrivateInfo_v1.ptr
+   
+   

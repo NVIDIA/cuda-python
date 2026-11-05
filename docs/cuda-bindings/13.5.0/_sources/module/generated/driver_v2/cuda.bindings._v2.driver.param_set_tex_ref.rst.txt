@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.param\_set\_tex\_ref
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: param_set_tex_ref

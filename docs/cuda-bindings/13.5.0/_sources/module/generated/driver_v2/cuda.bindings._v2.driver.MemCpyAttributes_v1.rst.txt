@@ -1,0 +1,35 @@
+﻿cuda.bindings.\_v2.driver.MemCpyAttributes\_v1
+==============================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoclass:: MemCpyAttributes_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MemCpyAttributes_v1.__init__
+      ~MemCpyAttributes_v1.from_buffer
+      ~MemCpyAttributes_v1.from_data
+      ~MemCpyAttributes_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MemCpyAttributes_v1.dst_loc_hint
+      ~MemCpyAttributes_v1.flags_
+      ~MemCpyAttributes_v1.ptr
+      ~MemCpyAttributes_v1.src_access_order
+      ~MemCpyAttributes_v1.src_loc_hint
+   
+   

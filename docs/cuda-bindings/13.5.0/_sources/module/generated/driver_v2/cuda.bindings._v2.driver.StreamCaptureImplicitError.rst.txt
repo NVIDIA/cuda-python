@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.StreamCaptureImplicitError
+====================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: StreamCaptureImplicitError

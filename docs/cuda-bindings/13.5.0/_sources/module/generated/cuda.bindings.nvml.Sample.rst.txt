@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.Sample
+=========================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: Sample
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Sample.__init__
+      ~Sample.from_buffer
+      ~Sample.from_data
+      ~Sample.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Sample.ptr
+      ~Sample.sample_value
+      ~Sample.time_stamp
+   
+   

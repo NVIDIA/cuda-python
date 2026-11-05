@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.MisalignedAddressError
+================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autoexception:: MisalignedAddressError

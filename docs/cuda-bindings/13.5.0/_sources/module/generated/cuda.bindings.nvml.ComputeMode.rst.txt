@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.ComputeMode
+==============================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoenum:: ComputeMode

@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.ctx\_set\_shared\_mem\_config
+=======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: ctx_set_shared_mem_config

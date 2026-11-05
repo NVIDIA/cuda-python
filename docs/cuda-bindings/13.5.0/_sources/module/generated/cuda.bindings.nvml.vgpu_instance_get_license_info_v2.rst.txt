@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.vgpu\_instance\_get\_license\_info\_v2
+=========================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: vgpu_instance_get_license_info_v2

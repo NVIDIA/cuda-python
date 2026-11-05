@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.memset\_d2d32\_v2
+===========================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: memset_d2d32_v2

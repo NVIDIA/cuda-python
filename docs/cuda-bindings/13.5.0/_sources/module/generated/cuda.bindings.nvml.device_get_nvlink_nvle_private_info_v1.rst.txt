@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_nvlink\_nvle\_private\_info\_v1
+===============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_nvlink_nvle_private_info_v1

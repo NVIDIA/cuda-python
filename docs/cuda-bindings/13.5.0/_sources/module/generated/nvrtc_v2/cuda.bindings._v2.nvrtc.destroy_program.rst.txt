@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.destroy\_program
+=========================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autofunction:: destroy_program

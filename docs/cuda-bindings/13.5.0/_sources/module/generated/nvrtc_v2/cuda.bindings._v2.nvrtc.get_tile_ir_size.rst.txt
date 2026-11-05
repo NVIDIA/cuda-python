@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.nvrtc.get\_tile\_ir\_size
+============================================
+
+.. currentmodule:: cuda.bindings._v2.nvrtc
+
+.. autofunction:: get_tile_ir_size

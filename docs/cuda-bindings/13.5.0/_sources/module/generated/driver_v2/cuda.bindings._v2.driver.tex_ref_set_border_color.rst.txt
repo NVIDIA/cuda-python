@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.tex\_ref\_set\_border\_color
+======================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: tex_ref_set_border_color

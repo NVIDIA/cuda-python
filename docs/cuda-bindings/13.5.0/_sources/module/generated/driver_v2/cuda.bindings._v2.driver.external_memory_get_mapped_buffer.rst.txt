@@ -1,0 +1,6 @@
+﻿cuda.bindings.\_v2.driver.external\_memory\_get\_mapped\_buffer
+===============================================================
+
+.. currentmodule:: cuda.bindings._v2.driver
+
+.. autofunction:: external_memory_get_mapped_buffer
