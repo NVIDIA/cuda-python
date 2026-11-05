@@ -1267,12 +1267,12 @@ cdef class Graph:
         IF CUDA_CORE_BUILD_MAJOR >= 13:
             cdef unsigned int graph_id
             if cy_driver_version() < (13, 1, 0):
-                raise NotImplementedError("Graph IDs require CUDA driver 13.1 or newer")
+                raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
             with nogil:
                 HANDLE_RETURN(cydriver.cuGraphExecGetId(as_cu(self._h_graph_exec), &graph_id))
             return graph_id
         ELSE:
-            raise NotImplementedError("Graph IDs require CUDA driver 13.1 or newer")
+            raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
 
     @property
     def handle(self) -> driver.CUgraphExec:
