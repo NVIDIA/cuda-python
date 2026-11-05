@@ -47,17 +47,28 @@ $inDisallowed = [bool](Get-ChildItem -Path 'Cert:\LocalMachine\Disallowed' -Erro
     Where-Object { (Get-CertificateSha256 $_) -eq $EmSignG3Hex })
 Record-Check 'emSign ECC Root CA - G3 store state' 'INFO' "LocalMachine\Root=$inRoot ($($rootCerts.Count) certs), LocalMachine\Disallowed=$inDisallowed"
 
-# 2. All compromised intermediates and cross-signs explicitly distrusted (gating)
+# 2. No compromised intermediate or cross-sign is usable as a trust path (gating).
+# Pass = explicitly distrusted, or the chain no longer reaches a trusted root
+# (the hosted images have removed the roots rather than enabling the disallowed CTL).
 $certs = @(Get-EmudhraIntermediates)
+$usable = @()
+$states = @()
 try {
-    $notDistrusted = @($certs | Where-Object { -not (Test-ExplicitlyDistrusted $_) } | ForEach-Object { $_.EmudhraLabel })
+    foreach ($c in $certs) {
+        $r = Get-ChainTrustState $c
+        $states += $r.State
+        if ($r.State -notin @('ExplicitDistrust', 'NoTrustAnchor')) {
+            $usable += "$($c.EmudhraLabel) [$($r.State): $($r.Statuses)]"
+        }
+    }
 } finally {
     $certs | ForEach-Object { $_.Dispose() }
 }
-if ($notDistrusted.Count -eq 0) {
-    Record-Check 'Compromised intermediates distrusted' 'PASS' "All $($certs.Count) explicitly distrusted"
+$counts = ($states | Group-Object | ForEach-Object { "$($_.Name)=$($_.Count)" }) -join ', '
+if ($usable.Count -eq 0) {
+    Record-Check 'Compromised intermediates distrusted' 'PASS' "All $($certs.Count) rejected ($counts)"
 } else {
-    Record-Check 'Compromised intermediates distrusted' 'FAIL' "$($notDistrusted.Count) of $($certs.Count) not explicitly distrusted: $($notDistrusted -join '; ')"
+    Record-Check 'Compromised intermediates distrusted' 'FAIL' "$($usable.Count) of $($certs.Count) usable or indeterminate: $($usable -join '; ')"
     $GatingFailures++
 }
 
