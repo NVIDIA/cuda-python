@@ -1,6 +1,0 @@
-﻿cuda.core.system.get\_p2p\_status
-=================================
-
-.. currentmodule:: cuda.core.system
-
-.. autofunction:: get_p2p_status

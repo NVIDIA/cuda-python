@@ -1,6 +1,0 @@
-﻿cuda.core.typing.ManagedMemoryLocationType
-==========================================
-
-.. currentmodule:: cuda.core.typing
-
-.. autoenum:: ManagedMemoryLocationType

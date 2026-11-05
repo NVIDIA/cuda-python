@@ -1,6 +1,0 @@
-﻿cuda.core.typing.SourceCodeType
-===============================
-
-.. currentmodule:: cuda.core.typing
-
-.. autoenum:: SourceCodeType
