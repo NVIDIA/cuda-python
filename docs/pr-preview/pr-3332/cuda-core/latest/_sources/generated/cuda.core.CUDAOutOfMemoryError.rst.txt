@@ -1,0 +1,6 @@
+﻿cuda.core.CUDAOutOfMemoryError
+==============================
+
+.. currentmodule:: cuda.core
+
+.. autoexception:: CUDAOutOfMemoryError
