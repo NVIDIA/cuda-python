@@ -1,0 +1,6 @@
+﻿cuda.core.utils.copy\_batch
+===========================
+
+.. currentmodule:: cuda.core.utils
+
+.. autofunction:: copy_batch
