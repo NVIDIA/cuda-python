@@ -462,25 +462,36 @@ def test_cupy_cuda_requirement_accepts_conda_cupy_distribution(tmp_path: Path, i
     assert requested == ["cupy-cuda13x", "cupy"]
 
 
-@pytest.mark.parametrize("available", [True, False], ids=["local-library", "missing-library"])
+@pytest.fixture
+def native_pathfinder(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    modules = tmp_path / "native_modules"
+    cuda = modules / "cuda"
+    cuda.mkdir(parents=True)
+    (cuda / "__init__.py").write_text("", encoding="utf-8")
+    monkeypatch.setenv("PYTHONPATH", str(modules))
+
+    def provide(body: str) -> None:
+        (cuda / "pathfinder.py").write_text(
+            "class DynamicLibNotFoundError(RuntimeError):\n    pass\n\n"
+            "def load_nvidia_dynamic_lib(name):\n"
+            "    assert name == 'curand'\n"
+            f"    {body}\n",
+            encoding="utf-8",
+        )
+
+    return provide
+
+
+@pytest.mark.parametrize("available", [True, False], ids=["local-library", "parent-only-library"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_unversioned_curand_requirement_accepts_native_library(
-    tmp_path: Path, installed_distributions, monkeypatch: pytest.MonkeyPatch, available: bool
+def test_unversioned_curand_requirement_checks_the_sample_process(
+    tmp_path: Path, installed_distributions, monkeypatch: pytest.MonkeyPatch, native_pathfinder, available: bool
 ) -> None:
-    pathfinder = ModuleType("cuda.pathfinder")
-
-    class DynamicLibNotFoundError(RuntimeError):
-        pass
-
-    def load_library(name: str) -> object:
-        assert name == "curand"
-        if not available:
-            raise DynamicLibNotFoundError("cuRAND is not installed")
-        return object()
-
-    pathfinder.DynamicLibNotFoundError = DynamicLibNotFoundError
-    pathfinder.load_nvidia_dynamic_lib = load_library
-    monkeypatch.setattr(run_samples._runner.importlib, "import_module", lambda _name: pathfinder)
+    native_pathfinder("return object()" if available else "raise DynamicLibNotFoundError('cuRAND is not installed')")
+    parent = ModuleType("cuda.pathfinder")
+    parent.DynamicLibNotFoundError = RuntimeError
+    parent.load_nvidia_dynamic_lib = lambda _name: object()
+    monkeypatch.setitem(sys.modules, "cuda.pathfinder", parent)
 
     missing = run_samples.missing_dependencies(_sample(tmp_path, "['nvidia-curand']"))
 
@@ -489,17 +500,22 @@ def test_unversioned_curand_requirement_accepts_native_library(
 
 @pytest.mark.agent_authored(model="gpt-6")
 def test_native_curand_check_tolerates_missing_pathfinder(
-    tmp_path: Path, installed_distributions, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, installed_distributions, native_pathfinder
 ) -> None:
-    def import_module(name: str) -> ModuleType:
-        raise ModuleNotFoundError(name=name)
-
-    monkeypatch.setattr(run_samples._runner.importlib, "import_module", import_module)
-
     missing = run_samples.missing_dependencies(_sample(tmp_path, "['nvidia-curand']"))
 
     assert len(missing) == 1
     assert "no provider distribution installed" in missing[0]
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_native_curand_check_propagates_unexpected_errors(native_pathfinder) -> None:
+    native_pathfinder("raise RuntimeError('broken library probe')")
+
+    with pytest.raises(subprocess.CalledProcessError) as exc:
+        run_samples._runner._native_curand_available()
+
+    assert "RuntimeError: broken library probe" in exc.value.stderr
 
 
 @pytest.mark.parametrize(
@@ -509,10 +525,10 @@ def test_native_curand_check_tolerates_missing_pathfinder(
 def test_curand_constraints_require_a_provider_distribution(
     tmp_path: Path, installed_distributions, monkeypatch: pytest.MonkeyPatch, requirement: str
 ) -> None:
-    def unexpected_import(name: str) -> ModuleType:
+    def unexpected_probe() -> bool:
         raise AssertionError("constrained requirements must use distribution metadata")
 
-    monkeypatch.setattr(run_samples._runner.importlib, "import_module", unexpected_import)
+    monkeypatch.setattr(run_samples._runner, "_native_curand_available", unexpected_probe)
 
     missing = run_samples.missing_dependencies(_sample(tmp_path, f"[{requirement!r}]"))
 

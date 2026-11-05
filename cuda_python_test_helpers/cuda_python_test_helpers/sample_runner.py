@@ -336,16 +336,25 @@ def _distribution_mismatches(requirement: Requirement, dist: importlib.metadata.
 
 
 def _native_curand_available() -> bool:
-    try:
-        pathfinder = importlib.import_module("cuda.pathfinder")
-    except ModuleNotFoundError as exc:
-        if exc.name in {"cuda", "cuda.pathfinder"}:
-            return False
+    # Samples cannot inherit libraries loaded into the parent by packages such as PyTorch.
+    code = f"""\
+try:
+    import cuda.pathfinder as pathfinder
+except ModuleNotFoundError as exc:
+    if exc.name not in {{"cuda", "cuda.pathfinder"}}:
         raise
-    try:
-        pathfinder.load_nvidia_dynamic_lib("curand")
-    except pathfinder.DynamicLibNotFoundError:
+    raise SystemExit({EXIT_WAIVED})
+try:
+    pathfinder.load_nvidia_dynamic_lib("curand")
+except pathfinder.DynamicLibNotFoundError:
+    raise SystemExit({EXIT_WAIVED})
+"""
+    result = subprocess.run(  # noqa: S603 - current interpreter and fixed probe code
+        [sys.executable, "-c", code], capture_output=True, text=True, check=False
+    )
+    if result.returncode == EXIT_WAIVED:
         return False
+    result.check_returncode()
     return True
 
 
