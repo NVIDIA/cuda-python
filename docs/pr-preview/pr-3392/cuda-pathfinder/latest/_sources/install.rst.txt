@@ -64,7 +64,7 @@ before cloning.
 
 .. code-block:: console
 
-   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+   $ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules --filter=blob:none --also-filter-submodules https://github.com/NVIDIA/cuda-python.git
    $ cd cuda-python/cuda_pathfinder
    $ pip install .
 

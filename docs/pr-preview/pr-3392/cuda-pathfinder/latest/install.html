@@ -597,7 +597,7 @@ the following commands:</p>
 <p>Use the repository’s <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#recommended-clone">Recommended clone</a>
 recipe below. On native Windows outside WSL, complete its Windows setup steps
 before cloning.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>--filter<span class="o">=</span>blob:none<span class="w"> </span>--also-filter-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_pathfinder
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
