@@ -1,0 +1,6 @@
+﻿cuda.bindings.nvml.device\_get\_nvlink\_remap\_table\_info\_v1
+==============================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autofunction:: device_get_nvlink_remap_table_info_v1

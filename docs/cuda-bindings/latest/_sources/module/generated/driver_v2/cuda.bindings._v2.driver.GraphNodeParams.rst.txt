@@ -33,12 +33,14 @@
       ~GraphNodeParams.event_wait
       ~GraphNodeParams.ext_sem_signal
       ~GraphNodeParams.ext_sem_wait
+      ~GraphNodeParams.fabric_cpy_batch
       ~GraphNodeParams.free
       ~GraphNodeParams.graph
       ~GraphNodeParams.host
       ~GraphNodeParams.kernel
       ~GraphNodeParams.mem_op
       ~GraphNodeParams.memcpy
+      ~GraphNodeParams.memcpy_batch
       ~GraphNodeParams.memset
       ~GraphNodeParams.ptr
       ~GraphNodeParams.type
