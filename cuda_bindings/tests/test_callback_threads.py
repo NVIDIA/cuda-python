@@ -12,13 +12,11 @@ NUM_ITERATIONS = 500
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-def test_culogs_register_unregister_from_many_threads():
+def test_async_notification_register_unregister_from_many_threads():
     (err,) = driver.cuInit(0)
     assert err == driver.CUresult.CUDA_SUCCESS
-    err, version = driver.cuDriverGetVersion()
+    err, device = driver.cuDeviceGet(0)
     assert err == driver.CUresult.CUDA_SUCCESS
-    if version < 12090:
-        pytest.skip("cuLogs* functions were introduced in CUDA 12.9")
 
     barrier = threading.Barrier(NUM_THREADS)
     failures = []
@@ -27,9 +25,9 @@ def test_culogs_register_unregister_from_many_threads():
         try:
             barrier.wait()
             for _ in range(NUM_ITERATIONS):
-                err, handle = driver.cuLogsRegisterCallback(0, None)
+                err, handle = driver.cuDeviceRegisterAsyncNotification(device, 0, 0)
                 assert err == driver.CUresult.CUDA_SUCCESS
-                (err,) = driver.cuLogsUnregisterCallback(handle)
+                (err,) = driver.cuDeviceUnregisterAsyncNotification(device, handle)
                 assert err == driver.CUresult.CUDA_SUCCESS
         except BaseException as e:
             failures.append(e)
