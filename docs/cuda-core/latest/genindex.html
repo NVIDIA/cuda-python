@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=8a3cb3b5"></script>
+    <script src="_static/documentation_options.js?v=bdc439df"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev345';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev346';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2979,8 +2979,6 @@
         <li><a href="generated/cuda.core.launch.html#cuda.core.launch">(in module cuda.core)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig">LaunchConfig (class in cuda.core)</a>
 </li>
       <li><a href="api.html#cuda.core.LEGACY_DEFAULT_STREAM">LEGACY_DEFAULT_STREAM (in module cuda.core)</a>
@@ -2989,6 +2987,8 @@
 </li>
       <li><a href="generated/cuda.core.system.LibraryNotFoundError.html#cuda.core.system.LibraryNotFoundError">LibraryNotFoundError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.LibRmVersionMismatchError.html#cuda.core.system.LibRmVersionMismatchError">LibRmVersionMismatchError</a>
 </li>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions.lineinfo">lineinfo (cuda.core.LinkerOptions attribute)</a>
@@ -3011,6 +3011,40 @@
 </li>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions">LinkerOptions (class in cuda.core)</a>
 </li>
+      <li><a href="generated/cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode.local_id">local_id (cuda.core.graph.AllocNode attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode.local_id">(cuda.core.graph.ChildGraphNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ConditionalNode.html#cuda.core.graph.ConditionalNode.local_id">(cuda.core.graph.ConditionalNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode.local_id">(cuda.core.graph.EmptyNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode.local_id">(cuda.core.graph.EventRecordNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode.local_id">(cuda.core.graph.EventWaitNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.local_id">(cuda.core.graph.FreeNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.local_id">(cuda.core.graph.GraphNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode.local_id">(cuda.core.graph.HostCallbackNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.IfElseNode.html#cuda.core.graph.IfElseNode.local_id">(cuda.core.graph.IfElseNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.IfNode.html#cuda.core.graph.IfNode.local_id">(cuda.core.graph.IfNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode.local_id">(cuda.core.graph.KernelNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode.local_id">(cuda.core.graph.MemcpyNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode.local_id">(cuda.core.graph.MemsetNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.SwitchNode.html#cuda.core.graph.SwitchNode.local_id">(cuda.core.graph.SwitchNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.local_id">(cuda.core.graph.WhileNode attribute)</a>
+</li>
+      </ul></li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.local_l1_cache_supported">local_l1_cache_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.location_type">location_type (cuda.core.VirtualMemoryResourceOptions attribute)</a>
@@ -4138,12 +4172,46 @@
 </li>
       <li><a href="generated/cuda.core.EventOptions.html#cuda.core.EventOptions.timing_enabled">timing_enabled (cuda.core.EventOptions attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.to_cuda_device">to_cuda_device() (cuda.core.system.Device method)</a>
 </li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.to_system_device">to_system_device() (cuda.core.Device method)</a>
 </li>
+      <li><a href="generated/cuda.core.graph.AllocNode.html#cuda.core.graph.AllocNode.tools_id">tools_id (cuda.core.graph.AllocNode attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.graph.ChildGraphNode.html#cuda.core.graph.ChildGraphNode.tools_id">(cuda.core.graph.ChildGraphNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.ConditionalNode.html#cuda.core.graph.ConditionalNode.tools_id">(cuda.core.graph.ConditionalNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.EmptyNode.html#cuda.core.graph.EmptyNode.tools_id">(cuda.core.graph.EmptyNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.EventRecordNode.html#cuda.core.graph.EventRecordNode.tools_id">(cuda.core.graph.EventRecordNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.EventWaitNode.html#cuda.core.graph.EventWaitNode.tools_id">(cuda.core.graph.EventWaitNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.FreeNode.html#cuda.core.graph.FreeNode.tools_id">(cuda.core.graph.FreeNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.GraphNode.html#cuda.core.graph.GraphNode.tools_id">(cuda.core.graph.GraphNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.HostCallbackNode.html#cuda.core.graph.HostCallbackNode.tools_id">(cuda.core.graph.HostCallbackNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.IfElseNode.html#cuda.core.graph.IfElseNode.tools_id">(cuda.core.graph.IfElseNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.IfNode.html#cuda.core.graph.IfNode.tools_id">(cuda.core.graph.IfNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.KernelNode.html#cuda.core.graph.KernelNode.tools_id">(cuda.core.graph.KernelNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.MemcpyNode.html#cuda.core.graph.MemcpyNode.tools_id">(cuda.core.graph.MemcpyNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.MemsetNode.html#cuda.core.graph.MemsetNode.tools_id">(cuda.core.graph.MemsetNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.SwitchNode.html#cuda.core.graph.SwitchNode.tools_id">(cuda.core.graph.SwitchNode attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.graph.WhileNode.html#cuda.core.graph.WhileNode.tools_id">(cuda.core.graph.WhileNode attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system._device.BAR1MemoryInfo.html#cuda.core.system._device.BAR1MemoryInfo.total">total (cuda.core.system._device.BAR1MemoryInfo attribute)</a>
 
       <ul>

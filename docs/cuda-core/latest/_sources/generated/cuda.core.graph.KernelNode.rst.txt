@@ -46,9 +46,11 @@ cuda.core.graph.KernelNode
    .. autoattribute:: handle
    .. autoattribute:: is_valid
    .. autoattribute:: kernel
+   .. autoattribute:: local_id
    .. autoattribute:: pred
    .. autoattribute:: shmem_size
    .. autoattribute:: succ
+   .. autoattribute:: tools_id
    .. autoattribute:: type
    
    

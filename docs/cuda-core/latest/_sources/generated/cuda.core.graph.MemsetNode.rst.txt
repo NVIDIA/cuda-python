@@ -45,9 +45,11 @@ cuda.core.graph.MemsetNode
    .. autoattribute:: handle
    .. autoattribute:: height
    .. autoattribute:: is_valid
+   .. autoattribute:: local_id
    .. autoattribute:: pitch
    .. autoattribute:: pred
    .. autoattribute:: succ
+   .. autoattribute:: tools_id
    .. autoattribute:: type
    .. autoattribute:: value
    .. autoattribute:: width
