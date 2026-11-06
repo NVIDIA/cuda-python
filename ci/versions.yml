@@ -16,7 +16,7 @@ cuda:
         toolkit_version: "12.9.1"
         release_status: maintenance
       cuda_bindings_13:
-        toolkit_version: "13.4.2"
+        toolkit_version: "13.5.0"
         release_status: current
 python:
   # Shared wheel build matrix, also read from tagged sources during releases.
