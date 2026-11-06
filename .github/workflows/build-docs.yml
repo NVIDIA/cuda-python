@@ -52,6 +52,9 @@ on:
 jobs:
   build:
     name: Build docs
+    permissions:
+      contents: read
+      pull-requests: read
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     runs-on: ubuntu-latest
