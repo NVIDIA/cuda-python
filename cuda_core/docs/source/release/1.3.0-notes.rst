@@ -142,6 +142,13 @@ New features
 Fixes and enhancements
 ----------------------
 
+- Kernels can read and write :class:`PinnedMemoryResource` buffers. The driver
+  makes a host memory pool accessible only from the host by default, so a
+  kernel that touched such a buffer failed with ``CUDA_ERROR_ILLEGAL_ADDRESS``.
+  The resource now grants the device that is current when it is created read
+  and write access to the pool.
+  (`#3205 <https://github.com/NVIDIA/cuda-python/issues/3205>`__)
+
 - ``register()`` on a :class:`~_memory.DeviceMemoryResource` or a
   :class:`PinnedMemoryResource` now raises ``ValueError`` when the resource
   already has a different UUID. The check used to be an ``assert``, so under

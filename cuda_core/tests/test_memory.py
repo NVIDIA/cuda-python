@@ -51,6 +51,7 @@ from cuda.core import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
+    LaunchConfig,
     LegacyPinnedMemoryResource,
     ManagedBuffer,
     ManagedMemoryResource,
@@ -58,10 +59,13 @@ from cuda.core import (
     MemoryResource,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    Program,
+    ProgramOptions,
     StreamOptions,
     VirtualMemoryBuffer,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
+    launch,
 )
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
@@ -1240,6 +1244,47 @@ def test_pinned_memory_resource_initialization(init_cuda):
     assert buffer.memory_resource == mr
     assert buffer.is_device_accessible
     buffer.close()
+
+
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize("pool", ["current", "new", "new_numa"])
+def test_pinned_memory_resource_kernel_access(init_cuda, pool):
+    """A kernel on the current device reads and writes PinnedMemoryResource buffers (#3205)."""
+    device = init_cuda
+    skip_if_pinned_memory_unsupported(device)
+    if pool == "current":
+        options = None
+    elif pool == "new":
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE)
+    else:
+        numa_id = device.properties.host_numa_id
+        if numa_id < 0 or not device.properties.host_numa_memory_pools_supported:
+            pytest.skip("Device does not support host NUMA memory pools")
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, numa_id=numa_id)
+
+    code = r"""
+    extern "C" __global__ void double_plus_one(int* data, size_t n) {
+        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+        if (i < n) data[i] = data[i] * 2 + 1;
+    }
+    """
+    kernel = (
+        Program(code, "c++", ProgramOptions(arch=f"sm_{device.arch}")).compile("cubin").get_kernel("double_plus_one")
+    )
+
+    n = 1024
+    mr = create_pinned_memory_resource_or_xfail(options, xfail_device=device)
+    buffer = _allocate_pinned_buffer_or_xfail(mr, n * ctypes.sizeof(ctypes.c_int), device=device)
+    stream = device.default_stream
+    stream.sync()
+    data = (ctypes.c_int * n).from_address(int(buffer.handle))
+    data[:] = range(n)
+
+    launch(stream, LaunchConfig(grid=(n + 255) // 256, block=256), kernel, buffer, ctypes.c_size_t(n))
+    stream.sync()
+    assert data[:] == [2 * i + 1 for i in range(n)]
+    buffer.close()
+    mr.close()
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
