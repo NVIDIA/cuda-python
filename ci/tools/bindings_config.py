@@ -9,7 +9,7 @@ import argparse
 import json
 import re
 import sys
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -109,6 +109,16 @@ def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
 
 def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     return parse_config(yaml.safe_load(path.read_text(encoding="utf-8")))
+
+
+def wheel_python_versions(toolkit_version: str, platform: str, versions: Sequence[str]) -> list[str]:
+    """Select wheel interpreters, including Windows ARM64's toolkit/Python limits."""
+    if platform == "win-arm64":
+        if Version(toolkit_version).release[:2] < (13, 4):
+            return []
+        # Retained release tags can include Python 3.10, which has no WoA wheels.
+        return [version for version in versions if version != "3.10"]
+    return list(versions)
 
 
 def parse_prefixed_version(tag: str, prefix: str) -> Version | None:

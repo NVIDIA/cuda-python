@@ -450,7 +450,7 @@ jobs:
         if: ${{ env.BUILD_PYTHON == 'true' && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
           pushd cuda_python
-          pip wheel -v --no-deps .
+          CUDA_PYTHON_BUILD_MAJOR="${BUILD_CUDA_MAJOR}" pip wheel -v --no-deps .
           twine check --strict *.whl
           popd
 
