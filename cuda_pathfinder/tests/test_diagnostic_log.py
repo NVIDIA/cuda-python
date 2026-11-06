@@ -14,6 +14,8 @@ from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as mod
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._utils import diagnostic_log
 
+pytestmark = pytest.mark.thread_unsafe(reason="reloads diagnostic_log under a patched os.environ")
+
 ENV_VAR = diagnostic_log.ENV_VAR_NAME
 LOGGER_NAME = diagnostic_log.LOGGER_NAME
 LOADED = LoadedDL("/opt/cuda/lib64/libcudart.so.12", False, 1234, "CUDA_PATH")
@@ -54,10 +56,11 @@ def test_env_var_enables_logger(value, level):
     assert all(isinstance(h, logging.NullHandler) for h in logger.handlers)
 
 
+@pytest.mark.parametrize("value", ["VERBOSE", "\u00b2"])  # superscript two: isdigit() but not int()-parsable
 @pytest.mark.agent_authored(model="claude-opus-5")
-def test_invalid_value_warns_and_stays_disabled():
+def test_invalid_value_warns_and_stays_disabled(value):
     with pytest.warns(UserWarning, match=ENV_VAR):
-        assert reload_with_env("VERBOSE").LOGGER is None
+        assert reload_with_env(value).LOGGER is None
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")

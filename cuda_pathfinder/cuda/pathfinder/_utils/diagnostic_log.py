@@ -30,7 +30,7 @@ def _make_logger() -> logging.Logger | None:
     import logging
 
     name = raw.upper()
-    level = int(raw) if raw.isdigit() else getattr(logging, name) if name in _LEVEL_NAMES else None
+    level = int(raw) if raw.isdecimal() else getattr(logging, name) if name in _LEVEL_NAMES else None
     if level is None:
         warnings.warn(f"{ENV_VAR_NAME}={raw!r} is not a valid logging level; logging stays disabled.", stacklevel=2)
         return None
