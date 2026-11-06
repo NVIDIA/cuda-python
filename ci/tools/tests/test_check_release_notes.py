@@ -29,8 +29,11 @@ def resolved_12_package(package_root: str = "cuda_bindings_12") -> dict[str, obj
 
 @pytest.fixture
 def release_config(monkeypatch):
-    config = bindings_config.normalize_versions_config(
-        {"cuda": {"build": {"version": "13.4.2"}, "prev_build": {"version": "12.9.1"}}}
+    config = bindings_config.parse_config(
+        {
+            "cuda": {"build": {"version": "13.4.2"}, "prev_build": {"version": "12.9.1"}},
+            "python": {"supported": ["3.11"]},
+        }
     )
     monkeypatch.setattr(bindings_config, "load_config", lambda: config)
 
