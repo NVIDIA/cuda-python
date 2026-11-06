@@ -367,7 +367,7 @@ jobs:
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ matrix.CUDA_VER }}
+          cuda-version: ${{ inputs.build-ctk-ver }}
           cuda-components: "cuda_sanitizer_api"
           install-mode: add
 
