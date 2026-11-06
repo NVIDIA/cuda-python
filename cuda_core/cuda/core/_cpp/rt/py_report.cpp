@@ -104,7 +104,7 @@ attach_rollback_failure(const char *operation, CUresult status, const char *deta
     if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
         return;
     }
-    char message[512];
+    char message[kErrorMessageSize];
     format_cuda_error(message, sizeof(message), operation, status, detail);
     if (!add_note_to_handled_exception(message)) {
         report_message(message);

@@ -125,7 +125,7 @@ struct GreenCtxBox {
     CUgreenCtx resource;
 };
 
-static const ContextBox *
+const ContextBox *
 get_box(const ContextHandle &h) noexcept
 {
     const CUcontext *p = h.get();
@@ -133,7 +133,7 @@ get_box(const ContextHandle &h) noexcept
 }
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUcontext, ContextHandle> context_registry;
+HandleRegistry<CUcontext, ContextHandle> context_registry;
 
 // Create a context handle reference, with optional green context as source.
 ContextHandle

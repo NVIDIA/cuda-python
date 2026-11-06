@@ -14,7 +14,8 @@ from __future__ import annotations
 import abc
 import collections.abc
 import hashlib
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 # Mutual-dependency contract: this module imports ProgramOptions from
 # cuda.core._program at module level, and cuda.core._program imports

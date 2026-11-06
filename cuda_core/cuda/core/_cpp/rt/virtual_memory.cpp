@@ -186,8 +186,8 @@ create_va_mapping_handle(CUdeviceptr ptr, const MemAllocationHandle &h_alloc, co
         err = CUDA_ERROR_INVALID_VALUE;
         return {};
     }
-    const MemAllocationBox *alloc = box_of<MemAllocationBox>(h_alloc);
-    const VaReservationBox *res = box_of<VaReservationBox>(h_res);
+    const auto *alloc = box_of<MemAllocationBox>(h_alloc);
+    const auto *res = box_of<VaReservationBox>(h_res);
     const CUdeviceptr base = res->resource.raw;
     if (ptr < base || ptr - base > res->size || alloc->size > res->size - (ptr - base)) {
         err = CUDA_ERROR_INVALID_VALUE;
@@ -270,7 +270,7 @@ sync_would_disturb_capture(CUstream stream) noexcept
 static void
 sync_recorded_stream(const DeallocationStream &ds, bool &capture_skipped) noexcept
 {
-    const CUstream s = as_cu(ds.h_stream);
+    CUstream s = as_cu(ds.h_stream);
     CUcontext previous = nullptr;
     int changed = 0;
     const char *detail = nullptr;
@@ -297,7 +297,7 @@ sync_recorded_stream(const DeallocationStream &ds, bool &capture_skipped) noexce
         clear_last_error_detail();
     }
     if (status != CUDA_SUCCESS || restore != CUDA_SUCCESS) {
-        char operation_name[160];
+        char operation_name[kOperationNameSize];
         format_operation(operation_name, sizeof(operation_name), "cuStreamSynchronize", handle_bits(s));
         if (status != CUDA_SUCCESS) {
             report_cuda_error(operation_name, status, detail);

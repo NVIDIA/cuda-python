@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b45f017467bf91c9ba21a48072bd362bdf84509c674379435823618c2aebc954
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b75510aa3a8c1d924717dc5e1ba384fed5d52a78bc65533a767f7b92895e31ed
 from ..cydriver cimport *
 
 
@@ -536,3 +536,5 @@ cdef CUresult _cuMemGetLocationInfo(CUdeviceptr ptr, size_t size, size_t summary
 cdef CUresult _cuGraphAddNode_v3(CUgraphNode* phGraphNode, CUgraph hGraph, const CUgraphNode* dependencies, const CUgraphEdgeData* dependencyData, size_t numDependencies, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuGraphNodeSetParams_v2(CUgraphNode hNode, CUgraphNodeParams* nodeParams) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuCheckpointOperationComplete(CUcheckpointOperationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuFabricCpyBatchAsync(size_t numOps, CUDA_FABRIC_COPY_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuTensorMapSetAllocationClass(CUtensorMap* tensorMap, CUtensorMapAllocClass allocClass, CUtensorMapAllocClass* outAllocClass) except ?CUDA_ERROR_NOT_FOUND nogil
