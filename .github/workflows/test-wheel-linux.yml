@@ -366,6 +366,20 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
+      - name: Set up cuda_gdb
+        # cuda-gdb is Linux-only and not in the default mini CTK. Install it on
+        # top of the mini CTK only for local-CTK jobs that run the cuda.core
+        # test that needs it, instead of adding it to the default component
+        # list (which would make every Linux job download ~100 MB it won't use).
+        if: ${{ matrix.LOCAL_CTK == '1' && env.TEST_CORE == 'true' }}
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ matrix.CUDA_VER }}
+          cuda-components: "cuda_gdb"
+          install-mode: add
+
       - name: Set up cuda_sanitizer_api
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && env.SETUP_SANITIZER == '1' }}
         uses: ./.github/actions/fetch_ctk
