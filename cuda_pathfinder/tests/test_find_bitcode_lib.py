@@ -136,6 +136,68 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
 
 
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+@pytest.mark.parametrize("source", ("site-packages", "conda", "CUDA_PATH"))
+@pytest.mark.agent_authored(model="gpt-6")
+def test_locate_bitcode_lib_returns_absolute_path_for_relative_root(monkeypatch, tmp_path, source):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_HOME", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+
+    info = _bitcode_lib_info("device")
+    root = Path("relative-root")
+    if source == "site-packages":
+        lib_dir = root / Path(info["site_packages_dirs"][0])
+        monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [str(lib_dir)])
+    else:
+        monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+        if source == "conda":
+            monkeypatch.setenv("CONDA_PREFIX", str(root))
+            lib_dir = _conda_anchor(root) / Path(info["rel_path"])
+        else:
+            monkeypatch.setenv("CUDA_HOME", str(root))
+            lib_dir = root / Path(info["rel_path"])
+
+    expected = tmp_path / lib_dir / info["filename"]
+    expected.parent.mkdir(parents=True)
+    expected.touch()
+    located = locate_bitcode_lib("device")
+    assert located.found_via == source
+    assert located.abs_path == str(expected)
+    assert find_bitcode_lib("device") == str(expected)
+
+    monkeypatch.chdir(tmp_path.parent)
+    assert Path(located.abs_path).is_file()
+    assert Path(find_bitcode_lib("device")).is_file()
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX symlink parent traversal")
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_locate_bitcode_lib_preserves_symlink_parent(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+    monkeypatch.setenv("CUDA_HOME", "alias/..")
+    monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+
+    real_root = tmp_path / "real"
+    (real_root / "child").mkdir(parents=True)
+    (tmp_path / "alias").symlink_to(real_root / "child", target_is_directory=True)
+    info = _bitcode_lib_info("device")
+    expected = real_root / info["rel_path"] / info["filename"]
+    expected.parent.mkdir(parents=True)
+    expected.touch()
+
+    located = locate_bitcode_lib("device")
+    assert Path(located.abs_path).is_absolute()
+    assert Path(located.abs_path).samefile(expected)
+    cached = find_bitcode_lib("device")
+    monkeypatch.chdir(tmp_path.parent)
+    assert Path(cached).samefile(expected)
+
+
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 def test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing(monkeypatch, tmp_path):
     cuda_home = tmp_path / "cuda-home"
     lib_dir = _bitcode_lib_dir_under(cuda_home, "device")

@@ -118,6 +118,66 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
 
 
 @pytest.mark.usefixtures("clear_find_static_lib_cache")
+@pytest.mark.parametrize("source", ("site-packages", "conda", "CUDA_PATH"))
+@pytest.mark.agent_authored(model="gpt-6")
+def test_locate_static_lib_returns_absolute_path_for_relative_root(monkeypatch, tmp_path, source):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_HOME", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+
+    root = Path("relative-root")
+    if source == "site-packages":
+        lib_dir = root / Path(CUDADEVRT_INFO["site_packages_dirs"][0])
+        monkeypatch.setattr(find_static_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [str(lib_dir)])
+    else:
+        monkeypatch.setattr(find_static_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+        if source == "conda":
+            monkeypatch.setenv("CONDA_PREFIX", str(root))
+            lib_dir = _conda_anchor(root) / Path(CUDADEVRT_INFO["conda_rel_paths"][0])
+        else:
+            monkeypatch.setenv("CUDA_HOME", str(root))
+            lib_dir = root / Path(CUDADEVRT_INFO["ctk_rel_paths"][0])
+
+    expected = tmp_path / lib_dir / CUDADEVRT_INFO["filename"]
+    expected.parent.mkdir(parents=True)
+    expected.touch()
+    located = locate_static_lib("cudadevrt")
+    assert located.found_via == source
+    assert located.abs_path == str(expected)
+    assert find_static_lib("cudadevrt") == str(expected)
+
+    monkeypatch.chdir(tmp_path.parent)
+    assert Path(located.abs_path).is_file()
+    assert Path(find_static_lib("cudadevrt")).is_file()
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX symlink parent traversal")
+@pytest.mark.usefixtures("clear_find_static_lib_cache")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_locate_static_lib_preserves_symlink_parent(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+    monkeypatch.setenv("CUDA_HOME", "alias/..")
+    monkeypatch.setattr(find_static_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+
+    real_root = tmp_path / "real"
+    (real_root / "child").mkdir(parents=True)
+    (tmp_path / "alias").symlink_to(real_root / "child", target_is_directory=True)
+    expected = real_root / Path(CUDADEVRT_INFO["ctk_rel_paths"][0]) / CUDADEVRT_INFO["filename"]
+    expected.parent.mkdir(parents=True)
+    expected.touch()
+
+    located = locate_static_lib("cudadevrt")
+    assert Path(located.abs_path).is_absolute()
+    assert Path(located.abs_path).samefile(expected)
+    cached = find_static_lib("cudadevrt")
+    monkeypatch.chdir(tmp_path.parent)
+    assert Path(cached).samefile(expected)
+
+
+@pytest.mark.usefixtures("clear_find_static_lib_cache")
 def test_locate_static_lib_conda_rel_path_fallback(monkeypatch, tmp_path):
     filename = CUDADEVRT_INFO["filename"]
     conda_rel_paths = CUDADEVRT_INFO["conda_rel_paths"]
