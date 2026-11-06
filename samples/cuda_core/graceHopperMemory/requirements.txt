@@ -1,0 +1,3 @@
+cuda-core[cu13]>=1.2.2
+cupy-cuda13x>=14.0.0
+numpy>=2.2.5
