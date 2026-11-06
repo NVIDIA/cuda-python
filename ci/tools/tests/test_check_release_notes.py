@@ -11,6 +11,11 @@ import pytest
 from ci.tools import bindings_config
 from ci.tools.check_release_notes import check_release_notes, main, notes_path, parse_version_from_tag
 
+# Bindings tags select a package root through the live registry, so derive the
+# current CUDA 13 release line from it instead of pinning a toolkit minor.
+CURRENT_BINDINGS = bindings_config.load_config().package_for_release_status("current")
+CURRENT_RELEASE = f"{CURRENT_BINDINGS.ctk_target}.1"
+
 
 def write_notes(root: Path, package: str, version: str, content: str = "Release notes.") -> Path:
     path = root / notes_path(package, version)
@@ -27,24 +32,12 @@ def resolved_12_package(package_root: str = "cuda_bindings_12") -> dict[str, obj
     }
 
 
-@pytest.fixture
-def release_config(monkeypatch):
-    config = bindings_config.parse_config(
-        {
-            "cuda": {"build": {"version": "13.4.2"}, "prev_build": {"version": "12.9.1"}},
-            "python": {"supported": ["3.11"]},
-        }
-    )
-    monkeypatch.setattr(bindings_config, "load_config", lambda: config)
-
-
-@pytest.mark.usefixtures("release_config")
 @pytest.mark.parametrize(
     ("tag", "component", "version"),
     (
-        ("v13.4.1", "cuda-bindings", "13.4.1"),
-        ("v13.4.1rc1", "cuda-bindings", "13.4.1rc1"),
-        ("v13.4.1.dev1", "cuda-bindings", "13.4.1.dev1"),
+        (f"v{CURRENT_RELEASE}", "cuda-bindings", CURRENT_RELEASE),
+        (f"v{CURRENT_RELEASE}rc1", "cuda-bindings", f"{CURRENT_RELEASE}rc1"),
+        (f"v{CURRENT_RELEASE}.dev1", "cuda-bindings", f"{CURRENT_RELEASE}.dev1"),
         ("v12.9.8.post1", "cuda-python", "12.9.8.post1"),
         ("cuda-core-v1.1.1", "cuda-core", "1.1.1"),
         ("cuda-pathfinder-v1.8.1", "cuda-pathfinder", "1.8.1"),
@@ -74,11 +67,10 @@ def test_parse_version_rejects_invalid_or_mismatched_tags(tag, component):
     assert parse_version_from_tag(tag, component) is None
 
 
-@pytest.mark.usefixtures("release_config")
 @pytest.mark.parametrize(
     ("tag", "package", "version"),
     (
-        ("v13.4.1", "cuda_bindings_13", "13.4.1"),
+        (f"v{CURRENT_RELEASE}", CURRENT_BINDINGS.package_root, CURRENT_RELEASE),
         ("v12.9.8", "cuda_bindings_12", "12.9.8"),
     ),
 )
