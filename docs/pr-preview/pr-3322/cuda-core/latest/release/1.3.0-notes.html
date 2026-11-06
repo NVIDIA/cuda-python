@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=31114a59"></script>
+    <script src="../_static/documentation_options.js?v=01d92068"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev359';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev396';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -796,7 +796,7 @@
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now requires a minimum <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version per CUDA major, at build and run
-time: 12.9.8 for CUDA 12 and 13.4.1 for CUDA 13. See the
+time: 12.9.8 for CUDA 12 and 13.5.0 for CUDA 13. See the
 <a class="reference internal" href="../support.html#cuda-core-bindings-floor"><span class="std std-ref">support policy</span></a>. <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> with an older
 <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> fails with a message that names the required version and how to install it.
 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu12]</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu13]</span></code> installs a compatible
@@ -824,6 +824,11 @@ no longer surface as <code class="docutils literal notranslate"><span class="pre
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Added read-only <code class="docutils literal notranslate"><span class="pre">GraphDefinition.id</span></code>, <code class="docutils literal notranslate"><span class="pre">Graph.id</span></code>, <code class="docutils literal notranslate"><span class="pre">GraphNode.local_id</span></code>
+and <code class="docutils literal notranslate"><span class="pre">GraphNode.tools_id</span></code> properties (CUDA 13 build and driver 13.1+), and
+<code class="docutils literal notranslate"><span class="pre">KernelAttributes.device_node_update_supported</span></code> (CUDA 13 build and driver 13.3+).
+The existing <code class="docutils literal notranslate"><span class="pre">GraphNode.graph</span></code> property provides containing-graph navigation.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2360">#2360</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.host_launch.html#cuda.core.host_launch" title="cuda.core.host_launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">host_launch()</span></code></a>, which enqueues a host function on a stream in stream
 order: a Python callable, or a ctypes function pointer with the <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>
 prototype, which <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> passes to the driver as is, so a pointer to
@@ -930,6 +935,9 @@ The pickled form is for processes on the same machine.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3196">#3196</a>)</p></li>
 <li><p>Fixed a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> in <a class="reference internal" href="../generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> when retrying after PCH
 heap exhaustion.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.set_deallocation_stream" title="cuda.core.Buffer.set_deallocation_stream"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.set_deallocation_stream()</span></code></a> and <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.from_handle" title="cuda.core.Buffer.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a> now raise
+<a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#MemoryError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryError</span></code></a> when the host runs out of memory while binding a default
+stream, instead of aborting the process with <code class="docutils literal notranslate"><span class="pre">std::terminate</span></code>.</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.uuid_without_prefix" title="cuda.core.system.Device.uuid_without_prefix"><code class="xref py py-attr docutils literal notranslate"><span class="pre">system.Device.uuid_without_prefix</span></code></a> preserves UUIDs that NVML already
 reports without a prefix, such as on Orin. This also allows
 <a class="reference internal" href="../generated/cuda.core.system.Device.html#cuda.core.system.Device.to_cuda_device" title="cuda.core.system.Device.to_cuda_device"><code class="xref py py-meth docutils literal notranslate"><span class="pre">system.Device.to_cuda_device()</span></code></a> to match those devices correctly.
@@ -1114,6 +1122,13 @@ pool-backed and virtual-memory operands and rejects the change for them,
 while operands from plain <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> allocations accept it. The node’s
 <code class="docutils literal notranslate"><span class="pre">repr</span></code> now shows <code class="docutils literal notranslate"><span class="pre">U</span></code> for unified operands.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2649">#2649</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a> rejects <code class="docutils literal notranslate"><span class="pre">allocation_type=&quot;managed&quot;</span></code>
+with <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> as <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> only supports
+pinned allocations. Use <a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> for managed memory.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2910">#2910</a>)</p></li>
+<li><p>The default <a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions" title="cuda.core.VirtualMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a> <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> on Windows
+is now <code class="docutils literal notranslate"><span class="pre">None</span></code>, avoiding the unsupported POSIX descriptor; Linux keeps its <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> default.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2910">#2910</a>)</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> can now allocate with
 <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host_numa&quot;</span></code>. Every such allocation failed with
 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>, because the driver received <code class="docutils literal notranslate"><span class="pre">-1</span></code> as the NUMA

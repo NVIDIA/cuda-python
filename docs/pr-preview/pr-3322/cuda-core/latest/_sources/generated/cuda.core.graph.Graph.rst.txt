@@ -28,6 +28,7 @@ cuda.core.graph.Graph
 
    
    .. autoproperty:: handle
+   .. autoproperty:: id
    .. autoproperty:: is_closed
    
    

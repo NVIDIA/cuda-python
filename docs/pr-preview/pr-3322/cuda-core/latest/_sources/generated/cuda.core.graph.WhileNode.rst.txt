@@ -1,4 +1,4 @@
-﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 cuda.core.graph.WhileNode
@@ -45,8 +45,10 @@ cuda.core.graph.WhileNode
    .. autoattribute:: graph
    .. autoattribute:: handle
    .. autoattribute:: is_valid
+   .. autoattribute:: local_id
    .. autoattribute:: pred
    .. autoattribute:: succ
+   .. autoattribute:: tools_id
    .. autoattribute:: type
    
    

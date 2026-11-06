@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=606989b6"></script>
+    <script src="../_static/documentation_options.js?v=f0adfd12"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4.dev488';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -607,6 +607,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cufile.html">cufile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nvml.html">nvml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
@@ -1755,7 +1756,7 @@ needed.</p></li>
 </section>
 <section id="supported-compile-options">
 <h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Link to this heading">#</a></h2>
-<p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_100&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_100&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
+<p>NVRTC supports the compile options below. Option names with two preceding dashes (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_100&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_100&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
 <p>The valid compiler options are:</p>
 <ul class="simple">
 <li><p>Compilation targets</p>
@@ -1794,10 +1795,16 @@ needed.</p></li>
 <ul class="simple">
 <li><p>Tile compilation</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">--enable-tile</span></code> (<code class="docutils literal notranslate"><span class="pre">-enable-tile</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--tile-preview=SIMT</span></code> (<code class="docutils literal notranslate"><span class="pre">-tile-preview</span></code>)</p></li>
 </ul>
 </li>
 </ul>
+<p>Enable Tile preview features and define the macro <code class="docutils literal notranslate"><span class="pre">__CUDACC_TILE_PREVIEW_SIMT__</span></code> .</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--enable-tile</span></code> (<code class="docutils literal notranslate"><span class="pre">-enable-tile</span></code>)</p></li>
+</ul>
+</div></blockquote>
 <p>Enable support for Tile constructs (e.g. <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> ) and define the macro <code class="docutils literal notranslate"><span class="pre">__CUDACC_TILE__</span></code> .</p>
 <blockquote>
 <div><ul class="simple">
@@ -1817,7 +1824,7 @@ needed.</p></li>
 </ul>
 </div></blockquote>
 <p>Consider an unannotated function or static storage duration variable as having an implicit <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> annotation. If the static storage duration variable violates Tile restrictions (e.g. cannot be of pointer type), then the implicit annotation is silently omitted by default; use <code class="docutils literal notranslate"><span class="pre">-diagnose-implicit-tile-var</span></code> to enable compiler diagnostics for such cases.</p>
-<p><code class="docutils literal notranslate"><span class="pre">-default-tile</span></code> can be used in conjunction with <code class="docutils literal notranslate"><span class="pre">-default-device</span></code>. If both flags are specified, the unannotated function and/or static storage duration variable will be considered to have both <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> and <code class="docutils literal notranslate"><span class="pre">__device__</span></code> implict annotations. There will be a separate copy of the function/variable in the generated SIMT and cuda_tile programs, at present.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-default-tile</span></code> can be used in conjunction with <code class="docutils literal notranslate"><span class="pre">-default-device</span></code>. If both flags are specified, the unannotated function and/or static storage duration variable will be considered to have both <code class="docutils literal notranslate"><span class="pre">__tile__</span></code> and <code class="docutils literal notranslate"><span class="pre">__device__</span></code> implicit annotations. There will be a separate copy of the function/variable in the generated SIMT and cuda_tile programs, at present.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--diagnose-implicit-tile-var</span></code> (<code class="docutils literal notranslate"><span class="pre">-diagnose-implicit-tile-var</span></code>)</p></li>
@@ -2064,7 +2071,7 @@ needed.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--instantiate-templates-in-pch={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-instantiate-templates-in-pch</span></code>)</p></li>
 </ul>
 </div></blockquote>
-<p>Enable or disable instantiatiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).</p>
+<p>Enable or disable instantiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).</p>
 <ul class="simple">
 <li><p>Misc.</p>
 <ul>
