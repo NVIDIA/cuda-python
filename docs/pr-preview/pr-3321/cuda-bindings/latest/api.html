@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=b5bfd41a"></script>
+    <script src="_static/documentation_options.js?v=94622d56"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4.dev437';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev49';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -603,6 +603,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/cufile.html">cufile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvml.html">nvml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="tips_and_tricks.html">Tips and Tricks</a></li>
@@ -664,7 +665,7 @@
   <section id="cuda-python-api-reference">
 <h1>CUDA Python API Reference<a class="headerlink" href="#cuda-python-api-reference" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">CaptionHolder:</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="module/driver.html">driver</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#data-types-used-by-cuda-driver">Data types used by CUDA driver</a><ul>
@@ -742,6 +743,8 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_CHILD_GRAPH_NODE_PARAMS_st"><code class="docutils literal notranslate"><span class="pre">CUDA_CHILD_GRAPH_NODE_PARAMS_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS_st"><code class="docutils literal notranslate"><span class="pre">CUDA_EVENT_RECORD_NODE_PARAMS_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS_st"><code class="docutils literal notranslate"><span class="pre">CUDA_EVENT_WAIT_NODE_PARAMS_st</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st"><code class="docutils literal notranslate"><span class="pre">CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st"><code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams_st"><code class="docutils literal notranslate"><span class="pre">CUgraphNodeParams_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCustomStoragePerDeviceData_st</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStorageInfo_st"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCustomStorageInfo_st</span></code></a></li>
@@ -824,6 +827,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUtensorMapL2promotion"><code class="docutils literal notranslate"><span class="pre">CUtensorMapL2promotion</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUtensorMapFloatOOBfill"><code class="docutils literal notranslate"><span class="pre">CUtensorMapFloatOOBfill</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUtensorMapIm2ColWideMode"><code class="docutils literal notranslate"><span class="pre">CUtensorMapIm2ColWideMode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUtensorMapAllocClass"><code class="docutils literal notranslate"><span class="pre">CUtensorMapAllocClass</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS"><code class="docutils literal notranslate"><span class="pre">CUDA_POINTER_ATTRIBUTE_ACCESS_FLAGS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUexternalMemoryHandleType"><code class="docutils literal notranslate"><span class="pre">CUexternalMemoryHandleType</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUexternalSemaphoreHandleType"><code class="docutils literal notranslate"><span class="pre">CUexternalSemaphoreHandleType</span></code></a></li>
@@ -1023,6 +1027,12 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_CHILD_GRAPH_NODE_PARAMS"><code class="docutils literal notranslate"><span class="pre">CUDA_CHILD_GRAPH_NODE_PARAMS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS"><code class="docutils literal notranslate"><span class="pre">CUDA_EVENT_RECORD_NODE_PARAMS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS"><code class="docutils literal notranslate"><span class="pre">CUDA_EVENT_WAIT_NODE_PARAMS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1"><code class="docutils literal notranslate"><span class="pre">CUDA_MEMCPY_BATCH_NODE_PARAMS_V1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS"><code class="docutils literal notranslate"><span class="pre">CUDA_MEMCPY_BATCH_NODE_PARAMS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_v1"><code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_COPY_BATCH_OP_v1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP"><code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_COPY_BATCH_OP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1"><code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS"><code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_CPY_BATCH_NODE_PARAMS</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams"><code class="docutils literal notranslate"><span class="pre">CUgraphNodeParams</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData"><code class="docutils literal notranslate"><span class="pre">CUcheckpointCustomStoragePerDeviceData</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUcheckpointOperationHandle"><code class="docutils literal notranslate"><span class="pre">CUcheckpointOperationHandle</span></code></a></li>
@@ -1378,6 +1388,14 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuLogicalEndpointQuery"><code class="docutils literal notranslate"><span class="pre">cuLogicalEndpointQuery()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html#fabric-copy">Fabric Copy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand_st"><code class="docutils literal notranslate"><span class="pre">CUfabricCpyOperand_st</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_st"><code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_COPY_BATCH_OP_st</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperandType"><code class="docutils literal notranslate"><span class="pre">CUfabricCpyOperandType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand"><code class="docutils literal notranslate"><span class="pre">CUfabricCpyOperand</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuFabricCpyBatchAsync"><code class="docutils literal notranslate"><span class="pre">cuFabricCpyBatchAsync()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#unified-addressing">Unified Addressing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuPointerGetAttribute"><code class="docutils literal notranslate"><span class="pre">cuPointerGetAttribute()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuMemPrefetchAsync"><code class="docutils literal notranslate"><span class="pre">cuMemPrefetchAsync()</span></code></a></li>
@@ -1593,6 +1611,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuTensorMapEncodeIm2col"><code class="docutils literal notranslate"><span class="pre">cuTensorMapEncodeIm2col()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuTensorMapEncodeIm2colWide"><code class="docutils literal notranslate"><span class="pre">cuTensorMapEncodeIm2colWide()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuTensorMapReplaceAddress"><code class="docutils literal notranslate"><span class="pre">cuTensorMapReplaceAddress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuTensorMapSetAllocationClass"><code class="docutils literal notranslate"><span class="pre">cuTensorMapSetAllocationClass()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#peer-context-memory-access">Peer Context Memory Access</a><ul>
@@ -1668,6 +1687,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxStreamCreate"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxStreamCreate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxGetId"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxGetId()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamGetDevResource"><code class="docutils literal notranslate"><span class="pre">cuStreamGetDevResource()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY"><code class="docutils literal notranslate"><span class="pre">driver.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#error-log-management-functions">Error Log Management Functions</a><ul>
@@ -1828,6 +1848,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParams"><code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitNodeParams</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParamsV2"><code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitNodeParamsV2</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaConditionalNodeParams"><code class="docutils literal notranslate"><span class="pre">cudaConditionalNodeParams</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyBatchNodeParams"><code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchNodeParams</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaChildGraphNodeParams"><code class="docutils literal notranslate"><span class="pre">cudaChildGraphNodeParams</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEventRecordNodeParams"><code class="docutils literal notranslate"><span class="pre">cudaEventRecordNodeParams</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaEventWaitNodeParams"><code class="docutils literal notranslate"><span class="pre">cudaEventWaitNodeParams</span></code></a></li>
@@ -2030,6 +2051,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExternalSemaphoreWaitSkipNvSciBufMemSync"><code class="docutils literal notranslate"><span class="pre">runtime.cudaExternalSemaphoreWaitSkipNvSciBufMemSync</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaNvSciSyncAttrSignal"><code class="docutils literal notranslate"><span class="pre">runtime.cudaNvSciSyncAttrSignal</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaNvSciSyncAttrWait"><code class="docutils literal notranslate"><span class="pre">runtime.cudaNvSciSyncAttrWait</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupLocalityDomainIdAny"><code class="docutils literal notranslate"><span class="pre">runtime.cudaDevSmResourceGroupLocalityDomainIdAny</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphKernelNodePortDefault"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortDefault</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphKernelNodePortProgrammatic"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortProgrammatic</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphKernelNodePortLaunchCompletion"><code class="docutils literal notranslate"><span class="pre">runtime.cudaGraphKernelNodePortLaunchCompletion</span></code></a></li>
@@ -2678,6 +2700,12 @@
 <li class="toctree-l2"><a class="reference internal" href="module/utils.html#functions">Functions</a></li>
 </ul>
 </li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Migration guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="module/v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
 </ul>
 </div>
 </section>

@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=b5bfd41a"></script>
+    <script src="_static/documentation_options.js?v=94622d56"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4.dev437';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev49';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -600,6 +600,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/cufile.html">cufile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvml.html">nvml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="tips_and_tricks.html">Tips and Tricks</a></li>
@@ -757,6 +758,16 @@
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.complete">complete() (in module cuda.bindings.nvjitlink)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS.count">count (cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1.count">(cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st.count">(cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyBatchNodeParams.count">(cuda.bindings.runtime.cudaMemcpyBatchNodeParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.create">create() (in module cuda.bindings.nvfatbin)</a>
 
       <ul>
@@ -1031,6 +1042,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_SHARED_MEMORY">CU_COREDUMP_SKIP_SHARED_MEMORY (cuda.bindings.driver.CUCoredumpGenerationFlags attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_TENSOR_MEMORY">CU_COREDUMP_SKIP_TENSOR_MEMORY (cuda.bindings.driver.CUCoredumpGenerationFlags attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST">CU_COREDUMP_TRIGGER_HOST (cuda.bindings.driver.CUcoredumpSettings attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUctx_flags.CU_CTX_BLOCKING_SYNC">CU_CTX_BLOCKING_SYNC (cuda.bindings.driver.CUctx_flags attribute)</a>
@@ -1082,6 +1095,10 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT">CU_DEV_SM_RESOURCE_GROUP_DEFAULT (cuda.bindings.driver.CUdevSmResourceGroup_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID">CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID (cuda.bindings.driver.CUdevSmResourceGroup_flags attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY">CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY (cuda.bindings.driver attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS">CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS (cuda.bindings.driver.CUdevSmResourceGroup_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS">CU_DEV_SM_RESOURCE_GROUP_PARAMS (class in cuda.bindings.driver)</a>, <a href="module/driver.html#id77">[1]</a>
 </li>
@@ -1403,6 +1420,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED">CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE">CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE (cuda.bindings.driver.CUdevice_attribute attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT">CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT">CU_DEVICE_ATTRIBUTE_TEXTURE_PITCH_ALIGNMENT (cuda.bindings.driver.CUdevice_attribute attribute)</a>
@@ -1418,6 +1437,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED">CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED">CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED">CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED">CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
@@ -1753,6 +1774,12 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUexternalSemaphoreHandleType.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32">CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32 (cuda.bindings.driver.CUexternalSemaphoreHandleType attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperandType.CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT">CU_FABRIC_COPY_OPERAND_TYPE_LOGICAL_ENDPOINT (cuda.bindings.driver.CUfabricCpyOperandType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperandType.CU_FABRIC_COPY_OPERAND_TYPE_MAX">CU_FABRIC_COPY_OPERAND_TYPE_MAX (cuda.bindings.driver.CUfabricCpyOperandType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperandType.CU_FABRIC_COPY_OPERAND_TYPE_POINTER">CU_FABRIC_COPY_OPERAND_TYPE_POINTER (cuda.bindings.driver.CUfabricCpyOperandType attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUflushGPUDirectRDMAWritesOptions.CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_HOST">CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_HOST (cuda.bindings.driver.CUflushGPUDirectRDMAWritesOptions attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUflushGPUDirectRDMAWritesOptions.CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_MEMOPS">CU_FLUSH_GPU_DIRECT_RDMA_WRITES_OPTION_MEMOPS (cuda.bindings.driver.CUflushGPUDirectRDMAWritesOptions attribute)</a>
@@ -1865,6 +1892,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO">CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_FABRIC_CPY_BATCH_NODE_PARAMS">CU_GRAPH_DEBUG_DOT_FLAGS_FABRIC_CPY_BATCH_NODE_PARAMS (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES">CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS">CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
@@ -1876,6 +1905,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS">CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS">CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_BATCH_NODE_PARAMS">CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_BATCH_NODE_PARAMS (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphDebugDot_flags.CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS">CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS (cuda.bindings.driver.CUgraphDebugDot_flags attribute)</a>
 </li>
@@ -1933,6 +1964,10 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_EXT_SEMAS_WAIT">CU_GRAPH_NODE_TYPE_EXT_SEMAS_WAIT (cuda.bindings.driver.CUgraphNodeType attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE">CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE (cuda.bindings.driver.CUgraphNodeType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH">CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH (cuda.bindings.driver.CUgraphNodeType attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_GRAPH">CU_GRAPH_NODE_TYPE_GRAPH (cuda.bindings.driver.CUgraphNodeType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_HOST">CU_GRAPH_NODE_TYPE_HOST (cuda.bindings.driver.CUgraphNodeType attribute)</a>
@@ -1944,6 +1979,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEM_FREE">CU_GRAPH_NODE_TYPE_MEM_FREE (cuda.bindings.driver.CUgraphNodeType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEMCPY">CU_GRAPH_NODE_TYPE_MEMCPY (cuda.bindings.driver.CUgraphNodeType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEMCPY_BATCH">CU_GRAPH_NODE_TYPE_MEMCPY_BATCH (cuda.bindings.driver.CUgraphNodeType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_MEMSET">CU_GRAPH_NODE_TYPE_MEMSET (cuda.bindings.driver.CUgraphNodeType attribute)</a>
 </li>
@@ -2735,6 +2772,12 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_90A">CU_TARGET_COMPUTE_90A (cuda.bindings.driver.CUjit_target attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapAllocClass.CU_TENSOR_MAP_ALLOC_CLASS_AUTO">CU_TENSOR_MAP_ALLOC_CLASS_AUTO (cuda.bindings.driver.CUtensorMapAllocClass attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapAllocClass.CU_TENSOR_MAP_ALLOC_CLASS_LARGE">CU_TENSOR_MAP_ALLOC_CLASS_LARGE (cuda.bindings.driver.CUtensorMapAllocClass attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapAllocClass.CU_TENSOR_MAP_ALLOC_CLASS_SMALL">CU_TENSOR_MAP_ALLOC_CLASS_SMALL (cuda.bindings.driver.CUtensorMapAllocClass attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN16B">CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN16B (cuda.bindings.driver.CUtensorMapDataType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapDataType.CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN8B">CU_TENSOR_MAP_DATA_TYPE_16U4_ALIGN8B (cuda.bindings.driver.CUtensorMapDataType attribute)</a>
@@ -3408,6 +3451,18 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC">CUDA_EXTERNAL_SEMAPHORE_WAIT_SKIP_NVSCIBUF_MEMSYNC (cuda.bindings.driver attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP">CUDA_FABRIC_COPY_BATCH_OP (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_st">CUDA_FABRIC_COPY_BATCH_OP_st (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_v1">CUDA_FABRIC_COPY_BATCH_OP_v1 (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS">CUDA_FABRIC_CPY_BATCH_NODE_PARAMS (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1">CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st">CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st (class in cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED">CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED (cuda.bindings.driver.CUgraphInstantiateResult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_ERROR">CUDA_GRAPH_INSTANTIATE_ERROR (cuda.bindings.driver.CUgraphInstantiateResult attribute)</a>
@@ -3501,6 +3556,12 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_st">CUDA_MEMCPY3D_st (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_v2">CUDA_MEMCPY3D_v2 (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS">CUDA_MEMCPY_BATCH_NODE_PARAMS (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1">CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st">CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_NODE_PARAMS">CUDA_MEMCPY_NODE_PARAMS (class in cuda.bindings.driver)</a>
 </li>
@@ -4084,6 +4145,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrTccDriver">cudaDevAttrTccDriver (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrTensorMapLargeTensorMinSize">cudaDevAttrTensorMapLargeTensorMinSize (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrTextureAlignment">cudaDevAttrTextureAlignment (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrTexturePitchAlignment">cudaDevAttrTexturePitchAlignment (cuda.bindings.runtime.cudaDeviceAttr attribute)</a>
@@ -4226,6 +4289,10 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId">cudaDevSmResourceGroupLocalityDomainId (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupLocalityDomainIdAny">cudaDevSmResourceGroupLocalityDomainIdAny (cuda.bindings.runtime attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainSupplementalSms">cudaDevSmResourceGroupLocalityDomainSupplementalSms (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams">cudaDevSmResourceGroupParams (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st">cudaDevSmResourceGroupParams_st (class in cuda.bindings.runtime)</a>
@@ -4248,6 +4315,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeGreenCtxBalanced">cudaDevWorkqueueConfigScopeGreenCtxBalanced (cuda.bindings.runtime.cudaDevWorkqueueConfigScope attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueResource">cudaDevWorkqueueResource (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult">cudaDriverEntryPointQueryResult (class in cuda.bindings.runtime)</a>
@@ -4270,8 +4339,6 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatAYUV">cudaEglColorFormatAYUV (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatAYUV_ER">cudaEglColorFormatAYUV_ER (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer10BGGR">cudaEglColorFormatBayer10BGGR (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
@@ -5174,6 +5241,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsKernelNodeParams">cudaGraphDebugDotFlagsKernelNodeParams (cuda.bindings.runtime.cudaGraphDebugDotFlags attribute)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyBatchNodeParams">cudaGraphDebugDotFlagsMemcpyBatchNodeParams (cuda.bindings.runtime.cudaGraphDebugDotFlags attribute)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyNodeParams">cudaGraphDebugDotFlagsMemcpyNodeParams (cuda.bindings.runtime.cudaGraphDebugDotFlags attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemsetNodeParams">cudaGraphDebugDotFlagsMemsetNodeParams (cuda.bindings.runtime.cudaGraphDebugDotFlags attribute)</a>
@@ -5468,6 +5537,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeEventRecord">cudaGraphNodeTypeEventRecord (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeExternalEngine">cudaGraphNodeTypeExternalEngine (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeExtSemaphoreSignal">cudaGraphNodeTypeExtSemaphoreSignal (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeExtSemaphoreWait">cudaGraphNodeTypeExtSemaphoreWait (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
@@ -5481,6 +5552,8 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemAlloc">cudaGraphNodeTypeMemAlloc (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemcpy">cudaGraphNodeTypeMemcpy (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemcpyBatch">cudaGraphNodeTypeMemcpyBatch (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemFree">cudaGraphNodeTypeMemFree (cuda.bindings.runtime.cudaGraphNodeType attribute)</a>
 </li>
@@ -5911,6 +5984,8 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyAttributes">cudaMemcpyAttributes (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyBatchAsync">cudaMemcpyBatchAsync() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyBatchNodeParams">cudaMemcpyBatchNodeParams (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyKind.cudaMemcpyDefault">cudaMemcpyDefault (cuda.bindings.runtime.cudaMemcpyKind attribute)</a>
 </li>
@@ -6681,6 +6756,14 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUexternalSemaphore">CUexternalSemaphore (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUexternalSemaphoreHandleType">CUexternalSemaphoreHandleType (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuFabricCpyBatchAsync">cuFabricCpyBatchAsync() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand">CUfabricCpyOperand (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand_st">CUfabricCpyOperand_st (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperandType">CUfabricCpyOperandType (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUfilter_mode">CUfilter_mode (class in cuda.bindings.driver)</a>
 </li>
@@ -7726,6 +7809,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMap_st">CUtensorMap_st (class in cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapAllocClass">CUtensorMapAllocClass (class in cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapDataType">CUtensorMapDataType (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuTensorMapEncodeIm2col">cuTensorMapEncodeIm2col() (in module cuda.bindings.driver)</a>
@@ -7743,6 +7828,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapL2promotion">CUtensorMapL2promotion (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuTensorMapReplaceAddress">cuTensorMapReplaceAddress() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuTensorMapSetAllocationClass">cuTensorMapSetAllocationClass() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUtensorMapSwizzle">CUtensorMapSwizzle (class in cuda.bindings.driver)</a>
 </li>
@@ -8375,6 +8462,18 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1.getPtr">(cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 method)</a>
 </li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP.getPtr">(cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_st.getPtr">(cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_st method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_v1.getPtr">(cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_v1 method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS.getPtr">(cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1.getPtr">(cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st.getPtr">(cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st method)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS.getPtr">(cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS_st.getPtr">(cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS_st method)</a>
@@ -8446,6 +8545,12 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_st.getPtr">(cuda.bindings.driver.CUDA_MEMCPY3D_st method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_v2.getPtr">(cuda.bindings.driver.CUDA_MEMCPY3D_v2 method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS.getPtr">(cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1.getPtr">(cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st.getPtr">(cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY_NODE_PARAMS.getPtr">(cuda.bindings.driver.CUDA_MEMCPY_NODE_PARAMS method)</a>
 </li>
@@ -8548,6 +8653,10 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUexternalMemory.getPtr">(cuda.bindings.driver.CUexternalMemory method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUexternalSemaphore.getPtr">(cuda.bindings.driver.CUexternalSemaphore method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand.getPtr">(cuda.bindings.driver.CUfabricCpyOperand method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand_st.getPtr">(cuda.bindings.driver.CUfabricCpyOperand_st method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUfunction.getPtr">(cuda.bindings.driver.CUfunction method)</a>
 </li>
@@ -8943,6 +9052,8 @@
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyAttributes.getPtr">(cuda.bindings.runtime.cudaMemcpyAttributes method)</a>
 </li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyBatchNodeParams.getPtr">(cuda.bindings.runtime.cudaMemcpyBatchNodeParams method)</a>
+</li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyNodeParams.getPtr">(cuda.bindings.runtime.cudaMemcpyNodeParams method)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemFabricHandle_st.getPtr">(cuda.bindings.runtime.cudaMemFabricHandle_st method)</a>
@@ -9159,6 +9270,14 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUmulticastObjectProp_v1.numDevices">(cuda.bindings.driver.CUmulticastObjectProp_v1 attribute)</a>
 </li>
       </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS.numOps">numOps (cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1.numOps">(cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st.numOps">(cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.cl_context_flags.NVCL_CTX_SCHED_AUTO">NVCL_CTX_SCHED_AUTO (cuda.bindings.driver.cl_context_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cl_context_flags.NVCL_CTX_SCHED_BLOCKING_SYNC">NVCL_CTX_SCHED_BLOCKING_SYNC (cuda.bindings.driver.cl_context_flags attribute)</a>
@@ -9211,12 +9330,12 @@
 </li>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED">NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED (cuda.bindings.nvrtc.nvrtcResult attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE">NVRTC_INSTALL_HEADERS_FORCE_OVERWRITE (cuda.bindings.nvrtc attribute)</a>
 </li>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_NO_WAIT">NVRTC_INSTALL_HEADERS_NO_WAIT (cuda.bindings.nvrtc attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS">NVRTC_INSTALL_HEADERS_SKIP_IF_EXISTS (cuda.bindings.nvrtc attribute)</a>
 </li>
       <li><a href="module/nvrtc.html#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS">NVRTC_SUCCESS (cuda.bindings.nvrtc.nvrtcResult attribute)</a>
@@ -9495,9 +9614,15 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st.smCount">(cuda.bindings.runtime.cudaDevSmResourceGroupParams_st attribute)</a>
 </li>
       </ul></li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP.src">src (cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP attribute)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP.src">src (cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP attribute)</a>
 
       <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_st.src">(cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_st attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_v1.src">(cuda.bindings.driver.CUDA_FABRIC_COPY_BATCH_OP_v1 attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP.src">(cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP attribute)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_st.src">(cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_st attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_v1.src">(cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_v1 attribute)</a>
@@ -9554,6 +9679,8 @@
       <li><a href="module/cudla.html#cuda.bindings.cudla.Status">Status (class in cuda.bindings.cudla)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstreamCigDataType.STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST">STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST (cuda.bindings.driver.CUstreamCigDataType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamCigDataType.STREAM_CIG_DATA_TYPE_VULKAN_COMMAND_BUFFER_HANDLE_NV">STREAM_CIG_DATA_TYPE_VULKAN_COMMAND_BUFFER_HANDLE_NV (cuda.bindings.driver.CUstreamCigDataType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstreamCigCaptureParams.streamCigParams">streamCigParams (cuda.bindings.driver.CUstreamCigCaptureParams attribute)</a>
 
@@ -9635,6 +9762,10 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUexecAffinityParam_st.type">(cuda.bindings.driver.CUexecAffinityParam_st attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUexecAffinityParam_v1.type">(cuda.bindings.driver.CUexecAffinityParam_v1 attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand.type">(cuda.bindings.driver.CUfabricCpyOperand attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUfabricCpyOperand_st.type">(cuda.bindings.driver.CUfabricCpyOperand_st attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams.type">(cuda.bindings.driver.CUgraphNodeParams attribute)</a>
 </li>
