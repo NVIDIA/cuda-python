@@ -9,7 +9,7 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [lychee, check-precommit-installed, secret-scan-trufflehog]
+    skip: [lychee, check-precommit-installed, secret-scan-trufflehog, guardwords-scan-code-scanning]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
@@ -18,10 +18,12 @@ repos:
   # Runs first so a leaked credential blocks the commit before any formatter runs.
   # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
   # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
+  # GuardWords needs NVIDIA's internal client and network; it skips with a notice elsewhere.
   - repo: https://github.com/NVIDIA/security-workflows
-    rev: c736f0454dc99764a66af6b906adfcdfbf621985  # frozen: v0.4.0
+    rev: 0659a2e36defdf66209a135d216f40a63b7aec94  # frozen: v0.5.0
     hooks:
       - id: secret-scan-trufflehog
+      - id: guardwords-scan-code-scanning
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 25bcf95026b96e2dd3c0aec3090c3d6ef6ca2e6c  # frozen: v0.17.3
