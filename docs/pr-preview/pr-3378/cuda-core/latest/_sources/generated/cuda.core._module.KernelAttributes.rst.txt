@@ -28,6 +28,7 @@ cuda.core.\_module.KernelAttributes
    .. autoproperty:: cluster_scheduling_policy_preference
    .. autoproperty:: cluster_size_must_be_set
    .. autoproperty:: const_size_bytes
+   .. autoproperty:: device_node_update_supported
    .. autoproperty:: local_size_bytes
    .. autoproperty:: max_dynamic_shared_size_bytes
    .. autoproperty:: max_threads_per_block

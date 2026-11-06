@@ -15,7 +15,7 @@ Breaking Changes
 ----------------
 
 - ``cuda.core`` now requires a minimum ``cuda-bindings`` version per CUDA major, at build and run
-  time: 12.9.8 for CUDA 12 and 13.4.1 for CUDA 13. See the
+  time: 12.9.8 for CUDA 12 and 13.5.0 for CUDA 13. See the
   :ref:`support policy <cuda-core-bindings-floor>`. ``import cuda.core`` with an older
   ``cuda-bindings`` fails with a message that names the required version and how to install it.
   ``pip install cuda-core[cu12]`` or ``pip install cuda-core[cu13]`` installs a compatible
@@ -44,6 +44,12 @@ Breaking Changes
 
 New features
 ------------
+
+- Added read-only ``GraphDefinition.id``, ``Graph.id``, ``GraphNode.local_id``
+  and ``GraphNode.tools_id`` properties (CUDA 13 build and driver 13.1+), and
+  ``KernelAttributes.device_node_update_supported`` (CUDA 13 build and driver 13.3+).
+  The existing ``GraphNode.graph`` property provides containing-graph navigation.
+  (`#2360 <https://github.com/NVIDIA/cuda-python/issues/2360>`__)
 
 - Added :func:`host_launch`, which enqueues a host function on a stream in stream
   order: a Python callable, or a ctypes function pointer with the ``CUhostFn``
@@ -354,6 +360,12 @@ Fixes and enhancements
   Python exception when an export or import fails, as required by the DLPack
   contract, instead of returning ``-1`` with no exception set.
 
+- A view created with :meth:`~utils.StridedMemoryView.view` from a
+  ``StridedMemoryView`` imported through DLPack now keeps the imported
+  tensor alive. Previously, releasing the original view invoked the DLPack
+  deleter while the derived view still referenced the memory, which could
+  free a producer's temporary allocation too early.
+
 - :meth:`~graph.MemcpyNode.update` and the executable view of a memcpy node
   now accept nodes recorded by stream capture. The driver stores the operands
   of a captured :meth:`Buffer.copy_from` or :meth:`Buffer.copy_to` as unified
@@ -370,6 +382,15 @@ Fixes and enhancements
   while operands from plain ``cuMemAlloc`` allocations accept it. The node's
   ``repr`` now shows ``U`` for unified operands.
   (`#2649 <https://github.com/NVIDIA/cuda-python/issues/2649>`__)
+
+- :class:`VirtualMemoryResourceOptions` rejects ``allocation_type="managed"``
+  with ``ValueError`` as ``cuMemCreate`` only supports
+  pinned allocations. Use :class:`ManagedMemoryResource` for managed memory.
+  (`#2910 <https://github.com/NVIDIA/cuda-python/issues/2910>`__)
+
+- The default :class:`VirtualMemoryResourceOptions` ``handle_type`` on Windows
+  is now ``None``, avoiding the unsupported POSIX descriptor; Linux keeps its ``"posix_fd"`` default.
+  (`#2910 <https://github.com/NVIDIA/cuda-python/issues/2910>`__)
 
 - :class:`VirtualMemoryResource` can now allocate with
   ``location_type="host_numa"``. Every such allocation failed with

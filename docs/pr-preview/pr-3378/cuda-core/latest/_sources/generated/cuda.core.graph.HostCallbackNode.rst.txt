@@ -42,8 +42,10 @@ cuda.core.graph.HostCallbackNode
    .. autoattribute:: graph
    .. autoattribute:: handle
    .. autoattribute:: is_valid
+   .. autoattribute:: local_id
    .. autoattribute:: pred
    .. autoattribute:: succ
+   .. autoattribute:: tools_id
    .. autoattribute:: type
    
    
