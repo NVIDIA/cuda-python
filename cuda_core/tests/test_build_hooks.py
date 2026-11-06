@@ -653,6 +653,17 @@ def _write_cuda_h(tmp_path, cuda_version):
     return str(tmp_path)
 
 
+def _mismatched_headers():
+    """CUDA_VERSION values one minor below and one minor above the floor of each
+    major. Derived from the floors so that bumping one does not make a case
+    match."""
+    headers = []
+    for floor in build_hooks._bindings_floors().values():
+        for minor in (floor[1] - 1, floor[1] + 1):
+            headers.append(floor[0] * 1000 + minor * 10)
+    return sorted(headers)
+
+
 class TestBuildConfigurationCheck:
     """_check_build_configuration() accepts exactly one configuration per CUDA
     major: cuda-bindings at or above the floor, and a cuda.h of the same
@@ -690,7 +701,7 @@ class TestBuildConfigurationCheck:
             build_hooks._check_build_configuration(cuda_path, "12")
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
-    @pytest.mark.parametrize("header", [13030, 13050, 12090])
+    @pytest.mark.parametrize("header", _mismatched_headers())
     def test_header_minor_must_match_bindings(self, tmp_path, monkeypatch, header):
         floor = self.FLOOR[13]
         _fake_bindings(monkeypatch, _floor_str(13))
