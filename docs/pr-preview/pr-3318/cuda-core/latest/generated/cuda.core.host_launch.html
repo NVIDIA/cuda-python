@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f58a7e8e"></script>
+    <script src="../_static/documentation_options.js?v=db1dd9de"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev306';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev371';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.Stream" href="cuda.core.Stream.html" />
+    <link rel="next" title="cuda.core.pack_host_copy_args" href="cuda.core.pack_host_copy_args.html" />
     <link rel="prev" title="cuda.core.launch" href="cuda.core.launch.html" />
 
 
@@ -590,6 +590,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.host_launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.pack_host_copy_args.html">cuda.core.pack_host_copy_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
@@ -667,6 +668,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAOutOfMemoryError.html">cuda.core.CUDAOutOfMemoryError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
@@ -791,9 +793,9 @@
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.typing.IsStreamType.html#cuda.core.typing.IsStreamType" title="cuda.core.typing.IsStreamType"><span class="pre">IsStreamType</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.host_launch" title="Link to this definition">#</a></dt>
@@ -816,8 +818,9 @@ ctypes function pointer declared as <code class="docutils literal notranslate"><
 passes to the driver as is. A pointer to compiled code runs without
 the GIL; a ctypes callback that wraps a Python function acquires the
 GIL through ctypes and is subject to the same deadlock rule as a
-Python callable. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> keeps <code class="docutils literal notranslate"><span class="pre">fn</span></code> alive until the function
-has run and releases it afterwards on the main thread.</p></li>
+Python callable. <a class="reference internal" href="../api.html#cuda.core.HOST_COPY_FN" title="cuda.core.HOST_COPY_FN"><code class="xref py py-data docutils literal notranslate"><span class="pre">HOST_COPY_FN</span></code></a> is such a pointer, for a host
+copy that runs without the GIL. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> keeps <code class="docutils literal notranslate"><span class="pre">fn</span></code> alive until
+the function has run and releases it afterwards on the main thread.</p></li>
 <li><p><strong>user_data</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> or </em><em>bytes-like</em><em>, </em><em>optional</em>) – Only for ctypes function pointers. An <code class="docutils literal notranslate"><span class="pre">int</span></code> is a raw pointer that
 the caller must keep valid until the function has run. Bytes-like data
 is copied; <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> owns the copy until the function has run and
@@ -828,7 +831,8 @@ releases it afterwards on the main thread.</p></li>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">stream</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> or not a stream, or if <code class="docutils literal notranslate"><span class="pre">fn</span></code> is not
     callable or its ctypes prototype is not <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is given for a Python callable.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is given for a Python callable, or if <code class="docutils literal notranslate"><span class="pre">fn</span></code> is
+    <a class="reference internal" href="../api.html#cuda.core.HOST_COPY_FN" title="cuda.core.HOST_COPY_FN"><code class="xref py py-data docutils literal notranslate"><span class="pre">HOST_COPY_FN</span></code></a> and <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is not a packed record.</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">stream</span></code> is a <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> that is capturing a graph, or a
     <a class="reference internal" href="cuda.core.graph.GraphBuilder.html#cuda.core.graph.GraphBuilder" title="cuda.core.graph.GraphBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> that is closed or not building.</p></li>
 </ul>
@@ -874,11 +878,11 @@ a pending Python callback.</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.Stream.html"
+       href="cuda.core.pack_host_copy_args.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.Stream</p>
+        <p class="prev-next-title">cuda.core.pack_host_copy_args</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
