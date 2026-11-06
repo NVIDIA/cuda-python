@@ -64,6 +64,9 @@ if [[ "${BUILD_MODE}" == "build" ]]; then
     --host-platform "$HOST_PLATFORM" --sha "$SHA"
 
 else
+  CURRENT_BUILD_CUDA_VER="$(jq -r '.package_roots[] | select(.release_status == "current") | .toolkit_version' <<< "${BINDINGS_CONFIG}")"
+  BUILD_CUDA_MAJOR="${CURRENT_BUILD_CUDA_VER%%.*}"
+  BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< "${CURRENT_BUILD_CUDA_VER}")"
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
 
   # BINDINGS_SOURCE controls which cuda-bindings to install at test time:
@@ -82,13 +85,14 @@ else
 
   if [[ "${BINDINGS_SOURCE}" == "local" ]]; then
     : "${BINDINGS_SOURCE_DIR:?BINDINGS_SOURCE_DIR is required for local bindings}"
-    BINDINGS_BUILD_CUDA_VER="${CUDA_VER}"
+    BINDINGS_BUILD_CUDA_VER="${BUILD_CUDA_VER}"
     CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"
   elif [[ "${BINDINGS_SOURCE}" == "floor" ]]; then
     # The matrix selects floor bindings for toolkit rows without an exact
     # registry match. Core declares the supported minimum for each major.
     : "${DEFAULT_BINDINGS_SOURCE_DIR:?DEFAULT_BINDINGS_SOURCE_DIR is required for floor bindings}"
     CUDA_BINDINGS_ROOT="${DEFAULT_BINDINGS_SOURCE_DIR}"
+    BINDINGS_BUILD_CUDA_VER="${CURRENT_BUILD_CUDA_VER}"
     SKIP_CUDA_BINDINGS_TEST=1
     SKIP_CYTHON_TEST=1
   else
@@ -108,9 +112,8 @@ else
     CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
     CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BINDINGS_BUILD_CUDA_VER}"
   else
-    # These are unused for floor bindings, but deterministic paths make
-    # environment dumps and ad-hoc invocations easier to understand.
-    CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+    # Core can use the current local wheel during a toolkit minor rollover.
+    CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BINDINGS_BUILD_CUDA_VER}-${HOST_PLATFORM}"
     CUDA_BINDINGS_ARTIFACTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/dist")"
     CUDA_BINDINGS_CYTHON_TESTS_DIR="$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
   fi
@@ -136,6 +139,8 @@ else
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
     echo "TEST_CUDA_MINOR=${TEST_CUDA_MINOR}"
+    echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}"
+    echo "BUILD_CUDA_MINOR=${BUILD_CUDA_MINOR}"
     echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
     echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
     echo "CUDA_BINDINGS_ARTIFACTS_DIR=${CUDA_BINDINGS_ARTIFACTS_DIR}"

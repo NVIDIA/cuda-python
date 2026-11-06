@@ -42,7 +42,7 @@ flowchart TB
     subgraph ARTIFACTS["ARTIFACT STORAGE"]
         direction TB
         subgraph GITHUB_ARTIFACTS["GitHub Artifacts"]
-            GA1["Wheel files (.whl)<br/>Test artifacts<br/>Documentation<br/>(30-day retention)"]
+            GA1["Wheel files (.whl)<br/>Test artifacts<br/>Documentation<br/>(Workflow-specific retention)"]
         end
         subgraph GITHUB_CACHE["GitHub Cache"]
             GC1["Mini CTK cache"]

@@ -28,9 +28,7 @@ reproducers, documentation improvements, and code changes are welcome.
   - [CI infrastructure overview](#ci-infrastructure-overview)
     - [CI Pipeline Flow](#ci-pipeline-flow)
     - [Pipeline Execution Details](#pipeline-execution-details)
-    - [Branch-specific Artifact Flow](#branch-specific-artifact-flow)
-      - [Main Branch](#main-branch)
-      - [Backport Branches](#backport-branches)
+    - [Source and Artifact Flow](#source-and-artifact-flow)
     - [Key Infrastructure Details](#key-infrastructure-details)
   - [Code coverage](#code-coverage)
 
@@ -128,14 +126,16 @@ correct.** Packages select tags for their own release line:
 
 | Package | Tag pattern |
 | --- | --- |
-| `cuda-bindings` from `cuda_bindings_12/` | `v12.9.*` (e.g. `v12.9.10`) |
-| `cuda-bindings` from `cuda_bindings_13/` | `v13.4.*` (e.g. `v13.4.2`) |
-| `cuda-python` | The matching bindings selector, chosen with `CUDA_PYTHON_BUILD_MAJOR=12` or `13` (default) |
+| `cuda-bindings` from `cuda_bindings_12/` | `v12.*` (e.g. `v12.9.10`) |
+| `cuda-bindings` from `cuda_bindings_13/` | `v13.*` (e.g. `v13.4.2`) |
+| `cuda-python` | The matching bindings selector, chosen explicitly with `CUDA_PYTHON_BUILD_MAJOR=12` or `13`, or inferred as described below |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
-Git source builds of `cuda-python` default to CUDA 13. Set
-`CUDA_PYTHON_BUILD_MAJOR=12` to select CUDA 12, or `13` explicitly for CUDA 13.
+Git source builds of `cuda-python` honor `CUDA_PYTHON_BUILD_MAJOR=12` or `13`
+when set. Without it, an exact `v12.*` tag at `HEAD` selects CUDA 12 when no
+`v13.*` tag points to that commit. Untagged commits and commits tagged for
+both majors default to CUDA 13.
 The resolved version determines dependencies: CUDA 12 depends on matching
 bindings, while CUDA 13 also depends on Core and Pathfinder. A standalone
 sdist retains its version and dependency major without requiring this variable.
@@ -453,26 +453,26 @@ The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`
 - **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
 - **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
 
-### Branch-specific Artifact Flow
+### Source and Artifact Flow
 
-#### Main Branch
-- **Build** → **Test** → **Documentation** → **Potential Release**
-- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
-- Full test coverage across all platforms and CUDA versions
-- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
+- Pushes to `main` build and test both registered bindings lines and their
+  dependent packages from the same source revision.
+- Pull requests build affected packages and test their consumers. Unchanged
+  wheels and test artifacts can reuse a successful exact-baseline CI run;
+  without a complete usable baseline, CI builds and tests everything.
+- Bindings tags select their matching bindings root and metapackage, using
+  published Pathfinder. They do not require a Core release.
+- Other branches retain their own release procedure and compatible tooling.
+  Main-tree CI no longer fetches CUDA 12 bindings artifacts from `12.9.x`.
 
-#### Backport Branches
-- **Build** → **Test** → **Backport PR Creation**
-- Artifacts used for validation before creating backport pull requests
-- Maintains compatibility with older CUDA versions
-- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
-- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
+See [Reading CI Jobs and Summaries](ci/README.md#reading-ci-jobs-and-summaries)
+for package/major names, local versus published bindings, and reuse details.
 
 ### Key Infrastructure Details
 
 - **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
 - **GitHub-hosted runners**: Used for Windows builds and general tasks
-- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
+- **Artifact retention**: Set per workflow for wheels, documentation, and test results
 - **Cache retention**: GitHub Cache for build dependencies and environments
 - **Security**: All commits must be signed, untrusted code blocked
 - **Parallel execution**: Matrix builds across Python versions and platforms
