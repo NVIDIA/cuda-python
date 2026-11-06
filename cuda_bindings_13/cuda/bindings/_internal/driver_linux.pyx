@@ -53,6 +53,7 @@ ctypedef int (*_cyb_cuGetProcAddress_v2_T)(const char *, void **, int, cuuint64_
 cdef int _cyb___py_driver_init = 0
 cdef dict _cyb_func_ptrs = None
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
+cdef object _cyb_func_ptrs_lock = _cyb_threading.Lock()
 
 # <<<< END OF PREAMBLE CONTENT >>>>
 
@@ -3791,8 +3792,9 @@ cpdef dict _inspect_function_pointers():
 
 cpdef _inspect_function_pointer(str name):
     global _cyb_func_ptrs
-    if _cyb_func_ptrs is None:
-        _cyb_func_ptrs = _inspect_function_pointers()
+    with _cyb_func_ptrs_lock:
+        if _cyb_func_ptrs is None:
+            _cyb_func_ptrs = _inspect_function_pointers()
     return _cyb_func_ptrs[name]
 
 
