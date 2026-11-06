@@ -73,10 +73,14 @@ def pixi_checkout(tmp_path, monkeypatch, legacy_config):
     ):
         path = tmp_path / package_root / "pixi.toml"
         path.parent.mkdir()
+        variants = ["12.*", pin] if package_root == "cuda_core" else [pin]
         path.write_text(
-            f'[workspace.build-variants]\ncuda-version = ["{pin}"]\n'
+            f"[workspace.build-variants]\ncuda-version = {json.dumps(variants)}\n"
             f'[feature.{variant}.dependencies]\ncuda-version = "{pin}"\n'
         )
+        if package_root == "cuda_core":
+            with path.open("a") as stream:
+                stream.write('[feature.cu12.dependencies]\ncuda-version = "12.*"\n')
     monkeypatch.setattr(check_pixi_cuda_version, "ROOT", tmp_path)
     monkeypatch.setattr(check_pixi_cuda_version.bindings_config, "load_config", lambda: load_config(legacy_config))
     return tmp_path
@@ -97,6 +101,14 @@ def test_pixi_check_reports_core_pin_drift(pixi_checkout, capsys):
     path.write_text(path.read_text().replace('cuda-version = "13.4.*"', 'cuda-version = "13.3.*"'))
     assert check_pixi_cuda_version.main() == 1
     assert "cuda_core/pixi.toml: feature.cu13.dependencies.cuda-version='13.3.*'" in capsys.readouterr().err
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_pixi_check_reports_maintenance_core_pin_drift(pixi_checkout, capsys):
+    path = pixi_checkout / "cuda_core" / "pixi.toml"
+    path.write_text(path.read_text().replace('cuda-version = "12.*"', 'cuda-version = "11.*"'))
+    assert check_pixi_cuda_version.main() == 1
+    assert "cuda_core/pixi.toml: feature.cu12.dependencies.cuda-version='11.*'" in capsys.readouterr().err
 
 
 @pytest.mark.parametrize(
@@ -130,15 +142,15 @@ def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, mon
             [  # noqa: S607
                 "git",
                 "-c",
-                "user.name=CI test",
-                "-c",
-                "user.email=ci-test@example.invalid",
-                "-c",
                 "commit.gpgsign=false",
                 "-c",
                 "tag.gpgsign=false",
                 "-c",
                 "core.hooksPath=/dev/null",
+                "-c",
+                "user.name=CI test",
+                "-c",
+                "user.email=ci-test@example.invalid",
                 *args,
             ],
             cwd=tmp_path,
