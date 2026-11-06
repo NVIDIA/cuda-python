@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0fedfaed"></script>
+    <script src="../_static/documentation_options.js?v=26312e0a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installation" href="../install.html" />
-    <link rel="prev" title="cuda-bindings 13.4.3 Release notes" href="13.4.3-notes.html" />
+    <link rel="prev" title="cuda-bindings 13.4.4 Release notes" href="13.4.4-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -538,6 +538,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.4-notes.html">13.4.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.4.3-notes.html">13.4.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.4.2-notes.html">13.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.4.1-notes.html">13.4.1</a></li>
@@ -606,6 +607,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../module/cufile.html">cufile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module/nvml.html">nvml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../module/utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
@@ -672,7 +674,26 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Python 3.10 support was dropped (end of life).</p></li>
+<li><p>New APIs from CTK 13.5:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">driver</span></code>: <code class="docutils literal notranslate"><span class="pre">cuFabricCpyBatchAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">cuTensorMapSetAllocationClass</span></code>, and the new
+<code class="docutils literal notranslate"><span class="pre">CUtensorMapAllocClass</span></code> and <code class="docutils literal notranslate"><span class="pre">CUfabricCpyOperandType</span></code> enums, along with the
+<code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_COPY_BATCH_OP</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1</span></code> structs. There are
+new graph node types (<code class="docutils literal notranslate"><span class="pre">CU_GRAPH_NODE_TYPE_MEMCPY_BATCH</span></code>, <code class="docutils literal notranslate"><span class="pre">CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE</span></code>
+and <code class="docutils literal notranslate"><span class="pre">CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH</span></code>), new device attributes
+(<code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_VULKAN_CIG_STREAMS_SUPPORTED</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_TENSOR_MAP_LARGE_TENSOR_MIN_SIZE</span></code>), and a new
+<code class="docutils literal notranslate"><span class="pre">CU_COREDUMP_SKIP_TENSOR_MEMORY</span></code> coredump flag.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runtime</span></code>: <code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchNodeParams</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml</span></code>: <code class="docutils literal notranslate"><span class="pre">device_get_gpu_uptime_v1</span></code>, <code class="docutils literal notranslate"><span class="pre">system_get_conf_compute_settings_v2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">device_get_nvlink_info_v3</span></code>, <code class="docutils literal notranslate"><span class="pre">device_get_nvlink_remap_table_info_v1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">device_set_nvlink_nvle_ready_v1</span></code>, <code class="docutils literal notranslate"><span class="pre">device_lock_nvlink_remap_table_v1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">device_setup_nvlink_nvle_encryption_key_v1</span></code> and <code class="docutils literal notranslate"><span class="pre">device_get_nvlink_nvle_private_info_v1</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cufile</span></code>: <code class="docutils literal notranslate"><span class="pre">PANFS_SUPPORTED</span></code> capability flag.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvvm</span></code>: the <code class="docutils literal notranslate"><span class="pre">-nvvm-latest</span></code> compiler option is documented.</p></li>
+</ul>
+</li>
+<li><p>Python 3.10 support was dropped (end of life). Python 3.15 is now officially supported.</p></li>
 </ul>
 </section>
 <section id="changes">
@@ -684,7 +705,11 @@ e.g. <code class="docutils literal notranslate"><span class="pre">nvml.BrandType
 The old, longer names remain available as backward-compatible aliases and
 will continue to work. The full list of renames, excluding the 447
 similarly-renamed <code class="docutils literal notranslate"><span class="pre">nvml.GpmMetricId</span></code> members (which had their
-<code class="docutils literal notranslate"><span class="pre">GPM_METRIC_</span></code> prefix stripped the same way), is below.</p></li>
+<code class="docutils literal notranslate"><span class="pre">GPM_METRIC_</span></code> prefix stripped the same way), is below.
+In addition, the members of <code class="docutils literal notranslate"><span class="pre">cudla.Status</span></code> are now PEP8-compliant
+<code class="docutils literal notranslate"><span class="pre">SHOUT_CASE</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">ErrorInvalidParam</span></code> is now <code class="docutils literal notranslate"><span class="pre">ERROR_INVALID_PARAM</span></code>); the old
+names remain available as backward-compatible aliases. That enum is not
+included in the table below.</p></li>
 </ul>
 <div class="pst-scrollable-table-container"><table class="table" id="id1">
 <caption><span class="caption-number">Table 1 </span><span class="caption-text">Enum member renames (old names remain available as backward-compatible aliases)</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
@@ -1944,6 +1969,7 @@ it possible to access invalid memory.</p></li>
 <li><p>For all <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> APIs, functions that accept a struct wrapper will accept the struct wrapper directly, rather than requiring getting the <code class="docutils literal notranslate"><span class="pre">.ptr</span></code> property.</p></li>
 <li><p>Creating class instances in <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> should now be faster in most cases, because it requires 1 heap allocation rather than 2.</p></li>
 <li><p>Before a source build compiles anything, it now checks that the CUDA Toolkit’s <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> has the major.minor the source tree was generated from. A mismatch stops the build with a message that names the header found and the version needed. Previously a mismatch surfaced as a long list of C++ redefinition errors.</p></li>
+<li><p>Wrappers of arrays of CUDA structs are now 5x - 30x faster for most common operations (thanks to a contribution from Yang Gao).  This affects <code class="docutils literal notranslate"><span class="pre">cufile</span></code>, <code class="docutils literal notranslate"><span class="pre">nvml</span></code> and <code class="docutils literal notranslate"><span class="pre">_v2.driver</span></code>.</p></li>
 </ul>
 </section>
 <section id="behavior-changes">
@@ -1985,12 +2011,17 @@ of the graph and its executables, including pending launches; see
 created with a given size. Previously they were allocated with uninitialized memory, so unset fields held garbage values.</p></li>
 <li><p>Assigning to a member of a read-only <code class="docutils literal notranslate"><span class="pre">cufile</span></code> or <code class="docutils literal notranslate"><span class="pre">nvml</span></code> struct array wrapper now raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> (“This &lt;Class&gt; instance is
 read-only”). Previously no such check was made.</p></li>
+<li><p>Fix a crash when registering or unregistering callbacks (<code class="docutils literal notranslate"><span class="pre">cuLogs*</span></code> and the <code class="docutils literal notranslate"><span class="pre">*AsyncNotification</span></code> functions)
+concurrently from multiple threads under free-threaded Python.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3282">Issue #3282</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml</span></code> field-value queries (e.g. <code class="docutils literal notranslate"><span class="pre">nvml.device_get_field_values</span></code>) no longer return results from unpopulated queries as if they were valid;
+per-query error status is now initialized before the call.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvml.PwrModelMetricsPfpp1x</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml.PwrModelMetricsDlppm1x</span></code> array wrappers now populate their nested <code class="docutils literal notranslate"><span class="pre">estimated_metrics</span></code> member
 with one array per element, sized by <code class="docutils literal notranslate"><span class="pre">num_vf_points</span></code> and <code class="docutils literal notranslate"><span class="pre">num_estimated_metrics</span></code> respectively.</p></li>
 </ul>
 </section>
-<section id="prerelease-feature">
-<h2>Prerelease feature<a class="headerlink" href="#prerelease-feature" title="Link to this heading">#</a></h2>
+<section id="preview-feature">
+<h2>Preview feature<a class="headerlink" href="#preview-feature" title="Link to this heading">#</a></h2>
 <p>A new version of the <code class="docutils literal notranslate"><span class="pre">nvrtc</span></code> and <code class="docutils literal notranslate"><span class="pre">driver</span></code> APIs is available as
 <code class="docutils literal notranslate"><span class="pre">cuda.bindings._v2.nvrtc</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda.bindings._v2.driver</span></code>.  The primary
 improvements are: (1) raising exceptions rather than returning error codes, (2)
@@ -2001,6 +2032,8 @@ experimental and subject to change.</p>
 <section id="known-issues">
 <h2>Known issues<a class="headerlink" href="#known-issues" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>When using <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> with <code class="docutils literal notranslate"><span class="pre">cufile</span></code> 13.4.x, <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cufile.get_stats_l1</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda.bindings.cufile.get_stats_l2</span></code> may segfault.
+See <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2794">issue #2794</a>.</p></li>
 <li><p>Updating from older versions (v12.6.2.post1 and below) via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">cuda-python</span></code> might not work. Please do a clean re-installation by uninstalling <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uninstall</span> <span class="pre">-y</span> <span class="pre">cuda-python</span></code> followed by installing <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-python</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code> on WSL can return incorrect values.  To work around this, set the locale to “C” before calling <code class="docutils literal notranslate"><span class="pre">nvml.device_get_compute_running_processes_v3</span></code> (which sets the process names) and before calling <code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code>. <code class="docutils literal notranslate"><span class="pre">cuda_core</span></code> does this automatically, but users of the raw NVML API will need to do this manually.</p></li>
 </ul>
@@ -2018,12 +2051,12 @@ experimental and subject to change.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="13.4.3-notes.html"
+       href="13.4.4-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.4.3 Release notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.4.4 Release notes</p>
       </div>
     </a>
     <a class="right-next"
@@ -2062,7 +2095,7 @@ experimental and subject to change.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior-changes">Behavior changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecations">Deprecations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerelease-feature">Prerelease feature</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preview-feature">Preview feature</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known issues</a></li>
 </ul>
   </nav></div>
