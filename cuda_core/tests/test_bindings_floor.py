@@ -5,11 +5,11 @@
 """Tests for the cuda-bindings version floor in cuda/core/_bindings_floor.py.
 
 The tests cover the floor as read from the pyproject extras and the import-time check
-built on it. They also cover the consistency hook that guards ci/versions.yml and the docs.
+built on it. They also cover the consistency hook that guards the pyproject extras and the docs.
 
 The tests check source-tree properties and pure functions and need no GPU. The file
 also runs with --noconftest, which skips the CUDA setup in conftest.py. The consistency
-tests read pyproject.toml and ci/versions.yml from the checkout. They need the source
+tests read pyproject.toml and documentation from the checkout. They need the source
 tree next to the tests. Every CI job that runs tests/ has it.
 
     pytest tests/test_bindings_floor.py -v --noconftest
@@ -349,7 +349,7 @@ class TestConsistencyHook:
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_a_malformed_extra_fails_the_hook(self, hook, tmp_path, capsys):
-        # check() returns before it reads ci/versions.yml or the docs, so the tree needs only these two files.
+        # check() returns before it reads the docs, so the tree needs only these two files.
         core = tmp_path / "cuda_core" / "cuda" / "core"
         core.mkdir(parents=True)
         shutil.copy(CUDA_CORE / "cuda" / "core" / "_bindings_floor.py", core)
@@ -358,20 +358,6 @@ class TestConsistencyHook:
         )
         assert hook.main(["--repo-root", str(tmp_path)]) == 1
         assert "pyproject.toml: the 'cu13' extra must pin cuda-bindings" in capsys.readouterr().err
-
-    @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_ci_toolkit_pins_must_not_sit_below_the_floors_minor(self, hook):
-        floors = {12: (12, 9, 8), 13: (13, 4, 1)}
-        good = 'cuda:\n  build:\n    version: "13.4.2"\n  prev_build:\n    version: "12.9.1"\n'
-        assert hook.ci_pin_problems(floors, good) == []
-        assert hook.ci_pin_problems(floors, good.replace("13.4.2", "13.5.0")) == []  # the toolkit-bump window
-        stale = good.replace("13.4.2", "13.3.0")
-        (problem,) = hook.ci_pin_problems(floors, stale)
-        assert "cuda.build.version is 13.3 but the CUDA 13 floor is cuda-bindings 13.4.1" in problem
-        (problem,) = hook.ci_pin_problems({13: (13, 4, 1)}, good)
-        assert "pins CUDA 12, which has no cu12 extra" in problem
-        (problem,) = hook.ci_pin_problems(floors, 'cuda:\n  build:\n    version: "13.4.2"\n')
-        assert "no build or prev_build toolkit pin for CUDA 12" in problem
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_docs_must_use_the_substitutions(self, hook, tmp_path):
