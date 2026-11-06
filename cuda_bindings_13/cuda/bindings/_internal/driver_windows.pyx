@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=265db3de415ec26f7b9cfd9961c846938d258ff2c840d500316a3fd24266d6ac
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b37b85b769459d1cd959de858aea6995f9b06befd79aeceb945b819d206414fb
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -53,8 +54,8 @@ ctypedef int (*_cyb_cuGetProcAddress_v2_T)(const char *, void **, int, cuuint64_
 
 cdef int _cyb___py_driver_init = 0
 cdef dict _cyb_func_ptrs = None
-cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 cdef object _cyb_func_ptrs_lock = _cyb_threading.Lock()
+cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
 # <<<< END OF PREAMBLE CONTENT >>>>
 
