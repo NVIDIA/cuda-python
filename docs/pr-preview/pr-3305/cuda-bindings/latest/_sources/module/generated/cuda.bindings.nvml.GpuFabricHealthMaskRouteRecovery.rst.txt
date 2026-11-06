@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.GpuFabricHealthMaskRouteRecovery
-===================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: GpuFabricHealthMaskRouteRecovery

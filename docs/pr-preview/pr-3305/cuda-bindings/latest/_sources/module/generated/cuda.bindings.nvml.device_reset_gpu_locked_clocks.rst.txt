@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_reset\_gpu\_locked\_clocks
-=====================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_reset_gpu_locked_clocks

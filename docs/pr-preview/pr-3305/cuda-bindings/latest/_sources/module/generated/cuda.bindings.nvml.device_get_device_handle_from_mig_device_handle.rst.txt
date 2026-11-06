@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_get\_device\_handle\_from\_mig\_device\_handle
-=========================================================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_get_device_handle_from_mig_device_handle

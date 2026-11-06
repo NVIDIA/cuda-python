@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.DeviceArch
-=============================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: DeviceArch

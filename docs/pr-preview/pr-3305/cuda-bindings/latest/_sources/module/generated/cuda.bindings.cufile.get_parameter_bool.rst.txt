@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.get\_parameter\_bool
-=========================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: get_parameter_bool

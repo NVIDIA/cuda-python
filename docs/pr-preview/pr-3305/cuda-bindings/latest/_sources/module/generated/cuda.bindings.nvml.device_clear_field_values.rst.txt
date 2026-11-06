@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.device\_clear\_field\_values
-===============================================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autofunction:: device_clear_field_values

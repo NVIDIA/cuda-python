@@ -1,6 +1,0 @@
-﻿cuda.bindings.nvml.PowerScope
-=============================
-
-.. currentmodule:: cuda.bindings.nvml
-
-.. autoenum:: PowerScope
