@@ -306,49 +306,24 @@ toolkit floors aligned with the registry:
 python -m ci.tools.bindings_config --check-package-metadata
 ```
 
-Copying maintenance sources does not make their later branch tags ancestors of
-`main`. Preview builds need an appropriate reachable milestone for their target
-release. Follow the [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle)
-and keep temporary preview tags local to an independent disposable clone;
-worktrees share tags with their repository.
-CI uses `ci.tools.bindings_scm_version` in disposable build checkouts until an
-appropriate maintenance milestone is reachable. It creates a local preview tag
-at a validated ancestor only when required; existing suitable tags govern the
-version through standard setuptools-scm. It never pushes or moves tags.
-For a local maintenance preview, use an independent disposable clone (not a
-linked worktree), install the CI tools, and run from its root:
+### SCM Milestones
 
-```console
-python -m ci.tools.bindings_scm_version --package-root cuda_bindings_12 --sha "$(git rev-parse HEAD)"
-```
+CUDA 12 builds on `main` derive their versions from the retained `v12.9.11a0`
+milestone. Untagged descendants naturally become `12.9.11a1.devN` under standard
+`setuptools-scm` progression. Source builds need the tag and the history connecting
+it to the checkout; fetching tags alone does not repair shallow ancestry.
+No version override or local preview-tag preparation is needed.
 
-### SCM Milestones and Bootstrap Targets
-
-The maintenance root's `[tool.cuda-python].scm-bootstrap-release` records the
-intended preview release, for example `12.9.11`. It is not a version override.
-Suitable reachable release or milestone tags take precedence through standard
-`setuptools-scm` progression; do not add a synthetic tag when that history
-already supplies the version.
-
-When choosing a new target, fetch the canonical tags and coordinate with
-maintainers of all release branches. Reserve the next globally unused release
-number for the intended line. If an urgent release from another branch consumes
-`12.9.11`, update main's preview target to the next unused release before another
-preview build. Unreachable tags still reserve their release numbers. Never move
-or replace such a tag to reuse its name on main. Keep the same target across
-PRs and builds until release coordination calls for a change.
-
-Temporary bootstrap tags must stay local to an independent disposable clone;
-worktrees share tags. After CUDA 13 tag isolation lands on `main`, maintainers
-can establish the retained CUDA 12 milestone on that validated state. Rebase
-remaining migration work onto the tagged commit before removing the temporary
-bootstrap machinery and its workflow calls. Ordinary SCM history then governs
-subsequent builds. Creating or publishing a milestone requires an explicit
-maintainer decision.
+Before establishing a milestone for another release, fetch canonical tags and
+coordinate with maintainers of all release branches. Use a globally unused
+release number; tags on other branches reserve their numbers even when they
+are unreachable from `main`. Keep pushed tags immutable and follow the
+[Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
 A toolkit minor rollover does not change the major-specific SCM selectors.
 Let reachable tags govern preview versions; release tags establish the
 intended release number.
+
 
 ## Nightly Artifact Sources And Rollout
 
