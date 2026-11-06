@@ -67,7 +67,7 @@ if [[ "${1}" == "build" ]]; then
     echo "MAINTENANCE_CUDA_MAJOR=${maintenance_version%%.*}"
     echo "MAINTENANCE_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${maintenance_root}/dist")"
     echo "MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${maintenance_root}/tests/cython")"
-    echo "MAINTENANCE_BINDINGS_ARTIFACT_NAME=maintenance-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${maintenance_version}-${HOST_PLATFORM}-${SHA}"
+    echo "MAINTENANCE_BINDINGS_ARTIFACT_NAME=cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${maintenance_version}-${HOST_PLATFORM}-${SHA}"
   } >> "$GITHUB_ENV"
 elif [[ "${1}" == "test" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
