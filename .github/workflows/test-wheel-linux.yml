@@ -369,6 +369,7 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
           cuda-components: "cuda_sanitizer_api"
+          install-mode: add
 
       - name: Set up compute-sanitizer
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
