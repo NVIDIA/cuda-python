@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import os
 import platform
 import shutil
+import tempfile
 import textwrap
 
 import numpy as np
@@ -11,6 +13,7 @@ import pytest
 
 import cuda.cuda as cuda
 from cuda.bindings import driver
+from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda_python_test_helpers import driver_version_less_than
 from cuda_python_test_helpers.memory import (
     POOL_SIZE,
@@ -1152,6 +1155,39 @@ def test_cuCheckpointProcessGetState_failure():
     err, state = cuda.cuCheckpointProcessGetState(123434)
     assert err != cuda.CUresult.CUDA_SUCCESS
     assert state is None
+
+
+@pytest.mark.skipif(
+    driver_version_less_than(12090),
+    reason="cuLogs* functions were introduced in CUDA 12.9",
+)
+def test_culogs_functions():
+    try:
+        err, callback_handle = cuda.cuLogsRegisterCallback(0, None)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        err, _ = cuda.cuLogsCurrent(0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            log_path = f.name
+        try:
+            err, _ = cuda.cuLogsDumpToFile(None, log_path.encode(), 0)
+            assert err == cuda.CUresult.CUDA_SUCCESS
+        finally:
+            os.remove(log_path)
+
+        # cuLogsDumpToMemory's own docstring states the driver's internal log
+        # buffer is capped at 25600 bytes, so a buffer of that size is always
+        # large enough to hold the dump without risking a buffer overrun.
+        buf = bytearray(25600)
+        err, _, _ = cuda.cuLogsDumpToMemory(None, buf, len(buf), 0)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        (err,) = cuda.cuLogsUnregisterCallback(callback_handle)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+    except FunctionNotFoundError as e:
+        pytest.fail(f"cuLogs* function unexpectedly not found on the driver: {e}")
 
 
 def test_private_function_pointer_inspector():
