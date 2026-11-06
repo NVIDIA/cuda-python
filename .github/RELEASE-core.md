@@ -20,12 +20,14 @@ version, then publishes to PyPI and verifies again before publishing the
 GitHub Release without marking it as latest. A failed
 docs build prevents asset uploads, package publication, and finalization.
 
-The release-note checker runs from `git-tag`, not the workflow revision.
-For Pathfinder, that tag must contain a version
-of `ci/tools/check_release_notes.py` that writes `version=<VERSION>` to
-`GITHUB_OUTPUT`. The release-notes job rejects an empty version before
-documentation, asset uploads, or package publication can start. Pathfinder
-package publication also requires successful draft metadata preparation.
+The workflow revision supplies the release tools; release notes and the
+package registry (`ci/versions.yml`) come from `git-tag`. Current tooling
+requires a schema-2 registry in the tagged source. The release-notes job
+exports the checked version and rejects an empty version before documentation,
+asset uploads, or package publication can start. Pathfinder package
+publication also requires successful draft metadata preparation.
+For tags that predate the registry, use compatible historical release tooling;
+do not move existing tags to add the registry or updated tools.
 
 The default `dry-run` action validates preparation, builds docs, and
 collects release artifacts without creating a GitHub Release or publishing
