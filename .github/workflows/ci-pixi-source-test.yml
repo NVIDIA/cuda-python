@@ -211,9 +211,6 @@ jobs:
             BINDINGS_ROOT=$(jq -r '.package_root' <<< "${bindings_package}")
             CUDA_ENV=$(jq -r '.cuda_variant' <<< "${bindings_package}")
             echo "::group::Source-build ${BINDINGS_ROOT} (${CUDA_ENV})"
-            if [[ $(jq -r '.release_status' <<< "${bindings_package}") == maintenance ]]; then
-              python3 -m ci.tools.bindings_scm_version --package-root "${BINDINGS_ROOT}" --sha "$GITHUB_SHA"
-            fi
             # Avoid carrying Cython outputs between bindings packages or CUDA ABIs.
             rm -rf cuda_core/build/cython cuda_core/cython_debug
             find cuda_core/cuda/core -type f -name '*.so' -delete
@@ -382,7 +379,7 @@ jobs:
         run: |
           apt-get update
           # ca-certificates + git for checkout; libgl1/libegl1 for pyglet.
-          # The hardened Python setup below supplies the CI helper interpreter.
+          # Pixi supplies the package build and test environments.
           apt-get install -y --no-install-recommends \
             ca-certificates git jq libgl1 libegl1
 
@@ -406,24 +403,10 @@ jobs:
         # checkout's temporary Git configuration does not reach later steps.
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: "3.11"
-
-      - name: Install CI tool dependencies
-        run: python3 -m pip install -e ./ci
-
       - name: Prepare selected CUDA environment
         env:
           CUDA_ENV: ${{ matrix.bindings-package.cuda_variant }}
-          BINDINGS_ROOT: ${{ matrix.bindings-package.package_root }}
-          RELEASE_STATUS: ${{ matrix.bindings-package.release_status }}
         run: |
-          if [[ "${RELEASE_STATUS}" == maintenance ]]; then
-            # Match build-smoke's version preparation before any pixi source build.
-            python3 -m ci.tools.bindings_scm_version --package-root "${BINDINGS_ROOT}" --sha "$GITHUB_SHA"
-          fi
           echo "CUDA_ENV=${CUDA_ENV}" | tee -a "$GITHUB_ENV"
 
       - name: Setup proxy cache

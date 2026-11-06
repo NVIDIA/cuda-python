@@ -116,6 +116,7 @@ jobs:
 
   test:
     env:
+      BINDINGS_CONFIG: ${{ inputs.bindings-config }}
       TEST_PATHFINDER: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_test }}
       TEST_BINDINGS: ${{ inputs.workplan == '' || (matrix.BINDINGS_SOURCE == 'local' && fromJSON(inputs.workplan).modules.bindings.package_roots[matrix.BINDINGS_SOURCE_DIR].needs_test) }}
       TEST_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.cuda_majors[matrix.CUDA_VARIANT].needs_test }}
