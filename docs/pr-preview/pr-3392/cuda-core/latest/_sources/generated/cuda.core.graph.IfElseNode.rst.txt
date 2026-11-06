@@ -45,9 +45,11 @@ cuda.core.graph.IfElseNode
    .. autoattribute:: graph
    .. autoattribute:: handle
    .. autoattribute:: is_valid
+   .. autoattribute:: local_id
    .. autoattribute:: pred
    .. autoattribute:: succ
    .. autoattribute:: then
+   .. autoattribute:: tools_id
    .. autoattribute:: type
    
    

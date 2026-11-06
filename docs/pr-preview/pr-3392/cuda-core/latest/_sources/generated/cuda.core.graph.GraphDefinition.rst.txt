@@ -44,6 +44,7 @@ cuda.core.graph.GraphDefinition
 
    
    .. autoproperty:: handle
+   .. autoproperty:: id
    .. autoproperty:: is_valid
    
    
