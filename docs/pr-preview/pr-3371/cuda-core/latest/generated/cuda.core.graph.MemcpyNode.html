@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=93539e8f"></script>
+    <script src="../_static/documentation_options.js?v=eef363f1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev331';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev355';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1362,6 +1362,19 @@ evaluates to a non-zero value.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.graph.MemcpyNode.local_id">
+<span class="sig-name descname"><span class="pre">local_id</span></span><a class="headerlink" href="#cuda.core.graph.MemcpyNode.local_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The node’s ID within its graph.</p>
+<p>Requires CUDA 13 build and driver 13.1+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.local_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.MemcpyNode.pred">
 <span class="sig-name descname"><span class="pre">pred</span></span><a class="headerlink" href="#cuda.core.graph.MemcpyNode.pred" title="Link to this definition">#</a></dt>
 <dd><p>AdjacencySetProxy</p>
@@ -1393,6 +1406,19 @@ evaluates to a non-zero value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>GraphNode.succ</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.graph.MemcpyNode.tools_id">
+<span class="sig-name descname"><span class="pre">tools_id</span></span><a class="headerlink" href="#cuda.core.graph.MemcpyNode.tools_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The node’s ID reported by CUDA profiling and tooling interfaces.</p>
+<p>Requires CUDA 13 build and driver 13.1+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.tools_id</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1491,10 +1517,12 @@ evaluates to a non-zero value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.graph"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.graph</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.handle"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.is_valid"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.is_valid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.local_id"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.local_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.pred"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.pred</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.size"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.size</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.src"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.src</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.succ"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.succ</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.tools_id"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.tools_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.MemcpyNode.type"><code class="docutils literal notranslate"><span class="pre">MemcpyNode.type</span></code></a></li>
 </ul>
 </li>

@@ -43,10 +43,12 @@ cuda.core.graph.MemcpyNode
    .. autoattribute:: graph
    .. autoattribute:: handle
    .. autoattribute:: is_valid
+   .. autoattribute:: local_id
    .. autoattribute:: pred
    .. autoattribute:: size
    .. autoattribute:: src
    .. autoattribute:: succ
+   .. autoattribute:: tools_id
    .. autoattribute:: type
    
    
