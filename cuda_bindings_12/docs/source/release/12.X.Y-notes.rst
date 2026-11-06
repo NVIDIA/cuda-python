@@ -35,6 +35,10 @@ Highlights
 Bug fixes
 ---------
 
+* Nested resource pointer conversion accepts both ``str`` and ``bytes`` options.
+* Coredump settings retain borrowed string buffers during calls and free getter buffers.
+* ``get_cuda_native_handle`` preserves errors raised inside registered getters.
+
 
 Miscellaneous
 -------------
