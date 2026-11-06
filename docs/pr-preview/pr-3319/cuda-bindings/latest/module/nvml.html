@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=11c75003"></script>
+    <script src="../_static/documentation_options.js?v=b7f11e59"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4.dev436';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev41';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -607,6 +607,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cufile.html">cufile</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">nvml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
@@ -937,146 +938,158 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_gpu_operation_mode</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the current GOM and pending GOM (the one that GPU will switch to after reboot).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_grid_licensable_features_v4</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_gpu_uptime_v1</span></code>(intptr_t device)</p></td>
+<td><p>Retrieves the GPU uptime.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_grid_licensable_features_v4</span></code>(...)</p></td>
 <td><p>Retrieve the vGPU Software licensable features.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_gsp_firmware_mode</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_gsp_firmware_mode</span></code>(intptr_t device)</p></td>
 <td><p>Retrieve GSP firmware mode.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_gsp_firmware_version</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_gsp_firmware_version</span></code>(intptr_t device)</p></td>
 <td><p>Retrieve GSP firmware version.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_index_v2</span></code>(unsigned int index)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_index_v2</span></code>(unsigned int index)</p></td>
 <td><p>Acquire the handle for a particular device, based on its index.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_pci_bus_id_v2</span></code>(pci_bus_id)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_pci_bus_id_v2</span></code>(pci_bus_id)</p></td>
 <td><p>Acquire the handle for a particular device, based on its PCI bus id.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_serial</span></code>(serial)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_serial</span></code>(serial)</p></td>
 <td><p>Acquire the handle for a particular device, based on its board serial number.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_uuid</span></code>(uuid)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_uuid</span></code>(uuid)</p></td>
 <td><p>Acquire the handle for a particular device, based on its globally unique immutable UUID (in ASCII format) associated with each device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_uuidv</span></code>(int type, bytes uuid)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_handle_by_uuidv</span></code>(int type, bytes uuid)</p></td>
 <td><p>Acquire the handle for a particular device, based on its globally unique immutable UUID (in either ASCII or binary format) associated with each device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_host_vgpu_mode</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_host_vgpu_mode</span></code>(intptr_t device)</p></td>
 <td><p>Queries if SR-IOV host operation is supported on a vGPU supported device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_hostname_v1</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_hostname_v1</span></code>(intptr_t device)</p></td>
 <td><p>Get the hostname for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_index</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_index</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the NVML index of this device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_inforom_configuration_checksum</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_inforom_configuration_checksum</span></code>(...)</p></td>
 <td><p>Retrieves the checksum of the configuration stored in the device's infoROM.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_inforom_image_version</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_inforom_image_version</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the global infoROM image version.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_inforom_version</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_inforom_version</span></code>(intptr_t device, ...)</p></td>
 <td><p>Retrieves the version information for the device's infoROM object.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_irq_num</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_irq_num</span></code>(intptr_t device)</p></td>
 <td><p>Gets the device's interrupt number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_jpg_utilization</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_jpg_utilization</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the current utilization and sampling size in microseconds for the JPG.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_last_bbx_flush_time</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_last_bbx_flush_time</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the timestamp and the duration of the last flush of the BBX (blackbox) infoROM object during the current run.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_margin_temperature</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_margin_temperature</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the thermal margin temperature (distance to nearest slowdown threshold).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_clock_info</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_clock_info</span></code>(intptr_t device, ...)</p></td>
 <td><p>Retrieves the maximum clock speeds for the device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_customer_boost_clock</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_customer_boost_clock</span></code>(...)</p></td>
 <td><p>Retrieves the customer defined maximum boost clock speed specified by the given clock type.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_mig_device_count</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_mig_device_count</span></code>(intptr_t device)</p></td>
 <td><p>Get the maximum number of MIG devices that can exist under a given parent NVML device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_pcie_link_generation</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_pcie_link_generation</span></code>(...)</p></td>
 <td><p>Retrieves the maximum PCIe link generation possible with this device and system.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_pcie_link_width</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_max_pcie_link_width</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the maximum PCIe link width possible with this device and system.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mem_clk_min_max_vf_offset</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mem_clk_min_max_vf_offset</span></code>(...)</p></td>
 <td><p>Retrieve the MemClk (Memory Clock) min max VF offset value.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mem_clk_vf_offset</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mem_clk_vf_offset</span></code>(intptr_t device)</p></td>
 <td><p>Retrieve the MemClk (Memory Clock) VF offset value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_affinity</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_affinity</span></code>(intptr_t device, ...)</p></td>
 <td><p>Retrieves an array of unsigned ints (sized to node_set_size) of bitmasks with the ideal memory affinity within node or socket for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_bus_width</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_bus_width</span></code>(intptr_t device)</p></td>
 <td><p>Gets the device's memory bus width.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_error_counter</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_error_counter</span></code>(...)</p></td>
 <td><p>Retrieves the requested memory error counter for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_info_v2</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_info_v2</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the amount of used, free, reserved and total memory available on the device, in bytes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_limits_v1</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_memory_limits_v1</span></code>(intptr_t device)</p></td>
 <td><p>Get the memory limits of the device for the cgroup partition.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mig_device_handle_by_index</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mig_device_handle_by_index</span></code>(...)</p></td>
 <td><p>Get MIG device handle for the given index under its parent NVML device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mig_mode</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mig_mode</span></code>(intptr_t device)</p></td>
 <td><p>Get MIG mode for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_min_max_clock_of_p_state</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_min_max_clock_of_p_state</span></code>(...)</p></td>
 <td><p>Retrieve min and max clocks of some clock domain for a given PState.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_min_max_fan_speed</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_min_max_fan_speed</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the min and max fan speed that user can set for the GPU fan.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_minor_number</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_minor_number</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves minor number for the device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_module_id</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_module_id</span></code>(intptr_t device)</p></td>
 <td><p>Get a unique identifier for the device module on the baseboard.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mps_compute_running_processes_v3</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_mps_compute_running_processes_v3</span></code>(...)</p></td>
 <td><p>Get information about processes with a Multi-Process Service (MPS) compute context on a device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_multi_gpu_board</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_multi_gpu_board</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves whether the device is on a Multi-GPU Board Devices that are on multi-GPU boards will set <code class="docutils literal notranslate"><span class="pre">multi_gpu_bool</span></code> to a non-zero value.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_name</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_name</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the name of this device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_num_fans</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_num_fans</span></code>(intptr_t device)</p></td>
 <td><p>Retrieves the number of fans on the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_num_gpu_cores</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_num_gpu_cores</span></code>(intptr_t device)</p></td>
 <td><p>Gets the device's core count.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_numa_node_id</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_numa_node_id</span></code>(intptr_t device)</p></td>
 <td><p>Get the NUMA node of the given GPU device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nv_link_telemetry_samples_v1</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nv_link_telemetry_samples_v1</span></code>(...)</p></td>
 <td><p>Retrieve a batch of historical NVLink per-link telemetry samples.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_bw_mode</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_bw_mode</span></code>(intptr_t device)</p></td>
 <td><p>Get the NvLink Reduced Bandwidth Mode for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_capability</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_capability</span></code>(...)</p></td>
 <td><p>Retrieves the requested capability from the device's NvLink for the link specified Please refer to the <code class="docutils literal notranslate"><span class="pre">nvmlNvLinkCapability_t</span></code> structure for the specific caps that can be queried The return value should be treated as a boolean.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_error_counter</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_error_counter</span></code>(...)</p></td>
 <td><p>Retrieves the specified error counter value Please refer to <code class="docutils literal notranslate"><span class="pre">nvmlNvLinkErrorCounter_t</span></code> for error counters that are available.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_info</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_info</span></code>(intptr_t device)</p></td>
 <td><p>Query NVLINK information associated with this device.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_info_v3</span></code>(intptr_t device)</p></td>
+<td><p>Query NVLINK information associated with this device (v3).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_nvle_private_info_v1</span></code>(...)</p></td>
+<td><p>Get NVLink NVLE private (opaque) information.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_remap_table_info_v1</span></code>(...)</p></td>
+<td><p>Get the NVLink remap table information.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_get_nvlink_remote_device_type</span></code>(...)</p></td>
 <td><p>Get the NVLink device type of the remote device connected over the given link.</p></td>
@@ -1294,119 +1307,125 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_is_mig_device_handle</span></code>(intptr_t device)</p></td>
 <td><p>Test if the given handle refers to a MIG device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_modify_drain_state</span></code>(pci_info, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_lock_nvlink_remap_table_v1</span></code>(...)</p></td>
+<td><p>Lock the NVLink remap table to prevent MSE from making further updates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_modify_drain_state</span></code>(pci_info, ...)</p></td>
 <td><p>Modify the drain state of a GPU.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_on_same_board</span></code>(intptr_t device1, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_on_same_board</span></code>(intptr_t device1, ...)</p></td>
 <td><p>Check if the GPU devices are on the same physical board.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_perf_metrics_get_samples_v1</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_perf_metrics_get_samples_v1</span></code>(...)</p></td>
 <td><p>Get Performance Metric samples.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_power_smoothing_activate_preset_profile</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_power_smoothing_activate_preset_profile</span></code>(...)</p></td>
 <td><p>Activiate a specific preset profile for datacenter power smoothing.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_power_smoothing_set_state</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_power_smoothing_set_state</span></code>(...)</p></td>
 <td><p>Enable or disable the Power Smoothing Feature.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_power_smoothing_update_preset_profile_param</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_power_smoothing_update_preset_profile_param</span></code>(...)</p></td>
 <td><p>Update the value of a specific profile parameter contained within <code class="docutils literal notranslate"><span class="pre">nvmlPowerSmoothingProfile_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_query_drain_state</span></code>(pci_info)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_query_drain_state</span></code>(pci_info)</p></td>
 <td><p>Query the drain state of a GPU.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_read_prm_counters_v1</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_read_prm_counters_v1</span></code>(intptr_t device, ...)</p></td>
 <td><p>Read a list of GPU PRM Counters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_read_write_prm_v1</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_read_write_prm_v1</span></code>(intptr_t device, ...)</p></td>
 <td><p>Read or write a GPU PRM register.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_register_events</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_register_events</span></code>(intptr_t device, ...)</p></td>
 <td><p>Starts recording of events on a specified devices and add the events to specified <code class="docutils literal notranslate"><span class="pre">nvmlEventSet_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_remove_gpu_v2</span></code>(pci_info, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_remove_gpu_v2</span></code>(pci_info, ...)</p></td>
 <td><p>This method will remove the specified GPU from the view of both NVML and the NVIDIA kernel driver as long as no other processes are attached.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_reset_gpu_locked_clocks</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_reset_gpu_locked_clocks</span></code>(intptr_t device)</p></td>
 <td><p>Resets the gpu clock to the default value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_reset_memory_locked_clocks</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_reset_memory_locked_clocks</span></code>(...)</p></td>
 <td><p>Resets the memory clock to the default value.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_reset_nvlink_error_counters</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_reset_nvlink_error_counters</span></code>(...)</p></td>
 <td><p>Resets all error counters to zero Please refer to <code class="docutils literal notranslate"><span class="pre">nvmlNvLinkErrorCounter_t</span></code> for the list of error counters that are reset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_accounting_mode</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_accounting_mode</span></code>(intptr_t device, ...)</p></td>
 <td><p>Enables or disables per process accounting.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_adaptive_tgp_mode_v1</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_adaptive_tgp_mode_v1</span></code>(...)</p></td>
 <td><p>Request to enable or disable Adaptive TGP Mode for a GPU.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_api_restriction</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_api_restriction</span></code>(intptr_t device, ...)</p></td>
 <td><p>Changes the root/admin restructions on certain APIs.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_auto_boosted_clocks_enabled</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_auto_boosted_clocks_enabled</span></code>(...)</p></td>
 <td><p>Try to set the current state of Auto Boosted clocks on a device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_clock_offsets</span></code>(intptr_t device, info)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_clock_offsets</span></code>(intptr_t device, info)</p></td>
 <td><p>Control current clock offset of some clock domain for a given PState.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_compute_mode</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_compute_mode</span></code>(intptr_t device, ...)</p></td>
 <td><p>Set the compute mode for the device or MIG device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_conf_compute_unprotected_mem_size</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_conf_compute_unprotected_mem_size</span></code>(...)</p></td>
 <td><p>Set Conf Computing Unprotected Memory Size.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_cpu_affinity</span></code>(intptr_t device)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_cpu_affinity</span></code>(intptr_t device)</p></td>
 <td><p>Sets the ideal affinity for the calling thread and device using the guidelines given in <code class="xref py py-func docutils literal notranslate"><span class="pre">device_get_cpu_affinity()</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_default_auto_boosted_clocks_enabled</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_default_auto_boosted_clocks_enabled</span></code>(...)</p></td>
 <td><p>Try to set the default state of Auto Boosted clocks on a device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_default_fan_speed_v2</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_default_fan_speed_v2</span></code>(...)</p></td>
 <td><p>Sets the speed of the fan control policy to default.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_dram_encryption_mode</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_dram_encryption_mode</span></code>(...)</p></td>
 <td><p>Set the DRAM Encryption mode for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_driver_model</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_driver_model</span></code>(intptr_t device, ...)</p></td>
 <td><p>Set the driver model for the device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_ecc_mode</span></code>(intptr_t device, int ecc)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_ecc_mode</span></code>(intptr_t device, int ecc)</p></td>
 <td><p>Set the ECC mode for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_fan_control_policy</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_fan_control_policy</span></code>(...)</p></td>
 <td><p>Sets current fan control policy.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_fan_speed_v2</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_fan_speed_v2</span></code>(intptr_t device, ...)</p></td>
 <td><p>Sets the speed of a specified fan.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_gpu_locked_clocks</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_gpu_locked_clocks</span></code>(...)</p></td>
 <td><p>Set clocks that device will lock to.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_gpu_operation_mode</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_gpu_operation_mode</span></code>(...)</p></td>
 <td><p>Sets new GOM.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_hostname_v1</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_hostname_v1</span></code>(intptr_t device, ...)</p></td>
 <td><p>Set the hostname for the device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_memory_limits_v1</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_memory_limits_v1</span></code>(intptr_t device, ...)</p></td>
 <td><p>Set the memory limits of the device for the cgroup partition.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_memory_locked_clocks</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_memory_locked_clocks</span></code>(...)</p></td>
 <td><p>Set memory clocks that device will lock to.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_mig_mode</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_mig_mode</span></code>(intptr_t device, ...)</p></td>
 <td><p>Set MIG mode for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_nvlink_bw_mode</span></code>(intptr_t device, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_nvlink_bw_mode</span></code>(intptr_t device, ...)</p></td>
 <td><p>Set the NvLink Reduced Bandwidth Mode for the device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_nvlink_bw_mode_async_v1</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_nvlink_bw_mode_async_v1</span></code>(...)</p></td>
 <td><p>Set the NvLink Reduced Bandwidth Mode asynchronously for the device.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_nvlink_device_low_power_threshold</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_nvlink_device_low_power_threshold</span></code>(...)</p></td>
 <td><p>Set NvLink Low Power Threshold for device.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_nvlink_nvle_ready_v1</span></code>(...)</p></td>
+<td><p>Set the NVLink NVLE ready state.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_persistence_mode</span></code>(intptr_t device, ...)</p></td>
 <td><p>Set the persistence mode for the device.</p></td>
@@ -1435,137 +1454,143 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_set_virtualization_mode</span></code>(...)</p></td>
 <td><p>This method is used to set the virtualization mode corresponding to the GPU.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_validate_inforom</span></code>(intptr_t device)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_setup_nvlink_nvle_encryption_key_v1</span></code>(...)</p></td>
+<td><p>Setup the NVLink NVLE encryption key.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">device_validate_inforom</span></code>(intptr_t device)</p></td>
 <td><p>Reads the infoROM from the flash and verifies the checksums.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_string</span></code>(int result)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_string</span></code>(int result)</p></td>
 <td><p>Helper method for converting NVML error codes into readable strings.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_create</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_create</span></code>()</p></td>
 <td><p>Create an empty set of events.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_free</span></code>(intptr_t set)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_free</span></code>(intptr_t set)</p></td>
 <td><p>Releases events in the set.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_context_count_v1</span></code>(intptr_t set)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_context_count_v1</span></code>(intptr_t set)</p></td>
 <td><p>Gets the number of context records for the most recent event returned by <code class="docutils literal notranslate"><span class="pre">nvmlEventSetWait_v3</span></code> on this event set.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_context_data_v1</span></code>(intptr_t set, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_context_data_v1</span></code>(intptr_t set, ...)</p></td>
 <td><p>Copies the raw payload for a context record from the most recent event returned by <code class="xref py py-func docutils literal notranslate"><span class="pre">event_set_wait_v3()</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_context_info_v1</span></code>(intptr_t set, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_context_info_v1</span></code>(intptr_t set, ...)</p></td>
 <td><p>Retrieve context metadata for a context record from the most recent event returned by <code class="xref py py-func docutils literal notranslate"><span class="pre">event_set_wait_v3()</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_gpu_operational_event_context_legacy_xid_v1</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_get_gpu_operational_event_context_legacy_xid_v1</span></code>(...)</p></td>
 <td><p>Retrieve the decoded legacy-Xid context data for a context record from the most recent event returned by <code class="xref py py-func docutils literal notranslate"><span class="pre">event_set_wait_v3()</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_register_gpu_operational_events_v1</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_register_gpu_operational_events_v1</span></code>(...)</p></td>
 <td><p>Adds a GPU Operational Event subscription to an event set.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_wait_v2</span></code>(intptr_t set, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_wait_v2</span></code>(intptr_t set, ...)</p></td>
 <td><p>Waits on events and delivers events.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_wait_v3</span></code>(intptr_t set, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_set_wait_v3</span></code>(intptr_t set, ...)</p></td>
 <td><p>Wait for events of the specified type to occur for any device in the set, returning a structured event record.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_excluded_device_count</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_excluded_device_count</span></code>()</p></td>
 <td><p>Retrieves the number of excluded GPU devices in the system.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_excluded_device_info_by_index</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_excluded_device_info_by_index</span></code>(...)</p></td>
 <td><p>Acquire the device information for an excluded GPU device, based on its index.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vgpu_compatibility</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vgpu_compatibility</span></code>(...)</p></td>
 <td><p>Takes a vGPU instance metadata structure read from vgpu_instance_get_metadata() and a vGPU metadata structure for a physical GPU read from device_get_vgpu_metadata, and returns compatibility information of the vGPU instance and the physical GPU.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vgpu_driver_capabilities</span></code>(int capability)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vgpu_driver_capabilities</span></code>(int capability)</p></td>
 <td><p>Retrieve the requested vGPU driver capability.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vgpu_version</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vgpu_version</span></code>()</p></td>
 <td><p>Query the ranges of supported vGPU versions.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_create_compute_instance</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_create_compute_instance</span></code>(...)</p></td>
 <td><p>Create compute instance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_create_compute_instance_with_placement</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_create_compute_instance_with_placement</span></code>(...)</p></td>
 <td><p>Create compute instance with the specified placement.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_destroy</span></code>(intptr_t gpu_instance)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_destroy</span></code>(intptr_t gpu_instance)</p></td>
 <td><p>Destroy GPU instance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_active_vgpus</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_active_vgpus</span></code>(...)</p></td>
 <td><p>Retrieve the active vGPU instances within a GPU instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_by_id</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_by_id</span></code>(...)</p></td>
 <td><p>Get compute instance for given instance ID.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_possible_placements</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_possible_placements</span></code>(...)</p></td>
 <td><p>Get compute instance placements.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_profile_info_v</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_profile_info_v</span></code>(...)</p></td>
 <td><p>Versioned wrapper around <code class="docutils literal notranslate"><span class="pre">nvmlGpuInstanceGetComputeInstanceProfileInfo</span></code> that accepts a versioned <code class="docutils literal notranslate"><span class="pre">nvmlComputeInstanceProfileInfo_v2_t</span></code> or later output structure.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_remaining_capacity</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instance_remaining_capacity</span></code>(...)</p></td>
 <td><p>Get compute instance profile capacity.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instances</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_compute_instances</span></code>(...)</p></td>
 <td><p>Get compute instances for given profile ID.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_creatable_vgpus</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_creatable_vgpus</span></code>(...)</p></td>
 <td><p>Query the currently creatable vGPU types on a specific GPU Instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_info</span></code>(intptr_t gpu_instance)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_info</span></code>(intptr_t gpu_instance)</p></td>
 <td><p>Get GPU instance information.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_heterogeneous_mode</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_heterogeneous_mode</span></code>(...)</p></td>
 <td><p>Get the vGPU heterogeneous mode for the GPU instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_scheduler_log</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_scheduler_log</span></code>(...)</p></td>
 <td><p>Returns the vGPU scheduler logs for the given GPU instance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_scheduler_state</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_scheduler_state</span></code>(...)</p></td>
 <td><p>Returns the vGPU scheduler state for the given GPU instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_type_creatable_placements</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_get_vgpu_type_creatable_placements</span></code>(...)</p></td>
 <td><p>Query the creatable vGPU placement ID of the vGPU type within a GPU instance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_set_vgpu_heterogeneous_mode</span></code>(...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_set_vgpu_heterogeneous_mode</span></code>(...)</p></td>
 <td><p>Enable or disable vGPU heterogeneous mode for the GPU instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_set_vgpu_scheduler_state</span></code>(...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpu_instance_set_vgpu_scheduler_state</span></code>(...)</p></td>
 <td><p>Set vGPU scheduler state for the given GPU instance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_v2</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_v2</span></code>()</p></td>
 <td><p>Initialize the NVML Library lazily, without allocating any device state.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_with_flags</span></code>(unsigned int flags)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_with_flags</span></code>(unsigned int flags)</p></td>
 <td><p>Initialize the NVML Library lazily, without allocating any device state, with additional init flags.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vgpu_version</span></code>(vgpu_version)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vgpu_version</span></code>(vgpu_version)</p></td>
 <td><p>Override the preset range of vGPU versions supported by the NVIDIA vGPU Manager with a range set by an administrator.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shutdown</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shutdown</span></code>()</p></td>
 <td><p>Shut down and cleanup NVML Library state.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_event_set_create</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_event_set_create</span></code>()</p></td>
 <td><p>Create an empty set of system events.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_event_set_free</span></code>(intptr_t event_set)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_event_set_free</span></code>(intptr_t event_set)</p></td>
 <td><p>Frees an event set.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_event_set_wait</span></code>(intptr_t event_set, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_event_set_wait</span></code>(intptr_t event_set, ...)</p></td>
 <td><p>Waits for events to occur on the system event set.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_capabilities</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_capabilities</span></code>()</p></td>
 <td><p>Get Conf Computing System capabilities.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_gpus_ready_state</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_gpus_ready_state</span></code>()</p></td>
 <td><p>Get Conf Computing GPUs ready state.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_key_rotation_threshold_info</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_key_rotation_threshold_info</span></code>()</p></td>
 <td><p>Get Conf Computing key rotation threshold detail.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_settings</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_settings</span></code>()</p></td>
 <td><p>Get Conf Computing System Settings.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_settings_v2</span></code>()</p></td>
+<td><p>Get Conf Computing System Settings, version 2.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">system_get_conf_compute_state</span></code>()</p></td>
 <td><p>Get Conf Computing System State.</p></td>
@@ -2023,7 +2048,7 @@
 <td><p>Enum for operation to perform on the requested profiles</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PowerProfileType</span></code>(value)</p></td>
-<td><p>See <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPowerProfileType_t</span></code>.</p></td>
+<td><p>Workload power profile identifiers.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PowerScope</span></code>(value)</p></td>
 <td><p>PowerScope</p></td>
@@ -2267,35 +2292,41 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GpuThermalSettings</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlGpuThermalSettings_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridLicensableFeature</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GpuUptime_v1</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlGpuUptime_v1_t</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridLicensableFeature</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlGridLicensableFeature_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridLicensableFeatures</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridLicensableFeatures</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlGridLicensableFeatures_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridLicenseExpiry</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridLicenseExpiry</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlGridLicenseExpiry_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HwbcEntry</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HwbcEntry</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlHwbcEntry_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LedState</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LedState</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlLedState_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Memory</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Memory</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlMemory_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Memory_v2</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Memory_v2</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlMemory_v2_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkFirmwareInfo</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkFirmwareInfo</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkFirmwareInfo_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkFirmwareVersion</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkFirmwareVersion</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkFirmwareVersion_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkGetBwMode_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkGetBwMode_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkGetBwMode_v1_t</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkGetRemapTableInfo_v1</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkGetRemapTableInfo_v1_t</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvLinkInfo_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvLinkInfo_v1_t</span></code>.</p></td>
@@ -2303,122 +2334,140 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvLinkInfo_v2</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvLinkInfo_v2_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSetBwMode_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvLinkInfo_v3</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvLinkInfo_v3_t</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkLockRemapTable_v1</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkLockRemapTable_v1_t</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkNvlePrivateInfo_v1</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkNvlePrivateInfo_v1_t</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSetBwMode_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkSetBwMode_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSetBwModeAsync_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSetBwModeAsync_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkSetBwModeAsync_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSupportedBwModes_v1</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSetNvleReady_v1</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkSetNvleReady_v1_t</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSetupNvleEncryptionKey_v1</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkSetupNvleEncryptionKey_v1_t</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkSupportedBwModes_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkSupportedBwModes_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkTelemetrySample_v1</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkTelemetrySample_v1</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkTelemetrySample_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkTelemetrySamples_v1</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NvlinkTelemetrySamples_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlNvlinkTelemetrySamples_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObservedMetrics</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObservedMetrics</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlObservedMetrics_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PciInfo</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PciInfo</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPciInfo_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PciInfoExt_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PciInfoExt_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPciInfoExt_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricControllerSample</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricControllerSample</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPerfMetricControllerSample_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsDlppc2xSample</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsDlppc2xSample</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPerfMetricsDlppc2xSample_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsPfpp1xSample</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsPfpp1xSample</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPerfMetricsPfpp1xSample_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsSample</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsSample</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPerfMetricsSample_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsSamples_v1</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerfMetricsSamples_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPerfMetricsSamples_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlatformInfo_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlatformInfo_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPlatformInfo_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlatformInfo_v2</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlatformInfo_v2</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPlatformInfo_v2_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PmgrPwrTuple</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PmgrPwrTuple</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPmgrPwrTuple_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRMCounter_v1</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRMCounter_v1</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPRMCounter_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRMCounterInput_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRMCounterInput_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPRMCounterInput_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRMCounterValue_v1</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRMCounterValue_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPRMCounterValue_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessDetail_v1</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessDetail_v1</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlProcessDetail_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsDlppm1x</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsDlppm1x</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPwrModelMetricsDlppm1x_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsDlppm1xDramclkEstimates</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsDlppm1xDramclkEstimates</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPwrModelMetricsDlppm1xDramclkEstimates_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsDlppm1xPerf</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsDlppm1xPerf</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPwrModelMetricsDlppm1xPerf_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsPfpp1x</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsPfpp1x</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPwrModelMetricsPfpp1x_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsSamplePfpp1x</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelMetricsSamplePfpp1x</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPwrModelMetricsSamplePfpp1x_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelOperatingPointPfpp1x</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PwrModelOperatingPointPfpp1x</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPwrModelOperatingPointPfpp1x_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessDetailList_v1</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessDetailList_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlProcessDetailList_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessesUtilizationInfo_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessesUtilizationInfo_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlProcessesUtilizationInfo_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessInfo</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessInfo</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlProcessInfo_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessUtilizationInfo_v1</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessUtilizationInfo_v1</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlProcessUtilizationInfo_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessUtilizationSample</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProcessUtilizationSample</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlProcessUtilizationSample_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSUInfo</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSUInfo</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlPSUInfo_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RepairStatus_v1</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RepairStatus_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlRepairStatus_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RailMetrics</span></code>([size])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RailMetrics</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlRailMetrics_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemappedRowsInfo_v2</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemappedRowsInfo_v2</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlRemappedRowsInfo_v2_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RowRemapperHistogramValues</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RowRemapperHistogramValues</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlRowRemapperHistogramValues_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sample</span></code>([size])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sample</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlSample_t</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SetMemoryLimits_v1</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SetMemoryLimits_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlSetMemoryLimits_v1_t</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SystemConfComputeSettings_v1</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SystemConfComputeSettings_v1</span></code>()</p></td>
 <td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlSystemConfComputeSettings_v1_t</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SystemConfComputeSettings_v2</span></code>()</p></td>
+<td><p>Empty-initialize an instance of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlSystemConfComputeSettings_v2_t</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SystemEventData_v1</span></code>([size])</p></td>
 <td><p>Empty-initialize an array of <code class="xref cpp cpp-any docutils literal notranslate"><span class="pre">nvmlSystemEventData_v1_t</span></code>.</p></td>

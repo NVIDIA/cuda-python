@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=51f2fa97"></script>
+    <script src="../_static/documentation_options.js?v=5cf66ec8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev307';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev378';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -590,6 +590,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.host_launch.html">cuda.core.host_launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.pack_host_copy_args.html">cuda.core.pack_host_copy_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
@@ -667,6 +668,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAOutOfMemoryError.html">cuda.core.CUDAOutOfMemoryError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
@@ -855,7 +857,16 @@ memory allocation nodes per CUDA documentation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.callback">
-<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.callback" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">user_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a></span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.callback" title="Link to this definition">#</a></dt>
 <dd><p>Add a host callback node depending on this node.</p>
 <p>The callback runs on the host CPU when the graph reaches this node.
 Two modes are supported:</p>
@@ -898,7 +909,8 @@ copied and its lifetime is tied to the graph.</p></li>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">fn</span></code> is a ctypes function pointer whose declared prototype
     does not match <code class="docutils literal notranslate"><span class="pre">CUhostFn</span></code>.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is given for a Python callable.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is given for a Python callable, or if <code class="docutils literal notranslate"><span class="pre">fn</span></code> is
+    <code class="xref py py-data docutils literal notranslate"><span class="pre">HOST_COPY_FN</span></code> and <code class="docutils literal notranslate"><span class="pre">user_data</span></code> is not a packed record.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1319,6 +1331,19 @@ evaluates to a non-zero value.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.local_id">
+<span class="sig-name descname"><span class="pre">local_id</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.local_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The node’s ID within its graph.</p>
+<p>Requires CUDA 13 build and driver 13.1+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.local_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.pred">
 <span class="sig-name descname"><span class="pre">pred</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.pred" title="Link to this definition">#</a></dt>
 <dd><p>AdjacencySetProxy</p>
@@ -1338,6 +1363,19 @@ evaluates to a non-zero value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>GraphNode.succ</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.graph.EventRecordNode.tools_id">
+<span class="sig-name descname"><span class="pre">tools_id</span></span><a class="headerlink" href="#cuda.core.graph.EventRecordNode.tools_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The node’s ID reported by CUDA profiling and tooling interfaces.</p>
+<p>Requires CUDA 13 build and driver 13.1+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>GraphNode.tools_id</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1436,8 +1474,10 @@ evaluates to a non-zero value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.graph"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.graph</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.handle"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.handle</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.is_valid"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.is_valid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.local_id"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.local_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.pred"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.pred</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.succ"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.succ</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.tools_id"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.tools_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.graph.EventRecordNode.type"><code class="docutils literal notranslate"><span class="pre">EventRecordNode.type</span></code></a></li>
 </ul>
 </li>
