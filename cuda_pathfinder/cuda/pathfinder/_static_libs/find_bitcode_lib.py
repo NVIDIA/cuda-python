@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import NoReturn, TypedDict
 
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
-from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages_ordered
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
@@ -90,12 +90,11 @@ class _FindBitcodeLib:
         self.attachments: list[str] = []
 
     def try_site_packages(self) -> Path | None:
-        for rel_dir in self.site_packages_dirs:
-            sub_dir = tuple(rel_dir.split("/"))
-            for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
-                file_path = Path(abs_dir, self.filename)
-                if file_path.is_file():
-                    return file_path
+        patterns = tuple(tuple(rel_dir.split("/")) for rel_dir in self.site_packages_dirs)
+        for abs_dir in find_sub_dirs_all_sitepackages_ordered(patterns):
+            file_path = Path(abs_dir, self.filename)
+            if file_path.is_file():
+                return file_path
         return None
 
     def try_with_conda_prefix(self) -> Path | None:

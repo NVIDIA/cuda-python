@@ -22,7 +22,7 @@ from cuda.pathfinder._headers.header_descriptor import (
 )
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
-from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages_ordered
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 if TYPE_CHECKING:
@@ -81,11 +81,10 @@ def _locate_in_anchor_layout(desc: HeaderDescriptor, anchor_point: str) -> str |
 
 def find_in_site_packages(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Search pip wheel install locations."""
-    for sub_dir in desc.site_packages_dirs:
-        hdr_dir: str  # help mypy
-        for hdr_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
-            if _joined_isfile(hdr_dir, desc.header_basename):
-                return LocatedHeaderDir(abs_path=hdr_dir, found_via="site-packages")
+    patterns = tuple(tuple(sub_dir.split("/")) for sub_dir in desc.site_packages_dirs)
+    for hdr_dir in find_sub_dirs_all_sitepackages_ordered(patterns):
+        if _joined_isfile(hdr_dir, desc.header_basename):
+            return LocatedHeaderDir(abs_path=hdr_dir, found_via="site-packages")
     return None
 
 

@@ -105,15 +105,13 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
         tuple(rel_dir.split("/")) for rel_dir in _bitcode_lib_info(libname)["site_packages_dirs"]
     )
 
-    def find_expected_sub_dir(sub_dir):
-        assert sub_dir in site_packages_sub_dirs
-        if sub_dir == site_packages_sub_dirs[0]:
-            return [str(site_packages_lib_dir)]
-        return []
+    def find_expected_sub_dir(patterns):
+        assert patterns == site_packages_sub_dirs
+        return [str(site_packages_lib_dir)]
 
     monkeypatch.setattr(
         find_bitcode_lib_module,
-        "find_sub_dirs_all_sitepackages",
+        "find_sub_dirs_all_sitepackages_ordered",
         find_expected_sub_dir,
     )
     monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
@@ -145,7 +143,7 @@ def test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing(m
 
     monkeypatch.setattr(
         find_bitcode_lib_module,
-        "find_sub_dirs_all_sitepackages",
+        "find_sub_dirs_all_sitepackages_ordered",
         lambda _sub_dir: [],
     )
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
@@ -166,7 +164,7 @@ def test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing(m
 def test_find_bitcode_lib_not_found_error_without_cuda_home(monkeypatch):
     monkeypatch.setattr(
         find_bitcode_lib_module,
-        "find_sub_dirs_all_sitepackages",
+        "find_sub_dirs_all_sitepackages_ordered",
         lambda _sub_dir: [],
     )
     monkeypatch.delenv("CONDA_PREFIX", raising=False)

@@ -18,7 +18,10 @@ from typing import Protocol, cast
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
-from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.find_sub_dirs import (
+    find_sub_dirs_all_sitepackages,
+    find_sub_dirs_all_sitepackages_ordered,
+)
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
@@ -48,14 +51,11 @@ def _find_so_in_rel_dirs(
     error_messages: list[str],
     attachments: list[str],
 ) -> str | None:
-    sub_dirs_searched: list[tuple[str, ...]] = []
-    for rel_dir in rel_dirs:
-        sub_dir = PurePath(rel_dir).parts
-        for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
-            so_path = _find_descriptor_so_under_dir(abs_dir, desc)
-            if so_path is not None:
-                return so_path
-        sub_dirs_searched.append(sub_dir)
+    sub_dirs_searched = tuple(PurePath(rel_dir).parts for rel_dir in rel_dirs)
+    for abs_dir in find_sub_dirs_all_sitepackages_ordered(sub_dirs_searched):
+        so_path = _find_descriptor_so_under_dir(abs_dir, desc)
+        if so_path is not None:
+            return so_path
     for sub_dir in sub_dirs_searched:
         _no_such_file_in_sub_dirs(sub_dir, file_description, error_messages, attachments)
     return None
@@ -88,15 +88,12 @@ def _find_dll_in_rel_dirs(
     error_messages: list[str],
     attachments: list[str],
 ) -> str | None:
-    sub_dirs_searched: list[tuple[str, ...]] = []
+    sub_dirs_searched = tuple(PurePath(rel_dir).parts for rel_dir in rel_dirs)
     checked_arch = target_arch if desc.requires_windows_binary_arch_check else None
-    for rel_dir in rel_dirs:
-        sub_dir = PurePath(rel_dir).parts
-        for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
-            dll_name = _find_descriptor_dll_under_dir(abs_dir, desc, checked_arch)
-            if dll_name is not None:
-                return dll_name
-        sub_dirs_searched.append(sub_dir)
+    for abs_dir in find_sub_dirs_all_sitepackages_ordered(sub_dirs_searched):
+        dll_name = _find_descriptor_dll_under_dir(abs_dir, desc, checked_arch)
+        if dll_name is not None:
+            return dll_name
     for sub_dir in sub_dirs_searched:
         _no_such_file_in_sub_dirs(sub_dir, lib_searched_for, error_messages, attachments)
     return None
