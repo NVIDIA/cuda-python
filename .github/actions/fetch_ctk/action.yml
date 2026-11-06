@@ -19,6 +19,14 @@ inputs:
     description: "where the CTK components will be installed to, relative to $PWD"
     required: false
     default: "./cuda_toolkit"
+  install-mode:
+    description: >
+      "replace" (default) empties cuda-path before installing.
+      "add" installs the components on top of the mini CTK that an earlier
+      fetch_ctk call installed at the same cuda-path, and leaves the
+      environment that call exported unchanged.
+    required: false
+    default: "replace"
   redist-base-url:
     description: >
       Base URL of a redistrib server (manifest and component archives).
@@ -42,6 +50,34 @@ runs:
       uses: ./.github/actions/install_windows_deps
       with:
         dependent_exes: "curl unzip tar sha256sum cygpath"
+
+    - name: Check install mode
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        case "${{ inputs.install-mode }}" in
+          replace)
+            ;;
+          add)
+            # The environment exports are skipped in this mode, so the target
+            # must be the CUDA_PATH an earlier fetch_ctk call exported.
+            if [[ -z "${CUDA_PATH:-}" ]]; then
+              echo "::error::install-mode 'add' requires CUDA_PATH from an earlier fetch_ctk call"
+              exit 1
+            fi
+            EXISTING_PATH="$CUDA_PATH"
+            if [[ "${{ inputs.host-platform }}" == win* ]]; then
+              EXISTING_PATH="$(cygpath -u "$EXISTING_PATH")"
+            fi
+            if [[ "$(realpath -e "${{ inputs.cuda-path }}")" != "$(realpath -e "$EXISTING_PATH")" ]]; then
+              echo "::error::install-mode 'add' requires cuda-path to be the existing CUDA_PATH ($CUDA_PATH)"
+              exit 1
+            fi
+            ;;
+          *)
+            echo "::error::install-mode must be 'replace' or 'add', got '${{ inputs.install-mode }}'"
+            exit 1
+            ;;
+        esac
 
     - name: Set up CTK cache variable
       shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -170,7 +206,9 @@ runs:
         # symlinks from a prerelease CTK at ./cuda_toolkit/include etc., causing
         # "cp: cannot overwrite non-directory" failures on the next restore).
         CUDA_PATH="${{ inputs.cuda-path }}"
-        rm -rf $CUDA_PATH
+        if [[ "${{ inputs.install-mode }}" == replace ]]; then
+          rm -rf $CUDA_PATH
+        fi
         mkdir -p $CUDA_PATH
         # Unfortunately we cannot use "rsync -av $CACHE_TMP_DIR/ $CUDA_PATH" because
         # not all runners have rsync pre-installed (or even installable, such as
@@ -194,7 +232,9 @@ runs:
         ls -l
         CACHE_TMP_DIR="./cache_tmp_dir"
         CUDA_PATH="${{ inputs.cuda-path }}"
-        rm -rf $CUDA_PATH
+        if [[ "${{ inputs.install-mode }}" == replace ]]; then
+          rm -rf $CUDA_PATH
+        fi
         mkdir -p $CUDA_PATH
         tar -xzvf $CTK_CACHE_FILENAME
         # Can't use rsync here, see above
@@ -203,6 +243,7 @@ runs:
         ls -l $CUDA_PATH
 
     - name: Set output environment variables
+      if: ${{ inputs.install-mode == 'replace' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # mimics actual CTK installation

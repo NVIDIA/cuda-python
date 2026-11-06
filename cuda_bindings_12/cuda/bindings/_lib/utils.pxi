@@ -734,6 +734,8 @@ cdef class _HelperCUcoredumpSettings:
                 self._cptr = <void*><void_ptr>self._charstar
                 self._size = 1024
             else:
+                # Keep a reference so the borrowed _charstar buffer stays alive.
+                self._references = init_value
                 self._charstar = init_value
                 self._cptr = <void*><void_ptr>self._charstar
                 self._size = len(init_value)
@@ -756,7 +758,9 @@ cdef class _HelperCUcoredumpSettings:
             raise TypeError('Unsupported attribute: {}'.format(attr.name))
 
     def __dealloc__(self):
-        pass
+        # Only the getter owns heap storage; the setter borrows caller bytes.
+        if self._is_getter:
+            free(self._charstar)
 
     @property
     def cptr(self):

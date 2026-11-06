@@ -8,8 +8,8 @@ import gc
 import threading
 import time
 import weakref
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
