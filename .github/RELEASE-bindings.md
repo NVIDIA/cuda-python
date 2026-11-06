@@ -74,6 +74,12 @@ cybind inputs instead of blindly copying generated output between majors.
    `main`, and close the stabilization effort. Retain immutable tags and the
    branch history needed for diagnosis.
 
+For a bindings `vX.Y.Z` tag, tag CI validates that line's bindings documentation.
+Validate the metapackage documentation in the separate `component=cuda-python`
+release dry run. Tag CI does not publish documentation. This focused tag-CI
+check is specific to the shared bindings/metapackage tags; Core and Pathfinder
+release behavior is unchanged.
+
 For either bindings line, add the released version to
 [`cuda_bindings_13/docs/nv-versions.json`](../cuda_bindings_13/docs/nv-versions.json)
 and its matching metapackage version to
@@ -103,3 +109,26 @@ new notes.
 Local synthetic tags used in publication-incapable rehearsals must remain local;
 they do not authorize publishing a package, creating a remote tag, or moving
 an existing tag.
+
+### Two tags at one commit
+
+One tested source commit can carry tags for both bindings lines, for example
+`v12.9.20` and `v13.5.4` (illustrative versions). Each tag starts its own
+tag-triggered CI run, even though the source SHA is identical:
+
+| Tag | Distributions selected for release |
+| --- | --- |
+| `v12.9.20` | `cuda-bindings` 12.9.20 and `cuda-python` 12.9.20 |
+| `v13.5.4` | `cuda-bindings` 13.5.4 and `cuda-python` 13.5.4 |
+
+CI explicitly selects the metapackage major with `CUDA_PYTHON_BUILD_MAJOR`
+and its matching `v12.*` or `v13.*` SCM namespace. Toolkit-qualified artifact
+names keep the lines separate, even at one SHA; tag CI may build additional
+packages beyond the release selection.
+
+Follow the procedure separately for each tag, invoking **CI: Release** for
+both `component=cuda-bindings` and `component=cuda-python`: dry runs first,
+then approved full releases. Run lookup matches the requested tag and source
+SHA, and artifact validation rejects mismatched versions. Tag creation and
+release order do not choose the version; releasing one line does not release
+the other.

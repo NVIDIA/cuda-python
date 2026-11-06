@@ -56,6 +56,9 @@ concurrency:
   group: release-${{ inputs.component }}
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 defaults:
   run:
     shell: bash --noprofile --norc -xeuo pipefail {0}
@@ -69,17 +72,18 @@ jobs:
     steps:
       - name: Checkout release control plane
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Checkout release source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          persist-credentials: false
           ref: refs/tags/${{ inputs.git-tag }}
           path: release-source
 
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: "3.12"
 
       - name: Install CI tool dependencies
         run: python -m pip install -e ./ci
@@ -95,6 +99,9 @@ jobs:
           echo "bindings-package=${bindings_package}" >> "$GITHUB_OUTPUT"
 
   determine-run-id:
+    permissions:
+      contents: read
+      actions: read
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
     outputs:
@@ -103,6 +110,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          persist-credentials: false
           # lookup-run-id resolves the git tag to a SHA; we need tags but not history.
           fetch-depth: 1
           fetch-tags: true
@@ -129,6 +137,8 @@ jobs:
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
   check-tag:
+    permissions:
+      contents: write
     needs: resolve-bindings-package
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
@@ -136,6 +146,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          persist-credentials: false
           # Dry-run validation resolves the requested tag locally; we need tags but not history.
           fetch-depth: 1
           fetch-tags: true
@@ -198,17 +209,18 @@ jobs:
     steps:
       - name: Checkout release control plane
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Checkout release source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          persist-credentials: false
           ref: refs/tags/${{ inputs.git-tag }}
           path: release-source
 
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: "3.12"
 
       - name: Install CI tool dependencies
         run: python -m pip install -e ./ci
@@ -308,99 +320,121 @@ jobs:
       docs-branch: ${{ (inputs.release-action == 'dry-run' && inputs.dry-run-docs-branch) || 'gh-pages' }}
       bindings-package: ${{ needs.resolve-bindings-package.outputs.bindings-package }}
 
-  upload-archive:
-    name: Validate release artifacts
-    permissions:
-      contents: write
-    needs:
-      - check-tag
-      - check-release-notes
-      - determine-run-id
-      - doc
-      - resolve-bindings-package
-    secrets: inherit
-    uses: ./.github/workflows/release-upload.yml
-    with:
-      git-tag: ${{ inputs.git-tag }}
-      run-id: ${{ needs.determine-run-id.outputs.run-id }}
-      component: ${{ inputs.component }}
-      dry-run: ${{ inputs.release-action == 'dry-run' }}
-      bindings-package: ${{ needs.resolve-bindings-package.outputs.bindings-package }}
-
-  publish-testpypi:
-    name: Publish wheels to TestPyPI
-    if: >-
-      ${{ !cancelled() && inputs.release-action == 'full-release' &&
-          needs.check-tag.result == 'success' &&
-          needs.check-release-notes.result == 'success' &&
-          needs.determine-run-id.result == 'success' &&
-          needs.doc.result == 'success' &&
-          needs.resolve-bindings-package.result == 'success' &&
-          (inputs.component != 'cuda-pathfinder' || needs.ensure-pathfinder-draft.result == 'success') }}
+  prepare-artifacts:
+    name: Prepare and validate release artifacts
+    if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     needs:
       - check-tag
       - check-release-notes
       - determine-run-id
-      - doc
-      - ensure-pathfinder-draft
       - resolve-bindings-package
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/${{ inputs.component }}/
-    permissions:
-      id-token: write
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    env:
+      ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
+      BINDINGS_PACKAGE: ${{ needs.resolve-bindings-package.outputs.bindings-package }}
+      RELEASE_COMPONENT: ${{ inputs.component }}
+      RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+      RELEASE_REPOSITORY: ${{ github.repository }}
+      RELEASE_RUN_ID: ${{ needs.determine-run-id.outputs.run-id }}
     steps:
-      - name: Checkout Source
+      - name: Checkout release control plane
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Checkout release source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: refs/tags/${{ inputs.git-tag }}
           path: release-source
+          persist-credentials: false
 
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: "3.12"
 
       - name: Install CI tool dependencies
         run: python -m pip install -e ./ci
 
-      - name: Download component wheels
+      - name: Download and validate wheels
         env:
-          BINDINGS_PACKAGE: ${{ needs.resolve-bindings-package.outputs.bindings-package }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_COMPONENT: ${{ inputs.component }}
-          RELEASE_REPOSITORY: ${{ github.repository }}
-          RELEASE_RUN_ID: ${{ needs.determine-run-id.outputs.run-id }}
-          RELEASE_TAG: ${{ inputs.git-tag }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           ./ci/tools/download-wheels \
             "$RELEASE_RUN_ID" \
             "$RELEASE_COMPONENT" \
             "$RELEASE_REPOSITORY" \
-            "dist" \
-            "$RELEASE_TAG" \
+            "release/wheels" \
+            "$RELEASE_GIT_TAG" \
             "$BINDINGS_PACKAGE"
-
-      - name: Validate wheel versions for release tag
-        env:
-          BINDINGS_PACKAGE: ${{ needs.resolve-bindings-package.outputs.bindings-package }}
-          RELEASE_COMPONENT: ${{ inputs.component }}
-          RELEASE_TAG: ${{ inputs.git-tag }}
-        run: |
           python -m ci.tools.validate_release_wheels \
-            "$RELEASE_TAG" \
+            "$RELEASE_GIT_TAG" \
             "$RELEASE_COMPONENT" \
-            "dist" \
+            "release/wheels" \
             --bindings-package "$BINDINGS_PACKAGE" \
             --release-source-root release-source
+
+      - name: Archive release source
+        run: |
+          git -C release-source archive \
+            --format=tar.gz \
+            --prefix="$ARCHIVE_NAME/" \
+            --output="$GITHUB_WORKSPACE/release/$ARCHIVE_NAME.tar.gz" \
+            HEAD
+          sha256sum "release/$ARCHIVE_NAME.tar.gz" \
+            | awk '{print $1}' > "release/$ARCHIVE_NAME.tar.gz.sha256sum"
+
+      # Consumers use this immutable artifact ID, never re-download build outputs.
+      - name: Upload prepared release artifacts
+        id: upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: ${{ inputs.release-action == 'dry-run' && 'release-artifacts-dry-run' || 'release-artifacts' }}-${{ inputs.component }}-${{ inputs.git-tag }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 3
+
+  upload-archive:
+    name: Upload GitHub release artifacts
+    permissions:
+      contents: write
+    needs: [prepare-artifacts, doc]
+    uses: ./.github/workflows/release-upload.yml
+    with:
+      git-tag: ${{ inputs.git-tag }}
+      artifact-id: ${{ needs.prepare-artifacts.outputs.artifact-id }}
+      component: ${{ inputs.component }}
+      dry-run: ${{ inputs.release-action == 'dry-run' }}
+
+  publish-testpypi:
+    name: Publish wheels to TestPyPI
+    if: >-
+      ${{ !cancelled() && inputs.release-action == 'full-release' &&
+          needs.prepare-artifacts.result == 'success' && needs.doc.result == 'success' &&
+          (inputs.component != 'cuda-pathfinder' || needs.ensure-pathfinder-draft.result == 'success') }}
+    runs-on: ubuntu-latest
+    needs: [prepare-artifacts, doc, ensure-pathfinder-draft]
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/${{ inputs.component }}/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download prepared release artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          artifact-ids: ${{ needs.prepare-artifacts.outputs.artifact-id }}
+          path: release/
+          merge-multiple: true
 
       - name: Publish package distributions to TestPyPI
         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
         with:
+          packages-dir: release/wheels/
           repository-url: https://test.pypi.org/legacy/
 
   verify-testpypi:
@@ -423,7 +457,6 @@ jobs:
         # These jobs have no checkout; $/ loads the action from the workflow's commit.
         uses: $/.github/actions/setup-hardened-python
         with:
-          python-version: "3.12"
           venv: ${{ runner.temp }}/verify
 
       - name: Install Pathfinder from index and verify
@@ -458,70 +491,27 @@ jobs:
     name: Publish wheels to PyPI
     if: >-
       ${{ !cancelled() && inputs.release-action == 'full-release' &&
-          needs.determine-run-id.result == 'success' && needs.publish-testpypi.result == 'success' &&
-          needs.resolve-bindings-package.result == 'success' &&
+          needs.prepare-artifacts.result == 'success' && needs.publish-testpypi.result == 'success' &&
           (inputs.component != 'cuda-pathfinder' || needs.verify-testpypi.result == 'success') }}
     runs-on: ubuntu-latest
-    needs:
-      - determine-run-id
-      - publish-testpypi
-      - verify-testpypi
-      - resolve-bindings-package
+    needs: [prepare-artifacts, publish-testpypi, verify-testpypi]
     environment:
       name: pypi
       url: https://pypi.org/p/${{ inputs.component }}/
     permissions:
       id-token: write
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-
-      - name: Checkout release source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Download prepared release artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
-          ref: refs/tags/${{ inputs.git-tag }}
-          path: release-source
-
-      - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: "3.12"
-
-      - name: Install CI tool dependencies
-        run: python -m pip install -e ./ci
-
-      - name: Download component wheels
-        env:
-          BINDINGS_PACKAGE: ${{ needs.resolve-bindings-package.outputs.bindings-package }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_COMPONENT: ${{ inputs.component }}
-          RELEASE_REPOSITORY: ${{ github.repository }}
-          RELEASE_RUN_ID: ${{ needs.determine-run-id.outputs.run-id }}
-          RELEASE_TAG: ${{ inputs.git-tag }}
-        run: |
-          ./ci/tools/download-wheels \
-            "$RELEASE_RUN_ID" \
-            "$RELEASE_COMPONENT" \
-            "$RELEASE_REPOSITORY" \
-            "dist" \
-            "$RELEASE_TAG" \
-            "$BINDINGS_PACKAGE"
-
-      - name: Validate wheel versions for release tag
-        env:
-          BINDINGS_PACKAGE: ${{ needs.resolve-bindings-package.outputs.bindings-package }}
-          RELEASE_COMPONENT: ${{ inputs.component }}
-          RELEASE_TAG: ${{ inputs.git-tag }}
-        run: |
-          python -m ci.tools.validate_release_wheels \
-            "$RELEASE_TAG" \
-            "$RELEASE_COMPONENT" \
-            "dist" \
-            --bindings-package "$BINDINGS_PACKAGE" \
-            --release-source-root release-source
+          artifact-ids: ${{ needs.prepare-artifacts.outputs.artifact-id }}
+          path: release/
+          merge-multiple: true
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
+        with:
+          packages-dir: release/wheels/
 
   verify-pypi:
     name: Verify Pathfinder on PyPI
