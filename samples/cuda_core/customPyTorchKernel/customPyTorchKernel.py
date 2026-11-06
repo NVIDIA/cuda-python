@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.0.0", "torch>=2.0.0"]
+# dependencies = ["cuda-python>=13.0.0", "cuda-core>=1.0.0", "torch>=2.14.1"]
 # ///
 
 """
