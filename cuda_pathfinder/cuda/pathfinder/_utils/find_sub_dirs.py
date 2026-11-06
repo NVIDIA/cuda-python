@@ -9,6 +9,14 @@ from collections.abc import Sequence
 
 
 def find_sub_dirs_no_cache(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) -> list[str]:
+    if "*" not in sub_dirs:
+        results = []
+        for base in parent_dirs:
+            candidate = os.path.join(base, *sub_dirs)
+            if os.path.isdir(candidate):
+                results.append(candidate)
+        return results
+
     results = []
     for base in parent_dirs:
         stack = [(base, 0)]  # (current_path, index into sub_dirs)
