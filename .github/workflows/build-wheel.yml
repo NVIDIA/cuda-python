@@ -581,12 +581,7 @@ jobs:
           bindings_wheels=(${{ env.CURRENT_BINDINGS_ARTIFACTS_DIR }}/*.whl)
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${bindings_wheels[0]}"
-          bindings_pyproject="${CURRENT_BINDINGS_ROOT}/pyproject.toml"
-          if grep -q '^\[dependency-groups\][[:space:]]*$' "${bindings_pyproject}"; then
-            python -m pip install "${bindings_wheels[0]}" --group "${bindings_pyproject}:test"
-          else
-            python -m pip install "${bindings_wheels[0]}[test]"
-          fi
+          python -m pip install "${bindings_wheels[0]}" --group "${CURRENT_BINDINGS_ROOT}/pyproject.toml:test"
           pushd ${{ env.CURRENT_BINDINGS_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
