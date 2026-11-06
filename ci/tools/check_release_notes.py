@@ -24,8 +24,8 @@ import argparse
 import json
 import os
 import sys
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Mapping
 
 from packaging.version import Version
 
