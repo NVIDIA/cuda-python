@@ -52,7 +52,6 @@ on:
       - "ci/versions.yml"
       - "ci/pyproject.toml"
       - "ci/tools/bindings_config.py"
-      - "ci/tools/bindings_scm_version.py"
       - "ci/pixi-version.env"
       - ".github/actions/setup-pixi/action.yml"
       - ".github/workflows/ci-pixi-source-test.yml"
@@ -109,20 +108,6 @@ jobs:
         run: |
           git submodule sync --recursive
           git submodule update --init --force --depth=1 --filter=blob:none --recursive
-
-      - name: Set up Python for maintenance preview
-        if: ${{ matrix.cuda-env == 'cu12' }}
-        uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: "3.11"
-
-      - name: Bootstrap maintenance SCM in this disposable checkout
-        if: ${{ matrix.cuda-env == 'cu12' }}
-        env:
-          SOURCE_SHA: ${{ github.sha }}
-        run: |
-          python -m pip install -e ./ci
-          python -m ci.tools.bindings_scm_version --package-root cuda_bindings_12 --sha "$SOURCE_SHA"
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi
@@ -275,20 +260,6 @@ jobs:
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
-
-      - name: Set up Python for maintenance preview
-        if: ${{ matrix.cuda-env == 'cu12' }}
-        uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: "3.11"
-
-      - name: Bootstrap maintenance SCM in this disposable checkout
-        if: ${{ matrix.cuda-env == 'cu12' }}
-        env:
-          SOURCE_SHA: ${{ github.sha }}
-        run: |
-          python -m pip install -e ./ci
-          python -m ci.tools.bindings_scm_version --package-root cuda_bindings_12 --sha "$SOURCE_SHA"
 
       - name: Setup pixi
         uses: ./.github/actions/setup-pixi

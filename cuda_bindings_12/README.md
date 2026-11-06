@@ -37,10 +37,8 @@ Use `build_tests.bat` on Windows. Free-threaded Python also needs the
 `test-ft` dependency group.
 
 Versions follow reachable `v12.*` tags through standard `setuptools-scm`.
-Before a retained milestone exists for the reserved preview release, CI uses
-`ci.tools.bindings_scm_version` in its disposable checkout to create one
-local ancestor tag. Never run that helper in a shared development repository
-or push its synthetic tags. See the repository's
+The retained `v12.9.11a0` milestone on `main` anchors CUDA 12 development
+versions. See the repository's
 [version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
 
