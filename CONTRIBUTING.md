@@ -159,10 +159,9 @@ need all of the following:
 4. **The CCCL submodule** when building `cuda.core`. That package compiles
    against the headers pinned in `cuda_core/third_party/cccl`.
 
-Copying CUDA 12 sources into `main` does not make their historical branch tags
-reachable. For maintenance preview builds without an appropriate reachable
-tag, follow the [SCM bootstrap guidance](ci/README.md#cuda-bindings-package-root-registry)
-in a disposable clone; do not create preview tags in a shared worktree repository.
+CUDA 12 builds on `main` use the retained `v12.9.11a0` milestone and standard
+`setuptools-scm` progression. See [SCM milestones](ci/README.md#scm-milestones)
+for the required tag ancestry and release-number coordination.
 
 ### Symptoms of a bad clone
 

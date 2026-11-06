@@ -64,17 +64,17 @@ For each package tag namespace and target release `X.Y.Z`:
   existing history.
 - Treat pushed tags as immutable. Correct an unsuitable tagged state with a
   new versioned milestone rather than moving or replacing the existing tag.
-- Before setting or changing `scm-bootstrap-release`, check canonical tags
-  and coordinate with release maintainers. Use an unused release number,
-  including releases tagged on other branches; keep the same target across
-  builds until release coordination requires a change.
+- Before reserving a release number or creating an internal milestone, check
+  canonical tags and coordinate with release maintainers. Use an unused release
+  number, including releases tagged on other branches; keep the same target
+  across builds until release coordination requires a change.
 
 Use the package's established tag namespace, such as `vX.Y.Z...` for
 `cuda-bindings` and `cuda-python`, `cuda-core-vX.Y.Z...` for `cuda-core`, and
-`cuda-pathfinder-vX.Y.Z...` for `cuda-pathfinder`. Builds that support the
-pre-tag bootstrap should validate the resulting release tuple rather than
-hard-code the expected alpha/development suffix, and should report the
-effective `git describe` result for traceability.
+`cuda-pathfinder-vX.Y.Z...` for `cuda-pathfinder`. Build validation should
+check the resulting release tuple rather than hard-code the expected
+alpha/development suffix, and report the effective `git describe` result for
+traceability.
 
 # Contributions
 
