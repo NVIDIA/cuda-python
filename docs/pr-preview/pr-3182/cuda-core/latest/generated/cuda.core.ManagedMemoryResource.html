@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=745b9957"></script>
+    <script src="../_static/documentation_options.js?v=ddbf3b1c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev366';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev420';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -590,6 +590,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.host_launch.html">cuda.core.host_launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.pack_host_copy_args.html">cuda.core.pack_host_copy_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
@@ -667,6 +668,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAOutOfMemoryError.html">cuda.core.CUDAOutOfMemoryError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
@@ -893,12 +895,29 @@ asynchronously. Must be passed explicitly; pass
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.trim">
+<span class="sig-name descname"><span class="pre">trim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">min_bytes_to_keep=0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.trim" title="Link to this definition">#</a></dt>
+<dd><p>Release unused memory held by the memory pool back to the OS.</p>
+<p>Memory that backs live allocations is not released, nor is memory
+freed on a stream until the host has observed the free through a
+synchronization. Trimming does not affect a stream capture in progress
+on any thread. The driver rejects trimming a memory resource mapped
+from another process (<code class="docutils literal notranslate"><span class="pre">is_mapped</span></code>), which raises <code class="docutils literal notranslate"><span class="pre">CUDAError</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>min_bytes_to_keep</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>optional</em>) – Reserved memory, in bytes, that the pool keeps. Defaults to 0,
+which releases all unused memory.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.attributes">
 <span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.attributes" title="Link to this definition">#</a></dt>
 <dd><p>_MemPoolAttributes</p>
-<p>Memory pool attributes.</p>
+<p><a class="reference internal" href="cuda.core._memory._memory_pool._MemPoolAttributes.html#cuda.core._memory._memory_pool._MemPoolAttributes" title="cuda.core._memory._memory_pool._MemPoolAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MemPoolAttributes</span></code></a> object with the attributes of the memory pool.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>_MemPool.attributes</p>
@@ -1073,6 +1092,7 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.allocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.close"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.close()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.deallocate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.trim"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.trim()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.handle"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.handle</span></code></a></li>
