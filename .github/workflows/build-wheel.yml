@@ -160,12 +160,6 @@ jobs:
           SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars build
 
-      - name: Prepare local maintenance SCM milestone
-        if: ${{ !inputs.single-cuda-major && (env.BUILD_BINDINGS == 'true' || env.TEST_BINDINGS == 'true') }}
-        run: |
-          python -m ci.tools.bindings_scm_version \
-            --package-root "${MAINTENANCE_BINDINGS_ROOT}" --sha "${{ github.sha }}"
-
       - name: Dump environment
         run: |
           env
