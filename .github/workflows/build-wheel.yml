@@ -120,7 +120,7 @@ jobs:
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
-        uses: actions/github-script@v9
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
@@ -182,12 +182,6 @@ jobs:
           PY_VER: ${{ matrix.python-version }}
           SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars build
-
-      - name: Prepare local maintenance SCM milestone
-        if: ${{ !inputs.single-cuda-major && (env.BUILD_BINDINGS_MAINTENANCE == 'true' || env.BUILD_CUDA_PYTHON_MAINTENANCE == 'true') }}
-        run: |
-          python -m ci.tools.bindings_scm_version \
-            --package-root "${MAINTENANCE_BINDINGS_ROOT}" --sha "${{ github.sha }}"
 
       - name: Dump environment
         run: |
@@ -274,7 +268,7 @@ jobs:
 
       - name: Build cuda.bindings ${{ env.CURRENT_CUDA_MAJOR }} wheel
         if: ${{ env.BUILD_BINDINGS_CURRENT == 'true' }}
-        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
+        uses: pypa/cibuildwheel@f9b966cfadf4109556cadc5bb39ddb72d0ce664e  # v4.3.5
         with:
           package-dir: ./${{ env.CURRENT_BINDINGS_ROOT }}/
           output-dir: ${{ env.CURRENT_BINDINGS_ARTIFACTS_DIR }}
@@ -378,7 +372,7 @@ jobs:
 
       - name: Build cuda.core ${{ env.CURRENT_CUDA_VARIANT }} wheel
         if: ${{ env.BUILD_CORE == 'true' }}
-        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
+        uses: pypa/cibuildwheel@f9b966cfadf4109556cadc5bb39ddb72d0ce664e  # v4.3.5
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -651,7 +645,7 @@ jobs:
 
       - name: Build cuda.bindings ${{ env.MAINTENANCE_CUDA_MAJOR }} wheel
         if: ${{ !inputs.single-cuda-major && env.BUILD_BINDINGS_MAINTENANCE == 'true' }}
-        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
+        uses: pypa/cibuildwheel@f9b966cfadf4109556cadc5bb39ddb72d0ce664e  # v4.3.5
         with:
           package-dir: ./${{ env.MAINTENANCE_BINDINGS_ROOT }}/
           output-dir: ${{ env.MAINTENANCE_BINDINGS_ARTIFACTS_DIR }}
@@ -748,7 +742,7 @@ jobs:
 
       - name: Build cuda.core ${{ env.MAINTENANCE_CUDA_VARIANT }} wheel
         if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
-        uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3  # v4.3.4
+        uses: pypa/cibuildwheel@f9b966cfadf4109556cadc5bb39ddb72d0ce664e  # v4.3.5
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
