@@ -63,6 +63,7 @@ else
     if [[ ! -d "${CUDA_BINDINGS_ROOT}" ]]; then
       CUDA_BINDINGS_ROOT=cuda_bindings
     fi
+    CURRENT_BUILD_CUDA_VER="${BUILD_CUDA_VER}"
     BINDINGS_BUILD_CUDA_VER="${BUILD_CUDA_VER}"
     build_minor="$(cut -d '.' -f 2 <<< "${BUILD_CUDA_VER}")"
     previous_minor="$(yq -r '.cuda.prev_build.version' ci/versions.yml | cut -d '.' -f 2)"
@@ -81,6 +82,7 @@ else
     CUDA_PYTHON_ARTIFACT_NAME=cuda-python-wheel
     core_cython_suffix=-tests
   else
+    CURRENT_BUILD_CUDA_VER="$(jq -r ' .package_roots[] | select(.release_status == "current") | .toolkit_version' <<< "${BINDINGS_CONFIG}")"
     core_cython_suffix="-cu${TEST_CUDA_MAJOR}-tests"
     if [[ "${BINDINGS_SOURCE}" == local ]]; then
       CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"
@@ -89,13 +91,16 @@ else
       SKIP_CYTHON_TEST=0
     elif [[ "${BINDINGS_SOURCE}" == floor ]]; then
       CUDA_BINDINGS_ROOT="${DEFAULT_BINDINGS_SOURCE_DIR}"
-      BINDINGS_BUILD_CUDA_VER="${CUDA_VER}"
+      BINDINGS_BUILD_CUDA_VER="${CURRENT_BUILD_CUDA_VER}"
     else
       echo "Error: BINDINGS_SOURCE must be local or floor, got ${BINDINGS_SOURCE}" >&2
       exit 1
     fi
     CUDA_PYTHON_ARTIFACT_NAME="cuda-python-wheel-cuda${BINDINGS_BUILD_CUDA_VER}"
   fi
+
+  BUILD_CUDA_MAJOR="${CURRENT_BUILD_CUDA_VER%%.*}"
+  BUILD_CUDA_MINOR="$(cut -d '.' -f 2 <<< "${CURRENT_BUILD_CUDA_VER}")"
 
   CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${BINDINGS_BUILD_CUDA_VER}-${HOST_PLATFORM}"
   if [[ "${PY_VER}" == "3.12" && "${CUDA_VER}" != "11.8.0" && "${LOCAL_CTK}" == 1 && "${HOST_PLATFORM}" == linux* ]]; then
@@ -120,5 +125,7 @@ else
     echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/dist")"
     echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/${CUDA_BINDINGS_ROOT}/tests/cython")"
     echo "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_NAME}${core_cython_suffix}"
+    echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}"
+    echo "BUILD_CUDA_MINOR=${BUILD_CUDA_MINOR}"
   } >> "$GITHUB_ENV"
 fi

@@ -179,8 +179,23 @@ jobs:
           # for artifact fetching, graphics libs, g++ required for cffi in
           # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
           # install_gpu_driver.sh onto the host through nsenter)
-          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
-          dependent_exes: "jq wget"
+          # yq supports retained legacy-snapshot routing in ci/tools/env-vars
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux yq"
+          dependent_exes: "jq wget yq"
+
+      - name: Update container CA certificates
+        run: |
+          apt-get update
+          apt-get install --only-upgrade -y ca-certificates
+
+      - name: Checkout driver install scripts (workflow revision)
+        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: .driver-tools
+          sparse-checkout: ci/tools
+          persist-credentials: false
 
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
@@ -235,7 +250,9 @@ jobs:
 
       - name: Download cuda.bindings build artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                (env.BINDINGS_SOURCE == 'local' || env.BINDINGS_SOURCE == 'main') }}
+                (env.BINDINGS_SOURCE == 'local' || env.BINDINGS_SOURCE == 'main' ||
+                 (env.BINDINGS_SOURCE == 'floor' && env.TEST_CORE == 'true' &&
+                  env.TEST_CUDA_MAJOR == env.BUILD_CUDA_MAJOR)) }}
         uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
