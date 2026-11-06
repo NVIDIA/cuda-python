@@ -6,17 +6,13 @@ import math
 
 import numpy as np
 import pytest
+from cuda_python_test_helpers.memory import POOL_SIZE, supports_memory_pools
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
 from cuda import pathfinder
 from cuda.bindings import runtime
 from cuda_python_test_helpers import driver_version_less_than
-
-# Cap for memory pools created by tests. A pool created with maxSize 0 reserves
-# virtual address space of about twice the device memory, and that reservation
-# can fail on systems with a limited virtual address space.
-POOL_SIZE = 2 * 1024 * 1024  # 2 MiB
 
 
 def isSuccess(err):
@@ -25,11 +21,6 @@ def isSuccess(err):
 
 def assertSuccess(err):
     assert isSuccess(err)
-
-
-def supportsMemoryPool():
-    err, isSupported = cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported, 0)
-    return isSuccess(err) and isSupported
 
 
 def supportsSparseTexturesDeviceFilter():
@@ -518,7 +509,7 @@ def test_cudart_cudaGetDeviceProperties():
 
 
 @pytest.mark.skipif(
-    driver_version_less_than(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
+    driver_version_less_than(11030) or not supports_memory_pools(), reason="When new attributes were introduced"
 )
 def test_cudart_MemPool_attr():
     poolProps = cudart.cudaMemPoolProps()
@@ -2101,3 +2092,27 @@ def test_ffi_phase2_new_yuv_channel_kinds_descriptor_construction():
             desc.x, desc.y, desc.z, desc.w, desc.f = bits, bits, bits, w_bit, kind
             assert desc.f == kind
             assert desc.x == bits
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize(
+    ("module", "class_name", "constant_name"),
+    [
+        (cuda, "CU_DEV_SM_RESOURCE_GROUP_PARAMS", "CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY"),
+        (cudart, "cudaDevSmResourceGroupParams", "cudaDevSmResourceGroupLocalityDomainIdAny"),
+    ],
+)
+def test_locality_domain_id_any_sentinel(module, class_name, constant_name):
+    # The names only exist in bindings generated from a CUDA release that has them.
+    if not hasattr(module, class_name) or not hasattr(module, constant_name):
+        pytest.skip(f"{module.__name__} has no {class_name} / {constant_name}")
+    sentinel = getattr(module, constant_name)
+    assert int(sentinel) == 0xFFFFFFFF
+
+    # The field must accept the constant that the bindings export for it, and
+    # the unsigned maximum itself.
+    params = getattr(module, class_name)()
+    params.localityDomainId = sentinel
+    assert params.localityDomainId == 0xFFFFFFFF
+    params.localityDomainId = 0xFFFFFFFF
+    assert params.localityDomainId == 0xFFFFFFFF

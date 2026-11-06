@@ -1071,6 +1071,16 @@ def test_view_as_cai_device_pointer_and_stream_ordering(init_cuda):
     dev.default_stream.sync()
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_view_as_cai_rejects_stream_zero(init_cuda):
+    """The CUDA Array Interface does not allow ``stream`` 0."""
+    consumer = init_cuda.create_stream()
+    obj = _make_cuda_array_interface_obj(shape=(4,), strides=None, typestr="<f4", data=(0, False), stream=0)
+
+    with pytest.raises(ValueError, match="reported stream 0"):
+        StridedMemoryView.from_cuda_array_interface(obj, stream_ptr=consumer.handle)
+
+
 def test_strided_memory_view_init_cai_path_deprecated(init_cuda):
     """The deprecated ``StridedMemoryView(obj)`` constructor routes a CAI-only
     object through the CAI branch (warn + ``view_as_cai``), not the DLPack one."""

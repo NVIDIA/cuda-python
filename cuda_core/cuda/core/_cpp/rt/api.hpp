@@ -110,6 +110,14 @@ StreamHandle get_per_thread_stream();
 StreamHandle create_context_bound_legacy_stream(const ContextHandle &h_context);
 
 // ============================================================================
+// Host function launch
+// ============================================================================
+
+CUresult launch_host_function(
+    CUstream stream, CUhostFn fn, void *user_data, OpaqueHandle fn_owner, OpaqueHandle data_owner
+) noexcept;
+
+// ============================================================================
 // Event handle functions
 // ============================================================================
 
@@ -235,7 +243,8 @@ StreamHandle deallocation_stream(const DevicePtrHandle &h) noexcept;
 // Set the deallocation stream for a device pointer handle.
 // Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
 // bound because no CUDA context is current.
-CUresult set_deallocation_stream(const DevicePtrHandle &h, const StreamHandle &h_stream) noexcept;
+// May throw std::bad_alloc.
+CUresult set_deallocation_stream(const DevicePtrHandle &h, const StreamHandle &h_stream);
 
 // ============================================================================
 // Virtual memory management (VMM_DESIGN.md)

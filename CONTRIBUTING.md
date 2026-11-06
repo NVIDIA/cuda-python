@@ -1,24 +1,13 @@
 # Contributing to CUDA Python
 
-Thank you for your interest in contributing to CUDA Python! Based on the type of contribution, it will fall into two categories:
-
-1. You want to report a bug, feature request, or documentation issue:
-    - File an [issue](https://github.com/NVIDIA/cuda-python/issues/new/choose)
-    describing what you encountered or what you want to see changed.
-    - The NVIDIA team will evaluate the issues and triage them, scheduling
-    them for a release. If you believe the issue needs priority attention
-    comment on the issue to notify the team.
-2. You want to implement a feature, improvement, or bug fix:
-   - Before starting work on an existing issue, please comment on the issue to express your interest and wait to be assigned by a maintainer. This helps avoid redundant effort in case the issue is already being worked on by another contributor or an NVIDIA team member.
-   - Please refer to each component's guideline:
-       - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
-       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
-       - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
+Thank you for your interest in contributing to CUDA Python! Bug reports,
+reproducers, documentation improvements, and code changes are welcome.
 
 ## Table of Contents
 
 - [Contributing to CUDA Python](#contributing-to-cuda-python)
   - [Table of Contents](#table-of-contents)
+  - [Coordinate before implementing](#coordinate-before-implementing)
   - [Cloning the repository](#cloning-the-repository)
     - [Recommended clone](#recommended-clone)
     - [Updating your clone](#updating-your-clone)
@@ -32,6 +21,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
     - [Review Guidance](#review-guidance)
     - [Pull Request Reviews](#pull-request-reviews)
   - [Pixi lockfiles](#pixi-lockfiles)
+  - [Secret Scanning](#secret-scanning)
   - [Signing Your Work](#signing-your-work)
   - [Code signing](#code-signing)
   - [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
@@ -45,6 +35,32 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
   - [Code coverage](#code-coverage)
 
 
+## Coordinate before implementing
+
+Our review and CI capacities are limited. If you are contributing from outside NVIDIA:
+
+- **Existing issues:** comment and wait for a maintainer to assign it to you or
+  explicitly ask you to implement it. Check existing assignments and requests
+  to take the issue.
+- **New features, bug/documentation fixes, RFCs, or code updates/enhancements:** open an
+  issue, agree on scope and validation, and wait for the assignment before implementing.
+
+For obvious issues, opening a one-liner issue for tracking and assignment purposes is
+completely fine.
+
+For bug reports, please include a reproducer with a clear description for the expected
+versus observed behavior. Also include the CUDA driver version and the Python environment
+information (ex: `pip list`, `conda list`, ..., depending on how the environment was
+created).
+
+Please do not send unsolicited (i.e. without prior discussion and assignment) PRs, which
+could be closed without notice subject to the team's triage.
+
+NVIDIA contributors may use normal team planning and self-assignment.
+
+Keep changes focused, understand the complete diff, and report which checks
+ran and any validation gaps.
+
 ## Cloning the repository
 
 ### Recommended clone
@@ -53,10 +69,11 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 including the Developer Mode registry check.** Complete that setup before
 running the clone command.
 
-From the directory where you want to create the checkout, run:
+With Git 2.36 or newer, run this from the directory where you want to
+create the checkout:
 
 ```console
-$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules --filter=blob:none --also-filter-submodules https://github.com/NVIDIA/cuda-python.git
 $ cd cuda-python
 ```
 
@@ -65,6 +82,9 @@ This recipe sets up the repository for source builds and development:
 - `core.symlinks=true` materializes symlinks during checkout, including the
   build-critical `cuda_core/_build_shared.py`.
 - `--recurse-submodules` initializes the CCCL headers needed to build `cuda.core`.
+- `--filter=blob:none --also-filter-submodules` skips historical file
+  contents in the repository and CCCL. Git downloads those contents
+  when needed; commit history and release tags remain available.
 - `submodule.recurse=true` keeps initialized submodules in sync on `git pull`,
   `git checkout`, and `git switch`.
 - The clone retains history and release tags for correct package versions.
@@ -462,7 +482,3 @@ The CI pipeline diagram is maintained as Mermaid source in [`ci/ci-pipeline.mmd`
 Code coverage reports are produced nightly and posted to [GitHub Pages](https://nvidia.github.io/cuda-python/coverage).
 
 Known limitations: Code coverage is only run on Linux x86_64 with an a100 GPU.  We plan to add more platform and GPU coverage in the future.
-
----
-
-<a>1</a>: The `cuda-python` meta package shares the same license and the contributing guidelines as those of `cuda-bindings`.

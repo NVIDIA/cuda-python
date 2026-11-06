@@ -20,7 +20,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._event cimport Event, Event_check_open
 from cuda.core._kernel_arg_handler cimport ParamHolder
 from cuda.core._launch_config cimport LaunchConfig
-from cuda.core._memory._buffer cimport Buffer, Buffer_check_open
+from cuda.core._memory._buffer cimport Buffer
 from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._module cimport Kernel
 from cuda.core.graph._graph_definition cimport (
@@ -65,8 +65,10 @@ from cuda.core._rt cimport (
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.version cimport cy_driver_version
 
-from cuda.core.graph._host_callback cimport (
+from cuda.core._host_callback cimport (
     _resolve_host_callback,
 )
 
@@ -79,7 +81,10 @@ from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from cuda.core._device import Device
+    from cuda.core._utils.pycompat import BufferProtocol
 
 __all__ = ['GraphNode']
 
@@ -141,6 +146,44 @@ cdef class GraphNode:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphNodeGetType(node, &node_type))
         return driver.CUgraphNodeType(<int>node_type)
+
+    @property
+    def local_id(self) -> int:
+        """The node's ID within its graph.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+        GN_check_valid(self)
+        if self._is_entry:
+            raise ValueError("The entry node has no driver-assigned ID")
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int node_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetLocalId(as_cu(self._h_node), &node_id))
+            return node_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
+
+    @property
+    def tools_id(self) -> int:
+        """The node's ID reported by CUDA profiling and tooling interfaces.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+        GN_check_valid(self)
+        if self._is_entry:
+            raise ValueError("The entry node has no driver-assigned ID")
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned long long node_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetToolsId(as_cu(self._h_node), &node_id))
+            return node_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
 
     @property
     def graph(self) -> GraphDefinition:
@@ -495,7 +538,7 @@ cdef class GraphNode:
         """
         return GN_wait_event(self, event)
 
-    def callback(self, fn, *, user_data=None) -> object:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> object:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.
@@ -541,7 +584,8 @@ cdef class GraphNode:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
         return GN_callback(self, fn, user_data)
 
@@ -912,52 +956,6 @@ cdef inline FreeNode GN_free(GraphNode self, cydriver.CUdeviceptr c_dptr):
             &new_node, as_cu(h_graph), deps, num_deps, c_dptr))
 
     return _registered(FreeNode._create_with_params(create_graph_node_handle(new_node, h_graph), c_dptr))
-
-
-cdef inline OpaqueHandle _buffer_attachment_owner(Buffer buf, str label):
-    """Copy a Buffer's device-pointer handle into an attachment owner."""
-    Buffer_check_open(buf)
-    # The local is required: Cython permits the DevicePtrHandle -> OpaqueHandle
-    # conversion on assignment, but not directly in a return statement.
-    cdef OpaqueHandle attachment_owner = buf._h_ptr
-    return attachment_owner
-
-
-cdef inline OpaqueHandle _resolve_memcpy_operand(
-        object operand, object owner, str side,
-        cydriver.CUdeviceptr* out_ptr) except *:
-    """Resolve an operand to a pointer and optional attachment owner.
-
-    ``operand`` is a :class:`Buffer` or a raw integer address; its device
-    pointer is written to ``out_ptr``. For a :class:`Buffer` operand, returns an
-    owner that retains the underlying allocation (not the wrapper). For a raw
-    pointer, returns an owner built from ``owner`` (or an empty handle when
-    ``owner`` is ``None``).
-
-    Raises
-    ------
-    ValueError
-        If ``operand`` is a :class:`Buffer` and ``owner`` is not ``None``.
-        If a :class:`Buffer` operand or ``*_owner`` has no active allocation.
-    """
-    cdef Buffer buf
-    cdef OpaqueHandle attachment_owner
-
-    if isinstance(operand, Buffer):
-        if owner is not None:
-            raise ValueError(
-                f"{side}_owner cannot be used when {side} is a Buffer"
-            )
-        buf = operand
-        attachment_owner = _buffer_attachment_owner(buf, side)
-        out_ptr[0] = as_cu(buf._h_ptr)
-        return attachment_owner
-    out_ptr[0] = <cydriver.CUdeviceptr><uintptr_t>operand
-    if owner is None:
-        return OpaqueHandle()
-    if isinstance(owner, Buffer):
-        return _buffer_attachment_owner(owner, f"{side}_owner")
-    return make_opaque_py(owner)
 
 
 cdef inline MemsetNode GN_memset(

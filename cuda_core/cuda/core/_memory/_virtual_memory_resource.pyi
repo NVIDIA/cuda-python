@@ -30,12 +30,13 @@ class VirtualMemoryResourceOptions:
     Attributes
     ----------
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
-        Controls the type of allocation.
+        Controls the type of allocation. Only ``"pinned"`` is supported;
+        use :class:`ManagedMemoryResource` for managed memory.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation. ``"host_numa"`` requires
         ``numa_id``. ``"host_numa_current"`` is rejected because the driver
         does not accept it for physical allocations.
-    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
+    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str | None
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
         :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` or
@@ -50,7 +51,8 @@ class VirtualMemoryResourceOptions:
         the attribute does not check for an NVLink fabric and older drivers
         do not check for an IMEX channel; the allocation then fails with a
         driver error that says so.
-        Use `None` if you don't need an exportable handle.
+        Use `None` if you don't need an exportable handle. The default is
+        `None` on Windows and ``"posix_fd"`` otherwise.
         ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
@@ -76,7 +78,7 @@ class VirtualMemoryResourceOptions:
     """
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
-    handle_type: VirtualMemoryHandleType = VirtualMemoryHandleType.POSIX_FD
+    handle_type: VirtualMemoryHandleType | str | None = field(default_factory=lambda: None if platform.system() == 'Windows' else VirtualMemoryHandleType.POSIX_FD)
     granularity: VirtualMemoryGranularityType = VirtualMemoryGranularityType.RECOMMENDED
     gpu_direct_rdma: bool = False
     addr_hint: int | None = 0
@@ -104,7 +106,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _location_type_to_driver(spec: VirtualMemoryLocationType) -> int: ...
     @staticmethod
-    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None) -> int: ...
+    def _handle_type_to_driver(spec: VirtualMemoryHandleType | str | None) -> int: ...
     @staticmethod
     def _granularity_to_driver(spec: VirtualMemoryGranularityType) -> int: ...
 
@@ -314,8 +316,8 @@ class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type`` and ``handle_type`` and passes the same checks
-            as the constructor.
+            ``location_type``, ``handle_type``, and ``numa_id`` and pass the
+            same checks as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
             memory that is already mapped.
@@ -332,8 +334,8 @@ class VirtualMemoryResource(MemoryResource):
         TypeError
             If ``buf`` did not come from this resource.
         ValueError
-            If ``config`` names a different location or handle type than the
-            resource, or the constructor would reject it.
+            If ``config`` names a different location type, handle type, or
+            ``numa_id`` than the resource, or the constructor would reject it.
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.

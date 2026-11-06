@@ -18,6 +18,7 @@ MODULES = ("pathfinder", "bindings", "core", "python")
 PLATFORMS = ("linux", "windows")
 PACKAGE_MODULES = {
     "cuda_pathfinder": "pathfinder",
+    "cuda_bindings_12": "bindings",
     "cuda_bindings_13": "bindings",
     "cuda_core": "core",
     "cuda_python": "python",
@@ -37,10 +38,14 @@ IGNORED_BASENAMES = {"AGENTS.md", "CLAUDE.md", "pixi.lock", "pixi.toml"}
 IGNORED_SUFFIXES = {".md", ".svg"}
 IGNORED_PATHS = {
     ".coveragerc",
+    ".github/workflows/runner-trust-probe.yml",
     ".gitignore",
     ".pre-commit-config.yaml",
     ".spdx-ignore",
     "LICENSE",
+    "ci/tools/runner_trust_probe.ps1",
+    "ci/tools/runner_trust_probe.sh",
+    "ci/tools/runner_trust_probe_node.js",
     "context7.json",
     "greptile.json",
     "ruff.toml",
@@ -52,7 +57,6 @@ TEST_INFRA_PLATFORMS = {
     ".github/workflows/test-wheel-linux.yml": "linux",
     ".github/workflows/test-wheel-windows.yml": "windows",
     "ci/tools/configure_driver_mode.ps1": "windows",
-    "ci/tools/guess_latest.sh": "linux",
     "ci/tools/install_gpu_driver.ps1": "windows",
     "ci/tools/install_gpu_driver.sh": "linux",
     "ci/tools/setup-sanitizer": "linux",
@@ -86,6 +90,8 @@ def compute_workplan(
             if path_parts[0] == "ci" or (
                 len(path_parts) >= 2 and path_parts[:2] in {(".github", "actions"), (".github", "workflows")}
             ):
+                if path in IGNORED_PATHS:
+                    continue
                 force_all = True
                 break
 

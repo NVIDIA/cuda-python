@@ -20,7 +20,8 @@ Debuggable builds are not supported on Windows.
 
 ## Testing
 
-Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.
+With pip 25.1 or newer, install testing dependencies using the `test`
+dependency group: `python -m pip install -v -e . --group test`.
 
 Multiple testing options are available:
 

@@ -51,6 +51,7 @@ CUDA runtime
    _memory._ipc.VirtualMemoryFdBufferDescriptor
    _memory._ipc.VirtualMemoryFabricBufferDescriptor
    _memory._managed_buffer.AccessedBySetProxy
+   _memory._memory_pool._MemPoolAttributes
 
 
 CUDA graphs

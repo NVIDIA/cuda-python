@@ -51,16 +51,20 @@ cdef dict _torch_type_cache = {}
 cdef object _torch_version_ok = None
 
 cdef inline bint _torch_version_check():
-    """Return True if 2.3 <= torch <= 2.12 (known AOTI ABI range). Memoized.
+    """Return True if torch >= 2.3.  Memoized.
 
     Lower bound: AOTI functions we use were introduced in PyTorch 2.3.
-    Upper bound: the ``pyobj_to_aten_handle`` trick relies on the
-    THPVariable struct layout (PyObject_HEAD followed by at::Tensor cdata)
-    and the identity ``AtenTensorHandle == at::Tensor*``.  Both are
-    undocumented internals that could change in a future PyTorch version.
-    We cap at the latest version we have tested against; unknown versions
-    fall back to the standard DLPack/CAI paths.  Bump the upper bound
-    after verifying a new PyTorch release.
+
+    No upper bound.  The dispatch in ``_tensor_bridge.view_as_torch_tensor``
+    selects between two safe paths per torch version:
+
+    * torch >= 2.14 -- stable PyObject->Tensor C ABI shim
+      (``torch_tensor_from_pyobject`` + ``aoti_torch_delete_tensor_object``);
+      part of torch's stable contract, so any 2.14+ release is covered.
+    * torch 2.3-2.13 -- ``pyobj_to_aten_handle`` pointer-arithmetic trick,
+      validated against the two known THPVariable layouts
+      (``c10::MaybeOwned<at::Tensor>`` for 2.3-2.9; ``at::Tensor`` directly
+      for 2.10-2.13; see ``_get_cdata_extra_offset`` in ``_tensor_bridge.pyx``).
     """
     global _torch_version_ok
     if _torch_version_ok is not None:
@@ -72,7 +76,7 @@ cdef inline bint _torch_version_check():
     try:
         major, minor = int(torch.__version__.split(".")[0]), \
                        int(torch.__version__.split(".")[1])
-        _torch_version_ok = (2, 3) <= (major, minor) <= (2, 12)
+        _torch_version_ok = (major, minor) >= (2, 3)
     except (ValueError, IndexError):
         _torch_version_ok = False
     return <bint>_torch_version_ok
@@ -1040,14 +1044,17 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         stream_ptr = int(stream_ptr)
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
-        assert device_id == 0
+        if device_id != 0:
+            raise ValueError(f"__dlpack_device__() reported device_id {device_id} for a kDLCPU tensor; expected 0")
         device_id = -1
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
         elif stream_ptr == -1:
             stream_ptr = None
     elif dldevice == _kDLCUDA:
-        assert device_id >= 0
+        if device_id < 0:
+            raise ValueError(
+                f"__dlpack_device__() reported device_id {device_id} for a kDLCUDA tensor; expected 0 or more")
         is_device_accessible = True
         # no need to check other stream values, it's a pass-through
         if stream_ptr is None:
@@ -1090,7 +1097,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         is_readonly = False
         used_name = DLPACK_TENSOR_USED_NAME
     else:
-        assert False
+        raise ValueError(f"__dlpack__() returned {capsule!r}, not an unconsumed DLPack capsule")
 
     cpython.PyCapsule_SetName(capsule, used_name)
 
@@ -1214,7 +1221,9 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
         if stream is not None:
             producer_s = <intptr_t>(stream)
             consumer_s = <intptr_t>(stream_ptr)
-            assert producer_s > 0
+            if producer_s <= 0:
+                raise ValueError(
+                    f"__cuda_array_interface__ reported stream {stream}; expected None or a positive stream handle")
             # establish stream order
             if producer_s != consumer_s:
                 with nogil:

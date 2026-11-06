@@ -8,6 +8,7 @@ import ctypes
 import numpy as np
 import pytest
 from helpers.graph_kernels import skip_if_nvrtc_lacks_conditional_handle
+from helpers.memory import skip_if_mempool_unsupported
 
 from cuda.core import Device, EventOptions, LaunchConfig, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
@@ -15,11 +16,6 @@ from cuda.core.graph import GraphDefinition
 
 SIZEOF_FLOAT = 4
 SIZEOF_INT = 4
-
-
-def _skip_if_no_mempool():
-    if not Device(0).properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
 
 
 # ===================================================================
@@ -200,7 +196,7 @@ def test_heat_diffusion(init_cuda):
 
     if dev.compute_capability < (9, 0):
         pytest.skip("Conditional nodes require compute capability >= 9.0")
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     k_heat, k_countdown = _compile_heat_kernels()
 
@@ -310,7 +306,7 @@ def test_bisection_root(init_cuda):
 
     if dev.compute_capability < (9, 0):
         pytest.skip("Conditional nodes require compute capability >= 9.0")
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     k_eval, k_hi, k_lo, k_cd, k_check, k_newton = _compile_bisect_kernels()
 
@@ -412,7 +408,7 @@ def test_switch_dispatch(init_cuda, mode, expected):
 
     if dev.compute_capability < (9, 0):
         pytest.skip("Conditional nodes require compute capability >= 9.0")
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
 
     k_negate, k_double, k_square = _compile_switch_kernels()
 

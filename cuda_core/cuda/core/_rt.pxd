@@ -235,6 +235,9 @@ cdef StreamHandle create_stream_handle(
 cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) except+ nogil
 cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) except+ nogil
 cdef void retry_deferred_cleanup() noexcept
+cdef cydriver.CUresult launch_host_function(
+    cydriver.CUstream stream, cydriver.CUhostFn fn, void* user_data,
+    OpaqueHandle fn_owner, OpaqueHandle data_owner) noexcept nogil
 cdef ContextHandle get_stream_context(const StreamHandle& h) noexcept nogil
 cdef StreamHandle get_legacy_stream() except+ nogil
 cdef StreamHandle get_per_thread_stream() except+ nogil
@@ -292,7 +295,7 @@ cdef void register_mr_dealloc_callback(MRDeallocCallback cb) noexcept
 cdef DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle& h_pool, const void* export_data, const StreamHandle& h_stream) except+ nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
-cdef cydriver.CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) noexcept nogil
+cdef cydriver.CUresult set_deallocation_stream(const DevicePtrHandle& h, const StreamHandle& h_stream) except+ nogil
 
 # Virtual memory management (VMM_DESIGN.md)
 cdef MemAllocationHandle create_mem_allocation_handle(

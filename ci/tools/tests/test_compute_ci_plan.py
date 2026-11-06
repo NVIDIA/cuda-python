@@ -85,7 +85,6 @@ class ComputeWorkplanTest(unittest.TestCase):
             ".github/workflows/test-wheel-linux.yml": {"linux"},
             ".github/workflows/test-wheel-windows.yml": {"windows"},
             "ci/tools/configure_driver_mode.ps1": {"windows"},
-            "ci/tools/guess_latest.sh": {"linux"},
             "ci/tools/install_gpu_driver.ps1": {"windows"},
             "ci/tools/install_gpu_driver.sh": {"linux"},
             "ci/tools/setup-sanitizer": {"linux"},
@@ -121,6 +120,10 @@ class ComputeWorkplanTest(unittest.TestCase):
             "diagram.svg",
             ".github/labeler.yml",
             ".github/ISSUE_TEMPLATE/bug.yml",
+            ".github/workflows/runner-trust-probe.yml",
+            "ci/tools/runner_trust_probe.sh",
+            "ci/tools/runner_trust_probe.ps1",
+            "ci/tools/runner_trust_probe_node.js",
         ):
             with self.subTest(path=path):
                 plan = plan_for(path)

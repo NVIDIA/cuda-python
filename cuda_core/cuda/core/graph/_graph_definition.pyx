@@ -23,6 +23,8 @@ from cuda.core._rt cimport (
     create_graph_node_handle,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.version cimport cy_driver_version
 
 from typing import TYPE_CHECKING
 
@@ -31,11 +33,14 @@ from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from cuda.core._device import Device
     from cuda.core._event import Event
     from cuda.core._launch_config import LaunchConfig
     from cuda.core._memory._buffer import Buffer
     from cuda.core._module import Kernel
+    from cuda.core._utils.pycompat import BufferProtocol
     from cuda.core.graph._graph_builder import (
         Graph,
         GraphCompleteOptions,
@@ -141,6 +146,23 @@ cdef class GraphDefinition:
 
     def __hash__(self) -> int:
         return hash(<uintptr_t>self._h_graph.get())
+
+    @property
+    def id(self) -> int:
+        """The driver-assigned graph ID, as used in GraphViz DOT output.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+        GD_check_valid(self)
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int graph_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphGetId(as_cu(self._h_graph), &graph_id))
+            return graph_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
 
     @property
     def is_valid(self) -> bool:
@@ -250,7 +272,7 @@ cdef class GraphDefinition:
         """
         return self._entry.wait(event)
 
-    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> HostCallbackNode:
         """Add an entry-point host callback node (no dependencies).
 
         See :meth:`GraphNode.callback` for full documentation.
