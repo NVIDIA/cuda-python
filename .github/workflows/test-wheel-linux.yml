@@ -366,14 +366,17 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
-      - name: Set up latest cuda_sanitizer_api
+      - name: Set up cuda_sanitizer_api
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && env.SETUP_SANITIZER == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ env.LATEST_CUDA_VERSION }}
+          # The build CTK's sanitizer, not the matrix CTK's: older sanitizers
+          # crash on the cuda.core tests, and newer ones carry the fixes.
+          cuda-version: ${{ inputs.build-ctk-ver }}
           cuda-components: "cuda_sanitizer_api"
+          install-mode: add
 
       - name: Set up compute-sanitizer
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
