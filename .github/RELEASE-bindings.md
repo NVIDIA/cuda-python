@@ -55,8 +55,8 @@ cybind inputs instead of blindly copying generated output between majors.
    branch. Normal development CI includes dependent packages and may cover
    both majors. Resolve failures in affected code before selecting the tag.
 3. Create the approved immutable `vX.Y.Z` tag at the selected source commit.
-   Tag-triggered CI builds both bindings lines and their consumers. The release
-   workflow selects only the requested line's bindings or metapackage artifacts.
+   Tag-triggered CI selects that line's bindings and metapackage, validates them
+   with the published Pathfinder dependency, and builds release artifacts.
    The tag does not have to be on `main`. Wait for this exact tag's CI to pass.
 4. Run **CI: Release** with `release-action=dry-run`, the tag, and
    `component=cuda-bindings`; repeat for `cuda-python`. Leave `run-id` blank
