@@ -111,7 +111,20 @@ class ProgramCacheResource(abc.ABC):
         ``__contains__`` invites that pattern. ``get`` answers
         both questions in one filesystem-level operation, so a
         successful return always carries the bytes.
+
+        ``key in cache`` therefore raises ``TypeError``, and a cache
+        is not iterable.
     """
+
+    # Opt out of the legacy sequence-iteration protocol. Defining
+    # ``__getitem__`` without ``__iter__`` makes ``key in cache`` fall back to
+    # ``cache[0], cache[1], ...`` compared against the *values* -- which
+    # defeats the "no ``__contains__``" design above: on these backends it
+    # raises a baffling "cache keys must be bytes or str, got int", and on a
+    # subclass whose ``__getitem__`` accepts integers it silently answers about
+    # values instead of keys. ``__iter__ = None`` restores the plain
+    # ``TypeError: argument of type '...' is not iterable``.
+    __iter__ = None
 
     @abc.abstractmethod
     def __getitem__(self, key: bytes | str) -> bytes:
