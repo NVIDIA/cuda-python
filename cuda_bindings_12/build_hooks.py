@@ -352,12 +352,12 @@ def _parse_headers(header_dict, include_path_list, parser_caching):
             CUDA_VERSION = parser.defs["macros"].get("CUDA_VERSION", "Unknown")
             print(f"Found CUDA_VERSION: {CUDA_VERSION}", flush=True)
 
-        found_types += {key for key in parser.defs["types"]}
-        found_types += {key for key in parser.defs["structs"]}
-        found_types += {key for key in parser.defs["unions"]}
-        found_types += {key for key in parser.defs["enums"]}
-        found_functions += {key for key in parser.defs["functions"]}
-        found_values += {key for key in parser.defs["values"]}
+        found_types += {*parser.defs["types"]}
+        found_types += {*parser.defs["structs"]}
+        found_types += {*parser.defs["unions"]}
+        found_types += {*parser.defs["enums"]}
+        found_functions += {*parser.defs["functions"]}
+        found_values += {*parser.defs["values"]}
 
         for key, value in parser.defs["structs"].items():
             struct_list[key] = _Struct(key, value["members"])

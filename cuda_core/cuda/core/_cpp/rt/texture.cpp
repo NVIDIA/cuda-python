@@ -101,7 +101,7 @@ get_box(const MipmappedArrayHandle &h) noexcept
 }
 
 // Wrap an array with shared owning-destruction behavior.
-static OpaqueArrayHandle
+OpaqueArrayHandle
 wrap_array_owned(CUarray arr, ContextHandle h_context)
 {
     // clang-format off

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from ci.tools import bindings_config
 from ci.tools.check_release_notes import check_release_notes, main, notes_path, parse_version_from_tag
 
 
@@ -26,6 +27,15 @@ def resolved_12_package(package_root: str = "cuda_bindings_12") -> dict[str, obj
     }
 
 
+@pytest.fixture
+def release_config(monkeypatch):
+    config = bindings_config.normalize_versions_config(
+        {"cuda": {"build": {"version": "13.4.2"}, "prev_build": {"version": "12.9.1"}}}
+    )
+    monkeypatch.setattr(bindings_config, "load_config", lambda: config)
+
+
+@pytest.mark.usefixtures("release_config")
 @pytest.mark.parametrize(
     ("tag", "component", "version"),
     (
@@ -61,6 +71,7 @@ def test_parse_version_rejects_invalid_or_mismatched_tags(tag, component):
     assert parse_version_from_tag(tag, component) is None
 
 
+@pytest.mark.usefixtures("release_config")
 @pytest.mark.parametrize(
     ("tag", "package", "version"),
     (

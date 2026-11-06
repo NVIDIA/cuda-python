@@ -198,7 +198,7 @@ class VirtualMemoryAllocationType(StrEnum):
     """Physical memory type for a virtual memory backing allocation.
 
     * ``PINNED`` — pinned/non-migratable physical allocation (placement via :class:`VirtualMemoryLocationType`).
-    * ``MANAGED`` — CUDA managed (unified) memory (CUDA 13+ only).
+    * ``MANAGED`` — reserved; not supported by :class:`~cuda.core.VirtualMemoryResource`.
     """
 
     PINNED = "pinned"

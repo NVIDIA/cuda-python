@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest==9.1.0", "wheel"]
+test = ["pytest==9.1.0", "wheel", "pathspec==0.12.1"]
 
 [tool.setuptools]
 packages = ["ci", "ci.tools"]
