@@ -45,6 +45,12 @@ Breaking Changes
 New features
 ------------
 
+- Added read-only ``GraphDefinition.id``, ``Graph.id``, ``GraphNode.local_id``
+  and ``GraphNode.tools_id`` properties (CUDA 13 build and driver 13.1+), and
+  ``KernelAttributes.device_node_update_supported`` (CUDA 13 build and driver 13.3+).
+  The existing ``GraphNode.graph`` property provides containing-graph navigation.
+  (`#2360 <https://github.com/NVIDIA/cuda-python/issues/2360>`__)
+
 - Added :func:`host_launch`, which enqueues a host function on a stream in stream
   order: a Python callable, or a ctypes function pointer with the ``CUhostFn``
   prototype, which ``cuda.core`` passes to the driver as is, so a pointer to
