@@ -354,6 +354,12 @@ Fixes and enhancements
   Python exception when an export or import fails, as required by the DLPack
   contract, instead of returning ``-1`` with no exception set.
 
+- A view created with :meth:`~utils.StridedMemoryView.view` from a
+  ``StridedMemoryView`` imported through DLPack now keeps the imported
+  tensor alive. Previously, releasing the original view invoked the DLPack
+  deleter while the derived view still referenced the memory, which could
+  free a producer's temporary allocation too early.
+
 - :meth:`~graph.MemcpyNode.update` and the executable view of a memcpy node
   now accept nodes recorded by stream capture. The driver stores the operands
   of a captured :meth:`Buffer.copy_from` or :meth:`Buffer.copy_to` as unified
