@@ -11,9 +11,10 @@ import yaml
 def test_release_publishers_do_not_execute_repository_or_dependency_code():
     workflow = Path(__file__).resolve().parents[3] / ".github/workflows/release.yml"
     jobs = yaml.safe_load(workflow.read_text(encoding="utf-8"))["jobs"]
-    preparation = jobs["prepare-artifacts"]
-    assert set(preparation["permissions"].values()) == {"read"}
-    assert "environment" not in preparation
+    docs = yaml.safe_load(workflow.with_name("build-docs.yml").read_text(encoding="utf-8"))["jobs"]["build"]
+    for builder in (jobs["prepare-artifacts"], docs):
+        assert "write" not in builder["permissions"].values()
+    assert "environment" not in jobs["prepare-artifacts"]
 
     # These jobs can request the trusted-publishing identity. A venv would not
     # isolate dependency installation or repository code from that authority.
