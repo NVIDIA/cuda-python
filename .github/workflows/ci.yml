@@ -34,6 +34,7 @@ jobs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
       CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
       WINDOWS_ARM64_SUPPORTED: ${{ steps.get-vars.outputs.windows_arm64_supported }}
+      WINDOWS_ARM64_PYTHON_SUPPORTED: ${{ steps.get-vars.outputs.windows_arm64_python_supported }}
       WINDOWS_ARM64_SINGLE_CUDA_MAJOR: ${{ steps.get-vars.outputs.windows_arm64_single_cuda_major }}
       PYTHON_SUPPORTED: ${{ steps.get-vars.outputs.python_supported }}
       BINDINGS_CONFIG: ${{ steps.get-vars.outputs.bindings_config }}
@@ -64,32 +65,17 @@ jobs:
           python_supported=$(yq -o json -I 0 '.python.supported' ci/versions.yml)
           echo "python_supported=$python_supported" >> $GITHUB_OUTPUT
 
-          # Windows ARM64 is available starting with CUDA 13.4.
-          if [[ "$cuda_build_ver" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
-            cuda_build_major="${BASH_REMATCH[1]}"
-            cuda_build_minor="${BASH_REMATCH[2]}"
-          else
-            echo "Invalid CUDA build version: $cuda_build_ver" >&2
-            exit 1
-          fi
-          if (( cuda_build_major > 13 || (cuda_build_major == 13 && cuda_build_minor >= 4) )); then
-            windows_arm64_supported=true
-          else
-            windows_arm64_supported=false
-          fi
-          echo "windows_arm64_supported=$windows_arm64_supported" >> $GITHUB_OUTPUT
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from ci.tools.bindings_config import load_config, wheel_python_versions
 
-          # No CUDA 13 windows-arm64 toolkit exists for a major other than the
-          # current one (windows-arm64 support started mid-way through the 13.x
-          # series), so cuda.core can only be built against a single CUDA major
-          # while the build major is still 13. Once the build major advances to
-          # 14, a CUDA 13 windows-arm64 toolkit will exist as the prior major.
-          if [[ "$cuda_build_major" == "13" ]]; then
-            windows_arm64_single_cuda_major=true
-          else
-            windows_arm64_single_cuda_major=false
-          fi
-          echo "windows_arm64_single_cuda_major=$windows_arm64_single_cuda_major" >> $GITHUB_OUTPUT
+          config = load_config()
+          current = config.package_for_release_status("current")
+          versions = wheel_python_versions(current.toolkit_version, "win-arm64", config.python_supported)
+          print("windows_arm64_supported=" + str(bool(versions)).lower())
+          print("windows_arm64_single_cuda_major=" + str(current.cuda_major == "13").lower())
+          print("windows_arm64_python_supported=" + json.dumps(versions))
+          PY
 
   should-skip:
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -490,7 +476,7 @@ jobs:
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.ci-vars.outputs.WINDOWS_ARM64_SINGLE_CUDA_MAJOR == 'true' }}
-      python-versions: ${{ needs.ci-vars.outputs.PYTHON_SUPPORTED }}
+      python-versions: ${{ needs.ci-vars.outputs.WINDOWS_ARM64_PYTHON_SUPPORTED }}
 
   woa-main-dispatch:
     name: Dispatch WoA integration
