@@ -449,6 +449,9 @@ fixes to `main`. The
 [CUDA 12 maintenance guide](../cuda_bindings_12/MAINTENANCE.md) identifies the
 maintenance root.
 
+For independent releases from a shared source commit, see
+[two tags at one commit](../.github/RELEASE-bindings.md#two-tags-at-one-commit).
+
 For generated bindings, change cybind first and regenerate each affected
 package root against its intended toolkit inputs. Review the generated diff,
 record the cybind revision, toolkit inputs, and command in the pull request,
