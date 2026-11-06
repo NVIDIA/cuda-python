@@ -3,7 +3,8 @@
 
 backport_branch: "12.9.x"  # keep in sync with target-branch in .github/dependabot.yml
 
-# This controls the version of the upstream CTK to install to build the wheels.
+# This controls the version of the upstream CTK to install to build the wheels,
+# and the compute-sanitizer version used in all sanitizer test runs.
 # It is not the version of cuda_bindings/cuda_python being released, which is
 # solely determined by git tags via setuptools_scm.
 # Each version here, and in every LOCAL_CTK: '1' row of ci/test-matrix.yml,

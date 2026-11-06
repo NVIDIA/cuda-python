@@ -367,7 +367,9 @@ jobs:
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ matrix.CUDA_VER }}
+          # The build CTK's sanitizer, not the matrix CTK's: older sanitizers
+          # crash on the cuda.core tests, and newer ones carry the fixes.
+          cuda-version: ${{ inputs.build-ctk-ver }}
           cuda-components: "cuda_sanitizer_api"
           install-mode: add
 
