@@ -8,7 +8,7 @@ backport_branch: "12.9.x"  # keep in sync with target-branch in .github/dependab
 # solely determined by git tags via setuptools_scm.
 cuda:
   build:
-    version: "13.4.2"
+    version: "13.5.0"
   prev_build:
     version: "12.9.1"
 

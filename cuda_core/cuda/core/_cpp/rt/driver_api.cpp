@@ -9,7 +9,7 @@
 namespace cuda_core::rt {
 
 // The pointers. Null until ensure_fn_table() fills the table. See driver_api.hpp.
-#define CUDA_CORE_DEFINE_DRIVER_FN(name, introduced) decltype(&name) p_##name = nullptr;
+#define CUDA_CORE_DEFINE_DRIVER_FN(name, introduced) decltype(&(name)) p_##name = nullptr;
 CUDA_CORE_DRIVER_FUNCTIONS(CUDA_CORE_DEFINE_DRIVER_FN)
 #undef CUDA_CORE_DEFINE_DRIVER_FN
 

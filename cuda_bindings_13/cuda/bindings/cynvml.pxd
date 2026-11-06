@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
 
 
 
@@ -11,7 +11,7 @@
 ###############################################################################
 
 # enums
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=60a5b20aeb8f2f1b807c72675995ed6bf5943e58f3b9ab24933f51d4a7246f6f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2c738c3fcedf7ae3325451885afecee74d7aa012ce8cf57d351957d5f22e02fc
 ctypedef enum nvmlBridgeChipType_t "nvmlBridgeChipType_t":
     NVML_BRIDGE_CHIP_PLX "NVML_BRIDGE_CHIP_PLX" = 0
     NVML_BRIDGE_CHIP_BRO4 "NVML_BRIDGE_CHIP_BRO4" = 1
@@ -198,8 +198,8 @@ ctypedef enum nvmlBrandType_t "nvmlBrandType_t":
     NVML_BRAND_GEFORCE_RTX "NVML_BRAND_GEFORCE_RTX" = 15
     NVML_BRAND_TITAN_RTX "NVML_BRAND_TITAN_RTX" = 16
     NVML_BRAND_NVIDIA_DLA "NVML_BRAND_NVIDIA_DLA" = 17
-    NVML_BRAND_NVIDIA_VGAMEDEV "NVML_BRAND_NVIDIA_VGAMEDEV" = 18
     NVML_BRAND_NVIDIA_NPU "NVML_BRAND_NVIDIA_NPU" = 19
+    NVML_BRAND_NVIDIA_VGAMEDEV "NVML_BRAND_NVIDIA_VGAMEDEV" = 18
     NVML_BRAND_COUNT "NVML_BRAND_COUNT" = 20
 
 ctypedef enum nvmlTemperatureThresholds_t "nvmlTemperatureThresholds_t":
@@ -1811,6 +1811,34 @@ ctypedef struct nvmlEccBankRemapperHistogram_v1_t 'nvmlEccBankRemapperHistogram_
     unsigned int maxSpareGroupCount
     unsigned int noSpareGroupCount
 
+ctypedef struct nvmlGpuUptime_v1_t 'nvmlGpuUptime_v1_t':
+    unsigned int uptime
+
+ctypedef struct nvmlSystemConfComputeSettings_v2_t 'nvmlSystemConfComputeSettings_v2_t':
+    unsigned int version
+    unsigned int environment
+    unsigned int ccFeature
+    unsigned int devToolsMode
+    unsigned int multiGpuMode
+    unsigned int tdispState
+
+ctypedef struct nvmlNvlinkGetRemapTableInfo_v1_t 'nvmlNvlinkGetRemapTableInfo_v1_t':
+    unsigned int alid
+    unsigned int flaRemapTabAddr[4096]
+    unsigned int gpaRemapTabAddr[4096]
+    unsigned int remapTabSize
+
+ctypedef struct nvmlNvlinkSetNvleReady_v1_t 'nvmlNvlinkSetNvleReady_v1_t':
+    unsigned char bNvleReady
+
+ctypedef struct nvmlNvlinkLockRemapTable_v1_t 'nvmlNvlinkLockRemapTable_v1_t':
+    unsigned char bRemapTableLocked
+    unsigned char bRemapTableLockDisabled
+
+ctypedef struct nvmlNvlinkNvlePrivateInfo_v1_t 'nvmlNvlinkNvlePrivateInfo_v1_t':
+    unsigned char data[256]
+    unsigned int size
+
 ctypedef nvmlPciInfoExt_v1_t nvmlPciInfoExt_t 'nvmlPciInfoExt_t'
 
 ctypedef nvmlCoolerInfo_v1_t nvmlCoolerInfo_t 'nvmlCoolerInfo_t'
@@ -2198,6 +2226,13 @@ ctypedef struct nvmlEccBankRemapperStatus_v1_t 'nvmlEccBankRemapperStatus_v1_t':
     unsigned int bPending
     nvmlEccBankRemapperHistogram_v1_t histogram
 
+ctypedef struct nvmlNvlinkSetupNvleEncryptionKey_v1_t 'nvmlNvlinkSetupNvleEncryptionKey_v1_t':
+    unsigned char nvleKey[32]
+    unsigned int localGpuAlid
+    unsigned int remoteGpuAlid
+    nvmlNvlinkNvlePrivateInfo_v1_t localGpuNvlePrivateInfo
+    nvmlNvlinkNvlePrivateInfo_v1_t remoteGpuNvlePrivateInfo
+
 ctypedef nvmlVgpuTypeIdInfo_v1_t nvmlVgpuTypeIdInfo_t 'nvmlVgpuTypeIdInfo_t'
 
 ctypedef nvmlVgpuTypeMaxInstance_v1_t nvmlVgpuTypeMaxInstance_t 'nvmlVgpuTypeMaxInstance_t'
@@ -2310,6 +2345,11 @@ ctypedef struct nvmlNvLinkInfo_v2_t 'nvmlNvLinkInfo_v2_t':
     unsigned int version
     unsigned int isNvleEnabled
     nvmlNvlinkFirmwareInfo_t firmwareInfo
+
+ctypedef struct nvmlNvLinkInfo_v3_t 'nvmlNvLinkInfo_v3_t':
+    unsigned int isNvleEnabled
+    nvmlNvlinkFirmwareInfo_t firmwareInfo
+    unsigned int isNvleReady
 
 ctypedef struct nvmlPwrModelMetricsDlppm1x_t 'nvmlPwrModelMetricsDlppm1x_t':
     unsigned char bValid
@@ -2750,3 +2790,11 @@ cdef nvmlReturn_t nvmlEventSetGetContextInfo_v1(nvmlEventSet_t set, nvmlEventSet
 cdef nvmlReturn_t nvmlEventSetGetContextData_v1(nvmlEventSet_t set, nvmlEventSetGetContextData_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1(nvmlEventSet_t set, nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t* params) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlEccBankRemapperStatus_v1_t* pBankRemapperStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetGpuUptime_v1(nvmlDevice_t device, nvmlGpuUptime_v1_t* uptime) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlSystemGetConfComputeSettings_v2(nvmlSystemConfComputeSettings_v2_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetNvLinkInfo_v3(nvmlDevice_t device, nvmlNvLinkInfo_v3_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetNvlinkRemapTableInfo_v1(nvmlDevice_t device, nvmlNvlinkGetRemapTableInfo_v1_t* remapTableInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceSetNvlinkNvleReady_v1(nvmlDevice_t device, nvmlNvlinkSetNvleReady_v1_t* setNvleReady) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceLockNvlinkRemapTable_v1(nvmlDevice_t device, nvmlNvlinkLockRemapTable_v1_t* remapTableLockInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceSetupNvlinkNvleEncryptionKey_v1(nvmlDevice_t device, nvmlNvlinkSetupNvleEncryptionKey_v1_t* encryptionKey) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetNvlinkNvlePrivateInfo_v1(nvmlDevice_t device, nvmlNvlinkNvlePrivateInfo_v1_t* privateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil

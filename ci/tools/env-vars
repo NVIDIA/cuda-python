@@ -132,6 +132,8 @@ elif [[ "${1}" == "test" ]]; then
     echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
     echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
     echo "TEST_CUDA_MINOR=${TEST_CUDA_MINOR}"
+    echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}"
+    echo "BUILD_CUDA_MINOR=${BUILD_CUDA_MINOR}"
   } >> $GITHUB_ENV
 fi
 
