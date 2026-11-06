@@ -188,15 +188,6 @@ jobs:
           apt-get update
           apt-get install --only-upgrade -y ca-certificates
 
-      - name: Checkout driver install scripts (workflow revision)
-        if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          ref: ${{ github.sha }}
-          path: .driver-tools
-          sparse-checkout: ci/tools
-          persist-credentials: false
-
       - name: Install GPU driver
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         env:

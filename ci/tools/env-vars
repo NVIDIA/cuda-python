@@ -82,7 +82,7 @@ else
     CUDA_PYTHON_ARTIFACT_NAME=cuda-python-wheel
     core_cython_suffix=-tests
   else
-    CURRENT_BUILD_CUDA_VER="$(jq -r ' .package_roots[] | select(.release_status == "current") | .toolkit_version' <<< "${BINDINGS_CONFIG}")"
+    CURRENT_BUILD_CUDA_VER="$(jq -r '.package_roots[] | select(.release_status == "current") | .toolkit_version' <<< "${BINDINGS_CONFIG}")"
     core_cython_suffix="-cu${TEST_CUDA_MAJOR}-tests"
     if [[ "${BINDINGS_SOURCE}" == local ]]; then
       CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"
