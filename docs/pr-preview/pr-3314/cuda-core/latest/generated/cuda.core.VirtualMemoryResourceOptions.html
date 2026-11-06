@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3c6e4dea"></script>
+    <script src="../_static/documentation_options.js?v=b6fafd4f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev298';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev350';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -590,6 +590,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Host.html">cuda.core.Host</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.host_launch.html">cuda.core.host_launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.pack_host_copy_args.html">cuda.core.pack_host_copy_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Context.html">cuda.core.Context</a></li>
@@ -667,6 +668,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.MipmappedArrayOptions.html">cuda.core.texture.MipmappedArrayOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.texture.TextureObjectOptions.html">cuda.core.texture.TextureObjectOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAError.html">cuda.core.CUDAError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAOutOfMemoryError.html">cuda.core.CUDAOutOfMemoryError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.NVRTCError.html">cuda.core.NVRTCError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.CUDAWarning.html">cuda.core.CUDAWarning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.checkpoint.Process.html">cuda.core.checkpoint.Process</a></li>
@@ -792,7 +794,7 @@
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">allocation_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryAllocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryAllocationType.PINNED</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">location_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryLocationType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryLocationType.DEVICE</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">handle_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryHandleType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryHandleType.POSIX_FD</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle_type:</span> <span class="pre">~cuda.core.typing.VirtualMemoryHandleType</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">granularity:</span> <span class="pre">~cuda.core.typing.VirtualMemoryGranularityType</span> <span class="pre">=</span> <span class="pre">VirtualMemoryGranularityType.RECOMMENDED</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">gpu_direct_rdma:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">addr_hint:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0</span></span></em>,</dd>
@@ -811,7 +813,8 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResourceOptions.allocation_type">
 <span class="sig-name descname"><span class="pre">allocation_type</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResourceOptions.allocation_type" title="Link to this definition">#</a></dt>
-<dd><p>Controls the type of allocation.</p>
+<dd><p>Controls the type of allocation. Only <code class="docutils literal notranslate"><span class="pre">&quot;pinned&quot;</span></code> is supported;
+use <a class="reference internal" href="cuda.core.ManagedMemoryResource.html#cuda.core.ManagedMemoryResource" title="cuda.core.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> for managed memory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAllocationType</span></code> | str</p>
@@ -838,12 +841,12 @@ does not accept it for physical allocations.</p>
 <dd><p>Export handle type for the physical allocation, and the switch for
 sharing buffers with other processes (see
 <a class="reference internal" href="cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.is_ipc_enabled" title="cuda.core.VirtualMemoryResource.is_ipc_enabled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResource.is_ipc_enabled</span></code></a>). Use <code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on
-Linux if you plan to import/export the allocation. Use <cite>None</cite> if you
-don’t need an exportable handle. <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host&quot;</span></code> requires
-<cite>None</cite>.</p>
+if you plan to import/export the allocation. Use <cite>None</cite> if you
+don’t need an exportable handle.  The default on Windows is <cite>None</cite>,
+“posix_fd” otherwise. <code class="docutils literal notranslate"><span class="pre">location_type=&quot;host&quot;</span></code> requires <cite>None</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryHandleType</span></code> | str</p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryHandleType</span></code> | str | None</p>
 </dd>
 </dl>
 </dd></dl>
