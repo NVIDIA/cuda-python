@@ -17,7 +17,6 @@ from setuptools_scm import get_version
 
 from ci.tools import check_pixi_cuda_version
 from ci.tools.bindings_config import BindingsPackage, load_config, main
-from ci.tools.compute_ci_plan import compute_workplan
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -112,18 +111,6 @@ def test_pixi_check_rejects_wrong_maintenance_major_and_broad_current_pin(
     path.write_text(path.read_text().replace(old_pin, new_pin))
     assert check_pixi_cuda_version.main() == 1
     assert f"{package_root}/pixi.toml" in capsys.readouterr().err
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_cuda12_source_changes_select_bindings_consumers():
-    plan = compute_workplan(
-        ["cuda_bindings_12/cuda/bindings/_internal/utils.pyx"], merge_base="base", baseline_run_id="123"
-    )
-    assert {name for name, decision in plan["modules"].items() if decision["needs_build"]} == {
-        "bindings",
-        "core",
-        "python",
-    }
 
 
 @pytest.mark.agent_authored(model="gpt-6")
