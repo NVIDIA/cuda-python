@@ -164,8 +164,11 @@ def test_complete_binary_wheel_matrix_is_required(tmp_path):
     assert "Missing expected cuda_bindings wheel targets: cp314-cp314t-win_amd64" in partial.stderr
 
 
-@pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_windows_arm64_targets_follow_the_tagged_toolkit_line(tmp_path):
+@pytest.mark.parametrize(
+    "toolkit,has_windows_arm64", [("12.9.1", False), ("13.3.0", False), ("13.4.1", True), ("14.0.0", True)]
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_windows_arm64_targets_follow_the_tagged_toolkit_line(tmp_path, toolkit, has_windows_arm64):
     release_source = tmp_path / "release-source"
     write_release_matrix(
         release_source,
@@ -173,14 +176,14 @@ def test_windows_arm64_targets_follow_the_tagged_toolkit_line(tmp_path):
         platforms=("linux-64", "win-arm64"),
     )
 
-    cuda_12 = expected_binary_targets(release_source, {"toolkit_version": "12.9.1"})
-    cuda_13 = expected_binary_targets(release_source, {"toolkit_version": "13.4.1"})
-
-    assert cuda_12 == {
+    targets = expected_binary_targets(release_source, {"toolkit_version": toolkit})
+    expected = {
         WheelTarget("cp310", "cp310", "manylinux-x86_64"),
         WheelTarget("cp311", "cp311", "manylinux-x86_64"),
     }
-    assert cuda_13 == cuda_12 | {WheelTarget("cp311", "cp311", "win_arm64")}
+    if has_windows_arm64:
+        expected.add(WheelTarget("cp311", "cp311", "win_arm64"))
+    assert targets == expected
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")

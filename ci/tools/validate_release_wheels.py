@@ -19,6 +19,7 @@ import yaml
 from packaging.tags import Tag
 from packaging.utils import InvalidWheelFilename, parse_wheel_filename
 
+from .bindings_config import wheel_python_versions
 from .check_release_notes import COMPONENTS, parse_version_from_tag
 
 _BINARY_DISTRIBUTIONS = frozenset({"cuda_bindings", "cuda_core"})
@@ -90,19 +91,19 @@ def _release_python_versions(release_source_root: Path) -> list[str]:
     return yaml.safe_load(path.read_text(encoding="utf-8"))["python"]["supported"]
 
 
-def _release_platforms(release_source_root: Path) -> list[str]:
+def _release_platforms(release_source_root: Path) -> set[str]:
     path = release_source_root / _CI_WORKFLOW
     jobs = yaml.safe_load(path.read_text(encoding="utf-8"))["jobs"]
 
-    platforms: list[str] = []
+    platforms: set[str] = set()
     for value in jobs.values():
         if value.get("uses") != "./.github/workflows/build-wheel.yml":
             continue
         platform = value["with"]["host-platform"]
         if "${{" not in platform:
-            platforms.append(platform)
+            platforms.add(platform)
         else:
-            platforms.extend(value["strategy"]["matrix"]["host-platform"])
+            platforms.update(value["strategy"]["matrix"]["host-platform"])
 
     if not platforms:
         raise ValueError(f"could not find any build-wheel host platforms in {path}")
@@ -138,23 +139,16 @@ def expected_binary_targets(
     python_versions = _release_python_versions(release_source_root)
     platforms = _release_platforms(release_source_root)
 
+    toolkit_version = ""
     if "win-arm64" in platforms:
         toolkit_version = None if bindings_package is None else bindings_package.get("toolkit_version")
         if not isinstance(toolkit_version, str):
             raise ValueError("resolved CUDA bindings package must supply toolkit_version for matrix validation")
-        try:
-            toolkit_major, toolkit_minor = (int(part) for part in toolkit_version.split(".", maxsplit=2)[:2])
-        except ValueError as error:
-            raise ValueError(f"invalid resolved toolkit_version: {toolkit_version!r}") from error
-        if (toolkit_major, toolkit_minor) < (13, 4):
-            platforms.remove("win-arm64")
 
     targets: set[WheelTarget] = set()
-    for version in python_versions:
-        interpreter, abi = _python_target(version)
-        for platform in platforms:
-            if platform == "win-arm64" and version == "3.10":
-                continue
+    for platform in sorted(platforms):
+        for version in wheel_python_versions(toolkit_version, platform, python_versions):
+            interpreter, abi = _python_target(version)
             targets.add(WheelTarget(interpreter, abi, _platform_target(platform)))
     return targets
 

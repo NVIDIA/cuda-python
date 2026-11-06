@@ -83,8 +83,6 @@ jobs:
       - name: Set up Python for CI tools
         # The release checkout can predate this action; use the workflow revision.
         uses: ./.ci-control/.github/actions/setup-hardened-python
-        with:
-          python-version: "3.12"
 
       - name: Install CI tool dependencies
         # Keep the hardened interpreter ahead of any login-shell activation.
@@ -184,7 +182,7 @@ jobs:
         if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-python' }}
         run: |
           pwd
-          ls -lahR .
+          ls -lah cuda_python*.whl
 
       - name: Download cuda-pathfinder build artifacts
         if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
@@ -199,7 +197,7 @@ jobs:
         if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
         run: |
           pwd
-          ls -lahR cuda_pathfinder
+          ls -lah cuda_pathfinder/*.whl
 
       - name: Download cuda.bindings build artifacts
         if: ${{ !inputs.is-release }}
@@ -222,7 +220,7 @@ jobs:
         if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-bindings' || inputs.component == 'cuda-core' }}
         run: |
           pwd
-          ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
+          ls -lah "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
 
       - name: Download cuda.core build artifacts
         if: ${{ !inputs.is-release }}
@@ -245,7 +243,7 @@ jobs:
         if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-core' }}
         run: |
           pwd
-          ls -lahR $CUDA_CORE_ARTIFACTS_DIR
+          ls -lah "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl
 
       - name: Install cuda-pathfinder
         if: ${{ !inputs.is-release || inputs.component == 'all' || inputs.component == 'cuda-pathfinder' || inputs.component == 'cuda-core' }}
@@ -416,6 +414,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
+          persist-credentials: false
           ref: ${{ inputs.is-release && format('refs/tags/{0}', inputs.git-tag) || inputs.git-tag }}
 
       - name: Download docs deployment payload

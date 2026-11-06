@@ -94,6 +94,7 @@ jobs:
       current-cuda-version: ${{ steps.registry.outputs.current-cuda-version }}
       python-supported: ${{ steps.registry.outputs.python-supported }}
       windows-arm64-supported: ${{ steps.registry.outputs.windows-arm64-supported }}
+      windows-arm64-python-supported: ${{ steps.registry.outputs.windows-arm64-python-supported }}
       windows-arm64-single-cuda-major: ${{ steps.registry.outputs.windows-arm64-single-cuda-major }}
       workplan: ${{ steps.workplan.outputs.workplan }}
     steps:
@@ -121,37 +122,22 @@ jobs:
             '.package_roots[] | select(.release_status == "current") | .toolkit_version' \
             <<< "$bindings_config")
 
-          if [[ "$current_cuda_version" =~ ^([0-9]+)\.([0-9]+)(\.|$) ]]; then
-            current_cuda_major="${BASH_REMATCH[1]}"
-            current_cuda_minor="${BASH_REMATCH[2]}"
-          else
-            echo "Invalid current CUDA version: $current_cuda_version" >&2
-            exit 1
-          fi
+          python3 - <<'PYCODE' >> "$GITHUB_OUTPUT"
+          import json
+          from ci.tools.bindings_config import load_config, wheel_python_versions
 
-          # Windows ARM64 is available starting with CUDA 13.4.
-          if (( current_cuda_major > 13 || (current_cuda_major == 13 && current_cuda_minor >= 4) )); then
-            windows_arm64_supported=true
-          else
-            windows_arm64_supported=false
-          fi
-
-          # CUDA 13 introduced Windows ARM64 mid-release-line, so there is no
-          # CUDA 12 Windows ARM64 toolkit. Once current advances to CUDA 14,
-          # CUDA 13 can be built as the maintenance major on this platform;
-          # keep this equality so CUDA 14 does not exclude that supported line.
-          if [[ "$current_cuda_major" == "13" ]]; then
-            windows_arm64_single_cuda_major=true
-          else
-            windows_arm64_single_cuda_major=false
-          fi
+          config = load_config()
+          current = config.package_for_release_status("current")
+          versions = wheel_python_versions(current.toolkit_version, "win-arm64", config.python_supported)
+          print("windows-arm64-supported=" + str(bool(versions)).lower())
+          print("windows-arm64-single-cuda-major=" + str(current.cuda_major == "13").lower())
+          print("windows-arm64-python-supported=" + json.dumps(versions))
+          PYCODE
 
           {
             echo "python-supported=$(yq -o json -I 0 '.python.supported' ci/versions.yml)"
             echo "bindings-config=$bindings_config"
             echo "current-cuda-version=$current_cuda_version"
-            echo "windows-arm64-supported=$windows_arm64_supported"
-            echo "windows-arm64-single-cuda-major=$windows_arm64_single_cuda_major"
           } >> "$GITHUB_OUTPUT"
 
       - name: Resolve PR merge base
@@ -491,7 +477,7 @@ jobs:
       bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' }}
-      python-versions: ${{ needs.detect-changes.outputs.python-supported }}
+      python-versions: ${{ needs.detect-changes.outputs.windows-arm64-python-supported }}
 
   woa-main-dispatch:
     name: Dispatch WoA integration

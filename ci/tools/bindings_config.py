@@ -16,7 +16,7 @@ import re
 import sys
 import tomllib
 from argparse import ArgumentParser
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -33,6 +33,16 @@ _DEPENDENT_RELEASE_TAG_PREFIXES = ("cuda-core-v", "cuda-pathfinder-v")
 # Validate strings again at JSON-to-path/environment boundaries.
 _PACKAGE_ROOT_PATTERN = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*")
 _TOOLKIT_VERSION_PATTERN = re.compile(r"[1-9][0-9]*\.[0-9]+\.[0-9]+")
+
+
+def wheel_python_versions(toolkit_version: str, platform: str, versions: Sequence[str]) -> list[str]:
+    """Select wheel interpreters, including Windows ARM64's toolkit/Python limits."""
+    if platform == "win-arm64":
+        if Version(toolkit_version).release[:2] < (13, 4):
+            return []
+        # Retained release tags can include Python 3.10, which has no WoA wheels.
+        return [version for version in versions if version != "3.10"]
+    return list(versions)
 
 
 def parse_prefixed_version(tag: str, prefix: str) -> Version | None:
