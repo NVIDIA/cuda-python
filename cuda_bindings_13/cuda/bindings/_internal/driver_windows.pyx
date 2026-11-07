@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=95db262e65cd453b232f6c9eb3b4574a4bc371eb384b224b3c2b6f85778bd38e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8b56814f7e4876ba0386c167c8bd1f0f024f3c5c5350557b4dfc72446fe38979
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2206,11 +2206,7 @@ cdef inline int _check_or_init_driver() except -1 nogil:
     return _init_driver()
 
 
-cpdef dict _inspect_function_pointers():
-    global _cyb_func_ptrs
-    if _cyb_func_ptrs is not None:
-        return _cyb_func_ptrs
-
+cdef dict _build_function_pointers():
     _check_or_init_driver()
     cdef dict data = {}
     global __cuGetErrorString
@@ -3790,17 +3786,20 @@ cpdef dict _inspect_function_pointers():
 
     global __cuTensorMapSetAllocationClass
     data["__cuTensorMapSetAllocationClass"] = <intptr_t>__cuTensorMapSetAllocationClass
-    _cyb_func_ptrs = data
     return data
 
 
-cpdef _inspect_function_pointer(str name):
+cpdef dict _inspect_function_pointers():
     global _cyb_func_ptrs
     if _cyb_func_ptrs is None:
         with _cyb_func_ptrs_lock:
             if _cyb_func_ptrs is None:
-                _cyb_func_ptrs = _inspect_function_pointers()
-    return _cyb_func_ptrs[name]
+                _cyb_func_ptrs = _build_function_pointers()
+    return _cyb_func_ptrs
+
+
+cpdef _inspect_function_pointer(str name):
+    return _inspect_function_pointers()[name]
 
 
 
