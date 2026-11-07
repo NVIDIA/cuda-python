@@ -858,9 +858,6 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
    * - ``cuLaunchCooperativeKernel``
      - ``launch_cooperative_kernel``
      -
-   * - ``cuLaunchCooperativeKernelMultiDevice``
-     - ``launch_cooperative_kernel_multi_device``
-     -
    * - ``cuLaunchHostFunc``
      - ``launch_host_func``
      -
@@ -1511,15 +1508,6 @@ Where the C symbol has a version suffix (``cuCtxCreate_v2``), the legacy module 
      -
    * - ``cuTexObjectGetTextureDesc``
      - ``tex_object_get_texture_desc``
-     -
-   * - ``cuTexRefSetAddressMode``
-     - ``tex_ref_set_address_mode``
-     -
-   * - ``cuTexRefSetFilterMode``
-     - ``tex_ref_set_filter_mode``
-     -
-   * - ``cuTexRefSetMipmapFilterMode``
-     - ``tex_ref_set_mipmap_filter_mode``
      -
    * - ``cuThreadExchangeStreamCaptureMode``
      - ``thread_exchange_stream_capture_mode``

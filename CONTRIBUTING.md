@@ -37,21 +37,26 @@ reproducers, documentation improvements, and code changes are welcome.
 
 ## Coordinate before implementing
 
-Review capacity is limited. If you are contributing from outside NVIDIA:
+Our review and CI capacities are limited. If you are contributing from outside NVIDIA:
 
-- **Existing issue:** comment and wait for a maintainer to assign it to you or
+- **Existing issues:** comment and wait for a maintainer to assign it to you or
   explicitly ask you to implement it. Check existing assignments and requests
   to take the issue.
-- **New features, design changes, or CI/release infrastructure:** open an issue
-  and agree on scope and validation before implementing.
-- **Small standalone bug or documentation fixes without an existing issue:**
-  a direct PR is welcome. Explain the problem and how you checked the fix.
+- **New features, bug/documentation fixes, RFCs, or code updates/enhancements:** open an
+  issue, agree on scope and validation, and wait for the assignment before implementing.
+
+For obvious issues, opening a one-liner issue for tracking and assignment purposes is
+completely fine.
+
+For bug reports, please include a reproducer with a clear description for the expected
+versus observed behavior. Also include the CUDA driver version and the Python environment
+information (ex: `pip list`, `conda list`, ..., depending on how the environment was
+created).
+
+Please do not send unsolicited (i.e. without prior discussion and assignment) PRs, which
+could be closed without notice subject to the team's triage.
 
 NVIDIA contributors may use normal team planning and self-assignment.
-
-Feel free to report a bug or send reproducers, measurements, and suggestions
-without an assignment. Include relevant versions and expected versus observed
-behavior in bug reports.
 
 Keep changes focused, understand the complete diff, and report which checks
 ran and any validation gaps.
@@ -64,10 +69,11 @@ ran and any validation gaps.
 including the Developer Mode registry check.** Complete that setup before
 running the clone command.
 
-From the directory where you want to create the checkout, run:
+With Git 2.36 or newer, run this from the directory where you want to
+create the checkout:
 
 ```console
-$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules --filter=blob:none --also-filter-submodules https://github.com/NVIDIA/cuda-python.git
 $ cd cuda-python
 ```
 
@@ -76,6 +82,9 @@ This recipe sets up the repository for source builds and development:
 - `core.symlinks=true` materializes symlinks during checkout, including the
   build-critical `cuda_core/_build_shared.py`.
 - `--recurse-submodules` initializes the CCCL headers needed to build `cuda.core`.
+- `--filter=blob:none --also-filter-submodules` skips historical file
+  contents in the repository and CCCL. Git downloads those contents
+  when needed; commit history and release tags remain available.
 - `submodule.recurse=true` keeps initialized submodules in sync on `git pull`,
   `git checkout`, and `git switch`.
 - The clone retains history and release tags for correct package versions.

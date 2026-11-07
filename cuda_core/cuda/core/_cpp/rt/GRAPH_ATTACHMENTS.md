@@ -171,18 +171,19 @@ metadata for the root graph and subgraphs. Each `GraphBox` stores:
 - the `CUgraph`
 - its parent box and owning node, when it is a child graph
 - a `GraphAttachmentMap` from nodes to node attachments (`NodeAttachment*`)
-- a per-graph weak registry to canonicalize node handles
+- weak registries to canonicalize direct child graph and node handles
 
-When CUDA destroys a child graph, the associated `GraphBox` is cleared and
-moved to `GraphHierarchy::graveyard`. That invalidates existing handles and
-preserves the storage until the hierarchy's last shared owner is released.
-Removing the registry entry also prevents corruption if a future CUDA graph
-reuses the raw handle value.
+A retired `GraphBox` is cleared and moved to `GraphHierarchy::graveyard`.
+That invalidates existing handles and preserves the storage until the
+hierarchy's last shared owner is released.
 
-The process-wide graph registry maps a live `CUgraph` to its canonical
-`GraphHandle`. Node handles are scoped to their `GraphBox`, where they can all
-be invalidated when CUDA destroys that graph. They use separate
-`GraphNodeBox::resource` fields and are nulled before the graph box is retired.
+Each `GraphBox` holds two registries: its direct child graphs keyed by
+`CUgraph` and owner node, and its nodes keyed by `CUgraphNode`. Both are
+scoped to the box, so a raw handle recycled by CUDA in another hierarchy
+cannot resolve to this hierarchy's metadata; see
+[registry identity](REGISTRY_DESIGN.md#reused-graph-handles). Node handles use
+separate `GraphNodeBox::resource` fields and are nulled before the graph box
+is retired.
 
 ## Invariants
 

@@ -65,6 +65,8 @@ from cuda.core._rt cimport (
     make_opaque_py,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN, _parse_fill_value
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.version cimport cy_driver_version
 
 from cuda.core._host_callback cimport (
     _resolve_host_callback,
@@ -79,7 +81,10 @@ from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from cuda.core._device import Device
+    from cuda.core._utils.pycompat import BufferProtocol
 
 __all__ = ['GraphNode']
 
@@ -141,6 +146,44 @@ cdef class GraphNode:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphNodeGetType(node, &node_type))
         return driver.CUgraphNodeType(<int>node_type)
+
+    @property
+    def local_id(self) -> int:
+        """The node's ID within its graph.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+        GN_check_valid(self)
+        if self._is_entry:
+            raise ValueError("The entry node has no driver-assigned ID")
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int node_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetLocalId(as_cu(self._h_node), &node_id))
+            return node_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
+
+    @property
+    def tools_id(self) -> int:
+        """The node's ID reported by CUDA profiling and tooling interfaces.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+        GN_check_valid(self)
+        if self._is_entry:
+            raise ValueError("The entry node has no driver-assigned ID")
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned long long node_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphNodeGetToolsId(as_cu(self._h_node), &node_id))
+            return node_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require a CUDA 13 build of cuda.core and CUDA driver 13.1 or newer")
 
     @property
     def graph(self) -> GraphDefinition:
@@ -495,7 +538,7 @@ cdef class GraphNode:
         """
         return GN_wait_event(self, event)
 
-    def callback(self, fn, *, user_data=None) -> object:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> object:
         """Add a host callback node depending on this node.
 
         The callback runs on the host CPU when the graph reaches this node.
@@ -541,7 +584,8 @@ cdef class GraphNode:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
         return GN_callback(self, fn, user_data)
 

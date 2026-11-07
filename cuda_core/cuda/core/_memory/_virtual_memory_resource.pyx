@@ -58,7 +58,6 @@ from typing import TYPE_CHECKING, Iterable
 
 from cuda.core._device import Device, _device_from_uuid
 from cuda.core._utils.cuda_utils import driver
-from cuda.core._utils.version import BUILD_CUDA_MAJOR
 from cuda.core.typing import (
     DevicePointerType,
     VirtualMemoryAccessType,
@@ -97,18 +96,19 @@ class VirtualMemoryResourceOptions:
     Attributes
     ----------
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
-        Controls the type of allocation.
+        Controls the type of allocation. Only ``"pinned"`` is supported;
+        use :class:`ManagedMemoryResource` for managed memory.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation. ``"host_numa"`` requires
         ``numa_id``. ``"host_numa_current"`` is rejected because the driver
         does not accept it for physical allocations.
-    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
+    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str | None
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
         :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` on
-        Linux if you plan to import/export the allocation. Use `None` if you
-        don't need an exportable handle. ``location_type="host"`` requires
-        `None`.
+        if you plan to import/export the allocation. Use `None` if you
+        don't need an exportable handle.  The default on Windows is `None`,
+        "posix_fd" otherwise. ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
     granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str
@@ -134,7 +134,9 @@ class VirtualMemoryResourceOptions:
 
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
-    handle_type: VirtualMemoryHandleType = VirtualMemoryHandleType.POSIX_FD
+    handle_type: VirtualMemoryHandleType | str | None = field(
+        default_factory=lambda: None if platform.system() == "Windows" else VirtualMemoryHandleType.POSIX_FD
+    )
     granularity: VirtualMemoryGranularityType = VirtualMemoryGranularityType.RECOMMENDED
     gpu_direct_rdma: bool = False
     addr_hint: int | None = 0
@@ -170,12 +172,11 @@ class VirtualMemoryResourceOptions:
         VirtualMemoryLocationType.HOST_NUMA_CURRENT: _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT,
     }
     _t = driver.CUmemAllocationType
-    # CUDA 13 added MANAGED to CUmemAllocationType. The CUDA 12 build has no such member.
+    # cuMemCreate only supports PINNED, even on CUDA 13 builds with a MANAGED enum member.
     _allocation_type = {VirtualMemoryAllocationType.PINNED: _t.CU_MEM_ALLOCATION_TYPE_PINNED}  # noqa: RUF012
-    if BUILD_CUDA_MAJOR >= 13:
-        _allocation_type[VirtualMemoryAllocationType.MANAGED] = _t.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     def __post_init__(self) -> None:
+        self._allocation_type_to_driver(self.allocation_type)
         # Allocation and pickling each read the peers, so a one-shot iterable
         # such as a generator must not reach them.
         self.peers = tuple(int(peer) for peer in self.peers)
@@ -202,7 +203,7 @@ class VirtualMemoryResourceOptions:
         return loc_type  # type: ignore[no-any-return]
 
     @staticmethod
-    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None) -> int:
+    def _handle_type_to_driver(spec: VirtualMemoryHandleType | str | None) -> int:
         if spec == "win32":
             raise NotImplementedError("win32 is currently not supported, please reach out to the CUDA Python team")
         handle_type = VirtualMemoryResourceOptions._handle_types.get(spec)
@@ -490,6 +491,7 @@ cdef class VirtualMemoryResource(MemoryResource):
         Shared by ``__init__`` and ``modify_allocation``, so a per-call
         configuration is held to the same rules as the resource's own.
         """
+        VirtualMemoryResourceOptions._allocation_type_to_driver(cfg.allocation_type)
         if cfg.location_type != self.config.location_type:
             raise ValueError(
                 f"config.location_type {str(cfg.location_type)!r} does not match the resource's "
@@ -728,8 +730,8 @@ cdef class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type`` and ``handle_type`` and passes the same checks
-            as the constructor.
+            ``location_type``, ``handle_type``, and ``numa_id`` and pass the
+            same checks as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
             memory that is already mapped.
@@ -746,8 +748,8 @@ cdef class VirtualMemoryResource(MemoryResource):
         TypeError
             If ``buf`` did not come from this resource.
         ValueError
-            If ``config`` names a different location or handle type than the
-            resource, or the constructor would reject it.
+            If ``config`` names a different location type, handle type, or
+            ``numa_id`` than the resource, or the constructor would reject it.
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.

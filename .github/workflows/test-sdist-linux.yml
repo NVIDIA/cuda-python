@@ -34,6 +34,9 @@ jobs:
       BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_build }}
       BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_build }}
       BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_build }}
+      # Back off on repeated local-disk cache I/O errors (#3273).
+      SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_COUNT: "5"
+      SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_WINDOW_SIZE_SECS: "5"
     timeout-minutes: 60
     runs-on: linux-amd64-cpu8
     steps:
@@ -44,7 +47,13 @@ jobs:
           # the commit graph (`git describe`) but not historical blobs.
           fetch-depth: 0
           filter: blob:none
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python

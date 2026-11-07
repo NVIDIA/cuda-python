@@ -235,6 +235,23 @@ cdef class KernelAttributes:
             cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         )
 
+    @property
+    def device_node_update_supported(self) -> bool:
+        """bool : Whether this kernel can be the target of device-side graph node updates.
+
+        Requires CUDA 13 build and CUDA driver 13.3+.
+        This attribute is read-only.
+        """
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if cy_driver_version() < (13, 3, 0):
+                raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
+            return bool(self._get_cached_attribute(
+                self._effective_device_id(),
+                cydriver.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED,
+            ))
+        ELSE:
+            raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
+
 
 MaxPotentialBlockSizeOccupancyResult = namedtuple(
     "MaxPotentialBlockSizeOccupancyResult", ("min_grid_size", "max_block_size")
@@ -632,7 +649,8 @@ cdef class ObjectCode:
 
     @classmethod
     def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
-        assert code_type in _supported_code_type, f"{code_type=} is not supported"
+        if code_type not in _supported_code_type:
+            raise ValueError(f"{code_type=} is not supported")
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
         # _h_library is assigned during _lazy_load_module

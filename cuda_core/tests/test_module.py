@@ -345,6 +345,19 @@ def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type
         assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
 
+def test_device_node_update_supported(get_saxpy_kernel_cubin):
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
+
+    kernel, _ = get_saxpy_kernel_cubin
+
+    for device in Device.get_all_devices():
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 3, 0):
+            with pytest.raises(NotImplementedError):
+                _ = kernel.attributes[device].device_node_update_supported
+        else:
+            assert isinstance(kernel.attributes[device].device_node_update_supported, bool)
+
+
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod.symbol_mapping
@@ -727,6 +740,12 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     assert objcode.code_type == result.code_type
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_module_unpickle_rejects_unknown_code_type():
+    with pytest.raises(ValueError, match="code_type='bogus' is not supported"):
+        ObjectCode._reduce_helper(b"", "bogus", "", None)
+
+
 def test_kernel_from_handle(get_saxpy_kernel_cubin):
     """Test Kernel.from_handle() with a valid handle"""
     original_kernel, objcode = get_saxpy_kernel_cubin
@@ -916,3 +935,19 @@ def test_kernel_equality_hash_and_repr(get_saxpy_kernel_cubin):
     assert kernel != other
     assert kernel != object()
     assert repr(kernel).startswith("<Kernel handle=")
+
+
+@pytest.mark.parametrize(
+    "payload,expected_error",
+    [(object(), TypeError), (b"not a CUDA device image", CUDAError)],
+    ids=["unsupported_type", "invalid_binary"],
+)
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_object_code_rejects_invalid_payload_on_load(init_cuda, payload, expected_error):
+    """Failed lazy loads reject invalid payloads consistently on every attempt."""
+    object_code = ObjectCode.from_cubin(payload)
+    assert object_code.code is payload
+    error_match = "str or bytes or bytearray" if expected_error is TypeError else "CUDA_ERROR_INVALID_IMAGE"
+    for _ in range(2):
+        with pytest.raises(expected_error, match=error_match):
+            object_code.get_kernel("missing_kernel")

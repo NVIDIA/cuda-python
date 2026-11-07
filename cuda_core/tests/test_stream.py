@@ -1,13 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
+
 import pytest
+from helpers.contexts import current_context_handle, no_current_context
 from helpers.misc import StreamWrapper
 
 from cuda.core import Device, Stream, StreamOptions
 from cuda.core._event import Event
 from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, Stream_accept
-from cuda.core._utils.cuda_utils import driver
+from cuda.core._utils.cuda_utils import driver, handle_return
 
 
 def test_stream_init_disabled():
@@ -134,6 +137,39 @@ def test_stream_from_foreign_stream(init_cuda):
 def test_stream_from_handle():
     stream = Stream.from_handle(0)
     assert isinstance(stream, Stream)
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_borrowed_external_stream_resolves_context_without_taking_ownership(init_cuda):
+    """A borrowed driver stream resolves its context and remains externally owned."""
+    from contextlib import ExitStack
+
+    raw_stream = handle_return(driver.cuStreamCreate(driver.CUstream_flags.CU_STREAM_NON_BLOCKING))
+    borrowed = None
+    try:
+        borrowed = Stream.from_handle(int(raw_stream))
+        with no_current_context():
+            assert int(borrowed.context.handle) == int(init_cuda.context.handle)
+            assert borrowed.device is init_cuda
+            assert current_context_handle() == 0
+
+        with init_cuda.allocate(16, stream=borrowed) as buffer:
+            handle_return(driver.cuMemsetD8Async(int(buffer.handle), 0x6D, buffer.size, raw_stream))
+            result = (ctypes.c_ubyte * 16)()
+            handle_return(driver.cuMemcpyDtoHAsync(ctypes.addressof(result), int(buffer.handle), 16, raw_stream))
+            borrowed.sync()
+            assert bytes(result) == b"\x6d" * 16
+        borrowed.sync()
+        borrowed.close()
+        assert borrowed.is_closed
+        handle_return(driver.cuStreamQuery(raw_stream))
+        assert int(handle_return(driver.cuStreamGetCtx(raw_stream))) == int(init_cuda.context.handle)
+    finally:
+        with ExitStack() as cleanup:
+            cleanup.callback(lambda: handle_return(driver.cuStreamDestroy(raw_stream)))
+            if borrowed is not None:
+                cleanup.callback(borrowed.close)
+            handle_return(driver.cuStreamSynchronize(raw_stream))
 
 
 def test_legacy_default_stream():

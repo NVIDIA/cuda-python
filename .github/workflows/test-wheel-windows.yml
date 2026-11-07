@@ -194,7 +194,7 @@ jobs:
 
       - name: Download cuda.bindings build artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE == 'main' }}
+                (env.BINDINGS_SOURCE == 'main' || (env.BINDINGS_SOURCE == 'floor' && env.TEST_CORE == 'true')) }}
         uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
@@ -537,9 +537,6 @@ jobs:
           pushd cuda-core-released/cuda_core
           pip install --upgrade "pip>=25.1"
           pip install --group "${CUDA_CORE_TEST_GROUP}"
-          # Cap pytest below 9.1 — released cuda-core <=1.0.1 has parametrize
-          # patterns that pytest 9.1 rejects (see #2212).
-          pip install "pytest<9.1"
           # Version-gated deselects — dropped automatically when a newer
           # cuda-core release ships. See linux step for full rationale on
           # NvlinkVersion. The Windows-only tests are:

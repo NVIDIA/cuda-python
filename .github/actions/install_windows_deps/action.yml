@@ -1,0 +1,92 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Install dependencies on Windows
+
+description: Install Git Bash tools from a verified portable Git bundle when required executables are missing.
+
+inputs:
+  dependent_exes:
+    description: Space-separated executable names provided by Git for Windows
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      shell: powershell
+      env:
+        DEPENDENT_EXES: ${{ inputs.dependent_exes }}
+      run: |
+        $ErrorActionPreference = 'Stop'
+        if ($env:DEPENDENT_EXES -notmatch '^\s*[a-zA-Z0-9_.-]+(\s+[a-zA-Z0-9_.-]+)*\s*$') {
+          throw 'Expected a space-separated list of executable names.'
+        }
+        # Fail the check if the list did not reach Bash (a WSL bash would not receive it).
+        # Keep double quotes out of $check: Windows PowerShell 5.1 strips them when
+        # passing arguments to native commands. The names are validated above.
+        $check = 'missing=0; set -- $DEPENDENT_EXES; [ $# -gt 0 ] || missing=1; for tool in $DEPENDENT_EXES; do command -v $tool || missing=1; done; exit $missing'
+        # Skip the WSL launcher in System32/WindowsApps: it is not a Git for Windows bash.
+        $bash = Get-Command bash -All -ErrorAction SilentlyContinue |
+          Where-Object { $_.Source -notmatch '\\(System32|SysWOW64|WindowsApps)\\' } |
+          Select-Object -First 1
+        if ($bash) {
+          & $bash.Source --noprofile --norc -c $check
+          if ($LASTEXITCODE -eq 0) {
+            # Later `shell: bash` steps resolve `bash` through PATH. If that is not the
+            # Git Bash validated above (e.g. the WSL launcher comes first), put it first.
+            $pathBash = Get-Command bash -ErrorAction SilentlyContinue
+            if ($pathBash -and ($pathBash.Source -ne $bash.Source)) {
+              $bashDir = Split-Path -Parent $bash.Source
+              $env:PATH = "$bashDir;$env:PATH"
+              $bashDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              Write-Host "Prepended $bashDir to PATH so steps use Git Bash instead of $($pathBash.Source)."
+            }
+            Write-Host 'All dependencies are found. Do nothing.'
+            exit 0
+          }
+        }
+
+        $architecture = [Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()
+        switch ($architecture) {
+          'Arm64' {
+            $package = 'arm64'
+            $expectedHash = '3bf26b94d9399b16a890776e468334f501742861576cbcdea2d9134643c374bd'
+          }
+          'X64' {
+            $package = '64-bit'
+            $expectedHash = 'ab00566336b5472120f9a52d34f2e79c5406535792acb0548001ffd0bd090e5d'
+          }
+          default { throw "Unsupported Windows architecture: $architecture" }
+        }
+        $root = Join-Path $env:RUNNER_TOOL_CACHE "WindowsDeps\Git-2.55.0.3-$package"
+        $complete = "$root.complete"
+        if (-not (Test-Path -LiteralPath $complete)) {
+          $archive = Join-Path $env:RUNNER_TEMP "PortableGit-2.55.0.3-$package.7z.exe"
+          try {
+            Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/PortableGit-2.55.0.3-$package.7z.exe" -OutFile $archive
+            $actualHash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne $expectedHash) {
+              throw "Portable Git checksum mismatch: expected $expectedHash, got $actualHash."
+            }
+            if (Test-Path -LiteralPath $root) {
+              Remove-Item -LiteralPath $root -Recurse -Force
+            }
+            $process = Start-Process -FilePath $archive -ArgumentList @('-y', ('-o"{0}"' -f $root)) -Wait -PassThru
+            if ($process.ExitCode -ne 0) {
+              throw "Portable Git extraction failed with exit code $($process.ExitCode)."
+            }
+          }
+          finally {
+            if (Test-Path -LiteralPath $archive) {
+              Remove-Item -LiteralPath $archive -Force
+            }
+          }
+        }
+        $env:PATH = "$root\bin;$root\usr\bin;$env:PATH"
+        & "$root\bin\bash.exe" --noprofile --norc -c $check
+        if ($LASTEXITCODE -ne 0) {
+          throw 'Required executables are still missing after installing portable Git.'
+        }
+        New-Item -ItemType File -Force -Path $complete | Out-Null
+        @("$root\bin", "$root\usr\bin") | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append

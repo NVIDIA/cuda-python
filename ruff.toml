@@ -52,18 +52,11 @@ select = [
 ]
 
 ignore = [
-  # typing backward compat — support older Python versions
-  "UP006",  # non-pep585-annotation (e.g. Dict vs dict)
-  "UP007",  # non-pep604-annotation (e.g. Union[X, Y] vs X | Y)
-  "UP035",  # deprecated-import from typing
-
   # security rules too strict for this project
-  "S101",   # asserts
   "S311",   # allow random.* (not cryptographic)
   "S404",   # allow subprocess imports
 
   # style preferences
-  "C408",   # unnecessary dict/list/tuple call (dict() is fine)
   "E501",   # line too long (formatter handles what it can; the rest is intentional)
   "E741",   # ambiguous variable name (I, l, O)
   "B007",   # unused loop control variable
@@ -81,6 +74,8 @@ known-first-party = ["cuda", "_build_shared"]
 inline-quotes = "double"
 
 [lint.per-file-ignores]
+# cuda.core library code raises explicit errors; `python -O` strips asserts.
+"!cuda_core/cuda/core/**" = ["S101"]
 "__init__.py" = ["F401", "E402", "F403", "F405"]
 "setup.py" = ["F401"]
 
