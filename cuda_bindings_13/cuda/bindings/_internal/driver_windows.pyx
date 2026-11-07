@@ -4,7 +4,7 @@
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
 # !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b37b85b769459d1cd959de858aea6995f9b06befd79aeceb945b819d206414fb
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=95db262e65cd453b232f6c9eb3b4574a4bc371eb384b224b3c2b6f85778bd38e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -3796,9 +3796,10 @@ cpdef dict _inspect_function_pointers():
 
 cpdef _inspect_function_pointer(str name):
     global _cyb_func_ptrs
-    with _cyb_func_ptrs_lock:
-        if _cyb_func_ptrs is None:
-            _cyb_func_ptrs = _inspect_function_pointers()
+    if _cyb_func_ptrs is None:
+        with _cyb_func_ptrs_lock:
+            if _cyb_func_ptrs is None:
+                _cyb_func_ptrs = _inspect_function_pointers()
     return _cyb_func_ptrs[name]
 
 
