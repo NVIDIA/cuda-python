@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=855d1d0530ab58f150ca5fb8b9ec43262cf0df681f507e2b53feeb6cf77c7c17
+# !!! WARNING: THIS FILE CONTAINS PRERELEASE APIs !!!
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=bcb0306e1a5e714a98ec08dcce8b16f01459e21d6d2df027c1e7b5df0e392198
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -52,6 +53,7 @@ ctypedef int (*_cyb_cuGetProcAddress_v2_T)(const char *, void **, int, cuuint64_
 
 cdef int _cyb___py_driver_init = 0
 cdef dict _cyb_func_ptrs = None
+cdef object _cyb_func_ptrs_lock = _cyb_threading.Lock()
 cdef object _cyb_symbol_lock = _cyb_threading.Lock()
 
 # <<<< END OF PREAMBLE CONTENT >>>>
@@ -2201,11 +2203,7 @@ cdef inline int _check_or_init_driver() except -1 nogil:
     return _init_driver()
 
 
-cpdef dict _inspect_function_pointers():
-    global _cyb_func_ptrs
-    if _cyb_func_ptrs is not None:
-        return _cyb_func_ptrs
-
+cdef dict _build_function_pointers():
     _check_or_init_driver()
     cdef dict data = {}
     global __cuGetErrorString
@@ -3785,15 +3783,20 @@ cpdef dict _inspect_function_pointers():
 
     global __cuTensorMapSetAllocationClass
     data["__cuTensorMapSetAllocationClass"] = <intptr_t>__cuTensorMapSetAllocationClass
-    _cyb_func_ptrs = data
     return data
 
 
-cpdef _inspect_function_pointer(str name):
+cpdef dict _inspect_function_pointers():
     global _cyb_func_ptrs
     if _cyb_func_ptrs is None:
-        _cyb_func_ptrs = _inspect_function_pointers()
-    return _cyb_func_ptrs[name]
+        with _cyb_func_ptrs_lock:
+            if _cyb_func_ptrs is None:
+                _cyb_func_ptrs = _build_function_pointers()
+    return _cyb_func_ptrs
+
+
+cpdef _inspect_function_pointer(str name):
+    return _inspect_function_pointers()[name]
 
 
 
