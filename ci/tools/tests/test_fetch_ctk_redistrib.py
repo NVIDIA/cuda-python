@@ -11,6 +11,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from ci.tools.bindings_config import load_config
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from fetch_ctk_redistrib import (
     KNOWN_REDISTRIB_SHA256,
@@ -119,9 +121,8 @@ def test_verify_metadata_unknown_version_fails_closed(tmp_path, capsys):
 def test_known_redistrib_sha256_covers_ci_cuda_versions():
     # Every CUDA version CI fetches from the public server must be pinned, so a
     # version bump fails here instead of in the fetch_ctk step.
-    versions = yaml.safe_load((CI_DIR / "versions.yml").read_text(encoding="utf-8"))
     matrix = yaml.safe_load((CI_DIR / "test-matrix.yml").read_text(encoding="utf-8"))
-    required = {str(entry["version"]) for entry in versions["cuda"].values()}
+    required = {package.toolkit_version for package in load_config(CI_DIR / "versions.yml").package_roots}
     required |= {
         str(row["CUDA_VER"])
         for platform in ("linux", "windows")
