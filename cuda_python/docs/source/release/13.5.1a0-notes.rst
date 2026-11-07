@@ -1,0 +1,15 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+CUDA Python 13.5.1a0
+====================
+
+Internal release rehearsal
+--------------------------
+
+This retained alpha milestone validates the release workflow internally.
+The rehearsal uses dry-run mode without package publication or
+documentation deployment. It is not a public release.
+
+Exercise the matching metapackage version and bindings dependency.
+CUDA 13 also retains its CUDA Core and CUDA Pathfinder constraints.
