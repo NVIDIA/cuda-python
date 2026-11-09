@@ -118,10 +118,14 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "cuda_build_ver=$CUDA_BUILD_VER" >> $GITHUB_OUTPUT
 
-  # ── PyTorch interop tests ──
+  # ── PyTorch runtimes: interop and standard suites ──
 
   test-pytorch-linux:
-    name: "Nightly PyTorch (linux-64)"
+    name: "${{ matrix.test-mode }} (linux-64)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-pytorch, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -135,11 +139,17 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
+      test-mode: ${{ matrix.test-mode }}
+      matrix_filter: >-
+        map(select(.ENV.MODE == "nightly-pytorch"
+          and ("${{ matrix.test-mode }}" != "standard" or .STANDARD)))
 
   test-pytorch-linux-aarch64:
-    name: "Nightly PyTorch (linux-aarch64)"
+    name: "${{ matrix.test-mode }} (linux-aarch64)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-pytorch, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -153,11 +163,17 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
+      test-mode: ${{ matrix.test-mode }}
+      matrix_filter: >-
+        map(select(.ENV.MODE == "nightly-pytorch"
+          and ("${{ matrix.test-mode }}" != "standard" or .STANDARD)))
 
   test-pytorch-windows:
-    name: "Nightly PyTorch (win-64)"
+    name: "${{ matrix.test-mode }} (win-64)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-pytorch, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -171,8 +187,10 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-pytorch
-      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
+      test-mode: ${{ matrix.test-mode }}
+      matrix_filter: >-
+        map(select(.ENV.MODE == "nightly-pytorch"
+          and ("${{ matrix.test-mode }}" != "standard" or .STANDARD)))
 
   # ── numba-cuda tests ──
 
