@@ -36,9 +36,6 @@ permissions:
 
 jobs:
   build:
-    env:
-      BASELINE_RUN_ID: ${{ fromJSON(inputs.workplan).baseline.run_id }}
-      BASELINE_SHA: ${{ fromJSON(inputs.workplan).baseline.sha }}
     strategy:
       fail-fast: false
       matrix:
@@ -78,38 +75,33 @@ jobs:
         # the job level instead of linking into the diff.
         run: echo "::add-matcher::.github/matchers/compiler.json"
 
-      - name: Resolve package-specific workplan gates
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+        # Skip cache on GitHub-hosted Windows runners.
+        if: ${{ !startsWith(inputs.host-platform, 'win') }}
+        with:
+          enable-apt: true
+
+      - name: Set up Python
+        id: host-python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          # Also installs cibuildwheel (via python-path below), so the action
+          # does not fall back on its own unchecked setup-python interpreter.
+          python-version: "3.12"
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -e ./ci
+
+      - name: Set environment variables
         env:
           BINDINGS_CONFIG: ${{ inputs.bindings-config }}
           WORKPLAN: ${{ inputs.workplan }}
-        run: |
-          set -euo pipefail
-          jq -er --argjson config "$BINDINGS_CONFIG" '
-            . as $plan
-            | ($config.package_roots | map(select(.release_status == "current"))
-               | if length == 1 then .[0] else error("expected one current bindings package root") end) as $current
-            | ($config.package_roots | map(select(.release_status == "maintenance"))
-               | if length == 1 then .[0] else error("expected one maintenance bindings package root") end) as $maintenance
-            | {
-                PATHFINDER_SOURCE: $plan.sources.pathfinder,
-                BUILD_PATHFINDER: $plan.modules.pathfinder.needs_build,
-                BUILD_BINDINGS: $plan.modules.bindings.needs_build,
-                BUILD_BINDINGS_CURRENT: $plan.modules.bindings.package_roots[$current.package_root].needs_build,
-                BUILD_BINDINGS_MAINTENANCE: $plan.modules.bindings.package_roots[$maintenance.package_root].needs_build,
-                BUILD_CORE: $plan.modules.core.needs_build,
-                BUILD_CUDA_PYTHON: $plan.modules.python.needs_build,
-                BUILD_CUDA_PYTHON_CURRENT: $plan.modules.python.package_roots[$current.package_root].needs_build,
-                BUILD_CUDA_PYTHON_MAINTENANCE: $plan.modules.python.package_roots[$maintenance.package_root].needs_build,
-                TEST_BINDINGS: $plan.modules.bindings.needs_test,
-                TEST_BINDINGS_CURRENT: $plan.modules.bindings.package_roots[$current.package_root].needs_test,
-                TEST_BINDINGS_MAINTENANCE: $plan.modules.bindings.package_roots[$maintenance.package_root].needs_test,
-                TEST_CORE: $plan.modules.core.needs_test,
-                TEST_CORE_CURRENT: $plan.modules.core.cuda_majors[$current.cuda_variant].needs_test,
-                TEST_CORE_MAINTENANCE: $plan.modules.core.cuda_majors[$maintenance.cuda_variant].needs_test
-              }
-            | to_entries[]
-            | if .value == null then error("missing workplan value for \(.key)") else "\(.key)=\(.value)" end
-          ' <<< "$WORKPLAN" >> "$GITHUB_ENV"
+          HOST_PLATFORM: ${{ inputs.host-platform }}
+          PY_VER: ${{ matrix.python-version }}
+          SHA: ${{ github.sha }}
+        run: ./ci/tools/env-vars build
 
       - name: Install rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}
@@ -126,22 +118,6 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_SERVICE_V2', 'on');
             core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'] || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'] || '');
-
-      - name: Setup proxy cache
-        uses: nv-gha-runners/setup-proxy-cache@main
-        continue-on-error: true
-        # Skip cache on GitHub-hosted Windows runners.
-        if: ${{ !startsWith(inputs.host-platform, 'win') }}
-        with:
-          enable-apt: true
-
-      - name: Set up Python
-        id: host-python
-        uses: ./.github/actions/setup-hardened-python
-        with:
-          # Also installs cibuildwheel (via python-path below), so the action
-          # does not fall back on its own unchecked setup-python interpreter.
-          python-version: "3.12"
 
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' || env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') }}
@@ -172,16 +148,6 @@ jobs:
           echo "$((Get-Location).Path)\\$env:YQ_DIR" >> $env:GITHUB_PATH
           $env:Path += ";$((Get-Location).Path)\\$env:YQ_DIR"
           yq --version
-
-      - name: Install CI tool dependencies
-        run: python -m pip install -e ./ci
-
-      - name: Set environment variables
-        env:
-          HOST_PLATFORM: ${{ inputs.host-platform }}
-          PY_VER: ${{ matrix.python-version }}
-          SHA: ${{ github.sha }}
-        run: ./ci/tools/env-vars build
 
       - name: Dump environment
         run: |

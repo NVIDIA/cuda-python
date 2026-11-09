@@ -66,8 +66,9 @@ def compute_workplan(
     merge_base: str,
     baseline_run_id: str,
     release_tag: str,
+    source_build: bool = False,
 ) -> dict[str, object]:
-    """Return the final CI decisions for the supplied changed paths."""
+    """Select work for changed paths; source builds need no reusable wheel baseline."""
     bindings_packages = bindings_config.package_roots
     package_roots = tuple(package.package_root for package in bindings_packages)
     cuda_variants = tuple(package.cuda_variant for package in bindings_packages)
@@ -121,7 +122,9 @@ def compute_workplan(
     release_package = bindings_config.match_tag(release_tag) if release_tag else None
     if release_tag.startswith("v") and release_package is None:
         raise ValueError(f"no configured CUDA bindings package root matches release tag: {release_tag!r}")
-    force_all = release_package is None and (bool(release_tag) or not merge_base or not baseline_run_id)
+    force_all = release_package is None and (
+        bool(release_tag) or (not source_build and (not merge_base or not baseline_run_id))
+    )
 
     if release_package is None and not force_all:
         for path in paths:

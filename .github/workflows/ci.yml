@@ -91,7 +91,6 @@ jobs:
       contents: read
     outputs:
       bindings-config: ${{ steps.registry.outputs.bindings-config }}
-      current-cuda-version: ${{ steps.registry.outputs.current-cuda-version }}
       python-supported: ${{ steps.registry.outputs.python-supported }}
       windows-arm64-supported: ${{ steps.registry.outputs.windows-arm64-supported }}
       windows-arm64-python-supported: ${{ steps.registry.outputs.windows-arm64-python-supported }}
@@ -115,30 +114,7 @@ jobs:
 
       - name: Read bindings configuration and select supported build platforms
         id: registry
-        run: |
-          set -euo pipefail
-          bindings_config=$(python3 -m ci.tools.bindings_config)
-          current_cuda_version=$(jq -er \
-            '.package_roots[] | select(.release_status == "current") | .toolkit_version' \
-            <<< "$bindings_config")
-
-          python3 - <<'PYCODE' >> "$GITHUB_OUTPUT"
-          import json
-          from ci.tools.bindings_config import load_config, wheel_python_versions
-
-          config = load_config()
-          current = config.package_for_release_status("current")
-          versions = wheel_python_versions(current.toolkit_version, "win-arm64", config.python_supported)
-          print("windows-arm64-supported=" + str(bool(versions)).lower())
-          print("windows-arm64-single-cuda-major=" + str(current.cuda_major == "13").lower())
-          print("windows-arm64-python-supported=" + json.dumps(versions))
-          PYCODE
-
-          {
-            echo "python-supported=$(yq -o json -I 0 '.python.supported' ci/versions.yml)"
-            echo "bindings-config=$bindings_config"
-            echo "current-cuda-version=$current_cuda_version"
-          } >> "$GITHUB_OUTPUT"
+        run: python3 -m ci.tools.bindings_config --github-output "$GITHUB_OUTPUT"
 
       - name: Resolve PR merge base
         id: merge-base
@@ -226,7 +202,7 @@ jobs:
             has_artifact "$name" || missing+=("$name")
           done
 
-          if ! python_versions=$(yq -r '.python.supported[]' ci/versions.yml); then
+          if ! python_versions=$(jq -er '.python.supported[]' <<< "$BINDINGS_CONFIG"); then
             unavailable
           fi
           if ! platforms=$(yq -r '.platforms[]' ci/test-matrix.yml); then

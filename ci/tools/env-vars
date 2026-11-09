@@ -48,7 +48,8 @@ if [[ "${BUILD_MODE}" == "build" ]]; then
   echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-${CIBW_PLATFORM_TAG}" >> "$GITHUB_ENV"
   python -m ci.tools.bindings_config write-build-env "$GITHUB_ENV" \
     --repo-root "$REPO_DIR" --python-version "$PY_VER" \
-    --host-platform "$HOST_PLATFORM" --sha "$SHA"
+    --host-platform "$HOST_PLATFORM" --sha "$SHA" \
+    --bindings-config "$BINDINGS_CONFIG" --workplan "$WORKPLAN"
 else
   TEST_CUDA_MAJOR="${CUDA_VER%%.*}"
   TEST_CUDA_MINOR="$(cut -d '.' -f 2 <<< "${CUDA_VER}")"
@@ -82,7 +83,6 @@ else
     CUDA_PYTHON_ARTIFACT_NAME=cuda-python-wheel
     core_cython_suffix=-tests
   else
-    CURRENT_BUILD_CUDA_VER="$(jq -r '.package_roots[] | select(.release_status == "current") | .toolkit_version' <<< "${BINDINGS_CONFIG}")"
     core_cython_suffix="-cu${TEST_CUDA_MAJOR}-tests"
     if [[ "${BINDINGS_SOURCE}" == local ]]; then
       CUDA_BINDINGS_ROOT="${BINDINGS_SOURCE_DIR}"
