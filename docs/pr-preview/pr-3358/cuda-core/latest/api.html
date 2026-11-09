@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=372b1a96"></script>
+    <script src="_static/documentation_options.js?v=d90be99b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev330';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev356';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -930,7 +930,7 @@ Use <a class="reference internal" href="generated/cuda.core.Buffer.html#cuda.cor
 closing the buffer. Changing the recorded stream does not synchronize streams;
 the caller must order allocation and every access before the deallocation,
 using events or other CUDA synchronization mechanisms as needed. See
-<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/ddfc213e4fab393b06c1c6a858991769c9cff0d9/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
+<a class="extlink-cuda-core-example reference external" href="https://github.com/NVIDIA/cuda-python/blob/b4a85ab1ce866c0e6168f8f0992220876a4c14df/cuda_core/examples/buffer_deallocation_stream.py">buffer_deallocation_stream.py</a>
 for a complete example.</p>
 </section>
 <section id="cuda-compilation-toolchain">
@@ -992,6 +992,13 @@ CPU overhead. Graphs can be constructed in two ways:
 <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphDefinition</span></code> builds a graph explicitly by adding nodes and
 edges. Both produce an executable <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code> that can be
 launched on a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>.</p>
+<p>With CUDA &gt;= 13.1, graph definitions and
+executable graphs expose a read-only integer, <code class="docutils literal notranslate"><span class="pre">id</span></code>. Nodes expose <code class="docutils literal notranslate"><span class="pre">local_id</span></code>
+(unique within their graph) and <code class="docutils literal notranslate"><span class="pre">tools_id</span></code> (for profiler correlation).
+Use <code class="docutils literal notranslate"><span class="pre">node.graph</span></code> to obtain the containing graph definition; this view
+shares ownership of the underlying graph. IDs are ephemeral, driver-assigned.</p>
+<p><code class="docutils literal notranslate"><span class="pre">kernel.attributes.device_node_update_supported</span></code> reports whether a kernel
+supports device-side node updates. It requires CUDA &gt;= 13.3.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.graph.Graph.html#cuda.core.graph.Graph" title="cuda.core.graph.Graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph.Graph</span></code></a>()</p></td>
