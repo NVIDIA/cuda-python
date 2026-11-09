@@ -392,6 +392,7 @@ jobs:
         uses: $/.github/actions/fetch_ctk
         continue-on-error: false
         with:
+          redistrib-tool: .ci-control/ci/tools/fetch_ctk_redistrib.py
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 

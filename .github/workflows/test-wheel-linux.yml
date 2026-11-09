@@ -395,6 +395,7 @@ jobs:
         uses: $/.github/actions/fetch_ctk
         continue-on-error: false
         with:
+          redistrib-tool: .ci-control/ci/tools/fetch_ctk_redistrib.py
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
@@ -405,6 +406,7 @@ jobs:
         uses: $/.github/actions/fetch_ctk
         continue-on-error: false
         with:
+          redistrib-tool: .ci-control/ci/tools/fetch_ctk_redistrib.py
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
           cuda-components: "cuda_gdb"
@@ -415,6 +417,7 @@ jobs:
         uses: $/.github/actions/fetch_ctk
         continue-on-error: false
         with:
+          redistrib-tool: .ci-control/ci/tools/fetch_ctk_redistrib.py
           host-platform: ${{ inputs.host-platform }}
           # The build CTK's sanitizer, not the matrix CTK's: older sanitizers
           # crash on the cuda.core tests, and newer ones carry the fixes.
