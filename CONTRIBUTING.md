@@ -195,7 +195,7 @@ genuinely cannot provide tags; it is not a substitute for a correct clone.
 
 For a handwritten fix that applies to both majors, a path-relative patch can
 transfer the source-root portion of a commit. From the repository root, with a
-clean worktree, replace `COMMIT` with the reviewed source commit:
+clean worktree, replace `COMMIT` with the reviewed non-merge source commit:
 
 ```console
 $ git format-patch -1 --stdout --relative=cuda_bindings_13 COMMIT -- cuda_bindings_13 > bindings-fix.patch

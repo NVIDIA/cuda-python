@@ -71,6 +71,9 @@ jobs:
   find-wheels:
     if: ${{ github.repository_owner == 'nvidia' && !inputs.documentation-links-only }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     outputs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
@@ -82,6 +85,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python

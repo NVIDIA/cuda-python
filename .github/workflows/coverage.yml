@@ -19,6 +19,8 @@ jobs:
   coverage-vars:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       BINDINGS_CONFIG: ${{ steps.get-vars.outputs.bindings_config }}
       BINDINGS_ROOT: ${{ steps.get-vars.outputs.bindings_root }}
@@ -26,6 +28,8 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
         with:

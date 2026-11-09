@@ -77,6 +77,9 @@ To run these tests:
 
 ### Samples
 
+Running the samples requires CUDA 12 NVRTC, supplied by the CUDA Toolkit or
+`nvidia-cuda-nvrtc-cu12`. The `test` dependency group does not install it.
+
 Various [CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) that were rewritten using CUDA Python are located in `examples`.
 
 In addition, extra examples are included:
