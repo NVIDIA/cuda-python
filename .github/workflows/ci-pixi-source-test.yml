@@ -54,6 +54,8 @@ on:
       - "ci/pixi-version.env"
       - ".github/actions/setup-pixi/action.yml"
       - ".github/workflows/ci-pixi-source-test.yml"
+      - "!**/AGENTS.md"
+      - "!**/CLAUDE.md"
   workflow_dispatch:
     inputs:
       cuda-env:
@@ -207,7 +209,7 @@ jobs:
 
       - name: Source-build + import + cython-placement smoke
         run: |
-          while IFS= read -r bindings_package; do
+          while IFS= read -r -u 3 bindings_package; do
             BINDINGS_ROOT=$(jq -r '.package_root' <<< "${bindings_package}")
             CUDA_ENV=$(jq -r '.cuda_variant' <<< "${bindings_package}")
             echo "::group::Source-build ${BINDINGS_ROOT} (${CUDA_ENV})"
@@ -238,16 +240,16 @@ jobs:
               fi
             done
             echo "::endgroup::"
-          done < <(jq -c '.[]' <<< "${BINDINGS_PACKAGES}")
+          done 3< <(jq -c '.[]' <<< "${BINDINGS_PACKAGES}")
           echo "cython test extensions placed correctly"
 
       - name: Build changed bindings documentation
         if: ${{ env.BINDINGS_DOC_PACKAGES != '[]' }}
         run: |
-          while IFS= read -r bindings_package; do
+          while IFS= read -r -u 3 bindings_package; do
             bindings_root=$(jq -r '.package_root' <<< "${bindings_package}")
             pixi run --manifest-path "${bindings_root}" -e docs build-docs
-          done < <(jq -c '.[]' <<< "${BINDINGS_DOC_PACKAGES}")
+          done 3< <(jq -c '.[]' <<< "${BINDINGS_DOC_PACKAGES}")
 
   # ── Nightly guard: build artifacts must be CUDA-major aware ──
   #
