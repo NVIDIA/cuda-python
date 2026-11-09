@@ -555,7 +555,7 @@ This section describes the memory management functions of the low-level CUDA dri
    ipc_close_mem_handle
    mem_host_register_v2
    mem_host_unregister
-   cu_memcpy
+   memcpy
    memcpy_peer
    memcpy_htod_v2
    memcpy_dtoh_v2

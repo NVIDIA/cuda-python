@@ -1,0 +1,33 @@
+﻿cuda.bindings.nvml.EventSetGetGpuOperationalEventContextLegacyXid\_v1
+=====================================================================
+
+.. currentmodule:: cuda.bindings.nvml
+
+.. autoclass:: EventSetGetGpuOperationalEventContextLegacyXid_v1
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EventSetGetGpuOperationalEventContextLegacyXid_v1.__init__
+      ~EventSetGetGpuOperationalEventContextLegacyXid_v1.from_buffer
+      ~EventSetGetGpuOperationalEventContextLegacyXid_v1.from_data
+      ~EventSetGetGpuOperationalEventContextLegacyXid_v1.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EventSetGetGpuOperationalEventContextLegacyXid_v1.index
+      ~EventSetGetGpuOperationalEventContextLegacyXid_v1.ptr
+      ~EventSetGetGpuOperationalEventContextLegacyXid_v1.xid_code
+   
+   
