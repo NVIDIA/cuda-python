@@ -140,9 +140,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: ${{ matrix.test-mode }}
-      matrix_filter: >-
-        map(select(.ENV.MODE == "nightly-pytorch"
-          and ("${{ matrix.test-mode }}" != "standard" or .STANDARD)))
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   test-pytorch-linux-aarch64:
     name: "${{ matrix.test-mode }} (linux-aarch64)"
@@ -164,9 +162,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: ${{ matrix.test-mode }}
-      matrix_filter: >-
-        map(select(.ENV.MODE == "nightly-pytorch"
-          and ("${{ matrix.test-mode }}" != "standard" or .STANDARD)))
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   test-pytorch-windows:
     name: "${{ matrix.test-mode }} (win-64)"
@@ -188,9 +184,7 @@ jobs:
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: ${{ matrix.test-mode }}
-      matrix_filter: >-
-        map(select(.ENV.MODE == "nightly-pytorch"
-          and ("${{ matrix.test-mode }}" != "standard" or .STANDARD)))
+      matrix_filter: 'map(select(.ENV.MODE == "nightly-pytorch"))'
 
   # ── numba-cuda tests ──
 
