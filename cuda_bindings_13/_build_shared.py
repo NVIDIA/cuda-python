@@ -243,6 +243,11 @@ def _build_flags(name, cxx_std, debug, coverage, warnings_as_errors):
         # Compiler-specific flags.
         if name == "gnu":
             extra_compile_args += ["-pedantic", "-Werror=overflow"]
+            if sys.version_info[:2] == (3, 13):
+                # CPython 3.13's internal headers, which Cython includes, declare
+                # anonymous structs that -pedantic warns about; keep that from
+                # becoming an error under -Werror.
+                extra_compile_args += ["-Wno-error=pedantic"]
         if name == "llvm":
             extra_link_args += ["-fuse-ld=lld"]
         # Common Linux debug/opt flags.
