@@ -204,7 +204,7 @@ what makes that safe: the allocation is released exactly once, when its last map
 
 A `VirtualMemoryBuffer` is shared the way pool-backed buffers are, through
 `Buffer.ipc_descriptor` and `Buffer.from_ipc_descriptor`, when the resource's
-`handle_type` can travel between processes (`posix_fd` on Linux) and the memory
+`handle_type` can travel between processes (`posix_fd` or `fabric` on Linux) and the memory
 lives on a device (`is_ipc_enabled` reports both; host-located memory is not
 shared yet). The exporter calls `cuMemExportToShareableHandle`
 once per mapping that covers the buffer's size, in address order, and the
@@ -298,16 +298,43 @@ A `modify_allocation` config must keep the resource's `handle_type`: every
 chunk of a buffer must be exportable the same way.
 
 Fabric handles. `CU_MEM_HANDLE_TYPE_FABRIC` exports a `CUmemFabricHandle`, 64
-bytes of plain data that travel through `pickle`, MPI, or a socket, need no
-close, and cannot hold a reference to the allocation while in flight. The
-importer needs access to the exporter's IMEX channel rather than a matching
-device index, and the memory may live on another node. The file-descriptor
-rules above (ownership, pinning, `pickle` raising, the same-device check) do
-not hold for it, so fabric sharing gets a descriptor class of its own instead
-of a widened `VirtualMemoryFdBufferDescriptor`, whose `handles` stay
-`IPCAllocationHandle`s. `from_fds()` is POSIX-only by construction for the
-same reason and takes no handle type; a fabric descriptor is plain data and
-needs no out-of-band constructor. Tracked on the VMM epic (#2980).
+opaque bytes cached by the driver at `cuMemCreate`. Repeated exports of one
+allocation return the same bytes once the handle struct is zeroed before the
+export (the driver fills its fields and leaves the padding, which otherwise
+made two exports of one buffer compare unequal on B300); export creates no OS
+object and takes no reference. `VirtualMemoryFabricBufferDescriptor` carries one `bytes` per
+allocation, its size, the buffer size, and the owner's device UUID. It
+compares and hashes by (sizes, handles, size); the UUID is diagnostic metadata.
+`from_handles()` validates externally transported handles and sizes. Plain
+`pickle`, `multiprocessing`, MPI, or a socket can carry the descriptor, with
+no reduction registration or spawning-Popen retention. The fd descriptor
+keeps its ownership and identity semantics and its POSIX-only `from_fds()`.
+
+Nothing pins the allocation between export and import. The exporter must keep
+the buffer alive until every importer has imported it; a descriptor parked
+in a queue holds no driver reference. Import takes references of its own,
+so the imported buffer is independent of the exporter after import. A stale
+or forged handle fails with a driver error; an import failure carries a note
+about stale handles, forgery, and differing IMEX channels. Imported memory
+cannot be re-exported; the same provenance check covers both transports.
+
+Both concrete descriptors derive from `_VirtualMemoryDescriptor`, whose
+`handle_ptr` supplies an fd cast to `void*` or fills a caller-provided fabric
+scratch struct and returns its address. The import loop checks the handle
+type before driver calls and uses the same location check, reservation,
+mappings, and range for both transports. An imported fabric allocation
+reports DEVICE and the owner's device ordinal as numbered by the importer.
+A location mismatch includes the owner's UUID and its local ordinal, or says
+that the UUID is not visible in this process.
+
+Construction checks `Device.properties.handle_type_fabric_supported` once
+for a device-located fabric resource. It requires an NVLink fabric and an
+accessible IMEX channel (`/dev/nvidia-caps-imex-channels/channel*`); otherwise
+construction raises a useful `RuntimeError` before an opaque allocation
+failure. `is_ipc_enabled` remains a configuration query without driver calls.
+The types are available in both supported bindings majors; no version gate
+is needed. Sharing is supported on one node; multi-node IMEX sharing is out
+of scope and untested. Tracked on the VMM epic (#2980).
 
 ## Why `modify_allocation` returns a new buffer
 
