@@ -221,6 +221,8 @@ def _build_flags(name, cxx_std, debug, coverage, warnings_as_errors):
 
     - Linux compile: ``-std=c++{cxx_std}``, then ``-g0 -O2`` (opt) or
       ``-g -O0 -D _GLIBCXX_ASSERTIONS`` (debug).
+    - gnu compile: ``-pedantic -Werror=overflow``, which fails the build when a
+      constant overflows ``int`` (e.g. a 32-bit unsigned value in a Cython enum).
     - Linux link: ``-fuse-ld=lld`` (llvm) and ``-Wl,--strip-all`` (opt).
     - MSVC compile: ``/std:c++{cxx_std}`` and ``/O2``. Modern setuptools no
       longer forces ``/Ox``, so the optimization level is set explicitly for
@@ -239,6 +241,8 @@ def _build_flags(name, cxx_std, debug, coverage, warnings_as_errors):
         # Common Linux compile flags.
         extra_compile_args += [f"-std=c++{cxx_std}"]
         # Compiler-specific flags.
+        if name == "gnu":
+            extra_compile_args += ["-pedantic", "-Werror=overflow"]
         if name == "llvm":
             extra_link_args += ["-fuse-ld=lld"]
         # Common Linux debug/opt flags.
