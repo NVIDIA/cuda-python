@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=d90be99b"></script>
+    <script src="../_static/documentation_options.js?v=9569ce40"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev356';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev358';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -929,6 +929,12 @@ CI in this release.
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Kernels can read and write <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> buffers. The driver
+makes a host memory pool accessible only from the host by default, so a
+kernel that touched such a buffer failed with <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_ILLEGAL_ADDRESS</span></code>.
+The resource now grants the device that is current when it is created read
+and write access to the pool.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3205">#3205</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">register()</span></code> on a <code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code> or a
 <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> now raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> when the resource
 already has a different UUID. The check used to be an <code class="docutils literal notranslate"><span class="pre">assert</span></code>, so under
