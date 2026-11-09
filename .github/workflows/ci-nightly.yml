@@ -189,7 +189,11 @@ jobs:
   # ── numba-cuda tests ──
 
   test-numba-cuda-linux-64:
-    name: "Nightly numba-cuda (linux-64)"
+    name: "${{ matrix.test-mode }} (linux-64; numba matrix)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-numba-cuda, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -203,7 +207,7 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-numba-cuda
+      test-mode: ${{ matrix.test-mode }}
       matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   test-numba-cuda-linux-aarch64:
@@ -225,7 +229,11 @@ jobs:
       matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   test-numba-cuda-windows:
-    name: "Nightly numba-cuda (win-64)"
+    name: "${{ matrix.test-mode }} (win-64; numba matrix)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-numba-cuda, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -239,7 +247,7 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-numba-cuda
+      test-mode: ${{ matrix.test-mode }}
       matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda"))'
 
   # ── numba-cuda-mlir tests ──
