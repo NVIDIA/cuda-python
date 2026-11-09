@@ -123,6 +123,7 @@ jobs:
         env:
           BINDINGS_CONFIG: ${{ needs.coverage-vars.outputs.BINDINGS_CONFIG }}
           BUILD_CUDA_VER: ${{ env.CUDA_VER }}
+          CURRENT_BUILD_CUDA_VER: ${{ env.CUDA_VER }}
           BINDINGS_SOURCE: local
           BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
           DEFAULT_BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
