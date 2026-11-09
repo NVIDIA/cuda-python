@@ -24,6 +24,25 @@ The pinned checkout action's
 [`README`](https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md#fetch-all-history-for-all-tags-and-branches)
 documents `fetch-depth: 0` for fetching all history, branches, and tags.
 
+## CCCL Submodule Checkout
+
+Jobs that build `cuda.core` fetch its pinned CCCL headers in a separate step:
+set `submodules: false` on `actions/checkout`, then run:
+
+```bash
+git submodule sync --recursive
+git submodule update --init --force --depth=1 --filter=blob:none --recursive
+```
+
+The checkout action's `filter` input applies only to the root repository, so
+letting it fetch submodules downloads CCCL's unfiltered history. The separate
+step limits submodule history to one commit and skips historical blobs, while
+checking out the exact revision pinned by the root repository. Syncing URLs
+and forcing checkout preserve the action's behavior on reused workspaces.
+Keep `fetch-depth: 0` and `filter: blob:none` on the root checkout: package
+versioning still needs its complete ancestry and release tags. See
+[issue #3351](https://github.com/NVIDIA/cuda-python/issues/3351).
+
 ## Documentation Link Checks
 
 Two pre-commit hooks check links with one pinned native wheel (`lychee-bin`,

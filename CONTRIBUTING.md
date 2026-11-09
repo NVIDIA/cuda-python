@@ -69,10 +69,11 @@ ran and any validation gaps.
 including the Developer Mode registry check.** Complete that setup before
 running the clone command.
 
-From the directory where you want to create the checkout, run:
+With Git 2.36 or newer, run this from the directory where you want to
+create the checkout:
 
 ```console
-$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules https://github.com/NVIDIA/cuda-python.git
+$ git clone --config core.symlinks=true --config submodule.recurse=true --recurse-submodules --filter=blob:none --also-filter-submodules https://github.com/NVIDIA/cuda-python.git
 $ cd cuda-python
 ```
 
@@ -81,6 +82,9 @@ This recipe sets up the repository for source builds and development:
 - `core.symlinks=true` materializes symlinks during checkout, including the
   build-critical `cuda_core/_build_shared.py`.
 - `--recurse-submodules` initializes the CCCL headers needed to build `cuda.core`.
+- `--filter=blob:none --also-filter-submodules` skips historical file
+  contents in the repository and CCCL. Git downloads those contents
+  when needed; commit history and release tags remain available.
 - `submodule.recurse=true` keeps initialized submodules in sync on `git pull`,
   `git checkout`, and `git switch`.
 - The clone retains history and release tags for correct package versions.

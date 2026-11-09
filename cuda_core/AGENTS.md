@@ -89,9 +89,12 @@ toolkit's minor, a cap that admits that development build. The import-time
 check compares headers the same way.
 
 The floor stays where it is until a `cuda-bindings` release of the new minor
-exists on PyPI. Until then, the CI rows that install the literal floor
-(`BINDINGS_SOURCE=floor`) fail the header check and stay red. That window is
-accepted. Do not add fallback logic for it. The order is:
+exists on PyPI. Until then, the literal floor cannot pass the header check.
+The CI rows that would install it (`BINDINGS_SOURCE=floor`) install the
+`cuda-bindings` wheel built from the same commit instead. `ci/tools/run-tests`
+does that whenever the floor's minor is below the build toolkit's minor, so the
+window needs no manual toggle. The rows then test an older CUDA runtime, not
+the literal floor, until the floor is bumped. The order is:
 
 1. Bump the toolkit.
 2. Release `cuda-bindings` for the new minor.
@@ -117,6 +120,8 @@ accepted. Do not add fallback logic for it. The order is:
   - `CUDA_PYTHON_PARALLEL_LEVEL`
   - `CUDA_PYTHON_COVERAGE`
   - `CUDA_PYTHON_WERROR` (compiler warnings become errors; CI wheel builds set it)
+  - `CUDA_PYTHON_SKIP_CLANG_TIDY` (set to `1` to skip the clang-tidy check of
+    the handwritten C++ sources during the build)
 
 ## Editing guidance
 

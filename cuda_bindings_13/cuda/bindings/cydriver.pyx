@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.0 to 13.4.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=99b0dd6a5b631fb108b5d2422c62f8fd4660630dda543978357a03d96c5dc201
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6b05a0814f6f932435d4b838bc902adc2b1a4aeb495ac18d2912d8f39bafb69
 from ._internal cimport driver as _driver
 
 cdef CUresult cuGetErrorString(CUresult error, const char** pStr) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -2101,3 +2101,11 @@ cdef CUresult cuGraphNodeSetParams_v2(CUgraphNode hNode, CUgraphNodeParams* node
 
 cdef CUresult cuCheckpointOperationComplete(CUcheckpointOperationHandle handle) except ?CUDA_ERROR_NOT_FOUND nogil:
     return _driver._cuCheckpointOperationComplete(handle)
+
+
+cdef CUresult cuFabricCpyBatchAsync(size_t numOps, CUDA_FABRIC_COPY_BATCH_OP* opList, unsigned long long flags, CUstream hStream) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuFabricCpyBatchAsync(numOps, opList, flags, hStream)
+
+
+cdef CUresult cuTensorMapSetAllocationClass(CUtensorMap* tensorMap, CUtensorMapAllocClass allocClass, CUtensorMapAllocClass* outAllocClass) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuTensorMapSetAllocationClass(tensorMap, allocClass, outAllocClass)

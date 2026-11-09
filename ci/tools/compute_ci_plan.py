@@ -18,6 +18,7 @@ MODULES = ("pathfinder", "bindings", "core", "python")
 PLATFORMS = ("linux", "windows")
 PACKAGE_MODULES = {
     "cuda_pathfinder": "pathfinder",
+    "cuda_bindings_12": "bindings",
     "cuda_bindings_13": "bindings",
     "cuda_core": "core",
     "cuda_python": "python",
@@ -56,7 +57,6 @@ TEST_INFRA_PLATFORMS = {
     ".github/workflows/test-wheel-linux.yml": "linux",
     ".github/workflows/test-wheel-windows.yml": "windows",
     "ci/tools/configure_driver_mode.ps1": "windows",
-    "ci/tools/guess_latest.sh": "linux",
     "ci/tools/install_gpu_driver.ps1": "windows",
     "ci/tools/install_gpu_driver.sh": "linux",
     "ci/tools/setup-sanitizer": "linux",

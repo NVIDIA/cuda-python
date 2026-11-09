@@ -61,13 +61,12 @@ jobs:
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Run CI tools unit tests
         run: |
-          python -m pip install pytest pyyaml==6.0.3
-          # Standalone CI tool tests; skip repo-root conftest.py (imports cuda.pathfinder).
-          python -m pytest -v --noconftest ci/tools/tests
+          python -m pip install -e './ci[test]'
+          python -m pytest -v ci/tools/tests
 
   find-wheels:
     if: ${{ github.repository_owner == 'nvidia' && !inputs.documentation-links-only }}
