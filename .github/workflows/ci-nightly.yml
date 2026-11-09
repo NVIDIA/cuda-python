@@ -308,8 +308,14 @@ jobs:
 
   # ── Standard tests on nightly-only runners ──
 
-  test-standard-linux-aarch64:
-    name: "Nightly standard (linux-aarch64)"
+  test-standard-linux:
+    name: "Nightly standard (${{ matrix.host-platform }})"
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+          - linux-64
+          - linux-aarch64
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -319,7 +325,7 @@ jobs:
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
       build-type: nightly
-      host-platform: linux-aarch64
+      host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -346,7 +352,7 @@ jobs:
       - test-numba-cuda-mlir-windows
       - test-cuda-core-linux-64
       - test-cuda-core-windows
-      - test-standard-linux-aarch64
+      - test-standard-linux
     steps:
       - name: Exit
         env:
@@ -394,8 +400,8 @@ jobs:
                  needs.test-cuda-core-linux-64.result == 'failure' ||
                  needs.test-cuda-core-windows.result == 'cancelled' ||
                  needs.test-cuda-core-windows.result == 'failure' ||
-                 needs.test-standard-linux-aarch64.result == 'cancelled' ||
-                 needs.test-standard-linux-aarch64.result == 'failure' }}; then
+                 needs.test-standard-linux.result == 'cancelled' ||
+                 needs.test-standard-linux.result == 'failure' }}; then
             exit 1
           fi
           exit 0
