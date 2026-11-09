@@ -570,12 +570,18 @@ cdef class StridedMemoryView:
         """
         Returns Buffer instance with the underlying data.
         If the SMV was created from a Buffer, it will return the same Buffer instance.
+        If the SMV was imported via DLPack, it will return a new instance owned by this view.
         Otherwise, it will create a new instance with owner set to the exporting object.
         """
         cdef object buffer
         if self._buffer is None:
             if isinstance(self.exporting_obj, Buffer):
                 buffer = self.exporting_obj
+            elif self.dl_tensor != NULL:
+                # This view holds the consumed capsule and calls its deleter in
+                # __dealloc__; the exporting object need not keep the memory alive.
+                # Not cached: a cached Buffer owned by self would form a cycle.
+                return Buffer.from_handle(self.ptr, 0, owner=self)
             else:
                 buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
             if self._buffer is None:
