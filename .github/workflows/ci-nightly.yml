@@ -253,7 +253,11 @@ jobs:
   # ── numba-cuda-mlir tests ──
 
   test-numba-cuda-mlir-linux-64:
-    name: "Nightly numba-cuda-mlir (linux-64)"
+    name: "${{ matrix.test-mode }} (linux-64; MLIR matrix)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-numba-cuda-mlir, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -267,11 +271,15 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-numba-cuda-mlir
+      test-mode: ${{ matrix.test-mode }}
       matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
 
   test-numba-cuda-mlir-windows:
-    name: "Nightly numba-cuda-mlir (win-64)"
+    name: "${{ matrix.test-mode }} (win-64; MLIR matrix)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-numba-cuda-mlir, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -285,13 +293,17 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-numba-cuda-mlir
+      test-mode: ${{ matrix.test-mode }}
       matrix_filter: 'map(select(.ENV.MODE == "nightly-numba-cuda-mlir"))'
 
   # ── Released cuda-core against main pathfinder/bindings ──
 
   test-cuda-core-linux-64:
-    name: "Nightly cuda-core (linux-64)"
+    name: "${{ matrix.test-mode }} (linux-64; Core matrix)"
+    strategy:
+      fail-fast: false
+      matrix:
+        test-mode: [nightly-cuda-core, standard]
     if: ${{ github.repository_owner == 'nvidia' }}
     needs: find-wheels
     permissions:
@@ -305,7 +317,7 @@ jobs:
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
-      test-mode: nightly-cuda-core
+      test-mode: ${{ matrix.test-mode }}
       matrix_filter: 'map(select(.ENV.MODE == "nightly-cuda-core"))'
 
   test-cuda-core-windows:
