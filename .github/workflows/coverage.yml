@@ -74,14 +74,14 @@ jobs:
           # Fetch CCCL separately: checkout's filter does not apply to submodules.
           submodules: false
 
+      - name: Fix workspace ownership
+        run: |
+          chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
+
       - name: Checkout CCCL submodule
         run: |
           git submodule sync --recursive
           git submodule update --init --force --depth=1 --filter=blob:none --recursive
-
-      - name: Fix workspace ownership
-        run: |
-          chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
