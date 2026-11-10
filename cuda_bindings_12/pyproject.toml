@@ -6,7 +6,7 @@
 requires = [
     "setuptools>=80.0.0",
     "setuptools-scm[simple]>=8,!=10.1",
-    "cython>=3.2.5,<3.3",
+    "cython>=3.3.1,<3.4",
     "pyclibrary>=0.1.7"
 ]
 build-backend = "build_hooks"
@@ -53,11 +53,11 @@ all = [
 build = [
     "setuptools>=80.0.0",
     "setuptools-scm[simple]>=8,!=10.1",
-    "cython>=3.2.5,<3.3",
+    "cython>=3.3.1,<3.4",
     "pyclibrary>=0.1.7",
 ]
 test = [
-    "cython>=3.2.5,<3.3",
+    "cython>=3.3.1,<3.4",
     "setuptools>=80.0.0",
     "numpy>=1.21.1",
     "pytest==9.1.0",
