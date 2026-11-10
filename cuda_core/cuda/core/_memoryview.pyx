@@ -585,10 +585,6 @@ cdef class StridedMemoryView:
                 return Buffer.from_handle(self.ptr, 0, owner=self)
             else:
                 buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
-            # The critical section only protects the cdef-level check-and-set
-            # of self._buffer; the Python-level Buffer construction above
-            # happens outside the lock (Cython 3.3 warns that Python attribute
-            # access is not usefully protected by critical_section).
             with cython.critical_section(self):
                 if self._buffer is None:
                     self._buffer = buffer
@@ -609,10 +605,6 @@ cdef class StridedMemoryView:
                     self.metadata)
             elif self.metadata is not None:
                 dtype = _typestr2dtype(self.metadata["typestr"])
-            # The critical section only protects the cdef-level check-and-set
-            # of self._dtype; the Python-level dtype resolution above happens
-            # outside the lock (Cython 3.3 warns that Python attribute access
-            # is not usefully protected by critical_section).
             with cython.critical_section(self):
                 if self._dtype is None:
                     self._dtype = dtype

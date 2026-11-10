@@ -447,10 +447,6 @@ cdef class Buffer:
         """
         Buffer_check_open(self)
         cdef object ipc_data
-        # The critical section only protects the cdef-level check-and-set of
-        # self._ipc_data; the Python-level IPCDataForBuffer construction and
-        # .ipc_descriptor read happen outside the lock (Cython 3.3 warns that
-        # Python attribute access is not usefully protected by critical_section).
         with cython.critical_section(self):
             ipc_data = self._ipc_data
         if ipc_data is None:
