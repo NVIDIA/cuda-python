@@ -13,6 +13,7 @@ reproducers, documentation improvements, and code changes are welcome.
     - [Updating your clone](#updating-your-clone)
     - [Why the clone matters](#why-the-clone-matters)
     - [Symptoms of a bad clone](#symptoms-of-a-bad-clone)
+  - [Transferring fixes between bindings roots](#transferring-fixes-between-bindings-roots)
   - [Development on Windows](#development-on-windows)
     - [Enabling git symlinks](#enabling-git-symlinks)
   - [Type stubs for cuda.core](#type-stubs-for-cudacore)
@@ -28,7 +29,7 @@ reproducers, documentation improvements, and code changes are welcome.
   - [CI infrastructure overview](#ci-infrastructure-overview)
     - [CI Pipeline Flow](#ci-pipeline-flow)
     - [CUDA-major Artifact Flow](#cuda-major-artifact-flow)
-    - [Release Branches](#release-branches)
+    - [Integration on main](#integration-on-main)
   - [Code coverage](#code-coverage)
 
 
@@ -127,17 +128,19 @@ correct.** Packages select tags for their own release line:
 | --- | --- |
 | `cuda-bindings` from `cuda_bindings_12/` | `v12.*` (e.g. `v12.9.10`) |
 | `cuda-bindings` from `cuda_bindings_13/` | `v13.*` (e.g. `v13.4.2`) |
-| `cuda-python` | The matching bindings selector, chosen explicitly with `CUDA_PYTHON_BUILD_MAJOR=12` or `13`, or inferred as described below |
+| `cuda-python` | The matching bindings selector, chosen explicitly with `CUDA_PYTHON_BUILD_MAJOR=12` or `13` |
 | `cuda-core` | `cuda-core-v*` (e.g. `cuda-core-v1.1.0`) |
 | `cuda-pathfinder` | `cuda-pathfinder-v*` (e.g. `cuda-pathfinder-v1.6.0`) |
 
-Git source builds of `cuda-python` honor `CUDA_PYTHON_BUILD_MAJOR=12` or `13`
-when set. Without it, an exact `v12.*` tag at `HEAD` selects CUDA 12 when no
-`v13.*` tag points to that commit. Untagged commits and commits tagged for
-both majors default to CUDA 13.
+Building `cuda-python` from a checkout or VCS archive requires
+`CUDA_PYTHON_BUILD_MAJOR=12` or `13`, including at commits tagged for both
+majors. For example, build the CUDA 12 metapackage from the repository root
+with `CUDA_PYTHON_BUILD_MAJOR=12 python -m pip wheel ./cuda_python`.
+The selected major must match the version resolved from the source.
 The resolved version determines dependencies: CUDA 12 depends on matching
 bindings, while CUDA 13 also depends on Core and Pathfinder. A standalone
-sdist retains its version and dependency major without requiring this variable.
+sdist retains its fixed version and dependency major and does not need this
+selector.
 
 The selectors are recorded in the bindings roots' `pyproject.toml` files and
 the metapackage's `pyproject.toml`; the metadata check keeps them aligned with
@@ -157,10 +160,6 @@ need all of the following:
    between it and your checkout must be present too.
 4. **The CCCL submodule** when building `cuda.core`. That package compiles
    against the headers pinned in `cuda_core/third_party/cccl`.
-
-CUDA 12 builds on `main` use the retained `v12.9.11a0` milestone and standard
-`setuptools-scm` progression. See [SCM milestones](ci/README.md#scm-milestones)
-for the required tag ancestry and release-number coordination.
 
 ### Symptoms of a bad clone
 
@@ -194,8 +193,9 @@ genuinely cannot provide tags; it is not a substitute for a correct clone.
 ## Transferring fixes between bindings roots
 
 For a handwritten fix that applies to both majors, a path-relative patch can
-transfer the source-root portion of a commit. From the repository root, with a
-clean worktree, replace `COMMIT` with the reviewed non-merge source commit:
+transfer the source-root portion of a commit, though you can copy the changes
+however is most convenient. From the repository root, with a clean worktree,
+replace `COMMIT` with the reviewed non-merge source commit:
 
 ```console
 $ git format-patch -1 --stdout --relative=cuda_bindings_13 COMMIT -- cuda_bindings_13 > bindings-fix.patch
@@ -455,7 +455,7 @@ through the [CI tools](ci/README.md).
 
 - CUDA 12.9 bindings live in `cuda_bindings_12/`; CUDA 13 bindings live in
   `cuda_bindings_13/`. The registry assigns their maintenance and current roles.
-- Development CI builds changed roots and affected dependents, reusing a
+- Development CI rebuilds changed roots and affected dependents, reusing a
   validated baseline for unaffected roots. Shared changes and scheduled runs
   cover both CUDA majors.
 - A bindings tag selects one line's bindings and metapackage. Its release
@@ -464,19 +464,18 @@ through the [CI tools](ci/README.md).
 - Artifacts identify their Python version, toolkit, platform, and source SHA
   where applicable. Release workflows require the exact tag's successful CI.
 
-### Release Branches
+### Integration on main
 
-`main` integrates changes for both supported majors. Short release branches
-can stabilize a selected release or carry urgent fixes while development
-continues. Return applicable fixes to `main` and assess both source roots.
+`main` integrates changes for both supported majors. Return applicable fixes
+to `main` and assess both source directories.
 The historical `12.9.x` branch stays frozen except for emergency fixes,
 which must be reconciled into `main`. New main CI and releases do not fetch
 package artifacts from that branch.
 
 The [bindings release guide](.github/RELEASE-bindings.md) covers release scope,
-manual backport automation, source and control revisions, and validation.
-The [CUDA 12 maintenance guide](cuda_bindings_12/MAINTENANCE.md) links the
-shared regeneration and cross-root review policy.
+source and control revisions, and validation. Follow the
+[shared regeneration and review guidance](ci/README.md#maintaining-both-bindings-roots)
+when changing either bindings directory.
 
 ## Code coverage
 

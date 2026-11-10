@@ -263,19 +263,20 @@ setuptools-scm's default tag parser. Each root's `git_describe_command`
 selects its CUDA ABI major for source builds (`v12.*` or `v13.*`),
 independently of the toolkit minor used to build it.
 
-The Python helpers share registry parsing and package consistency checks. The small,
-repository-private `cuda-python-ci-tools` package installs their common
-dependencies and makes those helpers importable from each build environment;
-it is not part of a CUDA Python wheel. Workflows keep their control tooling separate when inspecting another
-source revision. Install it locally from the repository root:
+The repository-private `cuda-python-ci-tools` package provides the shared
+configuration readers and their dependencies. Workflows use these helpers
+from their control revision when inspecting another source revision. Install
+the package locally from the repository root:
 
 ```console
 python -m pip install -e ./ci
 ```
 
-Use `ci.tools.bindings_config` instead of reading the YAML directly. It
-reads the registry and emits normalized JSON with the configured values
-plus the derived CTK target and CUDA ABI major/variant:
+Use `ci.tools.bindings_config` instead of reading the YAML directly. It emits
+JSON containing each package directory, toolkit version, and release role,
+plus the derived toolkit major/minor (`ctk_target`), CUDA major (`cuda_major`),
+and wheel variant (`cuda_variant`, such as `cu12`). Workflows share this
+normalized configuration:
 
 ```console
 python -m ci.tools.bindings_config
@@ -292,9 +293,7 @@ python -m pytest ci/tools/tests
 
 The public wheel builder requires one `current` package root and one
 `maintenance` package root with different CUDA ABI majors.
-This is deliberately a two-line policy. The mapping keeps package paths out of
-workflow conditionals; it does not promise arbitrary numbers of supported
-lines. `cuda_bindings_12` names a stable ABI-major source tree, while `current`
+`cuda_bindings_12` names a stable CUDA-major source directory, while `current`
 and `maintenance` describe release roles that can change at the next major.
 
 The standalone `cuda-python` source distribution carries its selectors in
@@ -308,61 +307,25 @@ python -m ci.tools.bindings_config --check-package-metadata
 
 ### SCM Milestones
 
-CUDA 12 builds on `main` derive their versions from the retained `v12.9.11a0`
-milestone. Untagged descendants naturally become `12.9.11a1.devN` under standard
-`setuptools-scm` progression. Source builds need the tag and the history connecting
-it to the checkout; fetching tags alone does not repair shallow ancestry.
+Source builds need the matching tag and the history connecting it to the
+checkout; fetching tags alone does not repair shallow ancestry.
 No version override or local preview-tag preparation is needed.
-
-Before establishing a milestone for another release, fetch canonical tags and
-coordinate with maintainers of all release branches. Use a globally unused
-release number; tags on other branches reserve their numbers even when they
-are unreachable from `main`. Keep pushed tags immutable and follow the
+Follow the
 [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
-A toolkit minor rollover does not change the major-specific SCM selectors.
-Let reachable tags govern preview versions; release tags establish the
-intended release number.
-
-
-## Nightly Artifact Sources And Rollout
+## Nightly Artifact Sources
 
 `ci-nightly.yml` downloads wheels from the latest successful main CI run and
-reads configuration from that run's source commit. Schema-2 sources use the
-registry and toolkit-qualified artifacts for both local bindings roots. Older
-sources retain the legacy route: their build-toolkit pin, backport branch,
-artifact names, and test helpers come from that source revision. The workflow
-does not invent a local CUDA 12 artifact for an older run that never built it.
-That legacy route can still read existing artifacts from the frozen `12.9.x`
-branch; it does not update the branch.
-Selected rows that install a custom driver must also include its
-`DRIVER_SHA256` in the source matrix. Registry compatibility alone does not
-make a pre-hardening source compatible: choose a newer successful run rather
-than disabling installer verification. Rows using preinstalled drivers do not
-need an installer checksum.
+reads configuration from that run's source commit. Sources with the package
+registry supply toolkit-qualified artifacts for both bindings directories.
+For older sources, the temporary fallback uses their original configuration
+and artifact names, including CUDA 12 wheels from the configured historical
+branch. Its removal is tracked in [#3432](https://github.com/NVIDIA/cuda-python/issues/3432).
 
-After multi-root CI lands on `main`, the first successful, complete main CI
-run containing the new registry and canonical artifacts enables the new
-nightly route. Until then, auto-detection can use an older successful run
-through the legacy route. Keep that consumer compatibility while supported
-older snapshots remain in use; their original producers retain their artifact
-aliases. New schema-2 producers publish only the canonical artifacts. PR CI builds and tests everything
-when it has no complete, compatible artifact baseline.
+Custom-driver rows require `DRIVER_SHA256` in the selected source matrix.
 
-To test the nightly workflow before that main run is available, supply the ID
-of a successful CI run built with the new registry, required canonical wheel
-artifacts, and driver-checksum metadata, such as a validated PR run:
-
-```console
-gh workflow run ci-nightly.yml --repo NVIDIA/cuda-python --ref main -f 'run-id=<compatible-ci-run-id>'
-```
-
-The override selects both the wheel artifacts and their source revision. It
-does not convert old artifacts or change the default selection for later
-nightly runs. Raw-config runs made during the migration still use the legacy
-route and its retained CUDA 13 aliases; they do not exercise the new local
-CUDA 12 nightly route. Once a compatible main run succeeds, ordinary nightly
-dispatches can leave `run-id` empty.
+An explicit `run-id` selects both the wheel artifacts and their source
+revision; those artifacts must still be available.
 
 ## Reading CI Jobs and Summaries
 
@@ -375,13 +338,14 @@ means Core tested with CUDA 12. The corresponding CUDA 13 suites use `13`.
 The two source descriptions answer different questions:
 
 - `wheels` or `local CTK` describes how the toolkit libraries are supplied.
-- `bindings PR` uses the selected root's artifact from this CI run. Unaffected
+- `bindings PR` or `bindings floor` describes the bindings source.
+  `bindings PR` uses the selected root's artifact from this CI run. Unaffected
   packages can reuse exact-baseline wheels, so this label alone does not mean
-  the bindings were rebuilt for the PR.
-- `bindings floor` uses the oldest published bindings supported by the Core
-  wheel for that CUDA major, as declared in its metadata. These rows test Core
-  or the selected nightly integration against published bindings, without
-  running the bindings or metapackage suites.
+  the bindings were rebuilt for the PR. `bindings floor` uses the oldest
+  published bindings supported by the `cuda-core` wheel for that CUDA major,
+  as declared in its metadata. These rows test Core or the selected nightly
+  integration against published bindings, without running the bindings or
+  metapackage suites.
 
 Open the change-detection job's **CI workplan** summary and expand its JSON.
 The component build/test flags identify selected work; the baseline records
@@ -389,7 +353,8 @@ the original run and exact source SHA for reusable artifacts. Reuse requires a
 successful push CI run for the exact merge-base commit on the PR's base branch,
 with the complete required artifact set. If that baseline is unavailable, CI
 builds and tests everything. A bindings-only change reuses the unchanged
-merged Core wheel while testing Core against the affected bindings major.
+merged `cuda-core` wheel while testing `cuda-core` against the affected
+`cuda-bindings` major.
 
 The platform matrix-setup jobs' **Selected wheel test coverage** summaries
 show the final suites, toolkit source, bindings root or published floor, and
@@ -398,68 +363,31 @@ cover both majors; a bindings tag deliberately selects one bindings/metapackage
 line and published Pathfinder. Windows ARM64 omits CUDA 12 because that toolkit
 has no Windows ARM64 build.
 
-For registry-backed runs, `ci/tools/select_test_matrix.py` applies the shared selection and local-wheel
-coverage rules after each platform reads its source matrix and applies an
-optional jq filter. Matrix data comes from the artifact source revision; the
-helper comes from the workflow control revision. Legacy snapshots retain their
-original source-selection mode and do not need newly introduced CI tooling.
-
-## Historical Release And Documentation Reruns
-
-Current release and documentation workflows read package paths and toolkit
-settings from the release tag. Retained CUDA 13 sources also support the
-older `cuda.build.version` configuration and `cuda_bindings` directory. Their
-original Python build matrix and generic metapackage artifact remain usable;
-an available toolkit-qualified artifact takes precedence. The control revision
-does not substitute its own source layout, toolkit pin, or release notes.
-
-Validate the existing `v13.4.4` release and rebuild its docs from the current
-control revision with:
-
-```console
-gh workflow run release.yml --repo NVIDIA/cuda-python --ref main \
-  -f component=cuda-bindings -f release-action=dry-run \
-  -f git-tag=v13.4.4
-```
-
-Here `--ref main` selects the workflow and its reusable documentation
-workflow; `git-tag` selects the immutable release source. Leave `run-id` empty
-to find that tag's successful CI run, or supply its validated artifact run ID
-if needed. The artifacts must still exist. A dry run validates artifacts and
-builds docs without publishing a release; its documentation is retained as a
-workflow artifact. Optionally add `-f dry-run-docs-branch=gh-pages-dry-run` to
-deploy the documentation to that preview branch. Run once per component when
-validating more than one package; use `component=cuda-python` for the matching
-metapackage documentation. Older CUDA 12 branch releases still need compatible
-historical tooling. Before dispatching that tooling, update its control branch
-with applicable CI security fixes, including a verified patched Python and
-current CA/download protections. This does not change the immutable release
-source and is not required for the current workflow's retained CUDA 13 path.
+For registry-backed runs, `ci/tools/select_test_matrix.py` applies the shared
+selection and local-wheel coverage rules after each platform reads its source
+matrix and applies an optional jq filter. Matrix data comes from the artifact
+source revision; the helper comes from the workflow control revision.
 
 ## Maintaining Both Bindings Roots
 
-`main` is the integration branch for both bindings release lines. The old
-`12.9.x` branch stays frozen except for emergency fixes using compatible
-historical tooling; reconcile any such fix into `cuda_bindings_12/` on `main`.
-Routine CUDA 12 development belongs in that main-tree root. Short release
-branches may stabilize a selected version or carry urgent fixes while `main` advances.
-The [bindings release guide](../.github/RELEASE-bindings.md) describes branch
-creation, backport automation, independent release validation, and returning
-fixes to `main`. The
-[CUDA 12 maintenance guide](../cuda_bindings_12/MAINTENANCE.md) identifies the
-maintenance root.
+`cuda_bindings_12/` and `cuda_bindings_13/` are the CUDA 12 and CUDA 13 source
+directories on `main`. The registry identifies CUDA 12 as the maintenance
+line. Routine CUDA 12 fixes, tests, and documentation belong in
+`cuda_bindings_12/`. The old `12.9.x` branch stays frozen except for emergency
+fixes using compatible historical tooling; reconcile any such fix into the
+CUDA 12 directory on `main` and assess the CUDA 13 directory too.
 
 For independent releases from a shared source commit, see
 [two tags at one commit](../.github/RELEASE-bindings.md#two-tags-at-one-commit).
 
-For generated bindings, change cybind first and regenerate each affected
+For generated bindings, change the generator first and regenerate each affected
 package root against its intended toolkit inputs. Review the generated diff,
-record the cybind revision, toolkit inputs, and command in the pull request,
+record the generator revision, toolkit inputs, and command in the pull request,
 and check modified files with
 `python toolshed/check_generated_file_seals.py <paths...>`. The seal verifies
-the content of an individual generated file; it does not identify the cybind
+the content of an individual generated file; it does not identify the generator
 revision or prove that the two roots should have identical output. Generated
-output may legitimately differ across toolkit targets.
+output differs across toolkit targets.
 
 For a handwritten bindings fix, inspect the corresponding code in the other
 root. In the pull request, identify the matching change or explain concretely
@@ -468,36 +396,18 @@ is no general deterministic check for semantic equivalence of handwritten
 code across the two roots. Where files are intentionally identical, a narrowly
 scoped byte-for-byte check can be added after establishing that invariant.
 
-Major-line maintenance can include deliberately selected compatibility work
-such as a new Python version or a new API supported by that toolkit. A frozen
-patch release has a narrower scope: fixes and release prerequisites approved
-for that release. State which policy applies in the release checklist and
-notes; a maintenance label alone does not promise a fixes-only release.
-
 Keep generator development and continuous toolkit qualification independent
-of this source layout. A cybind change should be exercised against both
-supported consumers before its generated output is imported. Record the
-generator revision and toolkit inputs for each import, including any manual
-post-generation adjustment. File seals establish content integrity, not
-generation provenance. Moving QA directories or redesigning cybind asset
-storage is not required to maintain both roots here.
+of this source layout. A generated change should be exercised against both
+supported consumers before its output is imported. File seals establish
+content integrity, not generation provenance.
 
 ## Changing Supported Release Lines
 
 When support moves from CUDA 12/13 to CUDA 13/14, retain `cuda_bindings_13/`
-as the maintenance source and introduce a distinct CUDA 14 root. Then:
-
-1. Update `ci/versions.yml`: remove the retired CUDA 12 root, mark the CUDA
-   13 root `maintenance`, mark the CUDA 14 root `current`, and set each exact
-   toolkit build/test version.
-2. Align each root's `pyproject.toml` `git_describe_command --match` selector
-   with its CUDA ABI major. Update per-root packaging,
-   pixi environments, documentation, and dependent package constraints for the
-   supported lines.
-3. Build and test both roots and their dependent packages on the supported
-   platforms. Validate release selection and run publication-incapable dry
-   runs for tags from each line before releasing from the new layout.
-
-The same branch policy applies after the rollover: `main` integrates the
-current and maintenance roots, short release branches stabilize releases,
-and retired release branches are retained for history.
+as the maintenance directory, add a CUDA 14 directory, and update
+`ci/versions.yml` to replace CUDA 12 with CUDA 14, assign the release roles,
+and pin both toolkits.
+Align each directory's SCM tag selector with its CUDA major and update its
+packaging, environments, documentation, and dependent package constraints.
+Build and test both lines and their dependents, validate release selection,
+and run release dry runs for tags from both lines before publishing.

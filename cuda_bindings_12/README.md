@@ -12,7 +12,8 @@ Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cud
 ## Developing
 
 Follow the repository [contribution guide](../CONTRIBUTING.md) and the
-[maintenance guide](MAINTENANCE.md) for source builds and cross-major changes.
+[shared regeneration and review guidance](../ci/README.md#maintaining-both-bindings-roots)
+for source builds and cross-major changes.
 
 CUDA 12.9 sources are developed here on `main`. This root and
 `cuda_bindings_13/` build the same distribution and Python namespace; use
@@ -38,8 +39,8 @@ Use `build_tests.bat` on Windows. Free-threaded Python also needs the
 `test-ft` dependency group.
 
 Versions follow reachable `v12.*` tags through standard `setuptools-scm`.
-The retained `v12.9.11a0` milestone on `main` anchors CUDA 12 development
-versions. See the repository's
+Source builds need the matching tag and the history connecting it to the
+checkout. See the repository's
 [version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
 
