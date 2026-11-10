@@ -10,11 +10,7 @@ import os
 from pathlib import Path, PurePosixPath
 
 from .bindings_config import BindingsConfig, BindingsPackage, load_config
-from .compute_ci_plan import _changed_paths, _git_output, compute_workplan
-
-
-def _merge_packages(*groups: list[BindingsPackage]) -> list[BindingsPackage]:
-    return sorted({package for group in groups for package in group}, key=lambda package: package.package_root)
+from .compute_ci_plan import _changed_paths, _git_output, select_source_work
 
 
 def select_pixi_packages(
@@ -26,7 +22,7 @@ def select_pixi_packages(
 ) -> tuple[list[BindingsPackage], list[BindingsPackage]]:
     """Use path impacts for PRs, or a requested/current ABI for manual runs."""
     packages = config.package_roots
-    docs: list[BindingsPackage] = []
+    docs_roots: set[str] = set()
     if cuda_env is not None:
         selected = (
             [package for package in packages if package.cuda_variant == cuda_env]
@@ -37,39 +33,32 @@ def select_pixi_packages(
             registered = ", ".join(package.cuda_variant for package in packages)
             raise ValueError(f"cuda-env must be a registered pixi environment: {registered}")
     else:
-        plan = compute_workplan(
-            bindings_config=config,
-            paths=paths,
-            linked_paths=linked_paths,
-            merge_base="",
-            baseline_run_id="",
-            release_tag="",
-            source_build=True,
-        )
-        selected = [
-            package
+        selection = select_source_work(config, paths, linked_paths)
+        targets = selection["builds"] | selection["tests"]
+        selected_roots = {
+            package.package_root
             for package in packages
-            if any(
-                plan["modules"][component]["package_roots"][package.package_root][decision]
-                for component in ("bindings", "python")
-                for decision in ("needs_build", "needs_test")
-            )
-            or plan["jobs"]["test_cuda_majors"][package.cuda_variant]
-        ]
-        # The wheel planner deliberately ignores Pixi manifests and docs.
+            if ("pathfinder", None) in targets
+            or ("core", package.cuda_variant) in targets
+            or any((component, package.package_root) in targets for component in ("bindings", "python"))
+        }
+        # The wheel path selection deliberately ignores Pixi manifests and docs.
         for path in paths:
             if PurePosixPath(path).name in {"pixi.toml", "pixi.lock"}:
-                local = [
-                    package for package in packages if path == f"{package.package_root}/{PurePosixPath(path).name}"
-                ]
-                selected = _merge_packages(selected, local or list(packages))
-            changed_docs = [package for package in packages if path.startswith(f"{package.package_root}/docs/")]
-            if changed_docs:
-                selected = _merge_packages(selected, changed_docs)
-                docs = _merge_packages(docs, changed_docs)
+                local = {
+                    package.package_root
+                    for package in packages
+                    if path == f"{package.package_root}/{PurePosixPath(path).name}"
+                }
+                selected_roots.update(local or {package.package_root for package in packages})
+            docs_roots.update(
+                package.package_root for package in packages if path.startswith(f"{package.package_root}/docs/")
+            )
+        selected_roots.update(docs_roots)
+        selected = [package for package in packages if package.package_root in selected_roots]
     if not selected:
         raise ValueError("no bindings package selected for source-build smoke tests")
-    return selected, docs
+    return selected, [package for package in packages if package.package_root in docs_roots]
 
 
 def main() -> None:

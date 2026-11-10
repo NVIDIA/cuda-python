@@ -136,12 +136,8 @@ jobs:
         if: ${{ startsWith(github.ref_name, 'pull-request/') }}
         env:
           BASE_REF: ${{ needs.should-skip.outputs.base-ref }}
-          BINDINGS_CONFIG: ${{ steps.registry.outputs.bindings-config }}
-          CURRENT_CUDA_VERSION: ${{ steps.registry.outputs.current-cuda-version }}
           MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
           GH_TOKEN: ${{ github.token }}
-          WINDOWS_ARM64_SUPPORTED: ${{ steps.registry.outputs.windows-arm64-supported }}
-          WINDOWS_ARM64_SINGLE_CUDA_MAJOR: ${{ steps.registry.outputs.windows-arm64-single-cuda-major }}
         run: |
           set -uo pipefail
 
@@ -186,50 +182,13 @@ jobs:
             unavailable
           fi
 
-          has_artifact() {
-            grep -Fxq "$1" <<< "$artifact_names"
-          }
-
+          if ! expected_artifacts=$(python3 -m ci.tools.ci_artifacts --baseline-sha "$merge_base"); then
+            unavailable
+          fi
           missing=()
-          has_artifact cuda-pathfinder-wheel || missing+=(cuda-pathfinder-wheel)
-
-          if ! cuda_versions_json=$(jq -ce '[.package_roots[].toolkit_version]' <<< "$BINDINGS_CONFIG"); then
-            unavailable
-          fi
-          mapfile -t cuda_versions < <(jq -r '.[]' <<< "$cuda_versions_json")
-          for version in "${cuda_versions[@]}"; do
-            name="cuda-python-wheel-cuda${version}"
-            has_artifact "$name" || missing+=("$name")
-          done
-
-          if ! python_versions=$(jq -er '.python.supported[]' <<< "$BINDINGS_CONFIG"); then
-            unavailable
-          fi
-          if ! platforms=$(yq -r '.platforms[]' ci/test-matrix.yml); then
-            unavailable
-          fi
-          if [[ "$WINDOWS_ARM64_SUPPORTED" == "true" ]]; then
-            platforms+=$'\nwin-arm64'
-          fi
-          if [[ -z "${python_versions}" || -z "${platforms}" ]]; then
-            unavailable
-          fi
-          while IFS= read -r python_version; do
-            python=${python_version//./}
-            while IFS= read -r platform; do
-              for version in "${cuda_versions[@]}"; do
-                if [[ "$platform" == "win-arm64" &&
-                      "$WINDOWS_ARM64_SINGLE_CUDA_MAJOR" == "true" &&
-                      "$version" != "$CURRENT_CUDA_VERSION" ]]; then
-                  continue
-                fi
-                binding="cuda-bindings-python${python}-cuda${version}-${platform}-${merge_base}"
-                has_artifact "$binding" || missing+=("$binding")
-              done
-              core="cuda-core-python${python}-${platform}-${merge_base}"
-              has_artifact "$core" || missing+=("$core")
-            done <<< "${platforms}"
-          done <<< "${python_versions}"
+          while IFS= read -r name; do
+            grep -Fxq "$name" <<< "$artifact_names" || missing+=("$name")
+          done <<< "$expected_artifacts"
 
           if (( ${#missing[@]} != 0 )); then
             printf 'Missing reusable artifact: %s\n' "${missing[@]}" >&2
@@ -373,7 +332,6 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       python-versions: ${{ needs.detect-changes.outputs.python-supported }}
 
@@ -399,7 +357,6 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       python-versions: ${{ needs.detect-changes.outputs.python-supported }}
 
@@ -425,7 +382,6 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
-      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       python-versions: ${{ needs.detect-changes.outputs.python-supported }}
 
@@ -449,7 +405,6 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: win-arm64
-      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' }}
       python-versions: ${{ needs.detect-changes.outputs.windows-arm64-python-supported }}
@@ -464,7 +419,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).package_roots }}
+        package: ${{ fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_packages }}
     needs:
       - should-skip
       - detect-changes
@@ -482,14 +437,13 @@ jobs:
     with:
       host-platform: linux-64
       bindings-package: ${{ toJSON(matrix.package) }}
-      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # See test-sdist-linux for why sdist test jobs are split by platform.
   test-sdist-windows:
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJSON(needs.detect-changes.outputs.bindings-config).package_roots }}
+        package: ${{ fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_packages }}
     needs:
       - should-skip
       - detect-changes
@@ -508,7 +462,6 @@ jobs:
     with:
       host-platform: win-64
       bindings-package: ${{ toJSON(matrix.package) }}
-      workplan: ${{ needs.detect-changes.outputs.workplan }}
 
   # NOTE: Test jobs are split by platform for the same reason as build jobs (see
   # build-linux-64). Keep these job definitions textually identical except for:

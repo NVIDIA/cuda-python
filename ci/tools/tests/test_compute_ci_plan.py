@@ -66,14 +66,17 @@ def test_source_and_test_changes_select_their_consumers(path, builds, tests):
 
 
 @pytest.mark.parametrize("package", PACKAGES, ids=lambda package: package.package_root)
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
+@pytest.mark.agent_authored(model="gpt-6")
 def test_bindings_changes_reuse_core_and_test_the_matching_major(package):
     own = {("bindings", package.package_root), ("python", package.package_root)}
     plan = plan_for(f"{package.package_root}/cuda/bindings/driver.pyx")
     assert selected(plan, "needs_build") == own
     assert selected(plan, "needs_test") == own | {("core", package.cuda_variant)}
     assert plan["baseline"] == {"run_id": "123", "sha": "base"}
-    assert {root for root, enabled in plan["jobs"]["sdist_package_roots"].items() if enabled} == {package.package_root}
+    assert {record["package_root"] for record in plan["jobs"]["sdist_packages"]} == {package.package_root}
+    sdist = plan["jobs"]["sdist_packages"][0]
+    assert sdist["build_bindings"] and sdist["build_python"]
+    assert not sdist["build_core"] and not sdist["build_pathfinder"]
 
     tests_only = plan_for(f"{package.package_root}/tests/test_driver.py")
     assert selected(tests_only, "needs_build") == set()
@@ -130,7 +133,7 @@ def test_missing_baselines_and_non_bindings_tags_require_full_coverage():
 
 
 @pytest.mark.parametrize("package", PACKAGES, ids=lambda package: package.package_root)
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
+@pytest.mark.agent_authored(model="gpt-6")
 def test_release_tags_build_only_their_own_bindings_and_metapackage(package):
     plan = plan_for("ci/tools/env-vars", release_tag=f"v{package.ctk_target}.99")
     expected = {("bindings", package.package_root), ("python", package.package_root)}
@@ -138,7 +141,27 @@ def test_release_tags_build_only_their_own_bindings_and_metapackage(package):
     assert selected(plan, "needs_test") == expected
     assert plan["sources"]["pathfinder"] == "published"
     assert plan["baseline"]["run_id"] == ""
-    assert {root for root, enabled in plan["jobs"]["sdist_package_roots"].items() if enabled} == {package.package_root}
+    assert {record["package_root"] for record in plan["jobs"]["sdist_packages"]} == {package.package_root}
+    sdist = plan["jobs"]["sdist_packages"][0]
+    assert sdist["build_bindings"] and sdist["build_python"]
+    assert not sdist["build_core"] and not sdist["build_pathfinder"]
+    assert sdist["pathfinder_source"] == "published"
+
+
+@pytest.mark.parametrize("component", ("core", "pathfinder"))
+@pytest.mark.agent_authored(model="gpt-6")
+def test_sdist_records_keep_both_core_abis_and_build_shared_pathfinder_once(component):
+    path = "cuda_core/cuda/core/_device.py" if component == "core" else "cuda_pathfinder/cuda/pathfinder/_loader.py"
+    records = plan_for(path)["jobs"]["sdist_packages"]
+
+    assert {record["package_root"] for record in records} == ROOTS
+    assert all(record["build_core"] for record in records)
+    pathfinder_roots = [record["package_root"] for record in records if record["build_pathfinder"]]
+    assert pathfinder_roots == (
+        [CONFIG.package_for_release_status("current").package_root] if component == "pathfinder" else []
+    )
+    assert all(record["build_bindings"] == (component == "pathfinder") for record in records)
+    assert all(record["build_python"] == (component == "pathfinder") for record in records)
 
 
 @pytest.mark.agent_authored(model="gpt-6.1-sol")

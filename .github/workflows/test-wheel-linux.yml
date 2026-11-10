@@ -197,6 +197,13 @@ jobs:
       - name: Ensure GPU is working
         run: nvidia-smi
 
+      - name: Set up Python ${{ matrix.PY_VER }}
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ matrix.PY_VER }}
+
       - name: Set environment variables
         env:
           BUILD_CUDA_VER: ${{ matrix.BINDINGS_BUILD_VERSION || inputs.build-ctk-ver }}
@@ -381,13 +388,6 @@ jobs:
         run: |
           pwd
           ls -lahR $CUDA_CORE_TEST_BINARIES_DIR
-
-      - name: Set up Python ${{ matrix.PY_VER }}
-        # $/ resolves at the workflow's commit. ./ would resolve against the
-        # inputs.sha checkout, which can predate this action.
-        uses: $/.github/actions/setup-hardened-python
-        with:
-          python-version: ${{ matrix.PY_VER }}
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}

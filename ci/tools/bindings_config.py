@@ -83,6 +83,10 @@ class BindingsConfig:
     def package_for_release_status(self, release_status: str) -> BindingsPackage:
         return next(package for package in self.package_roots if package.release_status == release_status)
 
+    @property
+    def windows_arm64_single_cuda_major(self) -> bool:
+        return self.package_for_release_status("current").cuda_major == "13"
+
     def to_dict(self) -> dict[str, object]:
         return {
             "python": {"supported": list(self.python_supported)},
@@ -97,25 +101,18 @@ class BindingsConfig:
 
 
 def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
-    """Normalize toolkit pins, the package-root registry, or its JSON output."""
+    """Normalize legacy toolkit pins or the explicit package-root registry."""
     packages = []
-    if "package_roots" in raw:
-        entries = ((data["package_root"], data) for data in raw["package_roots"])
-    elif "schema_version" in raw:
+    if "schema_version" in raw:
         if raw["schema_version"] != SCHEMA_VERSION:
             raise ValueError(f"schema_version must be {SCHEMA_VERSION}")
-        entries = raw["cuda"]["bindings"]["package_roots"].items()
+        for package_root, data in raw["cuda"]["bindings"]["package_roots"].items():
+            major, minor, patch = map(int, data["toolkit_version"].split("."))
+            packages.append(BindingsPackage(package_root, (major, minor, patch), data["release_status"]))
     else:
-        entries = (
-            (
-                f"cuda_bindings_{raw['cuda'][field]['version'].split('.')[0]}",
-                {"toolkit_version": raw["cuda"][field]["version"], "release_status": release_status},
-            )
-            for field, release_status in (("build", "current"), ("prev_build", "maintenance"))
-        )
-    for package_root, data in entries:
-        major, minor, patch = map(int, data["toolkit_version"].split("."))
-        packages.append(BindingsPackage(package_root, (major, minor, patch), data["release_status"]))
+        for field, release_status in (("build", "current"), ("prev_build", "maintenance")):
+            major, minor, patch = map(int, raw["cuda"][field]["version"].split("."))
+            packages.append(BindingsPackage(f"cuda_bindings_{major}", (major, minor, patch), release_status))
     if len(packages) != 2 or {package.release_status for package in packages} != RELEASE_STATUSES:
         raise ValueError("bindings configuration must contain one current and one maintenance package")
     if len({package.toolkit[0] for package in packages}) != len(packages):
@@ -235,85 +232,15 @@ def write_github_env(data: Mapping[str, object], path: Path) -> None:
         stream.write(f"RESOLVED_BINDINGS_PACKAGE={json.dumps(data, separators=(',', ':'))}\n")
 
 
-def write_build_github_env(
-    config: BindingsConfig,
-    path: Path,
-    *,
-    repo_root: Path,
-    python_version: str,
-    host_platform: str,
-    sha: str,
-    workplan: Mapping[str, Any] | None = None,
-) -> None:
-    """Append build paths, artifact names and workplan gates for Actions."""
-    python_tag = python_version.replace(".", "")
-    values = {}
-    for role in ("current", "maintenance"):
-        package = config.package_for_release_status(role)
-        prefix = role.upper()
-        source = repo_root / package.package_root
-        artifact = f"cuda-bindings-python{python_tag}-cuda{package.toolkit_version}-{host_platform}"
-        values.update(
-            {
-                f"{prefix}_BINDINGS_ROOT": package.package_root,
-                f"{prefix}_CUDA_VERSION": package.toolkit_version,
-                f"{prefix}_CUDA_MAJOR": package.cuda_major,
-                f"{prefix}_CUDA_VARIANT": package.cuda_variant,
-                f"{prefix}_BINDINGS_ARTIFACT_BASENAME": artifact,
-                f"{prefix}_BINDINGS_ARTIFACT_NAME": f"{artifact}-{sha}",
-                # Forward slashes work in native Python and Git Bash on Windows.
-                f"{prefix}_BINDINGS_ARTIFACTS_DIR": (source / "dist").resolve().as_posix(),
-                f"{prefix}_BINDINGS_CYTHON_TESTS_DIR": (source / "tests" / "cython").resolve().as_posix(),
-                f"{prefix}_PYTHON_ARTIFACT_NAME": f"cuda-python-wheel-cuda{package.toolkit_version}",
-            }
-        )
-        if workplan is not None:
-            modules = workplan["modules"]
-            bindings = modules["bindings"]["package_roots"][package.package_root]
-            python = modules["python"]["package_roots"][package.package_root]
-            core = modules["core"]["cuda_majors"][package.cuda_variant]
-            values.update(
-                {
-                    f"BUILD_BINDINGS_{prefix}": bindings["needs_build"],
-                    f"BUILD_CUDA_PYTHON_{prefix}": python["needs_build"],
-                    f"TEST_BINDINGS_{prefix}": bindings["needs_test"],
-                    f"TEST_CORE_{prefix}": core["needs_test"],
-                }
-            )
-    if workplan is not None:
-        modules = workplan["modules"]
-        values.update(
-            {
-                "PATHFINDER_SOURCE": workplan["sources"]["pathfinder"],
-                "BUILD_PATHFINDER": modules["pathfinder"]["needs_build"],
-                "BUILD_BINDINGS": modules["bindings"]["needs_build"],
-                "BUILD_CORE": modules["core"]["needs_build"],
-                "BUILD_CUDA_PYTHON": modules["python"]["needs_build"],
-                "TEST_BINDINGS": modules["bindings"]["needs_test"],
-                "TEST_CORE": modules["core"]["needs_test"],
-                "BASELINE_RUN_ID": workplan["baseline"]["run_id"],
-                "BASELINE_SHA": workplan["baseline"]["sha"],
-            }
-        )
-    with path.open("a", encoding="utf-8") as stream:
-        for name, value in values.items():
-            if value is None:
-                raise ValueError(f"missing workplan value for {name}")
-            if isinstance(value, bool):
-                value = str(value).lower()
-            stream.write(f"{name}={value}\n")
-
-
 def write_registry_github_output(config: BindingsConfig, path: Path) -> None:
     """Emit the registry and the scalar outputs needed by the CI caller."""
     current = config.package_for_release_status("current")
     versions = wheel_python_versions(current.toolkit_version, "win-arm64", config.python_supported)
     values = {
         "bindings-config": config.to_json(),
-        "current-cuda-version": current.toolkit_version,
         "python-supported": json.dumps(config.python_supported),
         "windows-arm64-supported": str(bool(versions)).lower(),
-        "windows-arm64-single-cuda-major": str(current.cuda_major == "13").lower(),
+        "windows-arm64-single-cuda-major": str(config.windows_arm64_single_cuda_major).lower(),
         "windows-arm64-python-supported": json.dumps(versions),
     }
     with path.open("a", encoding="utf-8") as stream:
@@ -333,28 +260,9 @@ def main(argv: list[str] | None = None) -> int:
     commands = parser.add_subparsers(dest="command")
     write_env = commands.add_parser("write-github-env", help="append package JSON from stdin to GITHUB_ENV")
     write_env.add_argument("github_env", type=Path, metavar="GITHUB_ENV")
-    write_build_env = commands.add_parser("write-build-env", help="append both bindings lines' build variables")
-    write_build_env.add_argument("github_env", type=Path, metavar="GITHUB_ENV")
-    write_build_env.add_argument("--repo-root", type=Path, default=REPO_ROOT)
-    write_build_env.add_argument("--python-version", required=True)
-    write_build_env.add_argument("--host-platform", required=True)
-    write_build_env.add_argument("--sha", required=True)
-    write_build_env.add_argument("--bindings-config", help="normalized package-root registry JSON")
-    write_build_env.add_argument("--workplan", help="JSON build and test decisions")
     args = parser.parse_args(argv)
 
     try:
-        if args.command == "write-build-env":
-            write_build_github_env(
-                parse_config(json.loads(args.bindings_config)) if args.bindings_config else load_config(args.config),
-                args.github_env,
-                repo_root=args.repo_root,
-                python_version=args.python_version,
-                host_platform=args.host_platform,
-                sha=args.sha,
-                workplan=json.loads(args.workplan) if args.workplan is not None else None,
-            )
-            return 0
         if args.github_output is not None:
             write_registry_github_output(load_config(args.config), args.github_output)
             return 0

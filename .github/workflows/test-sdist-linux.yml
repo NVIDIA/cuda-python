@@ -9,13 +9,8 @@ on:
         required: true
         type: string
       bindings-package:
-        description: Normalized bindings root and toolkit for this sdist build.
+        description: Selected package metadata and build decisions for this sdist job.
         required: true
-        type: string
-      workplan:
-        description: JSON workplan. An empty value builds everything.
-        required: false
-        default: ""
         type: string
 
 defaults:
@@ -29,15 +24,14 @@ permissions:
 jobs:
   test-sdist:
     name: Test sdist builds
-    if: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).jobs.sdist_package_roots[fromJSON(inputs.bindings-package).package_root] }}
     env:
       BINDINGS_ROOT: ${{ fromJSON(inputs.bindings-package).package_root }}
       CUDA_PYTHON_BUILD_MAJOR: ${{ fromJSON(inputs.bindings-package).cuda_major }}
-      BUILD_PATHFINDER: ${{ fromJSON(inputs.bindings-package).release_status == 'current' && (inputs.workplan == '' || fromJSON(inputs.workplan).modules.pathfinder.needs_build) }}
-      BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
-      BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.cuda_majors[fromJSON(inputs.bindings-package).cuda_variant].needs_build }}
-      BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.package_roots[fromJSON(inputs.bindings-package).package_root].needs_build }}
-      PATHFINDER_SOURCE: ${{ inputs.workplan == '' && 'artifact' || fromJSON(inputs.workplan).sources.pathfinder }}
+      BUILD_PATHFINDER: ${{ fromJSON(inputs.bindings-package).build_pathfinder }}
+      BUILD_BINDINGS: ${{ fromJSON(inputs.bindings-package).build_bindings }}
+      BUILD_CORE: ${{ fromJSON(inputs.bindings-package).build_core }}
+      BUILD_PYTHON: ${{ fromJSON(inputs.bindings-package).build_python }}
+      PATHFINDER_SOURCE: ${{ fromJSON(inputs.bindings-package).pathfinder_source }}
       # Back off on repeated local-disk cache I/O errors (#3273).
       SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_COUNT: "5"
       SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_WINDOW_SIZE_SECS: "5"
@@ -148,7 +142,7 @@ jobs:
       - name: Constrain cuda.core to the local cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
-          CUDA_MAJOR="$(echo '${{ fromJSON(inputs.bindings-package).toolkit_version }}' | cut -d. -f1)"
+          CUDA_MAJOR="${CUDA_PYTHON_BUILD_MAJOR}"
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
           bindings_wheels=("${BINDINGS_ROOT}"/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
@@ -170,7 +164,7 @@ jobs:
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           export CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)
-          export CUDA_CORE_BUILD_MAJOR="$(echo '${{ fromJSON(inputs.bindings-package).toolkit_version }}' | cut -d. -f1)"
+          export CUDA_CORE_BUILD_MAJOR="${CUDA_PYTHON_BUILD_MAJOR}"
           export CC="sccache cc"
           export CXX="sccache c++"
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-core.txt"

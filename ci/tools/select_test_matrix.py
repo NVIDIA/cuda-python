@@ -44,27 +44,18 @@ def select_test_matrix(
         ctk_target = ".".join(source_row["CUDA_VER"].split(".")[:2])
         package = next((package for package in packages or [] if package["ctk_target"] == ctk_target), None)
         root = "" if package is None else package["package_root"]
-        tests = {
-            "TEST_PATHFINDER": modules is None or modules["pathfinder"]["needs_test"],
-            "TEST_BINDINGS": modules is None
-            or (
-                modules["bindings"]["needs_test"]
-                if packages is None
-                else package is not None and modules["bindings"]["package_roots"][root]["needs_test"]
-            ),
-            "TEST_CORE": modules is None
-            or (
-                modules["core"]["needs_test"]
-                if packages is None
-                else modules["core"]["cuda_majors"][variant]["needs_test"]
-            ),
-            "TEST_PYTHON": modules is None
-            or (
-                modules["python"]["needs_test"]
-                if packages is None
-                else package is not None and modules["python"]["package_roots"][root]["needs_test"]
-            ),
-        }
+        components = ("pathfinder", "bindings", "core", "python")
+        if modules is None:
+            tests = {f"TEST_{name.upper()}": True for name in components}
+        elif packages is None:
+            tests = {f"TEST_{name.upper()}": modules[name]["needs_test"] for name in components}
+        else:
+            tests = {
+                "TEST_PATHFINDER": modules["pathfinder"]["needs_test"],
+                "TEST_BINDINGS": package is not None and modules["bindings"]["package_roots"][root]["needs_test"],
+                "TEST_CORE": modules["core"]["cuda_majors"][variant]["needs_test"],
+                "TEST_PYTHON": package is not None and modules["python"]["package_roots"][root]["needs_test"],
+            }
         suites = []
         if packages is not None:
             if test_mode != "standard":

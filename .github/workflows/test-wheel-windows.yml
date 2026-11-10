@@ -188,6 +188,13 @@ jobs:
           }
           Write-Output "Driver mode verified: ${{ matrix.DRIVER_MODE }}"
 
+      - name: Set up Python ${{ matrix.PY_VER }}
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ matrix.PY_VER }}
+
       - name: Set environment variables
         env:
           BUILD_CUDA_VER: ${{ matrix.BINDINGS_BUILD_VERSION || inputs.build-ctk-ver }}
@@ -369,13 +376,6 @@ jobs:
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_CORE_TEST_BINARIES_DIR | Select-Object Mode, LastWriteTime, Length, FullName
-
-      - name: Set up Python ${{ matrix.PY_VER }}
-        # $/ resolves at the workflow's commit. ./ would resolve against the
-        # inputs.sha checkout, which can predate this action.
-        uses: $/.github/actions/setup-hardened-python
-        with:
-          python-version: ${{ matrix.PY_VER }}
 
       - name: Verify LongPathsEnabled
         run: |

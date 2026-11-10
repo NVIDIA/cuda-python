@@ -58,17 +58,12 @@ TEST_INFRA_PLATFORMS = {
 Target = tuple[str, str | None]
 
 
-def compute_workplan(
-    *,
+def select_source_work(
     bindings_config: BindingsConfig,
     paths: list[str],
     linked_paths: set[str],
-    merge_base: str,
-    baseline_run_id: str,
-    release_tag: str,
-    source_build: bool = False,
 ) -> dict[str, object]:
-    """Select work for changed paths; source builds need no reusable wheel baseline."""
+    """Select build/test impacts from paths, independently of wheel availability."""
     bindings_packages = bindings_config.package_roots
     package_roots = tuple(package.package_root for package in bindings_packages)
     cuda_variants = tuple(package.cuda_variant for package in bindings_packages)
@@ -116,94 +111,76 @@ def compute_workplan(
         },
     }
 
-    source_changes: set[tuple[str, str | None]] = set()
-    test_changes: set[tuple[str, str | None]] = set()
+    source_changes: set[Target] = set()
+    test_changes: set[Target] = set()
     test_platforms: set[str] = set()
-    release_package = bindings_config.match_tag(release_tag) if release_tag else None
-    if release_tag.startswith("v") and release_package is None:
-        raise ValueError(f"no configured CUDA bindings package root matches release tag: {release_tag!r}")
-    force_all = release_package is None and (
-        bool(release_tag) or (not source_build and (not merge_base or not baseline_run_id))
-    )
+    force_all = False
 
-    if release_package is None and not force_all:
-        for path in paths:
-            path_parts = PurePosixPath(path).parts
-            if not path_parts:
+    for path in paths:
+        path_parts = PurePosixPath(path).parts
+        if not path_parts:
+            continue
+
+        if platform := TEST_INFRA_PLATFORMS.get(path):
+            test_platforms.add(platform)
+            continue
+
+        if path_parts[0] == "ci" or (
+            len(path_parts) >= 2 and path_parts[:2] in {(".github", "actions"), (".github", "workflows")}
+        ):
+            if path in IGNORED_PATHS:
                 continue
+            force_all = True
+            break
 
-            if platform := TEST_INFRA_PLATFORMS.get(path):
-                test_platforms.add(platform)
+        if path_parts[0] == ".github" or path_parts[-1] in IGNORED_BASENAMES:
+            continue
+
+        target_match = next(
+            (
+                (root, target)
+                for root, target in sorted(package_targets.items(), key=lambda item: len(item[0].parts), reverse=True)
+                if len(path_parts) > len(root.parts) and path_parts[: len(root.parts)] == root.parts
+            ),
+            None,
+        )
+        if target_match is not None:
+            root, target = target_match
+            module, _ = target
+            relative = path_parts[len(root.parts) :]
+            if relative[0] == "docs":
                 continue
-
-            if path_parts[0] == "ci" or (
-                len(path_parts) >= 2 and path_parts[:2] in {(".github", "actions"), (".github", "workflows")}
+            if (
+                any(part in {"test", "tests"} for part in relative[:-1])
+                or relative[0] == "examples"
+                or (module == "core" and relative == ("pytest.ini",))
             ):
-                if path in IGNORED_PATHS:
-                    continue
-                force_all = True
-                break
-
-            if path_parts[0] == ".github" or path_parts[-1] in IGNORED_BASENAMES:
-                continue
-
-            target_match = next(
-                (
-                    (root, target)
-                    for root, target in sorted(
-                        package_targets.items(), key=lambda item: len(item[0].parts), reverse=True
-                    )
-                    if len(path_parts) > len(root.parts) and path_parts[: len(root.parts)] == root.parts
-                ),
-                None,
-            )
-            if target_match is not None:
-                root, target = target_match
-                module, _ = target
-                relative = path_parts[len(root.parts) :]
-                if relative[0] == "docs":
-                    continue
-                if (
-                    any(part in {"test", "tests"} for part in relative[:-1])
-                    or relative[0] == "examples"
-                    or (module == "core" and relative == ("pytest.ini",))
-                ):
-                    if module == "core":
-                        test_changes.update(core_targets)
-                    elif module == "python":
-                        test_changes.update(python_targets)
-                    else:
-                        test_changes.add(target)
-                elif PurePosixPath(path).suffix in IGNORED_SUFFIXES and path not in linked_paths:
-                    continue
+                if module == "core":
+                    test_changes.update(core_targets)
+                elif module == "python":
+                    test_changes.update(python_targets)
                 else:
-                    source_changes.add(target)
+                    test_changes.add(target)
+            elif PurePosixPath(path).suffix in IGNORED_SUFFIXES and path not in linked_paths:
                 continue
-
-            is_test_path = any(part in {"test", "tests"} for part in path_parts[:-1])
-            if is_test_path:
-                test_changes.update(all_targets)
-            elif (
-                path in IGNORED_PATHS
-                or PurePosixPath(path).suffix in IGNORED_SUFFIXES
-                or path.startswith(IGNORED_PREFIXES)
-            ):
-                continue
-            elif path_parts[0] in {"benchmarks", "cuda_python_test_helpers"}:
-                test_changes.update(all_targets)
             else:
-                force_all = True
-                break
+                source_changes.add(target)
+            continue
 
-    if release_package is not None:
-        builds = {
-            ("bindings", release_package.package_root),
-            ("python", release_package.package_root),
-        }
-        tests = set(builds)
-        test_platforms = set(PLATFORMS)
-        sdist_package_roots = {release_package.package_root}
-    elif force_all:
+        is_test_path = any(part in {"test", "tests"} for part in path_parts[:-1])
+        if is_test_path:
+            test_changes.update(all_targets)
+        elif (
+            path in IGNORED_PATHS or PurePosixPath(path).suffix in IGNORED_SUFFIXES or path.startswith(IGNORED_PREFIXES)
+        ):
+            continue
+        elif path_parts[0] in {"benchmarks", "cuda_python_test_helpers"}:
+            test_changes.update(all_targets)
+        else:
+            force_all = True
+            break
+
+    if force_all:
         builds = set(all_targets)
         tests = set(all_targets)
         test_platforms = set(PLATFORMS)
@@ -219,6 +196,55 @@ def compute_workplan(
             sdist_package_roots.update(sdist_impact)
         if source_changes or test_changes:
             test_platforms.update(PLATFORMS)
+
+    return {
+        "builds": builds,
+        "tests": tests,
+        "platforms": test_platforms,
+        "sdist_roots": sdist_package_roots,
+        "full_rebuild": force_all,
+        "core_api_checks": force_all or ("core", None) in source_changes,
+    }
+
+
+def compute_workplan(
+    *,
+    bindings_config: BindingsConfig,
+    paths: list[str],
+    linked_paths: set[str],
+    merge_base: str,
+    baseline_run_id: str,
+    release_tag: str,
+) -> dict[str, object]:
+    """Apply release/reuse policy and produce the workflow's execution records."""
+    bindings_packages = bindings_config.package_roots
+    package_roots = tuple(package.package_root for package in bindings_packages)
+    cuda_variants = tuple(package.cuda_variant for package in bindings_packages)
+    release_package = bindings_config.match_tag(release_tag) if release_tag else None
+    if release_tag.startswith("v") and release_package is None:
+        raise ValueError(f"no configured CUDA bindings package root matches release tag: {release_tag!r}")
+    force_all = release_package is None and (bool(release_tag) or not merge_base or not baseline_run_id)
+    if release_package is not None:
+        builds = {("bindings", release_package.package_root), ("python", release_package.package_root)}
+        tests = set(builds)
+        test_platforms = set(PLATFORMS)
+        sdist_package_roots = {release_package.package_root}
+        core_api_checks = False
+    elif force_all:
+        builds = {
+            ("pathfinder", None),
+            *((module, root) for module in ("bindings", "python") for root in package_roots),
+            *(("core", variant) for variant in cuda_variants),
+        }
+        tests = set(builds)
+        test_platforms = set(PLATFORMS)
+        sdist_package_roots = set(package_roots)
+        core_api_checks = True
+    else:
+        selection = select_source_work(bindings_config, paths, linked_paths)
+        builds, tests = selection["builds"], selection["tests"]
+        test_platforms, sdist_package_roots = selection["platforms"], selection["sdist_roots"]
+        force_all, core_api_checks = selection["full_rebuild"], selection["core_api_checks"]
 
     def flags(module: str, selectors: tuple[str | None, ...]) -> dict[str, bool]:
         return {
@@ -251,27 +277,39 @@ def compute_workplan(
         or any((module, package.package_root) in tests for module in ("bindings", "python"))
     }
 
+    pathfinder_source = "published" if release_package is not None else "artifact"
+    sdist_packages = [
+        {
+            **package.to_dict(),
+            "build_pathfinder": package.release_status == "current" and ("pathfinder", None) in builds,
+            "build_bindings": ("bindings", package.package_root) in builds,
+            "build_core": ("core", package.cuda_variant) in builds,
+            "build_python": ("python", package.package_root) in builds,
+            "pathfinder_source": pathfinder_source,
+        }
+        for package in bindings_packages
+        if package.package_root in sdist_package_roots
+    ]
+
     return {
         "modules": modules,
         "sources": {
             # Focused bindings releases intentionally omit unrelated artifacts.
-            "pathfinder": "published" if release_package is not None else "artifact",
+            "pathfinder": pathfinder_source,
         },
         "jobs": {
             # These gates cover both optional artifact builds and wheel tests.
             "platforms": {platform: platform in test_platforms for platform in PLATFORMS},
-            "sdist_tests": bool(sdist_package_roots),
+            "sdist_tests": bool(sdist_packages),
+            "sdist_packages": sdist_packages,
             "windows_arm64_build": (bool(baseline_run_id) and release_package is None)
             or any(
                 int(package.cuda_major) >= 13
                 and (("bindings", package.package_root) in builds or ("core", package.cuda_variant) in builds)
                 for package in bindings_packages
             ),
-            "core_api_checks": force_all or ("core", None) in source_changes,
+            "core_api_checks": core_api_checks,
             "test_cuda_majors": {variant: variant in test_cuda_variants for variant in cuda_variants},
-            "sdist_package_roots": {
-                package_root: package_root in sdist_package_roots for package_root in package_roots
-            },
         },
         "merge_base": merge_base,
         "baseline": {
@@ -325,7 +363,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--github-output",
         type=Path,
-        help="append normalized CI records to this GitHub output file",
+        help="append workplan JSON to this GitHub output file",
     )
     parser.add_argument(
         "--github-step-summary",
@@ -355,13 +393,8 @@ def main(argv: list[str] | None = None) -> None:
         print(workplan)
         return
 
-    records = {
-        "bindings-config": config.to_json(),
-        "workplan": workplan,
-    }
     with args.github_output.open("a", encoding="utf-8") as output:
-        for name, value in records.items():
-            output.write(f"{name}={value}\n")
+        output.write(f"workplan={workplan}\n")
     if args.github_step_summary is not None:
         formatted = json.dumps(plan, indent=2, sort_keys=True)
         with args.github_step_summary.open("a", encoding="utf-8") as summary:

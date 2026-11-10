@@ -8,10 +8,6 @@ on:
       host-platform:
         required: true
         type: string
-      bindings-config:
-        description: Normalized CUDA bindings package-root registry JSON.
-        required: true
-        type: string
       workplan:
         description: JSON workplan.
         required: true
@@ -96,7 +92,6 @@ jobs:
 
       - name: Set environment variables
         env:
-          BINDINGS_CONFIG: ${{ inputs.bindings-config }}
           WORKPLAN: ${{ inputs.workplan }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           PY_VER: ${{ matrix.python-version }}
