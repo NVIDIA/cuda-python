@@ -38,7 +38,9 @@ Documentation
 -------------
 
 * Correct the Windows DLL search documentation: native system search normally
-  includes ``PATH``, subject to process DLL search policy. ``CUDA_PATH`` and
-  ``CUDA_HOME`` remain fallback discovery roots, not runtime toolkit selectors.
-  Loading behavior and search order are unchanged.
+  includes ``PATH``, subject to process DLL search policy
+  (`packaged applications have a different default DLL search order
+  <https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order#search-order-for-packaged-apps>`_).
+  ``CUDA_PATH`` and ``CUDA_HOME`` remain fallback discovery roots, not runtime
+  toolkit selectors. Loading behavior and search order are unchanged.
   (`Issue #3137 <https://github.com/NVIDIA/cuda-python/issues/3137>`_)

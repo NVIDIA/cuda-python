@@ -289,9 +289,9 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         6. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
-             standard linker path (currently ``nvvm``), attempt to derive CTK
-             root by system-loading a well-known CTK canary library in a
-             subprocess and then searching relative to that root. On Windows,
+             standard linker path (such as ``nvvm`` and ``cupti``), attempt to
+             derive CTK root by system-loading a well-known CTK canary library
+             in a subprocess and then searching relative to that root. On Windows,
              the canary uses the same native ``LoadLibraryExW(..., 0)``
              semantics as step 3, so it can discover libraries through
              ``PATH`` subject to the child process's DLL search policy.
