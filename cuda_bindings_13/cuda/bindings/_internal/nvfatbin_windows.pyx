@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.4.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6156b0629deca180ced793acd420ff65b545a87ae0c537f32d526a9302ff735f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6181cdeb35d8ffd970e30339adfb9eb8d5e05bee58a4b5c1f46388823d424f52
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -77,50 +77,34 @@ cdef void* __nvFatbinAddIndex = NULL
 cdef void* __nvFatbinAddReloc = NULL
 cdef void* __nvFatbinAddTileIR = NULL
 
+cdef enum: _cyb_nvfatbin_n_functions = 12
+cdef void** _cyb_nvfatbin_slots[_cyb_nvfatbin_n_functions]
+cdef const char* _cyb_nvfatbin_names[_cyb_nvfatbin_n_functions]
+_cyb_nvfatbin_slots[0] = &__nvFatbinGetErrorString; _cyb_nvfatbin_names[0] = b'nvFatbinGetErrorString'
+_cyb_nvfatbin_slots[1] = &__nvFatbinCreate; _cyb_nvfatbin_names[1] = b'nvFatbinCreate'
+_cyb_nvfatbin_slots[2] = &__nvFatbinDestroy; _cyb_nvfatbin_names[2] = b'nvFatbinDestroy'
+_cyb_nvfatbin_slots[3] = &__nvFatbinAddPTX; _cyb_nvfatbin_names[3] = b'nvFatbinAddPTX'
+_cyb_nvfatbin_slots[4] = &__nvFatbinAddCubin; _cyb_nvfatbin_names[4] = b'nvFatbinAddCubin'
+_cyb_nvfatbin_slots[5] = &__nvFatbinAddLTOIR; _cyb_nvfatbin_names[5] = b'nvFatbinAddLTOIR'
+_cyb_nvfatbin_slots[6] = &__nvFatbinSize; _cyb_nvfatbin_names[6] = b'nvFatbinSize'
+_cyb_nvfatbin_slots[7] = &__nvFatbinGet; _cyb_nvfatbin_names[7] = b'nvFatbinGet'
+_cyb_nvfatbin_slots[8] = &__nvFatbinVersion; _cyb_nvfatbin_names[8] = b'nvFatbinVersion'
+_cyb_nvfatbin_slots[9] = &__nvFatbinAddIndex; _cyb_nvfatbin_names[9] = b'nvFatbinAddIndex'
+_cyb_nvfatbin_slots[10] = &__nvFatbinAddReloc; _cyb_nvfatbin_names[10] = b'nvFatbinAddReloc'
+_cyb_nvfatbin_slots[11] = &__nvFatbinAddTileIR; _cyb_nvfatbin_names[11] = b'nvFatbinAddTileIR'
+
 cdef int _init_nvfatbin() except -1 nogil:
     global _cyb___py_nvfatbin_init
 
     cdef int err
     cdef uintptr_t handle
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_nvfatbin_init: return 0
 
         handle = load_library()
-        global __nvFatbinGetErrorString
-        __nvFatbinGetErrorString = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinGetErrorString')
-
-        global __nvFatbinCreate
-        __nvFatbinCreate = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinCreate')
-
-        global __nvFatbinDestroy
-        __nvFatbinDestroy = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinDestroy')
-
-        global __nvFatbinAddPTX
-        __nvFatbinAddPTX = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddPTX')
-
-        global __nvFatbinAddCubin
-        __nvFatbinAddCubin = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddCubin')
-
-        global __nvFatbinAddLTOIR
-        __nvFatbinAddLTOIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddLTOIR')
-
-        global __nvFatbinSize
-        __nvFatbinSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinSize')
-
-        global __nvFatbinGet
-        __nvFatbinGet = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinGet')
-
-        global __nvFatbinVersion
-        __nvFatbinVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinVersion')
-
-        global __nvFatbinAddIndex
-        __nvFatbinAddIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddIndex')
-
-        global __nvFatbinAddReloc
-        __nvFatbinAddReloc = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddReloc')
-
-        global __nvFatbinAddTileIR
-        __nvFatbinAddTileIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvFatbinAddTileIR')
+        for i in range(_cyb_nvfatbin_n_functions):
+            _cyb_nvfatbin_slots[i][0] = _cyb_GetProcAddress(<HMODULE>handle, _cyb_nvfatbin_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvfatbin_init, 1)
         return 0
@@ -139,41 +123,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_nvfatbin()
     cdef dict data = {}
-    global __nvFatbinGetErrorString
-    data["__nvFatbinGetErrorString"] = <intptr_t>__nvFatbinGetErrorString
-
-    global __nvFatbinCreate
-    data["__nvFatbinCreate"] = <intptr_t>__nvFatbinCreate
-
-    global __nvFatbinDestroy
-    data["__nvFatbinDestroy"] = <intptr_t>__nvFatbinDestroy
-
-    global __nvFatbinAddPTX
-    data["__nvFatbinAddPTX"] = <intptr_t>__nvFatbinAddPTX
-
-    global __nvFatbinAddCubin
-    data["__nvFatbinAddCubin"] = <intptr_t>__nvFatbinAddCubin
-
-    global __nvFatbinAddLTOIR
-    data["__nvFatbinAddLTOIR"] = <intptr_t>__nvFatbinAddLTOIR
-
-    global __nvFatbinSize
-    data["__nvFatbinSize"] = <intptr_t>__nvFatbinSize
-
-    global __nvFatbinGet
-    data["__nvFatbinGet"] = <intptr_t>__nvFatbinGet
-
-    global __nvFatbinVersion
-    data["__nvFatbinVersion"] = <intptr_t>__nvFatbinVersion
-
-    global __nvFatbinAddIndex
-    data["__nvFatbinAddIndex"] = <intptr_t>__nvFatbinAddIndex
-
-    global __nvFatbinAddReloc
-    data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
-
-    global __nvFatbinAddTileIR
-    data["__nvFatbinAddTileIR"] = <intptr_t>__nvFatbinAddTileIR
+    cdef Py_ssize_t i
+    for i in range(_cyb_nvfatbin_n_functions):
+        data['__' + _cyb_nvfatbin_names[i].decode()] = <intptr_t>_cyb_nvfatbin_slots[i][0]
     _cyb_func_ptrs = data
     return data
 
