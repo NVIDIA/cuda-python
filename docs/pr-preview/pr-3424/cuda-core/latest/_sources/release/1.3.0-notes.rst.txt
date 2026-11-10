@@ -40,6 +40,13 @@ Breaking Changes
   ``cuda-bindings``. If they differ, the build fails early.
   (https://github.com/NVIDIA/cuda-python/issues/2783)
 
+- A source build of ``cuda.core`` now compiles against the CCCL headers pinned in the
+  ``cuda_core/third_party/cccl`` submodule, and fails without them. Clone with
+  ``git clone --recurse-submodules``, or run
+  ``git submodule update --init cuda_core/third_party/cccl`` in an existing clone. The
+  ``CCCL_HOME`` environment variable is no longer read.
+  (`#2940 <https://github.com/NVIDIA/cuda-python/pull/2940>`__)
+
 - With the ``cuda-bindings`` floor in place, whether a feature is available now depends only on
   the CUDA driver and the ``cuda.core`` build's CUDA major. The checks that also inspected the
   ``cuda-bindings`` version are gone, and so are their error messages. Error messages that name a

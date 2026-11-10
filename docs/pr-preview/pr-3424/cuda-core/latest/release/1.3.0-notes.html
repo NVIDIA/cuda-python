@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1baa8d83"></script>
+    <script src="../_static/documentation_options.js?v=bfd2099a"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev360';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev361';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -815,6 +815,12 @@ errors for missing C functions, silently disabled features, or crashes.
 <li><p>A source build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> must use a <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> of the same major.minor as its
 <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>. If they differ, the build fails early.
 (<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">NVIDIA/cuda-python#2783</a>)</p></li>
+<li><p>A source build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now compiles against the CCCL headers pinned in the
+<code class="docutils literal notranslate"><span class="pre">cuda_core/third_party/cccl</span></code> submodule, and fails without them. Clone with
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">--recurse-submodules</span></code>, or run
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">cuda_core/third_party/cccl</span></code> in an existing clone. The
+<code class="docutils literal notranslate"><span class="pre">CCCL_HOME</span></code> environment variable is no longer read.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/2940">#2940</a>)</p></li>
 <li><p>With the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor in place, whether a feature is available now depends only on
 the CUDA driver and the <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> build’s CUDA major. The checks that also inspected the
 <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version are gone, and so are their error messages. Error messages that name a
