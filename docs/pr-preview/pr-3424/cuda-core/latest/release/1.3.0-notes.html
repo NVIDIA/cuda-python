@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=2c5207e9"></script>
+    <script src="../_static/documentation_options.js?v=d0231d4e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev363';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev367';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -789,6 +789,11 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
+for CUDA 13. With an older <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>, <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> fails with a message that
+names the required version. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'cuda-core[cu12]'</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'cuda-core[cu13]'</span></code>
+installs a compatible version. See the <a class="reference internal" href="../support.html#cuda-core-bindings-floor"><span class="std std-ref">support policy</span></a>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">#2783</a>)</p></li>
 <li><p>Support for Python 3.10 is dropped (end of life).</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource" title="cuda.core.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> buffers can be shared with other processes through POSIX file
 descriptors or fabric handles.</p></li>
@@ -796,16 +801,6 @@ descriptors or fabric handles.</p></li>
 stream order.</p></li>
 <li><p>A new <a class="reference internal" href="../error_handling.html"><span class="doc">error handling</span></a> policy: <a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> reports CUDA
 errors that cannot be raised, and <a class="reference internal" href="../generated/cuda.core.CUDAOutOfMemoryError.html#cuda.core.CUDAOutOfMemoryError" title="cuda.core.CUDAOutOfMemoryError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAOutOfMemoryError</span></code></a> is a <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#MemoryError" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryError</span></code></a>.</p></li>
-</ul>
-</section>
-<section id="breaking-changes">
-<h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
-for CUDA 13. With an older <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>, <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> fails with a message that
-names the required version. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'cuda-core[cu12]'</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'cuda-core[cu13]'</span></code>
-installs a compatible version. See the <a class="reference internal" href="../support.html#cuda-core-bindings-floor"><span class="std std-ref">support policy</span></a>.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">#2783</a>)</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -850,9 +845,6 @@ The valid range is the device’s stream priority range, as for
 <a class="reference internal" href="../generated/cuda.core.LaunchConfig.html#cuda.core.LaunchConfig" title="cuda.core.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>: <code class="docutils literal notranslate"><span class="pre">&quot;DEFAULT&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;SPREAD&quot;</span></code>, or
 <code class="docutils literal notranslate"><span class="pre">&quot;LOAD_BALANCING&quot;</span></code>. It requires compute capability 9.0 or newer.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2629">#2629</a>)</p></li>
-<li><p>The PyTorch tensor bridge uses the stable <code class="docutils literal notranslate"><span class="pre">PyObject</span></code> to <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> C API
-of PyTorch 2.14 and newer, and no longer caps the supported PyTorch
-version. PyTorch 2.3 to 2.13 keep the previous path.</p></li>
 <li><p>Added the read-only <a class="reference internal" href="../generated/cuda.core.ManagedBuffer.html#cuda.core.ManagedBuffer.last_prefetch_location" title="cuda.core.ManagedBuffer.last_prefetch_location"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ManagedBuffer.last_prefetch_location</span></code></a> property,
 which reports the destination requested by the most recent explicit
 prefetch across the buffer. It returns a <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Host.html#cuda.core.Host" title="cuda.core.Host"><code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code></a>,
@@ -932,6 +924,11 @@ CI in this release.
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_dlpack" title="cuda.core.utils.StridedMemoryView.from_dlpack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.StridedMemoryView.from_dlpack()</span></code></a> and
+<a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.from_array_interface" title="cuda.core.utils.StridedMemoryView.from_array_interface"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.StridedMemoryView.from_array_interface()</span></code></a> use the stable C API of
+PyTorch 2.14 and newer for PyTorch tensors, and no longer cap the supported
+PyTorch version. PyTorch 2.3 to 2.13 keep the previous path.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3033">#3033</a>)</p></li>
 <li><p>Kernels can read and write <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> buffers. The driver
 makes a host memory pool accessible only from the host by default, so a
 kernel that touched such a buffer failed with <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_ILLEGAL_ADDRESS</span></code>.
@@ -1275,7 +1272,6 @@ count, with a CUDA 13 build on a driver of 13.1 or newer.
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecations">Deprecations</a></li>

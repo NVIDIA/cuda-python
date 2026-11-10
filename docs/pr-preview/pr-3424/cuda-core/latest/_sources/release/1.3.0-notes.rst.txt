@@ -9,6 +9,12 @@
 Highlights
 ----------
 
+- ``cuda.core`` now requires ``cuda-bindings`` 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
+  for CUDA 13. With an older ``cuda-bindings``, ``import cuda.core`` fails with a message that
+  names the required version. ``pip install 'cuda-core[cu12]'`` or ``pip install 'cuda-core[cu13]'``
+  installs a compatible version. See the :ref:`support policy <cuda-core-bindings-floor>`.
+  (`#2783 <https://github.com/NVIDIA/cuda-python/issues/2783>`__)
+
 - Support for Python 3.10 is dropped (end of life).
 
 - :class:`VirtualMemoryResource` buffers can be shared with other processes through POSIX file
@@ -19,15 +25,6 @@ Highlights
 
 - A new :doc:`error handling <../error_handling>` policy: :class:`CUDAWarning` reports CUDA
   errors that cannot be raised, and :class:`CUDAOutOfMemoryError` is a :class:`MemoryError`.
-
-Breaking Changes
-----------------
-
-- ``cuda.core`` now requires ``cuda-bindings`` 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
-  for CUDA 13. With an older ``cuda-bindings``, ``import cuda.core`` fails with a message that
-  names the required version. ``pip install 'cuda-core[cu12]'`` or ``pip install 'cuda-core[cu13]'``
-  installs a compatible version. See the :ref:`support policy <cuda-core-bindings-floor>`.
-  (`#2783 <https://github.com/NVIDIA/cuda-python/issues/2783>`__)
 
 New features
 ------------
@@ -76,10 +73,6 @@ New features
   :class:`LaunchConfig`: ``"DEFAULT"``, ``"SPREAD"``, or
   ``"LOAD_BALANCING"``. It requires compute capability 9.0 or newer.
   (`#2629 <https://github.com/NVIDIA/cuda-python/issues/2629>`__)
-
-- The PyTorch tensor bridge uses the stable ``PyObject`` to ``Tensor`` C API
-  of PyTorch 2.14 and newer, and no longer caps the supported PyTorch
-  version. PyTorch 2.3 to 2.13 keep the previous path.
 
 - Added the read-only :attr:`ManagedBuffer.last_prefetch_location` property,
   which reports the destination requested by the most recent explicit
@@ -165,6 +158,12 @@ New features
 
 Fixes and enhancements
 ----------------------
+
+- :meth:`utils.StridedMemoryView.from_dlpack` and
+  :meth:`utils.StridedMemoryView.from_array_interface` use the stable C API of
+  PyTorch 2.14 and newer for PyTorch tensors, and no longer cap the supported
+  PyTorch version. PyTorch 2.3 to 2.13 keep the previous path.
+  (`#3033 <https://github.com/NVIDIA/cuda-python/pull/3033>`__)
 
 - Kernels can read and write :class:`PinnedMemoryResource` buffers. The driver
   makes a host memory pool accessible only from the host by default, so a
