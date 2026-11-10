@@ -33,3 +33,9 @@ Bugfixes
   these roots lexically into a different location.
   (`Issue #3413 <https://github.com/NVIDIA/cuda-python/issues/3413>`_,
   `PR #3418 <https://github.com/NVIDIA/cuda-python/pull/3418>`_)
+
+* On Linux, preload the matching ``libnvrtc-builtins.so.<major>.<minor>`` next
+  to an NVRTC from a CUDA Toolkit before 13.6, so that compilation works
+  without ``LD_LIBRARY_PATH`` or an ``ldconfig`` entry for the toolkit
+  directory. NVRTC 13.6 finds its builtins itself; wheels keep only the
+  existing NVRTC 13.0 workaround, and Conda packages are left unchanged.
