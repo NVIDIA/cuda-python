@@ -186,6 +186,15 @@ jobs:
           cd $INSTALL_ROOT
           $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings_13/tests
 
+      - name: Trace cuda.core imports
+        continue-on-error: true
+        run: |
+          cd $INSTALL_ROOT
+          # Trace collection-time imports before the regular pytest-cov run.
+          "$REPO_ROOT/.venv/bin/python" -m coverage run \
+            --append --source=./cuda --rcfile="$REPO_ROOT/.coveragerc" \
+            -m pytest -p no:pytest_cov --collect-only -qq "$REPO_ROOT/cuda_core/tests"
+
       - name: Run cuda.core tests
         continue-on-error: true
         run: |
@@ -449,6 +458,15 @@ jobs:
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
+
+      - name: Trace cuda.core imports
+        continue-on-error: true
+        run: |
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          # Use a separate process so pytest-cov retains lifecycle contexts.
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m coverage run \
+            --append --source=./cuda --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
+            -m pytest -p no:pytest_cov --collect-only -qq "$GITHUB_WORKSPACE/cuda_core/tests"
 
       - name: Run cuda.core tests
         continue-on-error: true
