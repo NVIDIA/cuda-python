@@ -102,6 +102,7 @@ jobs:
 
       - name: Set environment variables
         env:
+          BINDINGS_CONFIG: LEGACY_CONFIG
           BUILD_CUDA_VER: ${{ env.CUDA_VER }}
           CUDA_VER: ${{ env.CUDA_VER }}
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}

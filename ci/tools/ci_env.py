@@ -85,9 +85,12 @@ def build_environment(env: Mapping[str, str], root: Path) -> dict[str, object]:
 
 
 def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
+    config = env.get("BINDINGS_CONFIG")
+    if not config:
+        raise ValueError("BINDINGS_CONFIG must contain registry JSON or LEGACY_CONFIG")
     python, host, sha = env["PY_VER"], env["HOST_PLATFORM"], env["SHA"]
     test_major, test_minor = env["CUDA_VER"].split(".")[:2]
-    if not env.get("BINDINGS_CONFIG"):
+    if config == "LEGACY_CONFIG":
         current = build = env["BUILD_CUDA_VER"]
         bindings_root = "cuda_bindings_13" if (root / "cuda_bindings_13").is_dir() else "cuda_bindings"
         previous = subprocess.check_output(

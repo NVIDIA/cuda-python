@@ -123,10 +123,12 @@ def main() -> None:
     parser.add_argument("--platform", choices=("linux", "windows"), required=True)
     args = parser.parse_args()
     try:
-        config = os.environ["BINDINGS_CONFIG"]
+        config = os.environ.get("BINDINGS_CONFIG")
+        if not config:
+            raise ValueError("BINDINGS_CONFIG must contain registry JSON or LEGACY_CONFIG")
         result = select_test_matrix(
             json.load(sys.stdin),
-            json.loads(config)["package_roots"] if config else None,
+            None if config == "LEGACY_CONFIG" else json.loads(config)["package_roots"],
             workplan=json.loads(os.environ.get("WORKPLAN") or "null"),
             build_type=os.environ["BUILD_TYPE"],
             test_mode=os.environ["TEST_MODE"],

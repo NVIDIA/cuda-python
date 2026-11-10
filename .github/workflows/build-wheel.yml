@@ -481,12 +481,6 @@ jobs:
       - name: List the cuda-python artifacts directories
         if: ${{ (env.BUILD_CUDA_PYTHON == 'true' || env.BASELINE_RUN_ID != '') && strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
-            export CHOWN=chown
-          else
-            export CHOWN="sudo chown"
-          fi
-          $CHOWN -R $(whoami) cuda_python/dist
           ls -lahR cuda_python/dist
 
       - name: Set up Python

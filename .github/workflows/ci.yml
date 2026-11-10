@@ -323,7 +323,7 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-    name: Build (${{ matrix.host-platform }})
+    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ') }})
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     permissions:
       actions: read
@@ -345,7 +345,7 @@ jobs:
       matrix:
         host-platform:
           - linux-aarch64
-    name: Build (${{ matrix.host-platform }})
+    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ') }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -370,7 +370,7 @@ jobs:
       matrix:
         host-platform:
           - win-64
-    name: Build (${{ matrix.host-platform }})
+    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ') }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -385,13 +385,13 @@ jobs:
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       python-versions: ${{ needs.detect-changes.outputs.python-supported }}
 
-  # Windows ARM64 is available starting with CUDA 13.4. Build only the current
-  # CUDA major because no prior-major toolkit or wheel artifacts exist.
+  # Windows ARM64 is available starting with CUDA 13.4. While CUDA 13 is current,
+  # build only that major; at 13/14, both configured majors have ARM64 toolkits.
   build-windows-arm64:
     needs:
       - should-skip
       - detect-changes
-    name: Build (win-arm64)
+    name: Build (win-arm64, ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' && 'current CUDA only' || format('CUDA {0}', join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ')) }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&

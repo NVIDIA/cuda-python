@@ -14,11 +14,11 @@ on:
         type: string
         required: true
       build-ctk-ver:
-        description: Build toolkit for the empty-registry legacy snapshot route.
+        description: Build toolkit for the LEGACY_CONFIG snapshot route.
         type: string
         default: ''
       bindings-config:
-        description: Normalized registry; empty retains legacy snapshot routing.
+        description: Normalized registry JSON, or LEGACY_CONFIG for an older source snapshot.
         type: string
         default: ''
       matrix_filter:
@@ -53,8 +53,9 @@ on:
 
 jobs:
   compute-matrix:
+    # Let empty configuration reach validation even when the workplan has no tests.
     if: >-
-      ${{ inputs.bindings-config == '' || inputs.workplan == '' ||
+      ${{ inputs.bindings-config == '' || inputs.bindings-config == 'LEGACY_CONFIG' || inputs.workplan == '' ||
           contains(fromJSON(inputs.workplan).jobs.test_cuda_majors.*, true) }}
     runs-on: ubuntu-latest
     defaults:
@@ -105,7 +106,7 @@ jobs:
           MATRIX=$(jq -c '${{ inputs.matrix_filter }}' <<< "$TEST_MATRIX" \
             | python3 .ci-control/ci/tools/select_test_matrix.py --platform windows)
 
-          if [[ -z "$BINDINGS_CONFIG" ]]; then
+          if [[ "$BINDINGS_CONFIG" == "LEGACY_CONFIG" ]]; then
             OLD_BRANCH=$(yq -r '.backport_branch' ci/versions.yml)
             echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
           else
@@ -134,7 +135,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() &&
-            (inputs.bindings-config == '' || inputs.workplan == '' || contains(fromJSON(inputs.workplan).jobs.test_cuda_majors.*, true)) }}
+            (inputs.bindings-config == 'LEGACY_CONFIG' || inputs.workplan == '' || contains(fromJSON(inputs.workplan).jobs.test_cuda_majors.*, true)) }}
     runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.RUNNER_DRIVER }}-${{ matrix.GPU_COUNT }}"
     steps:
       - name: Enable Git symlinks (Windows, must precede checkout)
@@ -438,7 +439,7 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
-          # CUDA 13's metapackage also requires Core. A bindings-only release
+          # Metapackages for CUDA 13 and later also require Core. A bindings-only release
           # must resolve published Core while preserving the selected wheels.
           if [[ "$TEST_CORE" == true || ("$TEST_BINDINGS" == true && "$TEST_CUDA_MAJOR" == 12) ]]; then
             dependency_args=(--no-deps)
