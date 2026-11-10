@@ -18,7 +18,7 @@ from cuda.pathfinder._dynamic_libs import load_dl_windows
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 
 
-@pytest.mark.agent_authored(model="unknown")
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_system_search_finds_dll_exposed_only_through_path(tmp_path, info_summary_append):
     dll_name = f"cuda_pathfinder_probe_{uuid.uuid4().hex}.dll"
     dll_dir = tmp_path / "path_only"

@@ -170,7 +170,7 @@ def test_cupti_not_found_raises_error(mocker):
 
 
 @pytest.mark.parametrize("preferred_source", ("site-packages", "conda", "system-search"))
-@pytest.mark.agent_authored(model="unknown")
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mocker, monkeypatch, preferred_source):
     desc = load_mod.LIB_DESCRIPTORS["cublasLt"]
     platform = steps_mod.PLATFORM

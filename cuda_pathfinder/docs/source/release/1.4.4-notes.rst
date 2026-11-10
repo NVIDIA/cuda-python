@@ -17,9 +17,10 @@ Highlights
 
   .. note::
 
-     **Correction in 1.9.0:** That update incorrectly stated that Python 3.8+
-     excludes ``PATH`` from the native Windows DLL search. The direct
-     ``LoadLibraryExW(..., 0)`` call normally includes ``PATH`` for unpackaged
-     processes, subject to process DLL search policy. This was a documentation
-     error; the update did not change DLL loading behavior.
+     **Correction in 1.9.0:** The 1.4.4 release updated the documentation
+     to incorrectly state that Python 3.8+ excludes ``PATH`` from the native
+     Windows DLL search. The direct ``LoadLibraryExW(..., 0)`` call normally
+     includes ``PATH`` for unpackaged processes, subject to process DLL search
+     policy. This was a documentation error; the update did not change DLL
+     loading behavior.
      (`Issue #3137 <https://github.com/NVIDIA/cuda-python/issues/3137>`_)
