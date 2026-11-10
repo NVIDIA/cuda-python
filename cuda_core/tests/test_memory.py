@@ -2973,6 +2973,7 @@ def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, 
         mr.close()
 
 
+@pytest.mark.thread_unsafe(reason="CUDA legacy-default-stream mempool teardown/sync race (gh-3350)")
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 @pytest.mark.parametrize("kind", ["reserved", "used"])
 def test_mempool_watermark_reset(memory_resource_factory, kind):
