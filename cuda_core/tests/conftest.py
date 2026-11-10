@@ -298,8 +298,10 @@ def init_cuda(request):
         # With pytest-run-parallel this runs after worker join. This also runs
         # when setup raises, so an escalated leftover warning cannot leave the
         # context current.
+        # The test wrapper may already have popped the calling thread's
+        # context; synchronize the fixture device's bound context explicitly.
         try:
-            handle_return(driver.cuCtxSynchronize())
+            device.sync()
         finally:
             _ = _device_unset_current()
         # After the cleanup, so an escalated warning cannot skip it.

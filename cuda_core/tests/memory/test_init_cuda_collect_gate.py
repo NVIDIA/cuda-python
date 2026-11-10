@@ -33,7 +33,8 @@ from helpers.memory import (
     UnreleasedMemoryResourceWarning,
 )
 
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core import Device
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 
 
 class _ScriptedCounts:
@@ -250,3 +251,58 @@ def test_teardown_warns_on_baseline_release(request, monkeypatch):
         pytest.raises(StopIteration),
     ):
         next(gen)  # teardown: live_after == (0, 0) -> baseline-release warning
+
+
+@_THREAD_UNSAFE_MARKER
+@pytest.mark.agent_authored(model="gpt-6")
+@pytest.mark.parametrize("clear_current", [False, True])
+def test_teardown_synchronizes_fixture_context(request, monkeypatch, clear_current):
+    """Teardown works even after the test wrapper has popped the current context."""
+    func = _init_cuda_func(request)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((0, 0)))
+
+    saved = _pop_context_stack()
+    gen = func(_FakeRequest())
+    try:
+        next(gen)
+        if clear_current:
+            handle_return(driver.cuCtxPopCurrent())
+            assert current_context_handle() == 0
+        _finish_teardown(gen)
+        assert current_context_handle() == 0
+    finally:
+        gen.close()
+        _push_context_stack(saved)
+
+
+@_THREAD_UNSAFE_MARKER
+@pytest.mark.agent_authored(model="gpt-6")
+def test_teardown_sync_failure_still_pops_context(request, monkeypatch):
+    """A synchronization error propagates without leaving the context current."""
+    func = _init_cuda_func(request)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((0, 0)))
+    failure = CUDAError("injected synchronization failure")
+
+    class FailingSyncDevice:
+        device_id = 0
+
+        def set_current(self):
+            Device(0).set_current()
+
+        def sync(self):
+            raise failure
+
+    _patch_conftest_global(monkeypatch, func, "Device", lambda _: FailingSyncDevice())
+    saved = _pop_context_stack()
+    gen = func(_FakeRequest())
+    try:
+        next(gen)
+        with pytest.raises(CUDAError) as excinfo:
+            next(gen)
+        assert excinfo.value is failure
+        assert current_context_handle() == 0
+    finally:
+        gen.close()
+        _push_context_stack(saved)
