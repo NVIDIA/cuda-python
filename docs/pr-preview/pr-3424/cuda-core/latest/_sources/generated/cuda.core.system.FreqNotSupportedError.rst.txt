@@ -1,0 +1,6 @@
+﻿cuda.core.system.FreqNotSupportedError
+======================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: FreqNotSupportedError
