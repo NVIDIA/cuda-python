@@ -146,7 +146,7 @@ jobs:
               toolkit = raw["cuda"]["build"]["version"]
               branch = raw["backport_branch"]
               subprocess.run(["git", "check-ref-format", f"refs/heads/{branch}"], check=True)
-              config_json = ""
+              config_json = "LEGACY_CONFIG"
           else:
               if raw["schema_version"] != 2:
                   raise ValueError(f"unsupported nightly source schema: {raw['schema_version']!r}")
