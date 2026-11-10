@@ -95,9 +95,12 @@ cuda-bindings floor" in `cuda_core/AGENTS.md`. Check the floors instead:
   major in `ci/versions.yml` (`build` for the current major, `prev_build`
   for the prior major). If a floor's minor is lower, the toolkit-bump
   window is open: move the floor before the release.
-- The CI rows with `BINDINGS_SOURCE=floor` installed the literal floor.
-  Their logs show `cuda-bindings==<floor>` and no "predates ... headers"
-  line.
+- In the latest CI run on `main`, the CUDA 13 rows whose CUDA minor
+  differs from the `build` pin (for example "CUDA 13.0.2") installed the
+  literal floor. Their logs show `Installing bindings (source: floor)` and
+  `cuda-bindings==<floor>`, and no "predates ... headers" line. Standard
+  CI does not install the CUDA 12 floor: its rows use the 12.9.x backport
+  build.
 - The release notes list every floor move since the last release under
   "Breaking Changes".
 

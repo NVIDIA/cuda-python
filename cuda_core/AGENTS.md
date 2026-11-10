@@ -62,9 +62,10 @@ qualifies.
 Three events move a floor:
 
 - A change uses a `cuda-bindings` API newer than the floor. Bump the floor in
-  the same pull request.
+  the same pull request. The new floor must already be released on PyPI;
+  release `cuda-bindings` first.
 - A change relies on a bug fix in a newer `cuda-bindings`. Bump the floor in
-  the same pull request.
+  the same pull request, under the same condition.
 - The build toolkit moves to a new minor. Move the floor to the lowest
   suitable release of that minor, as described under "CUDA Toolkit minor
   bumps".
@@ -90,7 +91,7 @@ bump:
 5. Pin `cuda-bindings` to match in the conda-forge `cuda-core` feedstock. The
    feedstock lives outside this repository.
 
-A `cuda-core` release also bumps the `cuda-core~=X.Y.0` pin in
+A `cuda-core` release bumps the `cuda-core~=X.Y.0` pin in
 `cuda_python/setup.py`, followed by a `cuda-python` release (see
 `.github/RELEASE-core.md`).
 
