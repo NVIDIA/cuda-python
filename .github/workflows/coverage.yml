@@ -110,7 +110,7 @@ jobs:
           PY_VER: ${{ env.PY_VER }}
           SHA: ${{ github.sha }}
         run: |
-          ./ci/tools/env-vars test
+          python ci/tools/ci_env.py test
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up mini CTK

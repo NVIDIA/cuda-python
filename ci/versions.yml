@@ -17,8 +17,7 @@ cuda:
     version: "12.9.1"
 
 python:
-  # Python versions the wheel matrix is built across. ci.yml reads this list
-  # and passes it to build-wheel.yml as the `python-versions` input.
+  # Shared wheel build matrix, also read from tagged sources during releases.
   supported:
     - "3.11"
     - "3.12"

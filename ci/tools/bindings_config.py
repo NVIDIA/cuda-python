@@ -232,22 +232,6 @@ def write_github_env(data: Mapping[str, object], path: Path) -> None:
         stream.write(f"RESOLVED_BINDINGS_PACKAGE={json.dumps(data, separators=(',', ':'))}\n")
 
 
-def write_registry_github_output(config: BindingsConfig, path: Path) -> None:
-    """Emit the registry and the scalar outputs needed by the CI caller."""
-    current = config.package_for_release_status("current")
-    versions = wheel_python_versions(current.toolkit_version, "win-arm64", config.python_supported)
-    values = {
-        "bindings-config": config.to_json(),
-        "python-supported": json.dumps(config.python_supported),
-        "windows-arm64-supported": str(bool(versions)).lower(),
-        "windows-arm64-single-cuda-major": str(config.windows_arm64_single_cuda_major).lower(),
-        "windows-arm64-python-supported": json.dumps(versions),
-    }
-    with path.open("a", encoding="utf-8") as stream:
-        for name, value in values.items():
-            stream.write(f"{name}={value}\n")
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -255,7 +239,6 @@ def main(argv: list[str] | None = None) -> int:
     output.add_argument("--package-roots", action="store_true")
     output.add_argument("--release-status", choices=sorted(RELEASE_STATUSES))
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
-    output.add_argument("--github-output", type=Path, help="append registry and CI scalar outputs")
     parser.add_argument("--release-source-root", type=Path)
     commands = parser.add_subparsers(dest="command")
     write_env = commands.add_parser("write-github-env", help="append package JSON from stdin to GITHUB_ENV")
@@ -263,9 +246,6 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        if args.github_output is not None:
-            write_registry_github_output(load_config(args.config), args.github_output)
-            return 0
         if args.command == "write-github-env":
             if args.package_roots or args.release_status or args.release_tag or args.release_source_root is not None:
                 parser.error("write-github-env does not accept registry selectors")

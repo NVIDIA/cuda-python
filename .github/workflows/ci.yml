@@ -90,12 +90,14 @@ jobs:
       actions: read
       contents: read
     outputs:
-      bindings-config: ${{ steps.registry.outputs.bindings-config }}
-      python-supported: ${{ steps.registry.outputs.python-supported }}
-      windows-arm64-supported: ${{ steps.registry.outputs.windows-arm64-supported }}
-      windows-arm64-python-supported: ${{ steps.registry.outputs.windows-arm64-python-supported }}
-      windows-arm64-single-cuda-major: ${{ steps.registry.outputs.windows-arm64-single-cuda-major }}
+      bindings-config: ${{ steps.workplan.outputs.bindings-config }}
       workplan: ${{ steps.workplan.outputs.workplan }}
+      platform-linux: ${{ steps.workplan.outputs.platform-linux }}
+      platform-windows: ${{ steps.workplan.outputs.platform-windows }}
+      windows-arm64-build: ${{ steps.workplan.outputs.windows-arm64-build }}
+      windows-arm64-single-cuda-major: ${{ steps.workplan.outputs.windows-arm64-single-cuda-major }}
+      sdist-tests: ${{ steps.workplan.outputs.sdist-tests }}
+      core-api-checks: ${{ steps.workplan.outputs.core-api-checks }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -111,10 +113,6 @@ jobs:
 
       - name: Install CI tool test dependencies
         run: python3 -m pip install -e './ci[test]'
-
-      - name: Read bindings configuration and select supported build platforms
-        id: registry
-        run: python3 -m ci.tools.bindings_config --github-output "$GITHUB_OUTPUT"
 
       - name: Resolve PR merge base
         id: merge-base
@@ -211,24 +209,13 @@ jobs:
           MERGE_BASE: ${{ steps.merge-base.outputs.sha }}
           BASELINE_RUN_ID: ${{ steps.baseline.outputs.run_id }}
           RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-        run: |
-          set -euo pipefail
-          planner_args=(
-            --merge-base "$MERGE_BASE"
-            --baseline-run-id "$BASELINE_RUN_ID"
-          )
-          if [[ -n "$RELEASE_TAG" ]]; then
-            planner_args+=(--release-tag "$RELEASE_TAG")
-          fi
-          python3 -m ci.tools.compute_ci_plan "${planner_args[@]}" \
-            --github-output "$GITHUB_OUTPUT" \
-            --github-step-summary "$GITHUB_STEP_SUMMARY"
+        run: python3 -m ci.tools.compute_ci_plan
 
   api-check-core-vs-release:
     name: API check (cuda_core vs. latest release)
     if: >-
       ${{ !fromJSON(needs.should-skip.outputs.skip) &&
-          fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks }}
+          needs.detect-changes.outputs.core-api-checks == 'true' }}
     runs-on: ubuntu-latest
     needs:
       - should-skip
@@ -279,7 +266,7 @@ jobs:
     if: >-
       ${{ startsWith(github.ref_name, 'pull-request/') &&
           !fromJSON(needs.should-skip.outputs.skip) &&
-          fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks }}
+          needs.detect-changes.outputs.core-api-checks == 'true' }}
     runs-on: ubuntu-latest
     needs:
       - should-skip
@@ -333,7 +320,6 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
-      python-versions: ${{ needs.detect-changes.outputs.python-supported }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
@@ -349,7 +335,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
+            needs.detect-changes.outputs.platform-linux == 'true' }}
     permissions:
       actions: read
       contents: read
@@ -358,7 +344,6 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
-      python-versions: ${{ needs.detect-changes.outputs.python-supported }}
 
   # See build-linux-64 for why build jobs are split by platform.
   build-windows:
@@ -374,7 +359,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
+            needs.detect-changes.outputs.platform-windows == 'true' }}
     permissions:
       actions: read
       contents: read
@@ -383,7 +368,6 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
-      python-versions: ${{ needs.detect-changes.outputs.python-supported }}
 
   # Windows ARM64 is available starting with CUDA 13.4. While CUDA 13 is current,
   # build only that major; at 13/14, both configured majors have ARM64 toolkits.
@@ -395,9 +379,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            needs.detect-changes.outputs.windows-arm64-supported == 'true' &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.windows_arm64_build &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
+            needs.detect-changes.outputs.windows-arm64-build == 'true' }}
     permissions:
       actions: read
       contents: read
@@ -407,7 +389,6 @@ jobs:
       host-platform: win-arm64
       workplan: ${{ needs.detect-changes.outputs.workplan }}
       single-cuda-major: ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' }}
-      python-versions: ${{ needs.detect-changes.outputs.windows-arm64-python-supported }}
 
   # NOTE: test-sdist jobs are split by platform (mirroring build-* and test-wheel-*)
   # so platform-specific sources (e.g. cuda_bindings_13/*_windows.pyx selected by
@@ -428,7 +409,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests }}
+            needs.detect-changes.outputs.sdist-tests == 'true' }}
     permissions:
       actions: read
       contents: read
@@ -453,7 +434,7 @@ jobs:
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests }}
+            needs.detect-changes.outputs.sdist-tests == 'true' }}
     permissions:
       actions: read
       contents: read
@@ -477,7 +458,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
+            needs.detect-changes.outputs.platform-linux == 'true' }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -504,7 +485,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux }}
+            needs.detect-changes.outputs.platform-linux == 'true' }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -532,7 +513,7 @@ jobs:
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
-            fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows }}
+            needs.detect-changes.outputs.platform-windows == 'true' }}
     permissions:
       actions: read
       contents: read  # This is required for actions/checkout
@@ -611,12 +592,11 @@ jobs:
           fi
 
           doc_only="${{ needs.should-skip.outputs.doc-only }}"
-          linux_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.linux || false }}"
-          windows_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.platforms.windows || false }}"
-          windows_arm64_supported="${{ needs.detect-changes.outputs.windows-arm64-supported }}"
-          windows_arm64_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.windows_arm64_build || false }}"
-          build_selected="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.sdist_tests || false }}"
-          run_core_api_check="${{ needs.detect-changes.outputs.workplan && fromJSON(needs.detect-changes.outputs.workplan).jobs.core_api_checks || false }}"
+          linux_selected="${{ needs.detect-changes.outputs.platform-linux }}"
+          windows_selected="${{ needs.detect-changes.outputs.platform-windows }}"
+          windows_arm64_selected="${{ needs.detect-changes.outputs.windows-arm64-build }}"
+          build_selected="${{ needs.detect-changes.outputs.sdist-tests }}"
+          run_core_api_check="${{ needs.detect-changes.outputs.core-api-checks }}"
           is_pr="${{ startsWith(github.ref_name, 'pull-request/') }}"
           status="success"
           check_result() {
@@ -648,7 +628,7 @@ jobs:
           check_result "build-windows"       "$windows_expected"
 
           windows_arm64_expected="skipped"
-          if [[ "$windows_arm64_supported" == "true" && "$windows_arm64_selected" == "true" ]]; then
+          if [[ "$windows_arm64_selected" == "true" ]]; then
             windows_arm64_expected="$windows_expected"
           fi
           check_result "build-windows-arm64" "$windows_arm64_expected"

@@ -101,7 +101,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< "${CUDA_VER}")"
   TEST_CUDA_MAJOR_MINOR="$(cut -d '.' -f 1-2 <<< "${CUDA_VER}")"
 
-  # Resolve bindings based on BINDINGS_SOURCE (set by env-vars):
+  # Resolve bindings based on BINDINGS_SOURCE (set by ci_env.py):
   #   local         → matching configured-package wheel from this run
   #   floor         -> the oldest supported bindings, read from the Core wheel
   #                    and installed from PyPI
@@ -149,7 +149,7 @@ elif [[ "${test_module}" == "core" || "${test_module}" == nightly-* ]]; then
     fi
     # Resolve pathfinder wheel to absolute path before pushd.
     # CUDA_BINDINGS_ARTIFACTS_DIR and CUDA_CORE_ARTIFACTS_DIR are already
-    # absolute (set via realpath in env-vars).
+    # absolute (set by ci_env.py).
     pathfinder_wheels=(./cuda_pathfinder/*.whl)
     if [[ "${#pathfinder_wheels[@]}" -ne 1 || ! -f "${pathfinder_wheels[0]}" ]]; then
       echo "Expected exactly one cuda-pathfinder wheel in ./cuda_pathfinder" >&2

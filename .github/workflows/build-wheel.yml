@@ -17,10 +17,6 @@ on:
         required: false
         type: boolean
         default: false
-      python-versions:
-        description: "JSON-encoded array of Python versions to build (e.g. '[\"3.11\",\"3.12\"]'). ci.yml sources this from ci/versions.yml."
-        required: true
-        type: string
 
 defaults:
   run:
@@ -35,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJSON(inputs.python-versions) }}
+        python-version: ${{ fromJSON(inputs.workplan).jobs.wheel_python_versions[inputs.host-platform] }}
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -96,7 +92,7 @@ jobs:
           HOST_PLATFORM: ${{ inputs.host-platform }}
           PY_VER: ${{ matrix.python-version }}
           SHA: ${{ github.sha }}
-        run: ./ci/tools/env-vars build
+        run: python ci/tools/ci_env.py build
 
       - name: Install rapidsai/sccache
         if: ${{ startsWith(inputs.host-platform, 'linux') && (env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true') }}

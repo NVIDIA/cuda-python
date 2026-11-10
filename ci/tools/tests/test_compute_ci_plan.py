@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from ci.tools.bindings_config import load_config
+from ci.tools.bindings_config import BindingsConfig, BindingsPackage, load_config
 from ci.tools.compute_ci_plan import _expand_linked_paths, compute_workplan
 
 CONFIG = load_config()
@@ -62,7 +62,7 @@ def test_source_and_test_changes_select_their_consumers(path, builds, tests):
     plan = plan_for(path)
     assert selected(plan, "needs_build") == builds
     assert selected(plan, "needs_test") == tests
-    assert {platform for platform, enabled in plan["jobs"]["platforms"].items() if enabled} == {"linux", "windows"}
+    assert plan["scheduler"]["platform-linux"] and plan["scheduler"]["platform-windows"]
 
 
 @pytest.mark.parametrize("package", PACKAGES, ids=lambda package: package.package_root)
@@ -83,7 +83,7 @@ def test_bindings_changes_reuse_core_and_test_the_matching_major(package):
     assert selected(tests_only, "needs_test") == {("bindings", package.package_root)}
 
 
-@pytest.mark.parametrize("path", ["ci/tools/env-vars", ".github/workflows/build-wheel.yml", "unknown-build-input"])
+@pytest.mark.parametrize("path", ["ci/tools/ci_env.py", ".github/workflows/build-wheel.yml", "unknown-build-input"])
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_shared_or_unknown_infrastructure_requires_every_component(path):
     plan = plan_for(path)
@@ -98,7 +98,24 @@ def test_platform_test_infrastructure_reuses_wheels_but_runs_every_suite(platfor
     plan = plan_for(f".github/workflows/test-wheel-{platform}.yml")
     assert selected(plan, "needs_build") == set()
     assert selected(plan, "needs_test") == ALL
-    assert {name for name, enabled in plan["jobs"]["platforms"].items() if enabled} == {platform}
+    assert {name for name in ("linux", "windows") if plan["scheduler"][f"platform-{name}"]} == {platform}
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_windows_arm64_runs_only_for_selected_platforms_and_supported_bindings():
+    config = BindingsConfig(
+        (
+            BindingsPackage("cuda_bindings_12", (12, 9, 1), "maintenance"),
+            BindingsPackage("cuda_bindings_13", (13, 5, 0), "current"),
+        ),
+        ("3.10", "3.12"),
+    )
+    full = plan_for(baseline=False, config=config)
+    assert full["scheduler"]["windows-arm64-build"]
+    assert full["jobs"]["wheel_python_versions"]["linux-64"] == ["3.10", "3.12"]
+    assert full["jobs"]["wheel_python_versions"]["win-arm64"] == ["3.12"]
+    assert not plan_for(".github/workflows/test-wheel-linux.yml", config=config)["scheduler"]["windows-arm64-build"]
+    assert not plan_for(release_tag="v12.9.11", config=config)["scheduler"]["windows-arm64-build"]
 
 
 @pytest.mark.parametrize(
@@ -135,7 +152,7 @@ def test_missing_baselines_and_non_bindings_tags_require_full_coverage():
 @pytest.mark.parametrize("package", PACKAGES, ids=lambda package: package.package_root)
 @pytest.mark.agent_authored(model="gpt-6")
 def test_release_tags_build_only_their_own_bindings_and_metapackage(package):
-    plan = plan_for("ci/tools/env-vars", release_tag=f"v{package.ctk_target}.99")
+    plan = plan_for("ci/tools/ci_env.py", release_tag=f"v{package.ctk_target}.99")
     expected = {("bindings", package.package_root), ("python", package.package_root)}
     assert selected(plan, "needs_build") == expected
     assert selected(plan, "needs_test") == expected

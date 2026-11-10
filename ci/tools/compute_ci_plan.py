@@ -8,13 +8,13 @@
 
 from __future__ import annotations
 
-import argparse
 import json
+import os
 import subprocess
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
-from .bindings_config import load_config
+from .bindings_config import load_config, wheel_python_versions
 
 if TYPE_CHECKING:
     from .bindings_config import BindingsConfig
@@ -290,6 +290,11 @@ def compute_workplan(
         for package in bindings_packages
         if package.package_root in sdist_package_roots
     ]
+    current = bindings_config.package_for_release_status("current")
+    python_versions = {
+        host: wheel_python_versions(current.toolkit_version, host, bindings_config.python_supported)
+        for host in ("linux-64", "linux-aarch64", "win-64", "win-arm64")
+    }
 
     return {
         "modules": modules,
@@ -297,19 +302,29 @@ def compute_workplan(
             # Focused bindings releases intentionally omit unrelated artifacts.
             "pathfinder": pathfinder_source,
         },
-        "jobs": {
-            # These gates cover both optional artifact builds and wheel tests.
-            "platforms": {platform: platform in test_platforms for platform in PLATFORMS},
-            "sdist_tests": bool(sdist_packages),
-            "sdist_packages": sdist_packages,
-            "windows_arm64_build": (bool(baseline_run_id) and release_package is None)
-            or any(
-                int(package.cuda_major) >= 13
-                and (("bindings", package.package_root) in builds or ("core", package.cuda_variant) in builds)
-                for package in bindings_packages
+        # Scheduler decisions become flat job outputs, separate from the JSON
+        # execution records passed to reusable workflows.
+        "scheduler": {
+            "platform-linux": "linux" in test_platforms,
+            "platform-windows": "windows" in test_platforms,
+            "windows-arm64-build": "windows" in test_platforms
+            and bool(python_versions["win-arm64"])
+            and (
+                (bool(baseline_run_id) and release_package is None)
+                or any(
+                    int(package.cuda_major) >= 13
+                    and (("bindings", package.package_root) in builds or ("core", package.cuda_variant) in builds)
+                    for package in bindings_packages
+                )
             ),
-            "core_api_checks": core_api_checks,
+            "windows-arm64-single-cuda-major": bindings_config.windows_arm64_single_cuda_major,
+            "sdist-tests": bool(sdist_packages),
+            "core-api-checks": core_api_checks,
+        },
+        "jobs": {
+            "sdist_packages": sdist_packages,
             "test_cuda_majors": {variant: variant in test_cuda_variants for variant in cuda_variants},
+            "wheel_python_versions": python_versions,
         },
         "merge_base": merge_base,
         "baseline": {
@@ -355,52 +370,36 @@ def _expand_linked_paths(paths: list[str], symlink_paths: list[str], *, root: Pa
     return expanded
 
 
-def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--merge-base", default="")
-    parser.add_argument("--baseline-run-id", default="")
-    parser.add_argument("--release-tag", default="")
-    parser.add_argument(
-        "--github-output",
-        type=Path,
-        help="append workplan JSON to this GitHub output file",
-    )
-    parser.add_argument(
-        "--github-step-summary",
-        type=Path,
-        help="append the workplan JSON to this GitHub step summary file",
-    )
-    args = parser.parse_args(argv)
-    if args.github_step_summary is not None and args.github_output is None:
-        parser.error("--github-step-summary requires --github-output")
-
+def main() -> None:
+    merge_base = os.environ["MERGE_BASE"]
+    baseline_run_id = os.environ["BASELINE_RUN_ID"]
+    release_tag = os.environ["RELEASE_TAG"]
     config = load_config()
-    reusable_baseline = bool(args.merge_base and args.baseline_run_id and not args.release_tag)
-    paths, linked_paths = _changed_paths(args.merge_base) if reusable_baseline else ([], set())
-    try:
-        plan = compute_workplan(
-            bindings_config=config,
-            paths=paths,
-            linked_paths=linked_paths,
-            merge_base=args.merge_base,
-            baseline_run_id=args.baseline_run_id,
-            release_tag=args.release_tag,
+    reusable_baseline = bool(merge_base and baseline_run_id and not release_tag)
+    paths, linked_paths = _changed_paths(merge_base) if reusable_baseline else ([], set())
+    plan = compute_workplan(
+        bindings_config=config,
+        paths=paths,
+        linked_paths=linked_paths,
+        merge_base=merge_base,
+        baseline_run_id=baseline_run_id,
+        release_tag=release_tag,
+    )
+    formatted = json.dumps(plan, indent=2, sort_keys=True)
+    with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as summary:
+        summary.write(
+            f"### CI workplan\n\n<details><summary>Workplan JSON</summary>\n\n```json\n{formatted}\n```\n</details>\n"
         )
-    except ValueError as error:
-        parser.error(str(error))
-    workplan = json.dumps(plan, separators=(",", ":"), sort_keys=True)
-    if args.github_output is None:
-        print(workplan)
-        return
 
-    with args.github_output.open("a", encoding="utf-8") as output:
-        output.write(f"workplan={workplan}\n")
-    if args.github_step_summary is not None:
-        formatted = json.dumps(plan, indent=2, sort_keys=True)
-        with args.github_step_summary.open("a", encoding="utf-8") as summary:
-            summary.write(
-                f"### CI workplan\n\n<details><summary>Workplan JSON</summary>\n\n```json\n{formatted}\n```\n</details>\n"
-            )
+    scheduler = plan.pop("scheduler")
+    outputs = {
+        "bindings-config": config.to_json(),
+        "workplan": json.dumps(plan, separators=(",", ":"), sort_keys=True),
+        **{name: str(value).lower() for name, value in scheduler.items()},
+    }
+    with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
+        for name, value in outputs.items():
+            output.write(f"{name}={value}\n")
 
 
 if __name__ == "__main__":
