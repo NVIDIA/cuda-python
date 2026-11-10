@@ -1,13 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import io
-import json
-import sys
-
 import pytest
 
-from ci.tools.select_test_matrix import main, select_test_matrix
+from ci.tools.select_test_matrix import select_test_matrix
 
 PACKAGES = [
     {
@@ -113,29 +109,3 @@ def test_core_only_workplan_retains_floor_tests_without_enabling_local_binding_t
         assert row["TEST_CORE"] == "true"
         assert row["TEST_BINDINGS"] == row["TEST_PYTHON"] == "false"
         assert row["SUITES"] == "core12"
-
-
-@pytest.mark.parametrize("workplan", (None, {"modules": plan(bindings=True, core=False, meta=True)["modules"]}))
-@pytest.mark.agent_authored(model="gpt-6")
-def test_legacy_snapshots_keep_all_rows_and_aggregate_suite_gates(workplan):
-    source_rows = rows("12.6.3", "13.4.2")
-    matrix = select_test_matrix(source_rows, None, workplan=workplan)
-
-    assert [row["CUDA_VER"] for row in matrix["include"]] == [row["CUDA_VER"] for row in source_rows]
-    for row in matrix["include"]:
-        assert row["TEST_BINDINGS"] == row["TEST_PYTHON"] == "true"
-        assert row["TEST_PATHFINDER"] == row["TEST_CORE"] == ("true" if workplan is None else "false")
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_empty_workflow_input_cannot_silently_select_legacy_routing(monkeypatch, capsys):
-    monkeypatch.setenv("BINDINGS_CONFIG", "")
-    monkeypatch.setenv("BUILD_TYPE", "pull-request")
-    monkeypatch.setenv("TEST_MODE", "standard")
-    monkeypatch.setattr(sys, "argv", ["select_test_matrix.py", "--platform", "linux"])
-    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(rows("13.4.2"))))
-
-    with pytest.raises(SystemExit, match="2"):
-        main()
-
-    assert "BINDINGS_CONFIG must contain registry JSON or LEGACY_CONFIG" in capsys.readouterr().err

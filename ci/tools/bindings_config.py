@@ -9,7 +9,6 @@ import argparse
 import importlib.util
 import json
 import re
-import subprocess
 import sys
 import tomllib
 from collections.abc import Mapping, Sequence
@@ -104,18 +103,13 @@ class BindingsConfig:
 
 
 def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
-    """Normalize legacy toolkit pins or the explicit package-root registry."""
+    """Read the explicit package-root registry."""
+    if raw.get("schema_version") != SCHEMA_VERSION:
+        raise ValueError(f"schema_version must be {SCHEMA_VERSION}")
     packages = []
-    if "schema_version" in raw:
-        if raw["schema_version"] != SCHEMA_VERSION:
-            raise ValueError(f"schema_version must be {SCHEMA_VERSION}")
-        for package_root, data in raw["cuda"]["bindings"]["package_roots"].items():
-            major, minor, patch = map(int, data["toolkit_version"].split("."))
-            packages.append(BindingsPackage(package_root, (major, minor, patch), data["release_status"]))
-    else:
-        for field, release_status in (("build", "current"), ("prev_build", "maintenance")):
-            major, minor, patch = map(int, raw["cuda"][field]["version"].split("."))
-            packages.append(BindingsPackage(f"cuda_bindings_{major}", (major, minor, patch), release_status))
+    for package_root, data in raw["cuda"]["bindings"]["package_roots"].items():
+        major, minor, patch = map(int, data["toolkit_version"].split("."))
+        packages.append(BindingsPackage(package_root, (major, minor, patch), data["release_status"]))
     if len(packages) != 2 or {package.release_status for package in packages} != RELEASE_STATUSES:
         raise ValueError("bindings configuration must contain one current and one maintenance package")
     if len({package.toolkit[0] for package in packages}) != len(packages):
@@ -125,30 +119,6 @@ def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
 
 def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     return parse_config(yaml.safe_load(path.read_text(encoding="utf-8")))
-
-
-def write_nightly_source_outputs(config_path: Path, output_path: Path) -> None:
-    """Append nightly configuration read from the wheel artifact's source."""
-    raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    if "schema_version" not in raw:
-        # Preserve the artifact source's original test and artifact contract.
-        toolkit = raw["cuda"]["build"]["version"]
-        branch = raw["backport_branch"]
-        subprocess.run(["git", "check-ref-format", f"refs/heads/{branch}"], check=True)  # noqa: S603, S607
-        config_json = "LEGACY_CONFIG"
-    else:
-        if raw["schema_version"] != SCHEMA_VERSION:
-            raise ValueError(f"unsupported nightly source schema: {raw['schema_version']!r}")
-        config = parse_config(raw)
-        toolkit = config.package_for_release_status("current").toolkit_version
-        branch = ""
-        config_json = config.to_json()
-    if _TOOLKIT_VERSION_PATTERN.fullmatch(toolkit) is None:
-        raise ValueError(f"invalid nightly source build toolkit: {toolkit!r}")
-    with output_path.open("a", encoding="utf-8") as output:
-        output.write(f"bindings_config={config_json}\n")
-        output.write(f"cuda_build_ver={toolkit}\n")
-        output.write(f"legacy_backport_branch={branch}\n")
 
 
 def wheel_python_versions(toolkit_version: str, platform: str, versions: Sequence[str]) -> list[str]:
@@ -320,7 +290,6 @@ def main(argv: list[str] | None = None) -> int:
     output.add_argument("--check-package-metadata", action="store_true")
     output.add_argument("--release-status", choices=sorted(RELEASE_STATUSES))
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
-    output.add_argument("--nightly-source-output", type=Path, metavar="GITHUB_OUTPUT")
     parser.add_argument("--release-source-root", type=Path)
     commands = parser.add_subparsers(dest="command")
     write_env = commands.add_parser("write-github-env", help="append package JSON from stdin to GITHUB_ENV")
@@ -334,7 +303,6 @@ def main(argv: list[str] | None = None) -> int:
                 or args.check_package_metadata
                 or args.release_status
                 or args.release_tag
-                or args.nightly_source_output is not None
                 or args.release_source_root is not None
             ):
                 parser.error("write-github-env does not accept registry selectors")
@@ -342,11 +310,6 @@ def main(argv: list[str] | None = None) -> int:
             if not isinstance(value, dict):
                 raise ValueError("stdin for write-github-env must contain a JSON object")
             write_github_env(value, args.github_env)
-            return 0
-        if args.nightly_source_output is not None:
-            if args.release_source_root is not None:
-                parser.error("--release-source-root requires --release-tag")
-            write_nightly_source_outputs(args.config, args.nightly_source_output)
             return 0
         if args.release_tag:
             if args.release_source_root is None:

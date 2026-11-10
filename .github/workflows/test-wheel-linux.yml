@@ -13,18 +13,10 @@ on:
       host-platform:
         type: string
         required: true
-      build-ctk-ver:
-        description: Build toolkit for the LEGACY_CONFIG snapshot route.
-        type: string
-        default: ''
       bindings-config:
-        description: Normalized registry JSON, or LEGACY_CONFIG for an older source snapshot.
+        description: Normalized bindings registry JSON from the artifact source.
         type: string
-        default: ''
-      legacy-backport-branch:
-        description: Backport branch from the legacy artifact source; unused with bindings-config.
-        type: string
-        default: ''
+        required: true
       matrix_filter:
         type: string
         default: "."
@@ -64,7 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BINDINGS_CONFIG: ${{ inputs.bindings-config }}
-      LEGACY_BACKPORT_BRANCH: ${{ inputs.legacy-backport-branch }}
       BUILD_TYPE: ${{ inputs.build-type }}
       WORKPLAN: ${{ inputs.workplan }}
       TEST_MODE: ${{ inputs.test-mode }}
@@ -72,7 +63,6 @@ jobs:
                 (inputs.host-platform == 'linux-aarch64' && 'arm64') }}
     outputs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
-      OLD_BRANCH: ${{ steps.compute-matrix.outputs.OLD_BRANCH }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -110,27 +100,22 @@ jobs:
           MATRIX=$(jq -c '${{ inputs.matrix_filter }}' <<< "$TEST_MATRIX" \
             | python3 .ci-control/ci/tools/select_test_matrix.py --platform linux)
 
-          if [[ "$BINDINGS_CONFIG" == "LEGACY_CONFIG" ]]; then
-            echo "OLD_BRANCH=${LEGACY_BACKPORT_BRANCH}" >> "$GITHUB_OUTPUT"
-          else
-            {
-              echo '### Selected wheel test coverage'
-              echo '| Suites | Python | CTK | Toolkit source | Bindings source | GPU |'
-              echo '| --- | --- | --- | --- | --- | --- |'
-              jq -r '.include[] | "| \(.SUITES) | \(.PY_VER) | \(.CUDA_VER) | \(if .LOCAL_CTK == "1" then "local CTK" else "wheels" end) | \(if .BINDINGS_SOURCE == "local" then .BINDINGS_SOURCE_DIR else "published floor" end) | \(.GPU) |"' <<< "$MATRIX"
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
+          {
+            echo '### Selected wheel test coverage'
+            echo '| Suites | Python | CTK | Toolkit source | Bindings source | GPU |'
+            echo '| --- | --- | --- | --- | --- | --- |'
+            jq -r '.include[] | "| \(.SUITES) | \(.PY_VER) | \(.CUDA_VER) | \(if .LOCAL_CTK == "1" then "local CTK" else "wheels" end) | \(if .BINDINGS_SOURCE == "local" then .BINDINGS_SOURCE_DIR else "published floor" end) | \(.GPU) |"' <<< "$MATRIX"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
     env:
-      BINDINGS_CONFIG: ${{ inputs.bindings-config }}
       TEST_PATHFINDER: ${{ matrix.TEST_PATHFINDER }}
       TEST_BINDINGS: ${{ matrix.TEST_BINDINGS }}
       TEST_CORE: ${{ matrix.TEST_CORE }}
       TEST_PYTHON: ${{ matrix.TEST_PYTHON }}
-    name: ${{ matrix.SUITES || inputs.test-mode }} / py${{ matrix.PY_VER }}, CTK${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local CTK') || 'wheels' }}; bindings ${{ matrix.BINDINGS_SOURCE == 'local' && 'PR' || 'floor' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
+    name: ${{ matrix.SUITES }} / py${{ matrix.PY_VER }}, CTK${{ matrix.CUDA_VER }} (${{ (matrix.LOCAL_CTK == '1' && 'local CTK') || 'wheels' }}; bindings ${{ matrix.BINDINGS_SOURCE == 'local' && 'PR' || 'floor' }}), GPU ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format(' (x{0})', matrix.GPU_COUNT) || '' }}${{ matrix.FLAVOR && format(', {0}', matrix.FLAVOR) || '' }}${{ matrix.ENV.TORCH_VER && format(', {0}+{1}', matrix.ENV.TORCH_VER, matrix.ENV.TORCH_CUDA) || '' }}${{ matrix.ENV.MODE == 'nightly-numba-cuda' && ', latest' || '' }}
     timeout-minutes: 60
     needs: compute-matrix
     strategy:
@@ -177,9 +162,8 @@ jobs:
           # for artifact fetching, graphics libs, g++ required for cffi in
           # example; util-linux for `nsenter` (custom-DRIVER rows re-exec
           # install_gpu_driver.sh onto the host through nsenter)
-          # yq supports retained legacy-snapshot routing in ci/tools/ci_env.py
-          dependencies: "jq wget libgl1 libegl1 g++ util-linux yq"
-          dependent_exes: "jq wget yq"
+          dependencies: "jq wget libgl1 libegl1 g++ util-linux"
+          dependent_exes: "jq wget"
 
       - name: Update container CA certificates
         run: |
@@ -206,7 +190,7 @@ jobs:
 
       - name: Set environment variables
         env:
-          BUILD_CUDA_VER: ${{ matrix.BINDINGS_BUILD_VERSION || inputs.build-ctk-ver }}
+          BUILD_CUDA_VER: ${{ matrix.BINDINGS_BUILD_VERSION }}
           CURRENT_BUILD_CUDA_VER: ${{ matrix.CURRENT_BUILD_CUDA_VER }}
           BINDINGS_SOURCE: ${{ matrix.BINDINGS_SOURCE }}
           BINDINGS_SOURCE_DIR: ${{ matrix.BINDINGS_SOURCE_DIR }}
@@ -237,7 +221,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && (env.BINDINGS_SOURCE == 'local' || env.BINDINGS_SOURCE == 'main') }}
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'local' }}
         uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_PYTHON_ARTIFACT_NAME }}
@@ -247,7 +231,7 @@ jobs:
 
       - name: Download cuda.bindings build artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                (env.BINDINGS_SOURCE == 'local' || env.BINDINGS_SOURCE == 'main' ||
+                (env.BINDINGS_SOURCE == 'local' ||
                  (env.BINDINGS_SOURCE == 'floor' && env.TEST_CORE == 'true' &&
                   env.TEST_CUDA_MAJOR == env.BUILD_CUDA_MAJOR)) }}
         uses: $/.github/actions/download-artifact-retry
@@ -257,75 +241,15 @@ jobs:
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install GitHub CLI
-        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE == 'backport' }}
-        # $/ resolves at the workflow's commit. ./ would resolve against the
-        # inputs.sha checkout, which can predate this action.
-        uses: $/.github/actions/install-gh-cli
-
-      - name: Look up prior-branch artifacts run ID
-        id: prior
-        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE == 'backport' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OLD_BRANCH: ${{ needs.compute-matrix.outputs.OLD_BRANCH }}
-        run: |
-          : "${OLD_BRANCH:?legacy-backport-branch is required for legacy prior-branch artifacts}"
-          OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
-          LOOKUP_ARGS=(
-            --branch "${OLD_BRANCH}"
-            --artifact "${OLD_ARTIFACT_PATTERN}"
-          )
-          if ${{ env.TEST_PYTHON == 'true' }}; then
-            LOOKUP_ARGS+=(--artifact cuda-python-wheel)
-          fi
-          LATEST_PRIOR_RUN_ID=$(./.ci-control/ci/tools/lookup-run-id \
-            "${LOOKUP_ARGS[@]}" NVIDIA/cuda-python "CI")
-          echo "run-id=${LATEST_PRIOR_RUN_ID}" >> "${GITHUB_OUTPUT}"
-          echo "artifact-pattern=${OLD_ARTIFACT_PATTERN}" >> "${GITHUB_OUTPUT}"
-
-      - name: Download prior-branch cuda.bindings build artifacts
-        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE == 'backport' }}
-        uses: $/.github/actions/download-artifact-retry
-        with:
-          pattern: ${{ steps.prior.outputs.artifact-pattern }}
-          merge-multiple: "true"
-          path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
-          run-id: ${{ steps.prior.outputs.run-id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download prior-branch cuda-python wheel
-        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'backport' }}
-        uses: $/.github/actions/download-artifact-retry
-        with:
-          name: cuda-python-wheel
-          path: .
-          run-id: ${{ steps.prior.outputs.run-id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify prior-branch artifact layout
-        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE == 'backport' }}
-        run: |
-          bindings_wheels=("${CUDA_BINDINGS_ARTIFACTS_DIR}"/cuda_bindings-*.whl)
-          if [[ "${#bindings_wheels[@]}" -ne 1 ]] || [[ ! -f "${bindings_wheels[0]}" ]]; then
-            echo "::error::Expected exactly one cuda_bindings wheel in ${CUDA_BINDINGS_ARTIFACTS_DIR}; found: ${bindings_wheels[*]}"
-            exit 1
-          fi
-          ls -al "${CUDA_BINDINGS_ARTIFACTS_DIR}"
-
       - name: Display structure of downloaded cuda-python artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && (env.BINDINGS_SOURCE == 'local' || env.BINDINGS_SOURCE == 'main') }}
+        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'local' }}
         run: |
           pwd
           ls -lah cuda_python*.whl cuda_pathfinder/
 
       - name: Display structure of downloaded cuda.bindings artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                (env.BINDINGS_SOURCE == 'local' || env.BINDINGS_SOURCE == 'main') }}
+                env.BINDINGS_SOURCE == 'local' }}
         run: |
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR

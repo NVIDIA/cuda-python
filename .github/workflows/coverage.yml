@@ -22,7 +22,6 @@ jobs:
     permissions:
       contents: read
     outputs:
-      BINDINGS_CONFIG: ${{ steps.get-vars.outputs.bindings_config }}
       BINDINGS_ROOT: ${{ steps.get-vars.outputs.bindings_root }}
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
@@ -43,7 +42,6 @@ jobs:
         run: |
           current=$(python3 -m ci.tools.bindings_config --release-status current)
           {
-            echo "bindings_config=$(python3 -m ci.tools.bindings_config)"
             echo "bindings_root=$(jq -r '.package_root' <<< "$current")"
             echo "cuda_ver=$(jq -r '.toolkit_version' <<< "$current")"
           } >> "$GITHUB_OUTPUT"
@@ -106,8 +104,8 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
-          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
+          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
+          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -121,7 +119,6 @@ jobs:
 
       - name: Set environment variables
         env:
-          BINDINGS_CONFIG: ${{ needs.coverage-vars.outputs.BINDINGS_CONFIG }}
           BUILD_CUDA_VER: ${{ env.CUDA_VER }}
           CURRENT_BUILD_CUDA_VER: ${{ env.CUDA_VER }}
           BINDINGS_SOURCE: local

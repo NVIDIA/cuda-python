@@ -316,16 +316,15 @@ Follow the
 ## Nightly Artifact Sources
 
 `ci-nightly.yml` downloads wheels from the latest successful main CI run and
-reads configuration from that run's source commit. Sources with the package
-registry supply toolkit-qualified artifacts for both bindings directories.
-For older sources, the temporary fallback uses their original configuration
-and artifact names, including CUDA 12 wheels from the configured historical
-branch. Its removal is tracked in [#3432](https://github.com/NVIDIA/cuda-python/issues/3432).
+reads the bindings registry and test matrix from that run's source commit.
+The source must use the bindings registry in `ci/versions.yml` and supply
+toolkit-qualified artifacts for both bindings directories. Pre-migration
+snapshots are unsupported.
 
 Custom-driver rows require `DRIVER_SHA256` in the selected source matrix.
 
 An explicit `run-id` selects both the wheel artifacts and their source
-revision; those artifacts must still be available.
+revision with the same requirements; those artifacts must still be available.
 
 ## Reading CI Jobs and Summaries
 
@@ -363,9 +362,9 @@ cover both majors; a bindings tag deliberately selects one bindings/metapackage
 line and published Pathfinder. Windows ARM64 omits CUDA 12 because that toolkit
 has no Windows ARM64 build.
 
-For registry-backed runs, `ci/tools/select_test_matrix.py` applies the shared
-selection and local-wheel coverage rules after each platform reads its source
-matrix and applies an optional jq filter. Matrix data comes from the artifact
+`ci/tools/select_test_matrix.py` applies shared selection and local-wheel
+coverage rules after each platform reads its source matrix and applies an
+optional jq filter. Matrix data comes from the artifact
 source revision; the helper comes from the workflow control revision.
 
 ## Maintaining Both Bindings Roots

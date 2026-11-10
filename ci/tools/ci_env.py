@@ -85,37 +85,17 @@ def build_environment(env: Mapping[str, str], root: Path) -> dict[str, object]:
 
 
 def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
-    config = env.get("BINDINGS_CONFIG")
-    if not config:
-        raise ValueError("BINDINGS_CONFIG must contain registry JSON or LEGACY_CONFIG")
     python, host, sha = env["PY_VER"], env["HOST_PLATFORM"], env["SHA"]
     test_major, test_minor = env["CUDA_VER"].split(".")[:2]
-    if config == "LEGACY_CONFIG":
-        current = build = env["BUILD_CUDA_VER"]
-        bindings_root = "cuda_bindings_13" if (root / "cuda_bindings_13").is_dir() else "cuda_bindings"
-        previous = subprocess.check_output(
-            ["yq", "-r", ".cuda.prev_build.version", "ci/versions.yml"],  # noqa: S607
-            text=True,
-            cwd=root,
-        ).strip()
-        if current.split(".")[0] != test_major:
-            source = "backport" if previous.split(".")[1] == test_minor else "floor"
-        else:
-            source = "main" if current.split(".")[1] == test_minor else "floor"
-        metapackage = python_artifact()
-        core_tests_suffix = "-tests"
+    current = env["CURRENT_BUILD_CUDA_VER"]
+    source = env["BINDINGS_SOURCE"]
+    if source == "local":
+        bindings_root, build = env["BINDINGS_SOURCE_DIR"], env["BUILD_CUDA_VER"]
+    elif source == "floor":
+        bindings_root, build = env["DEFAULT_BINDINGS_SOURCE_DIR"], current
     else:
-        current = env["CURRENT_BUILD_CUDA_VER"]
-        source = env["BINDINGS_SOURCE"]
-        if source == "local":
-            bindings_root, build = env["BINDINGS_SOURCE_DIR"], env["BUILD_CUDA_VER"]
-        elif source == "floor":
-            bindings_root, build = env["DEFAULT_BINDINGS_SOURCE_DIR"], current
-        else:
-            raise ValueError(f"BINDINGS_SOURCE must be local or floor, got {source}")
-        metapackage = python_artifact(build)
-        core_tests_suffix = f"-cu{test_major}-tests"
-    local = source in ("local", "main")
+        raise ValueError(f"BINDINGS_SOURCE must be local or floor, got {source}")
+    local = source == "local"
     sanitizer = (
         python == "3.12" and env["CUDA_VER"] != "11.8.0" and env["LOCAL_CTK"] == "1" and host.startswith("linux")
     )
@@ -124,7 +104,7 @@ def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
         "BINDINGS_SOURCE": source,
         "CUDA_BINDINGS_ROOT": bindings_root,
         "PATHFINDER_SOURCE": env.get("PATHFINDER_SOURCE") or "artifact",
-        "CUDA_PYTHON_ARTIFACT_NAME": metapackage,
+        "CUDA_PYTHON_ARTIFACT_NAME": python_artifact(build),
         "SKIP_CUDA_BINDINGS_TEST": (env.get("SKIP_BINDINGS_TEST_OVERRIDE") or "0") if local else "1",
         "SKIP_CYTHON_TEST": "0" if local else "1",
         "TEST_CUDA_MAJOR": test_major,
@@ -133,7 +113,7 @@ def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
         "CUDA_BINDINGS_ARTIFACT_NAME": bindings_artifact(python, build, host, sha),
         "CUDA_BINDINGS_ARTIFACTS_DIR": (root / bindings_root / "dist").as_posix(),
         "CUDA_BINDINGS_CYTHON_TESTS_DIR": (root / bindings_root / "tests/cython").as_posix(),
-        "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME": core_artifact(python, host, sha) + core_tests_suffix,
+        "CUDA_CORE_CYTHON_TEST_ARTIFACT_NAME": core_artifact(python, host, sha) + f"-cu{test_major}-tests",
         "CURRENT_BUILD_CUDA_VER": current,
         "BUILD_CUDA_MAJOR": current.split(".")[0],
         "BUILD_CUDA_MINOR": current.split(".")[1],
