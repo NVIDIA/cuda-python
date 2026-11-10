@@ -616,26 +616,27 @@ jobs:
           check_result "doc"               "success"
 
           # Optional platform builds and wheel tests share the platform plan.
+          # Only a literal false waives a job; a missing gate must fail.
           linux_expected="skipped"
-          if [[ "$doc_only" != "true" && "$linux_selected" == "true" ]]; then
+          if [[ "$doc_only" != "true" && "$linux_selected" != "false" ]]; then
             linux_expected="success"
           fi
           windows_expected="skipped"
-          if [[ "$doc_only" != "true" && "$windows_selected" == "true" ]]; then
+          if [[ "$doc_only" != "true" && "$windows_selected" != "false" ]]; then
             windows_expected="success"
           fi
           check_result "build-linux-aarch64" "$linux_expected"
           check_result "build-windows"       "$windows_expected"
 
           windows_arm64_expected="skipped"
-          if [[ "$windows_arm64_selected" == "true" ]]; then
+          if [[ "$windows_arm64_selected" != "false" ]]; then
             windows_arm64_expected="$windows_expected"
           fi
           check_result "build-windows-arm64" "$windows_arm64_expected"
 
           # Sdist tests follow build selection; wheel tests follow the platform plan.
           expected="skipped"
-          if [[ "$doc_only" != "true" && "$build_selected" == "true" ]]; then
+          if [[ "$doc_only" != "true" && "$build_selected" != "false" ]]; then
             expected="success"
           fi
           check_result "test-sdist-linux"   "$expected"
@@ -648,7 +649,7 @@ jobs:
           # API compatibility checks run for cuda_core source changes and for
           # conservative full runs when reusable base artifacts are unavailable.
           expected="skipped"
-          if [[ "$run_core_api_check" == "true" ]]; then expected="success"; fi
+          if [[ "$run_core_api_check" != "false" ]]; then expected="success"; fi
           check_result "api-check-core-vs-release" "$expected"
 
           # API compatibility checks against the merge base (api-check-core-vs-base)
