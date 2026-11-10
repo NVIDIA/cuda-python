@@ -160,8 +160,9 @@ git push origin origin/main:refs/heads/release/cuda-core-v0.6.x
 For a patch release (`X.Y.Z`), use the existing branch. Changes reach it
 through pull requests that cherry-pick the fixes from `main`, with
 `(cherry picked from commit ...)` trailers. The release notes for the patch
-release also go to `main`, so the docs switcher and the `latest` docs list
-them.
+release must be on the release branch before the tag: the release workflow
+checks for them in the tagged tree. Add them to `main` as well, so the docs
+switcher and the `latest` docs list them.
 
 The repository ruleset protects `release/**`: a push to an existing release
 branch needs a pull request and passing checks.
