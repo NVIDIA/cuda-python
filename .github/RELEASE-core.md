@@ -101,8 +101,7 @@ cuda-bindings floor" in `cuda_core/AGENTS.md`. Check the floors instead:
   `cuda-bindings==<floor>`, and no "predates ... headers" line. Standard
   CI does not install the CUDA 12 floor: its rows use the 12.9.x backport
   build.
-- The release notes list every floor move since the last release under
-  "Breaking Changes".
+- The release notes list every floor move since the last release.
 
 Update the `cuda-core` pin in `cuda_python/setup.py` to the new minor
 series (`cuda-core~=X.Y.0`), and plan a `cuda-python` release right after
