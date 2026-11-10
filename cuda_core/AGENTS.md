@@ -51,11 +51,27 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 
 ### Bumping the cuda-bindings floor
 
-By policy, the floor of each major is the newest `cuda-bindings` release of
-that major at the time of a `cuda.core` release. The bump is therefore a
-release step. A `cuda-bindings` minor release does not trigger it. The first
-change that uses a `cuda-bindings` API newer than the old floor also requires
-a bump. To bump:
+By policy, the floor of each major is the oldest `cuda-bindings` release that
+meets two conditions. It was generated from the `cuda.h` major.minor that the
+`cuda.core` wheels are built against, the toolkit pin of that major in
+`ci/versions.yml`. It provides every `cuda-bindings` API that `cuda.core` uses
+and every fix that `cuda.core` relies on. The floor's minor therefore equals
+the build toolkit's minor, and the floor's patch is the lowest one that
+qualifies.
+
+Three events move a floor:
+
+- A change uses a `cuda-bindings` API newer than the floor. Bump the floor in
+  the same pull request.
+- A change relies on a bug fix in a newer `cuda-bindings`. Bump the floor in
+  the same pull request.
+- The build toolkit moves to a new minor. Move the floor to the lowest
+  suitable release of that minor, as described under "CUDA Toolkit minor
+  bumps".
+
+Nothing else moves a floor. A new `cuda-bindings` release does not, and a
+`cuda.core` release does not. Do not raise a floor to the newest release. To
+bump:
 
 1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
    `pyproject.toml`. That is the only version to type.
@@ -98,7 +114,12 @@ the literal floor, until the floor is bumped. The order is:
 
 1. Bump the toolkit.
 2. Release `cuda-bindings` for the new minor.
-3. Bump the floor here.
+3. Move the floor here to the lowest suitable release of the new minor. That
+   is normally its first release.
+
+A `cuda.core` release must not ship while the window is open. In the window,
+the `cu<major>` extra can resolve to a `cuda-bindings` that fails the header
+check at import, and CI does not test the literal floor.
 
 ## Testing expectations
 

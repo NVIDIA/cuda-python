@@ -6,10 +6,13 @@
 
 cuda.core supports two CUDA major series at a time. For each series, it
 requires a minimum cuda-bindings version, the *floor*, at build time and at
-run time. The floor is the newest cuda-bindings release of that series at the
-time of the cuda.core release. Normally that is the release that the cuda.core
-wheels are built against. See https://github.com/NVIDIA/cuda-python/issues/2783
-and the support policy in the documentation.
+run time. The floor is the oldest cuda-bindings release of that series that
+meets two conditions. It was generated from the ``cuda.h`` major.minor that the
+cuda.core wheels are built against. It provides every cuda-bindings API and fix
+that cuda.core needs. A new cuda-bindings release does not move the floor, and
+a cuda.core release does not. See
+https://github.com/NVIDIA/cuda-python/issues/2783 and the support policy in the
+documentation.
 
 Exactly one place declares the floors: the ``cu12`` and ``cu13`` extras in
 ``pyproject.toml``. Each extra pins ``cuda-bindings>=<floor>,<<next major>``.
