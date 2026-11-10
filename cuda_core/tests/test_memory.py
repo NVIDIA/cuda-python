@@ -1246,6 +1246,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@thread_unsafe_on_windows
 @pytest.mark.human_reviewed
 @pytest.mark.parametrize("pool", ["current", "new", "new_numa"])
 def test_pinned_memory_resource_kernel_access(init_cuda, pool):
