@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=da56544ab7133a98983b04b2a0e4f9593ac6efa502b02cc27682a8dc84d2e163
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3b4da42728210e76f79e896fe70d8167e7dff92ec533e35a6ee4cf78234c272c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -2470,6 +2470,11 @@ cdef extern from 'cuda_runtime_api.h':
 # CUDA_EGL_MAX_PLANES is defined as 3 in cuda_egl_interop.h; hardcoded to avoid EGL deps
 cdef enum:
     CUDA_EGL_MAX_PLANES = 3
+
+# Defined in the CUDA 12 headers only (removed in CUDA 13); declared as integers for ABI compat
+cdef enum:
+    cudaCooperativeLaunchMultiDeviceNoPreSync = 1
+    cudaCooperativeLaunchMultiDeviceNoPostSync = 2
 
 # libraryPropertyType_t (starts lowercase, outside type pattern)
 cdef extern from 'library_types.h':
