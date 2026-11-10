@@ -1,6 +1,0 @@
-﻿cuda.core.system.typing.ClockType
-=================================
-
-.. currentmodule:: cuda.core.system.typing
-
-.. autoenum:: ClockType
