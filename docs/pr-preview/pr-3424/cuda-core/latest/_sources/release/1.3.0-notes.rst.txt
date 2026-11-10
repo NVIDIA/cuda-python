@@ -11,9 +11,6 @@ Highlights
 
 - Support for Python 3.10 is dropped (end of life).
 
-- ``cuda.core`` now requires a minimum ``cuda-bindings`` version per CUDA major: 12.9.8 for
-  CUDA 12 and 13.5.0 for CUDA 13. See the breaking changes below.
-
 - :class:`VirtualMemoryResource` buffers can be shared with other processes through POSIX file
   descriptors or fabric handles.
 
@@ -26,40 +23,11 @@ Highlights
 Breaking Changes
 ----------------
 
-- ``cuda.core`` now requires a minimum ``cuda-bindings`` version per CUDA major, at build and run
-  time: 12.9.8 for CUDA 12 and 13.5.0 for CUDA 13. See the
-  :ref:`support policy <cuda-core-bindings-floor>`. ``import cuda.core`` with an older
-  ``cuda-bindings`` fails with a message that names the required version and how to install it.
-  ``pip install cuda-core[cu12]`` or ``pip install cuda-core[cu13]`` installs a compatible
-  version. Supported CUDA drivers and CUDA Toolkit libraries are unchanged. Previously
-  ``cuda.core`` accepted any ``cuda-bindings`` of the right major, and an older one produced import
-  errors for missing C functions, silently disabled features, or crashes.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
-
-- A source build of ``cuda.core`` must use a ``cuda.h`` of the same major.minor as its
-  ``cuda-bindings``. If they differ, the build fails early.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
-
-- A source build of ``cuda.core`` now compiles against the CCCL headers pinned in the
-  ``cuda_core/third_party/cccl`` submodule, and fails without them. Clone with
-  ``git clone --recurse-submodules``, or run
-  ``git submodule update --init cuda_core/third_party/cccl`` in an existing clone. The
-  ``CCCL_HOME`` environment variable is no longer read.
-  (`#2940 <https://github.com/NVIDIA/cuda-python/pull/2940>`__)
-
-- With the ``cuda-bindings`` floor in place, whether a feature is available now depends only on
-  the CUDA driver and the ``cuda.core`` build's CUDA major. The checks that also inspected the
-  ``cuda-bindings`` version are gone, and so are their error messages. Error messages that name a
-  minimum now name a driver version. ``cuda.core.system`` always uses NVML through
-  ``cuda-bindings``, so ``cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE`` is always ``True``.
-  :mod:`cuda.core.checkpoint` requires the CUDA 13 build of ``cuda.core`` and now says so. That
-  requirement was already in effect, because the CUDA 12 ``cuda-bindings`` lack a type it uses.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
-
-- The C++ layer calls the driver through the entry points ``cuda-bindings`` resolves rather than
-  through its Cython wrappers. As a result, a driver function that the installed driver lacks can
-  no longer surface as ``SystemError`` from a C++ call.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
+- ``cuda.core`` now requires ``cuda-bindings`` 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
+  for CUDA 13. With an older ``cuda-bindings``, ``import cuda.core`` fails with a message that
+  names the required version. ``pip install cuda-core[cu12]`` or ``pip install cuda-core[cu13]``
+  installs a compatible version. See the :ref:`support policy <cuda-core-bindings-floor>`.
+  (`#2783 <https://github.com/NVIDIA/cuda-python/issues/2783>`__)
 
 New features
 ------------
@@ -91,9 +59,9 @@ New features
   linker. :meth:`Linker.link` also accepts ``"ltoir"`` on nvJitLink 13.3 or
   newer so incremental LTO chains can retain IR until their final link. Direct
   PTX and CUBIN inputs are rejected for this target because they carry no LTOIR
-  and nvJitLink would otherwise silently omit them. Incremental links with
-  link-time optimization disable the nvJitLink intermediate cache, which
-  crashed after repeated links on Windows.
+  and nvJitLink would otherwise silently omit them. On nvJitLink versions
+  older than 13.6, incremental links with link-time optimization disable the
+  nvJitLink intermediate cache, which crashed after repeated links on Windows.
   (`#2369 <https://github.com/NVIDIA/cuda-python/issues/2369>`__,
   `#3038 <https://github.com/NVIDIA/cuda-python/issues/3038>`__)
 
@@ -101,7 +69,7 @@ New features
   execution priority of a kernel launch. Lower numbers are higher priorities.
   The valid range is the device's stream priority range, as for
   :attr:`StreamOptions.priority`. A nonzero value outside it raises
-  ``ValueError``.
+  ``ValueError``. The default, ``0``, leaves the stream's priority in effect.
   (`#2631 <https://github.com/NVIDIA/cuda-python/issues/2631>`__)
 
 - Added the ``cluster_scheduling_policy_preference`` option to
@@ -501,11 +469,8 @@ Fixes and enhancements
 - :class:`Program` with ``code_type="nvvm"`` now raises :class:`CUDAError`
   for twelve :class:`ProgramOptions` fields that libNVVM cannot use, such as
   ``pch`` and ``no_cache``. Before, they were silently ignored.
-  (`#2954 <https://github.com/NVIDIA/cuda-python/issues/2954>`__)
-
-- A failed IPC export that receives an invalid file descriptor from the
-  driver now raises the original error. The rollback used to close the
-  invalid descriptor and replace the error with ``EBADF``.
+  (`#2954 <https://github.com/NVIDIA/cuda-python/issues/2954>`__,
+  `#3289 <https://github.com/NVIDIA/cuda-python/pull/3289>`__)
 
 - A new graph no longer adopts the metadata of a destroyed graph when the
   driver reuses its handle address. Cleanup of the old graph could
@@ -525,10 +490,9 @@ Known issues
 ------------
 
 - :class:`PinnedMemoryResource` rejects ``HOST_NUMA`` pools on CUDA 12.6 to
-  12.8 drivers, although the driver supports them. This regression is present
-  since 1.2.0.
+  12.8 drivers, although the driver supports them. This is a regression in 1.2.0.
   (`#2795 <https://github.com/NVIDIA/cuda-python/issues/2795>`__)
 
-- :meth:`SMResource.split` with ``dry_run=True`` raises on
-  CUDA 13 when a group requests a nonzero SM count.
+- :meth:`SMResource.split` with ``dry_run=True`` raises when a group requests a nonzero SM
+  count, with a CUDA 13 build on a driver of 13.1 or newer.
   (`#2765 <https://github.com/NVIDIA/cuda-python/issues/2765>`__)
