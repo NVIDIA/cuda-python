@@ -298,8 +298,10 @@ def init_cuda(request):
         # With pytest-run-parallel this runs after worker join. This also runs
         # when setup raises, so an escalated leftover warning cannot leave the
         # context current.
-        driver.cuCtxSynchronize()
-        _ = _device_unset_current()
+        try:
+            handle_return(driver.cuCtxSynchronize())
+        finally:
+            _ = _device_unset_current()
         # After the cleanup, so an escalated warning cannot skip it.
         if live_after is not None and any(now < snap for now, snap in zip(live_after, live_at_setup)):
             released = tuple(s - n for s, n in zip(live_at_setup, live_after))
