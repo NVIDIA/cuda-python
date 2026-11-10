@@ -107,7 +107,7 @@ all read them from there.
 A floor moves only for one of two reasons. A ``cuda-core`` release needs a newer
 ``cuda-bindings`` API or fix, or its wheels are built against a newer CUDA minor version. A new
 ``cuda-bindings`` release alone does not move a floor, and a ``cuda-core`` release alone does
-not. The :doc:`release notes <release>` list every move under "Breaking Changes".
+not. The :doc:`release notes <release>` list every move.
 
 Python Version Support
 ----------------------
