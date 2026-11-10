@@ -296,8 +296,7 @@ Fixes and enhancements
 
 - When a :class:`Device` method has to run in the device's context and the
   caller's context cannot be restored afterwards, the created resource is
-  destroyed and the raised ``CUDAError`` now carries a note (Python 3.11+;
-  appended to the message on 3.10) stating that the caller's context could not
+  destroyed and the raised ``CUDAError`` now carries a note stating that the caller's context could not
   be restored and which context is current. Previously the error named only
   the driver status of the failed ``cuCtxSetCurrent`` call. If the call itself
   failed as well, its error is raised and the restoration failure is the note.
@@ -315,8 +314,7 @@ Fixes and enhancements
   context is current, returning ``None``.
 
 - A failed rollback of a partially embedded child graph node is now attached
-  as a note to the exception that triggered the rollback (reported as
-  :class:`CUDAWarning` on Python 3.10), and a failed ``cuStreamEndCapture``
+  as a note to the exception that triggered the rollback, and a failed ``cuStreamEndCapture``
   made when a still-building :class:`~graph.GraphBuilder` is garbage collected
   is now reported as :class:`CUDAWarning`; both were silent.
 
