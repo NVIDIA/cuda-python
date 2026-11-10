@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e8e09d2b9dc5c50f5e7a6d85f94bd57c0c0776668393328be79deebdefce1c11
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c52a25ba8511a913611475923d9095ece16701fd06230a108878839bdf372687
 from typing import Any, Optional
 import cython
 import ctypes
@@ -18808,7 +18808,7 @@ cdef class anon_union11:
     def pArray(self):
         return [cudaArray_t(init_value=<void_ptr>_pArray) for _pArray in self._pvt_ptr[0].frame.pArray]
     @pArray.setter
-    def pArray(self, pArray : list[cudaArray_t]):
+    def pArray(self, pArray : list[cudaArray_t | int]):
         if len(pArray) != 3:
             raise IndexError('not enough values found during array assignment, expected 3, got', len(pArray))
         pArray = [int(_pArray) for _pArray in pArray]
