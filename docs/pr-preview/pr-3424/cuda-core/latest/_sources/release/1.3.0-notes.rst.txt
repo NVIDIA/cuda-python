@@ -25,7 +25,7 @@ Breaking Changes
 
 - ``cuda.core`` now requires ``cuda-bindings`` 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
   for CUDA 13. With an older ``cuda-bindings``, ``import cuda.core`` fails with a message that
-  names the required version. ``pip install cuda-core[cu12]`` or ``pip install cuda-core[cu13]``
+  names the required version. ``pip install 'cuda-core[cu12]'`` or ``pip install 'cuda-core[cu13]'``
   installs a compatible version. See the :ref:`support policy <cuda-core-bindings-floor>`.
   (`#2783 <https://github.com/NVIDIA/cuda-python/issues/2783>`__)
 

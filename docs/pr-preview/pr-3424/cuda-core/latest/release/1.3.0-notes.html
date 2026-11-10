@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=882a83f0"></script>
+    <script src="../_static/documentation_options.js?v=2c5207e9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev362';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev363';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -803,7 +803,7 @@ errors that cannot be raised, and <a class="reference internal" href="../generat
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> now requires <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
 for CUDA 13. With an older <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>, <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> fails with a message that
-names the required version. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu12]</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu13]</span></code>
+names the required version. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'cuda-core[cu12]'</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">'cuda-core[cu13]'</span></code>
 installs a compatible version. See the <a class="reference internal" href="../support.html#cuda-core-bindings-floor"><span class="std std-ref">support policy</span></a>.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/2783">#2783</a>)</p></li>
 </ul>
