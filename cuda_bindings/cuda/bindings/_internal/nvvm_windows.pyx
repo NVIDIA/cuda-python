@@ -2,11 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.0.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d826369ce197164240eae2ca22bc88bb193a3ec936946b9d3b5b906b503fb446
+# This code was automatically generated across versions from 12.0.1 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6295f4cb60761857a1b8b261f8923391d85382748a7868ecbe10db6c52f78cdb
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    intptr_t,
+    uintptr_t,
+)
 
 cdef extern from * nogil:
     """
@@ -44,11 +49,6 @@ cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
 
-from libc.stdint cimport (
-    intptr_t,
-    uintptr_t,
-)
-
 import threading as _cyb_threading
 
 cdef int _cyb___py_nvvm_init = 0
@@ -79,56 +79,36 @@ cdef void* __nvvmGetProgramLogSize = NULL
 cdef void* __nvvmGetProgramLog = NULL
 cdef void* __nvvmLLVMVersion = NULL
 
+cdef enum: _cyb_nvvm_n_functions = 14
+cdef void** _cyb_nvvm_slots[_cyb_nvvm_n_functions]
+cdef const char* _cyb_nvvm_names[_cyb_nvvm_n_functions]
+_cyb_nvvm_slots[0] = &__nvvmGetErrorString; _cyb_nvvm_names[0] = b'nvvmGetErrorString'
+_cyb_nvvm_slots[1] = &__nvvmVersion; _cyb_nvvm_names[1] = b'nvvmVersion'
+_cyb_nvvm_slots[2] = &__nvvmIRVersion; _cyb_nvvm_names[2] = b'nvvmIRVersion'
+_cyb_nvvm_slots[3] = &__nvvmCreateProgram; _cyb_nvvm_names[3] = b'nvvmCreateProgram'
+_cyb_nvvm_slots[4] = &__nvvmDestroyProgram; _cyb_nvvm_names[4] = b'nvvmDestroyProgram'
+_cyb_nvvm_slots[5] = &__nvvmAddModuleToProgram; _cyb_nvvm_names[5] = b'nvvmAddModuleToProgram'
+_cyb_nvvm_slots[6] = &__nvvmLazyAddModuleToProgram; _cyb_nvvm_names[6] = b'nvvmLazyAddModuleToProgram'
+_cyb_nvvm_slots[7] = &__nvvmCompileProgram; _cyb_nvvm_names[7] = b'nvvmCompileProgram'
+_cyb_nvvm_slots[8] = &__nvvmVerifyProgram; _cyb_nvvm_names[8] = b'nvvmVerifyProgram'
+_cyb_nvvm_slots[9] = &__nvvmGetCompiledResultSize; _cyb_nvvm_names[9] = b'nvvmGetCompiledResultSize'
+_cyb_nvvm_slots[10] = &__nvvmGetCompiledResult; _cyb_nvvm_names[10] = b'nvvmGetCompiledResult'
+_cyb_nvvm_slots[11] = &__nvvmGetProgramLogSize; _cyb_nvvm_names[11] = b'nvvmGetProgramLogSize'
+_cyb_nvvm_slots[12] = &__nvvmGetProgramLog; _cyb_nvvm_names[12] = b'nvvmGetProgramLog'
+_cyb_nvvm_slots[13] = &__nvvmLLVMVersion; _cyb_nvvm_names[13] = b'nvvmLLVMVersion'
+
 cdef int _init_nvvm() except -1 nogil:
     global _cyb___py_nvvm_init
 
     cdef int err
     cdef uintptr_t handle
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_nvvm_init: return 0
 
         handle = load_library()
-        global __nvvmGetErrorString
-        __nvvmGetErrorString = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmGetErrorString')
-
-        global __nvvmVersion
-        __nvvmVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmVersion')
-
-        global __nvvmIRVersion
-        __nvvmIRVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmIRVersion')
-
-        global __nvvmCreateProgram
-        __nvvmCreateProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmCreateProgram')
-
-        global __nvvmDestroyProgram
-        __nvvmDestroyProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmDestroyProgram')
-
-        global __nvvmAddModuleToProgram
-        __nvvmAddModuleToProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmAddModuleToProgram')
-
-        global __nvvmLazyAddModuleToProgram
-        __nvvmLazyAddModuleToProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmLazyAddModuleToProgram')
-
-        global __nvvmCompileProgram
-        __nvvmCompileProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmCompileProgram')
-
-        global __nvvmVerifyProgram
-        __nvvmVerifyProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmVerifyProgram')
-
-        global __nvvmGetCompiledResultSize
-        __nvvmGetCompiledResultSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmGetCompiledResultSize')
-
-        global __nvvmGetCompiledResult
-        __nvvmGetCompiledResult = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmGetCompiledResult')
-
-        global __nvvmGetProgramLogSize
-        __nvvmGetProgramLogSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmGetProgramLogSize')
-
-        global __nvvmGetProgramLog
-        __nvvmGetProgramLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmGetProgramLog')
-
-        global __nvvmLLVMVersion
-        __nvvmLLVMVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvvmLLVMVersion')
+        for i in range(_cyb_nvvm_n_functions):
+            _cyb_nvvm_slots[i][0] = _cyb_GetProcAddress(<HMODULE>handle, _cyb_nvvm_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvvm_init, 1)
         return 0
@@ -147,47 +127,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_nvvm()
     cdef dict data = {}
-    global __nvvmGetErrorString
-    data["__nvvmGetErrorString"] = <intptr_t>__nvvmGetErrorString
-
-    global __nvvmVersion
-    data["__nvvmVersion"] = <intptr_t>__nvvmVersion
-
-    global __nvvmIRVersion
-    data["__nvvmIRVersion"] = <intptr_t>__nvvmIRVersion
-
-    global __nvvmCreateProgram
-    data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
-
-    global __nvvmDestroyProgram
-    data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
-
-    global __nvvmAddModuleToProgram
-    data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
-
-    global __nvvmLazyAddModuleToProgram
-    data["__nvvmLazyAddModuleToProgram"] = <intptr_t>__nvvmLazyAddModuleToProgram
-
-    global __nvvmCompileProgram
-    data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
-
-    global __nvvmVerifyProgram
-    data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
-
-    global __nvvmGetCompiledResultSize
-    data["__nvvmGetCompiledResultSize"] = <intptr_t>__nvvmGetCompiledResultSize
-
-    global __nvvmGetCompiledResult
-    data["__nvvmGetCompiledResult"] = <intptr_t>__nvvmGetCompiledResult
-
-    global __nvvmGetProgramLogSize
-    data["__nvvmGetProgramLogSize"] = <intptr_t>__nvvmGetProgramLogSize
-
-    global __nvvmGetProgramLog
-    data["__nvvmGetProgramLog"] = <intptr_t>__nvvmGetProgramLog
-
-    global __nvvmLLVMVersion
-    data["__nvvmLLVMVersion"] = <intptr_t>__nvvmLLVMVersion
+    cdef Py_ssize_t i
+    for i in range(_cyb_nvvm_n_functions):
+        data['__' + _cyb_nvvm_names[i].decode()] = <intptr_t>_cyb_nvvm_slots[i][0]
     _cyb_func_ptrs = data
     return data
 
