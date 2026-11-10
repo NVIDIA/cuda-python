@@ -50,7 +50,7 @@ if (tid % (2 * s) == 0) {  // Don't do this!
 ### Software
 
 - CUDA Toolkit 13.0+
-- Python 3.10+
+- Python 3.11+
 - `cuda-python` (13.0.0+)
 - `cuda-core` (>=1.0.0)
 - `cuda-cccl` (1.0.0+)

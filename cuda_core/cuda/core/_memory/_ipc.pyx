@@ -2,9 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 cimport cpython
 
 from libc.stddef cimport size_t
+from libc.stdint cimport uintptr_t
+from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_from_deviceptr_handle
 from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open
@@ -23,10 +27,15 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
 import multiprocessing
+import operator
 import os
 import platform
 import uuid
 import weakref
+from typing import TYPE_CHECKING, Iterable
+
+if TYPE_CHECKING:
+    from cuda.core.typing import VirtualMemoryHandleType
 
 __all__ = []
 
@@ -116,7 +125,8 @@ cdef inline int IPCAllocationHandle_check_open(IPCAllocationHandle self) except 
 
 
 cdef class IPCAllocationHandle:
-    """Shareable handle to an IPC-enabled device memory pool."""
+    """Shareable OS handle to an IPC-enabled memory pool or to a physical allocation
+    of a :class:`VirtualMemoryResource` buffer."""
 
     def __init__(self, *arg, **kwargs) -> None:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -155,7 +165,7 @@ cdef class IPCAllocationHandle:
         return self._uuid
 
 
-def _reduce_allocation_handle(alloc_handle: IPCAllocationHandle) -> tuple[object, ...]:
+def _reduce_allocation_handle(IPCAllocationHandle alloc_handle not None: IPCAllocationHandle) -> tuple[object, ...]:
     IPCAllocationHandle_check_open(alloc_handle)
     check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
@@ -169,12 +179,300 @@ def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None
 multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
 
+cdef class _VirtualMemoryDescriptor(IPCBufferDescriptor):
+    """Common allocation layout and driver-handle interface for VMM descriptors."""
+
+    @property
+    def handle_type(self) -> VirtualMemoryHandleType:
+        """The export handle type; the importing resource must use the same type."""
+        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResourceOptions
+
+        handle_type = self.driver_handle_type()
+        for spec, value in VirtualMemoryResourceOptions._handle_types.items():
+            if spec is not None and int(value) == handle_type:
+                return spec
+        raise ValueError(f"the descriptor carries an unknown handle type ({handle_type})")
+
+    @property
+    def sizes(self) -> tuple[int, ...]:
+        """Size of each physical allocation, in address order; the sum is at least ``size``."""
+        return self._chunk_sizes
+
+    cdef int driver_handle_type(self) except -1:
+        raise NotImplementedError("a concrete VMM descriptor is required")
+
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
+        raise NotImplementedError("a concrete VMM descriptor is required")
+
+
+cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
+    """Serializable object describing a :class:`VirtualMemoryBuffer` that can be shared between processes.
+
+    The descriptor holds one exported POSIX file descriptor per physical
+    allocation that backs the buffer, in address order (``handles``, each an
+    :class:`IPCAllocationHandle` that the descriptor owns and closes when it
+    is released), with each allocation's size (``sizes``) and the buffer's
+    size (``size``, which may be smaller than their sum). ``handle_type`` is
+    ``"posix_fd"``; the rules below describe file descriptors.
+
+    A descriptor pins the physical memory while it exists, in every process
+    that holds one, and nothing else does: the exporting buffer keeps no
+    descriptor, and an imported buffer does not keep the one it came from. A
+    descriptor parked in a ``multiprocessing`` ``Queue`` or sent to a ``Pool``
+    pins the memory in the sender until the receiver has unpickled it; a
+    buffer passed as a ``Process`` argument pins it until the ``Process``
+    object is released, because the child receives the file descriptors when
+    it is spawned.
+
+    Two transports exist. ``multiprocessing`` (a ``Queue``, a ``Pipe``,
+    ``Process`` arguments, or a ``Pool``) pickles the descriptor, or a buffer,
+    and duplicates the file descriptors into the receiving process; plain
+    ``pickle`` cannot carry them and raises. A process with its own file
+    descriptor passing sends ``fds``, ``sizes``, and ``size`` itself, and the
+    receiver rebuilds the descriptor with :meth:`from_fds`.
+
+    Note
+    ----
+    The sizes are controlled by the exporting peer. Receivers must treat them
+    as untrusted and import only through :meth:`Buffer.from_ipc_descriptor`,
+    which checks what it can and fails instead of mapping a size the driver
+    rejects.
+    """
+
+    @staticmethod
+    def _from_exports(
+        chunk_sizes: tuple[int, ...], handles: tuple, size: int
+    ) -> VirtualMemoryFdBufferDescriptor:
+        cdef VirtualMemoryFdBufferDescriptor self = VirtualMemoryFdBufferDescriptor.__new__(
+            VirtualMemoryFdBufferDescriptor)
+        self._payload = b""
+        self._size = size
+        self._chunk_sizes = tuple(chunk_sizes)
+        self._handles = tuple(handles)
+        return self
+
+    @classmethod
+    def from_fds(
+        cls,
+        fds: Iterable[int | IPCAllocationHandle],
+        sizes: Iterable[int],
+        *,
+        size: int | None = None,
+    ) -> VirtualMemoryFdBufferDescriptor:
+        """Build a descriptor from POSIX file descriptors received outside ``multiprocessing``.
+
+        The exporter sends ``fds``, ``sizes``, and ``size`` of its descriptor
+        through a transport of its own (a Unix socket with ``SCM_RIGHTS``, for
+        example); the receiver rebuilds the descriptor here and imports it
+        with :meth:`Buffer.from_ipc_descriptor`. The result's ``handle_type``
+        is ``"posix_fd"``, the only handle type a file descriptor can carry.
+
+        Parameters
+        ----------
+        fds : Iterable[int | IPCAllocationHandle]
+            One handle per physical allocation, in address order, as the
+            exporter's ``fds`` listed them. An ``int`` is duplicated: the
+            caller keeps ownership of the original and closes it. An
+            :class:`IPCAllocationHandle` is shared and closes with its last
+            holder.
+        sizes : Iterable[int]
+            The exporter's ``sizes``, one per handle.
+        size : int, optional
+            The exporter's ``size``, at most the sum of ``sizes``; the sum by
+            default.
+
+        Raises
+        ------
+        ValueError
+            If the counts differ, a size is not positive, or ``size`` exceeds
+            the sum of ``sizes``.
+        RuntimeError
+            If an :class:`IPCAllocationHandle` is closed.
+        OSError
+            If an ``int`` is not an open file descriptor.
+        """
+        cdef tuple sizes_t = tuple(operator.index(n) for n in sizes)
+        cdef list given = list(fds)
+        if len(given) != len(sizes_t):
+            raise ValueError(f"{len(given)} handles for {len(sizes_t)} sizes; one size per handle is required")
+        for n in sizes_t:
+            if n <= 0:
+                raise ValueError(f"allocation sizes must be positive, got {n}")
+        total = sum(sizes_t)
+        size = total if size is None else operator.index(size)
+        if size < 0 or size > total:
+            raise ValueError(f"size {size} is outside 0..{total}, the sum of the allocation sizes")
+        cdef list handles = []
+        cdef int dup
+        for item in given:
+            if isinstance(item, IPCAllocationHandle):
+                IPCAllocationHandle_check_open(<IPCAllocationHandle>item)
+                handles.append(item)
+                continue
+            dup = os.dup(operator.index(item))
+            try:
+                handle = IPCAllocationHandle._init(dup, None)
+            except:  # noqa: E722  rollback-then-raise: the duplicate is not owned yet
+                os.close(dup)
+                raise
+            # The handle owns the duplicate now; if append fails, the handle closes it once.
+            handles.append(handle)
+        return VirtualMemoryFdBufferDescriptor._from_exports(sizes_t, tuple(handles), size)
+
+    cdef int driver_handle_type(self) except -1:
+        return <int>cydriver.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
+        # fd zero is valid, so NULL is a valid result unless an exception is set.
+        cdef int fd = int(self._handles[i])
+        return <void*><uintptr_t>fd
+
+    @property
+    def handles(self) -> tuple[IPCAllocationHandle, ...]:
+        """The exported handles, one :class:`IPCAllocationHandle` per allocation, in address order.
+
+        The descriptor owns them and closes them when it is released.
+        """
+        return self._handles
+
+    @property
+    def fds(self) -> tuple[int, ...]:
+        """The exported file descriptors as integers, for a transport of your own.
+
+        They belong to this descriptor: send or duplicate them while it is
+        alive, because each one is closed when the descriptor is released.
+        Keep the descriptor in a variable while you use them; the numbers
+        from ``buf.ipc_descriptor.fds`` alone may already be closed.
+        """
+        return tuple(int(handle) for handle in self._handles)
+
+    def __reduce__(self) -> tuple[object, ...]:
+        # multiprocessing duplicates the IPCAllocationHandle fds into the receiver; plain pickle raises.
+        return VirtualMemoryFdBufferDescriptor._from_exports, (
+            self._chunk_sizes, self._handles, self._size)
+
+
+cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
+    """Plain-data descriptor of a :class:`VirtualMemoryBuffer` exported with fabric handles.
+
+    Each physical allocation contributes one opaque 64-byte handle, in address
+    order. Plain ``pickle``, ``multiprocessing``, or a transport of your own
+    can carry these bytes. Use :meth:`from_handles` to rebuild a descriptor
+    received outside cuda.core, then :meth:`Buffer.from_ipc_descriptor` to
+    import it. ``handle_type`` is always ``"fabric"``.
+
+    Nothing is pinned: unlike a file descriptor, a fabric descriptor parked
+    in a queue does not retain the memory. The exporter must keep the buffer
+    alive until every importer has imported it. After import, the imported
+    allocation holds its own driver references and is independent of the
+    exporter. Importing a stale or forged handle fails with a driver error.
+
+    Sharing is supported on one node; multi-node sharing is untested. Fabric
+    handles require an NVLink fabric and an accessible IMEX channel. Treat
+    handles and sizes received from another process as untrusted and import
+    only through :meth:`Buffer.from_ipc_descriptor`.
+    """
+
+    @staticmethod
+    def _from_exports(
+        sizes: tuple[int, ...], handles: tuple[bytes, ...], size: int, owner_uuid: str | None
+    ) -> VirtualMemoryFabricBufferDescriptor:
+        return VirtualMemoryFabricBufferDescriptor.from_handles(
+            handles, sizes, size=size, owner_uuid=owner_uuid)
+
+    @classmethod
+    def from_handles(
+        cls, handles: Iterable[bytes], sizes: Iterable[int], *,
+        size: int | None = None, owner_uuid: str | None = None,
+    ) -> VirtualMemoryFabricBufferDescriptor:
+        """Build a descriptor from fabric handles received through a transport of your own.
+
+        Parameters
+        ----------
+        handles : Iterable[bytes]
+            One opaque 64-byte handle per physical allocation, in address order.
+        sizes : Iterable[int]
+            One positive allocation size per handle, in the same order.
+        size : int, optional
+            Buffer size, between zero and the sum of ``sizes``; the sum by default.
+        owner_uuid : str, optional
+            Exporting device's UUID, used to identify the owner in error messages.
+
+        Raises
+        ------
+        ValueError
+            If counts differ, a handle is not 64 bytes, an allocation size is
+            not a positive integer, or the buffer size is outside the allocation sizes.
+        """
+        cdef tuple handles_t = tuple(handles)
+        try:
+            sizes_t = tuple(operator.index(n) for n in sizes)
+            size = None if size is None else operator.index(size)
+        except TypeError as exc:
+            raise ValueError("allocation sizes and size must be integers") from exc
+        if len(handles_t) != len(sizes_t):
+            raise ValueError(f"{len(handles_t)} handles for {len(sizes_t)} sizes; one size per handle is required")
+        for handle in handles_t:
+            if not isinstance(handle, bytes) or len(handle) != 64:
+                raise ValueError("each fabric handle must be 64 bytes")
+        for n in sizes_t:
+            if n <= 0:
+                raise ValueError(f"allocation sizes must be positive, got {n}")
+        total = sum(sizes_t)
+        size = total if size is None else size
+        if size < 0 or size > total:
+            raise ValueError(f"size {size} is outside 0..{total}, the sum of the allocation sizes")
+        cdef VirtualMemoryFabricBufferDescriptor self = VirtualMemoryFabricBufferDescriptor.__new__(cls)
+        self._payload = b""
+        self._chunk_sizes = sizes_t
+        self._handles = handles_t
+        self._size = size
+        self._owner_uuid = owner_uuid
+        return self
+
+    @property
+    def handles(self) -> tuple[bytes, ...]:
+        """One opaque 64-byte fabric handle per allocation, in address order."""
+        return self._handles
+
+    @property
+    def owner_uuid(self) -> str | None:
+        """The exporting device's UUID, if supplied by the exporter."""
+        return self._owner_uuid
+
+    cdef int driver_handle_type(self) except -1:
+        return <int>cydriver.CU_MEM_HANDLE_TYPE_FABRIC
+
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:
+        cdef bytes handle = self._handles[i]
+        memcpy(scratch.data, <const char*>handle, 64)
+        return <void*>scratch
+
+    def __reduce__(self) -> tuple[object, ...]:
+        return VirtualMemoryFabricBufferDescriptor._from_exports, (
+            self._chunk_sizes, self._handles, self._size, self._owner_uuid)
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, VirtualMemoryFabricBufferDescriptor):
+            return NotImplemented
+        cdef VirtualMemoryFabricBufferDescriptor rhs = other
+        return (self._chunk_sizes, self._handles, self._size) == (rhs._chunk_sizes, rhs._handles, rhs._size)
+
+    def __hash__(self) -> int:
+        return hash((self._chunk_sizes, self._handles, self._size))
+
+
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     Buffer_check_open(self)
     if not self.memory_resource.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
+    if not isinstance(self.memory_resource, _MemPool):
+        # VirtualMemoryBuffer overrides ipc_descriptor; a plain Buffer wrapped
+        # with Buffer.from_handle(mr=<VirtualMemoryResource>) lands here.
+        raise TypeError(
+            f"a Buffer that {type(self.memory_resource).__name__} did not allocate cannot be shared")
     cdef cydriver.CUmemPoolPtrExportData data
     with nogil:
         HANDLE_RETURN(
@@ -186,10 +484,24 @@ cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     return IPCBufferDescriptor._init(data_b, self.size)
 
 cdef Buffer Buffer_from_ipc_descriptor(
-    cls, _MemPool mr, IPCBufferDescriptor ipc_descriptor, stream
+    cls, object mr, IPCBufferDescriptor ipc_descriptor, stream
 ):
     """Import a buffer that was exported from another process."""
-    MP_check_open(mr)
+    if isinstance(ipc_descriptor, _VirtualMemoryDescriptor):
+        # Imported here rather than cimported: _virtual_memory_resource
+        # cimports this module.
+        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource
+        if not isinstance(mr, VirtualMemoryResource):
+            raise TypeError(
+                "this descriptor was exported from a VirtualMemoryResource buffer and must be "
+                f"imported with a VirtualMemoryResource, not {type(mr).__name__}")
+        return mr._import_ipc_buffer(ipc_descriptor, stream)
+    if not isinstance(mr, _MemPool):
+        raise TypeError(
+            "this descriptor was exported from a memory pool buffer and must be imported with a "
+            f"DeviceMemoryResource or PinnedMemoryResource, not {type(mr).__name__}")
+    cdef _MemPool pool = <_MemPool>mr
+    MP_check_open(pool)
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     cdef size_t payload_size = len(ipc_descriptor._payload)
@@ -201,7 +513,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
         )
     cdef Stream s = Stream_accept(stream)
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
-        mr._h_pool,
+        pool._h_pool,
         ipc_descriptor.payload_ptr(),
         s._h_stream
     )
@@ -220,7 +532,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
             f"IPC buffer descriptor size ({claimed_size}) exceeds "
             f"mapped allocation extent ({mapped_size} bytes)"
         )
-    return Buffer_from_deviceptr_handle(h_ptr, claimed_size, mr, ipc_descriptor)
+    return Buffer_from_deviceptr_handle(h_ptr, claimed_size, pool, ipc_descriptor)
 
 
 # _MemPool IPC Implementation
@@ -269,7 +581,11 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
     # Register it.
     if uuid is not None:
         registered = self.register(uuid)
-        assert registered is self
+        if registered is not self:
+            raise RuntimeError(
+                "internal cuda.core error, please report: register() returned a "
+                "different memory resource than the one being registered"
+            )
 
     return self
 
@@ -292,7 +608,11 @@ cdef _MemPool MP_register(_MemPool self, uuid):
         return existing
     if not self.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
-    assert self.uuid is None or self.uuid == uuid
+    if self.uuid is not None and self.uuid != uuid:
+        raise ValueError(
+            f"Cannot register memory resource with UUID {uuid}: "
+            f"the resource already has UUID {self.uuid}"
+        )
     registry[uuid] = self
     self._ipc_data._alloc_handle._uuid = uuid
     return self

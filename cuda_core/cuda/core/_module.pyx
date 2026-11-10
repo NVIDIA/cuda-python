@@ -235,6 +235,23 @@ cdef class KernelAttributes:
             cydriver.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         )
 
+    @property
+    def device_node_update_supported(self) -> bool:
+        """bool : Whether this kernel can be the target of device-side graph node updates.
+
+        Requires CUDA 13 build and CUDA driver 13.3+.
+        This attribute is read-only.
+        """
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if cy_driver_version() < (13, 3, 0):
+                raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
+            return bool(self._get_cached_attribute(
+                self._effective_device_id(),
+                cydriver.CU_FUNC_ATTRIBUTE_DEVICE_NODE_UPDATE_SUPPORTED,
+            ))
+        ELSE:
+            raise NotImplementedError("Device node update queries require CUDA driver 13.3 or newer")
+
 
 MaxPotentialBlockSizeOccupancyResult = namedtuple(
     "MaxPotentialBlockSizeOccupancyResult", ("min_grid_size", "max_block_size")
@@ -373,7 +390,7 @@ cdef class KernelOccupancy:
             ))
         return dynamic_smem_size
 
-    def max_potential_cluster_size(self, config: LaunchConfig, *, stream: Stream) -> int:
+    def max_potential_cluster_size(self, LaunchConfig config not None: LaunchConfig, *, Stream stream not None: Stream) -> int:
         """Maximum potential cluster size.
 
         The maximum potential cluster size for this kernel and given launch configuration.
@@ -392,7 +409,7 @@ cdef class KernelOccupancy:
         int
             The maximum cluster size that can be launched for this kernel and launch configuration.
         """
-        cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
+        cdef cydriver.CUlaunchConfig drv_cfg = config._to_native_launch_config()
         cdef Stream s = Stream_accept(stream)
         drv_cfg.hStream = as_cu(s._h_stream)
         cdef int cluster_size
@@ -401,7 +418,7 @@ cdef class KernelOccupancy:
             HANDLE_RETURN(cydriver.cuOccupancyMaxPotentialClusterSize(&cluster_size, func, &drv_cfg))
         return cluster_size
 
-    def max_active_clusters(self, config: LaunchConfig, *, stream: Stream) -> int:
+    def max_active_clusters(self, LaunchConfig config not None: LaunchConfig, *, Stream stream not None: Stream) -> int:
         """Maximum number of active clusters on the target device.
 
         The maximum number of clusters that could concurrently execute on the target device.
@@ -420,7 +437,7 @@ cdef class KernelOccupancy:
         int
             The maximum number of clusters that could co-exist on the target device.
         """
-        cdef cydriver.CUlaunchConfig drv_cfg = (<LaunchConfig>config)._to_native_launch_config()
+        cdef cydriver.CUlaunchConfig drv_cfg = config._to_native_launch_config()
         cdef Stream s = Stream_accept(stream)
         drv_cfg.hStream = as_cu(s._h_stream)
         cdef int num_clusters
@@ -528,7 +545,7 @@ cdef class Kernel:
         return self.handle
 
     @staticmethod
-    def from_handle(handle, mod: ObjectCode | None = None) -> Kernel:
+    def from_handle(handle, ObjectCode mod: ObjectCode | None = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a kernel handle.
 
         Parameters
@@ -554,7 +571,7 @@ cdef class Kernel:
         cdef LibraryHandle h_caller_lib
 
         if mod is not None:
-            h_caller_lib = (<ObjectCode>mod)._h_library
+            h_caller_lib = mod._h_library
             if h_existing_lib and h_caller_lib:
                 if as_cu(h_existing_lib) != as_cu(h_caller_lib):
                     import warnings
@@ -632,7 +649,8 @@ cdef class ObjectCode:
 
     @classmethod
     def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict[str, str] | None = None) -> ObjectCode:
-        assert code_type in _supported_code_type, f"{code_type=} is not supported"
+        if code_type not in _supported_code_type:
+            raise ValueError(f"{code_type=} is not supported")
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
         # _h_library is assigned during _lazy_load_module

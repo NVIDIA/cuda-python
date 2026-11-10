@@ -1,0 +1,97 @@
+# `cuda.bindings`: Low-level CUDA interfaces
+
+`cuda.bindings` is a standard set of low-level interfaces, providing full coverage of and access to the CUDA host APIs from Python. Checkout the [Overview page](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/overview.html) for the workflow and performance results.
+
+<!-- Keep documentation URLs aligned with DESCRIPTION.rst and build_hooks.py.
+Use a published CUDA 12 snapshot; latest follows the current CUDA major. -->
+
+## Installing
+
+Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html) for instructions and required/optional dependencies.
+
+## Developing
+
+This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
+
+CUDA 12.9 sources are developed here on `main`. This root and
+`cuda_bindings_13/` build the same distribution and Python namespace; use
+separate environments for them. From the repository root:
+
+```console
+pixi run --manifest-path cuda_bindings_12 -e cu12 test
+```
+
+This builds bindings and Cython test extensions from source, then runs the
+GPU test suite. `pixi run -e cu12 test-bindings` selects the same package.
+For an existing Python environment with CUDA 12.9 headers, a compiler,
+and pip 25.1 or newer:
+
+```console
+cd cuda_bindings_12
+python -m pip install -v -e . --group test
+tests/cython/build_tests.sh
+python -m pytest tests/ tests/cython/
+```
+
+Use `build_tests.bat` on Windows. Free-threaded Python also needs the
+`test-ft` dependency group.
+
+Versions follow reachable `v12.*` tags through standard `setuptools-scm`.
+The retained `v12.9.11a0` milestone on `main` anchors CUDA 12 development
+versions. See the repository's
+[version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
+
+
+## Testing
+
+Install the package and its `test` dependency group with
+`python -m pip install -v -e . --group test` (pip 25.1 or newer).
+
+Multiple testing options are available:
+
+* Python Unit Tests
+* Cython Unit Tests
+* Samples
+* Benchmark
+
+### Python Unit Tests
+
+Responsible for validating different binding usage patterns. Unit test `test_kernelParams.py` is particularly special since it demonstrates various approaches in setting up kernel launch parameters.
+
+To run these tests:
+* `python -m pytest tests/` against editable installations
+* `pytest tests/` against installed packages
+
+### Cython Unit Tests
+
+Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
+
+1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
+2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both cythonize the tests and build them.
+
+To run these tests:
+* `python -m pytest tests/cython/` against editable installations
+* `pytest tests/cython/` against installed packages
+
+### Samples
+
+Various [CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) that were rewritten using CUDA Python are located in `examples`.
+
+In addition, extra examples are included:
+
+* `examples/extra/jit_program_test.py`: Demonstrates the use of the API to compile and
+  launch a kernel on the device. Includes device memory allocation /
+  deallocation, transfers between host and device, creation and usage of
+  streams, and context management.
+* `examples/extra/numba_emm_plugin.py`: Implements a Numba External Memory Management
+  plugin, showing that this CUDA Python Driver API can coexist with other
+  wrappers of the driver API.
+
+To run these samples:
+* `python -m pytest tests/cython/` against editable installations
+* `pytest tests/cython/` against installed packages
+
+### Benchmark
+
+See the shared [cuda.bindings benchmark harness](../benchmarks/cuda_bindings/README.md)
+for performance benchmarks and usage instructions.

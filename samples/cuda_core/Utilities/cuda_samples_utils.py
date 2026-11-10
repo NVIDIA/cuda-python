@@ -33,7 +33,7 @@ This module provides common utility functions for CUDA samples including:
 - GPU device information
 
 Requirements:
-- Python 3.10+
+- Python 3.11+
 - CUDA Toolkit 13.0+ (recommended; matches cuda-python 13.x)
 - cuda-python >= 13.0.0
 - cuda-core >= 0.6.0

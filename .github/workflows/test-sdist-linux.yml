@@ -34,6 +34,9 @@ jobs:
       BUILD_BINDINGS: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.bindings.needs_build }}
       BUILD_CORE: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.core.needs_build }}
       BUILD_PYTHON: ${{ inputs.workplan == '' || fromJSON(inputs.workplan).modules.python.needs_build }}
+      # Back off on repeated local-disk cache I/O errors (#3273).
+      SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_COUNT: "5"
+      SCCACHE_CACHE_RATE_LIMIT_ON_ERROR_WINDOW_SIZE_SECS: "5"
     timeout-minutes: 60
     runs-on: linux-amd64-cpu8
     steps:
@@ -44,14 +47,21 @@ jobs:
           # the commit graph (`git describe`) but not historical blobs.
           fetch-depth: 0
           filter: blob:none
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        uses: ./.github/actions/setup-hardened-python
         with:
           python-version: "3.12"
 
       - name: Install build tools
-        run: python -m pip install "pip>=25.3" build
+        run: python -m pip install build
 
       # Pure Python packages -- no CTK needed.
       - name: Build cuda.pathfinder sdist and wheel-from-sdist
@@ -83,15 +93,10 @@ jobs:
           pathfinder_uri="file://$(realpath "${pathfinder_wheels[0]}")"
           printf 'cuda-pathfinder @ %s\n' "${pathfinder_uri}" | tee wheel-constraints/cuda-bindings.txt
 
-      # Cython packages need CTK + sccache.
-      # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
-      # are exposed by this action.
-      - name: Enable sccache
+      # Cython packages need CTK + sccache (local disk cache only in this job).
+      - name: Install rapidsai/sccache
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
-        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba  # 0.0.11
-        with:
-          version: v0.18.0
-          disable_annotations: 'true'
+        uses: ./.github/actions/install-sccache
 
       - name: Setup proxy cache
         if: ${{ env.BUILD_BINDINGS == 'true' || env.BUILD_CORE == 'true' }}
@@ -108,7 +113,7 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ inputs.cuda-version }}
 
-      # cuda_bindings/setup.py parses CUDA headers at import time, so CUDA_PATH
+      # cuda_bindings_13/setup.py parses CUDA headers at import time, so CUDA_PATH
       # (set by fetch_ctk) must be available for both sdist and wheel builds.
       - name: Build cuda.bindings sdist and wheel-from-sdist
         if: ${{ env.BUILD_BINDINGS == 'true' }}
@@ -118,22 +123,22 @@ jobs:
           export CXX="sccache c++"
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          python -m build --sdist cuda_bindings/
-          pip wheel --no-deps --wheel-dir cuda_bindings/dist cuda_bindings/dist/*.tar.gz
+          python -m build --sdist cuda_bindings_13/
+          pip wheel --no-deps --wheel-dir cuda_bindings_13/dist cuda_bindings_13/dist/*.tar.gz
 
       - name: Download cuda.bindings wheel
         if: ${{ env.BUILD_BINDINGS != 'true' && env.BUILD_CORE == 'true' }}
         uses: ./.github/actions/download-artifact-retry
         with:
           name: cuda-bindings-python312-cuda${{ inputs.cuda-version }}-${{ inputs.host-platform }}-${{ github.sha }}
-          path: cuda_bindings/dist
+          path: cuda_bindings_13/dist
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         if: ${{ env.BUILD_CORE == 'true' }}
         run: |
           CUDA_MAJOR="$(echo '${{ inputs.cuda-version }}' | cut -d. -f1)"
           pathfinder_wheels=(cuda_pathfinder/dist/cuda_pathfinder-*.whl)
-          bindings_wheels=(cuda_bindings/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
+          bindings_wheels=(cuda_bindings_13/dist/cuda_bindings-"${CUDA_MAJOR}".*.whl)
           test "${#pathfinder_wheels[@]}" -eq 1
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${pathfinder_wheels[0]}"

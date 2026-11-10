@@ -43,9 +43,8 @@ if TYPE_CHECKING:
 cdef object _pstate_to_int(object pstate):
     if pstate == nvml.Pstates.PSTATE_UNKNOWN:
         return None
-    assert (
-        int(pstate) >= 0 and int(pstate) <= 15
-    ), f"Invalid P-state: {pstate}. Must be between 0 and 15 inclusive, or PSTATE_UNKNOWN."
+    if int(pstate) < 0 or int(pstate) > 15:
+        raise ValueError(f"Invalid P-state: {pstate}. Must be between 0 and 15 inclusive, or PSTATE_UNKNOWN.")
     return int(pstate) - int(nvml.Pstates.PSTATE_0)
 
 
@@ -1110,7 +1109,7 @@ cdef class Device:
         return Utilization(nvml.device_get_utilization_rates(self._handle))
 
 
-def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopologyLevel:
+def get_topology_common_ancestor(Device device1 not None: Device, Device device2 not None: Device) -> GpuTopologyLevel:
     """
     Retrieve the common ancestor for two devices.
 
@@ -1136,7 +1135,7 @@ def get_topology_common_ancestor(device1: Device, device2: Device) -> GpuTopolog
     ]
 
 
-def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
+def get_p2p_status(Device device1 not None: Device, Device device2 not None: Device, index: GpuP2PCapsIndex | str) -> GpuP2PStatus:
     """
     Retrieve the P2P status between two devices.
 

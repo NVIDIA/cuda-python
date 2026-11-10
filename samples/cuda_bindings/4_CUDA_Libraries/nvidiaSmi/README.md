@@ -61,7 +61,7 @@ printed as ``N/A`` rather than failing the sample.
 
 - CUDA Toolkit 13.0 or newer (only for the accompanying NVML library; no
   CUDA runtime is used)
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` (>=13.0.0)
 
 ## Installation

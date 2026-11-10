@@ -36,6 +36,12 @@ def test_system_events_wraps_event_data():
     assert event.gpu_id == 0x0000_0200
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_system_event_rejects_multiple_events():
+    with pytest.raises(ValueError, match="exactly one event, got 2"):
+        SystemEvent(nvml.SystemEventData_v1(2))
+
+
 @pytest.mark.agent_authored(model="claude-opus-4.7")
 @pytest.mark.parametrize(
     ("gpu_id", "expected"),
@@ -94,3 +100,15 @@ def test_register_events():
 
     with pytest.raises(system.TimeoutError):
         events.wait(timeout_ms=500, buffer_size=1)
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_register_events_rejects_invalid_event_type():
+    with pytest.raises(ValueError, match="Invalid event type: not-a-system-event"):
+        system.register_events(["not-a-system-event"])
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_register_events_rejects_non_event_container():
+    with pytest.raises(TypeError, match="events must be"):
+        system.register_events(0)

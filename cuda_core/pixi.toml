@@ -8,9 +8,9 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 preview = ["pixi-build"]
 
 [workspace.build-variants]
-python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
+python = ["3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
-cuda-version = ["12.*", "13.4.*"]
+cuda-version = ["12.*", "13.5.*"]
 
 [feature.test.dependencies]
 cuda-core = { path = "." }
@@ -25,13 +25,12 @@ docutils = "*"
 psutil = "*"
 pyglet = "*"
 packaging = "*"
-tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 
 [feature.test.pypi-dependencies]
 cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = true }
 
 [feature.local-deps.dependencies]
-cuda-bindings = { path = "../cuda_bindings" }
+cuda-bindings = { path = "../cuda_bindings_13" }
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 
 [feature.samples.dependencies]
@@ -41,7 +40,6 @@ cffi = "*"
 pyglet = "*"
 pytest = "*"
 packaging = "*"
-tomli = "*"  # PEP 723 parsing fallback on Python 3.10.
 # numpy pinned <2.5 so `numba` (transitive dep of `numba-cuda` in
 # samples/cuda_core/simplePrint) can install; numba currently requires numpy<2.5.
 numpy = ">=2.2.5,<2.5"
@@ -144,7 +142,7 @@ CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
 CUDA_HOME = "$CONDA_PREFIX/Library"
 
 [feature.cu13.dependencies]
-cuda-version = "13.4.*"
+cuda-version = "13.5.*"
 
 [feature.cu12.dependencies]
 cuda-version = "12.*"
@@ -272,6 +270,7 @@ cython = ">=3.2.5,<3.3"
 cuda-nvrtc-dev = "*"
 cuda-bindings = "*"
 dlpack = "*"
+clang-tools = "==22.1.8"
 
 [package.target.linux-64.host-dependencies]
 cuda-cudart-dev_linux-64 = "*"
@@ -294,11 +293,6 @@ cuda-version = "*"
 numpy = "*"
 cuda-bindings = "*"
 cuda-pathfinder = "*"
-# Conda-forge ships per-Python variants of backports.strenum (real impl on
-# <3.11, no-op stub on >=3.12); pixi-build doesn't accept PEP 508-style
-# `python_version` selectors in [package.target.<X>], so list it
-# unconditionally and let the solver pick the right variant.
-"backports.strenum" = "*"
 
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
@@ -309,6 +303,10 @@ default-environment = "docs"
 
 [target.linux.tasks.docs-build-latest]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
+default-environment = "docs"
+
+[target.linux.tasks.docs-build-all-latest]
+cmd = ["bash", "$PIXI_PROJECT_ROOT/../ci/tools/build_docs_for_link_check.sh"]
 default-environment = "docs"
 
 [target.linux.tasks.docs-debug]
@@ -322,7 +320,7 @@ cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
 [target.linux.tasks.test]
 cmd = [
     "pytest",
-    "$PIXI_PROJECT_ROOT",
+    "$PIXI_PROJECT_ROOT/tests",
     "--override-ini",
     "norecursedirs=\"\"", # include cython tests (ignore by default config)
 ]
@@ -331,7 +329,7 @@ depends-on = [{ task = "build-cython-tests" }]
 [target.win-64.tasks.test]
 cmd = [
     "pytest",
-    "$PIXI_PROJECT_ROOT",
+    "$PIXI_PROJECT_ROOT/tests",
     "--override-ini",
     "norecursedirs=\"\"",  # include cython tests (ignore by default config)
 ]

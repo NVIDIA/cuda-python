@@ -13,7 +13,6 @@ from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils cimport check_or_create_options  # no-cython-lint
 from cuda.core._utils.cuda_utils import CUDAError  # no-cython-lint
 
-import cython
 from dataclasses import dataclass
 import threading
 from typing import TYPE_CHECKING
@@ -98,7 +97,6 @@ cdef class ManagedMemoryResource(_MemPool):
     memory pools.
     """
 
-    @cython.annotation_typing(False)
     def __init__(self, options: ManagedMemoryResourceOptions | None = None) -> None:
         _MMR_init(self, options)
 
@@ -124,7 +122,8 @@ cdef class ManagedMemoryResource(_MemPool):
             (``prefetch``, ``discard``, ``discard_prefetch``).
         """
         MP_check_open(self)
-        assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"
+        if not isinstance(stream, Stream):
+            raise TypeError(f"Only Stream is supported for managed memory allocations, got {type(stream).__name__}")
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)

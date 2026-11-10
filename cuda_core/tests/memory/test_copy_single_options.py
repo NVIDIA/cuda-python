@@ -46,6 +46,17 @@ def pinned_mr():
     return LegacyPinnedMemoryResource()
 
 
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_copy_from_rejects_none_src(single_copy_device, single_copy_stream, pinned_mr):
+    """copy_from(None) raises TypeError instead of dereferencing a null source."""
+    dst = pinned_mr.allocate(SIZE)
+
+    with pytest.raises(TypeError):
+        dst.copy_from(None, stream=single_copy_stream)
+
+    dst.close()
+
+
 @pytest.mark.agent_authored(model="Claude Sonnet 4.6")
 @thread_unsafe_on_windows
 def test_options_none_copy_to_data_correct(single_copy_device, single_copy_stream, pinned_mr):

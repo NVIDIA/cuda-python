@@ -117,7 +117,7 @@ def test_driver_function_table_matches_the_cuda_bindings_loader():
     """driver_api.hpp lists each driver function with the CUDA version that cuda-bindings
     requests it at. That number decides which functions every supported driver must
     provide. Check it against the loader that cuda-bindings generates."""
-    loader = CORE.parents[2] / "cuda_bindings" / "cuda" / "bindings" / "_internal" / "driver_linux.pyx"
+    loader = CORE.parents[2] / "cuda_bindings_13" / "cuda" / "bindings" / "_internal" / "driver_linux.pyx"
     if not loader.is_file():
         pytest.skip("cuda-bindings source is not next to cuda_core")
     entries = re.findall(r"^\s*X\((cu\w+), (\d+)\)", read(RT / "driver_api.hpp"), re.M)

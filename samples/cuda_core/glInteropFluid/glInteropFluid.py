@@ -99,6 +99,7 @@ import platform
 import random
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -121,6 +122,9 @@ from cuda.core.typing import (
     FilterModeType,
     ReadModeType,
 )
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"))
+from cuda_python_test_helpers.graphics import gl_context_not_on_nvidia_gpu_reason
 
 # ---------------------------------------------------------------------------
 # Simulation parameters (feel free to change these)
@@ -558,6 +562,11 @@ def main(argv=None):
         window, gl, pyglet = create_window()
     except Exception as exc:
         print(f"Could not open a pyglet window ({exc}); waiving glInteropFluid.", file=sys.stderr)
+        sys.exit(EXIT_WAIVED)
+
+    if reason := gl_context_not_on_nvidia_gpu_reason():
+        print(f"{reason}; waiving glInteropFluid.", file=sys.stderr)
+        window.close()
         sys.exit(EXIT_WAIVED)
 
     # --- Step 3: Create GL resources for drawing a texture to screen ---

@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from enum import StrEnum
+
 from cuda.bindings import nvml as _nvml
 from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
-from cuda.core._utils.pycompat import StrEnum
 
 __all__ = [
     "AddressingMode",

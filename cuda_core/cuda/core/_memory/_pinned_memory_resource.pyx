@@ -15,13 +15,14 @@ from cuda.core._memory._memory_pool cimport (
 )
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
+from cuda.core._memory._location cimport cumemlocation_from_id
+from cuda.core._rt cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
 
-import cython
 from dataclasses import dataclass
 import multiprocessing
 import platform  # no-cython-lint
@@ -100,6 +101,12 @@ cdef class PinnedMemoryResource(_MemPool):
     is unsupported and stream-ordered allocation is not needed, use
     :class:`LegacyPinnedMemoryResource`.
 
+    The driver makes a host memory pool accessible only from the host by
+    default, so the resource grants the device that is current when it is
+    created read and write access to the pool. Kernels on other devices cannot
+    access its buffers. Without options, the grant applies to the driver's
+    current pool, which the whole process shares.
+
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
     option. When IPC is enabled and ``numa_id`` is not specified, the NUMA node
@@ -110,24 +117,39 @@ cdef class PinnedMemoryResource(_MemPool):
     See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
-    @cython.annotation_typing(False)
     def __init__(self, options: PinnedMemoryResourceOptions | None = None) -> None:
         _PMR_init(self, options)
 
     def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -> Buffer:
-        """Allocate a host-pinned buffer asynchronously on the supplied stream."""
+        """Allocate a host-pinned buffer asynchronously on the supplied stream.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : :obj:`~_stream.Stream` | :obj:`~graph.GraphBuilder`
+            Keyword-only. The stream on which to perform the allocation
+            asynchronously. Must be passed explicitly; pass
+            ``device.default_stream`` to use the default stream.
+
+        Returns
+        -------
+        Buffer
+            The allocated buffer object, which is accessible from the host.
+
+        Raises
+        ------
+        RuntimeError
+            If the stream's device does not support the requested host memory
+            pool. Use :class:`LegacyPinnedMemoryResource` when stream-ordered
+            allocation is not required.
+        """
         MP_check_open(self)
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
         device = s.device
-        cdef bint supported = (
-            device.properties.host_numa_memory_pools_supported
-            if self._numa_id >= 0
-            else device.properties.host_memory_pools_supported
-        )
-
-        if not supported:
+        if not _host_pool_supported(device, self._numa_id):
             raise RuntimeError(
                 f"CUDA device {device.device_id} does not support the requested "
                 "host memory pool for PinnedMemoryResource. Use "
@@ -159,6 +181,13 @@ cdef class PinnedMemoryResource(_MemPool):
         -------
         The registered mapped memory resource. If one was previously registered
         with the given key, it is returned.
+
+        Raises
+        ------
+        RuntimeError
+            If the memory resource is not IPC-enabled.
+        ValueError
+            If the memory resource already has a different UUID.
         """
         return <PinnedMemoryResource>(_ipc.MP_register(self, uuid))
 
@@ -217,13 +246,21 @@ cdef class PinnedMemoryResource(_MemPool):
 
     @property
     def is_device_accessible(self) -> bool:
-        """Return True. This memory resource provides device-accessible buffers."""
+        """Return True. The device that is current when the resource is created can read and write its buffers."""
         return True
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
+
+
+cdef inline bint _host_pool_supported(device, int numa_id):
+    return (
+        device.properties.host_numa_memory_pools_supported
+        if numa_id >= 0
+        else device.properties.host_memory_pools_supported
+    )
 
 
 cdef inline _PMR_init(PinnedMemoryResource self, options):
@@ -237,6 +274,7 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
     cdef size_t max_size = 0
     cdef cydriver.CUmemLocationType loc_type
     cdef int numa_id = -1
+    cdef cydriver.CUmemAccessDesc access
 
     if opts is not None:
         ipc_enabled = opts.ipc_enabled
@@ -281,6 +319,17 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
             ipc_enabled,
             max_size,
         )
+
+    # A pool on a host location is accessible only from the host by default
+    # (see cuMemPoolCreate), so grant the current device read/write access. A
+    # device without host pool support cannot allocate from it anyway.
+    dev = Device()
+    if _host_pool_supported(dev, numa_id):
+        access.location = cumemlocation_from_id(
+            cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)
+        access.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), &access, 1))
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:

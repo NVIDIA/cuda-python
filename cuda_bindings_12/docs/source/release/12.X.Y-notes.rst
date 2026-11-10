@@ -1,0 +1,27 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+:orphan:
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 12.X.Y Release notes
+======================================
+
+Unreleased
+
+Breaking Changes
+----------------
+
+* CUDA 12 bindings require Python 3.11 or newer. Python versions older than
+  3.11 are no longer supported; the supported range is Python 3.11-3.15.
+
+Bug Fixes
+---------
+
+* Nested resource pointer conversion accepts both ``str`` and ``bytes``
+  options, matching the CUDA 13 bindings behavior.
+* Coredump settings retain borrowed string buffers for the duration of the
+  call and free the buffers allocated for getters.
+* ``get_cuda_native_handle`` preserves a ``KeyError`` raised inside a
+  registered getter instead of reporting an unknown type.

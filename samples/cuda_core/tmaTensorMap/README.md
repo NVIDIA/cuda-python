@@ -71,7 +71,7 @@ The sample:
 ### Software
 
 - CUDA Toolkit 13.0 or newer with libcudacxx (cccl) headers
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` (>=13.0.0)
 - `cuda-core` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
@@ -135,4 +135,4 @@ replace_address verified: descriptor reused with new source tensor
 
 - [CUDA Python Documentation](https://nvidia.github.io/cuda-python/)
 - [TMA in the CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#tensor-memory-accelerator)
-- [`cuda::barrier` reference](https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/barrier.html)
+- [`cuda::barrier` reference](https://nvidia.github.io/cccl/unstable/libcudacxx/extended_api/synchronization_primitives/barrier.html)

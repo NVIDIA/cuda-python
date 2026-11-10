@@ -104,7 +104,7 @@ When returning a zero-copy view, the caller must close the buffers after use (e.
 ### Software:
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` package (13.0.0+)
 - `cuda-core` package (>=1.0.0)
 - `numpy` package (>=2.3.2)

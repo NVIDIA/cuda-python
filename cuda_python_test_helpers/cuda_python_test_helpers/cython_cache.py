@@ -13,7 +13,7 @@ Provides:
 - ``WINDOWS_ONLY_CACHE``: shared skip marker for the complementary Windows
   disable-path tests (warn + return None when the cache dir is set).
 
-These are used by ``cuda_bindings/tests/test_build_hooks.py`` and
+These are used by ``cuda_bindings_13/tests/test_build_hooks.py`` and
 ``cuda_core/tests/test_build_hooks.py``. The helpers themselves are loaded
 through matching package-local ``_build_shared.py`` paths.
 
@@ -349,7 +349,7 @@ class CythonCachePathMixin:
     def test_changed_directives_change_namespace(self, monkeypatch, tmp_path):
         """Different ``compiler_directives`` map to different namespaces (#7532 workaround)."""
         self._set_env(monkeypatch, str(tmp_path))
-        base = dict(embedsignature=True, freethreading_compatible=True)
+        base = {"embedsignature": True, "freethreading_compatible": True}
         with_linetrace = dict(base, linetrace=True)
         p1 = self.build_hooks._cython_cache_path(self.package, compiler_directives=base)
         p2 = self.build_hooks._cython_cache_path(self.package, compiler_directives=with_linetrace)

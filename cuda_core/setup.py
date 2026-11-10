@@ -13,6 +13,8 @@ from setuptools import setup
 from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.build_py import build_py as _build_py
 
+from _build_shared import drop_empty_venv_include_dir, make_egg_info_command
+
 nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
 coverage_mode = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 _ROOT_DIR = Path(__file__).resolve().parent
@@ -56,6 +58,9 @@ def _build_aoti_shim_lib(compiler, plat_name):
 class build_ext(_build_ext):  # noqa: N801
     def finalize_options(self):
         super().finalize_options()
+        # A per-build venv path on every -I line defeats sccache's
+        # preprocessor cache; see _build_shared.drop_empty_venv_include_dir().
+        self.include_dirs = drop_empty_venv_include_dir(self.include_dirs)
         # A stale .so from a previous build configuration (CUDA major,
         # toolchain, debug/coverage) looks perfectly fresh; see
         # build_hooks._check_build_config().
@@ -80,6 +85,56 @@ class build_ext(_build_ext):  # noqa: N801
             return
 
         raise RuntimeError(f"Failed to find extension {_TENSOR_BRIDGE_EXT_NAME!r} for Windows build.")
+
+    @contextlib.contextmanager
+    def _clang_tidy_before_compile(self):
+        """Run clang-tidy on each handwritten .cpp just before its compiler command runs.
+
+        Every compiler, MSVC included, runs its commands through one method, so
+        clang-tidy gets the exact command line of the build. That method is
+        call() in current setuptools, where spawn() is deprecated and delegates
+        to it, and spawn() before. Only sources that are rebuilt are checked.
+
+        A source with findings does not stop the build. Every source is checked
+        and compiled, and the findings of all of them are raised together once
+        the build is over, so that one run reports everything to fix. If the
+        build itself fails, that error propagates and the findings are attached
+        to it as a note.
+        """
+        # Looked up here, on the main thread, because the sources compile on
+        # several threads and a missing clang-tidy must be reported only once.
+        clang_tidy = build_hooks.get_clang_tidy()
+        if clang_tidy is None:
+            yield
+            return
+        compiler = self.compiler
+        method = "spawn"
+        if hasattr(compiler, "call"):
+            method = "call"
+        stock = getattr(compiler, method)
+        failures = []
+
+        def run(cmd, *args, **kwargs):
+            try:
+                build_hooks.check_with_clang_tidy(clang_tidy, cmd)
+            except build_hooks.ClangTidyError as e:
+                failures.append(str(e))
+            return stock(cmd, *args, **kwargs)
+
+        setattr(compiler, method, run)
+        try:
+            yield
+        except BaseException as e:
+            # The compile error is the real failure. Do not replace it with the
+            # findings; attach them so they are still reported.
+            if failures:
+                e.add_note("\n\n".join(failures))
+            raise
+        else:
+            if failures:
+                raise build_hooks.ClangTidyError("\n\n".join(failures))
+        finally:
+            setattr(compiler, method, stock)
 
     @contextlib.contextmanager
     def _parallel_source_compilation(self):
@@ -135,7 +190,7 @@ class build_ext(_build_ext):  # noqa: N801
     def build_extensions(self):
         self.parallel = nthreads
         self._configure_windows_tensor_bridge()
-        with self._parallel_source_compilation():
+        with self._clang_tidy_before_compile(), self._parallel_source_compilation():
             super().build_extensions()
 
 
@@ -155,6 +210,7 @@ if __name__ == "__main__":
         cmdclass={
             "build_ext": build_ext,
             "build_py": build_py,
+            "egg_info": make_egg_info_command("cuda-core-v"),
         },
         zip_safe=False,
     )

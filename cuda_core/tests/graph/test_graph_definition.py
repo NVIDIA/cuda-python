@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import skip_if_managed_mempool_unsupported, skip_if_mempool_unsupported
 from helpers.misc import try_create_condition
 
 from cuda.core import Device, LaunchConfig
@@ -39,17 +40,6 @@ from cuda.core.graph import (
 from cuda.core.typing import GraphConditionalType, GraphMemoryType
 
 ALLOC_SIZE = 1024
-
-
-def _skip_if_no_mempool():
-    if not Device(0).properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
-
-
-def _skip_if_no_managed_mempool():
-    _skip_if_no_mempool()
-    if not Device(0).properties.concurrent_managed_access:
-        pytest.skip("Device does not support managed memory pool operations")
 
 
 def _has_node_get_params():
@@ -204,13 +194,13 @@ _NONEMPTY_BUILDERS = [p for p in _ALL_BUILDERS if p.values[0] is not _build_empt
 @pytest.fixture(params=_ALL_BUILDERS)
 def graph_spec(request, init_cuda):
     if request.param is not _build_empty:
-        _skip_if_no_mempool()
+        skip_if_mempool_unsupported()
     return request.param()
 
 
 @pytest.fixture(params=_NONEMPTY_BUILDERS)
 def nonempty_graph_spec(request, init_cuda):
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     return request.param()
 
 
@@ -276,7 +266,7 @@ def _build_alloc_node(g):
 
 
 def _build_alloc_managed_node(g):
-    _skip_if_no_managed_mempool()
+    skip_if_managed_mempool_unsupported()
     device_id = Device().device_id
     entry = g.allocate(ALLOC_SIZE)
     node = entry.allocate(ALLOC_SIZE, memory_type=GraphMemoryType.MANAGED)
@@ -564,7 +554,7 @@ _NODE_SPECS = [
 def node_spec(request, init_cuda):
     spec = request.param
     if spec.needs_mempool:
-        _skip_if_no_mempool()
+        skip_if_mempool_unsupported()
     g = GraphDefinition()
     node, expected_attrs = spec.builder(g)
     return spec, g, node, expected_attrs
@@ -821,6 +811,34 @@ def test_graphdef_handle_valid(init_cuda):
     assert int(sample_graphdef.handle) != 0
 
 
+def test_graph_identity_attributes(init_cuda):
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
+
+    definition = GraphDefinition()
+    node = definition.empty()
+    other = definition.empty()
+    graph = definition.instantiate()
+
+    try:
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 1, 0):
+            with pytest.raises(NotImplementedError):
+                _ = definition.id
+            with pytest.raises(NotImplementedError):
+                _ = graph.id
+            with pytest.raises(NotImplementedError):
+                _ = node.local_id
+            with pytest.raises(NotImplementedError):
+                _ = node.tools_id
+            return
+        assert isinstance(definition.id, int)
+        assert isinstance(graph.id, int)
+        assert node.graph == definition
+        assert node.local_id != other.local_id
+        assert node.tools_id != other.tools_id
+    finally:
+        graph.close()
+
+
 def test_graphdef_entry_is_virtual(init_cuda):
     """Internal entry node is virtual (no pred/succ, type is None)."""
     sample_graphdef = GraphDefinition()
@@ -839,7 +857,7 @@ def test_graphdef_entry_is_virtual(init_cuda):
 def test_alloc_zero_size_fails(init_cuda):
     """Alloc with zero size raises error (CUDA limitation)."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     from cuda.core._utils.cuda_utils import CUDAError
 
     with pytest.raises(CUDAError):
@@ -849,7 +867,7 @@ def test_alloc_zero_size_fails(init_cuda):
 def test_free_creates_dependency(init_cuda):
     """Free node depends on its predecessor."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     alloc = sample_graphdef.allocate(ALLOC_SIZE)
     free = alloc.deallocate(alloc.dptr)
     assert alloc in free.pred
@@ -858,7 +876,7 @@ def test_free_creates_dependency(init_cuda):
 def test_alloc_free_chain(init_cuda):
     """Alloc and free can be chained."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     a1 = sample_graphdef.allocate(ALLOC_SIZE)
     a2 = a1.allocate(ALLOC_SIZE)
     f2 = a2.deallocate(a2.dptr)
@@ -890,7 +908,7 @@ def test_alloc_memory_type_invalid(init_cuda):
 def test_alloc_device_option(init_cuda, device_spec):
     """Device can be specified as int or Device object."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     device = Device()
     node = sample_graphdef.allocate(ALLOC_SIZE, device=device_spec(device))
     assert node.dptr != 0
@@ -907,7 +925,7 @@ def test_alloc_peer_access(mempool_device_x2):
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_alloc_memory_type_host(init_cuda):
     """HOST graph alloc nodes reconstruct memory_type from the driver, not the Python argument."""
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     from cuda.core._utils.cuda_utils import CUDAError
 
     g = GraphDefinition()
@@ -940,7 +958,7 @@ def test_alloc_memory_type_host(init_cuda):
 def test_join_merges_branches(init_cuda, num_branches):
     """join() with multiple branches creates correct dependencies."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     branches = [sample_graphdef.allocate(ALLOC_SIZE) for _ in range(num_branches)]
     joined = sample_graphdef.join(*branches)
     assert isinstance(joined, EmptyNode)
@@ -1037,7 +1055,7 @@ def test_instantiate_empty_graph(init_cuda, inst_kwargs):
 def test_instantiate_with_nodes(init_cuda, inst_kwargs):
     """Graph with nodes can be instantiated."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     sample_graphdef.allocate(ALLOC_SIZE)
     sample_graphdef.allocate(ALLOC_SIZE)
     graph = _instantiate(sample_graphdef, inst_kwargs)
@@ -1081,7 +1099,7 @@ def test_instantiate_and_execute_kernel(init_cuda, inst_kwargs):
 def test_instantiate_and_execute_alloc_free(init_cuda, inst_kwargs):
     """Graph with alloc/free can be executed."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     alloc = sample_graphdef.allocate(ALLOC_SIZE)
     alloc.deallocate(alloc.dptr)
 
@@ -1095,7 +1113,7 @@ def test_instantiate_and_execute_alloc_free(init_cuda, inst_kwargs):
 def test_instantiate_and_execute_memset(init_cuda, inst_kwargs):
     """Graph with alloc/memset/free can be executed."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     alloc = sample_graphdef.allocate(ALLOC_SIZE)
     ms = alloc.memset(alloc.dptr, 0xAB, ALLOC_SIZE)
     ms.deallocate(alloc.dptr)
@@ -1110,7 +1128,7 @@ def test_instantiate_and_execute_memset(init_cuda, inst_kwargs):
 def test_instantiate_and_execute_memcpy(init_cuda, inst_kwargs):
     """Graph with alloc/memset/memcpy/free can be executed and data is copied."""
     sample_graphdef = GraphDefinition()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     import ctypes
 
     src_alloc = sample_graphdef.allocate(ALLOC_SIZE)
@@ -1336,7 +1354,7 @@ def test_instantiate_and_execute_if_then(init_cuda):
     """If-conditional node: body executes only when condition is non-zero."""
     sample_graphdef = GraphDefinition()
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     import ctypes
 
     from helpers.graph_kernels import compile_conditional_kernels
@@ -1369,7 +1387,7 @@ def test_instantiate_and_execute_if_else(init_cuda):
     """If-else node: then or else branch executes based on condition."""
     sample_graphdef = GraphDefinition()
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     import ctypes
 
     from helpers.graph_kernels import compile_conditional_kernels
@@ -1404,7 +1422,7 @@ def test_instantiate_and_execute_switch(init_cuda):
     """Switch node: selected branch executes based on condition value."""
     sample_graphdef = GraphDefinition()
     _skip_unless_cc_90()
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     import ctypes
 
     from helpers.graph_kernels import compile_conditional_kernels
@@ -1456,7 +1474,7 @@ def test_debug_dot_print_creates_file(init_cuda, tmp_path):
     """debug_dot_print writes a DOT file."""
     sample_graphdef = GraphDefinition()
     dot_file = tmp_path / "graph.dot"
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     sample_graphdef.allocate(ALLOC_SIZE)
     sample_graphdef.debug_dot_print(str(dot_file))
     assert dot_file.exists()
@@ -1468,7 +1486,7 @@ def test_debug_dot_print_with_options(init_cuda, tmp_path):
     """debug_dot_print accepts GraphDebugPrintOptions."""
     sample_graphdef = GraphDefinition()
     dot_file = tmp_path / "graph.dot"
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     sample_graphdef.allocate(ALLOC_SIZE)
     options = GraphDebugPrintOptions(verbose=True, handles=True)
     sample_graphdef.debug_dot_print(str(dot_file), options)
@@ -1479,7 +1497,7 @@ def test_debug_dot_print_invalid_options(init_cuda, tmp_path):
     """debug_dot_print rejects invalid options type."""
     sample_graphdef = GraphDefinition()
     dot_file = tmp_path / "graph.dot"
-    _skip_if_no_mempool()
+    skip_if_mempool_unsupported()
     sample_graphdef.allocate(ALLOC_SIZE)
     with pytest.raises(TypeError, match="options must be a GraphDebugPrintOptions"):
         sample_graphdef.debug_dot_print(str(dot_file), "invalid")

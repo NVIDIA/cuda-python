@@ -19,7 +19,7 @@ Learn how to add a custom GPU operation to TensorFlow using `cuda.core` with `tf
 
 - NVIDIA GPU with Compute Capability 7.0+
 - CUDA Toolkit 13.0+
-- Python 3.10+
+- Python 3.11+
 - TensorFlow 2.10+
 - cuda-python >= 13.0.0
 - cuda-core >=1.0.0 (required for LEGACY_DEFAULT_STREAM)

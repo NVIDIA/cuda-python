@@ -16,57 +16,59 @@
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
 namespace cuda_core::rt::detail {
 
 // Implemented in error.cpp
-void format_cuda_error(char* buffer, size_t size, const char* operation, CUresult status,
-                       const char* detail) noexcept;
+void format_cuda_error(char *buffer, size_t size, const char *operation, CUresult status, const char *detail) noexcept;
 // Implemented in error.cpp
-void note_context_not_restored(CUcontext previous, CUresult operation_status,
-                               CUresult restore_status) noexcept;
+void note_context_not_restored(CUcontext previous, CUresult operation_status, CUresult restore_status) noexcept;
 // Implemented in error.cpp
-void format_operation(char* buffer, size_t size, const char* operation,
-                      unsigned long long handle) noexcept;
+void format_operation(char *buffer, size_t size, const char *operation, unsigned long long handle) noexcept;
 
 // Bits of a resource handle for diagnostics: a pointer as its address, an
 // integer handle (CUdeviceptr, CUtexObject, ...) as its value, and a pointer
 // to a handle (nvrtcDestroyProgram(&prog) and friends) as the handle it points
 // to.
 template <typename T>
-unsigned long long handle_bits(const T& value) noexcept {
+unsigned long long
+handle_bits(const T &value) noexcept
+{
     using U = std::remove_cv_t<std::remove_reference_t<T>>;
     if constexpr (std::is_pointer_v<U>) {
         using P = std::remove_cv_t<std::remove_pointer_t<U>>;
         if constexpr (std::is_pointer_v<P>) {
-            return value ? handle_bits(*value) : 0ull;
-        } else {
+            return value ? handle_bits(*value) : 0ULL;
+        }
+        else {
             return static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(value));
         }
-    } else if constexpr (std::is_integral_v<U> || std::is_enum_v<U>) {
+    }
+    else if constexpr (std::is_integral_v<U> || std::is_enum_v<U>) {
         return static_cast<unsigned long long>(value);
-    } else {
-        return 0ull;
+    }
+    else {
+        return 0ULL;
     }
 }
 
 // Store a stream and any state needed to preserve deallocation ordering.
 struct DeallocationStream {
     StreamHandle h_stream;
-    std::thread::id ptds_tid{};
+    std::thread::id ptds_tid;
 };
 
 // Implemented in stream.cpp
-ContextHandle deallocation_context(const DeallocationStream& stream) noexcept;
-// Implemented in stream.cpp
-bool make_deallocation_stream(const StreamHandle& h, DeallocationStream& out) noexcept;
+ContextHandle deallocation_context(const DeallocationStream &stream) noexcept;
+// Implemented in stream.cpp. Not noexcept: binding a default-stream token
+// allocates. May throw std::bad_alloc.
+bool make_deallocation_stream(const StreamHandle &h, DeallocationStream &out);
 
 // Implemented in virtual_memory.cpp. Synchronize the stream a VMM buffer
 // recorded before its mappings are released. Skips the sync, with a report
 // when a capture is the reason, if no stream was recorded, the interpreter is
 // finalizing, or the sync would disturb a graph capture (VMM_DESIGN.md).
-void vmm_sync_before_release(const DeallocationStream& stream) noexcept;
+void vmm_sync_before_release(const DeallocationStream &stream) noexcept;
 
 // Decorate a status-returning cleanup call to report whenever it fails. CUDA
 // calls (CUresult) are reported with the error name and description; NVRTC,
@@ -78,10 +80,10 @@ void vmm_sync_before_release(const DeallocationStream& stream) noexcept;
 // one while holding a C++ lock; the GIL must be the outermost lock. Where a
 // lock must stay held, call the p_ pointer, keep the status, and report after
 // the lock is released (see deviceptr_import_ipc and DESIGN.md).
-template <auto& Function, FnTable Table = FnTable::driver>
+template <auto &Function, FnTable Table = FnTable::driver>
 class WarnOnFailure {
-public:
-    explicit WarnOnFailure(const char* operation) noexcept : operation_(operation) {}
+   public:
+    explicit WarnOnFailure(const char *operation) noexcept : operation_(operation) {}
 
     // The first argument is the resource being released; it is named in the
     // report so that independent failures are not collapsed by the warning
@@ -89,34 +91,42 @@ public:
     // table like DRIVER_CALL: it reports an unavailable entry and yields an
     // error status, never a null dereference.
     template <typename First, typename... Rest>
-    auto operator()(First&& first, Rest&&... rest) const noexcept {
+    auto
+    operator()(First &&first, Rest &&...rest) const noexcept
+    {
         const unsigned long long handle = handle_bits(first);
         auto status = detail::fn_or_unavailable(Function, Table, operation_)(
-            std::forward<First>(first), std::forward<Rest>(rest)...);
+            std::forward<First>(first),
+            std::forward<Rest>(rest)...
+        );
         report(status, handle);
         return status;
     }
 
-private:
-    void report(CUresult status, unsigned long long handle) const noexcept {
+   private:
+    void
+    report(CUresult status, unsigned long long handle) const noexcept
+    {
         if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
             return;
         }
-        char operation[160];
+        char operation[kOperationNameSize];
         format_operation(operation, sizeof(operation), operation_, handle);
         report_cuda_error(operation, status);
     }
 
     template <typename Status>
-    void report(Status status, unsigned long long handle) const noexcept {
+    void
+    report(Status status, unsigned long long handle) const noexcept
+    {
         if (static_cast<long>(status) != 0) {
-            char operation[160];
+            char operation[kOperationNameSize];
             format_operation(operation, sizeof(operation), operation_, handle);
             report_status_code(operation, static_cast<long>(status));
         }
     }
 
-    const char* operation_;
+    const char *operation_;
 };
 
 // Warning-decorated CUDA operations for deleters and cleanup paths. Each one
@@ -147,14 +157,14 @@ const WarnOnFailure<p_nvJitLinkDestroy, FnTable::nvjitlink> pw_nvJitLinkDestroy{
 
 // Intrusive base for payloads transferred out of CUDA's callback.
 struct DeferredCleanupItem {
-    DeferredCleanupItem* next = nullptr;
+    DeferredCleanupItem *next = nullptr;
     virtual ~DeferredCleanupItem() noexcept = default;
 };
 
 // Implemented in py_deferred_cleanup.cpp
 void ensure_deferred_cleanup_ready();
 // Implemented in py_deferred_cleanup.cpp
-void enqueue_cleanup(void* item) noexcept;
+void enqueue_cleanup(void *item) noexcept;
 
 // ============================================================================
 // Handle reverse-lookup registry
@@ -164,32 +174,29 @@ void enqueue_cleanup(void* item) noexcept;
 // Uses weak_ptr to avoid preventing destruction.
 // ============================================================================
 
-template<typename Key, typename Handle, typename Hash = std::hash<Key>>
+template <typename Key, typename Handle, typename Hash = std::hash<Key>>
 class HandleRegistry {
-public:
+   public:
     using MapType = std::unordered_map<Key, std::weak_ptr<typename Handle::element_type>, Hash>;
 
-    void register_handle(const Key& key, const Handle& h) {
-        std::lock_guard<std::mutex> lock(mutex_);
+    void
+    register_handle(const Key &key, const Handle &h)
+    {
+        std::scoped_lock lock(mutex_);
         map_[key] = h;
     }
 
-    void unregister_handle(const Key& key) noexcept {
-        std::lock_guard<std::mutex> lock(mutex_);
+    void
+    unregister_handle(const Key &key) noexcept
+    {
+        std::scoped_lock lock(mutex_);
         map_.erase(key);
     }
 
-    void register_handles(const std::vector<Handle>& handles) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        for (const Handle& h : handles) {
-            if (h) {
-                map_[*h] = h;
-            }
-        }
-    }
-
-    Handle lookup(const Key& key) {
-        std::lock_guard<std::mutex> lock(mutex_);
+    Handle
+    lookup(const Key &key)
+    {
+        std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
             if (auto h = it->second.lock()) {
@@ -200,9 +207,11 @@ public:
         return {};
     }
 
-    template<typename Factory>
-    Handle get_or_create(const Key& key, Factory&& create) {
-        std::lock_guard<std::mutex> lock(mutex_);
+    template <typename Factory>
+    Handle
+    get_or_create(const Key &key, Factory &&create)
+    {
+        std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
             if (Handle h = it->second.lock()) {
@@ -218,14 +227,19 @@ public:
         return h;
     }
 
-    MapType drain() noexcept {
-        std::lock_guard<std::mutex> lock(mutex_);
+    // MSVC's std::unordered_map allocates in its default constructor, so an
+    // allocation failure here terminates. Running out of memory is fatal either way.
+    MapType
+    // NOLINTNEXTLINE(bugprone-exception-escape)
+    drain() noexcept
+    {
+        std::scoped_lock lock(mutex_);
         MapType extracted;
         extracted.swap(map_);
         return extracted;
     }
 
-private:
+   private:
     std::mutex mutex_;
     MapType map_;
 };

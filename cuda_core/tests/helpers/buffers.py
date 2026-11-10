@@ -22,6 +22,7 @@ __all__ = [
     "compare_equal_buffers",
     "make_instrumented_memory_resource",
     "make_scratch_buffer",
+    "prefix_view",
     "thread_unsafe_on_windows",
 ]
 
@@ -247,19 +248,17 @@ class PatternGen:
         self.pattern_buffers = {}
 
     def fill_buffer(self, buffer, seed=None, value=None):
-        """Fill a device buffer with a sequential test pattern using unified memory."""
-        assert buffer.size == self.size
+        """Fill the first ``size`` bytes of a device buffer with a test pattern using unified memory."""
         pattern_buffer = self._get_pattern_buffer(seed, value)
-        buffer.copy_from(pattern_buffer, stream=self.stream)
+        prefix_view(buffer, self.size).copy_from(pattern_buffer, stream=self.stream)
 
     def verify_buffer(self, buffer, seed=None, value=None):
-        """Verify the buffer contents against a sequential pattern."""
-        assert buffer.size == self.size
+        """Verify the first ``size`` bytes of the buffer against a sequential pattern."""
         scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size)
         ptr_test = self._ptr(scratch_buffer)
         pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
-        scratch_buffer.copy_from(buffer, stream=self.stream)
+        scratch_buffer.copy_from(prefix_view(buffer, self.size), stream=self.stream)
         self.stream.sync()
         assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
 
@@ -285,6 +284,19 @@ class PatternGen:
                     ptr[i] = (seed + i) & 0xFF
             self.pattern_buffers[key] = pattern_buffer
         return pattern_buffer
+
+
+def prefix_view(buffer, nbytes):
+    """Return ``buffer`` itself when it has ``nbytes`` bytes, else a non-owning view of its first ``nbytes``.
+
+    Resources that round sizes up (VirtualMemoryResource rounds to its
+    granularity) return buffers larger than requested, and the copy helpers
+    need equal sizes. The view keeps ``buffer`` alive and frees nothing.
+    """
+    if buffer.size == nbytes:
+        return buffer
+    assert buffer.size > nbytes, f"buffer of {buffer.size} bytes is smaller than the {nbytes}-byte pattern"
+    return Buffer.from_handle(int(buffer.handle), nbytes, owner=buffer)
 
 
 def make_scratch_buffer(device, value, nbytes):

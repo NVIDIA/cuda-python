@@ -96,7 +96,7 @@ cdef class _StridedLayout:
     @classmethod
     def dense_like(
         cls,
-        other : _StridedLayout,
+        _StridedLayout other not None : _StridedLayout,
         stride_order : str | tuple[int] = "K"
     ) -> _StridedLayout:
         """
@@ -1182,7 +1182,10 @@ cdef inline int unsqueeze_extents(BaseLayout& out_layout, BaseLayout& in_layout,
             out_layout.shape[i] = in_shape[in_i]
             out_layout.strides[i] = in_strides[in_i]
             in_i += 1
-    assert in_i == ndim
+    if in_i != ndim:
+        raise RuntimeError(
+            f"internal cuda.core error, please report: unsqueeze_extents consumed {in_i} of {ndim} input axes"
+        )
     return 0
 
 

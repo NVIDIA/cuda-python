@@ -53,10 +53,28 @@ cdef class IPCAllocationHandle:
     cpdef close(self)
 
 
+# Descriptor of a VirtualMemoryResource buffer: one exported handle per
+# physical allocation that backs the buffer, in address order.
+cdef class _VirtualMemoryDescriptor(IPCBufferDescriptor):
+    cdef readonly tuple _chunk_sizes
+
+    cdef int driver_handle_type(self) except -1
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL
+
+
+cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
+    cdef readonly tuple _handles
+
+
+cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
+    cdef readonly tuple _handles
+    cdef object _owner_uuid
+
+
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer)
-cdef Buffer Buffer_from_ipc_descriptor(cls, _MemPool, IPCBufferDescriptor, stream)
+cdef Buffer Buffer_from_ipc_descriptor(cls, object, IPCBufferDescriptor, stream)
 
 
 # _MemPool IPC Implementation

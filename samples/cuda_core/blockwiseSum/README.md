@@ -58,7 +58,7 @@ for (size_t i = tid; i < N; i += stride) {
 ### Software:
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - See `requirements.txt` for Python packages
 
 ## Installation

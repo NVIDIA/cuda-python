@@ -661,6 +661,29 @@ class TestFindInCudaHome:
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
 
+    @pytest.mark.skipif(os.name == "nt", reason="POSIX symlink parent traversal")
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_symlink_parent_root_selects_correct_library(self, mocker, tmp_path):
+        sdk = tmp_path / "installed" / "sdk"
+        (sdk / "leaf").mkdir(parents=True)
+        lib_dir = sdk / "lib64"
+        lib_dir.mkdir()
+        selected_library = lib_dir / "libcudart.so"
+        selected_library.touch()
+        alias = tmp_path / "alias"
+        alias.symlink_to(sdk / "leaf", target_is_directory=True)
+
+        wrong_lib_dir = tmp_path / "lib64"
+        wrong_lib_dir.mkdir()
+        (wrong_lib_dir / "libcudart.so").touch()
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(alias / ".."))
+
+        result = find_in_cuda_path(_ctx(platform=LinuxSearchPlatform()))
+
+        assert result is not None
+        assert result.found_via == "CUDA_PATH"
+        assert os.path.samefile(result.abs_path, selected_library)
+
     def test_found_windows(self, mocker, tmp_path):
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()

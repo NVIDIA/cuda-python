@@ -31,6 +31,8 @@ from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatfo
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
+from .._utils.resolve_path import resolve_path
+
 # ---------------------------------------------------------------------------
 # Data types
 # ---------------------------------------------------------------------------
@@ -76,7 +78,7 @@ def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
     for rel_path in rel_dirs:
         for dirname in sorted(glob.glob(os.path.join(root, rel_path))):
             if os.path.isdir(dirname):
-                yield os.path.normpath(dirname)
+                yield str(resolve_path(dirname))
 
 
 def _iter_lib_dirs_using_anchor(
@@ -247,7 +249,7 @@ def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
         for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
-            result = _find_under_anchor_root(ctx, os.path.normpath(root), "ProgramFiles")
+            result = _find_under_anchor_root(ctx, str(resolve_path(root)), "ProgramFiles")
             if result is not None:
                 return result
     return None

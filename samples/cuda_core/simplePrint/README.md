@@ -66,7 +66,7 @@ CUDA Python (cuda.core), Numba CUDA, Kernel Compilation, Printf in Kernels, Mult
 ### Software:
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-python` package (13.0+)
 - `cuda-core` package (>=1.0.0)
 - `numba-cuda` package (0.24.0+, for Pythonic kernel authoring)
@@ -260,4 +260,4 @@ Try modifying:
 
 ### CUDA References:
 - [CUDA C Programming Guide - Printf](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#formatted-output)
-- [C++ simplePrintf Sample](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/0_Introduction/simplePrintf)
+- [C++ simplePrintf Sample](https://github.com/NVIDIA/cuda-samples/tree/master/cpp/0_Introduction/simplePrintf)

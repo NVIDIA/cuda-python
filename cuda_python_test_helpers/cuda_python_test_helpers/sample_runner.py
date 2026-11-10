@@ -22,14 +22,10 @@ import os
 import subprocess
 import sys
 import threading
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
 
 from packaging.requirements import InvalidRequirement, Requirement
 from packaging.utils import canonicalize_name

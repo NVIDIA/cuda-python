@@ -12,7 +12,8 @@ cdef class FieldValue:
     cdef object _field_value
 
     def __init__(self, field_value: nvml.FieldValue):
-        assert len(field_value) == 1
+        if len(field_value) != 1:
+            raise ValueError(f"FieldValue expects exactly one field value, got {len(field_value)}")
         self._field_value = field_value
 
     @property
@@ -93,7 +94,7 @@ cdef class FieldValues:
     def __init__(self, field_values: nvml.FieldValue):
         self._field_values = field_values
 
-    def __getitem__(self, idx: int) -> FieldValue:
+    def __getitem__(self, Py_ssize_t idx) -> FieldValue:
         return FieldValue(self._field_values[idx])
 
     def __len__(self) -> int:

@@ -15,7 +15,7 @@ from cuda.core.graph._graph_definition cimport (
     GD_check_valid,
 )
 from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
-from cuda.core.graph._host_callback cimport _resolve_host_callback
+from cuda.core._host_callback cimport _resolve_host_callback
 from cuda.core.graph._subclasses cimport (
     ChildGraphNode,
     EventRecordNode,
@@ -62,7 +62,10 @@ from cuda.core._utils.cuda_utils import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from typing import overload
+
+    from cuda.core._utils.pycompat import BufferProtocol
 
     from cuda.core.graph._graph_definition import GraphDefinition
 else:
@@ -735,7 +738,7 @@ cdef class GraphBuilder:
         )
         return GraphCondition._from_handle(<cydriver.CUgraphConditionalHandle><intptr_t>int(raw_handle))
 
-    def if_then(self, condition: GraphCondition) -> GraphBuilder:
+    def if_then(self, GraphCondition condition not None: GraphCondition) -> GraphBuilder:
         """Adds an if condition branch and returns a new graph builder for it.
 
         The resulting if graph will only execute the branch if the
@@ -770,7 +773,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)[0]
 
-    def if_else(self, condition: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
+    def if_else(self, GraphCondition condition not None: GraphCondition) -> tuple[GraphBuilder, GraphBuilder]:
         """Adds an if-else condition branch and returns new graph builders for both branches.
 
         The resulting if graph will execute the branch if the condition
@@ -805,7 +808,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)
 
-    def switch(self, condition: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
+    def switch(self, GraphCondition condition not None: GraphCondition, count: int) -> tuple[GraphBuilder, ...]:
         """Adds a switch condition branch and returns new graph builders for all cases.
 
         The resulting switch graph will execute the branch whose case index
@@ -843,7 +846,7 @@ cdef class GraphBuilder:
         node_params.conditional.ctx = self._get_conditional_context()
         return GB_cond_with_params(self, node_params)
 
-    def while_loop(self, condition: GraphCondition) -> GraphBuilder:
+    def while_loop(self, GraphCondition condition not None: GraphCondition) -> GraphBuilder:
         """Adds a while loop and returns a new graph builder for it.
 
         The resulting while loop graph will execute the branch repeatedly at runtime
@@ -947,7 +950,7 @@ cdef class GraphBuilder:
             )
         )
 
-    def callback(self, fn, *, user_data=None) -> None:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> None:
         """Add a host callback to the graph during stream capture.
 
         The callback runs on the host CPU when the graph reaches this point
@@ -988,7 +991,8 @@ cdef class GraphBuilder:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
         GB_callback(self, fn, user_data, False)
 
@@ -1253,6 +1257,24 @@ cdef class Graph:
         return self._h_graph_exec.get() == NULL
 
     @property
+    def id(self) -> int:
+        """The driver-assigned executable graph ID, as used in GraphViz DOT output.
+
+        Requires CUDA >= 13.1.
+        """
+        if self.is_closed:
+            raise RuntimeError("Graph is closed")
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int graph_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphExecGetId(as_cu(self._h_graph_exec), &graph_id))
+            return graph_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
+
+    @property
     def handle(self) -> driver.CUgraphExec:
         """Return the underlying ``CUgraphExec`` object.
 
@@ -1279,7 +1301,7 @@ cdef class Graph:
     @overload
     def __getitem__(self, node: HostCallbackNode) -> ExecutableHostCallbackNode: ...
 
-    def __getitem__(self, node: GraphNode) -> ExecutableGraphNode:
+    def __getitem__(self, GraphNode node not None: GraphNode) -> ExecutableGraphNode:
         """Return a view for updating *node* in this executable graph.
 
         *node* is a definition node from the graph used to instantiate this
@@ -1329,7 +1351,7 @@ cdef class Graph:
             raise CUDAError(msg)
         HANDLE_RETURN(err)
 
-    def upload(self, stream: Stream) -> None:
+    def upload(self, Stream stream not None: Stream) -> None:
         """Uploads the graph in a stream.
 
         Parameters
@@ -1345,7 +1367,7 @@ cdef class Graph:
         with nogil:
             HANDLE_RETURN(cydriver.cuGraphUpload(c_exec, c_stream))
 
-    def launch(self, stream: Stream) -> None:
+    def launch(self, Stream stream not None: Stream) -> None:
         """Launches the graph in a stream.
 
         Parameters

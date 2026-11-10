@@ -13,7 +13,7 @@ except ImportError:
 else:
     HAVE_PSUTIL = True
 import pytest
-from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.child_processes import child_timeout_sec, kill_subprocesses, noop, run_child, warmup_multiprocessing
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -31,6 +31,8 @@ pytestmark = pytest.mark.thread_unsafe(reason="Tests number of fds which is shar
 def test_alloc_handle(ipc_memory_resource):
     """Check for fd leaks in allocation_handle."""
     mr = ipc_memory_resource
+    if not hasattr(mr, "allocation_handle"):
+        pytest.skip("allocation handles are pool-only")
     with CheckFDLeaks():
         [mr.allocation_handle for _ in range(10)]
 
@@ -38,16 +40,7 @@ def test_alloc_handle(ipc_memory_resource):
 def exec_success(obj, number=1):
     """Successfully run a child process."""
     for _ in range(number):
-        process = mp.Process(target=child_main, args=(obj,))
-        process.start()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0
-
-
-def child_main(obj, *args):
-    pass
+        run_child(noop, obj)
 
 
 def exec_launch_failure(obj, number=1):
@@ -76,7 +69,7 @@ def exec_reduce_failure(obj, number=1):
     for _ in range(number):
         fails_to_reduce = Irreducible()
         with contextlib.suppress(RuntimeError):
-            mp.Process(target=child_main, args=(obj, fails_to_reduce)).start()
+            mp.Process(target=noop, args=(obj, fails_to_reduce)).start()
 
 
 class Irreducible:
@@ -86,16 +79,29 @@ class Irreducible:
         raise RuntimeError("Irreducible")
 
 
+def _get_alloc_handle(mr, _stream):
+    if not hasattr(mr, "allocation_handle"):
+        pytest.skip("allocation handles are pool-only")
+    return mr.allocation_handle
+
+
+def _get_mr(mr, _stream):
+    return mr
+
+
+def _get_buffer(mr, stream):
+    return mr.allocate(NBYTES, stream=stream)
+
+
+def _get_buffer_desc(mr, stream):
+    return mr.allocate(NBYTES, stream=stream).ipc_descriptor
+
+
 @pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 @pytest.mark.parametrize(
     "getobject",
-    [
-        lambda mr, _stream: mr.allocation_handle,
-        lambda mr, _stream: mr,
-        lambda mr, stream: mr.allocate(NBYTES, stream=stream),
-        lambda mr, stream: mr.allocate(NBYTES, stream=stream).ipc_descriptor,
-    ],
+    [_get_alloc_handle, _get_mr, _get_buffer, _get_buffer_desc],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )
 @pytest.mark.parametrize("launcher", [exec_success, exec_launch_failure, exec_reduce_failure])
@@ -122,31 +128,16 @@ class CheckFDLeaks:
         self.process = psutil.Process()
 
     def __enter__(self):
-        prime()
+        warmup_multiprocessing()
         gc.collect()
         self.initial_fds = self.process.num_fds()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is not None:
+        # Only the success path is checked: a failing block has already
+        # reported its own error, and its cleanup may legitimately be partial.
+        if exc_type is None:
             gc.collect()
             final_fds = self.process.num_fds()
-            assert final_fds == self.initial_fds
+            assert final_fds == self.initial_fds, f"file descriptors leaked: {self.initial_fds} -> {final_fds}"
         return False
-
-
-prime_was_run = False
-
-
-def prime():
-    """Multiprocessing consumes a file descriptor on first launch."""
-    assert mp.get_start_method() == "spawn"
-    global prime_was_run
-    if not prime_was_run:
-        process = mp.Process()
-        process.start()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0
-        prime_was_run = True

@@ -16,7 +16,6 @@ import glob
 import importlib.metadata
 import os
 import re
-import sys
 from pathlib import Path
 
 import pytest
@@ -218,6 +217,41 @@ def test_locate_non_ctk_headers_uses_product_root(tmp_path, monkeypatch, mocker,
     assert located_hdr_dir.found_via == env_var
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX symlink traversal")
+@pytest.mark.parametrize("layout", ("direct", "symlink", "symlink-parent"))
+@pytest.mark.usefixtures("clear_locate_nvidia_header_cache")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_header_lookup_returns_resolved_path(tmp_path, monkeypatch, layout):
+    sdk = tmp_path / "installed" / "sdk"
+    (sdk / "leaf").mkdir(parents=True)
+    header_dir = sdk / "include"
+    header_dir.mkdir()
+    header = header_dir / "cudnn.h"
+    header.touch()
+
+    monkeypatch.chdir(tmp_path)
+    if layout == "direct":
+        configured_root = Path("installed/sdk")
+    else:
+        target = sdk if layout == "symlink" else sdk / "leaf"
+        Path("alias").symlink_to(target, target_is_directory=True)
+        configured_root = Path("alias") if layout == "symlink" else Path("alias/..")
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.setenv("CUDNN_PATH", str(configured_root))
+    monkeypatch.setattr(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+
+    located = locate_nvidia_header_directory("cudnn")
+
+    assert located is not None
+    assert located.found_via == "CUDNN_PATH"
+    assert located.abs_path == str(header_dir.resolve())
+    assert Path(located.abs_path, "cudnn.h").samefile(header)
+    monkeypatch.chdir(tmp_path.parent)
+    assert find_nvidia_header_directory("cudnn") == located.abs_path
+    assert locate_nvidia_header_directory("cudnn") is located
+    assert Path(find_nvidia_header_directory("cudnn"), "cudnn.h").samefile(header)
+
+
 @pytest.mark.parametrize(
     ("libname", "system_pattern"),
     [
@@ -286,18 +320,7 @@ def test_find_in_system_install_dirs_expands_program_files_and_prefers_newest_cu
     assert located_hdr_dir.found_via == "supported_install_dir"
 
 
-# TODO: remove the Python 3.15 guard once 3.15 is officially supported
-_CUTLASS_SKIP = pytest.mark.skipif(
-    sys.version_info >= (3, 15),
-    reason="nvidia-cutlass not available on Python 3.15 (scipy missing)",
-)
-_NON_CTK_HEADER_PARAMS = [
-    pytest.param(name, marks=_CUTLASS_SKIP) if name in ("cutlass", "cute") else name
-    for name in SUPPORTED_HEADERS_NON_CTK
-]
-
-
-@pytest.mark.parametrize("libname", _NON_CTK_HEADER_PARAMS)
+@pytest.mark.parametrize("libname", SUPPORTED_HEADERS_NON_CTK)
 def test_locate_non_ctk_headers(info_summary_append, libname):
     hdr_dir = find_nvidia_header_directory(libname)
     located_hdr_dir = locate_nvidia_header_directory(libname)
@@ -311,13 +334,13 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
         assert (hdr_dir_path / SUPPORTED_HEADERS_NON_CTK[libname]).is_file()
     if have_distribution_for(libname):
         assert hdr_dir is not None
-        assert "site-packages" in Path(hdr_dir).parts
+        assert located_hdr_dir.found_via == "site-packages"
     elif STRICTNESS == "all_must_work":
         assert hdr_dir is not None
         if located_hdr_dir.found_via in HEADER_DESCRIPTORS[libname].product_root_env_vars:
-            assert hdr_dir.startswith(os.environ[located_hdr_dir.found_via])
+            assert Path(hdr_dir).is_relative_to(Path(os.environ[located_hdr_dir.found_via]).resolve())
         elif conda_prefix := os.environ.get("CONDA_PREFIX"):
-            assert hdr_dir.startswith(conda_prefix)
+            assert Path(hdr_dir).is_relative_to(Path(conda_prefix).resolve())
         else:
             inst_dirs = SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname)
             if inst_dirs is not None:
@@ -325,7 +348,7 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
                     # Absolute glob pattern: Path.glob needs a separate base dir,
                     # and the wildcard is not pinned to the last component.
                     globbed = glob.glob(os.path.expandvars(inst_dir))
-                    if hdr_dir in globbed:
+                    if Path(hdr_dir) in (Path(path).resolve() for path in globbed):
                         break
                 else:
                     raise RuntimeError(f"{hdr_dir=} does not match any {inst_dirs=}")

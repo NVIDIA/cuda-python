@@ -214,7 +214,7 @@ cdef int _structured_split_checked = 0
 cdef inline bint _can_use_structured_sm_split():
     """Whether the driver provides cuDevSmResourceSplit, a 13.1 driver API. Cached.
 
-    Every cuda-bindings at or above the 13.4 floor exports it. Only the driver can lack it."""
+    Every cuda-bindings at or above the CUDA 13 floor exports it. Only the driver can lack it."""
     global _structured_split_checked
     if _structured_split_checked != 0:
         return _structured_split_checked == 1
@@ -475,7 +475,7 @@ cdef class SMResource:
 
     def split(
         self,
-        options: SMResourceOptions,
+        SMResourceOptions options not None: SMResourceOptions,
         *,
         bint dry_run=False
     ) -> tuple[list[SMResource], SMResource]:
@@ -587,7 +587,7 @@ cdef class WorkqueueResource:
                 "WorkqueueResource requires cuda.core to be built with CUDA 13.x bindings"
             )
 
-    def configure(self, options: WorkqueueResourceOptions) -> None:
+    def configure(self, WorkqueueResourceOptions options not None: WorkqueueResourceOptions) -> None:
         """Configure the workqueue resource in place.
 
         Parameters

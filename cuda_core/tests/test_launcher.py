@@ -244,7 +244,7 @@ def test_to_native_launch_config_priority(init_cuda, priority, expected_num_attr
 
 
 @skipif_need_cuda_headers
-def test_pdl_primary_secondary_overlap_same_stream():
+def test_pdl_primary_secondary_overlap_same_stream(init_cuda):
     """Primary + secondary PDL launch on one stream can overlap on Hopper+.
 
     Secondary is launched with ``programmatic_stream_serialization=True``. After
@@ -255,10 +255,9 @@ def test_pdl_primary_secondary_overlap_same_stream():
     Note concurrency is opportunistic, so a missing overlap execution is reported as
     an expected failure.
     """
-    dev = Device()
+    dev = init_cuda
     if dev.compute_capability < (9, 0):
         pytest.skip("Programmatic Dependent Launch requires compute capability >= 9.0")
-    dev.set_current()
     stream = dev.create_stream(options=StreamOptions(nonblocking=True))
 
     # clock64 budgets are in GPU cycles; keep the post-trigger window long enough
@@ -494,6 +493,20 @@ def test_launch_cluster_scheduling_policy_smoke(init_cuda):
     stream.sync()
 
 
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize("none_arg", ["config", "kernel"])
+def test_launch_rejects_none(init_cuda, none_arg):
+    """None for a cdef-class argument raises TypeError instead of reaching C."""
+    program = Program('extern "C" __global__ void my_kernel() {}', SourceCodeType.CXX)
+    ker = program.compile(ObjectCodeFormatType.CUBIN).get_kernel("my_kernel")
+    config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1))
+    args = {"config": config, "kernel": ker}
+    args[none_arg] = None
+
+    with pytest.raises(TypeError):
+        launch(Device().create_stream(), args["config"], args["kernel"])
+
+
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, SourceCodeType.CXX)
@@ -592,9 +605,8 @@ def write_scalar_module():
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_launch_scalar_argument(write_scalar_module, python_type, cpp_type, init_value):
-    dev = Device(0)
-    dev.set_current()
+def test_launch_scalar_argument(init_cuda, write_scalar_module, python_type, cpp_type, init_value):
+    dev = init_cuda
 
     # Prepare pinned host array
     mr = LegacyPinnedMemoryResource()
@@ -825,7 +837,7 @@ def test_kernel_arg_ctypes_subclass_isinstance_fallback():
         "numpy_float32",
     ],
 )
-def test_launch_scalar_argument_subclass_fallback(base_type, np_dtype, cpp_type, raw_value):
+def test_launch_scalar_argument_subclass_fallback(init_cuda, base_type, np_dtype, cpp_type, raw_value):
     """Subclassed scalar arguments survive fallback handling and reach the kernel
     with the correct width/sign. The readback value (not just ptr != 0) guards each
     fallback branch against marshalling the wrong C type, e.g. uint64 -> uint32_t."""
@@ -836,8 +848,7 @@ def test_launch_scalar_argument_subclass_fallback(base_type, np_dtype, cpp_type,
     scalar = Subclassed(raw_value)
     expected = np_dtype(raw_value)
 
-    dev = Device()
-    dev.set_current()
+    dev = init_cuda
 
     mr = LegacyPinnedMemoryResource()
     b = mr.allocate(np.dtype(np_dtype).itemsize)
@@ -939,7 +950,9 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
     ids=_NUMPY_SUBCLASS_FALLBACK_IDS,
 )
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_launch_numpy_scalar_subclass_fallback(write_scalar_module, base_type, np_dtype, cpp_type, raw_value):
+def test_launch_numpy_scalar_subclass_fallback(
+    init_cuda, write_scalar_module, base_type, np_dtype, cpp_type, raw_value
+):
     """Subclassed numpy scalars take prepare_numpy_arg's isinstance fallback and reach the kernel (readback)."""
 
     class Subclassed(base_type):
@@ -948,8 +961,7 @@ def test_launch_numpy_scalar_subclass_fallback(write_scalar_module, base_type, n
     scalar = Subclassed(raw_value)
     expected = np_dtype(raw_value)
 
-    dev = Device(0)
-    dev.set_current()
+    dev = init_cuda
 
     mr = LegacyPinnedMemoryResource()
     b = mr.allocate(np.dtype(np_dtype).itemsize)
@@ -1012,3 +1024,64 @@ def test_launch_graph_conditional_handle_as_kernel_arg(init_cuda, use_subclass):
     dev = Device()
     dev.set_current()
     _assert_kernel_sees_ull(dev, handle, _UINT64_HANDLE_VALUE)
+
+
+@pytest.mark.parametrize("allocation", ["managed", "virtual"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_launch_buffer_subclasses_preserve_kernel_arguments(init_cuda, allocation):
+    """Managed and virtual buffers marshal their device pointers into kernels."""
+    from contextlib import ExitStack
+
+    from cuda.bindings import driver
+    from cuda.core import ManagedBuffer
+    from cuda.core._utils.cuda_utils import handle_return
+
+    device = init_cuda
+    if allocation == "managed" and not device.properties.managed_memory:
+        pytest.skip("Device does not support managed memory")
+    if allocation == "virtual" and not device.properties.virtual_memory_management_supported:
+        pytest.skip("Device does not support CUDA virtual memory")
+    source = np.arange(16, dtype=np.int32)
+    actual = np.empty_like(source)
+    stream = device.create_stream()
+    buffer = program = managed_pointer = None
+    try:
+        if allocation == "managed":
+            managed_pointer = handle_return(
+                driver.cuMemAllocManaged(source.nbytes, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL)
+            )
+            buffer = ManagedBuffer.from_handle(managed_pointer, source.nbytes)
+            assert isinstance(buffer, ManagedBuffer)
+        else:
+            from cuda.core import VirtualMemoryBuffer, VirtualMemoryResource, VirtualMemoryResourceOptions
+
+            resource = VirtualMemoryResource(device, VirtualMemoryResourceOptions(handle_type=None))
+            buffer = resource.allocate(source.nbytes, stream=stream)
+            assert isinstance(buffer, VirtualMemoryBuffer)
+        handle_return(driver.cuMemcpyHtoDAsync(buffer.handle, source.ctypes.data, source.nbytes, stream.handle))
+        program = Program(
+            'extern "C" __global__ void update(int* data, int offset) { '
+            "int i = threadIdx.x; data[i] = data[i] * 3 + offset; }",
+            "c++",
+        )
+        module = program.compile("cubin")
+        kernel = module.get_kernel("update")
+        launch(stream, LaunchConfig(grid=1, block=16), kernel, buffer, np.int32(7))
+        stream.sync()
+        handle_return(driver.cuMemcpyDtoH(actual.ctypes.data, buffer.handle, actual.nbytes))
+        np.testing.assert_array_equal(actual, source * 3 + 7)
+        buffer.close()
+        assert buffer.is_closed
+        with pytest.raises(RuntimeError, match="Buffer has been closed"):
+            launch(stream, LaunchConfig(grid=1, block=16), kernel, buffer, np.int32(7))
+    finally:
+        # Attempt every cleanup even if synchronization or another cleanup fails.
+        with ExitStack() as cleanup:
+            cleanup.callback(stream.close)
+            if program is not None:
+                cleanup.callback(program.close)
+            if managed_pointer is not None:
+                cleanup.callback(lambda: handle_return(driver.cuMemFree(managed_pointer)))
+            if buffer is not None:
+                cleanup.callback(buffer.close)
+            stream.sync()

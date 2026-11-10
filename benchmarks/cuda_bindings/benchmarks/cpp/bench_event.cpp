@@ -9,18 +9,20 @@
 #include <cstdlib>
 #include <iostream>
 
-
-static void check_cu(CUresult status, const char* message) {
+static void
+check_cu(CUresult status, const char *message)
+{
     if (status != CUDA_SUCCESS) {
-        const char* error_name = nullptr;
+        const char *error_name = nullptr;
         cuGetErrorName(status, &error_name);
         std::cerr << message << ": " << (error_name ? error_name : "unknown") << '\n';
         std::exit(1);
     }
 }
 
-
-int main(int argc, char** argv) {
+int
+main(int argc, char **argv)
+{
     bench::Options options = bench::parse_args(argc, argv);
 
     // Setup
@@ -47,9 +49,7 @@ int main(int argc, char** argv) {
     bench::BenchmarkSuite suite(options);
     // Drain the persistent stream after calibration so event_record (which
     // enqueues onto the stream) and event_synchronize start from a known state.
-    suite.set_post_calibrate([&]() {
-        check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed");
-    });
+    suite.set_post_calibrate([&]() { check_cu(cuStreamSynchronize(stream), "post-calibrate sync failed"); });
 
     // --- event_create_destroy ---
     {
@@ -62,9 +62,7 @@ int main(int argc, char** argv) {
 
     // --- event_record ---
     {
-        suite.run("event.event_record", [&]() {
-            check_cu(cuEventRecord(event, stream), "cuEventRecord failed");
-        });
+        suite.run("event.event_record", [&]() { check_cu(cuEventRecord(event, stream), "cuEventRecord failed"); });
     }
 
     // Re-sync so event is in a known completed state after the record benchmark

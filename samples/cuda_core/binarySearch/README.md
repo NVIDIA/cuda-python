@@ -29,7 +29,7 @@ diverge on present values). Results are verified against
 
 ## Key Libraries
 
-- [`cuda.compute`](https://nvidia.github.io/cccl/python.html) (from the `cuda-cccl` package) - device algorithms
+- [`cuda.compute`](https://nvidia.github.io/cccl/unstable/python/compute/index.html) (from the `cuda-cccl` package) - device algorithms
 - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/) - device setup
 - `cupy` - device buffers
 - `numpy` - host-side reference via `numpy.searchsorted`
@@ -55,7 +55,7 @@ diverge on present values). Results are verified against
 ### Software
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - `cuda-cccl` (>=1.0.0)
 - `cuda-core` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)

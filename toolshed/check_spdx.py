@@ -25,7 +25,8 @@ TOP_LEVEL_DIRS_LICENSE_IDENTIFIERS = {
     ".github": "Apache-2.0",
     "benchmarks": "Apache-2.0",
     "ci": "Apache-2.0",
-    "cuda_bindings": "Apache-2.0",
+    "cuda_bindings_13": "Apache-2.0",
+    "cuda_bindings_12": "Apache-2.0",
     "cuda_core": "Apache-2.0",
     "cuda_pathfinder": "Apache-2.0",
     "cuda_python": "Apache-2.0",
@@ -67,17 +68,27 @@ COPYRIGHT_REGEX = (
     rb"(?P<affiliation>NVIDIA CORPORATION & AFFILIATES\. All rights reserved\.)"
 )
 COPYRIGHT_SUB = r"Copyright (c) {} \g<affiliation>"
-CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.timezone.utc).year)
+CURRENT_YEAR = str(datetime.datetime.now(tz=datetime.UTC).year)
 
 
-def is_staged(filepath):
-    # If the file is staged, we need to update it to the current year
-    process = subprocess.run(  # noqa: S603
-        ["git", "diff", "--staged", "--", filepath],  # noqa: S607
+def last_modified_year(filepath):
+    # Staged or unstaged working-tree changes mean the file is being modified now.
+    status = subprocess.run(  # noqa: S603
+        ["git", "status", "--porcelain", "--", filepath],  # noqa: S607
         capture_output=True,
         text=True,
     )
-    return process.stdout.strip() != ""
+    if status.stdout.strip():
+        return int(CURRENT_YEAR)
+    # Use the last commit's UTC year, matching the year for working-tree changes.
+    log = subprocess.run(  # noqa: S603
+        ["git", "log", "-1", "--no-show-signature", "--format=%ct", "--", filepath],  # noqa: S607
+        capture_output=True,
+        text=True,
+    )
+    timestamp = log.stdout.strip()
+    # Fall back to current year for brand-new untracked files with no git history.
+    return datetime.datetime.fromtimestamp(int(timestamp), tz=datetime.UTC).year if timestamp else int(CURRENT_YEAR)
 
 
 def normalize_repo_path(filepath):
@@ -164,13 +175,15 @@ def validate_or_fix_copyright(filepath, blob, fix):
     else:
         start_year = end_year = years
 
-    if not is_staged(filepath) or int(end_year) >= int(CURRENT_YEAR):
+    if int(end_year) >= last_modified_year(filepath):
         return True, blob
 
     print(f"OUTDATED copyright {years!r} (expected {CURRENT_YEAR!r}) in {filepath!r}")
     if not fix:
         return False, blob
 
+    # Always write the current year: committing the fix is itself a change made
+    # this year, so an older year would be stale again immediately.
     new_years = f"{start_year}-{CURRENT_YEAR}"
     return (
         False,

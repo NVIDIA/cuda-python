@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-# Configuration for lychee, the doc link-checker invoked from
-# .github/workflows/build-docs.yml. See https://lychee.cli.rs/usage/config/.
+# Configuration shared by the authored and rendered Lychee pre-commit hooks.
+# See https://lychee.cli.rs/guides/config/.
 
 exclude = [
-    # PR-preview canonical URLs are checked by the preview deployment workflow.
+    # PR previews are not published yet during link checking.
     '^https://nvidia\.github\.io/cuda-python/pr-preview/pr-[0-9]+/',
     # The cuda-bindings #id links are docutils "problematic" anchors from generated API docs.
     # TODO: Remove this exclusion after cybind stops emitting those problematic anchors.

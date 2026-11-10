@@ -4,7 +4,6 @@
 """GraphBuilder stream capture tests."""
 
 import gc
-import sys
 import time
 import weakref
 
@@ -273,26 +272,19 @@ def test_graph_join_failure_survives_failing_close(init_cuda):
     Joining a builder from another capture is refused by the driver, which
     also invalidates that capture, so closing it afterwards fails. The cleanup
     must still close the remaining builders and raise the join error; the
-    failed close is attached to it as a note (Python 3.11+) or reported as a
-    CUDAWarning (Python 3.10).
+    failed close is attached to it as a note.
     """
-    has_notes = sys.version_info >= (3, 11)
     root = Device().create_graph_builder().begin_building()
     root, fork = root.split(2)
     other1 = Device().create_graph_builder().begin_building()
     other2 = Device().create_graph_builder().begin_building()
 
     with pytest.raises(CUDAError, match="^CUDA_ERROR_STREAM_CAPTURE_MERGE") as excinfo:
-        if has_notes:
-            GraphBuilder.join(root, other1, other2, fork)
-        else:
-            with pytest.warns(CUDAWarning, match="CUDA_ERROR_STREAM_CAPTURE_INVALIDATED"):
-                GraphBuilder.join(root, other1, other2, fork)
+        GraphBuilder.join(root, other1, other2, fork)
     assert other1.is_closed and other2.is_closed and fork.is_closed
-    if has_notes:
-        (note,) = excinfo.value.__notes__
-        assert "cuStreamEndCapture failed while closing a graph builder" in note
-        assert "CUDA_ERROR_STREAM_CAPTURE_INVALIDATED" in note
+    (note,) = excinfo.value.__notes__
+    assert "cuStreamEndCapture failed while closing a graph builder" in note
+    assert "CUDA_ERROR_STREAM_CAPTURE_INVALIDATED" in note
 
     # The refused wait invalidated the root's capture as well; ending it
     # raises the driver error and the builder still closes cleanly.

@@ -65,7 +65,7 @@ Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPID
 ### Software:
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - See requirements.txt for package dependencies
 
 ### Platform Support:
@@ -181,4 +181,4 @@ RAPIDS cuGraph provides production-grade, GPU-accelerated graph analytics:
 
 - [RAPIDS cuGraph Documentation](https://docs.rapids.ai/api/cugraph/stable/)
 - [cuGraph GitHub Repository](https://github.com/rapidsai/cugraph)
-- [RAPIDS Installation Guide](https://rapids.ai/start.html)
+- [RAPIDS Installation Guide](https://docs.nvidia.com/datascience/install/)

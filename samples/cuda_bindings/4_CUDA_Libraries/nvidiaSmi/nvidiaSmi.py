@@ -241,14 +241,15 @@ def collect_info():
         except nvml.NvmlError:
             comp_str = "N/A"
         else:
-            if compute_mode == nvml.ComputeMode.COMPUTEMODE_DEFAULT:
-                comp_str = "Default"
-            elif compute_mode == nvml.ComputeMode.COMPUTEMODE_EXCLUSIVE_PROCESS:
-                comp_str = "E. Process"
-            elif compute_mode == nvml.ComputeMode.COMPUTEMODE_PROHIBITED:
-                comp_str = "Prohibited"
-            else:
-                comp_str = "Unknown"
+            match compute_mode:
+                case nvml.ComputeMode.COMPUTEMODE_DEFAULT:
+                    comp_str = "Default"
+                case nvml.ComputeMode.COMPUTEMODE_EXCLUSIVE_PROCESS:
+                    comp_str = "E. Process"
+                case nvml.ComputeMode.COMPUTEMODE_PROHIBITED:
+                    comp_str = "Prohibited"
+                case _:
+                    comp_str = "Unknown"
         device["compute_mode"] = comp_str
 
         devices.append(device)

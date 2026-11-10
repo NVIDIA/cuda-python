@@ -15,7 +15,7 @@ This sample demonstrates gradient averaging across multiple GPUs using MPI and c
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.11+
 - CUDA Toolkit 13.0+
 - Standard MPI implementation (OpenMPI, MPICH, or Intel MPI)
 - Multiple NVIDIA GPUs (tested with 2+ GPUs)

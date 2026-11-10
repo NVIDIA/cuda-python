@@ -11,7 +11,7 @@ from setuptools_scm import get_version
 version = get_version(
     root="..",
     relative_to=__file__,
-    git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"],
+    git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.*"],
 )
 
 
@@ -32,7 +32,7 @@ setup(
         f"cuda-bindings{matcher}{version}",
         # Bump this with every cuda-core release and release cuda-python right
         # after it; see .github/RELEASE-core.md and cuda_python/AGENTS.md.
-        "cuda-core~=1.2.0",
+        "cuda-core~=1.3.0",
         "cuda-pathfinder~=1.1",
     ],
     extras_require={

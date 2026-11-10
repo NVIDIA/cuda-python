@@ -23,6 +23,8 @@ from cuda.core._rt cimport (
     create_graph_node_handle,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+IF CUDA_CORE_BUILD_MAJOR >= 13:
+    from cuda.core._utils.version cimport cy_driver_version
 
 from typing import TYPE_CHECKING
 
@@ -31,11 +33,14 @@ from cuda.core._utils.cuda_utils import driver
 from cuda.core.typing import GraphMemoryType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from cuda.core._device import Device
     from cuda.core._event import Event
     from cuda.core._launch_config import LaunchConfig
     from cuda.core._memory._buffer import Buffer
     from cuda.core._module import Kernel
+    from cuda.core._utils.pycompat import BufferProtocol
     from cuda.core.graph._graph_builder import (
         Graph,
         GraphCompleteOptions,
@@ -143,6 +148,23 @@ cdef class GraphDefinition:
         return hash(<uintptr_t>self._h_graph.get())
 
     @property
+    def id(self) -> int:
+        """The driver-assigned graph ID, as used in GraphViz DOT output.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+        GD_check_valid(self)
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int graph_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphGetId(as_cu(self._h_graph), &graph_id))
+            return graph_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
+
+    @property
     def is_valid(self) -> bool:
         """Whether this graph definition remains valid."""
         return as_intptr(self._h_graph) != 0
@@ -190,7 +212,7 @@ cdef class GraphDefinition:
             dst, value, width, height=height, pitch=pitch, dst_owner=dst_owner
         )
 
-    def launch(self, config: LaunchConfig, kernel: Kernel, *args) -> KernelNode:
+    def launch(self, config not None: LaunchConfig, kernel not None: Kernel, *args) -> KernelNode:
         """Add an entry-point kernel launch node (no dependencies).
 
         See :meth:`GraphNode.launch` for full documentation.
@@ -229,28 +251,28 @@ cdef class GraphDefinition:
         """
         return self._entry.memcpy(dst, src, size, dst_owner=dst_owner, src_owner=src_owner)
 
-    def embed(self, child: GraphDefinition) -> ChildGraphNode:
+    def embed(self, GraphDefinition child not None: GraphDefinition) -> ChildGraphNode:
         """Add an entry-point child graph node (no dependencies).
 
         See :meth:`GraphNode.embed` for full documentation.
         """
         return self._entry.embed(child)
 
-    def record(self, event: Event) -> EventRecordNode:
+    def record(self, event not None: Event) -> EventRecordNode:
         """Add an entry-point event record node (no dependencies).
 
         See :meth:`GraphNode.record` for full documentation.
         """
         return self._entry.record(event)
 
-    def wait(self, event: Event) -> EventWaitNode:
+    def wait(self, event not None: Event) -> EventWaitNode:
         """Add an entry-point event wait node (no dependencies).
 
         See :meth:`GraphNode.wait` for full documentation.
         """
         return self._entry.wait(event)
 
-    def callback(self, fn, *, user_data=None) -> HostCallbackNode:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> HostCallbackNode:
         """Add an entry-point host callback node (no dependencies).
 
         See :meth:`GraphNode.callback` for full documentation.
@@ -292,28 +314,28 @@ cdef class GraphDefinition:
 
         return GraphCondition._from_handle(c_handle)
 
-    def if_then(self, condition: GraphCondition) -> IfNode:
+    def if_then(self, GraphCondition condition not None: GraphCondition) -> IfNode:
         """Add an entry-point if-conditional node (no dependencies).
 
         See :meth:`GraphNode.if_then` for full documentation.
         """
         return self._entry.if_then(condition)
 
-    def if_else(self, condition: GraphCondition) -> IfElseNode:
+    def if_else(self, GraphCondition condition not None: GraphCondition) -> IfElseNode:
         """Add an entry-point if-else conditional node (no dependencies).
 
         See :meth:`GraphNode.if_else` for full documentation.
         """
         return self._entry.if_else(condition)
 
-    def while_loop(self, condition: GraphCondition) -> WhileNode:
+    def while_loop(self, GraphCondition condition not None: GraphCondition) -> WhileNode:
         """Add an entry-point while-loop conditional node (no dependencies).
 
         See :meth:`GraphNode.while_loop` for full documentation.
         """
         return self._entry.while_loop(condition)
 
-    def switch(self, condition: GraphCondition, unsigned int count) -> SwitchNode:
+    def switch(self, GraphCondition condition not None: GraphCondition, unsigned int count) -> SwitchNode:
         """Add an entry-point switch conditional node (no dependencies).
 
         See :meth:`GraphNode.switch` for full documentation.

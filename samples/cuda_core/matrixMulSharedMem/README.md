@@ -49,7 +49,7 @@ Demonstrates efficient matrix multiplication using nvmath-python APIs and custom
 ### Software:
 
 - CUDA Toolkit 13.0 or newer
-- Python 3.10 or newer
+- Python 3.11 or newer
 - See requirements.txt for package dependencies
 
 ## Installation

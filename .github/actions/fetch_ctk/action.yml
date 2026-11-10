@@ -19,39 +19,116 @@ inputs:
     description: "where the CTK components will be installed to, relative to $PWD"
     required: false
     default: "./cuda_toolkit"
+  install-mode:
+    description: >
+      "replace" (default) empties cuda-path before installing.
+      "add" installs the components on top of the mini CTK that an earlier
+      fetch_ctk call installed at the same cuda-path, and leaves the
+      environment that call exported unchanged.
+    required: false
+    default: "replace"
+  redist-base-url:
+    description: >
+      Base URL of a redistrib server (manifest and component archives).
+      Defaults to the public NVIDIA developer server.
+      Override to install from an alternate redistrib server.
+    required: false
+    default: "https://developer.download.nvidia.com/compute/cuda/redist"
 
 runs:
   using: composite
   steps:
-    - name: Set up CTK cache variable
-      shell: bash --noprofile --norc -xeuo pipefail {0}
-      run: |
-        # Pre-process the component list to ensure hash uniqueness
-        # Use the runtime workspace mount so this also works inside container jobs.
-        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
-        CTK_CACHE_COMPONENTS=${{ inputs.cuda-components }}
-        CTK_JSON_URL="https://developer.download.nvidia.com/compute/cuda/redist/redistrib_${{ inputs.cuda-version }}.json"
-        CTK_CACHE_COMPONENTS="$(python "$CTK_REDIST_TOOL" filter-components \
-          --host-platform "${{ inputs.host-platform }}" \
-          --cuda-version "${{ inputs.cuda-version }}" \
-          --components "$CTK_CACHE_COMPONENTS" \
-          --metadata-url "$CTK_JSON_URL")"
-
-        HASH=$(echo -n "${CTK_CACHE_COMPONENTS}" | sha256sum | awk '{print $1}')
-        echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH" >> $GITHUB_ENV
-        echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH.tar.gz" >> $GITHUB_ENV
-        echo "CTK_CACHE_COMPONENTS=${CTK_CACHE_COMPONENTS}" >> $GITHUB_ENV
-
-    - name: Install dependencies
+    - name: Install Unix dependencies
+      if: ${{ runner.os == 'Linux' }}
       uses: ./.github/actions/install_unix_deps
-      continue-on-error: false
       with:
         dependencies: "zstd curl xz-utils"
         dependent_exes: "zstd curl xz"
 
+    - name: Install Windows dependencies
+      if: ${{ runner.os == 'Windows' }}
+      uses: ./.github/actions/install_windows_deps
+      with:
+        dependent_exes: "curl unzip tar sha256sum cygpath"
+
+    - name: Check install mode
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        case "${{ inputs.install-mode }}" in
+          replace)
+            ;;
+          add)
+            # The environment exports are skipped in this mode, so the target
+            # must be the CUDA_PATH an earlier fetch_ctk call exported.
+            if [[ -z "${CUDA_PATH:-}" ]]; then
+              echo "::error::install-mode 'add' requires CUDA_PATH from an earlier fetch_ctk call"
+              exit 1
+            fi
+            EXISTING_PATH="$CUDA_PATH"
+            if [[ "${{ inputs.host-platform }}" == win* ]]; then
+              EXISTING_PATH="$(cygpath -u "$EXISTING_PATH")"
+            fi
+            if [[ "$(realpath -e "${{ inputs.cuda-path }}")" != "$(realpath -e "$EXISTING_PATH")" ]]; then
+              echo "::error::install-mode 'add' requires cuda-path to be the existing CUDA_PATH ($CUDA_PATH)"
+              exit 1
+            fi
+            ;;
+          *)
+            echo "::error::install-mode must be 'replace' or 'add', got '${{ inputs.install-mode }}'"
+            exit 1
+            ;;
+        esac
+
+    - name: Set up CTK cache variable
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        # Use the runtime workspace mount so this also works inside container jobs.
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
+        CTK_BASE_URL="${{ inputs.redist-base-url }}"
+        # A trailing slash would defeat the public-server comparison below and double up in URLs.
+        CTK_BASE_URL="${CTK_BASE_URL%/}"
+        # RUNNER_TEMP persists across steps, so "Get CUDA components" reuses this file.
+        CTK_JSON_FILE="$RUNNER_TEMP/redistrib-${{ inputs.cuda-version }}.json"
+        curl -LSs --fail --retry 3 --retry-delay 2 "${CTK_BASE_URL}/redistrib_${{ inputs.cuda-version }}.json" -o "$CTK_JSON_FILE"
+
+        # Pin the metadata JSON: the per-archive sha256 checks below are only
+        # trustworthy if the JSON that carries those hashes is itself trusted.
+        # The pins describe the public server; alternate servers only warn.
+        if [[ "$CTK_BASE_URL" == "https://developer.download.nvidia.com/compute/cuda/redist" ]]; then
+          METADATA_SOURCE=public
+        else
+          METADATA_SOURCE=custom
+        fi
+        python "$CTK_REDIST_TOOL" verify-metadata \
+          --cuda-version "${{ inputs.cuda-version }}" \
+          --metadata-path "$CTK_JSON_FILE" \
+          --metadata-source "$METADATA_SOURCE"
+
+        # Pre-process the component list to ensure hash uniqueness
+        CTK_CACHE_COMPONENTS="$(python "$CTK_REDIST_TOOL" filter-components \
+          --host-platform "${{ inputs.host-platform }}" \
+          --cuda-version "${{ inputs.cuda-version }}" \
+          --components "${{ inputs.cuda-components }}" \
+          --metadata-path "$CTK_JSON_FILE")"
+
+        # Alternate redist servers (non-default) publish different manifests for the
+        # same CUDA version; keying on the full manifest hash keeps them from restoring
+        # each other's toolkit (a truncated hash could be collided on purpose).
+        # Hash via stdin: with a backslash in the path (Windows RUNNER_TEMP), sha256sum
+        # prefixes its output line with "\", which would end up in the cache key.
+        MANIFEST_SHA256="$(sha256sum < "$CTK_JSON_FILE" | awk '{print $1}')"
+        HASH=$(echo -n "${CTK_CACHE_COMPONENTS}" | sha256sum | awk '{print $1}')
+        {
+          echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH-m$MANIFEST_SHA256"
+          echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH-m$MANIFEST_SHA256.tar.gz"
+          echo "CTK_CACHE_COMPONENTS=${CTK_CACHE_COMPONENTS}"
+          echo "CTK_BASE_URL=${CTK_BASE_URL}"
+          echo "CTK_JSON_FILE=${CTK_JSON_FILE}"
+        } >> "$GITHUB_ENV"
+
     - name: Download CTK cache
       id: ctk-get-cache
-      uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       continue-on-error: true
       with:
         key: ${{ env.CTK_CACHE_KEY }}
@@ -68,13 +145,10 @@ runs:
         rm -rf $CACHE_TMP_DIR
         mkdir $CACHE_TMP_DIR
 
-        # The binary archives (redist) are guaranteed to be updated as part of the release posting.
         # Use the runtime workspace mount so this also works inside container jobs.
         CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
-        CTK_BASE_URL="https://developer.download.nvidia.com/compute/cuda/redist/"
-        CTK_JSON_URL="$CTK_BASE_URL/redistrib_${{ inputs.cuda-version }}.json"
-        CTK_JSON_FILE="$CACHE_TMP_DIR/redistrib.json"
-        curl -LSs "$CTK_JSON_URL" -o "$CTK_JSON_FILE"
+        # CTK_BASE_URL and the verified manifest at CTK_JSON_FILE come from
+        # "Set up CTK cache variable".
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
           function extract() {
             tar -xvf $1 -C $CACHE_TMP_DIR --strip-components=1
@@ -102,6 +176,13 @@ runs:
           CTK_COMPONENT_URL="${CTK_BASE_URL}/${CTK_COMPONENT_REL_PATH}"
           CTK_COMPONENT_COMPONENT_FILENAME="$(basename $CTK_COMPONENT_REL_PATH)"
           download $CTK_COMPONENT_URL $CTK_COMPONENT_COMPONENT_FILENAME
+          # Verify the downloaded archive against the sha256 in the (pinned)
+          # metadata before extracting; fail closed on any mismatch.
+          CTK_COMPONENT_SHA256="$(python "$CTK_REDIST_TOOL" component-sha256 \
+            --host-platform "${{ inputs.host-platform }}" \
+            --component "$CTK_COMPONENT" \
+            --metadata-path "$CTK_JSON_FILE")"
+          echo "${CTK_COMPONENT_SHA256}  ${CTK_COMPONENT_COMPONENT_FILENAME}" | sha256sum --check --strict -
           extract $CTK_COMPONENT_COMPONENT_FILENAME
           rm $CTK_COMPONENT_COMPONENT_FILENAME
         }
@@ -125,7 +206,9 @@ runs:
         # symlinks from a prerelease CTK at ./cuda_toolkit/include etc., causing
         # "cp: cannot overwrite non-directory" failures on the next restore).
         CUDA_PATH="${{ inputs.cuda-path }}"
-        rm -rf $CUDA_PATH
+        if [[ "${{ inputs.install-mode }}" == replace ]]; then
+          rm -rf $CUDA_PATH
+        fi
         mkdir -p $CUDA_PATH
         # Unfortunately we cannot use "rsync -av $CACHE_TMP_DIR/ $CUDA_PATH" because
         # not all runners have rsync pre-installed (or even installable, such as
@@ -137,7 +220,7 @@ runs:
     - name: Upload CTK cache
       if: ${{ !cancelled() &&
               steps.ctk-get-cache.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         key: ${{ env.CTK_CACHE_KEY }}
         path: ./${{ env.CTK_CACHE_FILENAME }}
@@ -149,7 +232,9 @@ runs:
         ls -l
         CACHE_TMP_DIR="./cache_tmp_dir"
         CUDA_PATH="${{ inputs.cuda-path }}"
-        rm -rf $CUDA_PATH
+        if [[ "${{ inputs.install-mode }}" == replace ]]; then
+          rm -rf $CUDA_PATH
+        fi
         mkdir -p $CUDA_PATH
         tar -xzvf $CTK_CACHE_FILENAME
         # Can't use rsync here, see above
@@ -158,6 +243,7 @@ runs:
         ls -l $CUDA_PATH
 
     - name: Set output environment variables
+      if: ${{ inputs.install-mode == 'replace' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # mimics actual CTK installation

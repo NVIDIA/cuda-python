@@ -857,134 +857,135 @@ def matrix_multiply(dims_a, dims_b, kernel_number):
         (d_c, d_a, d_b, dims_a.x, dims_b.x),
         (ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_int),
     )
-    if kernel_number == Kernels.AsyncCopyMultiStageLargeChunk:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyMultiStageLargeChunk,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyLargeChunk:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyLargeChunk,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyLargeChunkAWBarrier:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyLargeChunkAWBarrier,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyMultiStageSharedState:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyMultiStageSharedState,
-                grid_shared_state_kernel.x,
-                grid_shared_state_kernel.y,
-                grid_shared_state_kernel.z,  # grid dim
-                threads_shared_state_kernel.x,
-                threads_shared_state_kernel.y,
-                threads_shared_state_kernel.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyMultiStage:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyMultiStage,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopySingleStage:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopySingleStage,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.Naive:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulNaive,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.NaiveLargeChunk:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulNaiveLargeChunk,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
+    match kernel_number:
+        case Kernels.AsyncCopyMultiStageLargeChunk:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyMultiStageLargeChunk,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyLargeChunk:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyLargeChunk,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyLargeChunkAWBarrier:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyLargeChunkAWBarrier,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyMultiStageSharedState:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyMultiStageSharedState,
+                    grid_shared_state_kernel.x,
+                    grid_shared_state_kernel.y,
+                    grid_shared_state_kernel.z,  # grid dim
+                    threads_shared_state_kernel.x,
+                    threads_shared_state_kernel.y,
+                    threads_shared_state_kernel.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyMultiStage:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyMultiStage,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopySingleStage:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopySingleStage,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.Naive:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulNaive,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.NaiveLargeChunk:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulNaiveLargeChunk,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
 
     check_cuda_errors(cudart.cudaStreamSynchronize(stream))
 
@@ -994,134 +995,135 @@ def matrix_multiply(dims_a, dims_b, kernel_number):
     # Record the start event
     check_cuda_errors(cudart.cudaEventRecord(start, stream))
 
-    if kernel_number == Kernels.AsyncCopyMultiStageLargeChunk:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyMultiStageLargeChunk,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyLargeChunk:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyLargeChunk,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyLargeChunkAWBarrier:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyLargeChunkAWBarrier,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyMultiStageSharedState:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyMultiStageSharedState,
-                grid_shared_state_kernel.x,
-                grid_shared_state_kernel.y,
-                grid_shared_state_kernel.z,  # grid dim
-                threads_shared_state_kernel.x,
-                threads_shared_state_kernel.y,
-                threads_shared_state_kernel.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopyMultiStage:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopyMultiStage,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.AsyncCopySingleStage:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulAsyncCopySingleStage,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.Naive:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulNaive,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
-    elif kernel_number == Kernels.NaiveLargeChunk:
-        check_cuda_errors(
-            cuda.cuLaunchKernel(
-                _MatrixMulNaiveLargeChunk,
-                grid.x,
-                grid.y,
-                grid.z,  # grid dim
-                threads.x,
-                threads.y,
-                threads.z,  # block dim
-                0,  # shared mem
-                stream,  # stream
-                kernel_arguments,
-                0,
-            )
-        )  # arguments
+    match kernel_number:
+        case Kernels.AsyncCopyMultiStageLargeChunk:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyMultiStageLargeChunk,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyLargeChunk:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyLargeChunk,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyLargeChunkAWBarrier:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyLargeChunkAWBarrier,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyMultiStageSharedState:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyMultiStageSharedState,
+                    grid_shared_state_kernel.x,
+                    grid_shared_state_kernel.y,
+                    grid_shared_state_kernel.z,  # grid dim
+                    threads_shared_state_kernel.x,
+                    threads_shared_state_kernel.y,
+                    threads_shared_state_kernel.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopyMultiStage:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopyMultiStage,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.AsyncCopySingleStage:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulAsyncCopySingleStage,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.Naive:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulNaive,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
+        case Kernels.NaiveLargeChunk:
+            check_cuda_errors(
+                cuda.cuLaunchKernel(
+                    _MatrixMulNaiveLargeChunk,
+                    grid.x,
+                    grid.y,
+                    grid.z,  # grid dim
+                    threads.x,
+                    threads.y,
+                    threads.z,  # block dim
+                    0,  # shared mem
+                    stream,  # stream
+                    kernel_arguments,
+                    0,
+                )
+            )  # arguments
 
     # Record the stop event
     check_cuda_errors(cudart.cudaEventRecord(stop, stream))

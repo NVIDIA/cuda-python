@@ -15,7 +15,6 @@ from cuda.core._rt cimport (
     graph_node_get_graph,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
-import cython
 from collections.abc import Iterable, Iterator, MutableSet, Set
 from typing import Any, TypeVar
 
@@ -30,7 +29,7 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
 
     __slots__ = ("_core",)
 
-    def __init__(self, node: GraphNode, bint is_fwd) -> None:
+    def __init__(self, GraphNode node not None: GraphNode, bint is_fwd) -> None:
         self._core = _AdjacencySetCore(node, is_fwd)
 
     # Used by operators such as &|^ to create non-proxy views when needed.
@@ -51,7 +50,7 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
     def __len__(self) -> int:
         return (<_AdjacencySetCore>self._core).count()
 
-    def add(self, value: GraphNode) -> None:
+    def add(self, GraphNode value not None: GraphNode) -> None:
         if not isinstance(value, GraphNode):
             raise TypeError(
                 f"expected GraphNode, got {type(value).__name__}")
@@ -60,8 +59,8 @@ class AdjacencySetProxy(MutableSet[GraphNode]):
             return
         (<_AdjacencySetCore>self._core).add_edge(<GraphNode>value)
 
-    @cython.annotation_typing(False)
-    def discard(self, value: GraphNode) -> None:
+    def discard(self, value: object) -> None:
+        # Non-GraphNode values are a no-op, matching MutableSet semantics.
         (<_AdjacencySetCore>self._core).check_owner_mutable()
         if value not in self:
             return

@@ -16,7 +16,7 @@ This sample demonstrates how to profile custom CUDA C++ kernels compiled and lau
 
 - NVIDIA GPU with Compute Capability 7.0+
 - CUDA Toolkit 13.0+
-- Python 3.10+
+- Python 3.11+
 - Packages: `numpy`, `cuda-python`, `cuda-core`, `cupy-cuda13x`, `nvtx` (see `requirements.txt`; NumPy >=2.3.2)
 
 **Install:**

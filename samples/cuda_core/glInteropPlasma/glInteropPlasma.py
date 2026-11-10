@@ -64,6 +64,7 @@ import os
 import platform
 import sys
 import time
+from pathlib import Path
 
 try:
     import numpy as np
@@ -76,6 +77,9 @@ try:
         ProgramOptions,
         launch,
     )
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"))
+    from cuda_python_test_helpers.graphics import gl_context_not_on_nvidia_gpu_reason
 except ImportError as e:
     print(f"Error: Required package not found: {e}")
     print("Please install from requirements.txt:")
@@ -316,6 +320,11 @@ def main():
         window, gl, pyglet = create_window()
     except Exception as e:
         print(f"Could not open a pyglet window ({e}); waiving GL interop sample.", file=sys.stderr)
+        sys.exit(EXIT_WAIVED)
+
+    if reason := gl_context_not_on_nvidia_gpu_reason():
+        print(f"{reason}; waiving GL interop sample.", file=sys.stderr)
+        window.close()
         sys.exit(EXIT_WAIVED)
 
     # --- Step 3: Create GL resources for drawing a texture to screen ---

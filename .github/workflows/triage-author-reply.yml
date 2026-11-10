@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# When the author of an issue labeled "awaiting-response" comments, remove that label (and
+# "stale", if present) so that the issue returns to the triage queue.
+
+name: "Triage: remove awaiting-response on author reply"
+
+on:
+  issue_comment:
+    types:
+      - created
+
+permissions: {}
+
+jobs:
+  remove-awaiting-response:
+    if: >-
+      ${{
+        (github.repository_owner == 'nvidia' || github.repository_owner == 'nvidia-dev') &&
+        !github.event.issue.pull_request &&
+        github.event.comment.user.login == github.event.issue.user.login &&
+        contains(github.event.issue.labels.*.name, 'awaiting-response')
+      }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Remove awaiting-response
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          HAS_STALE: ${{ contains(github.event.issue.labels.*.name, 'stale') }}
+        run: |
+          set -euo pipefail
+          args=(--remove-label awaiting-response)
+          if [[ "$HAS_STALE" == "true" ]]; then
+            args+=(--remove-label stale)
+          fi
+          gh issue edit "$NUMBER" "${args[@]}"

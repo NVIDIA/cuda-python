@@ -24,8 +24,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 # Workflows to inspect, with the gh-api filter used to find the latest
 # completed run for each. The order here determines report ordering.
@@ -49,7 +49,7 @@ GHA_LOG_LINE = re.compile(r"^[^\t]+\t([^\t]+)\t[^\t]+\t(.*)", re.DOTALL)
 
 # Map step-name substrings to canonical test suite names.
 STEP_SUITE_PATTERNS: list[tuple[re.Pattern[str], str]] = [
-    (re.compile(r"\brun-tests bindings\b"), "cuda_bindings"),
+    (re.compile(r"\brun-tests bindings\b"), "cuda_bindings_13"),
     (re.compile(r"\brun-tests core\b"), "cuda_core"),
     (re.compile(r"\brun-tests pathfinder\b"), "cuda_pathfinder"),
 ]

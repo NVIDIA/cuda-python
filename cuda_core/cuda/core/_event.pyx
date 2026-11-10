@@ -168,7 +168,7 @@ cdef class Event:
     def __rsub__(self, other: object):
         return NotImplemented
 
-    def __sub__(self, other: Event) -> float:
+    def __sub__(self, Event other not None: Event) -> float:
         # return self - other (in milliseconds)
         Event_check_open(self)
         cdef Event other_event = Event_accept(other)
@@ -228,7 +228,7 @@ cdef class Event:
         return self._ipc_descriptor
 
     @classmethod
-    def from_ipc_descriptor(cls, ipc_descriptor: IPCEventDescriptor) -> Event:
+    def from_ipc_descriptor(cls, IPCEventDescriptor ipc_descriptor not None: IPCEventDescriptor) -> Event:
         """Import an event that was exported from another process.
 
         Parameters
@@ -377,7 +377,7 @@ cdef class IPCEventDescriptor:
         return IPCEventDescriptor._init, (self._reserved, self._is_blocking_sync)
 
 
-def _reduce_event(event: Event) -> tuple[object, ...]:
+def _reduce_event(Event event not None: Event) -> tuple[object, ...]:
     check_multiprocessing_start_method()
     return event.from_ipc_descriptor, (event.ipc_descriptor,)
 
