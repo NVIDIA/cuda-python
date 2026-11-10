@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import subprocess
 import tomllib
 from pathlib import Path
 
@@ -16,29 +15,20 @@ from setuptools_scm import get_version
 with Path(__file__).with_name("pyproject.toml").open("rb") as stream:
     scm_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
 
-# CI selects either major explicitly. Direct tagged builds follow the tag;
-# untagged checkouts and commits tagged for both majors default to CUDA 13.
+# Source builds require an explicit major; standalone sdists already carry
+# their fixed version in PKG-INFO, which setuptools-scm recovers below.
 build_major = os.environ.get("CUDA_PYTHON_BUILD_MAJOR")
-if build_major is None:
-    build_major = "13"
-    source_root = Path(__file__).resolve().parent.parent
-    if (source_root / ".git").exists():
-        tags = subprocess.check_output(
-            ["git", "tag", "--points-at", "HEAD", "--list", "v12.*", "v13.*"],  # noqa: S607
-            cwd=source_root,
-            text=True,
-        ).splitlines()
-        if any(tag.startswith("v12.") for tag in tags) and not any(tag.startswith("v13.") for tag in tags):
-            build_major = "12"
-if build_major not in {"12", "13"}:
-    raise ValueError(f"CUDA_PYTHON_BUILD_MAJOR must be 12 or 13, got {build_major!r}")
+if build_major not in {"12", "13"} and not (build_major is None and Path(__file__).with_name("PKG-INFO").is_file()):
+    raise ValueError(f"Set CUDA_PYTHON_BUILD_MAJOR to 12 or 13 for source builds, got {build_major!r}")
 
 version_options = {
     "root": "..",
     "relative_to": __file__,
     "dist_name": "cuda-python",
+}
+if build_major is not None:
     # Keep metapackage tag selection identical to its bindings source line.
-    "git_describe_command": [
+    version_options["git_describe_command"] = [
         "git",
         "describe",
         "--dirty",
@@ -46,13 +36,14 @@ version_options = {
         "--long",
         "--match",
         scm_selectors[build_major],
-    ],
-}
+    ]
 
 version = get_version(**version_options)
 
 
 resolved_version = Version(version)
+if build_major is not None and resolved_version.major != int(build_major):
+    raise ValueError(f"CUDA_PYTHON_BUILD_MAJOR={build_major} does not match resolved version {version}")
 base_version = resolved_version.base_version
 
 
@@ -65,7 +56,7 @@ else:
 
 install_requires = [f"cuda-bindings{matcher}{version}"]
 # An sdist recovers its fixed version without Git; its dependency set must
-# follow that version even when the checkout selector defaults to CUDA 13.
+# follow that version without requiring a checkout selector.
 if resolved_version.major >= 13:
     install_requires.extend(
         [
