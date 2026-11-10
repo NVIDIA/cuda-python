@@ -1,0 +1,6 @@
+﻿cuda.core.host\_launch
+======================
+
+.. currentmodule:: cuda.core
+
+.. autofunction:: host_launch
