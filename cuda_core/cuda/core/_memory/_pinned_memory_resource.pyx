@@ -22,6 +22,7 @@ from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
+from libcpp.vector cimport vector
 
 from dataclasses import dataclass
 import multiprocessing
@@ -102,10 +103,10 @@ cdef class PinnedMemoryResource(_MemPool):
     :class:`LegacyPinnedMemoryResource`.
 
     The driver makes a host memory pool accessible only from the host by
-    default, so the resource grants the device that is current when it is
-    created read and write access to the pool. Kernels on other devices cannot
-    access its buffers. Without options, the grant applies to the driver's
-    current pool, which the whole process shares.
+    default, so the resource grants read and write access to the pool to every
+    device that supports host memory pools (host NUMA memory pools if the pool
+    has a NUMA node), as ``cudaMallocHost`` does. Without options, the grant
+    applies to the driver's current pool, which the whole process shares.
 
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
@@ -246,7 +247,7 @@ cdef class PinnedMemoryResource(_MemPool):
 
     @property
     def is_device_accessible(self) -> bool:
-        """Return True. The device that is current when the resource is created can read and write its buffers."""
+        """Return True. Every device that supports this kind of host memory pool can read and write its buffers."""
         return True
 
     @property
@@ -274,7 +275,8 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
     cdef size_t max_size = 0
     cdef cydriver.CUmemLocationType loc_type
     cdef int numa_id = -1
-    cdef cydriver.CUmemAccessDesc access
+    cdef cydriver.CUmemAccessDesc desc
+    cdef vector[cydriver.CUmemAccessDesc] access
 
     if opts is not None:
         ipc_enabled = opts.ipc_enabled
@@ -321,15 +323,18 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
         )
 
     # A pool on a host location is accessible only from the host by default
-    # (see cuMemPoolCreate), so grant the current device read/write access. A
-    # device without host pool support cannot allocate from it anyway.
-    dev = Device()
-    if _host_pool_supported(dev, numa_id):
-        access.location = cumemlocation_from_id(
-            cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)
-        access.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    # (see cuMemPoolCreate), so grant read/write access to every device that
+    # supports this kind of host pool, as cudaMallocHost memory is. Other
+    # devices cannot use the pool.
+    desc.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    for dev in Device.get_all_devices():
+        if _host_pool_supported(dev, numa_id):
+            desc.location = cumemlocation_from_id(
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)
+            access.push_back(desc)
+    if not access.empty():
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), &access, 1))
+            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), access.data(), access.size()))
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:

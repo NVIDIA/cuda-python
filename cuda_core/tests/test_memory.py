@@ -1247,18 +1247,25 @@ def test_pinned_memory_resource_initialization(init_cuda):
 
 
 @pytest.mark.human_reviewed
+@pytest.mark.parametrize("kernel_on", ["creating_device", "other_device"])
 @pytest.mark.parametrize("pool", ["current", "new", "new_numa"])
-def test_pinned_memory_resource_kernel_access(init_cuda, pool):
-    """A kernel on the current device reads and writes PinnedMemoryResource buffers (#3205)."""
-    device = init_cuda
+def test_pinned_memory_resource_kernel_access(init_cuda, pool, kernel_on):
+    """A kernel on any device reads and writes PinnedMemoryResource buffers (#3205, #3415)."""
+    device = init_cuda  # Device(0)
+    kernel_device = device
+    if kernel_on == "other_device":
+        if len(Device.get_all_devices()) < 2:
+            pytest.skip("Test requires at least 2 GPUs")
+        kernel_device = Device(1)
     skip_if_pinned_memory_unsupported(device)
+    skip_if_pinned_memory_unsupported(kernel_device)
     if pool == "current":
         options = None
     elif pool == "new":
         options = PinnedMemoryResourceOptions(max_size=POOL_SIZE)
     else:
         numa_id = device.properties.host_numa_id
-        if numa_id < 0 or not device.properties.host_numa_memory_pools_supported:
+        if numa_id < 0 or not all(d.properties.host_numa_memory_pools_supported for d in (device, kernel_device)):
             pytest.skip("Device does not support host NUMA memory pools")
         options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, numa_id=numa_id)
 
@@ -1268,20 +1275,24 @@ def test_pinned_memory_resource_kernel_access(init_cuda, pool):
         if (i < n) data[i] = data[i] * 2 + 1;
     }
     """
-    kernel = (
-        Program(code, "c++", ProgramOptions(arch=f"sm_{device.arch}")).compile("cubin").get_kernel("double_plus_one")
-    )
 
     n = 1024
     mr = create_pinned_memory_resource_or_xfail(options, xfail_device=device)
     buffer = _allocate_pinned_buffer_or_xfail(mr, n * ctypes.sizeof(ctypes.c_int), device=device)
-    stream = device.default_stream
-    stream.sync()
+    device.default_stream.sync()
     data = (ctypes.c_int * n).from_address(int(buffer.handle))
     data[:] = range(n)
 
-    launch(stream, LaunchConfig(grid=(n + 255) // 256, block=256), kernel, buffer, ctypes.c_size_t(n))
-    stream.sync()
+    # The resource was created with device current. The kernel runs on kernel_device.
+    kernel_device.set_current()
+    try:
+        program = Program(code, "c++", ProgramOptions(arch=f"sm_{kernel_device.arch}"))
+        kernel = program.compile("cubin").get_kernel("double_plus_one")
+        stream = kernel_device.default_stream
+        launch(stream, LaunchConfig(grid=(n + 255) // 256, block=256), kernel, buffer, ctypes.c_size_t(n))
+        stream.sync()
+    finally:
+        device.set_current()
     assert data[:] == [2 * i + 1 for i in range(n)]
     buffer.close()
     mr.close()
