@@ -580,6 +580,17 @@ these roots lexically into a different location.
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3418">PR #3418</a>)</p></li>
 </ul>
 </section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Correct the Windows DLL search documentation: native system search normally
+includes <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, subject to process DLL search policy
+(<a class="reference external" href="https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order#search-order-for-packaged-apps">packaged applications have a different default DLL search order</a>).
+<code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> remain fallback discovery roots, not runtime
+toolkit selectors. Loading behavior and search order are unchanged.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3137">Issue #3137</a>)</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -624,6 +635,7 @@ these roots lexically into a different location.
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compatibility-note">Compatibility note</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
   </nav></div>
 
