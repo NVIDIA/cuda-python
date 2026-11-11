@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=35d522fae601127f3ffc9d0de45d9adf2572934ee3308f5d99567aa8efd5ae77
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b35c6de7463e36646e40b3ab553e165d4e756a14303a8f1fcddcd71325dafd40
 """
 This is a replacement for the stdlib enum.IntEnum.
 
@@ -13,7 +13,8 @@ It supports the most important subset of the IntEnum API.  See `test_enum` in
 `cuda_bindings/tests/test_basics.py` for details.
 """
 
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 
 class FastEnumMetaclass(type):

@@ -15,9 +15,9 @@ intentional API, layout, and build differences.
 - Handwritten utilities, build helpers, tests, and documentation can be edited
   directly. Inspect headers and provenance; a filename extension alone does
   not identify generated code.
-- Source builds parse CUDA headers and expand `.in` templates before Cython.
-  Regenerate these outputs from their templates and headers. Preserve the
-  CUDA 12 parser, legacy APIs, and namespace redirector.
+- Source builds do not parse CUDA headers or expand templates; all binding
+  sources, including `runtime`, are pre-generated. Preserve the CUDA 12
+  legacy APIs and namespace redirector.
 
 ## Build and test guidance
 

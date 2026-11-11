@@ -367,6 +367,13 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder
 
+      # The checker and the mini-CTK layout it expects both come from the
+      # inputs.sha checkout. Nightly runs may check out a commit without them.
+      - name: Check cuda.pathfinder loads NVRTC and CUPTI from the mini CTK
+        if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' && matrix.LOCAL_CTK == '1' && hashFiles('ci/tools/check_pathfinder_ctk_libs.py') != '' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: python ci/tools/check_pathfinder_ctk_libs.py nvrtc cupti
+
       - name: Run cuda.bindings tests
         if: ${{ inputs.test-mode == 'standard' && env.TEST_BINDINGS == 'true' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
@@ -426,9 +433,21 @@ jobs:
       - name: Install Visual C++ Redistributable (required by PyTorch on Windows)
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}
         run: |
-          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile "vc_redist.x64.exe"
-          Start-Process -FilePath ".\vc_redist.x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -Wait
-          Remove-Item "vc_redist.x64.exe"
+          $redist = Join-Path $env:RUNNER_TEMP "vc_redist.x64.exe"
+          Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile $redist
+          $signature = Get-AuthenticodeSignature $redist
+          if ($signature.Status -ne "Valid") { throw "VC++ runtime signature is not valid: $($signature.Status)" }
+          # Compare the parsed organization (OID 2.5.4.10); a substring match on Subject also accepts
+          # e.g. "O=Microsoft Corporation Services Ltd" or a CN containing "O=Microsoft Corporation".
+          $org = @($signature.SignerCertificate.SubjectName.EnumerateRelativeDistinguishedNames() |
+            Where-Object { $_.GetSingleElementType().Value -eq "2.5.4.10" } |
+            ForEach-Object { $_.GetSingleElementValue() })
+          if ($org.Count -ne 1 -or $org[0] -cne "Microsoft Corporation") {
+            throw "VC++ runtime is not signed by Microsoft Corporation: O=$($org -join '|')"
+          }
+          $process = Start-Process $redist -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
+          if ($process.ExitCode -notin 0, 1638, 3010) { throw "VC++ runtime installer failed: $($process.ExitCode)" }
+          Remove-Item $redist
 
       - name: Install cuda-python wheels + PyTorch
         if: ${{ inputs.test-mode == 'nightly-pytorch' }}

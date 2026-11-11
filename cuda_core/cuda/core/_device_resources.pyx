@@ -214,7 +214,7 @@ cdef int _structured_split_checked = 0
 cdef inline bint _can_use_structured_sm_split():
     """Whether the driver provides cuDevSmResourceSplit, a 13.1 driver API. Cached.
 
-    Every cuda-bindings at or above the 13.4 floor exports it. Only the driver can lack it."""
+    Every cuda-bindings at or above the CUDA 13 floor exports it. Only the driver can lack it."""
     global _structured_split_checked
     if _structured_split_checked != 0:
         return _structured_split_checked == 1

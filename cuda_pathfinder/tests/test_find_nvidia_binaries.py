@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+from pathlib import Path
 
 import pytest
 
@@ -14,6 +15,7 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import (
     SUPPORTED_BINARIES,
     SUPPORTED_BINARIES_ALL,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
 CUDA13_WHEEL_BINARIES = frozenset(
     ("nvcc", "ptxas", "nvdisasm", "cuobjdump", "fatbinary", "bin2c", "nvlink", "compute-sanitizer")
@@ -55,8 +57,10 @@ def test_cuda13_wheel_layout_is_declared_and_preferred():
 @pytest.fixture
 def clear_find_binary_cache():
     find_nvidia_binary_utility.cache_clear()
+    get_cuda_path_or_home.cache_clear()
     yield
     find_nvidia_binary_utility.cache_clear()
+    get_cuda_path_or_home.cache_clear()
 
 
 def _patch_exec_probe(mocker, existing=()):
@@ -75,6 +79,51 @@ def _patch_exec_probe(mocker, existing=()):
 
     mocker.patch.object(binary_finder_module, "_is_executable_candidate", side_effect=fake_is_executable_candidate)
     return checked
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX symlink traversal")
+@pytest.mark.parametrize("layout", ("direct", "symlink", "symlink-parent"))
+@pytest.mark.usefixtures("clear_find_binary_cache")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_binary_lookup_returns_resolved_path(tmp_path, monkeypatch, layout):
+    sdk = tmp_path / "installed" / "sdk"
+    (sdk / "leaf").mkdir(parents=True)
+    (sdk / "bin").mkdir()
+    executable = sdk / "bin" / "nvcc"
+    executable.touch()
+    executable.chmod(0o700)
+
+    monkeypatch.chdir(tmp_path)
+    if layout == "direct":
+        configured_root = Path("installed/sdk")
+    else:
+        target = sdk if layout == "symlink" else sdk / "leaf"
+        Path("alias").symlink_to(target, target_is_directory=True)
+        configured_root = Path("alias") if layout == "symlink" else Path("alias/..")
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.delenv("CUDA_HOME", raising=False)
+    monkeypatch.setenv("CUDA_PATH", str(configured_root))
+    monkeypatch.setattr(binary_finder_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+
+    found = find_nvidia_binary_utility("nvcc")
+
+    assert found == str(executable.resolve())
+    assert Path(found).samefile(executable)
+    monkeypatch.chdir(tmp_path.parent)
+    assert find_nvidia_binary_utility("nvcc") == found
+    assert Path(find_nvidia_binary_utility("nvcc")).samefile(executable)
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX symlink fixture")
+@pytest.mark.agent_authored(model="gpt-6")
+def test_resolve_candidate_paths_returns_symlink_target(tmp_path):
+    executable = tmp_path / "nvcc-real"
+    executable.touch()
+    executable.chmod(0o700)
+    alias = tmp_path / "nvcc"
+    alias.symlink_to(executable)
+
+    assert binary_finder_module._resolve_candidate_paths([str(alias)]) == str(executable.resolve())
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
@@ -180,7 +229,7 @@ def test_find_compute_sanitizer_prefers_ctk_launcher_with_executable_fallback(
         existing.append(launcher)
     checked = _patch_exec_probe(mocker, existing=existing)
 
-    assert find_nvidia_binary_utility("compute-sanitizer") == os.path.abspath(os.path.join(cuda_home, expected_rel))
+    assert find_nvidia_binary_utility("compute-sanitizer") == str(Path(cuda_home, expected_rel).resolve())
     assert checked == [os.path.join(cuda_home, rel) for rel in checked_rels]
     canary_mock.assert_not_called()
 
@@ -198,7 +247,7 @@ def test_find_compute_sanitizer_uses_canary_ctk_root(monkeypatch, mocker):
     canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary", return_value=ctk_root)
     checked = _patch_exec_probe(mocker, existing=[launcher])
 
-    assert find_nvidia_binary_utility("compute-sanitizer") == os.path.abspath(launcher)
+    assert find_nvidia_binary_utility("compute-sanitizer") == str(Path(launcher).resolve())
     assert checked == [launcher]
     canary.assert_called_once_with()
 
@@ -226,7 +275,7 @@ def test_find_binary_windows_nsight_conda_precedes_registry(monkeypatch, mocker,
     canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
     checked = _patch_exec_probe(mocker, existing=[expected])
 
-    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert find_nvidia_binary_utility(utility_name) == str(Path(expected).resolve())
     assert checked == [
         *(os.path.join(site_dir, name) for name in candidate_names),
         os.path.join(conda_bin, candidate_names[0]),
@@ -281,7 +330,7 @@ def test_find_binary_windows_nsight_composes_registry_and_native_target(
     canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
     checked = _patch_exec_probe(mocker, existing=[expected])
 
-    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert find_nvidia_binary_utility(utility_name) == str(Path(expected).resolve())
     assert checked == [
         *(os.path.join(directory, name) for directory in (site_dir, conda_bin) for name in candidate_names),
         *((os.path.join(install_root, "ncu.bat"),) if utility_name == "ncu" else ()),
@@ -310,7 +359,7 @@ def test_find_binary_windows_ncu_launcher_hit_does_not_resolve_machine_arch(monk
     canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
     checked = _patch_exec_probe(mocker, existing=[launcher])
 
-    assert find_nvidia_binary_utility("ncu") == os.path.abspath(launcher)
+    assert find_nvidia_binary_utility("ncu") == str(Path(launcher).resolve())
     assert checked == [launcher]
     registry_root.assert_called_once_with("Compute")
     machine_arch.assert_not_called()
@@ -362,7 +411,7 @@ def test_find_windows_nsight_legacy_names_remain_literal_in_early_search(monkeyp
     ncu_candidates = mocker.patch.object(binary_finder_module.windows_nsight, "ncu_candidate_paths")
     checked = _patch_exec_probe(mocker, existing=[expected])
 
-    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert find_nvidia_binary_utility(utility_name) == str(Path(expected).resolve())
     assert checked == [os.path.join(site_dir, f"{utility_name}.exe"), expected]
     find_sub_dirs.assert_called_once_with(site_key.split(os.sep))
     get_cuda_path.assert_not_called()
@@ -386,7 +435,7 @@ def test_find_windows_nsight_legacy_names_remain_literal_in_ctk(monkeypatch, moc
     canary = mocker.patch.object(binary_finder_module, "_resolve_ctk_root_via_canary")
     checked = _patch_exec_probe(mocker, existing=[expected])
 
-    assert find_nvidia_binary_utility(utility_name) == os.path.abspath(expected)
+    assert find_nvidia_binary_utility(utility_name) == str(Path(expected).resolve())
     assert checked == [
         os.path.join(cuda_home, "bin", "x64", f"{utility_name}.exe"),
         os.path.join(cuda_home, "bin", "x86_64", f"{utility_name}.exe"),
@@ -421,7 +470,7 @@ def test_find_binary_first_matching_dir_wins(monkeypatch, mocker):
     result = find_nvidia_binary_utility("nvcc")
 
     # Conda comes before CUDA_HOME, so the Conda hit wins and CUDA_HOME is never probed.
-    assert result == os.path.abspath(conda_nvcc)
+    assert result == str(Path(conda_nvcc).resolve())
     assert checked == [os.path.join(site_dir, "nvcc"), conda_nvcc]
 
 
@@ -442,7 +491,7 @@ def test_find_binary_ctk_root_canary_fallback(monkeypatch, mocker):
 
     result = find_nvidia_binary_utility("nvcc")
 
-    assert result == os.path.abspath(ctk_nvcc)
+    assert result == str(Path(ctk_nvcc).resolve())
     canary_mock.assert_called_once_with()
     # No earlier trusted dirs existed, so the only probe is the canary bin dir.
     assert checked == [ctk_nvcc]
@@ -487,7 +536,7 @@ def test_find_binary_canary_not_consulted_when_found_earlier(monkeypatch, mocker
 
     result = find_nvidia_binary_utility("nvcc")
 
-    assert result == os.path.abspath(conda_nvcc)
+    assert result == str(Path(conda_nvcc).resolve())
     canary_mock.assert_not_called()
 
 
@@ -657,9 +706,9 @@ def test_resolve_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mo
         side_effect=lambda path: path == candidate,
     )
 
-    # Anchor CWD so os.path.abspath is deterministic for the assertion.
+    # Anchor CWD so relative candidates have a deterministic resolved path.
     monkeypatch.chdir(tmp_path)
     result = binary_finder_module._resolve_in_trusted_dirs("nvcc", [rel_dir])
 
     assert os.path.isabs(result)
-    assert result == os.path.abspath(os.path.join(str(tmp_path), candidate))
+    assert result == str((tmp_path / candidate).resolve())
