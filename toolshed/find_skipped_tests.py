@@ -24,8 +24,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 # Workflows to inspect, with the gh-api filter used to find the latest
 # completed run for each. The order here determines report ordering.

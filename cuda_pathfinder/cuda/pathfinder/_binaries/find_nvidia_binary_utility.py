@@ -11,6 +11,8 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages_ordered
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
+from .._utils.resolve_path import resolve_path
+
 
 class UnsupportedBinaryError(Exception):
     def __init__(self, utility: str) -> None:
@@ -55,7 +57,7 @@ def _resolve_candidate_paths(candidates: Iterable[str]) -> str | None:
             continue
         seen.add(candidate)
         if _is_executable_candidate(candidate):
-            return os.path.abspath(candidate)
+            return str(resolve_path(candidate))
     return None
 
 
@@ -85,9 +87,7 @@ def _resolve_in_trusted_dirs(normalized_name: str, dirs: list[str]) -> str | Non
         seen.add(directory)
         candidate = os.path.join(directory, normalized_name)
         if _is_executable_candidate(candidate):
-            # Return an absolute path, as the docstring promises (a relative
-            # search dir would otherwise leak a relative result).
-            return os.path.abspath(candidate)
+            return str(resolve_path(candidate))
     return None
 
 
@@ -116,9 +116,9 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
             also recognizes ``.bat`` and ``.cmd`` files on Windows.
 
     Returns:
-        str or None: Absolute path to the discovered executable, or ``None``
-        if the utility cannot be found. The returned path is normalized
-        (absolute and with resolved separators).
+        str or None: Resolved absolute path to the discovered executable, or
+        ``None`` if the utility cannot be found. Symlinks and parent-directory
+        components are resolved to identify the selected executable.
 
     Raises:
         UnsupportedBinaryError: If ``utility_name`` is not in the supported set

@@ -51,6 +51,7 @@ from cuda.core import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
+    LaunchConfig,
     LegacyPinnedMemoryResource,
     ManagedBuffer,
     ManagedMemoryResource,
@@ -58,10 +59,13 @@ from cuda.core import (
     MemoryResource,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    Program,
+    ProgramOptions,
     StreamOptions,
     VirtualMemoryBuffer,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
+    launch,
 )
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
@@ -1242,6 +1246,47 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize("pool", ["current", "new", "new_numa"])
+def test_pinned_memory_resource_kernel_access(init_cuda, pool):
+    """A kernel on the current device reads and writes PinnedMemoryResource buffers (#3205)."""
+    device = init_cuda
+    skip_if_pinned_memory_unsupported(device)
+    if pool == "current":
+        options = None
+    elif pool == "new":
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE)
+    else:
+        numa_id = device.properties.host_numa_id
+        if numa_id < 0 or not device.properties.host_numa_memory_pools_supported:
+            pytest.skip("Device does not support host NUMA memory pools")
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, numa_id=numa_id)
+
+    code = r"""
+    extern "C" __global__ void double_plus_one(int* data, size_t n) {
+        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+        if (i < n) data[i] = data[i] * 2 + 1;
+    }
+    """
+    kernel = (
+        Program(code, "c++", ProgramOptions(arch=f"sm_{device.arch}")).compile("cubin").get_kernel("double_plus_one")
+    )
+
+    n = 1024
+    mr = create_pinned_memory_resource_or_xfail(options, xfail_device=device)
+    buffer = _allocate_pinned_buffer_or_xfail(mr, n * ctypes.sizeof(ctypes.c_int), device=device)
+    stream = device.default_stream
+    stream.sync()
+    data = (ctypes.c_int * n).from_address(int(buffer.handle))
+    data[:] = range(n)
+
+    launch(stream, LaunchConfig(grid=(n + 255) // 256, block=256), kernel, buffer, ctypes.c_size_t(n))
+    stream.sync()
+    assert data[:] == [2 * i + 1 for i in range(n)]
+    buffer.close()
+    mr.close()
+
+
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
     """allocate() must fail on devices without host memory pool support (see #2486)."""
@@ -1768,7 +1813,11 @@ def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
     buf = mr.allocate(4096)
     try:
         with pytest.raises(ValueError, match="handle_type=None"):
-            mr.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions(location_type="host"))
+            mr.modify_allocation(
+                buf,
+                2 * buf.size,
+                config=VirtualMemoryResourceOptions(location_type="host", handle_type=VirtualMemoryHandleType.POSIX_FD),
+            )
     finally:
         buf.close()
 
@@ -3349,6 +3398,19 @@ def test_vmm_options_spec_validators_raise(method, spec, match):
         fn(spec)
 
 
+@pytest.mark.parametrize("system", ["Linux", "Windows"])
+@pytest.mark.thread_unsafe(reason="patches platform.system")
+def test_vmm_options_default_handle_type(monkeypatch, system):
+    monkeypatch.setattr(platform, "system", lambda: system)
+    options = VirtualMemoryResourceOptions()
+    expected = None if system == "Windows" else VirtualMemoryHandleType.POSIX_FD
+    assert options.handle_type == expected
+    assert VirtualMemoryResourceOptions(handle_type="win32_kmt").handle_type == "win32_kmt"
+    assert VirtualMemoryResourceOptions(handle_type=None).handle_type is None
+    with pytest.raises(ValueError):
+        VirtualMemoryResourceOptions(allocation_type=VirtualMemoryAllocationType.MANAGED)
+
+
 def test_vmm_options_handle_type_win32_raises():
     """_handle_type_to_driver raises NotImplementedError for 'win32'."""
     with pytest.raises(NotImplementedError, match="win32 is currently not supported"):
@@ -3371,17 +3433,19 @@ def test_vmm_host_location_types_report_host_accessible(init_cuda, location_type
     deciding the resource is not bound to a device, so is_host_accessible must
     agree; otherwise a NUMA-located resource claims to be neither host- nor
     device-accessible. The driver rejects an exportable handle type for HOST
-    memory only, so the default handle type is rejected at construction for
-    "host" and accepted for "host_numa".
+    memory only, so an exportable default handle type is rejected at
+    construction for "host" and accepted for "host_numa". The Windows
+    default, None, is accepted for both location types.
     """
     device = Device()
     device.set_current()
     numa = {"numa_id": 0} if location_type == "host_numa" else {}
-    if location_type == "host":
+    config = VirtualMemoryResourceOptions(location_type=location_type, **numa)
+    if location_type == "host" and config.handle_type is not None:
         with pytest.raises(ValueError, match="handle_type=None"):
-            VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+            VirtualMemoryResource(device, config=config)
     else:
-        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type, **numa))
+        VirtualMemoryResource(device, config=config)
     mr = VirtualMemoryResource(
         device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None, **numa)
     )

@@ -12,6 +12,8 @@ from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages_
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
+from .._utils.resolve_path import resolve_path
+
 
 class StaticLibNotFoundError(RuntimeError):
     """Raised when a static library cannot be found."""
@@ -91,7 +93,7 @@ class _FindStaticLib:
         for abs_dir in find_sub_dirs_all_sitepackages_ordered(patterns):
             file_path = Path(abs_dir, self.filename)
             if file_path.is_file():
-                return file_path
+                return resolve_path(file_path)
         return None
 
     def try_with_conda_prefix(self) -> Path | None:
@@ -103,7 +105,7 @@ class _FindStaticLib:
         for rel_path in self.conda_rel_paths:
             file_path = anchor / rel_path / self.filename
             if file_path.is_file():
-                return file_path
+                return resolve_path(file_path)
         return None
 
     def try_with_cuda_home(self) -> Path | None:
@@ -116,7 +118,7 @@ class _FindStaticLib:
         for rel_path in self.ctk_rel_paths:
             file_path = anchor / rel_path / self.filename
             if file_path.is_file():
-                return file_path
+                return resolve_path(file_path)
 
         _no_such_file_in_dir(
             anchor / self.ctk_rel_paths[0],
@@ -133,7 +135,7 @@ class _FindStaticLib:
 
 
 def locate_static_lib(name: str) -> LocatedStaticLib:
-    """Locate a static library by name.
+    """Locate a static library by name, returning its resolved absolute path.
 
     Raises:
         ValueError: If ``name`` is not a supported static library.
@@ -173,7 +175,7 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
 
 @functools.cache
 def find_static_lib(name: str) -> str:
-    """Find the absolute path to a static library.
+    """Find the resolved absolute path to a static library.
 
     Raises:
         ValueError: If ``name`` is not a supported static library.

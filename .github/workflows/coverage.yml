@@ -71,12 +71,17 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
-          # third_party/cccl provides the CCCL headers cuda.core compiles against.
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
 
       - name: Fix workspace ownership
         run: |
           chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
@@ -181,6 +186,15 @@ jobs:
           cd $INSTALL_ROOT
           $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings_13/tests
 
+      - name: Trace cuda.core imports
+        continue-on-error: true
+        run: |
+          cd $INSTALL_ROOT
+          # Trace collection-time imports before the regular pytest-cov run.
+          "$REPO_ROOT/.venv/bin/python" -m coverage run \
+            --append --source=./cuda --rcfile="$REPO_ROOT/.coveragerc" \
+            -m pytest -p no:pytest_cov --collect-only -qq "$REPO_ROOT/cuda_core/tests"
+
       - name: Run cuda.core tests
         continue-on-error: true
         run: |
@@ -238,8 +252,13 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
-          # third_party/cccl provides the CCCL headers cuda.core compiles against.
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Set up Python
         uses: $/.github/actions/setup-hardened-python
@@ -439,6 +458,15 @@ jobs:
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
+
+      - name: Trace cuda.core imports
+        continue-on-error: true
+        run: |
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          # Use a separate process so pytest-cov retains lifecycle contexts.
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m coverage run \
+            --append --source=./cuda --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
+            -m pytest -p no:pytest_cov --collect-only -qq "$GITHUB_WORKSPACE/cuda_core/tests"
 
       - name: Run cuda.core tests
         continue-on-error: true

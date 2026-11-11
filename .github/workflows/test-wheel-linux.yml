@@ -146,6 +146,11 @@ jobs:
           dependencies: "jq wget libgl1 libegl1 g++ util-linux yq"
           dependent_exes: "jq wget yq"
 
+      - name: Update container CA certificates
+        run: |
+          apt-get update
+          apt-get install --only-upgrade -y ca-certificates
+
       - name: Checkout driver install scripts (workflow revision)
         if: ${{ matrix.DRIVER != 'latest' && matrix.DRIVER != 'earliest' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -203,7 +208,7 @@ jobs:
 
       - name: Download cuda.bindings build artifacts
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
-                env.BINDINGS_SOURCE == 'main' }}
+                (env.BINDINGS_SOURCE == 'main' || (env.BINDINGS_SOURCE == 'floor' && env.TEST_CORE == 'true')) }}
         uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
@@ -361,14 +366,29 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
-      - name: Set up latest cuda_sanitizer_api
+      - name: Set up cuda_gdb
+        # $/ loads the action from the workflow's commit: the inputs.sha
+        # checkout can predate install-mode, and ./ would then wipe the mini CTK.
+        if: ${{ matrix.LOCAL_CTK == '1' && env.TEST_CORE == 'true' }}
+        uses: $/.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ matrix.CUDA_VER }}
+          cuda-components: "cuda_gdb"
+          install-mode: add
+
+      - name: Set up cuda_sanitizer_api
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true') && env.SETUP_SANITIZER == '1' }}
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
         with:
           host-platform: ${{ inputs.host-platform }}
-          cuda-version: ${{ env.LATEST_CUDA_VERSION }}
+          # The build CTK's sanitizer, not the matrix CTK's: older sanitizers
+          # crash on the cuda.core tests, and newer ones carry the fixes.
+          cuda-version: ${{ inputs.build-ctk-ver }}
           cuda-components: "cuda_sanitizer_api"
+          install-mode: add
 
       - name: Set up compute-sanitizer
         if: ${{ env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' }}
@@ -390,6 +410,12 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
         run: run-tests pathfinder
+
+      # The checker and the mini-CTK layout it expects both come from the
+      # inputs.sha checkout. Nightly runs may check out a commit without them.
+      - name: Check cuda.pathfinder loads NVRTC and CUPTI from the mini CTK
+        if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' && matrix.LOCAL_CTK == '1' && hashFiles('ci/tools/check_pathfinder_ctk_libs.py') != '' }}
+        run: python ci/tools/check_pathfinder_ctk_libs.py nvrtc cupti
 
       - name: Run cuda.bindings tests
         if: ${{ inputs.test-mode == 'standard' && env.TEST_BINDINGS == 'true' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}

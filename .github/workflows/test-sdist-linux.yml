@@ -47,7 +47,13 @@ jobs:
           # the commit graph (`git describe`) but not historical blobs.
           fetch-depth: 0
           filter: blob:none
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
