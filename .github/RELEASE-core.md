@@ -156,17 +156,45 @@ built and deployed automatically by the release workflow.
 
 ---
 
+## Create the release branch
+
+Each `cuda-core` minor series has one release branch,
+`release/cuda-core-vX.Y.x`. Releases are tagged on that branch, not on
+`main`. Patch releases of the series land there too.
+
+For a minor release (`X.Y.0`), create the branch after every pre-release
+pull request has merged into `main`. Branch from the `main` commit that
+holds the final release notes:
+
+```bash
+git fetch origin main
+git push origin origin/main:refs/heads/release/cuda-core-v0.6.x
+```
+
+For a patch release (`X.Y.Z`), use the existing branch. Changes reach it
+through pull requests that cherry-pick the fixes from `main`, with
+`(cherry picked from commit ...)` trailers. The release notes for the patch
+release must be on the release branch before the tag: the release workflow
+checks for them in the tagged tree. Add them to `main` as well, so the docs
+switcher and the `latest` docs list them.
+
+The repository ruleset protects `release/**`: a push to an existing release
+branch needs a pull request and passing checks.
+
+---
+
 ## Create a public release tag
 
 **Warning:** Pushing a tag is a potentially irrevocable action.  Be absolutely
 certain the tag points to the correct commit before pushing.
 
 Tags should be GPG-signed. The tag name format is `cuda-core-v<VERSION>`
-(e.g. `cuda-core-v0.6.0`). The tag must point to a commit on `main`.
+(e.g. `cuda-core-v0.6.0`). The tag must point to a commit on the release
+branch.
 
 ```bash
-git checkout main
-git pull origin main
+git fetch origin release/cuda-core-v0.6.x
+git checkout --detach origin/release/cuda-core-v0.6.x
 git tag -s cuda-core-v0.6.0 -m "cuda-core v0.6.0"
 git push origin cuda-core-v0.6.0
 ```
