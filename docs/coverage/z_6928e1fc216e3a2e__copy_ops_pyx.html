@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_memory/_copy_ops.pyx: 70.45%</title>
+    <title>Coverage for cuda/core/_memory/_copy_ops.pyx: 84.09%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -30,18 +30,19 @@
   "u": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_element|run",
   "v": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_options_length_mismatch|run",
   "w": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_bad_options_type|run",
-  "x": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[1024-2048]|run",
-  "y": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[2048-1024]|run",
-  "z": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|run",
-  "A": "tests/memory/test_copy_batch_options.py::TestOptionsEncoding::test_scalar_broadcasts_to_every_copy|run",
-  "B": "tests/memory/test_copy_batch_options.py::TestOptionsEncoding::test_sequence_is_never_broadcast|run",
-  "C": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|run",
-  "D": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|run",
-  "E": "tests/memory/test_copy_batch_options.py::TestOptionsEncoding::test_none_broadcasts_defaults|run",
-  "F": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|run",
-  "G": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|run",
-  "H": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|run",
-  "I": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|run"
+  "x": "(empty)",
+  "y": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[1024-2048]|run",
+  "z": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_size_mismatch[2048-1024]|run",
+  "A": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_capturing_stream_is_rejected|run",
+  "B": "tests/memory/test_copy_batch_options.py::TestOptionsEncoding::test_scalar_broadcasts_to_every_copy|run",
+  "C": "tests/memory/test_copy_batch_options.py::TestOptionsEncoding::test_sequence_is_never_broadcast|run",
+  "D": "tests/memory/test_copy_batch.py::TestCopyBatchStreamSemantics::test_legacy_default_stream_token_is_rejected|run",
+  "E": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_length_mismatch|run",
+  "F": "tests/memory/test_copy_batch_options.py::TestOptionsEncoding::test_none_broadcasts_defaults|run",
+  "G": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_empty_sequence|run",
+  "H": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_buffer_element|run",
+  "I": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_non_sequence|run",
+  "J": "tests/memory/test_copy_batch_options.py::TestCopyBatchValidation::test_rejects_single_buffer|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -51,7 +52,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_memory<span class="sep">/</span>_copy_ops.pyx</b>:
-            <span class="pc_cov">70.45%</span>
+            <span class="pc_cov">84.09%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -94,8 +95,8 @@
         </aside>
         <h2>
             <span class="text">88 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">62<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">26<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">74<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">14<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -104,7 +105,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__device_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-10 00:53 +0000
+            created at 2026-11-11 01:04 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -119,13 +120,13 @@
     </div>
 </header>
 <main id="source">
-    <p class="mis show_mis"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt">from __future__ import annotations</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from collections.abc import Sequence</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">from collections.abc import Sequence</span>&nbsp;</span><span class="r"><label for="ctxs7" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt">IF CUDA_CORE_BUILD_MAJOR &gt;= 13:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="txt">    from libcpp.vector cimport vector</span>&nbsp;</span><span class="r"></span></p>
@@ -142,16 +143,16 @@
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t"><span class="txt"># a pragma to be seen as used.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="txt">from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">from cuda.core._memory._copy_enums import (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="txt">from cuda.core._memory._copy_enums import (</span>&nbsp;</span><span class="r"><label for="ctxs24" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t"><span class="txt">    CopyOptions,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="txt">    _attr_run_starts,  # no-cython-lint</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t"><span class="txt">    _reject_unsupported_during_api_call,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t"><span class="txt">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">_SINGLE_COPY_HINT = &quot;Buffer.copy_to / Buffer.copy_from&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t"><span class="txt">_SINGLE_COPY_HINT = &quot;Buffer.copy_to / Buffer.copy_from&quot;</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef inline bint _batch_entry_point_available():</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="txt">cdef inline bint _batch_entry_point_available():</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Whether cuMemcpyBatchAsync can actually be called here.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="txt">    Requires ``cuda.core`` built against CUDA 13 headers (compile time) and</span>&nbsp;</span><span class="r"></span></p>
@@ -172,7 +173,7 @@
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">        return False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">def _normalize_copy_options(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">def _normalize_copy_options(</span>&nbsp;</span><span class="r"><label for="ctxs54" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">    options: CopyOptions | Sequence[CopyOptions] | None,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    Py_ssize_t n,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">) -&gt; tuple[CopyOptions, ...]:</span>&nbsp;</span><span class="r"></span></p>
@@ -186,35 +187,35 @@
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    this expansion (and the run encoding applied to it) is the only</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">    observable evidence that a scalar reached every copy.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">    if options is None:</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">26 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwEAB</span></p>
-    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        return (CopyOptions(),) * n</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">11 ctx</label></span><span class="ctxs">1klmnopqrstE</span></p>
-    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    if isinstance(options, CopyOptions):</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">15 ctx</label></span><span class="ctxs">1bcdefghaijvuwAB</span></p>
-    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        return (options,) * n</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">10 ctx</label></span><span class="ctxs">1bcdefghijA</span></p>
-    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">    if isinstance(options, Sequence):</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">6 ctx</label></span><span class="ctxs">1avuwAB</span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        if len(options) != n:</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">5 ctx</label></span><span class="ctxs">1avuAB</span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">2 ctx</label></span><span class="ctxs">1vB</span></p>
-    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">                f&quot;copy_batch: options length {len(options)} does not match &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">2 ctx</label></span><span class="ctxs">1vB</span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">                f&quot;buffers length {n}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs76"><span class="r"><label for="ctxs76" class="ctx">2 ctx</label></span><span class="ctxs">1vB</span></p>
+    <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">    if options is None:</span>&nbsp;</span><input type="checkbox" id="ctxs68"><span class="r"><label for="ctxs68" class="ctx">26 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwFBC</span></p>
+    <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">        return (CopyOptions(),) * n</span>&nbsp;</span><input type="checkbox" id="ctxs69"><span class="r"><label for="ctxs69" class="ctx">12 ctx</label></span><span class="ctxs">1xklmnopqrstF</span></p>
+    <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">    if isinstance(options, CopyOptions):</span>&nbsp;</span><input type="checkbox" id="ctxs70"><span class="r"><label for="ctxs70" class="ctx">15 ctx</label></span><span class="ctxs">1bcdefghaijvuwBC</span></p>
+    <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">        return (options,) * n</span>&nbsp;</span><input type="checkbox" id="ctxs71"><span class="r"><label for="ctxs71" class="ctx">10 ctx</label></span><span class="ctxs">1bcdefghijB</span></p>
+    <p class="run"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">    if isinstance(options, Sequence):</span>&nbsp;</span><input type="checkbox" id="ctxs72"><span class="r"><label for="ctxs72" class="ctx">6 ctx</label></span><span class="ctxs">1avuwBC</span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        if len(options) != n:</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">5 ctx</label></span><span class="ctxs">1avuBC</span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">2 ctx</label></span><span class="ctxs">1vC</span></p>
+    <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">                f&quot;copy_batch: options length {len(options)} does not match &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs75"><span class="r"><label for="ctxs75" class="ctx">3 ctx</label></span><span class="ctxs">1xvC</span></p>
+    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">                f&quot;buffers length {n}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs76"><span class="r"><label for="ctxs76" class="ctx">2 ctx</label></span><span class="ctxs">1vC</span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        for a in options:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">3 ctx</label></span><span class="ctxs">1auA</span></p>
-    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            if not isinstance(a, CopyOptions):</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">3 ctx</label></span><span class="ctxs">1auA</span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t"><span class="txt">        for a in options:</span>&nbsp;</span><input type="checkbox" id="ctxs78"><span class="r"><label for="ctxs78" class="ctx">3 ctx</label></span><span class="ctxs">1auB</span></p>
+    <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t"><span class="txt">            if not isinstance(a, CopyOptions):</span>&nbsp;</span><input type="checkbox" id="ctxs79"><span class="r"><label for="ctxs79" class="ctx">3 ctx</label></span><span class="ctxs">1auB</span></p>
     <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t"><span class="txt">                raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs80"><span class="r"><label for="ctxs80" class="ctx">1 ctx</label></span><span class="ctxs">1u</span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">                    f&quot;copy_batch: each options element must be CopyOptions, &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">1 ctx</label></span><span class="ctxs">1u</span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t"><span class="txt">                    f&quot;copy_batch: each options element must be CopyOptions, &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs81"><span class="r"><label for="ctxs81" class="ctx">2 ctx</label></span><span class="ctxs">1xu</span></p>
     <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t"><span class="txt">                    f&quot;got {type(a).__name__}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs82"><span class="r"><label for="ctxs82" class="ctx">1 ctx</label></span><span class="ctxs">1u</span></p>
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">                )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        return tuple(options)</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">2 ctx</label></span><span class="ctxs">1aA</span></p>
+    <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">        return tuple(options)</span>&nbsp;</span><input type="checkbox" id="ctxs84"><span class="r"><label for="ctxs84" class="ctx">2 ctx</label></span><span class="ctxs">1aB</span></p>
     <p class="run"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs85"><span class="r"><label for="ctxs85" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        f&quot;copy_batch: options must be CopyOptions or a sequence of &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="run"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">        f&quot;CopyOptions, got {type(options).__name__}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs87"><span class="r"><label for="ctxs87" class="ctx">1 ctx</label></span><span class="ctxs">1w</span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">def copy_batch(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t"><span class="txt">def copy_batch(</span>&nbsp;</span><span class="r"><label for="ctxs91" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t"><span class="txt">    Stream stream not None: Stream,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t"><span class="txt">    srcs: Sequence[Buffer],</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t"><span class="txt">    dsts: Sequence[Buffer],</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t"><span class="txt">    *,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    options: CopyOptions | Sequence[CopyOptions] | None = None,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t"><span class="txt">    options: CopyOptions | Sequence[CopyOptions] | None = None,</span>&nbsp;</span><span class="r"><label for="ctxs96" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Copy a batch of buffers asynchronously.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -286,19 +287,19 @@
     <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">    the real read happens.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">    cdef tuple src_bufs = Buffer_coerce_batch(srcs, &quot;copy_batch&quot;, _SINGLE_COPY_HINT)</span>&nbsp;</span><input type="checkbox" id="ctxs168"><span class="r"><label for="ctxs168" class="ctx">32 ctx</label></span><span class="ctxs">1klmnopqrzCstbcdefghaijDvuwFGHIxy</span></p>
-    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">    cdef tuple dst_bufs = Buffer_coerce_batch(dsts, &quot;copy_batch&quot;, _SINGLE_COPY_HINT)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">32 ctx</label></span><span class="ctxs">1klmnopqrzCstbcdefghaijDvuwFGHIxy</span></p>
-    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    cdef Py_ssize_t n = len(src_bufs)</span>&nbsp;</span><input type="checkbox" id="ctxs170"><span class="r"><label for="ctxs170" class="ctx">28 ctx</label></span><span class="ctxs">1klmnopqrzCstbcdefghaijDvuwxy</span></p>
+    <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">    cdef tuple src_bufs = Buffer_coerce_batch(srcs, &quot;copy_batch&quot;, _SINGLE_COPY_HINT)</span>&nbsp;</span><input type="checkbox" id="ctxs168"><span class="r"><label for="ctxs168" class="ctx">32 ctx</label></span><span class="ctxs">1klmnopqrADstbcdefghaijEvuwGHIJyz</span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">    cdef tuple dst_bufs = Buffer_coerce_batch(dsts, &quot;copy_batch&quot;, _SINGLE_COPY_HINT)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">32 ctx</label></span><span class="ctxs">1klmnopqrADstbcdefghaijEvuwGHIJyz</span></p>
+    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    cdef Py_ssize_t n = len(src_bufs)</span>&nbsp;</span><input type="checkbox" id="ctxs170"><span class="r"><label for="ctxs170" class="ctx">28 ctx</label></span><span class="ctxs">1klmnopqrADstbcdefghaijEvuwyz</span></p>
     <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    if len(dst_bufs) != n:</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">28 ctx</label></span><span class="ctxs">1klmnopqrzCstbcdefghaijDvuwxy</span></p>
-    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs173"><span class="r"><label for="ctxs173" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
-    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">            f&quot;copy_batch: srcs length {n} does not match dsts length {len(dst_bufs)}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
+    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    if len(dst_bufs) != n:</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">28 ctx</label></span><span class="ctxs">1klmnopqrADstbcdefghaijEvuwyz</span></p>
+    <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs173"><span class="r"><label for="ctxs173" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
+    <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">            f&quot;copy_batch: srcs length {n} does not match dsts length {len(dst_bufs)}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs174"><span class="r"><label for="ctxs174" class="ctx">1 ctx</label></span><span class="ctxs">1E</span></p>
     <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">27 ctx</label></span><span class="ctxs">1klmnopqrzCstbcdefghaijvuwxy</span></p>
+    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t"><span class="txt">    cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs177"><span class="r"><label for="ctxs177" class="ctx">27 ctx</label></span><span class="ctxs">1klmnopqrADstbcdefghaijvuwyz</span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">    if Stream_is_legacy_default_token(s):</span>&nbsp;</span><input type="checkbox" id="ctxs179"><span class="r"><label for="ctxs179" class="ctx">27 ctx</label></span><span class="ctxs">1klmnopqrzCstbcdefghaijvuwxy</span></p>
-    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">1 ctx</label></span><span class="ctxs">1C</span></p>
+    <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t"><span class="txt">    if Stream_is_legacy_default_token(s):</span>&nbsp;</span><input type="checkbox" id="ctxs179"><span class="r"><label for="ctxs179" class="ctx">27 ctx</label></span><span class="ctxs">1klmnopqrADstbcdefghaijvuwyz</span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t"><span class="txt">        raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs180"><span class="r"><label for="ctxs180" class="ctx">1 ctx</label></span><span class="ctxs">1D</span></p>
     <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t"><span class="txt">            &quot;copy_batch does not accept LEGACY_DEFAULT_STREAM; cuMemcpyBatchAsync &quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t"><span class="txt">            &quot;rejects it outright, unlike PER_THREAD_DEFAULT_STREAM, which is a real &quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t"><span class="txt">            &quot;stream to the driver and is accepted. Pass an explicit stream or &quot;</span>&nbsp;</span><span class="r"></span></p>
@@ -307,13 +308,13 @@
     <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">    cdef cydriver.CUstreamCaptureStatus _cap_status</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR &gt;= 13:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &amp;_cap_status,</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">26 ctx</label></span><span class="ctxs">1klmnopqrzstbcdefghaijvuwxy</span></p>
+    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &amp;_cap_status,</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">26 ctx</label></span><span class="ctxs">1klmnopqrAstbcdefghaijvuwyz</span></p>
     <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">                                                      NULL, NULL, NULL, NULL, NULL))</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    ELSE:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuStreamGetCaptureInfo(as_cu(s._h_stream), &amp;_cap_status,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">                                                      NULL, NULL, NULL, NULL))</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    if _cap_status == cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">26 ctx</label></span><span class="ctxs">1klmnopqrzstbcdefghaijvuwxy</span></p>
-    <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">        raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs195"><span class="r"><label for="ctxs195" class="ctx">1 ctx</label></span><span class="ctxs">1z</span></p>
+    <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    if _cap_status == cydriver.CU_STREAM_CAPTURE_STATUS_ACTIVE:</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">26 ctx</label></span><span class="ctxs">1klmnopqrAstbcdefghaijvuwyz</span></p>
+    <p class="run"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">        raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs195"><span class="r"><label for="ctxs195" class="ctx">1 ctx</label></span><span class="ctxs">1A</span></p>
     <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">            &quot;copy_batch does not support graph capture; &quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">            &quot;use GraphNode.memcpy or per-buffer Buffer.copy_to instead&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
@@ -322,13 +323,13 @@
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    cdef Buffer dst_buf</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">    cdef Py_ssize_t i</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    for i in range(n):</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwxy</span></p>
-    <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">        src_buf = &lt;Buffer&gt;src_bufs[i]</span>&nbsp;</span><input type="checkbox" id="ctxs205"><span class="r"><label for="ctxs205" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwxy</span></p>
-    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        dst_buf = &lt;Buffer&gt;dst_bufs[i]</span>&nbsp;</span><input type="checkbox" id="ctxs206"><span class="r"><label for="ctxs206" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwxy</span></p>
-    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        if src_buf.size != dst_buf.size:</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwxy</span></p>
-    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs208"><span class="r"><label for="ctxs208" class="ctx">2 ctx</label></span><span class="ctxs">1xy</span></p>
-    <p class="run"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">                f&quot;copy_batch: buffer size mismatch at index {i} &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs209"><span class="r"><label for="ctxs209" class="ctx">2 ctx</label></span><span class="ctxs">1xy</span></p>
-    <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">                f&quot;(src={src_buf.size}, dst={dst_buf.size})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs210"><span class="r"><label for="ctxs210" class="ctx">2 ctx</label></span><span class="ctxs">1xy</span></p>
+    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">    for i in range(n):</span>&nbsp;</span><input type="checkbox" id="ctxs204"><span class="r"><label for="ctxs204" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwyz</span></p>
+    <p class="run"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">        src_buf = &lt;Buffer&gt;src_bufs[i]</span>&nbsp;</span><input type="checkbox" id="ctxs205"><span class="r"><label for="ctxs205" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwyz</span></p>
+    <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        dst_buf = &lt;Buffer&gt;dst_bufs[i]</span>&nbsp;</span><input type="checkbox" id="ctxs206"><span class="r"><label for="ctxs206" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwyz</span></p>
+    <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        if src_buf.size != dst_buf.size:</span>&nbsp;</span><input type="checkbox" id="ctxs207"><span class="r"><label for="ctxs207" class="ctx">25 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuwyz</span></p>
+    <p class="run"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs208"><span class="r"><label for="ctxs208" class="ctx">2 ctx</label></span><span class="ctxs">1yz</span></p>
+    <p class="run"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">                f&quot;copy_batch: buffer size mismatch at index {i} &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs209"><span class="r"><label for="ctxs209" class="ctx">2 ctx</label></span><span class="ctxs">1yz</span></p>
+    <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">                f&quot;(src={src_buf.size}, dst={dst_buf.size})&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs210"><span class="r"><label for="ctxs210" class="ctx">2 ctx</label></span><span class="ctxs">1yz</span></p>
     <p class="pln"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="txt">    cdef tuple attr_tuple = _normalize_copy_options(options, n)</span>&nbsp;</span><input type="checkbox" id="ctxs213"><span class="r"><label for="ctxs213" class="ctx">23 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaijvuw</span></p>
@@ -336,7 +337,7 @@
     <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">    _do_copy_batch(src_bufs, dst_bufs, s, attr_tuple)</span>&nbsp;</span><input type="checkbox" id="ctxs215"><span class="r"><label for="ctxs215" class="ctx">20 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaij</span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tuple):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">cdef void _do_copy_batch(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tuple):</span>&nbsp;</span><span class="r"><label for="ctxs218" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">    IF CUDA_CORE_BUILD_MAJOR &gt;= 13:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        # Building against CUDA 13 headers says nothing about the installed</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        # driver, so the run-time version still has to be checked before</span>&nbsp;</span><span class="r"></span></p>
@@ -351,7 +352,7 @@
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">        _do_copy_batch_loop(src_bufs, dst_bufs, s)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">cdef void _reject_during_api_call_fallback(tuple attr_tuple):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">cdef void _reject_during_api_call_fallback(tuple attr_tuple):</span>&nbsp;</span><span class="r"><label for="ctxs233" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Raise before the per-copy cuMemcpyAsync loop if any copy needs</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">    DURING_API_CALL, which that fallback cannot honor (see</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">    _reject_unsupported_during_api_call for why this must raise rather than</span>&nbsp;</span><span class="r"></span></p>
@@ -367,7 +368,7 @@
     <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">cdef void _do_copy_batch_loop(tuple src_bufs, tuple dst_bufs, Stream s):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">cdef void _do_copy_batch_loop(tuple src_bufs, tuple dst_bufs, Stream s):</span>&nbsp;</span><span class="r"><label for="ctxs249" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Per-copy cuMemcpyAsync fallback where the batch entry point is absent.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">    Issues copies one at a time, so the performance benefit of batching is</span>&nbsp;</span><span class="r"></span></p>
@@ -392,7 +393,7 @@
     <p class="pln"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">IF CUDA_CORE_BUILD_MAJOR &gt;= 13:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">    cdef void _do_copy_batch_native(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tuple):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">    cdef void _do_copy_batch_native(tuple src_bufs, tuple dst_bufs, Stream s, tuple attr_tuple):</span>&nbsp;</span><span class="r"><label for="ctxs274" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">        cdef Py_ssize_t n = len(src_bufs)</span>&nbsp;</span><input type="checkbox" id="ctxs275"><span class="r"><label for="ctxs275" class="ctx">20 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaij</span></p>
     <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        cdef cydriver.CUstream hstream = as_cu(s._h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">20 ctx</label></span><span class="ctxs">1klmnopqrstbcdefghaij</span></p>
     <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        cdef vector[cydriver.CUdeviceptr] dst_ptrs</span>&nbsp;</span><span class="r"></span></p>
@@ -446,7 +447,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__device_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-10 00:53 +0000
+            created at 2026-11-11 01:04 +0000
         </p>
     </div>
 </footer>

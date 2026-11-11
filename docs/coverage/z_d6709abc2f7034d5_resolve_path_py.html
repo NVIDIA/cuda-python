@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage for cuda/pathfinder/_utils/resolve_path.py: 100.00%</title>
+    <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
+    <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
+    <script type="text/javascript">
+        contexts = {
+  "a": "(empty)",
+  "b": "tests/test_ctk_root_discovery.py::test_canary_finds_nvvm|run",
+  "c": "tests/test_ctk_root_discovery.py::test_canary_fires_only_after_all_earlier_steps_fail|run",
+  "d": "tests/test_ctk_root_discovery.py::test_cuda_home_takes_priority_over_canary|run",
+  "e": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_finds_nvvm|run",
+  "f": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_regular_lib|run",
+  "g": "tests/test_ctk_root_discovery.py::test_try_via_ctk_root_windows_arm64_prefers_arch_dir|run",
+  "h": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib[device]|run",
+  "i": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_preserves_symlink_parent|run",
+  "j": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_resolves_symlinked_file|run",
+  "k": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_returns_resolved_path_for_relative_root[CUDA_PATH]|run",
+  "l": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_returns_resolved_path_for_relative_root[conda]|run",
+  "m": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_returns_resolved_path_for_relative_root[site-packages]|run",
+  "n": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_search_order[device]|run",
+  "o": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_search_order[nccl_device]|run",
+  "p": "tests/test_find_bitcode_lib.py::test_locate_bitcode_lib_search_order[nvshmem_device]|run",
+  "q": "tests/test_find_nvidia_binaries.py::TestResolveInTrustedDirs::test_cwd_is_not_searched|run",
+  "r": "tests/test_find_nvidia_binaries.py::TestResolveInTrustedDirs::test_duplicate_dirs_skipped|run",
+  "s": "tests/test_find_nvidia_binaries.py::TestResolveInTrustedDirs::test_first_trusted_dir_wins|run",
+  "t": "tests/test_find_nvidia_binaries.py::TestResolveInTrustedDirs::test_non_executable_file_rejected_on_posix|run",
+  "u": "tests/test_find_nvidia_binaries.py::test_binary_lookup_returns_resolved_path[direct]|run",
+  "v": "tests/test_find_nvidia_binaries.py::test_binary_lookup_returns_resolved_path[symlink-parent]|run",
+  "w": "tests/test_find_nvidia_binaries.py::test_binary_lookup_returns_resolved_path[symlink]|run",
+  "x": "tests/test_find_nvidia_binaries.py::test_caching_per_utility|run",
+  "y": "tests/test_find_nvidia_binaries.py::test_find_binary_canary_not_consulted_when_found_earlier|run",
+  "z": "tests/test_find_nvidia_binaries.py::test_find_binary_ctk_root_canary_fallback|run",
+  "A": "tests/test_find_nvidia_binaries.py::test_find_binary_first_matching_dir_wins|run",
+  "B": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[bin2c]|run",
+  "C": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[fatbinary]|run",
+  "D": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvcc]|run",
+  "E": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[nvlink]|run",
+  "F": "tests/test_find_nvidia_binaries.py::test_find_binary_utilities[ptxas]|run",
+  "G": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_ncu_launcher_hit_does_not_resolve_machine_arch|run",
+  "H": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[ncu-Compute-arm64-target/windows-desktop-win10-t23x-a64/ncu.exe-candidate_names3]|run",
+  "I": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[ncu-Compute-arm64-target\\\\windows-desktop-win10-t23x-a64\\\\ncu.exe-candidate_names3]|run",
+  "J": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[ncu-Compute-x64-target/windows-desktop-win7-x64/ncu.exe-candidate_names2]|run",
+  "K": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[ncu-Compute-x64-target\\\\windows-desktop-win7-x64\\\\ncu.exe-candidate_names2]|run",
+  "L": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[nsys-Systems-arm64-target-windows-armv8/nsys.exe-candidate_names1]|run",
+  "M": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[nsys-Systems-arm64-target-windows-armv8\\\\nsys.exe-candidate_names1]|run",
+  "N": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[nsys-Systems-x64-target-windows-x64/nsys.exe-candidate_names0]|run",
+  "O": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_composes_registry_and_native_target[nsys-Systems-x64-target-windows-x64\\\\nsys.exe-candidate_names0]|run",
+  "P": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_conda_precedes_registry[ncu-candidate_names1]|run",
+  "Q": "tests/test_find_nvidia_binaries.py::test_find_binary_windows_nsight_conda_precedes_registry[nsys-candidate_names0]|run",
+  "R": "tests/test_find_nvidia_binaries.py::test_find_compute_sanitizer_prefers_ctk_launcher_with_executable_fallback[False-compute-sanitizer/compute-sanitizer.exe-checked_rels1]|run",
+  "S": "tests/test_find_nvidia_binaries.py::test_find_compute_sanitizer_prefers_ctk_launcher_with_executable_fallback[False-compute-sanitizer\\\\compute-sanitizer.exe-checked_rels1]|run",
+  "T": "tests/test_find_nvidia_binaries.py::test_find_compute_sanitizer_prefers_ctk_launcher_with_executable_fallback[True-bin/compute-sanitizer.bat-checked_rels0]|run",
+  "U": "tests/test_find_nvidia_binaries.py::test_find_compute_sanitizer_prefers_ctk_launcher_with_executable_fallback[True-bin\\\\compute-sanitizer.bat-checked_rels0]|run",
+  "V": "tests/test_find_nvidia_binaries.py::test_find_compute_sanitizer_uses_canary_ctk_root|run",
+  "W": "tests/test_find_nvidia_binaries.py::test_find_windows_nsight_legacy_names_remain_literal_in_ctk[nsight-compute]|run",
+  "X": "tests/test_find_nvidia_binaries.py::test_find_windows_nsight_legacy_names_remain_literal_in_ctk[nsight-sys]|run",
+  "Y": "tests/test_find_nvidia_binaries.py::test_find_windows_nsight_legacy_names_remain_literal_in_early_search[nsight-compute]|run",
+  "Z": "tests/test_find_nvidia_binaries.py::test_find_windows_nsight_legacy_names_remain_literal_in_early_search[nsight-sys]|run",
+  "0": "tests/test_find_nvidia_binaries.py::test_resolve_candidate_paths_returns_symlink_target|run",
+  "1": "tests/test_find_nvidia_binaries.py::test_resolve_in_trusted_dirs_returns_absolute_path|run",
+  "2": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_expands_program_files_and_prefers_newest_cudnn|run",
+  "3": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[cudnn-/usr/include]|run",
+  "4": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[cudnn-/usr/local/include]|run",
+  "5": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[nccl-/usr/include]|run",
+  "6": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_native_linux_layouts[nccl-/usr/local/include]|run",
+  "7": "tests/test_find_nvidia_headers.py::test_find_in_system_install_dirs_uses_running_linux_multiarch|run",
+  "8": "tests/test_find_nvidia_headers.py::test_header_lookup_returns_resolved_path[direct]|run",
+  "9": "tests/test_find_nvidia_headers.py::test_header_lookup_returns_resolved_path[symlink-parent]|run",
+  "!": "tests/test_find_nvidia_headers.py::test_header_lookup_returns_resolved_path[symlink]|run",
+  "#": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cccl]|run",
+  "$": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cudart]|run",
+  "%": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[cufile]|run",
+  "'": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvcc]|run",
+  "(": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvfatbin]|run",
+  ")": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvjitlink]|run",
+  "*": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvrtc]|run",
+  "+": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[nvvm]|run",
+  ",": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers[profiler]|run",
+  "-": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_cuda_home_takes_priority_over_canary|run",
+  ".": "tests/test_find_nvidia_headers.py::test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset|run",
+  "/": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers_uses_product_root[cudnn-CUDNN_PATH-include]|run",
+  ":": "tests/test_find_nvidia_headers.py::test_locate_non_ctk_headers_uses_product_root[nccl-NCCL_HOME-build/include]|run",
+  ";": "tests/test_find_static_lib.py::test_locate_static_lib[cudadevrt]|run",
+  "=": "tests/test_find_static_lib.py::test_locate_static_lib_conda_rel_path_fallback|run",
+  "?": "tests/test_find_static_lib.py::test_locate_static_lib_preserves_symlink_parent|run",
+  "@": "tests/test_find_static_lib.py::test_locate_static_lib_resolves_symlinked_file|run",
+  "[": "tests/test_find_static_lib.py::test_locate_static_lib_returns_resolved_path_for_relative_root[CUDA_PATH]|run",
+  "]": "tests/test_find_static_lib.py::test_locate_static_lib_returns_resolved_path_for_relative_root[conda]|run",
+  "^": "tests/test_find_static_lib.py::test_locate_static_lib_returns_resolved_path_for_relative_root[site-packages]|run",
+  "_": "tests/test_find_static_lib.py::test_locate_static_lib_search_order|run",
+  "`": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cudnn_arm64_archive_layout_reaches_loader|run",
+  "{": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_found_in_conda|run",
+  "|": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_search_order_conda_before_cuda_home|run",
+  "}": "tests/test_program.py::test_nvvm_compile_with_libdevice|run",
+  "~": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_linux|run",
+  "ab": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_windows|run",
+  "bb": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_windows_arm64_uses_arm64_anchor|run",
+  "cb": "tests/test_search_steps.py::TestAnchorRelDirs::test_nvvm_cuda_home_linux|run",
+  "db": "tests/test_search_steps.py::TestFindInConda::test_found_linux|run",
+  "eb": "tests/test_search_steps.py::TestFindInConda::test_found_windows_arm64_prefers_arch_dir|run",
+  "fb": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
+  "gb": "tests/test_search_steps.py::TestFindInConda::test_linux_declared_versioned_soname_found_in_lib_dir|run",
+  "hb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.13.5.0]|run",
+  "ib": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.13.backup]|run",
+  "jb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.14]|run",
+  "kb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so]|run",
+  "lb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_linux|run",
+  "mb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows_arm64_prefers_arch_dir|run",
+  "nb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run",
+  "ob": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-34404-False]|run",
+  "pb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-43620-True]|run",
+  "qb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-34404-True]|run",
+  "rb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-43620-False]|run",
+  "sb": "tests/test_search_steps.py::TestFindInCudaHome::test_symlink_parent_root_selects_correct_library|run",
+  "tb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_nccl_home_prefers_canonical_installed_layout|run",
+  "ub": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib64-libcudnn.so.9]|run",
+  "vb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib-libcudnn.so.9]|run",
+  "wb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-build/lib-libnccl.so.2]|run",
+  "xb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib64-libnccl.so.2]|run",
+  "yb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib-libnccl.so.2]|run",
+  "zb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_does_not_cross_architectures[x64-bin/arm64]|run",
+  "Ab": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[arm64-bin/arm64]|run",
+  "Bb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
+  "Cb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
+  "Db": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
+  "Eb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
+  "Fb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_another_drive_current_directory|run",
+  "Gb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_relative_parts|run",
+  "Hb": "tests/test_utils_resolve_path.py::test_resolve_path_follows_symlink_before_parent|run"
+}
+    </script>
+    <script src="coverage_html_cb_54cfdca1.js" defer></script>
+</head>
+<body class="pyfile">
+<header>
+    <div class="content">
+        <h1>
+            <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>pathfinder<span class="sep">/</span>_utils<span class="sep">/</span>resolve_path.py</b>:
+            <span class="pc_cov">100.00%</span>
+        </h1>
+        <aside id="help_panel_wrapper">
+            <input id="help_panel_state" type="checkbox">
+            <label for="help_panel_state">
+                <img id="keyboard_icon" src="keybd_closed_cb_900cfef5.png" alt="Show/hide keyboard shortcuts">
+            </label>
+            <div id="help_panel">
+                <p class="legend">Shortcuts on this page</p>
+                <div class="keyhelp">
+                    <p>
+                        <kbd>r</kbd>
+                        <kbd>m</kbd>
+                        <kbd>x</kbd>
+                        &nbsp; toggle line displays
+                    </p>
+                    <p>
+                        <kbd>j</kbd>
+                        <kbd>k</kbd>
+                        &nbsp; next/prev highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>0</kbd> &nbsp; (zero) top of page
+                    </p>
+                    <p>
+                        <kbd>1</kbd> &nbsp; (one) first highlighted chunk
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>u</kbd> &nbsp; up to the index
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
+                    </p>
+                </div>
+            </div>
+        </aside>
+        <h2>
+            <span class="text">4 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">4<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
+            <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+        </h2>
+        <p class="text">
+            <a id="prevFileLink" class="nav" href="z_d6709abc2f7034d5_platform_aware_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_windows_arch_py.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-11 01:04 +0000
+        </p>
+        <aside class="hidden">
+            <button type="button" class="button_next_chunk" data-shortcut="j"></button>
+            <button type="button" class="button_prev_chunk" data-shortcut="k"></button>
+            <button type="button" class="button_top_of_page" data-shortcut="0"></button>
+            <button type="button" class="button_first_chunk" data-shortcut="1"></button>
+            <button type="button" class="button_prev_file" data-shortcut="["></button>
+            <button type="button" class="button_next_file" data-shortcut="]"></button>
+            <button type="button" class="button_to_index" data-shortcut="u"></button>
+            <button type="button" class="button_show_hide_help" data-shortcut="?"></button>
+        </aside>
+    </div>
+</header>
+<main id="source">
+    <p class="pln"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="com"># SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="com"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="key">import</span> <span class="nam">os</span>&nbsp;</span><span class="r"><label for="ctxs4" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="key">from</span> <span class="nam">pathlib</span> <span class="key">import</span> <span class="nam">Path</span>&nbsp;</span><span class="r"><label for="ctxs5" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">resolve_path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="nam">os</span><span class="op">.</span><span class="nam">PathLike</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">Path</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Build a canonical absolute path, resolving symlinks and parent components.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">return</span> <span class="nam">Path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">123 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb</span></p>
+</main>
+<footer>
+    <div class="content">
+        <p>
+            <a class="nav" href="z_d6709abc2f7034d5_platform_aware_py.html">&#xab; prev</a> &nbsp; &nbsp;
+            <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
+            <a class="nav" href="z_d6709abc2f7034d5_windows_arch_py.html">&#xbb; next</a>
+            &nbsp; &nbsp; &nbsp;
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
+            created at 2026-11-11 01:04 +0000
+        </p>
+    </div>
+</footer>
+</body>
+</html>

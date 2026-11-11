@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_rt.pyx: 33.33%</title>
+    <title>Coverage for cuda/core/_rt.pyx: 100.00%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
-  "a": "tests/test_error_handling.py::test_cleanup_reports_restore_failure_as_warning|run",
-  "b": "tests/test_error_handling.py::test_create_stream_raises_when_context_cannot_be_restored|run",
-  "c": "tests/test_error_handling.py::test_escalated_cudawarning_from_cleanup_is_not_a_crash|run",
-  "d": "tests/test_error_handling.py::test_failed_call_raises_its_own_error_with_the_restore_failure_attached|run",
-  "e": "tests/test_error_handling.py::test_independent_cleanup_failures_are_reported_separately|run",
-  "f": "tests/test_error_handling.py::test_sync_raises_when_context_cannot_be_restored|run",
-  "g": "tests/test_error_handling.py::test_unused_restore_fault_does_not_fire_without_a_context_switch|run",
-  "h": "tests/test_error_handling.py::test_rollback_failure_is_attached_to_the_propagating_exception|run"
+  "a": "(empty)",
+  "b": "tests/test_error_handling.py::test_cleanup_reports_restore_failure_as_warning|run",
+  "c": "tests/test_error_handling.py::test_create_stream_raises_when_context_cannot_be_restored|run",
+  "d": "tests/test_error_handling.py::test_escalated_cudawarning_from_cleanup_is_not_a_crash|run",
+  "e": "tests/test_error_handling.py::test_failed_call_raises_its_own_error_with_the_restore_failure_attached|run",
+  "f": "tests/test_error_handling.py::test_independent_cleanup_failures_are_reported_separately|run",
+  "g": "tests/test_error_handling.py::test_sync_raises_when_context_cannot_be_restored|run",
+  "h": "tests/test_error_handling.py::test_unused_restore_fault_does_not_fire_without_a_context_switch|run",
+  "i": "tests/test_error_handling.py::test_rollback_failure_is_attached_to_the_propagating_exception|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -24,7 +25,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_rt.pyx</b>:
-            <span class="pc_cov">33.33%</span>
+            <span class="pc_cov">100.00%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -67,8 +68,8 @@
         </aside>
         <h2>
             <span class="text">6 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">2<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">4<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">6<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -77,7 +78,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__stream_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-10 00:53 +0000
+            created at 2026-11-11 01:04 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -92,7 +93,7 @@
     </div>
 </header>
 <main id="source">
-    <p class="mis show_mis"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="txt"># SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved.</span>&nbsp;</span><span class="r"><label for="ctxs1" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -438,27 +439,27 @@
     <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">        const OpaqueArrayHandle&amp; h_backing) except+ nogil</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">initialize_deferred_cleanup()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">initialize_deferred_cleanup()</span>&nbsp;</span><span class="r"><label for="ctxs347" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">def _set_context_restore_fault_for_testing(int status):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">def _set_context_restore_fault_for_testing(int status):</span>&nbsp;</span><span class="r"><label for="ctxs350" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Make the next context restoration on this thread fail with ``status``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">    Test hook for the context save/restore paths in the handle layer. The</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">    injected failure leaves the target context current, exactly as a failing</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">    ``cuCtxSetCurrent`` would, so callers must restore the context themselves.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">    set_context_restore_fault_for_testing(&lt;cydriver.CUresult&gt;status)</span>&nbsp;</span><input type="checkbox" id="ctxs357"><span class="r"><label for="ctxs357" class="ctx">7 ctx</label></span><span class="ctxs">1abcdefg</span></p>
+    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">    set_context_restore_fault_for_testing(&lt;cydriver.CUresult&gt;status)</span>&nbsp;</span><input type="checkbox" id="ctxs357"><span class="r"><label for="ctxs357" class="ctx">7 ctx</label></span><span class="ctxs">1bcdefgh</span></p>
     <p class="pln"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">def _attach_rollback_failure_for_testing(int status):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">def _attach_rollback_failure_for_testing(int status):</span>&nbsp;</span><span class="r"><label for="ctxs360" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Attach a failed CUDA call to the exception being handled, or report it.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">    Test hook for ``attach_rollback_failure()``. Called inside an ``except``</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">    block it adds a note to the exception being handled (Python 3.11+); anywhere</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">    else it emits a ``CUDAWarning``.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t"><span class="txt">    _attach_rollback_failure_local(</span>&nbsp;</span><input type="checkbox" id="ctxs367"><span class="r"><label for="ctxs367" class="ctx">1 ctx</label></span><span class="ctxs">1h</span></p>
+    <p class="run"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t"><span class="txt">    _attach_rollback_failure_local(</span>&nbsp;</span><input type="checkbox" id="ctxs367"><span class="r"><label for="ctxs367" class="ctx">1 ctx</label></span><span class="ctxs">1i</span></p>
     <p class="pln"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t"><span class="txt">        b&quot;cuTestOperation&quot;, &lt;cydriver.CUresult&gt;status, b&quot;failed while testing&quot;)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
@@ -469,7 +470,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__stream_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-10 00:53 +0000
+            created at 2026-11-11 01:04 +0000
         </p>
     </div>
 </footer>
