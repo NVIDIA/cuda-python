@@ -411,8 +411,10 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: see_what_works
         run: run-tests pathfinder
 
+      # The checker and the mini-CTK layout it expects both come from the
+      # inputs.sha checkout. Nightly runs may check out a commit without them.
       - name: Check cuda.pathfinder loads NVRTC and CUPTI from the mini CTK
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' && matrix.LOCAL_CTK == '1' }}
+        if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' && matrix.LOCAL_CTK == '1' && hashFiles('ci/tools/check_pathfinder_ctk_libs.py') != '' }}
         run: python ci/tools/check_pathfinder_ctk_libs.py nvrtc cupti
 
       - name: Run cuda.bindings tests
