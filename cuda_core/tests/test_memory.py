@@ -1275,7 +1275,7 @@ def test_pinned_memory_resource_kernel_access(init_cuda, pool):
 
     n = 1024
     mr = create_pinned_memory_resource_or_xfail(options, xfail_device=device)
-    buffer = _allocate_pinned_buffer_or_xfail(mr, n * ctypes.sizeof(ctypes.c_int), device=device)
+    buffer = mr.allocate(n * ctypes.sizeof(ctypes.c_int), stream=device.default_stream)
     stream = device.default_stream
     stream.sync()
     data = (ctypes.c_int * n).from_address(int(buffer.handle))
