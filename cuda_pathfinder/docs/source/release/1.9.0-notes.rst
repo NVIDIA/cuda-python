@@ -33,3 +33,21 @@ Bugfixes
   these roots lexically into a different location.
   (`Issue #3413 <https://github.com/NVIDIA/cuda-python/issues/3413>`_,
   `PR #3418 <https://github.com/NVIDIA/cuda-python/pull/3418>`_)
+
+* On Linux, preload ``libnvrtc-builtins.so.<major>.<minor>`` from the same
+  directory as NVRTC when loading from a CUDA Toolkit install, so that
+  compilation works without ``LD_LIBRARY_PATH`` or an ``ldconfig`` entry
+  for the toolkit directory. Wheels keep only the existing NVRTC 13.0
+  workaround, and Conda packages are left unchanged.
+  (`PR #3439 <https://github.com/NVIDIA/cuda-python/pull/3439>`_)
+
+Documentation
+-------------
+
+* Correct the Windows DLL search documentation: native system search normally
+  includes ``PATH``, subject to process DLL search policy
+  (`packaged applications have a different default DLL search order
+  <https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order#search-order-for-packaged-apps>`_).
+  ``CUDA_PATH`` and ``CUDA_HOME`` remain fallback discovery roots, not runtime
+  toolkit selectors. Loading behavior and search order are unchanged.
+  (`Issue #3137 <https://github.com/NVIDIA/cuda-python/issues/3137>`_)

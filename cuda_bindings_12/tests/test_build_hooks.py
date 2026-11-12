@@ -316,10 +316,9 @@ class TestCudaHeaderCheck:
         monkeypatch.setattr(build_hooks, "_get_cuda_paths", lambda: [cuda_path])
 
         def not_reached(*args):
-            raise AssertionError("the header check must run before parsing or generating source files")
+            raise AssertionError("the header check must run before touching the source tree")
 
-        monkeypatch.setattr(build_hooks, "_parse_headers", not_reached)
-        monkeypatch.setattr(build_hooks, "_generate_output", not_reached)
+        monkeypatch.setattr(build_hooks, "_rename_architecture_specific_files", not_reached)
         with pytest.raises(RuntimeError, match="source tree needs CUDA .* headers"):
             build_hooks._build_cuda_bindings()
 
@@ -332,13 +331,16 @@ class TestCudaHeaderCheck:
         cuda_path = _write_cuda_h(header_root, build_hooks._generated_cuda_version())
         monkeypatch.setattr(build_hooks, "_get_cuda_paths", lambda: [str(library_root), cuda_path])
 
-        def stop_before_parsing(_required_headers, include_paths):
-            assert include_paths == [str(library_root / "include"), str(header_root / "include")]
-            raise RuntimeError("matching header accepted before parsing")
+        checked_roots = []
 
-        monkeypatch.setattr(build_hooks, "_fetch_header_paths", stop_before_parsing)
-        with pytest.raises(RuntimeError, match="matching header accepted before parsing"):
+        def record_and_stop(cuda_path):
+            checked_roots.append(cuda_path)
+            raise RuntimeError("matching header accepted")
+
+        monkeypatch.setattr(build_hooks, "_check_cuda_headers", record_and_stop)
+        with pytest.raises(RuntimeError, match="matching header accepted"):
             build_hooks._build_cuda_bindings()
+        assert checked_roots == [cuda_path]
 
     @pytest.mark.agent_authored(model="gpt-6")
     def test_split_toolkit_rejects_mismatched_header_before_later_matching_header(self, tmp_path, monkeypatch):
@@ -353,6 +355,6 @@ class TestCudaHeaderCheck:
         def not_reached(*args):
             raise AssertionError("must reject the first header in compiler search order")
 
-        monkeypatch.setattr(build_hooks, "_fetch_header_paths", not_reached)
+        monkeypatch.setattr(build_hooks, "_rename_architecture_specific_files", not_reached)
         with pytest.raises(RuntimeError, match="source tree needs CUDA .* headers"):
             build_hooks._build_cuda_bindings()

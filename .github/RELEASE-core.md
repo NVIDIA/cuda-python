@@ -85,9 +85,23 @@ platforms as appropriate for each release.
 ## Check (or update if needed) the dependency requirements
 
 Review `cuda_core/pyproject.toml` and verify that all dependency
-requirements are current. The `cu12`/`cu13` extras declare the
-`cuda-bindings` floors; see "Bumping the cuda-bindings floor" in
-`cuda_core/AGENTS.md`.
+requirements are current.
+
+The `cu12`/`cu13` extras declare the `cuda-bindings` floors. A release
+does not raise a floor to the newest `cuda-bindings`; see "Bumping the
+cuda-bindings floor" in `cuda_core/AGENTS.md`. Check the floors instead:
+
+- The minor of each floor equals the minor of the toolkit pin of its
+  major in `ci/versions.yml` (`build` for the current major, `prev_build`
+  for the prior major). If a floor's minor is lower, the toolkit-bump
+  window is open: move the floor before the release.
+- In the latest CI run on `main`, the CUDA 13 rows whose CUDA minor
+  differs from the `build` pin (for example "CUDA 13.0.2") installed the
+  literal floor. Their logs show `Installing bindings (source: floor)` and
+  `cuda-bindings==<floor>`, and no "predates ... headers" line. Standard
+  CI does not install the CUDA 12 floor: its rows use the 12.9.x backport
+  build.
+- The release notes list every floor move since the last release.
 
 Update the `cuda-core` pin in `cuda_python/setup.py` to the new minor
 series (`cuda-core~=X.Y.0`), and plan a `cuda-python` release right after
@@ -142,17 +156,45 @@ built and deployed automatically by the release workflow.
 
 ---
 
+## Create the release branch
+
+Each `cuda-core` minor series has one release branch,
+`release/cuda-core-vX.Y.x`. Releases are tagged on that branch, not on
+`main`. Patch releases of the series land there too.
+
+For a minor release (`X.Y.0`), create the branch after every pre-release
+pull request has merged into `main`. Branch from the `main` commit that
+holds the final release notes:
+
+```bash
+git fetch origin main
+git push origin origin/main:refs/heads/release/cuda-core-v0.6.x
+```
+
+For a patch release (`X.Y.Z`), use the existing branch. Changes reach it
+through pull requests that cherry-pick the fixes from `main`, with
+`(cherry picked from commit ...)` trailers. The release notes for the patch
+release must be on the release branch before the tag: the release workflow
+checks for them in the tagged tree. Add them to `main` as well, so the docs
+switcher and the `latest` docs list them.
+
+The repository ruleset protects `release/**`: a push to an existing release
+branch needs a pull request and passing checks.
+
+---
+
 ## Create a public release tag
 
 **Warning:** Pushing a tag is a potentially irrevocable action.  Be absolutely
 certain the tag points to the correct commit before pushing.
 
 Tags should be GPG-signed. The tag name format is `cuda-core-v<VERSION>`
-(e.g. `cuda-core-v0.6.0`). The tag must point to a commit on `main`.
+(e.g. `cuda-core-v0.6.0`). The tag must point to a commit on the release
+branch.
 
 ```bash
-git checkout main
-git pull origin main
+git fetch origin release/cuda-core-v0.6.x
+git checkout --detach origin/release/cuda-core-v0.6.x
 git tag -s cuda-core-v0.6.0 -m "cuda-core v0.6.0"
 git push origin cuda-core-v0.6.0
 ```

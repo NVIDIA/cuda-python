@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d86e2c7810bfe53da4ba1ed601a58ebe94757d3c2679f08e1fa7459fee1e0f03
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=968ebda3f299a209f6240c152411869cef689b565fb8b504f7779caacef58b2f
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -79,109 +79,37 @@ cdef void* __nvvmGetProgramLogSize = NULL
 cdef void* __nvvmGetProgramLog = NULL
 cdef void* __nvvmLLVMVersion = NULL
 
+cdef enum: _cyb_nvvm_n_functions = 14
+cdef void** _cyb_nvvm_slots[_cyb_nvvm_n_functions]
+cdef const char* _cyb_nvvm_names[_cyb_nvvm_n_functions]
+_cyb_nvvm_slots[0] = &__nvvmGetErrorString; _cyb_nvvm_names[0] = b'nvvmGetErrorString'
+_cyb_nvvm_slots[1] = &__nvvmVersion; _cyb_nvvm_names[1] = b'nvvmVersion'
+_cyb_nvvm_slots[2] = &__nvvmIRVersion; _cyb_nvvm_names[2] = b'nvvmIRVersion'
+_cyb_nvvm_slots[3] = &__nvvmCreateProgram; _cyb_nvvm_names[3] = b'nvvmCreateProgram'
+_cyb_nvvm_slots[4] = &__nvvmDestroyProgram; _cyb_nvvm_names[4] = b'nvvmDestroyProgram'
+_cyb_nvvm_slots[5] = &__nvvmAddModuleToProgram; _cyb_nvvm_names[5] = b'nvvmAddModuleToProgram'
+_cyb_nvvm_slots[6] = &__nvvmLazyAddModuleToProgram; _cyb_nvvm_names[6] = b'nvvmLazyAddModuleToProgram'
+_cyb_nvvm_slots[7] = &__nvvmCompileProgram; _cyb_nvvm_names[7] = b'nvvmCompileProgram'
+_cyb_nvvm_slots[8] = &__nvvmVerifyProgram; _cyb_nvvm_names[8] = b'nvvmVerifyProgram'
+_cyb_nvvm_slots[9] = &__nvvmGetCompiledResultSize; _cyb_nvvm_names[9] = b'nvvmGetCompiledResultSize'
+_cyb_nvvm_slots[10] = &__nvvmGetCompiledResult; _cyb_nvvm_names[10] = b'nvvmGetCompiledResult'
+_cyb_nvvm_slots[11] = &__nvvmGetProgramLogSize; _cyb_nvvm_names[11] = b'nvvmGetProgramLogSize'
+_cyb_nvvm_slots[12] = &__nvvmGetProgramLog; _cyb_nvvm_names[12] = b'nvvmGetProgramLog'
+_cyb_nvvm_slots[13] = &__nvvmLLVMVersion; _cyb_nvvm_names[13] = b'nvvmLLVMVersion'
+
 cdef int _init_nvvm() except -1 nogil:
     global _cyb___py_nvvm_init
     cdef void* handle = NULL
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_nvvm_init: return 0
 
-        global __nvvmGetErrorString
-        __nvvmGetErrorString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmGetErrorString')
-        if __nvvmGetErrorString == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmGetErrorString = _cyb_dlsym(handle, 'nvvmGetErrorString')
-
-        global __nvvmVersion
-        __nvvmVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmVersion')
-        if __nvvmVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmVersion = _cyb_dlsym(handle, 'nvvmVersion')
-
-        global __nvvmIRVersion
-        __nvvmIRVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmIRVersion')
-        if __nvvmIRVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmIRVersion = _cyb_dlsym(handle, 'nvvmIRVersion')
-
-        global __nvvmCreateProgram
-        __nvvmCreateProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmCreateProgram')
-        if __nvvmCreateProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmCreateProgram = _cyb_dlsym(handle, 'nvvmCreateProgram')
-
-        global __nvvmDestroyProgram
-        __nvvmDestroyProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmDestroyProgram')
-        if __nvvmDestroyProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmDestroyProgram = _cyb_dlsym(handle, 'nvvmDestroyProgram')
-
-        global __nvvmAddModuleToProgram
-        __nvvmAddModuleToProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmAddModuleToProgram')
-        if __nvvmAddModuleToProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmAddModuleToProgram = _cyb_dlsym(handle, 'nvvmAddModuleToProgram')
-
-        global __nvvmLazyAddModuleToProgram
-        __nvvmLazyAddModuleToProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmLazyAddModuleToProgram')
-        if __nvvmLazyAddModuleToProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmLazyAddModuleToProgram = _cyb_dlsym(handle, 'nvvmLazyAddModuleToProgram')
-
-        global __nvvmCompileProgram
-        __nvvmCompileProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmCompileProgram')
-        if __nvvmCompileProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmCompileProgram = _cyb_dlsym(handle, 'nvvmCompileProgram')
-
-        global __nvvmVerifyProgram
-        __nvvmVerifyProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmVerifyProgram')
-        if __nvvmVerifyProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmVerifyProgram = _cyb_dlsym(handle, 'nvvmVerifyProgram')
-
-        global __nvvmGetCompiledResultSize
-        __nvvmGetCompiledResultSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmGetCompiledResultSize')
-        if __nvvmGetCompiledResultSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmGetCompiledResultSize = _cyb_dlsym(handle, 'nvvmGetCompiledResultSize')
-
-        global __nvvmGetCompiledResult
-        __nvvmGetCompiledResult = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmGetCompiledResult')
-        if __nvvmGetCompiledResult == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmGetCompiledResult = _cyb_dlsym(handle, 'nvvmGetCompiledResult')
-
-        global __nvvmGetProgramLogSize
-        __nvvmGetProgramLogSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmGetProgramLogSize')
-        if __nvvmGetProgramLogSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmGetProgramLogSize = _cyb_dlsym(handle, 'nvvmGetProgramLogSize')
-
-        global __nvvmGetProgramLog
-        __nvvmGetProgramLog = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmGetProgramLog')
-        if __nvvmGetProgramLog == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmGetProgramLog = _cyb_dlsym(handle, 'nvvmGetProgramLog')
-
-        global __nvvmLLVMVersion
-        __nvvmLLVMVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvvmLLVMVersion')
-        if __nvvmLLVMVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvvmLLVMVersion = _cyb_dlsym(handle, 'nvvmLLVMVersion')
+        for i in range(_cyb_nvvm_n_functions):
+            _cyb_nvvm_slots[i][0] = _cyb_dlsym(_cyb_RTLD_DEFAULT, _cyb_nvvm_names[i])
+            if _cyb_nvvm_slots[i][0] == NULL:
+                if handle == NULL:
+                    handle = load_library()
+                _cyb_nvvm_slots[i][0] = _cyb_dlsym(handle, _cyb_nvvm_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvvm_init, 1)
         return 0
@@ -200,47 +128,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_nvvm()
     cdef dict data = {}
-    global __nvvmGetErrorString
-    data["__nvvmGetErrorString"] = <intptr_t>__nvvmGetErrorString
-
-    global __nvvmVersion
-    data["__nvvmVersion"] = <intptr_t>__nvvmVersion
-
-    global __nvvmIRVersion
-    data["__nvvmIRVersion"] = <intptr_t>__nvvmIRVersion
-
-    global __nvvmCreateProgram
-    data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
-
-    global __nvvmDestroyProgram
-    data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
-
-    global __nvvmAddModuleToProgram
-    data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
-
-    global __nvvmLazyAddModuleToProgram
-    data["__nvvmLazyAddModuleToProgram"] = <intptr_t>__nvvmLazyAddModuleToProgram
-
-    global __nvvmCompileProgram
-    data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
-
-    global __nvvmVerifyProgram
-    data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
-
-    global __nvvmGetCompiledResultSize
-    data["__nvvmGetCompiledResultSize"] = <intptr_t>__nvvmGetCompiledResultSize
-
-    global __nvvmGetCompiledResult
-    data["__nvvmGetCompiledResult"] = <intptr_t>__nvvmGetCompiledResult
-
-    global __nvvmGetProgramLogSize
-    data["__nvvmGetProgramLogSize"] = <intptr_t>__nvvmGetProgramLogSize
-
-    global __nvvmGetProgramLog
-    data["__nvvmGetProgramLog"] = <intptr_t>__nvvmGetProgramLog
-
-    global __nvvmLLVMVersion
-    data["__nvvmLLVMVersion"] = <intptr_t>__nvvmLLVMVersion
+    cdef Py_ssize_t i
+    for i in range(_cyb_nvvm_n_functions):
+        data['__' + _cyb_nvvm_names[i].decode()] = <intptr_t>_cyb_nvvm_slots[i][0]
     _cyb_func_ptrs = data
     return data
 

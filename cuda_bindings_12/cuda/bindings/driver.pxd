@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5739d4e34a7ac7d9fab129e5380ab9dfa7cfe983957b3b97d76d21a6ee2d710d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4d4cb508b0b226880a8e9e24027fb1293f1b021a5fcb86e08449a96f37d9cf3c
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -478,6 +478,7 @@ cdef class CUuuid_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUuuid_st _pvt_val
     cdef cydriver.CUuuid_st* _pvt_ptr
 
@@ -500,6 +501,7 @@ cdef class CUmemFabricHandle_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemFabricHandle_st _pvt_val
     cdef cydriver.CUmemFabricHandle_st* _pvt_ptr
 
@@ -512,6 +514,7 @@ cdef class CUipcEventHandle_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUipcEventHandle_st _pvt_val
     cdef cydriver.CUipcEventHandle_st* _pvt_ptr
 
@@ -524,6 +527,7 @@ cdef class CUipcMemHandle_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUipcMemHandle_st _pvt_val
     cdef cydriver.CUipcMemHandle_st* _pvt_ptr
 
@@ -561,6 +565,7 @@ cdef class CUstreamMemOpWaitValueParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUstreamBatchMemOpParams_union* _pvt_ptr
 
     cdef CUdeviceptr _address
@@ -609,6 +614,7 @@ cdef class CUstreamMemOpWriteValueParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUstreamBatchMemOpParams_union* _pvt_ptr
 
     cdef CUdeviceptr _address
@@ -641,6 +647,7 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUstreamBatchMemOpParams_union* _pvt_ptr
 
 cdef class CUstreamMemOpMemoryBarrierParams_st:
@@ -661,6 +668,7 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUstreamBatchMemOpParams_union* _pvt_ptr
 
 cdef class CUstreamBatchMemOpParams_union:
@@ -699,6 +707,7 @@ cdef class CUstreamBatchMemOpParams_union:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUstreamBatchMemOpParams_union _pvt_val
     cdef cydriver.CUstreamBatchMemOpParams_union* _pvt_ptr
 
@@ -740,6 +749,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st _pvt_val
     cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st* _pvt_ptr
 
@@ -778,6 +788,7 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st _pvt_val
     cdef cydriver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st* _pvt_ptr
 
@@ -802,6 +813,7 @@ cdef class anon_struct0:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUasyncNotificationInfo_st* _pvt_ptr
 
 cdef class anon_union2:
@@ -818,6 +830,7 @@ cdef class anon_union2:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUasyncNotificationInfo_st* _pvt_ptr
 
     cdef anon_struct0 _overBudget
@@ -844,6 +857,7 @@ cdef class CUasyncNotificationInfo_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUasyncNotificationInfo_st* _val_ptr
     cdef cydriver.CUasyncNotificationInfo_st* _pvt_ptr
 
@@ -902,6 +916,7 @@ cdef class CUdevprop_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUdevprop_st _pvt_val
     cdef cydriver.CUdevprop_st* _pvt_ptr
 
@@ -949,6 +964,7 @@ cdef class CUaccessPolicyWindow_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUaccessPolicyWindow_st _pvt_val
     cdef cydriver.CUaccessPolicyWindow_st* _pvt_ptr
 
@@ -1007,6 +1023,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS_st* _pvt_ptr
 
@@ -1078,6 +1095,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS_v2_st _pvt_val
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS_v2_st* _pvt_ptr
 
@@ -1155,6 +1173,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS_v3_st _pvt_val
     cdef cydriver.CUDA_KERNEL_NODE_PARAMS_v3_st* _pvt_ptr
 
@@ -1206,6 +1225,7 @@ cdef class CUDA_MEMSET_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEMSET_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_MEMSET_NODE_PARAMS_st* _pvt_ptr
 
@@ -1252,6 +1272,7 @@ cdef class CUDA_MEMSET_NODE_PARAMS_v2_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEMSET_NODE_PARAMS_v2_st _pvt_val
     cdef cydriver.CUDA_MEMSET_NODE_PARAMS_v2_st* _pvt_ptr
 
@@ -1281,6 +1302,7 @@ cdef class CUDA_HOST_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_HOST_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_HOST_NODE_PARAMS_st* _pvt_ptr
 
@@ -1310,6 +1332,7 @@ cdef class CUDA_HOST_NODE_PARAMS_v2_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_HOST_NODE_PARAMS_v2_st _pvt_val
     cdef cydriver.CUDA_HOST_NODE_PARAMS_v2_st* _pvt_ptr
 
@@ -1370,6 +1393,7 @@ cdef class CUDA_CONDITIONAL_NODE_PARAMS:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_CONDITIONAL_NODE_PARAMS _pvt_val
     cdef cydriver.CUDA_CONDITIONAL_NODE_PARAMS* _pvt_ptr
 
@@ -1425,6 +1449,7 @@ cdef class CUgraphEdgeData_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUgraphEdgeData_st _pvt_val
     cdef cydriver.CUgraphEdgeData_st* _pvt_ptr
 
@@ -1456,6 +1481,7 @@ cdef class CUDA_GRAPH_INSTANTIATE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_GRAPH_INSTANTIATE_PARAMS_st* _pvt_ptr
 
@@ -1494,6 +1520,7 @@ cdef class CUlaunchMemSyncDomainMap_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchMemSyncDomainMap_st _pvt_val
     cdef cydriver.CUlaunchMemSyncDomainMap_st* _pvt_ptr
 
@@ -1519,6 +1546,7 @@ cdef class anon_struct1:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchAttributeValue_union* _pvt_ptr
 
 cdef class anon_struct2:
@@ -1543,6 +1571,7 @@ cdef class anon_struct2:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchAttributeValue_union* _pvt_ptr
 
     cdef CUevent _event
@@ -1566,6 +1595,7 @@ cdef class anon_struct3:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchAttributeValue_union* _pvt_ptr
 
     cdef CUevent _event
@@ -1593,6 +1623,7 @@ cdef class anon_struct4:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchAttributeValue_union* _pvt_ptr
 
 cdef class anon_struct5:
@@ -1613,6 +1644,7 @@ cdef class anon_struct5:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchAttributeValue_union* _pvt_ptr
 
     cdef CUgraphDeviceNode _devNode
@@ -1731,6 +1763,7 @@ cdef class CUlaunchAttributeValue_union:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchAttributeValue_union _pvt_val
     cdef cydriver.CUlaunchAttributeValue_union* _pvt_ptr
 
@@ -1775,6 +1808,7 @@ cdef class CUlaunchAttribute_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchAttribute_st _pvt_val
     cdef cydriver.CUlaunchAttribute_st* _pvt_ptr
 
@@ -1833,6 +1867,7 @@ cdef class CUlaunchConfig_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlaunchConfig_st _pvt_val
     cdef cydriver.CUlaunchConfig_st* _pvt_ptr
 
@@ -1859,6 +1894,7 @@ cdef class CUexecAffinitySmCount_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUexecAffinitySmCount_st _pvt_val
     cdef cydriver.CUexecAffinitySmCount_st* _pvt_ptr
 
@@ -1876,6 +1912,7 @@ cdef class anon_union3:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUexecAffinityParam_st* _pvt_ptr
 
     cdef CUexecAffinitySmCount _smCount
@@ -1901,6 +1938,7 @@ cdef class CUexecAffinityParam_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUexecAffinityParam_st* _val_ptr
     cdef cydriver.CUexecAffinityParam_st* _pvt_ptr
 
@@ -1927,6 +1965,7 @@ cdef class CUctxCigParam_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUctxCigParam_st _pvt_val
     cdef cydriver.CUctxCigParam_st* _pvt_ptr
 
@@ -1958,6 +1997,7 @@ cdef class CUctxCreateParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUctxCreateParams_st _pvt_val
     cdef cydriver.CUctxCreateParams_st* _pvt_ptr
 
@@ -1995,6 +2035,7 @@ cdef class CUlibraryHostUniversalFunctionAndDataTable_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUlibraryHostUniversalFunctionAndDataTable_st _pvt_val
     cdef cydriver.CUlibraryHostUniversalFunctionAndDataTable_st* _pvt_ptr
 
@@ -2080,6 +2121,7 @@ cdef class CUDA_MEMCPY2D_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEMCPY2D_st _pvt_val
     cdef cydriver.CUDA_MEMCPY2D_st* _pvt_ptr
 
@@ -2206,6 +2248,7 @@ cdef class CUDA_MEMCPY3D_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEMCPY3D_st _pvt_val
     cdef cydriver.CUDA_MEMCPY3D_st* _pvt_ptr
 
@@ -2341,6 +2384,7 @@ cdef class CUDA_MEMCPY3D_PEER_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEMCPY3D_PEER_st _pvt_val
     cdef cydriver.CUDA_MEMCPY3D_PEER_st* _pvt_ptr
 
@@ -2392,6 +2436,7 @@ cdef class CUDA_MEMCPY_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEMCPY_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_MEMCPY_NODE_PARAMS_st* _pvt_ptr
 
@@ -2429,6 +2474,7 @@ cdef class CUDA_ARRAY_DESCRIPTOR_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_ARRAY_DESCRIPTOR_st _pvt_val
     cdef cydriver.CUDA_ARRAY_DESCRIPTOR_st* _pvt_ptr
 
@@ -2468,6 +2514,7 @@ cdef class CUDA_ARRAY3D_DESCRIPTOR_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR_st _pvt_val
     cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR_st* _pvt_ptr
 
@@ -2493,6 +2540,7 @@ cdef class anon_struct6:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_ARRAY_SPARSE_PROPERTIES_st* _pvt_ptr
 
 cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
@@ -2524,6 +2572,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_ARRAY_SPARSE_PROPERTIES_st _pvt_val
     cdef cydriver.CUDA_ARRAY_SPARSE_PROPERTIES_st* _pvt_ptr
 
@@ -2550,6 +2599,7 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_ARRAY_MEMORY_REQUIREMENTS_st _pvt_val
     cdef cydriver.CUDA_ARRAY_MEMORY_REQUIREMENTS_st* _pvt_ptr
 
@@ -2567,6 +2617,7 @@ cdef class anon_struct7:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_DESC_st* _pvt_ptr
 
     cdef CUarray _hArray
@@ -2586,6 +2637,7 @@ cdef class anon_struct8:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_DESC_st* _pvt_ptr
 
     cdef CUmipmappedArray _hMipmappedArray
@@ -2617,6 +2669,7 @@ cdef class anon_struct9:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_DESC_st* _pvt_ptr
 
     cdef CUdeviceptr _devPtr
@@ -2656,6 +2709,7 @@ cdef class anon_struct10:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_DESC_st* _pvt_ptr
 
     cdef CUdeviceptr _devPtr
@@ -2668,6 +2722,7 @@ cdef class anon_struct11:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_DESC_st* _pvt_ptr
 
 cdef class anon_union4:
@@ -2696,6 +2751,7 @@ cdef class anon_union4:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_DESC_st* _pvt_ptr
 
     cdef anon_struct7 _array
@@ -2734,6 +2790,7 @@ cdef class CUDA_RESOURCE_DESC_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_DESC_st* _val_ptr
     cdef cydriver.CUDA_RESOURCE_DESC_st* _pvt_ptr
 
@@ -2788,6 +2845,7 @@ cdef class CUDA_TEXTURE_DESC_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_TEXTURE_DESC_st _pvt_val
     cdef cydriver.CUDA_TEXTURE_DESC_st* _pvt_ptr
 
@@ -2835,6 +2893,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_RESOURCE_VIEW_DESC_st _pvt_val
     cdef cydriver.CUDA_RESOURCE_VIEW_DESC_st* _pvt_ptr
 
@@ -2855,6 +2914,7 @@ cdef class CUtensorMap_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUtensorMap_st _pvt_val
     cdef cydriver.CUtensorMap_st* _pvt_ptr
 
@@ -2878,6 +2938,7 @@ cdef class CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st _pvt_val
     cdef cydriver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st* _pvt_ptr
 
@@ -2933,6 +2994,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_LAUNCH_PARAMS_st _pvt_val
     cdef cydriver.CUDA_LAUNCH_PARAMS_st* _pvt_ptr
 
@@ -2963,6 +3025,7 @@ cdef class anon_struct12:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyhandle
@@ -2993,6 +3056,7 @@ cdef class anon_union5:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _pvt_ptr
 
     cdef anon_struct12 _win32
@@ -3029,6 +3093,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _val_ptr
     cdef cydriver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st* _pvt_ptr
 
@@ -3059,6 +3124,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st _pvt_val
     cdef cydriver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st* _pvt_ptr
 
@@ -3087,6 +3153,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st _pvt_val
     cdef cydriver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st* _pvt_ptr
 
@@ -3111,6 +3178,7 @@ cdef class anon_struct13:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyhandle
@@ -3141,6 +3209,7 @@ cdef class anon_union6:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _pvt_ptr
 
     cdef anon_struct13 _win32
@@ -3173,6 +3242,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _val_ptr
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st* _pvt_ptr
 
@@ -3193,6 +3263,7 @@ cdef class anon_struct14:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _pvt_ptr
 
 cdef class anon_union7:
@@ -3209,6 +3280,7 @@ cdef class anon_union7:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyfence
@@ -3228,6 +3300,7 @@ cdef class anon_struct15:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _pvt_ptr
 
 cdef class anon_struct16:
@@ -3252,6 +3325,7 @@ cdef class anon_struct16:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _pvt_ptr
 
     cdef anon_struct14 _fence
@@ -3290,6 +3364,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st _pvt_val
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st* _pvt_ptr
 
@@ -3310,6 +3385,7 @@ cdef class anon_struct17:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _pvt_ptr
 
 cdef class anon_union8:
@@ -3326,6 +3402,7 @@ cdef class anon_union8:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _pvt_ptr
 
     cdef _HelperInputVoidPtr _cyfence
@@ -3349,6 +3426,7 @@ cdef class anon_struct18:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _pvt_ptr
 
 cdef class anon_struct19:
@@ -3373,6 +3451,7 @@ cdef class anon_struct19:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _pvt_ptr
 
     cdef anon_struct17 _fence
@@ -3411,6 +3490,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st _pvt_val
     cdef cydriver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st* _pvt_ptr
 
@@ -3442,6 +3522,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st* _pvt_ptr
 
@@ -3478,6 +3559,7 @@ cdef class CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st _pvt_val
     cdef cydriver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st* _pvt_ptr
 
@@ -3514,6 +3596,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st* _pvt_ptr
 
@@ -3550,6 +3633,7 @@ cdef class CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st _pvt_val
     cdef cydriver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st* _pvt_ptr
 
@@ -3579,6 +3663,7 @@ cdef class anon_union9:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUarrayMapInfo_st* _pvt_ptr
 
     cdef CUmipmappedArray _mipmap
@@ -3629,6 +3714,7 @@ cdef class anon_struct20:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUarrayMapInfo_st* _pvt_ptr
 
 cdef class anon_struct21:
@@ -3653,6 +3739,7 @@ cdef class anon_struct21:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUarrayMapInfo_st* _pvt_ptr
 
 cdef class anon_union10:
@@ -3673,6 +3760,7 @@ cdef class anon_union10:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUarrayMapInfo_st* _pvt_ptr
 
     cdef anon_struct20 _sparseLevel
@@ -3695,6 +3783,7 @@ cdef class anon_union11:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUarrayMapInfo_st* _pvt_ptr
 
     cdef CUmemGenericAllocationHandle _memHandle
@@ -3753,6 +3842,7 @@ cdef class CUarrayMapInfo_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUarrayMapInfo_st* _val_ptr
     cdef cydriver.CUarrayMapInfo_st* _pvt_ptr
 
@@ -3785,6 +3875,7 @@ cdef class CUmemLocation_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemLocation_st _pvt_val
     cdef cydriver.CUmemLocation_st* _pvt_ptr
 
@@ -3810,6 +3901,7 @@ cdef class anon_struct22:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemAllocationProp_st* _pvt_ptr
 
 cdef class CUmemAllocationProp_st:
@@ -3848,6 +3940,7 @@ cdef class CUmemAllocationProp_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemAllocationProp_st _pvt_val
     cdef cydriver.CUmemAllocationProp_st* _pvt_ptr
 
@@ -3891,6 +3984,7 @@ cdef class CUmulticastObjectProp_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmulticastObjectProp_st _pvt_val
     cdef cydriver.CUmulticastObjectProp_st* _pvt_ptr
 
@@ -3914,6 +4008,7 @@ cdef class CUmemAccessDesc_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemAccessDesc_st _pvt_val
     cdef cydriver.CUmemAccessDesc_st* _pvt_ptr
 
@@ -3947,6 +4042,7 @@ cdef class CUgraphExecUpdateResultInfo_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUgraphExecUpdateResultInfo_st _pvt_val
     cdef cydriver.CUgraphExecUpdateResultInfo_st* _pvt_ptr
 
@@ -3998,6 +4094,7 @@ cdef class CUmemPoolProps_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemPoolProps_st _pvt_val
     cdef cydriver.CUmemPoolProps_st* _pvt_ptr
 
@@ -4016,6 +4113,7 @@ cdef class CUmemPoolPtrExportData_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemPoolPtrExportData_st _pvt_val
     cdef cydriver.CUmemPoolPtrExportData_st* _pvt_ptr
 
@@ -4051,6 +4149,7 @@ cdef class CUmemcpyAttributes_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemcpyAttributes_st _pvt_val
     cdef cydriver.CUmemcpyAttributes_st* _pvt_ptr
 
@@ -4084,6 +4183,7 @@ cdef class CUoffset3D_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUoffset3D_st _pvt_val
     cdef cydriver.CUoffset3D_st* _pvt_ptr
 
@@ -4111,6 +4211,7 @@ cdef class CUextent3D_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUextent3D_st _pvt_val
     cdef cydriver.CUextent3D_st* _pvt_ptr
 
@@ -4140,6 +4241,7 @@ cdef class anon_struct23:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
 
     cdef CUdeviceptr _ptr
@@ -4166,6 +4268,7 @@ cdef class anon_struct24:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
 
     cdef CUarray _array
@@ -4192,6 +4295,7 @@ cdef class anon_union12:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
 
     cdef anon_struct23 _ptr
@@ -4220,6 +4324,7 @@ cdef class CUmemcpy3DOperand_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemcpy3DOperand_st* _val_ptr
     cdef cydriver.CUmemcpy3DOperand_st* _pvt_ptr
 
@@ -4257,6 +4362,7 @@ cdef class CUDA_MEMCPY3D_BATCH_OP_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEMCPY3D_BATCH_OP_st _pvt_val
     cdef cydriver.CUDA_MEMCPY3D_BATCH_OP_st* _pvt_ptr
 
@@ -4305,6 +4411,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v1_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st _pvt_val
     cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st* _pvt_ptr
 
@@ -4354,6 +4461,7 @@ cdef class CUDA_MEM_ALLOC_NODE_PARAMS_v2_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st _pvt_val
     cdef cydriver.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st* _pvt_ptr
 
@@ -4383,6 +4491,7 @@ cdef class CUDA_MEM_FREE_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_MEM_FREE_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_MEM_FREE_NODE_PARAMS_st* _pvt_ptr
 
@@ -4413,6 +4522,7 @@ cdef class CUDA_CHILD_GRAPH_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_CHILD_GRAPH_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_CHILD_GRAPH_NODE_PARAMS_st* _pvt_ptr
 
@@ -4435,6 +4545,7 @@ cdef class CUDA_EVENT_RECORD_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EVENT_RECORD_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_EVENT_RECORD_NODE_PARAMS_st* _pvt_ptr
 
@@ -4457,6 +4568,7 @@ cdef class CUDA_EVENT_WAIT_NODE_PARAMS_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUDA_EVENT_WAIT_NODE_PARAMS_st _pvt_val
     cdef cydriver.CUDA_EVENT_WAIT_NODE_PARAMS_st* _pvt_ptr
 
@@ -4531,6 +4643,7 @@ cdef class CUgraphNodeParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUgraphNodeParams_st* _val_ptr
     cdef cydriver.CUgraphNodeParams_st* _pvt_ptr
 
@@ -4590,6 +4703,7 @@ cdef class CUcheckpointLockArgs_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUcheckpointLockArgs_st _pvt_val
     cdef cydriver.CUcheckpointLockArgs_st* _pvt_ptr
 
@@ -4602,6 +4716,7 @@ cdef class CUcheckpointCheckpointArgs_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUcheckpointCheckpointArgs_st _pvt_val
     cdef cydriver.CUcheckpointCheckpointArgs_st* _pvt_ptr
 
@@ -4614,6 +4729,7 @@ cdef class CUcheckpointRestoreArgs_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUcheckpointRestoreArgs_st _pvt_val
     cdef cydriver.CUcheckpointRestoreArgs_st* _pvt_ptr
 
@@ -4626,6 +4742,7 @@ cdef class CUcheckpointUnlockArgs_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUcheckpointUnlockArgs_st _pvt_val
     cdef cydriver.CUcheckpointUnlockArgs_st* _pvt_ptr
 
@@ -4675,8 +4792,13 @@ cdef class CUmemDecompressParams_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUmemDecompressParams_st _pvt_val
     cdef cydriver.CUmemDecompressParams_st* _pvt_ptr
+
+    cdef size_t _dstActBytes_length
+    cdef cydriver.cuuint32_t* _dstActBytes
+
 
     cdef _HelperInputVoidPtr _cysrc
 
@@ -4699,6 +4821,7 @@ cdef class CUdevSmResource_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUdevSmResource_st _pvt_val
     cdef cydriver.CUdevSmResource_st* _pvt_ptr
 
@@ -4728,6 +4851,7 @@ cdef class CUdevResource_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUdevResource_st* _val_ptr
     cdef cydriver.CUdevResource_st* _pvt_ptr
 
@@ -4752,6 +4876,7 @@ cdef class anon_union15:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUeglFrame_st* _pvt_ptr
 
 cdef class CUeglFrame_st:
@@ -4808,6 +4933,7 @@ cdef class CUeglFrame_st:
     getPtr()
         Get memory address of class instance
     """
+    cdef object _owner
     cdef cydriver.CUeglFrame_st* _val_ptr
     cdef cydriver.CUeglFrame_st* _pvt_ptr
 
