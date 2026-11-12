@@ -524,8 +524,6 @@ def record_if_oom(item, call, report, recorder=None, snapshot=None):
     if not recorder.matches(exc_text):
         return None
 
-    # A later native crash can prevent pytest from printing its failure summary.
-    exc_text = f"{exc_text}\n\noriginal traceback:\n{report.longreprtext}"
     text = recorder.capture(item.nodeid, call.when, exc_text, item.config.rootpath, snapshot=snapshot)
     if text is None:
         return None

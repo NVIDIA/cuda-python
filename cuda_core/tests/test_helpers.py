@@ -112,8 +112,8 @@ def test_patterngen_values():
 # driver, and only through the side-effect-free prefix of the checker.
 
 
-def _fake_report(failed, longreprtext=""):
-    return types.SimpleNamespace(failed=failed, longreprtext=longreprtext)
+def _fake_report(failed):
+    return types.SimpleNamespace(failed=failed)
 
 
 def _fake_call(exc_text, when="call"):
@@ -178,32 +178,6 @@ def test_oom_diagnostics_write_an_artifact_naming_the_failing_test(tmp_path, mon
     assert "tests/test_x.py::test_first" in written
     assert OOM_MARKER in written
     assert "tests/test_x.py::test_first" in text
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_oom_diagnostics_preserve_original_traceback_immediately(tmp_path):
-    def fail_cuda_sync():
-        raise RuntimeError(OOM_MARKER)
-
-    with pytest.raises(RuntimeError) as excinfo:
-        fail_cuda_sync()
-
-    lines = []
-    item = _fake_item(tmp_path)
-    item.config.pluginmanager.get_plugin = lambda _: types.SimpleNamespace(write_line=lines.append)
-    report = _fake_report(True, longreprtext=str(excinfo.getrepr()))
-    text = record_if_oom(
-        item,
-        types.SimpleNamespace(excinfo=excinfo, when="teardown"),
-        report,
-        recorder=OomDiagnosticsRecorder(),
-        snapshot=_NO_CONTEXT_SNAPSHOT,
-    )
-
-    written = (tmp_path / DEFAULT_FILENAME).read_text(encoding="utf-8")
-    assert "fail_cuda_sync" in written
-    assert report.longreprtext in written
-    assert text in lines
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
