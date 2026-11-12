@@ -189,23 +189,26 @@
   "bc": "tests/test_lib_descriptor.py::test_site_packages_windows_match[nvrtc-x64-site_packages_libdirs0]|run",
   "cc": "tests/test_lib_descriptor.py::test_site_packages_windows_match[nvshmem_host-x64-site_packages_libdirs0]|run",
   "dc": "tests/test_lib_descriptor.py::test_site_packages_windows_match[nvvm-x64-site_packages_libdirs0]|run",
-  "ec": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_windows|run",
-  "fc": "tests/test_search_steps.py::TestAnchorRelDirs::test_windows_anchor_dirs_select_x64|run",
-  "gc": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
-  "hc": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run",
-  "ic": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-34404-True]|run",
-  "jc": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-43620-False]|run",
-  "kc": "tests/test_search_steps.py::TestFindInSitePackages::test_found_windows_x64_prefers_cuda13_arch_dir_to_cuda12|run",
-  "lc": "tests/test_search_steps.py::TestFindInSitePackages::test_found_windows_x64_uses_cuda12_when_cuda13_is_absent|run",
-  "mc": "tests/test_search_steps.py::TestFindInSitePackages::test_found_windows|run",
-  "nc": "tests/test_search_steps.py::TestFindInSitePackages::test_windows_exact_names_reject_cudnn_sidecar|run",
-  "oc": "tests/test_search_steps.py::TestFindInSitePackages::test_windows_matching_rejects_unlisted_cupti_name|run",
-  "pc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_does_not_cross_architectures[x64-bin/arm64]|run",
-  "qc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
-  "rc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
-  "sc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
-  "tc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
-  "uc": "tests/test_descriptor_catalog.py::test_cudnn_metadata_matches_supported_layouts|run"
+  "ec": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cuda_path_is_a_fallback_to_environment_and_native_search[conda]|run",
+  "fc": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cuda_path_is_a_fallback_to_environment_and_native_search[site-packages]|run",
+  "gc": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cuda_path_is_a_fallback_to_environment_and_native_search[system-search]|run",
+  "hc": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_windows|run",
+  "ic": "tests/test_search_steps.py::TestAnchorRelDirs::test_windows_anchor_dirs_select_x64|run",
+  "jc": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
+  "kc": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run",
+  "lc": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-34404-True]|run",
+  "mc": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-43620-False]|run",
+  "nc": "tests/test_search_steps.py::TestFindInSitePackages::test_found_windows_x64_prefers_cuda13_arch_dir_to_cuda12|run",
+  "oc": "tests/test_search_steps.py::TestFindInSitePackages::test_found_windows_x64_uses_cuda12_when_cuda13_is_absent|run",
+  "pc": "tests/test_search_steps.py::TestFindInSitePackages::test_found_windows|run",
+  "qc": "tests/test_search_steps.py::TestFindInSitePackages::test_windows_exact_names_reject_cudnn_sidecar|run",
+  "rc": "tests/test_search_steps.py::TestFindInSitePackages::test_windows_matching_rejects_unlisted_cupti_name|run",
+  "sc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_does_not_cross_architectures[x64-bin/arm64]|run",
+  "tc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
+  "uc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
+  "vc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
+  "wc": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
+  "xc": "tests/test_descriptor_catalog.py::test_cudnn_metadata_matches_supported_layouts|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -268,7 +271,7 @@
             <a id="nextFileLink" class="nav" href="z_b173e2ae1fca2bc7_dynamic_lib_subprocess_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-11 01:04 +0000
+            created at 2026-11-12 01:00 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -309,15 +312,15 @@
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="op">@</span><span class="nam">classmethod</span>&nbsp;</span><span class="r"><label for="ctxs25" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="key">def</span> <span class="nam">x64_only</span><span class="op">(</span><span class="nam">cls</span><span class="op">,</span> <span class="op">*</span><span class="nam">paths</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">WindowsSearchDirs</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs26" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="key">return</span> <span class="nam">cls</span><span class="op">(</span><span class="nam">x64</span><span class="op">=</span><span class="nam">paths</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">3 ctx</label></span><span class="ctxs">2a ucGb</span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="key">return</span> <span class="nam">cls</span><span class="op">(</span><span class="nam">x64</span><span class="op">=</span><span class="nam">paths</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs27"><span class="r"><label for="ctxs27" class="ctx">3 ctx</label></span><span class="ctxs">2a xcGb</span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="op">@</span><span class="nam">classmethod</span>&nbsp;</span><span class="r"><label for="ctxs29" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="key">def</span> <span class="nam">arm64_only</span><span class="op">(</span><span class="nam">cls</span><span class="op">,</span> <span class="op">*</span><span class="nam">paths</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">WindowsSearchDirs</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs30" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="key">return</span> <span class="nam">cls</span><span class="op">(</span><span class="nam">arm64</span><span class="op">=</span><span class="nam">paths</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs31"><span class="r"><label for="ctxs31" class="ctx">2 ctx</label></span><span class="ctxs">2a Gb</span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="key">def</span> <span class="nam">for_arch</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">target_arch</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">tuple</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="op">...</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs33" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="key">if</span> <span class="nam">target_arch</span> <span class="op">==</span> <span class="str">&quot;x64&quot;</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">197 ctx</label></span><span class="ctxs">2a HbIbJbKbLbMbNbOb5 Pbb c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Qb6 Rb7 Sb8 Tb9 Ub! Vb# Wb$ Xb% Yb' Zb( 0b) 1b* 2b+ 3b, 4b- 5b. 6b/ 7b: 8b; 9b= !b? #b@ $b[ %b] 'b^ (b_ )b` *b{ +b| ,b} -b~ .bab/bbb:bcb;bdb=beb?bfb@bgb[bhb]bib^bjb_bkb`blb{bmb|bnb}bob~bpbacqbbcrbccsbdctbZ 0 ecub1 2 3 4 vbfcwbgcxbhcybzbicjcAbBbkclcmcncocCbDbEbpcFbqcrcsctc</span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">x64</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">133 ctx</label></span><span class="ctxs">2a HbIbJbKbLbMbNbObPbb c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y QbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcZ 0 ec1 2 3 4 fcgchcicjckclcmcncocpcqcrcsctc</span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="key">if</span> <span class="nam">target_arch</span> <span class="op">==</span> <span class="str">&quot;x64&quot;</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs34"><span class="r"><label for="ctxs34" class="ctx">200 ctx</label></span><span class="ctxs">2a HbIbJbKbLbMbNbOb5 Pbb c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Qb6 Rb7 Sb8 Tb9 Ub! Vb# Wb$ Xb% Yb' Zb( 0b) 1b* 2b+ 3b, 4b- 5b. 6b/ 7b: 8b; 9b= !b? #b@ $b[ %b] 'b^ (b_ )b` *b{ +b| ,b} -b~ .bab/bbb:bcb;bdb=beb?bfb@bgb[bhb]bib^bjb_bkb`blb{bmb|bnb}bob~bpbacqbbcrbccsbdcecfcgctbZ 0 hcub1 2 3 4 vbicwbjcxbkcybzblcmcAbBbncocpcqcrcCbDbEbscFbtcucvcwc</span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">x64</span>&nbsp;</span><input type="checkbox" id="ctxs35"><span class="r"><label for="ctxs35" class="ctx">136 ctx</label></span><span class="ctxs">2a HbIbJbKbLbMbNbObPbb c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y QbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b}b~bacbcccdcecfcgcZ 0 hc1 2 3 4 icjckclcmcncocpcqcrcsctcucvcwc</span></p>
     <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="key">if</span> <span class="nam">target_arch</span> <span class="op">==</span> <span class="str">&quot;arm64&quot;</span><span class="op">:</span>&nbsp;</span><input type="checkbox" id="ctxs36"><span class="r"><label for="ctxs36" class="ctx">120 ctx</label></span><span class="ctxs">25 b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbZ 0 ub1 2 3 4 vbwbxbybzbAbBbCbDbEbFb</span></p>
     <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">arm64</span>&nbsp;</span><input type="checkbox" id="ctxs37"><span class="r"><label for="ctxs37" class="ctx">120 ctx</label></span><span class="ctxs">25 b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbZ 0 ub1 2 3 4 vbwbxbybzbAbBbCbDbEbFb</span></p>
     <p class="mis show_mis"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">        <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="fst">f&quot;</span><span class="fst">Unsupported Windows target architecture: </span><span class="op">{</span><span class="nam">target_arch</span><span class="op">!</span><span class="nam">r</span><span class="op">}</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -898,7 +901,7 @@
             <a class="nav" href="z_b173e2ae1fca2bc7_dynamic_lib_subprocess_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-11 01:04 +0000
+            created at 2026-11-12 01:00 +0000
         </p>
     </div>
 </footer>

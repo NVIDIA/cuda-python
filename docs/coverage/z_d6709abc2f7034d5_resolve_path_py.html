@@ -91,45 +91,46 @@
   "]": "tests/test_find_static_lib.py::test_locate_static_lib_returns_resolved_path_for_relative_root[conda]|run",
   "^": "tests/test_find_static_lib.py::test_locate_static_lib_returns_resolved_path_for_relative_root[site-packages]|run",
   "_": "tests/test_find_static_lib.py::test_locate_static_lib_search_order|run",
-  "`": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cudnn_arm64_archive_layout_reaches_loader|run",
-  "{": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_found_in_conda|run",
-  "|": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_search_order_conda_before_cuda_home|run",
-  "}": "tests/test_program.py::test_nvvm_compile_with_libdevice|run",
-  "~": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_linux|run",
-  "ab": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_windows|run",
-  "bb": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_windows_arm64_uses_arm64_anchor|run",
-  "cb": "tests/test_search_steps.py::TestAnchorRelDirs::test_nvvm_cuda_home_linux|run",
-  "db": "tests/test_search_steps.py::TestFindInConda::test_found_linux|run",
-  "eb": "tests/test_search_steps.py::TestFindInConda::test_found_windows_arm64_prefers_arch_dir|run",
-  "fb": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
-  "gb": "tests/test_search_steps.py::TestFindInConda::test_linux_declared_versioned_soname_found_in_lib_dir|run",
-  "hb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.13.5.0]|run",
-  "ib": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.13.backup]|run",
-  "jb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.14]|run",
-  "kb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so]|run",
-  "lb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_linux|run",
-  "mb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows_arm64_prefers_arch_dir|run",
-  "nb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run",
-  "ob": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-34404-False]|run",
-  "pb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-43620-True]|run",
-  "qb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-34404-True]|run",
-  "rb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-43620-False]|run",
-  "sb": "tests/test_search_steps.py::TestFindInCudaHome::test_symlink_parent_root_selects_correct_library|run",
-  "tb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_nccl_home_prefers_canonical_installed_layout|run",
-  "ub": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib64-libcudnn.so.9]|run",
-  "vb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib-libcudnn.so.9]|run",
-  "wb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-build/lib-libnccl.so.2]|run",
-  "xb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib64-libnccl.so.2]|run",
-  "yb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib-libnccl.so.2]|run",
-  "zb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_does_not_cross_architectures[x64-bin/arm64]|run",
-  "Ab": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[arm64-bin/arm64]|run",
-  "Bb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
-  "Cb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
-  "Db": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
-  "Eb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
-  "Fb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_another_drive_current_directory|run",
-  "Gb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_relative_parts|run",
-  "Hb": "tests/test_utils_resolve_path.py::test_resolve_path_follows_symlink_before_parent|run"
+  "`": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cuda_path_is_a_fallback_to_environment_and_native_search[conda]|run",
+  "{": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cudnn_arm64_archive_layout_reaches_loader|run",
+  "|": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_found_in_conda|run",
+  "}": "tests/test_load_nvidia_dynamic_lib_using_mocker.py::test_cupti_search_order_conda_before_cuda_home|run",
+  "~": "tests/test_program.py::test_nvvm_compile_with_libdevice|run",
+  "ab": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_linux|run",
+  "bb": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_uses_descriptor_windows|run",
+  "cb": "tests/test_search_steps.py::TestAnchorRelDirs::test_find_lib_dir_windows_arm64_uses_arm64_anchor|run",
+  "db": "tests/test_search_steps.py::TestAnchorRelDirs::test_nvvm_cuda_home_linux|run",
+  "eb": "tests/test_search_steps.py::TestFindInConda::test_found_linux|run",
+  "fb": "tests/test_search_steps.py::TestFindInConda::test_found_windows_arm64_prefers_arch_dir|run",
+  "gb": "tests/test_search_steps.py::TestFindInConda::test_found_windows|run",
+  "hb": "tests/test_search_steps.py::TestFindInConda::test_linux_declared_versioned_soname_found_in_lib_dir|run",
+  "ib": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.13.5.0]|run",
+  "jb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.13.backup]|run",
+  "kb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so.14]|run",
+  "lb": "tests/test_search_steps.py::TestFindInConda::test_linux_rejects_undeclared_filename_in_lib_dir[libcudart.so]|run",
+  "mb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_linux|run",
+  "nb": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows_arm64_prefers_arch_dir|run",
+  "ob": "tests/test_search_steps.py::TestFindInCudaHome::test_found_windows|run",
+  "pb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-34404-False]|run",
+  "qb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[arm64-43620-True]|run",
+  "rb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-34404-True]|run",
+  "sb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-43620-False]|run",
+  "tb": "tests/test_search_steps.py::TestFindInCudaHome::test_symlink_parent_root_selects_correct_library|run",
+  "ub": "tests/test_search_steps.py::TestLinuxInstallRoots::test_nccl_home_prefers_canonical_installed_layout|run",
+  "vb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib64-libcudnn.so.9]|run",
+  "wb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib-libcudnn.so.9]|run",
+  "xb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-build/lib-libnccl.so.2]|run",
+  "yb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib64-libnccl.so.2]|run",
+  "zb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib-libnccl.so.2]|run",
+  "Ab": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_does_not_cross_architectures[x64-bin/arm64]|run",
+  "Bb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[arm64-bin/arm64]|run",
+  "Cb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
+  "Db": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
+  "Eb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
+  "Fb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
+  "Gb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_another_drive_current_directory|run",
+  "Hb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_relative_parts|run",
+  "Ib": "tests/test_utils_resolve_path.py::test_resolve_path_follows_symlink_before_parent|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -192,7 +193,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_windows_arch_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-11 01:04 +0000
+            created at 2026-11-12 01:00 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -216,7 +217,7 @@
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">resolve_path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="nam">os</span><span class="op">.</span><span class="nam">PathLike</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">Path</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Build a canonical absolute path, resolving symlinks and parent components.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">return</span> <span class="nam">Path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">123 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHb</span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">return</span> <span class="nam">Path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">124 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIb</span></p>
 </main>
 <footer>
     <div class="content">
@@ -226,7 +227,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_windows_arch_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.2">coverage.py v7.17.2</a>,
-            created at 2026-11-11 01:04 +0000
+            created at 2026-11-12 01:00 +0000
         </p>
     </div>
 </footer>
