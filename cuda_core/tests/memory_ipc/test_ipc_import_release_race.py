@@ -97,15 +97,17 @@ class TestIpcImportReleaseRace:
         buffer = mr.allocate(NBYTES, stream=stream)
         stream.sync()
 
-        queue = mp.Queue()
-        process = mp.Process(target=child_main, args=(queue,))
-        process.start()
-        queue.put(mr)
-        queue.put(buffer.ipc_descriptor)
-        queue.put(buffer.size)
+        try:
+            queue = mp.Queue()
+            process = mp.Process(target=child_main, args=(queue,))
+            process.start()
+            queue.put(mr)
+            queue.put(buffer.ipc_descriptor)
+            queue.put(buffer.size)
 
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "an import racing the last release did not return"
-        assert process.exitcode == 0, f"child process failed with exit code {process.exitcode}"
-        buffer.close(stream)
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "an import racing the last release did not return"
+            assert process.exitcode == 0, f"child process failed with exit code {process.exitcode}"
+        finally:
+            buffer.close(stream)
