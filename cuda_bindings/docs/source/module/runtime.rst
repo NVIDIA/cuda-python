@@ -3,7 +3,7 @@
 
 .. This code was automatically generated with version 12.9.0. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9471dcb7815306c7978746e132235eac637aad52a8d9aca8ee6c1f492a866769
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=41d5b07cce4842964a93699efa6460343c599539c8afc5a0036e020945bc96a4
 -------
 runtime
 -------
@@ -4859,14 +4859,6 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaInitDeviceFlagsAreValid
 
     Tell the CUDA runtime that DeviceFlags is being set in cudaInitDevice call
-
-.. autoattribute:: cuda.bindings.runtime.cudaCooperativeLaunchMultiDeviceNoPreSync
-
-    If set, each kernel launched as part of :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` only waits for prior work in the stream corresponding to that GPU to complete before the kernel begins execution.
-
-.. autoattribute:: cuda.bindings.runtime.cudaCooperativeLaunchMultiDeviceNoPostSync
-
-    If set, any subsequent work pushed in a stream that participated in a call to :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` will only wait for the kernel launched on the GPU corresponding to that stream to complete before it begins execution.
 
 .. autoattribute:: cuda.bindings.runtime.cudaArraySparsePropertiesSingleMipTail
 
