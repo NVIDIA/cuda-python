@@ -115,11 +115,13 @@ create_mempool_handle(const CUmemPoolProps &props)
         return {};
     }
     int owner_device = props.location.type == CU_MEM_LOCATION_TYPE_DEVICE ? props.location.id : -1;
-    // Diagnostic for gh-3426: avoid revoking GPU access to host pools
-    // before destruction. Preserve the workaround for other pool locations.
-    const bool is_host_pool =
-        props.location.type == CU_MEM_LOCATION_TYPE_HOST || props.location.type == CU_MEM_LOCATION_TYPE_HOST_NUMA;
-    return wrap_mempool_owned(pool, owner_device, !is_host_pool);
+    // Workaround for gh-3426: avoid revoking GPU access to pinned host pools
+    // before destruction. Managed pools can have the same preferred locations;
+    // preserve their access-revocation cleanup.
+    const bool is_pinned_host_pool =
+        props.allocType == CU_MEM_ALLOCATION_TYPE_PINNED &&
+        (props.location.type == CU_MEM_LOCATION_TYPE_HOST || props.location.type == CU_MEM_LOCATION_TYPE_HOST_NUMA);
+    return wrap_mempool_owned(pool, owner_device, !is_pinned_host_pool);
 }
 
 MemoryPoolHandle
