@@ -59,6 +59,10 @@ If you upgrade ``cuda-core`` alone, the installed ``cuda-bindings`` can be older
 release requires. ``import cuda.core`` then reports the required version and the ``pip`` command
 that installs it.
 
+Do not pin ``cuda-bindings`` in your own requirements. Depend on ``cuda-core`` with the ``cu12``
+or ``cu13`` extra, and let ``cuda-core`` choose the ``cuda-bindings`` version. A pin of your own
+can conflict with the floor of a later ``cuda-core`` release.
+
 
 Installing from Conda (conda-forge)
 -----------------------------------
@@ -73,6 +77,7 @@ and likewise use ``cuda-version=13`` for CUDA 13.
 
 The conda-forge package depends on ``cuda-bindings`` of the same CUDA major. The
 ``cuda-bindings`` floor of the release also applies to it. See :ref:`cuda-core-bindings-floor`.
+As with ``pip``, do not pin ``cuda-bindings`` yourself. Let ``cuda-core`` choose it.
 
 
 Development environment

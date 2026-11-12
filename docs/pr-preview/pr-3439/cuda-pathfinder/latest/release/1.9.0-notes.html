@@ -578,11 +578,24 @@ resolved path, and dynamic-library directory discovery no longer collapses
 these roots lexically into a different location.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3413">Issue #3413</a>,
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3418">PR #3418</a>)</p></li>
-<li><p>On Linux, preload the matching <code class="docutils literal notranslate"><span class="pre">libnvrtc-builtins.so.&lt;major&gt;.&lt;minor&gt;</span></code> next
-to an NVRTC from a CUDA Toolkit before 13.6, so that compilation works
-without <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> or an <code class="docutils literal notranslate"><span class="pre">ldconfig</span></code> entry for the toolkit
-directory. NVRTC 13.6 finds its builtins itself; wheels keep only the
-existing NVRTC 13.0 workaround, and Conda packages are left unchanged.</p></li>
+<li><p>On Linux, preload <code class="docutils literal notranslate"><span class="pre">libnvrtc-builtins.so.&lt;major&gt;.&lt;minor&gt;</span></code> from the same
+directory as NVRTC when loading from a CUDA Toolkit install, so that
+compilation works without <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> or an <code class="docutils literal notranslate"><span class="pre">ldconfig</span></code> entry
+for the toolkit directory. Wheels keep only the existing NVRTC 13.0
+workaround, and Conda packages are left unchanged.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/830">Issue #830</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3439">PR #3439</a>)</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Correct the Windows DLL search documentation: native system search normally
+includes <code class="docutils literal notranslate"><span class="pre">PATH</span></code>, subject to process DLL search policy
+(<a class="reference external" href="https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order#search-order-for-packaged-apps">packaged applications have a different default DLL search order</a>).
+<code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> remain fallback discovery roots, not runtime
+toolkit selectors. Loading behavior and search order are unchanged.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3137">Issue #3137</a>)</p></li>
 </ul>
 </section>
 </section>
@@ -629,6 +642,7 @@ existing NVRTC 13.0 workaround, and Conda packages are left unchanged.</p></li>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compatibility-note">Compatibility note</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
   </nav></div>
 
