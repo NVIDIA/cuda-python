@@ -216,6 +216,11 @@ jobs:
           run-id: ${{ inputs.run-id || github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install GitHub CLI
+        if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
+                env.BINDINGS_SOURCE == 'backport' }}
+        uses: ./.github/actions/install-gh-cli
+
       - name: Look up prior-branch artifacts run ID
         id: prior
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
@@ -223,16 +228,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-          # gh is needed for lookup-run-id, which calls gh api.
-          mkdir -p -m 755 /etc/apt/keyrings \
-                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-          && apt update \
-          && apt install gh -y
-
           OLD_BRANCH=${{ needs.compute-matrix.outputs.OLD_BRANCH }}
           OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
           LOOKUP_ARGS=(
