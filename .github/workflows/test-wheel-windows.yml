@@ -36,13 +36,20 @@ on:
         description: >
           Test mode: 'standard' (default), 'nightly-pytorch',
           'nightly-numba-cuda', 'nightly-numba-cuda-mlir', or
-          'nightly-cuda-core'.
+          'nightly-cuda-core'. Temporary PR3436 diagnostics use
+          'diagnostic-watermark'.
         type: string
         default: 'standard'
       sha:
         description: >
           Commit SHA used to construct artifact names.
           Defaults to github.sha (current run) when empty.
+        type: string
+        default: ''
+      source-ref:
+        description: >
+          Optional test-source ref override. Defaults to the artifact SHA,
+          or github.sha when the artifact SHA is empty.
         type: string
         default: ''
 
@@ -109,9 +116,9 @@ jobs:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          # Test sources must match the wheels under test (nightly runs
-          # reuse wheels built from an older commit of main).
-          ref: ${{ inputs.sha || github.sha }}
+          # Normally sources match the wheels; diagnostics can override only
+          # test sources while retaining the original binary artifacts.
+          ref: ${{ inputs.source-ref || inputs.sha || github.sha }}
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -357,6 +364,21 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: echo "PYTEST_ADDOPTS=\"--count=${{ inputs.nruns }}\"" >> "$GITHUB_ENV"
 
+      - name: Install cuda.core diagnostic dependencies
+        if: ${{ inputs.test-mode == 'diagnostic-watermark' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          PYTEST_ADDOPTS: --collect-only
+          SKIP_CYTHON_TEST: '1'
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests core
+
+      - name: Diagnose PR3436 watermark teardown
+        if: ${{ inputs.test-mode == 'diagnostic-watermark' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: python ci/tools/diagnose_pr3436_watermark.py
+
       # ── Standard test steps (skipped for nightly modes) ──
       - name: Run cuda.pathfinder tests with see_what_works
         if: ${{ inputs.test-mode == 'standard' && env.TEST_PATHFINDER == 'true' }}
@@ -595,5 +617,16 @@ jobs:
         with:
           name: test-results-${{ inputs.test-mode }}-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cu${{ matrix.CUDA_VER }}-${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}-${{ matrix.GPU }}-x${{ matrix.GPU_COUNT }}-${{ matrix.DRIVER }}-${{ matrix.DRIVER_MODE }}
           path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload PR3436 watermark diagnostics
+        if: ${{ !cancelled() && inputs.test-mode == 'diagnostic-watermark' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: pr3436-watermark-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            watermark-diagnostic/
+            cuda_core/cuda_core_oom_diagnostics.txt
           if-no-files-found: ignore
           retention-days: 14
