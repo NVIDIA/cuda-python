@@ -219,7 +219,9 @@ jobs:
       - name: Install GitHub CLI
         if: ${{ (env.TEST_BINDINGS == 'true' || env.TEST_CORE == 'true' || env.TEST_PYTHON == 'true') &&
                 env.BINDINGS_SOURCE == 'backport' }}
-        uses: ./.github/actions/install-gh-cli
+        # $/ resolves at the workflow's commit. ./ would resolve against the
+        # inputs.sha checkout, which can predate this action.
+        uses: $/.github/actions/install-gh-cli
 
       - name: Look up prior-branch artifacts run ID
         id: prior
