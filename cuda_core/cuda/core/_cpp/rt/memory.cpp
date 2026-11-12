@@ -599,7 +599,8 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                         GILReleaseGuard gil;
                         const DeallocationStream& stream = b->deallocation;
                         ContextHandle h_dealloc = deallocation_context(stream);
-                        std::unique_lock lock(ipc_import_mutex);
+                        // Explicit template argument: MSVC cannot deduce it here (C2955).
+                        std::unique_lock<std::mutex> lock(ipc_import_mutex);
                         // Erase only this box's entry (importers wait while it
                         // exists, so no other box can own the key yet).
                         auto entry = ipc_ptr_cache.find(key);
