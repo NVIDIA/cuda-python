@@ -555,24 +555,16 @@ jobs:
             ${{ env.CUDA_CORE_TEST_BINARIES_DIR }}/*.lib
           if-no-files-found: error
 
+      - name: Install GitHub CLI
+        if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
+        uses: ./.github/actions/install-gh-cli
+
       - name: Look up prior-branch cuda.bindings run ID
         id: prior-bindings
         if: ${{ !inputs.single-cuda-major && env.BUILD_CORE == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! (command -v gh 2>&1 >/dev/null); then
-            # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-            # gh is needed for lookup-run-id, which calls gh api.
-            mkdir -p -m 755 /etc/apt/keyrings \
-                  && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-                  && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-            && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-            && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-            && apt update \
-            && apt install gh -y
-          fi
-
           OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
           OLD_ARTIFACT_PATTERN="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}-*[0-9a-f]"
           LATEST_PRIOR_RUN_ID=$(./ci/tools/lookup-run-id \
