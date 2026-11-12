@@ -91,16 +91,15 @@ The `cu12`/`cu13` extras declare the `cuda-bindings` floors. A release
 does not raise a floor to the newest `cuda-bindings`; see "Bumping the
 cuda-bindings floor" in `cuda_core/AGENTS.md`. Check the floors instead:
 
-- The minor of each floor equals the minor of the toolkit pin of its
-  major in `ci/versions.yml` (`build` for the current major, `prev_build`
-  for the prior major). If a floor's minor is lower, the toolkit-bump
+- The minor of each floor equals the minor of that major's toolkit pin
+  in `ci/versions.yml`. If a floor's minor is lower, the toolkit-bump
   window is open: move the floor before the release.
 - In the latest CI run on `main`, the CUDA 13 rows whose CUDA minor
-  differs from the `build` pin (for example "CUDA 13.0.2") installed the
+  differs from the current major's toolkit pin (for example "CUDA 13.0.2") installed the
   literal floor. Their logs show `Installing bindings (source: floor)` and
   `cuda-bindings==<floor>`, and no "predates ... headers" line. Standard
-  CI does not install the CUDA 12 floor: its rows use the 12.9.x backport
-  build.
+  CI does not install the CUDA 12 floor: its rows use the same-run
+  maintenance bindings build.
 - The release notes list every floor move since the last release.
 
 Update the `cuda-core` pin in `cuda_python/setup.py` to the new minor
