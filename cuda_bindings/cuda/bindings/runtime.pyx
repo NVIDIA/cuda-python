@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=43dd07707817f1747c7d5de898f7c687bbea9d20f1c69bd419389a80a432049c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=be66dc3db6a8e66386b35398ce32c2a7f5edc02e1aa834f0f3c1c77c20d8d8e3
 from typing import Any, Optional
 import cython
 import ctypes
@@ -215,6 +215,18 @@ cudaInvalidDeviceId = cyruntime.cudaInvalidDeviceId
 #: Tell the CUDA runtime that DeviceFlags is being set in cudaInitDevice
 #: call
 cudaInitDeviceFlagsAreValid = cyruntime.cudaInitDeviceFlagsAreValid
+
+#: If set, each kernel launched as part of
+#: :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` only waits for prior
+#: work in the stream corresponding to that GPU to complete before the
+#: kernel begins execution.
+cudaCooperativeLaunchMultiDeviceNoPreSync = cyruntime.cudaCooperativeLaunchMultiDeviceNoPreSync
+
+#: If set, any subsequent work pushed in a stream that participated in a
+#: call to :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` will only
+#: wait for the kernel launched on the GPU corresponding to that stream to
+#: complete before it begins execution.
+cudaCooperativeLaunchMultiDeviceNoPostSync = cyruntime.cudaCooperativeLaunchMultiDeviceNoPostSync
 
 #: Indicates that the layered sparse CUDA array or CUDA mipmapped array has
 #: a single mip tail region for all layers
@@ -17791,7 +17803,7 @@ cdef class anon_union11:
     def pArray(self):
         return [cudaArray_t(init_value=<void_ptr>_pArray) for _pArray in self._pvt_ptr[0].frame.pArray]
     @pArray.setter
-    def pArray(self, pArray : list[cudaArray_t]):
+    def pArray(self, pArray : list[cudaArray_t | int]):
         if len(pArray) != 3:
             raise IndexError('not enough values found during array assignment, expected 3, got', len(pArray))
         pArray = [int(_pArray) for _pArray in pArray]
