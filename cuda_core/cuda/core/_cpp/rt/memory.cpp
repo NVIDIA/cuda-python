@@ -9,11 +9,13 @@
 #include "error.hpp"
 #include "internal.hpp"
 #include <atomic>
+#include <condition_variable>
 #include <cstddef>
 #include <cstring>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
+#include <unordered_map>
 #include <utility>
 #ifndef _WIN32
 #include <unistd.h>
@@ -519,10 +521,21 @@ struct ExportDataKeyHash {
     }
 };
 
+// The handle imported for one descriptor, and the box it aliases.
+struct IpcCacheEntry {
+    std::weak_ptr<const CUdeviceptr> handle;
+    const DevicePtrBox *box;
+};
+
 }  // namespace
 
-static HandleRegistry<ExportDataKey, DevicePtrHandle, ExportDataKeyHash> ipc_ptr_cache;
+// Guarded by ipc_import_mutex. An entry outlives its handle's last reference:
+// only that handle's deleter erases it, under the mutex, together with the
+// free. An importer that finds an expired entry therefore knows a release of
+// the same mapping is in flight and waits on ipc_release_cv until it is done.
+static std::unordered_map<ExportDataKey, IpcCacheEntry, ExportDataKeyHash> ipc_ptr_cache;
 static std::mutex ipc_import_mutex;
+static std::condition_variable ipc_release_cv;
 
 DevicePtrHandle
 deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream)
@@ -552,10 +565,17 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         CUresult discard_status = CUDA_SUCCESS;
         CUdeviceptr discarded = 0;
         {
-            std::scoped_lock lock(ipc_import_mutex);
+            std::unique_lock<std::mutex> lock(ipc_import_mutex);
 
-            if (auto h = ipc_ptr_cache.lookup(key)) {
-                return h;
+            for (auto it = ipc_ptr_cache.find(key); it != ipc_ptr_cache.end(); it = ipc_ptr_cache.find(key)) {
+                if (DevicePtrHandle h = it->second.handle.lock()) {
+                    return h;
+                }
+                // Expired but not erased: the last reference is gone and its
+                // deleter has not freed the mapping yet. A re-import now would
+                // share that mapping, and the deleter's cuMemFreeAsync would
+                // unmap it under us (nvbug 5570902). Wait for the release.
+                ipc_release_cv.wait(lock);
             }
 
             CUdeviceptr ptr;
@@ -580,19 +600,27 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                         const DeallocationStream& stream = b->deallocation;
                         ContextHandle h_dealloc = deallocation_context(stream);
                         std::unique_lock<std::mutex> lock(ipc_import_mutex);
-                        ipc_ptr_cache.unregister_handle(key);
+                        // Erase only this box's entry (importers wait while it
+                        // exists, so no other box can own the key yet).
+                        auto entry = ipc_ptr_cache.find(key);
+                        if (entry != ipc_ptr_cache.end() && entry->second.box == b) {
+                            ipc_ptr_cache.erase(entry);
+                        }
                         cleanup_in_context(
                             h_dealloc, "cuMemFreeAsync", handle_bits(b->resource),
                             [&]() noexcept {
                                 return p_cuMemFreeAsync(b->resource, as_cu(stream.h_stream));  // raw: under ipc_import_mutex
                             },
-                            [&]() noexcept { lock.release()->unlock(); });
+                            [&]() noexcept {
+                                ipc_release_cv.notify_all();
+                                lock.release()->unlock();
+                            });
                         delete b;
                     }
                 );
                 // clang-format on
                 DevicePtrHandle h(box, &box->resource);
-                ipc_ptr_cache.register_handle(key, h);
+                ipc_ptr_cache[key] = IpcCacheEntry{h, box.get()};
                 return h;
             }
 
