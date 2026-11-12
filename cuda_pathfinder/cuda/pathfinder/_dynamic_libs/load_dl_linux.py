@@ -193,7 +193,6 @@ def _preload_nvrtc_builtins(found_path: str, found_via: str | None) -> None:
             return
         major, minor = 13, 0
     else:
-        # CTK filenames encode the version; 13.6 fixes the sibling lookup.
         if len(version) < 2 or not (version[0].isdigit() and version[1].isdigit()):
             warnings.warn(
                 f"Cannot determine the NVRTC version from {os.path.realpath(found_path)}; not preloading its builtins",
@@ -201,9 +200,7 @@ def _preload_nvrtc_builtins(found_path: str, found_via: str | None) -> None:
                 stacklevel=2,
             )
             return
-        major, minor = int(version[0]), int(version[1])
-        if (major, minor) >= (13, 6):
-            return
+        major, minor = version[0], version[1]
     sibling = os.path.join(os.path.dirname(found_path), f"libnvrtc-builtins.so.{major}.{minor}")
     if not os.path.isfile(sibling):
         if found_via != "site-packages":

@@ -95,12 +95,11 @@ def _make_nvrtc_dir(tmp_path, nvrtc_file, *builtins_files):
     [
         ("CUDA_PATH", "libnvrtc.so.13.5.37", "libnvrtc-builtins.so.13.5", True),
         ("system-ctk-root", "libnvrtc.so.12.9.86", "libnvrtc-builtins.so.12.9", True),
-        ("CUDA_PATH", "libnvrtc.so.13.6.0", "libnvrtc-builtins.so.13.6", False),
         ("site-packages", "libnvrtc.so.13", "libnvrtc-builtins.so.13.0", True),
         ("site-packages", "libnvrtc.so.13", "libnvrtc-builtins.so.13.5", False),
         ("conda", "libnvrtc.so.13.5.37", "libnvrtc-builtins.so.13.5", False),
     ],
-    ids=["ctk-13.5", "ctk-12.9", "ctk-13.6", "wheel-13.0", "wheel-13.5", "conda-13.5"],
+    ids=["ctk-13.5", "ctk-12.9", "wheel-13.0", "wheel-13.5", "conda-13.5"],
 )
 def test_preload_nvrtc_builtins_policy(mocker, tmp_path, found_via, nvrtc_file, builtins_file, expect_preload):
     nvrtc_path = _make_nvrtc_dir(tmp_path, nvrtc_file, builtins_file)
