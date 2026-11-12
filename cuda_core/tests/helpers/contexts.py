@@ -71,9 +71,17 @@ def assert_device_operations_use_bound_context(device):
         # Live check: query the driver directly, rather than comparing cached
         # metadata, to confirm the stream was actually created in the bound
         # context rather than whatever was ambient.
-        driver_stream_ctx = handle_return(driver.cuStreamGetCtx(stream.handle))
+        if bound_context.is_green:
+            # The legacy query rejects green streams on CUDA 12.9. In v2,
+            # pCtx is the primary context; pGreenCtx identifies the green context.
+            _, driver_green_ctx = handle_return(driver.cuStreamGetCtx_v2(stream.handle))
+            assert int(driver_green_ctx) != 0, "The stream must be associated with a green context."
+            driver_stream_ctx = handle_return(driver.cuCtxFromGreenCtx(driver_green_ctx))
+        else:
+            # Keep the legacy query for regular contexts on older drivers.
+            driver_stream_ctx = handle_return(driver.cuStreamGetCtx(stream.handle))
         assert int(driver_stream_ctx) == int(bound_context.handle), (
-            "cuStreamGetCtx reports a context other than the one the stream was created in."
+            "The driver reports a context other than the one the stream was created in."
         )
 
         event = device.create_event()
