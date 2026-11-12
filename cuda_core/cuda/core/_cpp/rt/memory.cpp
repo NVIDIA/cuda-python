@@ -565,7 +565,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         CUresult discard_status = CUDA_SUCCESS;
         CUdeviceptr discarded = 0;
         {
-            std::unique_lock<std::mutex> lock(ipc_import_mutex);
+            std::unique_lock lock(ipc_import_mutex);
 
             for (auto it = ipc_ptr_cache.find(key); it != ipc_ptr_cache.end(); it = ipc_ptr_cache.find(key)) {
                 if (DevicePtrHandle h = it->second.handle.lock()) {
@@ -599,7 +599,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                         GILReleaseGuard gil;
                         const DeallocationStream& stream = b->deallocation;
                         ContextHandle h_dealloc = deallocation_context(stream);
-                        std::unique_lock<std::mutex> lock(ipc_import_mutex);
+                        std::unique_lock lock(ipc_import_mutex);
                         // Erase only this box's entry (importers wait while it
                         // exists, so no other box can own the key yet).
                         auto entry = ipc_ptr_cache.find(key);
