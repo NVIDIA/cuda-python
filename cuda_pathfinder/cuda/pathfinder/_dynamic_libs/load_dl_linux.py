@@ -186,7 +186,8 @@ def _preload_nvrtc_builtins(found_path: str, found_via: str | None) -> None:
     # Let Conda packaging provide sibling lookup through RPATH.
     if found_via == "conda":
         return
-    version = os.path.basename(os.path.realpath(found_path)).removeprefix("libnvrtc.so.").split(".")
+    real_path = os.path.realpath(found_path)
+    version = os.path.basename(real_path).removeprefix("libnvrtc.so.").split(".")
     if found_via == "site-packages":
         # Retain only the historical 13.0 wheel workaround.
         if version[0] != "13":
@@ -195,13 +196,13 @@ def _preload_nvrtc_builtins(found_path: str, found_via: str | None) -> None:
     else:
         if len(version) < 2 or not (version[0].isdigit() and version[1].isdigit()):
             warnings.warn(
-                f"Cannot determine the NVRTC version from {os.path.realpath(found_path)}; not preloading its builtins",
+                f"Cannot determine the NVRTC version from {real_path}; not preloading its builtins",
                 RuntimeWarning,
                 stacklevel=2,
             )
             return
         major, minor = version[0], version[1]
-    sibling = os.path.join(os.path.dirname(found_path), f"libnvrtc-builtins.so.{major}.{minor}")
+    sibling = os.path.join(os.path.dirname(real_path), f"libnvrtc-builtins.so.{major}.{minor}")
     if not os.path.isfile(sibling):
         if found_via != "site-packages":
             warnings.warn(f"NVRTC builtins sibling not found: {sibling}", RuntimeWarning, stacklevel=2)
