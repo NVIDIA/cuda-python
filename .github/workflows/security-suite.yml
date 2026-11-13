@@ -34,12 +34,49 @@ jobs:
   # On main the vulnerability scan inspects installed wheels: Detect cannot resolve
   # cuda_core's CUDA-dependent build or cuda_python's dynamic setup.py from source.
   # Wheel mode is refused on pull-request/* mirrors. Python 3.12 matches the scanner image.
-  build-wheels:
-    name: Build wheels for the vulnerability scan
+  wheel-plan:
+    name: Plan wheels for the vulnerability scan
     if: >-
       github.ref == 'refs/heads/main' &&
       (github.repository == 'NVIDIA/cuda-python' ||
        vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      workplan: ${{ steps.plan.outputs.workplan }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          filter: blob:none
+      - uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.11"
+      - name: Install CI tools
+        run: python3 -m pip install -e ./ci
+      - name: Compute the linux-64 Python 3.12 workplan
+        id: plan
+        run: |
+          set -euo pipefail
+          plan_output="$(mktemp)"
+          GITHUB_OUTPUT="$plan_output" MERGE_BASE= BASELINE_RUN_ID= RELEASE_TAG= \
+            python3 -m ci.tools.compute_ci_plan
+          PLAN_OUTPUT="$plan_output" python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          lines = Path(os.environ["PLAN_OUTPUT"]).read_text(encoding="utf-8").splitlines()
+          plan = json.loads(next(line for line in lines if line.startswith("workplan="))[len("workplan="):])
+          plan["jobs"]["wheel_python_versions"] = {"linux-64": ["3.12"]}
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"workplan={json.dumps(plan, separators=(',', ':'))}\n")
+          PY
+
+  build-wheels:
+    name: Build wheels for the vulnerability scan
+    needs: wheel-plan
     permissions:
       actions: read
       contents: read
@@ -47,10 +84,8 @@ jobs:
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: linux-64
-      cuda-version: "13.4.2"
-      prev-cuda-version: "12.9.1"
+      workplan: ${{ needs.wheel-plan.outputs.workplan }}
       single-cuda-major: true
-      python-versions: '["3.12"]'
 
   # The scan installs offline, so the artifact carries every runtime dependency wheel too.
   python-wheels:
