@@ -14,7 +14,7 @@ from typing import Any
 
 def select_test_matrix(
     rows: list[dict[str, Any]],
-    packages: list[dict[str, Any]] | None,
+    packages: list[dict[str, Any]],
     *,
     workplan: dict[str, Any] | None = None,
     build_type: str = "pull-request",
@@ -22,85 +22,70 @@ def select_test_matrix(
     platform: str = "linux",
 ) -> dict[str, list[dict[str, Any]]]:
     """Apply the workplan to rows already filtered by the workflow's jq filter."""
-    current_package = (
-        next(package for package in packages if package["release_status"] == "current")
-        if packages is not None
-        else None
+    current_package = next(package for package in packages if package["release_status"] == "current")
+    enabled = (
+        {package["cuda_variant"]: True for package in packages}
+        if workplan is None
+        else workplan["jobs"]["test_cuda_majors"]
     )
-    enabled = {}
-    if packages is not None:
-        enabled = (
-            {package["cuda_variant"]: True for package in packages}
-            if workplan is None
-            else workplan["jobs"]["test_cuda_majors"]
-        )
     modules = None if workplan is None else workplan["modules"]
     selected = []
     for source_row in rows:
         major = source_row["CUDA_VER"].split(".")[0]
         variant = f"cu{major}"
-        if packages is not None and not enabled.get(variant, False):
+        if not enabled.get(variant, False):
             continue
         ctk_target = ".".join(source_row["CUDA_VER"].split(".")[:2])
-        package = next((package for package in packages or [] if package["ctk_target"] == ctk_target), None)
-        root = "" if package is None else package["package_root"]
-        components = ("pathfinder", "bindings", "core", "python")
-        if modules is None:
-            tests = {f"TEST_{name.upper()}": True for name in components}
-        elif packages is None:
-            tests = {f"TEST_{name.upper()}": modules[name]["needs_test"] for name in components}
-        else:
-            tests = {
-                "TEST_PATHFINDER": modules["pathfinder"]["needs_test"],
-                "TEST_BINDINGS": package is not None and modules["bindings"]["package_roots"][root]["needs_test"],
-                "TEST_CORE": modules["core"]["cuda_majors"][variant]["needs_test"],
-                "TEST_PYTHON": package is not None and modules["python"]["package_roots"][root]["needs_test"],
-            }
+        package = next((package for package in packages if package["ctk_target"] == ctk_target), None)
+        # Bindings and metapackage suites need the row's own local wheels;
+        # published-floor rows test Core or a nightly integration only.
+        local = package is not None
+        bindings = package or current_package
+        root = bindings["package_root"]
+        tests = {
+            "TEST_PATHFINDER": modules is None or modules["pathfinder"]["needs_test"],
+            "TEST_BINDINGS": local and (modules is None or modules["bindings"]["package_roots"][root]["needs_test"]),
+            "TEST_CORE": modules is None or modules["core"]["cuda_majors"][variant]["needs_test"],
+            "TEST_PYTHON": local and (modules is None or modules["python"]["package_roots"][root]["needs_test"]),
+        }
         suites = []
-        if packages is not None:
-            if test_mode != "standard":
-                suites.append(test_mode)
-            else:
-                if tests["TEST_PATHFINDER"]:
-                    suites.append("pathfinder")
-                if package is not None and tests["TEST_BINDINGS"]:
-                    suites.append(f"bindings{major}")
-                if tests["TEST_CORE"]:
-                    suites.append(f"core{major}")
-                if package is not None and tests["TEST_PYTHON"]:
-                    suites.append(f"meta{major}")
-            if not suites:
-                continue
+        if test_mode != "standard":
+            suites.append(test_mode)
+        else:
+            if tests["TEST_PATHFINDER"]:
+                suites.append("pathfinder")
+            if tests["TEST_BINDINGS"]:
+                suites.append(f"bindings{major}")
+            if tests["TEST_CORE"]:
+                suites.append(f"core{major}")
+            if tests["TEST_PYTHON"]:
+                suites.append(f"meta{major}")
+        if not suites:
+            continue
         driver = source_row["DRIVER"]
         # Custom versions are installed after scheduling on a latest-driver
         # runner. WSL cannot perform that driver swap.
         runner_driver = driver if driver in ("latest", "earliest") else "latest"
         if platform == "linux" and runner_driver != driver and source_row.get("FLAVOR") == "wsl":
             raise ValueError("custom DRIVER is not supported with FLAVOR=wsl")
-        row = {
-            **source_row,
-            **{name: str(value).lower() for name, value in tests.items()},
-            "RUNNER_DRIVER": runner_driver,
-        }
-        if current_package is not None:
-            row.update(
-                {
-                    "CUDA_VARIANT": variant,
-                    "BINDINGS_SOURCE": "floor" if package is None else "local",
-                    "BINDINGS_SOURCE_DIR": root,
-                    "BINDINGS_BUILD_VERSION": "" if package is None else package["toolkit_version"],
-                    "DEFAULT_BINDINGS_SOURCE_DIR": current_package["package_root"],
-                    "CURRENT_BUILD_CUDA_VER": current_package["toolkit_version"],
-                    "PATHFINDER_SOURCE": "artifact" if workplan is None else workplan["sources"]["pathfinder"],
-                    "SUITES": "+".join(suites),
-                }
-            )
-        selected.append(row)
+        selected.append(
+            {
+                **source_row,
+                **{name: str(value).lower() for name, value in tests.items()},
+                "RUNNER_DRIVER": runner_driver,
+                "BINDINGS_SOURCE": "local" if local else "floor",
+                "BINDINGS_SOURCE_DIR": root,
+                "BINDINGS_BUILD_VERSION": bindings["toolkit_version"],
+                "CURRENT_BUILD_CUDA_VER": current_package["toolkit_version"],
+                "PATHFINDER_SOURCE": "artifact" if workplan is None else workplan["sources"]["pathfinder"],
+                "SUITES": "+".join(suites),
+            }
+        )
     if not selected:
         raise ValueError("Empty matrix after CUDA-major workplan filtering")
     # Nightly integrations may deliberately use published bindings with older
     # toolkits. Ordinary PRs must not silently lose a required local-wheel row.
-    if packages is not None and test_mode == "standard" and build_type == "pull-request":
+    if test_mode == "standard" and build_type == "pull-request":
         covered = {row["BINDINGS_SOURCE_DIR"] for row in selected if row["BINDINGS_SOURCE"] == "local"}
         missing = [
             package["package_root"]
@@ -123,12 +108,10 @@ def main() -> None:
     parser.add_argument("--platform", choices=("linux", "windows"), required=True)
     args = parser.parse_args()
     try:
-        config = os.environ.get("BINDINGS_CONFIG")
-        if not config:
-            raise ValueError("BINDINGS_CONFIG must contain registry JSON or LEGACY_CONFIG")
+        config = json.loads(os.environ["BINDINGS_CONFIG"])
         result = select_test_matrix(
             json.load(sys.stdin),
-            None if config == "LEGACY_CONFIG" else json.loads(config)["package_roots"],
+            config["package_roots"],
             workplan=json.loads(os.environ.get("WORKPLAN") or "null"),
             build_type=os.environ["BUILD_TYPE"],
             test_mode=os.environ["TEST_MODE"],

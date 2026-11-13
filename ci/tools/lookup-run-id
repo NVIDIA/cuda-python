@@ -25,15 +25,12 @@ Options:
   --tag <tag>        Find run by git tag (requires local git repo with the tag)
   --branch <branch>  Find latest successful run on the given branch
   --event <event>    Restrict branch-mode runs to a trigger event (for example push)
-  --artifact <glob>  Require an unexpired artifact matching this shell glob
-                     (repeatable; branch mode only)
   --run-id <id>      Validate and use this exact run ID (tag mode only)
   --head-sha         Also print the run's head commit SHA (second line)
 
 Examples:
   $0 --tag v13.0.1 NVIDIA/cuda-python
   $0 --branch main NVIDIA/cuda-python
-  $0 --branch 12.9.x --artifact 'cuda-bindings-python313-*' NVIDIA/cuda-python
   $0 --branch main --head-sha NVIDIA/cuda-python "CI"
   $0 --branch main --event push --head-sha NVIDIA/cuda-python "CI"
 EOF
@@ -45,7 +42,6 @@ MODE=""
 REF=""
 HEAD_SHA_FLAG=0
 EVENT=""
-ARTIFACT_PATTERNS=()
 EXPLICIT_RUN_ID=""
 
 while [[ $# -gt 0 ]]; do
@@ -61,9 +57,6 @@ while [[ $# -gt 0 ]]; do
         --run-id)
             [[ $# -ge 2 ]] || usage
             EXPLICIT_RUN_ID="${2}"; shift 2 ;;
-        --artifact)
-            [[ $# -ge 2 ]] || usage
-            ARTIFACT_PATTERNS+=("${2}"); shift 2 ;;
         --event)
             [[ $# -ge 2 && -n "${2}" ]] || usage
             EVENT="${2}"; shift 2 ;;
@@ -76,23 +69,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ -z "${MODE}" ]]; then
-    # Legacy positional interface: <git-tag> <repository> [workflow-name]
-    # Kept for backward compatibility with release.yml.
-    if [[ $# -lt 2 ]]; then usage; fi
-    MODE="tag"
-    REF="${1}"; shift
-fi
+if [[ -z "${MODE}" ]]; then usage; fi
 
 REPOSITORY="${1:-}"; shift || true
 WORKFLOW_NAME="${1:-CI}"
 
 if [[ -z "${REPOSITORY}" ]]; then usage; fi
-
-if [[ "${MODE}" != "branch" && ${#ARTIFACT_PATTERNS[@]} -gt 0 ]]; then
-    echo "Error: --artifact is only supported with --branch" >&2
-    exit 1
-fi
 
 if [[ "${MODE}" != "branch" && -n "${EVENT}" ]]; then
     echo "Error: --event is only supported with --branch" >&2
@@ -125,8 +107,8 @@ done
 # ── Mode: branch ──
 #
 # Walk the branch's commit history from HEAD and return the first commit
-# whose workflow has a successful run matching any required artifact
-# patterns. The one Actions-API filter used is ?head_sha=<SHA>, which is
+# whose workflow has a successful run matching the optional event filter.
+# The one Actions-API filter used is ?head_sha=<SHA>, which is
 # not on the list of filters flagged as returning stale/cached slices in
 # https://github.com/orgs/community/discussions/24626.
 if [[ "${MODE}" == "branch" ]]; then
@@ -168,13 +150,8 @@ if [[ "${MODE}" == "branch" ]]; then
         exit 1
     fi
 
-    if [[ ${#ARTIFACT_PATTERNS[@]} -gt 0 ]]; then
-        echo "Requiring unexpired artifacts matching:" >&2
-        printf '  - %s\n' "${ARTIFACT_PATTERNS[@]}" >&2
-    fi
-
-    # Walk branch commits newest-first; accept the first commit with a
-    # successful run that passes the artifact check.
+    # Walk branch commits newest-first; accept the newest successful run for
+    # the first commit with a qualifying run.
     COMMIT_SCAN_LIMIT="${LOOKUP_RUN_ID_COMMIT_SCAN_LIMIT:-200}"
     RUN_ID=""
     HEAD_SHA=""
@@ -213,53 +190,16 @@ if [[ "${MODE}" == "branch" ]]; then
             fi
             [[ "${SHA_RUNS}" != "[]" ]] || continue
 
-            count=$(echo "${SHA_RUNS}" | jq 'length')
-            for ((i=0; i<count; i++)); do
-                candidate_id=$(echo "${SHA_RUNS}" | jq -r ".[${i}].id")
-                candidate_sha=$(echo "${SHA_RUNS}" | jq -r ".[${i}].head_sha")
-                candidate_created_at=$(echo "${SHA_RUNS}" | jq -r ".[${i}].created_at")
-
-                missing_patterns=()
-                if [[ ${#ARTIFACT_PATTERNS[@]} -gt 0 ]]; then
-                    if ! ARTIFACT_NAMES=$(gh api --paginate \
-                        "repos/${REPOSITORY}/actions/runs/${candidate_id}/artifacts?per_page=100" \
-                        --jq '.artifacts[] | select(.expired == false) | .name'); then
-                        echo "Error: Failed to list artifacts for run ${candidate_id}" >&2
-                        exit 1
-                    fi
-
-                    for pattern in "${ARTIFACT_PATTERNS[@]}"; do
-                        pattern_matched=0
-                        while IFS= read -r artifact_name; do
-                            # The caller supplies a shell glob; RHS must stay unquoted.
-                            # shellcheck disable=SC2053
-                            if [[ -n "${artifact_name}" && "${artifact_name}" == ${pattern} ]]; then
-                                pattern_matched=1
-                                break
-                            fi
-                        done <<< "${ARTIFACT_NAMES}"
-                        if [[ ${pattern_matched} == 0 ]]; then
-                            missing_patterns+=("${pattern}")
-                        fi
-                    done
-                fi
-
-                if [[ ${#missing_patterns[@]} -gt 0 ]]; then
-                    echo "Skipping run ${candidate_id} (sha ${candidate_sha:0:12}, ${candidate_created_at}); missing unexpired artifact(s): ${missing_patterns[*]}" >&2
-                    continue
-                fi
-
-                RUN_ID="${candidate_id}"
-                HEAD_SHA="${candidate_sha}"
-                break 3
-            done
+            RUN_ID=$(echo "${SHA_RUNS}" | jq -r '.[0].id')
+            HEAD_SHA=$(echo "${SHA_RUNS}" | jq -r '.[0].head_sha')
+            break 2
         done <<< "${COMMIT_PAGE}"
 
         page=$((page + 1))
     done
 
     if [[ -z "${RUN_ID}" ]]; then
-        echo "Error: No successful '${WORKFLOW_NAME}' run with required artifacts found in the ${commits_scanned} most-recent commits of branch '${REF}'" >&2
+        echo "Error: No successful '${WORKFLOW_NAME}' run found in the ${commits_scanned} most-recent commits of branch '${REF}'" >&2
         echo "Branch HEAD: ${BRANCH_HEAD_SHA}" >&2
         exit 1
     fi
@@ -358,14 +298,6 @@ if [[ -z "${RUN_ID}" ]]; then
 fi
 
 echo "Found workflow run ID: ${RUN_ID} for tag '${REF}'" >&2
-
-echo "Verifying artifacts exist for run ${RUN_ID}..." >&2
-ARTIFACT_LIST=$(gh run view "${RUN_ID}" --repo "${REPOSITORY}" --json url || echo "")
-
-if [[ -z "${ARTIFACT_LIST}" ]]; then
-    echo "Warning: Could not verify artifacts for workflow run ${RUN_ID}" >&2
-fi
-
 echo "${RUN_ID}"
 
 if [[ "${HEAD_SHA_FLAG}" == 1 ]]; then

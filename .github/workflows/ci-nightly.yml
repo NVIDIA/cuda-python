@@ -78,8 +78,6 @@ jobs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
       BINDINGS_CONFIG: ${{ steps.find.outputs.bindings_config }}
-      CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
-      LEGACY_BACKPORT_BRANCH: ${{ steps.find.outputs.legacy_backport_branch }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -128,8 +126,8 @@ jobs:
           snapshot=$(mktemp -d)
           trap 'rm -rf -- "$snapshot"' EXIT
           git archive "$HEAD_SHA" ci/versions.yml | tar -x -C "$snapshot"
-          python -m ci.tools.bindings_config --config "$snapshot/ci/versions.yml" \
-            --nightly-source-output "$GITHUB_OUTPUT"
+          BINDINGS_CONFIG=$(python -m ci.tools.bindings_config --config "$snapshot/ci/versions.yml")
+          echo "bindings_config=$BINDINGS_CONFIG" >> "$GITHUB_OUTPUT"
 
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
@@ -149,8 +147,6 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -169,8 +165,6 @@ jobs:
       build-type: nightly
       host-platform: linux-aarch64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -189,8 +183,6 @@ jobs:
       build-type: nightly
       host-platform: win-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-pytorch
@@ -211,8 +203,6 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -231,8 +221,6 @@ jobs:
       build-type: nightly
       host-platform: linux-aarch64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -251,8 +239,6 @@ jobs:
       build-type: nightly
       host-platform: win-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda
@@ -273,8 +259,6 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
@@ -293,8 +277,6 @@ jobs:
       build-type: nightly
       host-platform: win-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-numba-cuda-mlir
@@ -315,8 +297,6 @@ jobs:
       build-type: nightly
       host-platform: linux-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
@@ -335,8 +315,6 @@ jobs:
       build-type: nightly
       host-platform: win-64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: nightly-cuda-core
@@ -357,8 +335,6 @@ jobs:
       build-type: nightly
       host-platform: linux-aarch64
       bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
-      build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
-      legacy-backport-branch: ${{ needs.find-wheels.outputs.LEGACY_BACKPORT_BRANCH }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
       test-mode: standard
