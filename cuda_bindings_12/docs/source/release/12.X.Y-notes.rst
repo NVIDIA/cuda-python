@@ -25,6 +25,9 @@ Bug Fixes
   call and free the buffers allocated for getters.
 * ``get_cuda_native_handle`` preserves a ``KeyError`` raised inside a
   registered getter instead of reporting an unknown type.
+* Fixed a crash on free-threaded Python when callbacks are registered or
+  unregistered from multiple threads at the same time. Access to the internal
+  callback registry is now synchronized.
 
 Packaging
 ---------
