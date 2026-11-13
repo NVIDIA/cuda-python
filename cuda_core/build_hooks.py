@@ -133,7 +133,7 @@ def _load_bindings_floor():
 
 @functools.cache
 def _bindings_floors() -> dict:
-    """The cuda-bindings floor per CUDA major, from the minimal-sysctk<major> extras of pyproject.toml.
+    """The cuda-bindings floor per CUDA major, from the cu<major> extras of pyproject.toml.
 
     The extras are the single place that declares the floors. The build, the
     import-time check, the docs and CI all derive from them. See
@@ -253,8 +253,8 @@ def _check_build_configuration(cuda_path: str, cuda_major: str) -> int:
     was generated from, for _build_define_macros().
 
     cuda.core supports one configuration per CUDA major series. The installed
-    cuda-bindings is at least the floor of the series, the minimal-sysctk<major>
-    extra in pyproject.toml. The cuda.h that it compiles against has the major.minor of
+    cuda-bindings is at least the floor of the series, the cu<major> extra in
+    pyproject.toml. The cuda.h that it compiles against has the major.minor of
     the header that cuda-bindings was generated from, its driver.CUDA_VERSION.
     The pip build requirement in get_requires_for_build_* states both, but
     conda-forge, pixi and --no-build-isolation installs bypass it. The check

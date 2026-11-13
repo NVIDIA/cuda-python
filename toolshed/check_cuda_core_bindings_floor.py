@@ -4,13 +4,15 @@
 """Check that everything that depends on the cuda-bindings floor agrees with it.
 
 The floor of each CUDA major is declared once, by the
-`minimal-sysctk12`/`minimal-sysctk13` extras in cuda_core/pyproject.toml (see
-cuda_core/cuda/core/_bindings_floor.py). Most consumers read it from there.
-These constraints cannot be derived from it, so this script checks them, as a
-pre-commit hook and from cuda_core/tests/test_bindings_floor.py:
+`minimal-sysctk12`/`minimal-sysctk13` extras in cuda_core/pyproject.toml, which
+the `cu12`/`cu13` extras include (see cuda_core/cuda/core/_bindings_floor.py).
+Most consumers read it from there. These constraints cannot be derived from it,
+so this script checks them, as a pre-commit hook and from
+cuda_core/tests/test_bindings_floor.py:
 
-1. The extras parse: each `minimal-sysctk<N>` extra pins exactly
-   `cuda-bindings[...]>=<N>.<minor>.<patch>,<<N+1>`.
+1. The extras parse: each `cu<N>` extra pins exactly
+   `cuda-bindings[...]>=<N>.<minor>.<patch>,<<N+1>`, itself or through the
+   extra that it includes.
 2. Each `cu<N>` extra lists `cuda-core[minimal-sysctk<N>]`, so that it carries
    the floor to pip and uv.
 3. No documentation page spells a floor out by hand. docs/source/conf.py

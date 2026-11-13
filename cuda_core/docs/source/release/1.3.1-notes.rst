@@ -17,9 +17,6 @@ Highlights
   See :ref:`cuda-core-bindings-floor`.
   (`#3459 <https://github.com/NVIDIA/cuda-python/issues/3459>`__)
 
-- ``cuda-core`` now depends on ``cuda-bindings`` without a version, so ``pip install cuda-core``
-  without an extra installs the newest ``cuda-bindings``.
-
 - ``cuda-core`` 1.3.0 is yanked from PyPI. It declared its floors only in the ``cu12`` and
   ``cu13`` extras, so a resolver that cannot use 1.3.1 could fall back to it next to an older
   ``cuda-bindings``.

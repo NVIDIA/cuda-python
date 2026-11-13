@@ -61,9 +61,6 @@ system:
 
    $ pip install cuda-core[minimal-sysctk12]
 
-Without an extra, ``pip install cuda-core`` installs the newest ``cuda-bindings``, whatever its
-CUDA major.
-
 If you upgrade ``cuda-core`` alone, the installed ``cuda-bindings`` can be older than the new
 release requires. ``import cuda.core`` then reports the required version and the ``pip`` command
 that installs it.
