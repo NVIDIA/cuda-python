@@ -88,8 +88,16 @@ def test_nightly_subsets_may_use_published_floor_bindings(test_mode):
     matrix = select_test_matrix(rows("12.6.3"), PACKAGES, build_type="nightly", test_mode=test_mode)
 
     assert [row["BINDINGS_SOURCE"] for row in matrix["include"]] == ["floor"]
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_published_floor_rows_never_select_local_wheel_suites():
+    row = select_test_matrix(rows("12.6.3"), PACKAGES, build_type="nightly")["include"][0]
+
     # Workflows gate local-wheel downloads and suites on these flags alone.
-    assert matrix["include"][0]["TEST_BINDINGS"] == matrix["include"][0]["TEST_PYTHON"] == "false"
+    assert row["BINDINGS_SOURCE"] == "floor"
+    assert row["TEST_BINDINGS"] == row["TEST_PYTHON"] == "false"
+    assert row["SUITES"] == "pathfinder+core12"
 
 
 @pytest.mark.agent_authored(model="gpt-6")
