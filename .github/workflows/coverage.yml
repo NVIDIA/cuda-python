@@ -123,7 +123,6 @@ jobs:
           CURRENT_BUILD_CUDA_VER: ${{ env.CUDA_VER }}
           BINDINGS_SOURCE: local
           BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
-          DEFAULT_BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
           PATHFINDER_SOURCE: artifact
           CUDA_VER: ${{ env.CUDA_VER }}
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}

@@ -75,23 +75,11 @@ jobs:
           sparse-checkout: ci/tools
           persist-credentials: false
 
-      - name: Validate Test Type
-        run: |
-          if [[ "$BUILD_TYPE" != "pull-request" ]] && [[ "$BUILD_TYPE" != "nightly" ]] && [[ "$BUILD_TYPE" != "branch" ]]; then
-              echo "Invalid build type! Must be one of 'nightly', 'pull-request', or 'branch'."
-              exit 1
-          fi
       - name: Compute Python Test Matrix
         id: compute-matrix
         run: |
-          # Use the nightly matrix for branch tests
-          MATRIX_TYPE="${BUILD_TYPE}"
-          if [[ "${MATRIX_TYPE}" == "branch" ]]; then
-            MATRIX_TYPE="nightly"
-          fi
-
           # Read base matrix from YAML file for the specific architecture
-          TEST_MATRIX=$(yq -o json ".windows[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
+          TEST_MATRIX=$(yq -o json ".windows[\"${BUILD_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
           # Apply the caller's free-form jq filter before shared Python selection.
           MATRIX=$(jq -c '${{ inputs.matrix_filter }}' <<< "$TEST_MATRIX" \
@@ -186,7 +174,6 @@ jobs:
           CURRENT_BUILD_CUDA_VER: ${{ matrix.CURRENT_BUILD_CUDA_VER }}
           BINDINGS_SOURCE: ${{ matrix.BINDINGS_SOURCE }}
           BINDINGS_SOURCE_DIR: ${{ matrix.BINDINGS_SOURCE_DIR }}
-          DEFAULT_BINDINGS_SOURCE_DIR: ${{ matrix.DEFAULT_BINDINGS_SOURCE_DIR }}
           CUDA_VER: ${{ matrix.CUDA_VER }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}

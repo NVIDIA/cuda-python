@@ -46,15 +46,17 @@ def plan(*, bindings=False, core=True, meta=False):
     }
 
 
-@pytest.mark.agent_authored(model="gpt-6.1-sol")
+@pytest.mark.agent_authored(model="gpt-6")
 def test_exact_toolkit_rows_use_local_bindings_and_older_toolkits_use_published_floors():
     matrix = select_test_matrix(rows("12.9.1", "12.6.3", "13.4.2", "13.0.2"), PACKAGES)
 
-    assert [(row["CUDA_VARIANT"], row["BINDINGS_SOURCE"], row["BINDINGS_SOURCE_DIR"]) for row in matrix["include"]] == [
-        ("cu12", "local", "bindings12"),
-        ("cu12", "floor", ""),
-        ("cu13", "local", "bindings13"),
-        ("cu13", "floor", ""),
+    assert [
+        (row["BINDINGS_SOURCE"], row["BINDINGS_SOURCE_DIR"], row["BINDINGS_BUILD_VERSION"]) for row in matrix["include"]
+    ] == [
+        ("local", "bindings12", "12.9.1"),
+        ("floor", "bindings13", "13.4.2"),
+        ("local", "bindings13", "13.4.2"),
+        ("floor", "bindings13", "13.4.2"),
     ]
 
 

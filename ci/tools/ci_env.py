@@ -21,7 +21,6 @@ else:
 def common_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
     python, host, sha = env["PY_VER"], env["HOST_PLATFORM"], env["SHA"]
     return {
-        "PYTHON_VERSION_FORMATTED": python.replace(".", ""),
         "CUDA_CORE_ARTIFACT_BASENAME": core_artifact(python, host),
         "CUDA_CORE_ARTIFACT_NAME": core_artifact(python, host, sha),
         "CUDA_CORE_ARTIFACTS_DIR": (root / "cuda_core/dist").as_posix(),
@@ -89,12 +88,7 @@ def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
     test_major, test_minor = env["CUDA_VER"].split(".")[:2]
     current = env["CURRENT_BUILD_CUDA_VER"]
     source = env["BINDINGS_SOURCE"]
-    if source == "local":
-        bindings_root, build = env["BINDINGS_SOURCE_DIR"], env["BUILD_CUDA_VER"]
-    elif source == "floor":
-        bindings_root, build = env["DEFAULT_BINDINGS_SOURCE_DIR"], current
-    else:
-        raise ValueError(f"BINDINGS_SOURCE must be local or floor, got {source}")
+    bindings_root, build = env["BINDINGS_SOURCE_DIR"], env["BUILD_CUDA_VER"]
     local = source == "local"
     sanitizer = (
         python == "3.12" and env["CUDA_VER"] != "11.8.0" and env["LOCAL_CTK"] == "1" and host.startswith("linux")
@@ -109,7 +103,6 @@ def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
         "SKIP_CYTHON_TEST": "0" if local else "1",
         "TEST_CUDA_MAJOR": test_major,
         "TEST_CUDA_MINOR": test_minor,
-        "CUDA_BINDINGS_ARTIFACT_BASENAME": bindings_artifact(python, build, host),
         "CUDA_BINDINGS_ARTIFACT_NAME": bindings_artifact(python, build, host, sha),
         "CUDA_BINDINGS_ARTIFACTS_DIR": (root / bindings_root / "dist").as_posix(),
         "CUDA_BINDINGS_CYTHON_TESTS_DIR": (root / bindings_root / "tests/cython").as_posix(),

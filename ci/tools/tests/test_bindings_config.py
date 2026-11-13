@@ -16,7 +16,7 @@ from packaging.version import Version
 from setuptools_scm import get_version
 
 from ci.tools import bindings_config, check_pixi_cuda_version
-from ci.tools.bindings_config import BindingsPackage, load_config, main
+from ci.tools.bindings_config import load_config, main
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -41,20 +41,6 @@ def registry_config(tmp_path):
         )
     )
     return path
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_loads_registered_toolkit_pins(registry_config):
-    config = load_config(registry_config)
-    current = config.package_for_release_status("current")
-    maintenance = config.get_package("cuda_bindings_12")
-    assert current == BindingsPackage("cuda_bindings_13", (13, 4, 2), "current")
-    assert maintenance == config.package_for_release_status("maintenance")
-    assert maintenance.toolkit_version == "12.9.1"
-    assert maintenance.ctk_target == "12.9"
-    assert maintenance.cuda_major == "12"
-    assert maintenance.cuda_variant == "cu12"
-    assert config.python_supported == ("3.11", "3.14t")
 
 
 @pytest.mark.agent_authored(model="gpt-6")

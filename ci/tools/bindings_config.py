@@ -76,12 +76,6 @@ class BindingsConfig:
     package_roots: tuple[BindingsPackage, ...]
     python_supported: tuple[str, ...]
 
-    def get_package(self, package_root: str) -> BindingsPackage:
-        for package in self.package_roots:
-            if package.package_root == package_root:
-                return package
-        raise ValueError(f"unknown CUDA bindings package root: {package_root!r}")
-
     def package_for_release_status(self, release_status: str) -> BindingsPackage:
         return next(package for package in self.package_roots if package.release_status == release_status)
 
@@ -325,14 +319,8 @@ def main(argv: list[str] | None = None) -> int:
             if args.release_status:
                 result = config.package_for_release_status(args.release_status).to_dict()
             else:
-                packages = [package.to_dict() for package in config.package_roots]
                 result = (
-                    packages
-                    if args.package_roots
-                    else {
-                        "python": {"supported": list(config.python_supported)},
-                        "package_roots": packages,
-                    }
+                    [package.to_dict() for package in config.package_roots] if args.package_roots else config.to_dict()
                 )
         print(json.dumps(result, separators=(",", ":"), sort_keys=True))
         return 0

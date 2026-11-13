@@ -68,16 +68,15 @@ def select_test_matrix(
         runner_driver = driver if driver in ("latest", "earliest") else "latest"
         if platform == "linux" and runner_driver != driver and source_row.get("FLAVOR") == "wsl":
             raise ValueError("custom DRIVER is not supported with FLAVOR=wsl")
+        bindings = package or current_package
         selected.append(
             {
                 **source_row,
                 **{name: str(value).lower() for name, value in tests.items()},
                 "RUNNER_DRIVER": runner_driver,
-                "CUDA_VARIANT": variant,
                 "BINDINGS_SOURCE": "floor" if package is None else "local",
-                "BINDINGS_SOURCE_DIR": root,
-                "BINDINGS_BUILD_VERSION": "" if package is None else package["toolkit_version"],
-                "DEFAULT_BINDINGS_SOURCE_DIR": current_package["package_root"],
+                "BINDINGS_SOURCE_DIR": bindings["package_root"],
+                "BINDINGS_BUILD_VERSION": bindings["toolkit_version"],
                 "CURRENT_BUILD_CUDA_VER": current_package["toolkit_version"],
                 "PATHFINDER_SOURCE": "artifact" if workplan is None else workplan["sources"]["pathfinder"],
                 "SUITES": "+".join(suites),
