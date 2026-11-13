@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7e97f9bf"></script>
+    <script src="../_static/documentation_options.js?v=60b3a732"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.8.7';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.9.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -578,6 +578,12 @@ resolved path, and dynamic-library directory discovery no longer collapses
 these roots lexically into a different location.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3413">Issue #3413</a>,
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3418">PR #3418</a>)</p></li>
+<li><p>On Linux, preload <code class="docutils literal notranslate"><span class="pre">libnvrtc-builtins.so.&lt;major&gt;.&lt;minor&gt;</span></code> from the same
+directory as NVRTC when loading from a CUDA Toolkit install, so that
+compilation works without <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> or an <code class="docutils literal notranslate"><span class="pre">ldconfig</span></code> entry
+for the toolkit directory. Wheels keep only the existing NVRTC 13.0
+workaround, and Conda packages are left unchanged.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3439">PR #3439</a>)</p></li>
 </ul>
 </section>
 <section id="documentation">
