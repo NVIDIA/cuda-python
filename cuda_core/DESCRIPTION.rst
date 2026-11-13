@@ -26,4 +26,6 @@ Installation
 
    pip install cuda-core[cu12]
 
+Use ``[cu13]`` for CUDA 13. With a CUDA Toolkit installed on the system, ``[minimal-sysctk12]`` and ``[minimal-sysctk13]`` install only ``cuda-bindings``.
+
 Please refer to the `installation instructions <https://nvidia.github.io/cuda-python/cuda-core/latest/install.html>`_ for different ways of installing ``cuda.core``, including building from source.

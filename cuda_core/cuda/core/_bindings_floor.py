@@ -14,9 +14,13 @@ a cuda.core release does not. See
 https://github.com/NVIDIA/cuda-python/issues/2783 and the support policy in the
 documentation.
 
-Exactly one place declares the floors: the ``cu12`` and ``cu13`` extras in
-``pyproject.toml``. Each extra pins ``cuda-bindings>=<floor>,<<next major>``.
-Everything else derives from them through :func:`floors_from_extras`:
+Exactly one place declares the floors: the ``minimal-sysctk12`` and
+``minimal-sysctk13`` extras in ``pyproject.toml``. Each pins
+``cuda-bindings>=<floor>,<<next major>``. The ``cu12`` and ``cu13`` extras
+include them through a ``cuda-core[minimal-sysctk<major>]`` self-reference, so
+that pip and uv see the floor whichever extra a dependent requests. Everything
+else reads the floor of each ``cu<major>`` extra, following that
+self-reference, through :func:`floors_from_extras`:
 
 - The build backend, ``build_hooks.py``, checks the installed cuda-bindings
   against the floor. It checks that the ``cuda.h`` that it compiles against is
@@ -29,7 +33,9 @@ Everything else derives from them through :func:`floors_from_extras`:
 - The ``check-bindings-config`` pre-commit hook checks that each registered
   toolkit in ``ci/versions.yml`` is not below its corresponding floor
   major.minor. The separate ``check-cuda-core-bindings-floor`` hook validates
-  the extras and prevents documentation from hardcoding the floors.
+  the extras, checks that each ``cu<major>`` extra includes its
+  ``minimal-sysctk<major>`` extra, and prevents documentation from hardcoding
+  the floors.
 
 The build and the tools above load this module by file path. It therefore uses
 the standard library only and must not import anything from ``cuda``.
@@ -58,6 +64,8 @@ _EXTRA_RE = re.compile(r"^cu(\d+)$")
 _REQUIREMENT_RE = re.compile(
     r"^\s*cuda-bindings(?=[\[<>=!~;\s]|$)\s*(?:\[[^\]]*\])?\s*(?P<specifiers>[^;]*?)\s*(?:;.*)?$"
 )
+# A self-reference such as `cuda-core[minimal-sysctk13]`, up to an optional environment marker.
+_SELF_REFERENCE_RE = re.compile(r"^\s*cuda-core\s*\[(?P<extras>[^\]]*)\]\s*(?:;.*)?$")
 _FLOOR_SPEC_RE = re.compile(r"^>=(\d+)\.(\d+)\.(\d+)$")
 # The upper bound: `<14`, `<14.0` or `<14.0.0`, or the equivalent `==13.*`.
 _UPPER_SPEC_RE = re.compile(r"^<(\d+)(?:\.0)*$")
@@ -94,7 +102,10 @@ def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[i
     """The floor per CUDA major, from the ``cu<major>`` extras of ``pyproject.toml``.
 
     ``extras`` is the parsed ``[project.optional-dependencies]`` table. Each
-    ``cu<N>`` extra must list exactly one cuda-bindings requirement with two
+    ``cu<N>`` extra must list exactly one versioned cuda-bindings requirement,
+    either itself or through a ``cuda-core[<extra>]`` self-reference such as
+    ``cuda-core[minimal-sysctk<N>]``. An unversioned requirement such as
+    ``cuda-bindings[all]`` does not count. The requirement has two
     specifiers, in either order. One is the floor, ``>=<N>.<minor>.<patch>``.
     The other is an upper bound that excludes the next major, ``<<N+1>`` or
     ``==<N>.*``. Anything else raises ValueError with the name of the extra, so
@@ -102,12 +113,16 @@ def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[i
     the floor.
     """
     floors: dict[int, tuple[int, int, int]] = {}
-    for extra, requirements in extras.items():
+    for extra in extras:
         m = _EXTRA_RE.match(extra)
         if m is None:
             continue
         major = int(m.group(1))
-        matches = [(r, rm) for r in requirements if (rm := _REQUIREMENT_RE.match(r)) is not None]
+        matches = [
+            (r, rm)
+            for r in _expand_self_references(extras, extra)
+            if (rm := _REQUIREMENT_RE.match(r)) is not None and rm.group("specifiers")
+        ]
         if len(matches) != 1:
             raise ValueError(
                 f"the {extra!r} extra must list exactly one cuda-bindings requirement, found {len(matches)}"
@@ -130,6 +145,21 @@ def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[i
     if not floors:
         raise ValueError("pyproject.toml declares no cu<major> extra")
     return dict(sorted(floors.items()))
+
+
+def _expand_self_references(extras: Mapping[str, Sequence[str]], extra: str, seen: tuple[str, ...] = ()) -> list[str]:
+    """The requirements of ``extra``, with each ``cuda-core[...]`` replaced by the requirements of the extras it names."""
+    seen = (*seen, extra)
+    requirements = []
+    for requirement in extras.get(extra, ()):
+        m = _SELF_REFERENCE_RE.match(requirement)
+        if m is None:
+            requirements.append(requirement)
+            continue
+        for name in (name.strip() for name in m.group("extras").split(",")):
+            if name and name not in seen:
+                requirements.extend(_expand_self_references(extras, name, seen))
+    return requirements
 
 
 def _confined_major(specifier: str) -> int | None:

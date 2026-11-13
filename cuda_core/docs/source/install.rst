@@ -47,21 +47,31 @@ Installing from PyPI
 
 ``cuda.core`` works with ``cuda-bindings`` (part of ``cuda-python``) 12 or 13 at or above the
 release's floor for that major. See :ref:`cuda-core-bindings-floor`. The ``cu12`` and ``cu13``
-extras install a compatible version. Test dependencies now use the ``cuda-toolkit`` metapackage for improved dependency resolution. For example with CUDA 12:
+extras install a compatible version together with the CUDA Toolkit wheels. Test dependencies now use the ``cuda-toolkit`` metapackage for improved dependency resolution. For example with CUDA 12:
 
 .. code-block:: console
 
    $ pip install cuda-core[cu12]
 
-and likewise use ``[cu13]`` for CUDA 13.
+and likewise use ``[cu13]`` for CUDA 13. The ``minimal-sysctk12`` and ``minimal-sysctk13``
+extras install only a compatible ``cuda-bindings``, for use with a CUDA Toolkit installed on the
+system:
+
+.. code-block:: console
+
+   $ pip install cuda-core[minimal-sysctk12]
 
 If you upgrade ``cuda-core`` alone, the installed ``cuda-bindings`` can be older than the new
 release requires. ``import cuda.core`` then reports the required version and the ``pip`` command
 that installs it.
 
-Do not pin ``cuda-bindings`` in your own requirements. Depend on ``cuda-core`` with the ``cu12``
-or ``cu13`` extra, and let ``cuda-core`` choose the ``cuda-bindings`` version. A pin of your own
-can conflict with the floor of a later ``cuda-core`` release.
+Do not pin ``cuda-bindings`` in your own requirements. In a package that depends on
+``cuda-core``, request ``cuda-core[minimal-sysctk12]`` or ``cuda-core[minimal-sysctk13]`` from
+your own CUDA 12 and CUDA 13 extras, or ``cuda-core[cu12]`` or ``cuda-core[cu13]`` to also pull
+the CUDA Toolkit wheels, and let ``cuda-core`` choose the ``cuda-bindings`` version. A plain
+``cuda-core`` requirement does not pass the floor to pip or uv: they can install an older
+``cuda-bindings`` next to it, ``pip check`` does not report it, and ``import cuda.core`` fails.
+A pin of your own can conflict with the floor of a later ``cuda-core`` release.
 
 
 Installing from Conda (conda-forge)

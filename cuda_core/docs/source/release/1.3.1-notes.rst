@@ -1,0 +1,22 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.3.1 Release Notes
+=================================
+
+Highlights
+----------
+
+- New ``minimal-sysctk12`` and ``minimal-sysctk13`` extras install only ``cuda-bindings`` at or
+  above this release's floor for that CUDA major, without the CUDA Toolkit wheels that ``cu12``
+  and ``cu13`` add. The ``cu12`` and ``cu13`` extras include them. Packages that depend on
+  ``cuda-core`` should request one of these extras, so that pip and uv see the floor; with a
+  plain ``cuda-core`` requirement, an older ``cuda-bindings`` is installed and fails at import.
+  See :ref:`cuda-core-bindings-floor`.
+  (`#3459 <https://github.com/NVIDIA/cuda-python/issues/3459>`__)
+
+- ``cuda-core`` 1.3.0 is yanked from PyPI. It declared its floors only in the ``cu12`` and
+  ``cu13`` extras, so a resolver that cannot use 1.3.1 could fall back to it next to an older
+  ``cuda-bindings``.
