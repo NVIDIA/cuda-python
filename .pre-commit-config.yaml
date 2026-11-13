@@ -19,12 +19,12 @@ repos:
   # Self-installing: the hook downloads a pinned, checksum-verified trufflehog on
   # first use (no manual install). Skipped on pre-commit.ci; Pulse CI enforces server-side.
   - repo: https://github.com/NVIDIA/security-workflows
-    rev: c736f0454dc99764a66af6b906adfcdfbf621985  # frozen: v0.4.0
+    rev: 0659a2e36defdf66209a135d216f40a63b7aec94  # frozen: v0.5.0
     hooks:
       - id: secret-scan-trufflehog
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 25bcf95026b96e2dd3c0aec3090c3d6ef6ca2e6c  # frozen: v0.17.3
+    rev: c0f278f1254ccc8fb09676bcdb8d847e7db493e5  # frozen: v0.17.4
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
@@ -33,7 +33,7 @@ repos:
         exclude: .*\.pyi$
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 98ad4ddb9c057de2f5b9e93e44e6db959807d68c  # frozen: v23.1.3
+    rev: ce4bd7270237e95464b37d808b942f02785192c4  # frozen: v23.1.5
     hooks:
       - id: clang-format
         types_or: [c, c++, cuda]
@@ -224,7 +224,7 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "35dbc940c2bd4499ebf39aba00ad717e05cec9b5"  # frozen: v0.22.0
+    rev: "7b8114483dac7c0047c3240711dabf966c8940d8"  # frozen: v0.22.1
     hooks:
       - id: cython-lint
         # Some rules (e.g. "inline" on a function declared in a .pxd) match
