@@ -229,7 +229,9 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
-// Note: Does not yet implement reference counting for nvbug 5570902.
+// Repeat imports of one descriptor share one handle, because the driver's first
+// free of an imported pointer unmaps every import of it (nvbug 5570902). An
+// import that races the release of the last handle waits until the free is done.
 // On error, returns empty handle and sets thread-local error (use get_last_error()).
 DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream
