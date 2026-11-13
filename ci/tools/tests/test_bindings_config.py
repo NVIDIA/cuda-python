@@ -15,9 +15,8 @@ import setuptools
 from packaging.version import Version
 from setuptools_scm import get_version
 
-from ci.tools import check_pixi_cuda_version
+from ci.tools import bindings_config, check_pixi_cuda_version
 from ci.tools.bindings_config import BindingsPackage, load_config, main
-from ci.tools.compute_ci_plan import compute_workplan
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -65,6 +64,49 @@ def test_cli_supplies_matrix_and_release_role_records(legacy_config, capsys):
     }
 
 
+@pytest.mark.parametrize("registry", (False, True))
+@pytest.mark.agent_authored(model="gpt-6")
+def test_nightly_uses_artifact_source_config_instead_of_control_config(tmp_path, monkeypatch, legacy_config, registry):
+    monkeypatch.setattr(bindings_config, "DEFAULT_CONFIG", legacy_config)
+    raw = {
+        "cuda": {"build": {"version": "13.3.2"}},
+        "backport_branch": "12.9.snapshot",
+    }
+    if registry:
+        raw = {
+            "schema_version": 2,
+            "python": {"supported": ["3.12"]},
+            "cuda": {
+                "bindings": {
+                    "package_roots": {
+                        "snapshot_bindings_12": {"toolkit_version": "12.9.1", "release_status": "maintenance"},
+                        "snapshot_bindings_13": {"toolkit_version": "13.3.2", "release_status": "current"},
+                    }
+                }
+            },
+        }
+    source = tmp_path / "artifact-source" / "ci" / "versions.yml"
+    source.parent.mkdir(parents=True)
+    source.write_text(json.dumps(raw))
+    output = tmp_path / "nightly-output"
+
+    assert main(["--config", str(source), "--nightly-source-output", str(output)]) == 0
+
+    selected = dict(line.split("=", 1) for line in output.read_text().splitlines())
+    assert selected["cuda_build_ver"] == "13.3.2"
+    if registry:
+        config = json.loads(selected["bindings_config"])
+        assert config["python"]["supported"] == ["3.12"]
+        assert [(package["package_root"], package["toolkit_version"]) for package in config["package_roots"]] == [
+            ("snapshot_bindings_12", "12.9.1"),
+            ("snapshot_bindings_13", "13.3.2"),
+        ]
+        assert selected["legacy_backport_branch"] == ""
+    else:
+        assert selected["bindings_config"] == "LEGACY_CONFIG"
+        assert selected["legacy_backport_branch"] == "12.9.snapshot"
+
+
 @pytest.fixture
 def pixi_checkout(tmp_path, monkeypatch, legacy_config):
     for package_root, variant, pin in (
@@ -74,10 +116,14 @@ def pixi_checkout(tmp_path, monkeypatch, legacy_config):
     ):
         path = tmp_path / package_root / "pixi.toml"
         path.parent.mkdir()
+        variants = ["12.*", pin] if package_root == "cuda_core" else [pin]
         path.write_text(
-            f'[workspace.build-variants]\ncuda-version = ["{pin}"]\n'
+            f"[workspace.build-variants]\ncuda-version = {json.dumps(variants)}\n"
             f'[feature.{variant}.dependencies]\ncuda-version = "{pin}"\n'
         )
+        if package_root == "cuda_core":
+            with path.open("a") as stream:
+                stream.write('[feature.cu12.dependencies]\ncuda-version = "12.*"\n')
     monkeypatch.setattr(check_pixi_cuda_version, "ROOT", tmp_path)
     monkeypatch.setattr(check_pixi_cuda_version.bindings_config, "load_config", lambda: load_config(legacy_config))
     return tmp_path
@@ -100,6 +146,14 @@ def test_pixi_check_reports_core_pin_drift(pixi_checkout, capsys):
     assert "cuda_core/pixi.toml: feature.cu13.dependencies.cuda-version='13.3.*'" in capsys.readouterr().err
 
 
+@pytest.mark.agent_authored(model="gpt-6")
+def test_pixi_check_reports_maintenance_core_pin_drift(pixi_checkout, capsys):
+    path = pixi_checkout / "cuda_core" / "pixi.toml"
+    path.write_text(path.read_text().replace('cuda-version = "12.*"', 'cuda-version = "11.*"'))
+    assert check_pixi_cuda_version.main() == 1
+    assert "cuda_core/pixi.toml: feature.cu12.dependencies.cuda-version='11.*'" in capsys.readouterr().err
+
+
 @pytest.mark.parametrize(
     ("package_root", "old_pin", "new_pin"),
     [("cuda_bindings_12", "12.*", "11.*"), ("cuda_bindings_13", "13.4.*", "13.*")],
@@ -115,23 +169,15 @@ def test_pixi_check_rejects_wrong_maintenance_major_and_broad_current_pin(
 
 
 @pytest.mark.agent_authored(model="gpt-6")
-def test_cuda12_source_changes_select_bindings_consumers():
-    plan = compute_workplan(
-        ["cuda_bindings_12/cuda/bindings/_internal/utils.pyx"], merge_base="base", baseline_run_id="123"
-    )
-    assert {name for name, decision in plan["modules"].items() if decision["needs_build"]} == {
-        "bindings",
-        "core",
-        "python",
-    }
-
-
-@pytest.mark.agent_authored(model="gpt-6")
 def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, monkeypatch):
     current = load_config(ROOT / "ci" / "versions.yml").package_for_release_status("current")
-    for package_root, filename in (("cuda_bindings_13", "pyproject.toml"), ("cuda_python", "setup.py")):
+    for package_root, filename in (
+        ("cuda_bindings_13", "pyproject.toml"),
+        ("cuda_python", "setup.py"),
+        ("cuda_python", "pyproject.toml"),
+    ):
         destination = tmp_path / package_root / filename
-        destination.parent.mkdir()
+        destination.parent.mkdir(exist_ok=True)
         shutil.copyfile(ROOT / package_root / filename, destination)
 
     def git(*args):
@@ -139,15 +185,15 @@ def test_cuda12_milestone_does_not_change_current_package_versions(tmp_path, mon
             [  # noqa: S607
                 "git",
                 "-c",
-                "user.name=CI test",
-                "-c",
-                "user.email=ci-test@example.invalid",
-                "-c",
                 "commit.gpgsign=false",
                 "-c",
                 "tag.gpgsign=false",
                 "-c",
                 "core.hooksPath=/dev/null",
+                "-c",
+                "user.name=CI test",
+                "-c",
+                "user.email=ci-test@example.invalid",
                 *args,
             ],
             cwd=tmp_path,

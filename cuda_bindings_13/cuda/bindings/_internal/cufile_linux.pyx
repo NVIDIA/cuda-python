@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f4d10643352df1fe4737e5da36a2aeea86a4b00a5d2b505fa84c95aa11539127
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5a9cf48798f2417f44a0ed12648c61e0f9ada86e4001ab1430706e9e2c21cc2b
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -113,326 +113,68 @@ cdef void* __cuFileGetParameterPosixPoolSlabArray = NULL
 cdef void* __cuFileReadv = NULL
 cdef void* __cuFileWritev = NULL
 
+cdef enum: _cyb_cufile_n_functions = 45
+cdef void** _cyb_cufile_slots[_cyb_cufile_n_functions]
+cdef const char* _cyb_cufile_names[_cyb_cufile_n_functions]
+_cyb_cufile_slots[0] = &__cuFileHandleRegister; _cyb_cufile_names[0] = b'cuFileHandleRegister'
+_cyb_cufile_slots[1] = &__cuFileHandleDeregister; _cyb_cufile_names[1] = b'cuFileHandleDeregister'
+_cyb_cufile_slots[2] = &__cuFileBufRegister; _cyb_cufile_names[2] = b'cuFileBufRegister'
+_cyb_cufile_slots[3] = &__cuFileBufDeregister; _cyb_cufile_names[3] = b'cuFileBufDeregister'
+_cyb_cufile_slots[4] = &__cuFileRead; _cyb_cufile_names[4] = b'cuFileRead'
+_cyb_cufile_slots[5] = &__cuFileWrite; _cyb_cufile_names[5] = b'cuFileWrite'
+_cyb_cufile_slots[6] = &__cuFileDriverOpen; _cyb_cufile_names[6] = b'cuFileDriverOpen'
+_cyb_cufile_slots[7] = &__cuFileDriverClose; _cyb_cufile_names[7] = b'cuFileDriverClose'
+_cyb_cufile_slots[8] = &__cuFileDriverClose_v2; _cyb_cufile_names[8] = b'cuFileDriverClose_v2'
+_cyb_cufile_slots[9] = &__cuFileUseCount; _cyb_cufile_names[9] = b'cuFileUseCount'
+_cyb_cufile_slots[10] = &__cuFileDriverGetProperties; _cyb_cufile_names[10] = b'cuFileDriverGetProperties'
+_cyb_cufile_slots[11] = &__cuFileDriverSetPollMode; _cyb_cufile_names[11] = b'cuFileDriverSetPollMode'
+_cyb_cufile_slots[12] = &__cuFileDriverSetMaxDirectIOSize; _cyb_cufile_names[12] = b'cuFileDriverSetMaxDirectIOSize'
+_cyb_cufile_slots[13] = &__cuFileDriverSetMaxCacheSize; _cyb_cufile_names[13] = b'cuFileDriverSetMaxCacheSize'
+_cyb_cufile_slots[14] = &__cuFileDriverSetMaxPinnedMemSize; _cyb_cufile_names[14] = b'cuFileDriverSetMaxPinnedMemSize'
+_cyb_cufile_slots[15] = &__cuFileBatchIOSetUp; _cyb_cufile_names[15] = b'cuFileBatchIOSetUp'
+_cyb_cufile_slots[16] = &__cuFileBatchIOSubmit; _cyb_cufile_names[16] = b'cuFileBatchIOSubmit'
+_cyb_cufile_slots[17] = &__cuFileBatchIOGetStatus; _cyb_cufile_names[17] = b'cuFileBatchIOGetStatus'
+_cyb_cufile_slots[18] = &__cuFileBatchIOCancel; _cyb_cufile_names[18] = b'cuFileBatchIOCancel'
+_cyb_cufile_slots[19] = &__cuFileBatchIODestroy; _cyb_cufile_names[19] = b'cuFileBatchIODestroy'
+_cyb_cufile_slots[20] = &__cuFileReadAsync; _cyb_cufile_names[20] = b'cuFileReadAsync'
+_cyb_cufile_slots[21] = &__cuFileWriteAsync; _cyb_cufile_names[21] = b'cuFileWriteAsync'
+_cyb_cufile_slots[22] = &__cuFileStreamRegister; _cyb_cufile_names[22] = b'cuFileStreamRegister'
+_cyb_cufile_slots[23] = &__cuFileStreamDeregister; _cyb_cufile_names[23] = b'cuFileStreamDeregister'
+_cyb_cufile_slots[24] = &__cuFileGetVersion; _cyb_cufile_names[24] = b'cuFileGetVersion'
+_cyb_cufile_slots[25] = &__cuFileGetParameterSizeT; _cyb_cufile_names[25] = b'cuFileGetParameterSizeT'
+_cyb_cufile_slots[26] = &__cuFileGetParameterBool; _cyb_cufile_names[26] = b'cuFileGetParameterBool'
+_cyb_cufile_slots[27] = &__cuFileGetParameterString; _cyb_cufile_names[27] = b'cuFileGetParameterString'
+_cyb_cufile_slots[28] = &__cuFileSetParameterSizeT; _cyb_cufile_names[28] = b'cuFileSetParameterSizeT'
+_cyb_cufile_slots[29] = &__cuFileSetParameterBool; _cyb_cufile_names[29] = b'cuFileSetParameterBool'
+_cyb_cufile_slots[30] = &__cuFileSetParameterString; _cyb_cufile_names[30] = b'cuFileSetParameterString'
+_cyb_cufile_slots[31] = &__cuFileGetParameterMinMaxValue; _cyb_cufile_names[31] = b'cuFileGetParameterMinMaxValue'
+_cyb_cufile_slots[32] = &__cuFileSetStatsLevel; _cyb_cufile_names[32] = b'cuFileSetStatsLevel'
+_cyb_cufile_slots[33] = &__cuFileGetStatsLevel; _cyb_cufile_names[33] = b'cuFileGetStatsLevel'
+_cyb_cufile_slots[34] = &__cuFileStatsStart; _cyb_cufile_names[34] = b'cuFileStatsStart'
+_cyb_cufile_slots[35] = &__cuFileStatsStop; _cyb_cufile_names[35] = b'cuFileStatsStop'
+_cyb_cufile_slots[36] = &__cuFileStatsReset; _cyb_cufile_names[36] = b'cuFileStatsReset'
+_cyb_cufile_slots[37] = &__cuFileGetStatsL1; _cyb_cufile_names[37] = b'cuFileGetStatsL1'
+_cyb_cufile_slots[38] = &__cuFileGetStatsL2; _cyb_cufile_names[38] = b'cuFileGetStatsL2'
+_cyb_cufile_slots[39] = &__cuFileGetStatsL3; _cyb_cufile_names[39] = b'cuFileGetStatsL3'
+_cyb_cufile_slots[40] = &__cuFileGetBARSizeInKB; _cyb_cufile_names[40] = b'cuFileGetBARSizeInKB'
+_cyb_cufile_slots[41] = &__cuFileSetParameterPosixPoolSlabArray; _cyb_cufile_names[41] = b'cuFileSetParameterPosixPoolSlabArray'
+_cyb_cufile_slots[42] = &__cuFileGetParameterPosixPoolSlabArray; _cyb_cufile_names[42] = b'cuFileGetParameterPosixPoolSlabArray'
+_cyb_cufile_slots[43] = &__cuFileReadv; _cyb_cufile_names[43] = b'cuFileReadv'
+_cyb_cufile_slots[44] = &__cuFileWritev; _cyb_cufile_names[44] = b'cuFileWritev'
+
 cdef int _init_cufile() except -1 nogil:
     global _cyb___py_cufile_init
     cdef void* handle = NULL
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_cufile_init: return 0
 
-        global __cuFileHandleRegister
-        __cuFileHandleRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileHandleRegister')
-        if __cuFileHandleRegister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileHandleRegister = _cyb_dlsym(handle, 'cuFileHandleRegister')
-
-        global __cuFileHandleDeregister
-        __cuFileHandleDeregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileHandleDeregister')
-        if __cuFileHandleDeregister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileHandleDeregister = _cyb_dlsym(handle, 'cuFileHandleDeregister')
-
-        global __cuFileBufRegister
-        __cuFileBufRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBufRegister')
-        if __cuFileBufRegister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileBufRegister = _cyb_dlsym(handle, 'cuFileBufRegister')
-
-        global __cuFileBufDeregister
-        __cuFileBufDeregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBufDeregister')
-        if __cuFileBufDeregister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileBufDeregister = _cyb_dlsym(handle, 'cuFileBufDeregister')
-
-        global __cuFileRead
-        __cuFileRead = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileRead')
-        if __cuFileRead == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileRead = _cyb_dlsym(handle, 'cuFileRead')
-
-        global __cuFileWrite
-        __cuFileWrite = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileWrite')
-        if __cuFileWrite == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileWrite = _cyb_dlsym(handle, 'cuFileWrite')
-
-        global __cuFileDriverOpen
-        __cuFileDriverOpen = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverOpen')
-        if __cuFileDriverOpen == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverOpen = _cyb_dlsym(handle, 'cuFileDriverOpen')
-
-        global __cuFileDriverClose
-        __cuFileDriverClose = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverClose')
-        if __cuFileDriverClose == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverClose = _cyb_dlsym(handle, 'cuFileDriverClose')
-
-        global __cuFileDriverClose_v2
-        __cuFileDriverClose_v2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverClose_v2')
-        if __cuFileDriverClose_v2 == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverClose_v2 = _cyb_dlsym(handle, 'cuFileDriverClose_v2')
-
-        global __cuFileUseCount
-        __cuFileUseCount = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileUseCount')
-        if __cuFileUseCount == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileUseCount = _cyb_dlsym(handle, 'cuFileUseCount')
-
-        global __cuFileDriverGetProperties
-        __cuFileDriverGetProperties = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverGetProperties')
-        if __cuFileDriverGetProperties == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverGetProperties = _cyb_dlsym(handle, 'cuFileDriverGetProperties')
-
-        global __cuFileDriverSetPollMode
-        __cuFileDriverSetPollMode = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetPollMode')
-        if __cuFileDriverSetPollMode == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverSetPollMode = _cyb_dlsym(handle, 'cuFileDriverSetPollMode')
-
-        global __cuFileDriverSetMaxDirectIOSize
-        __cuFileDriverSetMaxDirectIOSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetMaxDirectIOSize')
-        if __cuFileDriverSetMaxDirectIOSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverSetMaxDirectIOSize = _cyb_dlsym(handle, 'cuFileDriverSetMaxDirectIOSize')
-
-        global __cuFileDriverSetMaxCacheSize
-        __cuFileDriverSetMaxCacheSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetMaxCacheSize')
-        if __cuFileDriverSetMaxCacheSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverSetMaxCacheSize = _cyb_dlsym(handle, 'cuFileDriverSetMaxCacheSize')
-
-        global __cuFileDriverSetMaxPinnedMemSize
-        __cuFileDriverSetMaxPinnedMemSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileDriverSetMaxPinnedMemSize')
-        if __cuFileDriverSetMaxPinnedMemSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverSetMaxPinnedMemSize = _cyb_dlsym(handle, 'cuFileDriverSetMaxPinnedMemSize')
-
-        global __cuFileBatchIOSetUp
-        __cuFileBatchIOSetUp = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOSetUp')
-        if __cuFileBatchIOSetUp == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileBatchIOSetUp = _cyb_dlsym(handle, 'cuFileBatchIOSetUp')
-
-        global __cuFileBatchIOSubmit
-        __cuFileBatchIOSubmit = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOSubmit')
-        if __cuFileBatchIOSubmit == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileBatchIOSubmit = _cyb_dlsym(handle, 'cuFileBatchIOSubmit')
-
-        global __cuFileBatchIOGetStatus
-        __cuFileBatchIOGetStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOGetStatus')
-        if __cuFileBatchIOGetStatus == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileBatchIOGetStatus = _cyb_dlsym(handle, 'cuFileBatchIOGetStatus')
-
-        global __cuFileBatchIOCancel
-        __cuFileBatchIOCancel = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIOCancel')
-        if __cuFileBatchIOCancel == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileBatchIOCancel = _cyb_dlsym(handle, 'cuFileBatchIOCancel')
-
-        global __cuFileBatchIODestroy
-        __cuFileBatchIODestroy = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileBatchIODestroy')
-        if __cuFileBatchIODestroy == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileBatchIODestroy = _cyb_dlsym(handle, 'cuFileBatchIODestroy')
-
-        global __cuFileReadAsync
-        __cuFileReadAsync = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileReadAsync')
-        if __cuFileReadAsync == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileReadAsync = _cyb_dlsym(handle, 'cuFileReadAsync')
-
-        global __cuFileWriteAsync
-        __cuFileWriteAsync = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileWriteAsync')
-        if __cuFileWriteAsync == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileWriteAsync = _cyb_dlsym(handle, 'cuFileWriteAsync')
-
-        global __cuFileStreamRegister
-        __cuFileStreamRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStreamRegister')
-        if __cuFileStreamRegister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileStreamRegister = _cyb_dlsym(handle, 'cuFileStreamRegister')
-
-        global __cuFileStreamDeregister
-        __cuFileStreamDeregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStreamDeregister')
-        if __cuFileStreamDeregister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileStreamDeregister = _cyb_dlsym(handle, 'cuFileStreamDeregister')
-
-        global __cuFileGetVersion
-        __cuFileGetVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetVersion')
-        if __cuFileGetVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetVersion = _cyb_dlsym(handle, 'cuFileGetVersion')
-
-        global __cuFileGetParameterSizeT
-        __cuFileGetParameterSizeT = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterSizeT')
-        if __cuFileGetParameterSizeT == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetParameterSizeT = _cyb_dlsym(handle, 'cuFileGetParameterSizeT')
-
-        global __cuFileGetParameterBool
-        __cuFileGetParameterBool = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterBool')
-        if __cuFileGetParameterBool == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetParameterBool = _cyb_dlsym(handle, 'cuFileGetParameterBool')
-
-        global __cuFileGetParameterString
-        __cuFileGetParameterString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterString')
-        if __cuFileGetParameterString == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetParameterString = _cyb_dlsym(handle, 'cuFileGetParameterString')
-
-        global __cuFileSetParameterSizeT
-        __cuFileSetParameterSizeT = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterSizeT')
-        if __cuFileSetParameterSizeT == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileSetParameterSizeT = _cyb_dlsym(handle, 'cuFileSetParameterSizeT')
-
-        global __cuFileSetParameterBool
-        __cuFileSetParameterBool = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterBool')
-        if __cuFileSetParameterBool == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileSetParameterBool = _cyb_dlsym(handle, 'cuFileSetParameterBool')
-
-        global __cuFileSetParameterString
-        __cuFileSetParameterString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterString')
-        if __cuFileSetParameterString == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileSetParameterString = _cyb_dlsym(handle, 'cuFileSetParameterString')
-
-        global __cuFileGetParameterMinMaxValue
-        __cuFileGetParameterMinMaxValue = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterMinMaxValue')
-        if __cuFileGetParameterMinMaxValue == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetParameterMinMaxValue = _cyb_dlsym(handle, 'cuFileGetParameterMinMaxValue')
-
-        global __cuFileSetStatsLevel
-        __cuFileSetStatsLevel = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetStatsLevel')
-        if __cuFileSetStatsLevel == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileSetStatsLevel = _cyb_dlsym(handle, 'cuFileSetStatsLevel')
-
-        global __cuFileGetStatsLevel
-        __cuFileGetStatsLevel = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsLevel')
-        if __cuFileGetStatsLevel == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetStatsLevel = _cyb_dlsym(handle, 'cuFileGetStatsLevel')
-
-        global __cuFileStatsStart
-        __cuFileStatsStart = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStatsStart')
-        if __cuFileStatsStart == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileStatsStart = _cyb_dlsym(handle, 'cuFileStatsStart')
-
-        global __cuFileStatsStop
-        __cuFileStatsStop = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStatsStop')
-        if __cuFileStatsStop == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileStatsStop = _cyb_dlsym(handle, 'cuFileStatsStop')
-
-        global __cuFileStatsReset
-        __cuFileStatsReset = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileStatsReset')
-        if __cuFileStatsReset == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileStatsReset = _cyb_dlsym(handle, 'cuFileStatsReset')
-
-        global __cuFileGetStatsL1
-        __cuFileGetStatsL1 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsL1')
-        if __cuFileGetStatsL1 == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetStatsL1 = _cyb_dlsym(handle, 'cuFileGetStatsL1')
-
-        global __cuFileGetStatsL2
-        __cuFileGetStatsL2 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsL2')
-        if __cuFileGetStatsL2 == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetStatsL2 = _cyb_dlsym(handle, 'cuFileGetStatsL2')
-
-        global __cuFileGetStatsL3
-        __cuFileGetStatsL3 = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetStatsL3')
-        if __cuFileGetStatsL3 == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetStatsL3 = _cyb_dlsym(handle, 'cuFileGetStatsL3')
-
-        global __cuFileGetBARSizeInKB
-        __cuFileGetBARSizeInKB = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetBARSizeInKB')
-        if __cuFileGetBARSizeInKB == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetBARSizeInKB = _cyb_dlsym(handle, 'cuFileGetBARSizeInKB')
-
-        global __cuFileSetParameterPosixPoolSlabArray
-        __cuFileSetParameterPosixPoolSlabArray = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileSetParameterPosixPoolSlabArray')
-        if __cuFileSetParameterPosixPoolSlabArray == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileSetParameterPosixPoolSlabArray = _cyb_dlsym(handle, 'cuFileSetParameterPosixPoolSlabArray')
-
-        global __cuFileGetParameterPosixPoolSlabArray
-        __cuFileGetParameterPosixPoolSlabArray = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileGetParameterPosixPoolSlabArray')
-        if __cuFileGetParameterPosixPoolSlabArray == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileGetParameterPosixPoolSlabArray = _cyb_dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
-
-        global __cuFileReadv
-        __cuFileReadv = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileReadv')
-        if __cuFileReadv == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileReadv = _cyb_dlsym(handle, 'cuFileReadv')
-
-        global __cuFileWritev
-        __cuFileWritev = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cuFileWritev')
-        if __cuFileWritev == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileWritev = _cyb_dlsym(handle, 'cuFileWritev')
+        for i in range(_cyb_cufile_n_functions):
+            _cyb_cufile_slots[i][0] = _cyb_dlsym(_cyb_RTLD_DEFAULT, _cyb_cufile_names[i])
+            if _cyb_cufile_slots[i][0] == NULL:
+                if handle == NULL:
+                    handle = load_library()
+                _cyb_cufile_slots[i][0] = _cyb_dlsym(handle, _cyb_cufile_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_cufile_init, 1)
         return 0
@@ -451,140 +193,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_cufile()
     cdef dict data = {}
-    global __cuFileHandleRegister
-    data["__cuFileHandleRegister"] = <intptr_t>__cuFileHandleRegister
-
-    global __cuFileHandleDeregister
-    data["__cuFileHandleDeregister"] = <intptr_t>__cuFileHandleDeregister
-
-    global __cuFileBufRegister
-    data["__cuFileBufRegister"] = <intptr_t>__cuFileBufRegister
-
-    global __cuFileBufDeregister
-    data["__cuFileBufDeregister"] = <intptr_t>__cuFileBufDeregister
-
-    global __cuFileRead
-    data["__cuFileRead"] = <intptr_t>__cuFileRead
-
-    global __cuFileWrite
-    data["__cuFileWrite"] = <intptr_t>__cuFileWrite
-
-    global __cuFileDriverOpen
-    data["__cuFileDriverOpen"] = <intptr_t>__cuFileDriverOpen
-
-    global __cuFileDriverClose
-    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
-
-    global __cuFileDriverClose_v2
-    data["__cuFileDriverClose_v2"] = <intptr_t>__cuFileDriverClose_v2
-
-    global __cuFileUseCount
-    data["__cuFileUseCount"] = <intptr_t>__cuFileUseCount
-
-    global __cuFileDriverGetProperties
-    data["__cuFileDriverGetProperties"] = <intptr_t>__cuFileDriverGetProperties
-
-    global __cuFileDriverSetPollMode
-    data["__cuFileDriverSetPollMode"] = <intptr_t>__cuFileDriverSetPollMode
-
-    global __cuFileDriverSetMaxDirectIOSize
-    data["__cuFileDriverSetMaxDirectIOSize"] = <intptr_t>__cuFileDriverSetMaxDirectIOSize
-
-    global __cuFileDriverSetMaxCacheSize
-    data["__cuFileDriverSetMaxCacheSize"] = <intptr_t>__cuFileDriverSetMaxCacheSize
-
-    global __cuFileDriverSetMaxPinnedMemSize
-    data["__cuFileDriverSetMaxPinnedMemSize"] = <intptr_t>__cuFileDriverSetMaxPinnedMemSize
-
-    global __cuFileBatchIOSetUp
-    data["__cuFileBatchIOSetUp"] = <intptr_t>__cuFileBatchIOSetUp
-
-    global __cuFileBatchIOSubmit
-    data["__cuFileBatchIOSubmit"] = <intptr_t>__cuFileBatchIOSubmit
-
-    global __cuFileBatchIOGetStatus
-    data["__cuFileBatchIOGetStatus"] = <intptr_t>__cuFileBatchIOGetStatus
-
-    global __cuFileBatchIOCancel
-    data["__cuFileBatchIOCancel"] = <intptr_t>__cuFileBatchIOCancel
-
-    global __cuFileBatchIODestroy
-    data["__cuFileBatchIODestroy"] = <intptr_t>__cuFileBatchIODestroy
-
-    global __cuFileReadAsync
-    data["__cuFileReadAsync"] = <intptr_t>__cuFileReadAsync
-
-    global __cuFileWriteAsync
-    data["__cuFileWriteAsync"] = <intptr_t>__cuFileWriteAsync
-
-    global __cuFileStreamRegister
-    data["__cuFileStreamRegister"] = <intptr_t>__cuFileStreamRegister
-
-    global __cuFileStreamDeregister
-    data["__cuFileStreamDeregister"] = <intptr_t>__cuFileStreamDeregister
-
-    global __cuFileGetVersion
-    data["__cuFileGetVersion"] = <intptr_t>__cuFileGetVersion
-
-    global __cuFileGetParameterSizeT
-    data["__cuFileGetParameterSizeT"] = <intptr_t>__cuFileGetParameterSizeT
-
-    global __cuFileGetParameterBool
-    data["__cuFileGetParameterBool"] = <intptr_t>__cuFileGetParameterBool
-
-    global __cuFileGetParameterString
-    data["__cuFileGetParameterString"] = <intptr_t>__cuFileGetParameterString
-
-    global __cuFileSetParameterSizeT
-    data["__cuFileSetParameterSizeT"] = <intptr_t>__cuFileSetParameterSizeT
-
-    global __cuFileSetParameterBool
-    data["__cuFileSetParameterBool"] = <intptr_t>__cuFileSetParameterBool
-
-    global __cuFileSetParameterString
-    data["__cuFileSetParameterString"] = <intptr_t>__cuFileSetParameterString
-
-    global __cuFileGetParameterMinMaxValue
-    data["__cuFileGetParameterMinMaxValue"] = <intptr_t>__cuFileGetParameterMinMaxValue
-
-    global __cuFileSetStatsLevel
-    data["__cuFileSetStatsLevel"] = <intptr_t>__cuFileSetStatsLevel
-
-    global __cuFileGetStatsLevel
-    data["__cuFileGetStatsLevel"] = <intptr_t>__cuFileGetStatsLevel
-
-    global __cuFileStatsStart
-    data["__cuFileStatsStart"] = <intptr_t>__cuFileStatsStart
-
-    global __cuFileStatsStop
-    data["__cuFileStatsStop"] = <intptr_t>__cuFileStatsStop
-
-    global __cuFileStatsReset
-    data["__cuFileStatsReset"] = <intptr_t>__cuFileStatsReset
-
-    global __cuFileGetStatsL1
-    data["__cuFileGetStatsL1"] = <intptr_t>__cuFileGetStatsL1
-
-    global __cuFileGetStatsL2
-    data["__cuFileGetStatsL2"] = <intptr_t>__cuFileGetStatsL2
-
-    global __cuFileGetStatsL3
-    data["__cuFileGetStatsL3"] = <intptr_t>__cuFileGetStatsL3
-
-    global __cuFileGetBARSizeInKB
-    data["__cuFileGetBARSizeInKB"] = <intptr_t>__cuFileGetBARSizeInKB
-
-    global __cuFileSetParameterPosixPoolSlabArray
-    data["__cuFileSetParameterPosixPoolSlabArray"] = <intptr_t>__cuFileSetParameterPosixPoolSlabArray
-
-    global __cuFileGetParameterPosixPoolSlabArray
-    data["__cuFileGetParameterPosixPoolSlabArray"] = <intptr_t>__cuFileGetParameterPosixPoolSlabArray
-
-    global __cuFileReadv
-    data["__cuFileReadv"] = <intptr_t>__cuFileReadv
-
-    global __cuFileWritev
-    data["__cuFileWritev"] = <intptr_t>__cuFileWritev
+    cdef Py_ssize_t i
+    for i in range(_cyb_cufile_n_functions):
+        data['__' + _cyb_cufile_names[i].decode()] = <intptr_t>_cyb_cufile_slots[i][0]
     _cyb_func_ptrs = data
     return data
 

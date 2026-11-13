@@ -71,7 +71,6 @@ namespace {
 bool
 add_note_to_handled_exception(const char *message) noexcept
 {
-#if PY_VERSION_HEX >= 0x030B0000
     if (!Py_IsInitialized() || py_is_finalizing()) {
         return false;
     }
@@ -91,10 +90,6 @@ add_note_to_handled_exception(const char *message) noexcept
     }
     Py_DECREF(result);
     return true;
-#else
-    (void)message;
-    return false;
-#endif
 }
 }  // namespace
 

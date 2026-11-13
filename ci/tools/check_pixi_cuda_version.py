@@ -22,9 +22,8 @@ def main() -> int:
         print(f"error: invalid CUDA toolkit pins in {bindings_config.DEFAULT_CONFIG}: {exc}", file=sys.stderr)
         return 2
 
-    current = config.package_for_release_status("current")
     checks = [(package.package_root, package) for package in config.package_roots]
-    checks.append(("cuda_core", current))
+    checks.extend(("cuda_core", package) for package in config.package_roots)
     errors: list[str] = []
     checked: list[str] = []
     for package_root, package in checks:

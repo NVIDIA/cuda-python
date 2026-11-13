@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2431782fe8a19bbf3a3b31a80cf2a59526361ea4c3961f17c635000bdba5a1b7
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=61060e81e509d327cb18d44b6e814164bb217d277af9a29d42708989acddee28
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -84,123 +84,39 @@ cdef void* __nvJitLinkVersion = NULL
 cdef void* __nvJitLinkGetLinkedLTOIRSize = NULL
 cdef void* __nvJitLinkGetLinkedLTOIR = NULL
 
+cdef enum: _cyb_nvjitlink_n_functions = 16
+cdef void** _cyb_nvjitlink_slots[_cyb_nvjitlink_n_functions]
+cdef const char* _cyb_nvjitlink_names[_cyb_nvjitlink_n_functions]
+_cyb_nvjitlink_slots[0] = &__nvJitLinkCreate; _cyb_nvjitlink_names[0] = b'nvJitLinkCreate'
+_cyb_nvjitlink_slots[1] = &__nvJitLinkDestroy; _cyb_nvjitlink_names[1] = b'nvJitLinkDestroy'
+_cyb_nvjitlink_slots[2] = &__nvJitLinkAddData; _cyb_nvjitlink_names[2] = b'nvJitLinkAddData'
+_cyb_nvjitlink_slots[3] = &__nvJitLinkAddFile; _cyb_nvjitlink_names[3] = b'nvJitLinkAddFile'
+_cyb_nvjitlink_slots[4] = &__nvJitLinkComplete; _cyb_nvjitlink_names[4] = b'nvJitLinkComplete'
+_cyb_nvjitlink_slots[5] = &__nvJitLinkGetLinkedCubinSize; _cyb_nvjitlink_names[5] = b'nvJitLinkGetLinkedCubinSize'
+_cyb_nvjitlink_slots[6] = &__nvJitLinkGetLinkedCubin; _cyb_nvjitlink_names[6] = b'nvJitLinkGetLinkedCubin'
+_cyb_nvjitlink_slots[7] = &__nvJitLinkGetLinkedPtxSize; _cyb_nvjitlink_names[7] = b'nvJitLinkGetLinkedPtxSize'
+_cyb_nvjitlink_slots[8] = &__nvJitLinkGetLinkedPtx; _cyb_nvjitlink_names[8] = b'nvJitLinkGetLinkedPtx'
+_cyb_nvjitlink_slots[9] = &__nvJitLinkGetErrorLogSize; _cyb_nvjitlink_names[9] = b'nvJitLinkGetErrorLogSize'
+_cyb_nvjitlink_slots[10] = &__nvJitLinkGetErrorLog; _cyb_nvjitlink_names[10] = b'nvJitLinkGetErrorLog'
+_cyb_nvjitlink_slots[11] = &__nvJitLinkGetInfoLogSize; _cyb_nvjitlink_names[11] = b'nvJitLinkGetInfoLogSize'
+_cyb_nvjitlink_slots[12] = &__nvJitLinkGetInfoLog; _cyb_nvjitlink_names[12] = b'nvJitLinkGetInfoLog'
+_cyb_nvjitlink_slots[13] = &__nvJitLinkVersion; _cyb_nvjitlink_names[13] = b'nvJitLinkVersion'
+_cyb_nvjitlink_slots[14] = &__nvJitLinkGetLinkedLTOIRSize; _cyb_nvjitlink_names[14] = b'nvJitLinkGetLinkedLTOIRSize'
+_cyb_nvjitlink_slots[15] = &__nvJitLinkGetLinkedLTOIR; _cyb_nvjitlink_names[15] = b'nvJitLinkGetLinkedLTOIR'
+
 cdef int _init_nvjitlink() except -1 nogil:
     global _cyb___py_nvjitlink_init
     cdef void* handle = NULL
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_nvjitlink_init: return 0
 
-        global __nvJitLinkCreate
-        __nvJitLinkCreate = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkCreate')
-        if __nvJitLinkCreate == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkCreate = _cyb_dlsym(handle, 'nvJitLinkCreate')
-
-        global __nvJitLinkDestroy
-        __nvJitLinkDestroy = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkDestroy')
-        if __nvJitLinkDestroy == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkDestroy = _cyb_dlsym(handle, 'nvJitLinkDestroy')
-
-        global __nvJitLinkAddData
-        __nvJitLinkAddData = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkAddData')
-        if __nvJitLinkAddData == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkAddData = _cyb_dlsym(handle, 'nvJitLinkAddData')
-
-        global __nvJitLinkAddFile
-        __nvJitLinkAddFile = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkAddFile')
-        if __nvJitLinkAddFile == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkAddFile = _cyb_dlsym(handle, 'nvJitLinkAddFile')
-
-        global __nvJitLinkComplete
-        __nvJitLinkComplete = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkComplete')
-        if __nvJitLinkComplete == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkComplete = _cyb_dlsym(handle, 'nvJitLinkComplete')
-
-        global __nvJitLinkGetLinkedCubinSize
-        __nvJitLinkGetLinkedCubinSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetLinkedCubinSize')
-        if __nvJitLinkGetLinkedCubinSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetLinkedCubinSize = _cyb_dlsym(handle, 'nvJitLinkGetLinkedCubinSize')
-
-        global __nvJitLinkGetLinkedCubin
-        __nvJitLinkGetLinkedCubin = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetLinkedCubin')
-        if __nvJitLinkGetLinkedCubin == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetLinkedCubin = _cyb_dlsym(handle, 'nvJitLinkGetLinkedCubin')
-
-        global __nvJitLinkGetLinkedPtxSize
-        __nvJitLinkGetLinkedPtxSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetLinkedPtxSize')
-        if __nvJitLinkGetLinkedPtxSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetLinkedPtxSize = _cyb_dlsym(handle, 'nvJitLinkGetLinkedPtxSize')
-
-        global __nvJitLinkGetLinkedPtx
-        __nvJitLinkGetLinkedPtx = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetLinkedPtx')
-        if __nvJitLinkGetLinkedPtx == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetLinkedPtx = _cyb_dlsym(handle, 'nvJitLinkGetLinkedPtx')
-
-        global __nvJitLinkGetErrorLogSize
-        __nvJitLinkGetErrorLogSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetErrorLogSize')
-        if __nvJitLinkGetErrorLogSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetErrorLogSize = _cyb_dlsym(handle, 'nvJitLinkGetErrorLogSize')
-
-        global __nvJitLinkGetErrorLog
-        __nvJitLinkGetErrorLog = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetErrorLog')
-        if __nvJitLinkGetErrorLog == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetErrorLog = _cyb_dlsym(handle, 'nvJitLinkGetErrorLog')
-
-        global __nvJitLinkGetInfoLogSize
-        __nvJitLinkGetInfoLogSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetInfoLogSize')
-        if __nvJitLinkGetInfoLogSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetInfoLogSize = _cyb_dlsym(handle, 'nvJitLinkGetInfoLogSize')
-
-        global __nvJitLinkGetInfoLog
-        __nvJitLinkGetInfoLog = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetInfoLog')
-        if __nvJitLinkGetInfoLog == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetInfoLog = _cyb_dlsym(handle, 'nvJitLinkGetInfoLog')
-
-        global __nvJitLinkVersion
-        __nvJitLinkVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkVersion')
-        if __nvJitLinkVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkVersion = _cyb_dlsym(handle, 'nvJitLinkVersion')
-
-        global __nvJitLinkGetLinkedLTOIRSize
-        __nvJitLinkGetLinkedLTOIRSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetLinkedLTOIRSize')
-        if __nvJitLinkGetLinkedLTOIRSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetLinkedLTOIRSize = _cyb_dlsym(handle, 'nvJitLinkGetLinkedLTOIRSize')
-
-        global __nvJitLinkGetLinkedLTOIR
-        __nvJitLinkGetLinkedLTOIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvJitLinkGetLinkedLTOIR')
-        if __nvJitLinkGetLinkedLTOIR == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvJitLinkGetLinkedLTOIR = _cyb_dlsym(handle, 'nvJitLinkGetLinkedLTOIR')
+        for i in range(_cyb_nvjitlink_n_functions):
+            _cyb_nvjitlink_slots[i][0] = _cyb_dlsym(_cyb_RTLD_DEFAULT, _cyb_nvjitlink_names[i])
+            if _cyb_nvjitlink_slots[i][0] == NULL:
+                if handle == NULL:
+                    handle = load_library()
+                _cyb_nvjitlink_slots[i][0] = _cyb_dlsym(handle, _cyb_nvjitlink_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvjitlink_init, 1)
         return 0
@@ -219,53 +135,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_nvjitlink()
     cdef dict data = {}
-    global __nvJitLinkCreate
-    data["__nvJitLinkCreate"] = <intptr_t>__nvJitLinkCreate
-
-    global __nvJitLinkDestroy
-    data["__nvJitLinkDestroy"] = <intptr_t>__nvJitLinkDestroy
-
-    global __nvJitLinkAddData
-    data["__nvJitLinkAddData"] = <intptr_t>__nvJitLinkAddData
-
-    global __nvJitLinkAddFile
-    data["__nvJitLinkAddFile"] = <intptr_t>__nvJitLinkAddFile
-
-    global __nvJitLinkComplete
-    data["__nvJitLinkComplete"] = <intptr_t>__nvJitLinkComplete
-
-    global __nvJitLinkGetLinkedCubinSize
-    data["__nvJitLinkGetLinkedCubinSize"] = <intptr_t>__nvJitLinkGetLinkedCubinSize
-
-    global __nvJitLinkGetLinkedCubin
-    data["__nvJitLinkGetLinkedCubin"] = <intptr_t>__nvJitLinkGetLinkedCubin
-
-    global __nvJitLinkGetLinkedPtxSize
-    data["__nvJitLinkGetLinkedPtxSize"] = <intptr_t>__nvJitLinkGetLinkedPtxSize
-
-    global __nvJitLinkGetLinkedPtx
-    data["__nvJitLinkGetLinkedPtx"] = <intptr_t>__nvJitLinkGetLinkedPtx
-
-    global __nvJitLinkGetErrorLogSize
-    data["__nvJitLinkGetErrorLogSize"] = <intptr_t>__nvJitLinkGetErrorLogSize
-
-    global __nvJitLinkGetErrorLog
-    data["__nvJitLinkGetErrorLog"] = <intptr_t>__nvJitLinkGetErrorLog
-
-    global __nvJitLinkGetInfoLogSize
-    data["__nvJitLinkGetInfoLogSize"] = <intptr_t>__nvJitLinkGetInfoLogSize
-
-    global __nvJitLinkGetInfoLog
-    data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
-
-    global __nvJitLinkVersion
-    data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
-
-    global __nvJitLinkGetLinkedLTOIRSize
-    data["__nvJitLinkGetLinkedLTOIRSize"] = <intptr_t>__nvJitLinkGetLinkedLTOIRSize
-
-    global __nvJitLinkGetLinkedLTOIR
-    data["__nvJitLinkGetLinkedLTOIR"] = <intptr_t>__nvJitLinkGetLinkedLTOIR
+    cdef Py_ssize_t i
+    for i in range(_cyb_nvjitlink_n_functions):
+        data['__' + _cyb_nvjitlink_names[i].decode()] = <intptr_t>_cyb_nvjitlink_slots[i][0]
     _cyb_func_ptrs = data
     return data
 
