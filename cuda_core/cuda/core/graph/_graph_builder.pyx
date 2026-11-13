@@ -62,7 +62,10 @@ from cuda.core._utils.cuda_utils import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from typing import overload
+
+    from cuda.core._utils.pycompat import BufferProtocol
 
     from cuda.core.graph._graph_definition import GraphDefinition
 else:
@@ -947,7 +950,7 @@ cdef class GraphBuilder:
             )
         )
 
-    def callback(self, fn, *, user_data=None) -> None:
+    def callback(self, fn: Callable[..., object], *, user_data: int | BufferProtocol | None = None) -> None:
         """Add a host callback to the graph during stream capture.
 
         The callback runs on the host CPU when the graph reaches this point
@@ -988,7 +991,8 @@ cdef class GraphBuilder:
             If ``fn`` is a ctypes function pointer whose declared prototype
             does not match ``CUhostFn``.
         ValueError
-            If ``user_data`` is given for a Python callable.
+            If ``user_data`` is given for a Python callable, or if ``fn`` is
+            :data:`HOST_COPY_FN` and ``user_data`` is not a packed record.
         """
         GB_callback(self, fn, user_data, False)
 
@@ -1251,6 +1255,24 @@ cdef class Graph:
     def is_closed(self) -> bool:
         """Whether this executable graph has been closed."""
         return self._h_graph_exec.get() == NULL
+
+    @property
+    def id(self) -> int:
+        """The driver-assigned executable graph ID, as used in GraphViz DOT output.
+
+        Requires CUDA >= 13.1.
+        """
+        if self.is_closed:
+            raise RuntimeError("Graph is closed")
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            cdef unsigned int graph_id
+            if cy_driver_version() < (13, 1, 0):
+                raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphExecGetId(as_cu(self._h_graph_exec), &graph_id))
+            return graph_id
+        ELSE:
+            raise NotImplementedError("Graph IDs require CUDA 13 build and driver 13.1 or newer")
 
     @property
     def handle(self) -> driver.CUgraphExec:

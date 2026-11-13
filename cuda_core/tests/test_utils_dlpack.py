@@ -8,6 +8,8 @@ deleter paths, ``from_dlpack`` error handling, and the
 """
 
 import ctypes
+import gc
+import weakref
 from pathlib import Path
 
 try:
@@ -103,6 +105,41 @@ def test_dlpack_view_of_buffer_reuses_exporting_buffer(init_cuda):
         del adjusted, view
     finally:
         buffer.close()
+
+
+class _EphemeralDLPackExporter:
+    """CPU exporter whose capsule is the only owner of a freshly created array."""
+
+    def __init__(self):
+        self.array_ref = None
+
+    def __dlpack_device__(self):
+        return (int(DLDeviceType.kDLCPU), 0)
+
+    def __dlpack__(self, **kwargs):
+        array = np.arange(4, dtype=np.int32)
+        self.array_ref = weakref.ref(array)
+        return array.__dlpack__(**kwargs)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_dlpack_derived_view_keeps_capsule_owned_storage_alive(init_cuda):
+    """A derived view keeps capsule-owned storage alive until the last view is released."""
+    exporter = _EphemeralDLPackExporter()
+    original = StridedMemoryView.from_dlpack(exporter, stream_ptr=-1)
+    derived = original.view(dtype=original.dtype)
+    ptr = original.ptr
+    del original
+    gc.collect()
+
+    # Check liveness before reading, so a regression fails without touching freed memory.
+    assert exporter.array_ref() is not None
+    assert derived.ptr == ptr
+    assert np.from_dlpack(derived).tolist() == [0, 1, 2, 3]
+
+    del derived
+    # No gc.collect(): the capsule must be released by reference counting, not a cycle.
+    assert exporter.array_ref() is None
 
 
 def test_dlpack_export_unversioned_capsule_and_deleter():
@@ -223,6 +260,37 @@ def test_from_dlpack_cuda_stream_none_ambiguous():
 
     with pytest.raises(BufferError, match="stream=None is ambiguous"):
         StridedMemoryView.from_dlpack(_FakeCudaDevice(), stream_ptr=None)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(("device_type", "device_id"), [(DLDeviceType.kDLCPU, 1), (DLDeviceType.kDLCUDA, -1)])
+def test_from_dlpack_rejects_invalid_device_id(device_type, device_id):
+    """A device ordinal the DLPack device type cannot have is rejected."""
+
+    class _FakeInvalidDeviceId:
+        def __dlpack_device__(self):
+            return (int(device_type), device_id)
+
+        def __dlpack__(self, **kwargs):
+            raise AssertionError("__dlpack__ must not be reached")
+
+    with pytest.raises(ValueError, match=f"reported device_id {device_id}"):
+        StridedMemoryView.from_dlpack(_FakeInvalidDeviceId(), stream_ptr=-1)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_from_dlpack_rejects_non_capsule():
+    """``__dlpack__`` must return an unconsumed DLPack capsule."""
+
+    class _FakeNonCapsule:
+        def __dlpack_device__(self):
+            return (int(DLDeviceType.kDLCPU), 0)
+
+        def __dlpack__(self, **kwargs):
+            return object()
+
+    with pytest.raises(ValueError, match="not an unconsumed DLPack capsule"):
+        StridedMemoryView.from_dlpack(_FakeNonCapsule(), stream_ptr=-1)
 
 
 class _DLPackNoMaxVersion:
@@ -843,3 +911,20 @@ def test_dlpack_c_exchange_api_managed_tensor_allocator_not_supported():
         # Currently sets a Python error when `SetError` isn't passed.
         api.managed_tensor_allocator(None, ctypes.byref(out), None, None)
     assert not out.value  # set to NULL before the error
+
+
+@pytest.mark.parametrize(("dtype_name", "max_itemsize"), [("longdouble", 8), ("clongdouble", 16)])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_dlpack_export_rejects_extended_numpy_width(dtype_name, max_itemsize):
+    """Supported dtype kinds with extended widths cannot be exported as DLPack."""
+    dtype = np.dtype(getattr(np, dtype_name))
+    if dtype.itemsize <= max_itemsize:
+        pytest.skip(f"{dtype_name} has a DLPack-supported width on this platform")
+    source = np.zeros(4, dtype=dtype)
+    view = StridedMemoryView.from_array_interface(source)
+    error_match = "Unsupported floating dtype" if dtype.kind == "f" else "Unsupported complex dtype"
+    with pytest.raises(BufferError, match=error_match):
+        view.__dlpack__(max_version=(1, 0))
+    assert view.dtype == dtype
+    assert view.ptr == source.ctypes.data
+    assert view.exporting_obj is source

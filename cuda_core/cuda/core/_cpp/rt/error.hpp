@@ -5,8 +5,16 @@
 #pragma once
 
 #include <cuda.h>
+#include <cstddef>
 
 namespace cuda_core::rt {
+
+// Sizes of the stack buffers that format error text. Messages are truncated by
+// snprintf, never overrun.
+constexpr std::size_t kOperationNameSize = 160;  // "<call> (handle 0x...)" from format_operation()
+constexpr std::size_t kErrorMessageSize = 512;   // a full error message or error detail
+// A message that embeds one error message after some fixed text.
+constexpr std::size_t kNestedMessageSize = kErrorMessageSize + (kErrorMessageSize / 2);
 
 // ============================================================================
 // Thread-local error handling

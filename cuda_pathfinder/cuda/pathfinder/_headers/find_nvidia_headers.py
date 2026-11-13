@@ -25,6 +25,8 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
+from .._utils.resolve_path import resolve_path
+
 if TYPE_CHECKING:
     from cuda.pathfinder._headers.header_descriptor import HeaderDescriptor
 
@@ -52,7 +54,7 @@ HeaderFindStep = Callable[["HeaderDescriptor"], LocatedHeaderDir | None]
 
 def _abs_norm(path: str | None) -> str | None:
     if path:
-        return os.path.normpath(os.path.abspath(path))
+        return str(resolve_path(path))
     return None
 
 
@@ -195,7 +197,7 @@ def locate_nvidia_header_directory(libname: str) -> LocatedHeaderDir | None:
             (e.g., ``"nvrtc"``, ``"cusolver"``, ``"nvshmem"``).
 
     Returns:
-        LocatedHeaderDir or None: A LocatedHeaderDir object containing the absolute path
+        LocatedHeaderDir or None: A LocatedHeaderDir object containing the resolved absolute path
         to the discovered header directory and information about where it was found,
         or ``None`` if the headers cannot be found.
 
@@ -225,7 +227,7 @@ def find_nvidia_header_directory(libname: str) -> str | None:
             (e.g., ``"nvrtc"``, ``"cusolver"``, ``"nvshmem"``).
 
     Returns:
-        str or None: Absolute path to the discovered header directory, or ``None``
+        str or None: Resolved absolute path to the discovered header directory, or ``None``
         if the headers cannot be found.
 
     Raises:

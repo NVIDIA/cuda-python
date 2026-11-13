@@ -19,12 +19,17 @@ description: >-
 inputs:
   python-version:
     description: >-
-      uv Python request, e.g. "3.12" or "3.14t" (free-threaded). The newest
+      uv Python request, e.g. "3.11" or "3.14t" (free-threaded). The newest
       patch known to the pinned uv is installed. Only series with a fixed
       release listed in the interpreter check (3.11-3.15) are accepted.
-    required: true
+    default: "3.11"
   venv:
     description: Directory for the venv. Defaults to a new directory under RUNNER_TEMP.
+    default: ""
+  stack-reserve:
+    description: >-
+      Windows only. Raise the base interpreter's main-thread stack reserve to at
+      least this many bytes. Empty (default) leaves the interpreter unchanged.
     default: ""
 
 outputs:
@@ -123,3 +128,41 @@ runs:
         PYTHON: ${{ steps.venv.outputs.python-path }}
       run: |
         "${PYTHON}" -m pip install -U pip
+
+    - name: Raise the interpreter's stack reserve
+      if: runner.os == 'Windows' && inputs.stack-reserve != ''
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      env:
+        PYTHON: ${{ steps.venv.outputs.python-path }}
+        STACK_RESERVE: ${{ inputs.stack-reserve }}
+      run: |
+        # sys.stdout.write avoids a trailing CR from Windows Python's CRLF.
+        base="$("${PYTHON}" -c 'import sys; sys.stdout.write(sys._base_executable)')"
+        # Windows cannot overwrite a running executable. Prepare a copy and
+        # replace the original after the patching interpreter exits.
+        uv run --no-project --isolated --with pefile==2024.8.26 --python "${base}" python - "${base}" "${STACK_RESERVE}" <<'EOF'
+        import sys
+
+        import pefile
+
+        path, reserve = sys.argv[1], int(sys.argv[2])
+        if reserve <= 0:
+            raise ValueError("stack-reserve must be a positive number of bytes")
+        with pefile.PE(path) as pe:
+            pe.OPTIONAL_HEADER.SizeOfStackReserve = max(pe.OPTIONAL_HEADER.SizeOfStackReserve, reserve)
+            pe.write(path + ".stack-reserve")
+        EOF
+        mv -f -- "${base}.stack-reserve" "${base}"
+        # Verify the running interpreter's stack, rather than just its header.
+        "${base}" - "${STACK_RESERVE}" <<'EOF'
+        import ctypes
+        import sys
+
+        lo, hi = ctypes.c_size_t(), ctypes.c_size_t()
+        get_limits = ctypes.windll.kernel32.GetCurrentThreadStackLimits
+        get_limits.argtypes = [ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(ctypes.c_size_t)]
+        get_limits.restype = None
+        get_limits(ctypes.byref(lo), ctypes.byref(hi))
+        print("main-thread stack reserve:", hi.value - lo.value)
+        sys.exit(hi.value - lo.value < int(sys.argv[1]))
+        EOF

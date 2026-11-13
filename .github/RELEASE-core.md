@@ -3,11 +3,10 @@
 
 # cuda.core Release Process
 
-This document covers the `cuda.core` release process. For other packages:
-`cuda-bindings` and `cuda-python` involve a private repository and are not
-documented here; `cuda-pathfinder` is largely automated by the
-[CI: Release](workflows/release.yml)
-workflow.
+This document covers the `cuda.core` release process. See the
+[bindings release guide](RELEASE-bindings.md) for `cuda-bindings` and
+`cuda-python`. The `cuda-pathfinder` release process is largely automated by
+the [CI: Release](workflows/release.yml) workflow.
 
 To release `cuda-pathfinder`, dispatch **CI: Release** with
 `component` set to `cuda-pathfinder`, `release-action` set
@@ -20,12 +19,15 @@ version, then publishes to PyPI and verifies again before publishing the
 GitHub Release without marking it as latest. A failed
 docs build prevents asset uploads, package publication, and finalization.
 
-The release-note checker runs from `git-tag`, not the workflow revision.
-For Pathfinder, that tag must contain a version
-of `ci/tools/check_release_notes.py` that writes `version=<VERSION>` to
-`GITHUB_OUTPUT`. The release-notes job rejects an empty version before
-documentation, asset uploads, or package publication can start. Pathfinder
-package publication also requires successful draft metadata preparation.
+The workflow revision supplies the release tools; release notes and the
+package registry (`ci/versions.yml`) come from `git-tag`. Current tooling
+requires that source to use the `schema_version: 2` package-root registry.
+For older layouts, select a compatible historical workflow ref as described
+in the [bindings release guide](RELEASE-bindings.md#older-release-layouts).
+The release-notes job exports
+the checked version and rejects an empty version before documentation, asset
+uploads, or package publication can start. Pathfinder package publication also
+requires successful draft metadata preparation. Existing tags stay immutable.
 
 The default `dry-run` action validates preparation, builds docs, and
 collects release artifacts without creating a GitHub Release or publishing
@@ -85,9 +87,22 @@ platforms as appropriate for each release.
 ## Check (or update if needed) the dependency requirements
 
 Review `cuda_core/pyproject.toml` and verify that all dependency
-requirements are current. The `cu12`/`cu13` extras declare the
-`cuda-bindings` floors; see "Bumping the cuda-bindings floor" in
-`cuda_core/AGENTS.md`.
+requirements are current.
+
+The `cu12`/`cu13` extras declare the `cuda-bindings` floors. A release
+does not raise a floor to the newest `cuda-bindings`; see "Bumping the
+cuda-bindings floor" in `cuda_core/AGENTS.md`. Check the floors instead:
+
+- The minor of each floor equals the minor of that major's toolkit pin
+  in `ci/versions.yml`. If a floor's minor is lower, the toolkit-bump
+  window is open: move the floor before the release.
+- In the latest CI run on `main`, the CUDA 13 rows whose CUDA minor
+  differs from the current major's toolkit pin (for example "CUDA 13.0.2") installed the
+  literal floor. Their logs show `Installing bindings (source: floor)` and
+  `cuda-bindings==<floor>`, and no "predates ... headers" line. Standard
+  CI does not install the CUDA 12 floor: its rows use the same-run
+  maintenance bindings build.
+- The release notes list every floor move since the last release.
 
 Update the `cuda-core` pin in `cuda_python/setup.py` to the new minor
 series (`cuda-core~=X.Y.0`), and plan a `cuda-python` release right after
@@ -142,17 +157,45 @@ built and deployed automatically by the release workflow.
 
 ---
 
+## Create the release branch
+
+Each `cuda-core` minor series has one release branch,
+`release/cuda-core-vX.Y.x`. Releases are tagged on that branch, not on
+`main`. Patch releases of the series land there too.
+
+For a minor release (`X.Y.0`), create the branch after every pre-release
+pull request has merged into `main`. Branch from the `main` commit that
+holds the final release notes:
+
+```bash
+git fetch origin main
+git push origin origin/main:refs/heads/release/cuda-core-v0.6.x
+```
+
+For a patch release (`X.Y.Z`), use the existing branch. Changes reach it
+through pull requests that cherry-pick the fixes from `main`, with
+`(cherry picked from commit ...)` trailers. The release notes for the patch
+release must be on the release branch before the tag: the release workflow
+checks for them in the tagged tree. Add them to `main` as well, so the docs
+switcher and the `latest` docs list them.
+
+The repository ruleset protects `release/**`: a push to an existing release
+branch needs a pull request and passing checks.
+
+---
+
 ## Create a public release tag
 
 **Warning:** Pushing a tag is a potentially irrevocable action.  Be absolutely
 certain the tag points to the correct commit before pushing.
 
 Tags should be GPG-signed. The tag name format is `cuda-core-v<VERSION>`
-(e.g. `cuda-core-v0.6.0`). The tag must point to a commit on `main`.
+(e.g. `cuda-core-v0.6.0`). The tag must point to a commit on the release
+branch.
 
 ```bash
-git checkout main
-git pull origin main
+git fetch origin release/cuda-core-v0.6.x
+git checkout --detach origin/release/cuda-core-v0.6.x
 git tag -s cuda-core-v0.6.0 -m "cuda-core v0.6.0"
 git push origin cuda-core-v0.6.0
 ```
@@ -174,21 +217,29 @@ Pushing the tag triggers a CI run automatically. Monitor it in the
 
 ## Upload wheels to PyPI
 
-This is a single `CI: Release` workflow run with two sequential stages:
-publish to TestPyPI, then publish the same wheel set to PyPI.
+First validate the release with a dry run. After reviewing that result, a
+`full-release` run publishes to TestPyPI, then publishes the same wheel set to
+PyPI.
 
 1. Go to **Actions > CI: Release** and run the workflow with:
    - **Component**: `cuda-core`
    - **The release git tag**: `cuda-core-v0.6.0`
+   - **What to run**: `dry-run`
 
-   The workflow automatically looks up the successful tag-triggered CI run
-   for the selected release tag.
+   Leave `run-id` blank to exercise automatic lookup of the successful
+   tag-triggered CI run. Leave `dry-run-docs-branch` blank to validate the docs
+   without deploying them.
 
-2. Wait for the workflow to complete. It will:
-   - publish the selected wheels to TestPyPI
-   - publish the same wheel set to PyPI
+2. Review the completed dry run, then approve publication under the team's
+   release procedure and run the workflow for the same component and tag with
+   **What to run** set to `full-release`.
 
-3. After completion, verify the final PyPI upload:
+3. Wait for that run to complete. It deploys versioned documentation and uploads
+   the source archive, checksum, and wheels to the GitHub Release draft. It
+   publishes the selected wheel set to TestPyPI followed by PyPI. The release
+   owner publishes the GitHub Release draft in the announcement step.
+
+4. After completion, verify the final PyPI upload:
 
 ```bash
 pip install cuda-core==0.6.0

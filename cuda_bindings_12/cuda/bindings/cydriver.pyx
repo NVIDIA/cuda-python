@@ -4,7 +4,7 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b8293f7b94123dad8c0eadad09ece6c5262e4b28a733663b74e3601edcfac791
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2c3b60bfe3be4a827c6639aa60fe17990745c611bc339d86bc7444f6af9225fa
 from ._internal cimport driver as _driver
 
 cdef CUresult cuGetErrorString(CUresult error, const char** pStr) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -1747,8 +1747,8 @@ cdef CUresult cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource,
     return _driver._cuGreenCtxGetDevResource(hCtx, resource, type)
 
 
-cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return _driver._cuDevSmResourceSplitByCount(result, nbGroups, input, remaining, useFlags, minCount)
+cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return _driver._cuDevSmResourceSplitByCount(result, nbGroups, input, remainder, useFlags, minCount)
 
 
 cdef CUresult cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResource* resources, unsigned int nbResources) except ?CUDA_ERROR_NOT_FOUND nogil:

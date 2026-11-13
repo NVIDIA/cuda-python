@@ -12,7 +12,15 @@ Highlights
 * Support cusparseLt release 0.9.0 (wheels have new directory structure).
   (`PR #1806 <https://github.com/NVIDIA/cuda-python/pull/1806>`_)
 
-* Clarified that Python 3.8+ excludes ``PATH`` from the native Windows DLL
-  search used by ``load_nvidia_dynamic_lib()``, so CTK installs are typically
-  found via ``CUDA_PATH``/``CUDA_HOME`` or other explicit search steps instead.
+* Updated the Windows DLL search documentation.
   (`PR #1795 <https://github.com/NVIDIA/cuda-python/pull/1795>`_)
+
+  .. note::
+
+     **Correction in 1.9.0:** The 1.4.4 release updated the documentation
+     to incorrectly state that Python 3.8+ excludes ``PATH`` from the native
+     Windows DLL search. The direct ``LoadLibraryExW(..., 0)`` call normally
+     includes ``PATH`` for unpackaged processes, subject to process DLL search
+     policy. This was a documentation error; the update did not change DLL
+     loading behavior.
+     (`Issue #3137 <https://github.com/NVIDIA/cuda-python/issues/3137>`_)

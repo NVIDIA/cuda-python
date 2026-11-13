@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated across versions from 1.5.0 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=50159aaec5737fc94f227c703c6abe29874cd8022b8f545b46498e9c5862c4e6
+# This code was automatically generated across versions from 1.5.0 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4fb80303cf58308e310478def045302e182c8c4a8b169efd0b22cd322629190e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -15,6 +15,7 @@ from cpython.buffer cimport (
     PyObject_GetBuffer as _cyb_PyObject_GetBuffer,
     Py_buffer as _cyb_Py_buffer,
 )
+cimport cython as _cyb_cython
 from cython cimport view as _cyb_view
 from libc.stdint cimport (
     intptr_t,
@@ -28,7 +29,7 @@ from libc.string cimport (
     memmove as _cyb_memmove,
 )
 
-from enum import IntEnum as _cyb_IntEnum
+from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
 import numpy as _numpy
 
@@ -1319,8 +1320,9 @@ cdef class SignalEvents:
         cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
         cdef intptr_t[:] mv = arr
         cdef Py_ssize_t i
-        for i in range(_n):
-            mv[i] = val[i]
+        with _cyb_cython.boundscheck(False), _cyb_cython.wraparound(False):
+            for i in range(_n):
+                mv[i] = val[i]
         self._ptr[0].devPtrs = <uint64_t**><intptr_t>(arr.data)
         self._refs["dev_ptrs"] = arr
 
@@ -1499,8 +1501,9 @@ cdef class Task:
         cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
         cdef intptr_t[:] mv = arr
         cdef Py_ssize_t i
-        for i in range(_n):
-            mv[i] = val[i]
+        with _cyb_cython.boundscheck(False), _cyb_cython.wraparound(False):
+            for i in range(_n):
+                mv[i] = val[i]
         self._ptr[0].outputTensor = <uint64_t**><intptr_t>(arr.data)
         self._refs["output_tensor"] = arr
 
@@ -1524,8 +1527,9 @@ cdef class Task:
         cdef _cyb_view.array arr = _cyb_view.array(shape=(_n,), itemsize=sizeof(intptr_t), format="q", mode="c")
         cdef intptr_t[:] mv = arr
         cdef Py_ssize_t i
-        for i in range(_n):
-            mv[i] = val[i]
+        with _cyb_cython.boundscheck(False), _cyb_cython.wraparound(False):
+            for i in range(_n):
+                mv[i] = val[i]
         self._ptr[0].inputTensor = <uint64_t**><intptr_t>(arr.data)
         self._refs["input_tensor"] = arr
 
@@ -1593,43 +1597,67 @@ cdef class Task:
 # Enum
 ###############################################################################
 
-class Status(_cyb_IntEnum):
+class Status(_cyb_FastEnum):
     """
     See `cudlaStatus`.
     """
-    Success = cudlaSuccess
-    ErrorInvalidParam = cudlaErrorInvalidParam
-    ErrorOutOfResources = cudlaErrorOutOfResources
-    ErrorCreationFailed = cudlaErrorCreationFailed
-    ErrorInvalidAddress = cudlaErrorInvalidAddress
-    ErrorOs = cudlaErrorOs
-    ErrorCuda = cudlaErrorCuda
-    ErrorUmd = cudlaErrorUmd
-    ErrorInvalidDevice = cudlaErrorInvalidDevice
-    ErrorInvalidAttribute = cudlaErrorInvalidAttribute
-    ErrorIncompatibleDlaSWVersion = cudlaErrorIncompatibleDlaSWVersion
-    ErrorMemoryRegistered = cudlaErrorMemoryRegistered
-    ErrorInvalidModule = cudlaErrorInvalidModule
-    ErrorUnsupportedOperation = cudlaErrorUnsupportedOperation
-    ErrorNvSci = cudlaErrorNvSci
-    ErrorDriverNotFound = cudlaErrorDriverNotFound
-    ErrorDlaErrInvalidInput = cudlaErrorDlaErrInvalidInput
-    ErrorDlaErrInvalidPreAction = cudlaErrorDlaErrInvalidPreAction
-    ErrorDlaErrNoMem = cudlaErrorDlaErrNoMem
-    ErrorDlaErrProcessorBusy = cudlaErrorDlaErrProcessorBusy
-    ErrorDlaErrTaskStatusMismatch = cudlaErrorDlaErrTaskStatusMismatch
-    ErrorDlaErrEngineTimeout = cudlaErrorDlaErrEngineTimeout
-    ErrorDlaErrDataMismatch = cudlaErrorDlaErrDataMismatch
-    ErrorUnknown = cudlaErrorUnknown
+    SUCCESS = cudlaSuccess
+    Success = SUCCESS  # backward-compat alias
+    ERROR_INVALID_PARAM = cudlaErrorInvalidParam
+    ErrorInvalidParam = ERROR_INVALID_PARAM  # backward-compat alias
+    ERROR_OUT_OF_RESOURCES = cudlaErrorOutOfResources
+    ErrorOutOfResources = ERROR_OUT_OF_RESOURCES  # backward-compat alias
+    ERROR_CREATION_FAILED = cudlaErrorCreationFailed
+    ErrorCreationFailed = ERROR_CREATION_FAILED  # backward-compat alias
+    ERROR_INVALID_ADDRESS = cudlaErrorInvalidAddress
+    ErrorInvalidAddress = ERROR_INVALID_ADDRESS  # backward-compat alias
+    ERROR_OS = cudlaErrorOs
+    ErrorOs = ERROR_OS  # backward-compat alias
+    ERROR_CUDA = cudlaErrorCuda
+    ErrorCuda = ERROR_CUDA  # backward-compat alias
+    ERROR_UMD = cudlaErrorUmd
+    ErrorUmd = ERROR_UMD  # backward-compat alias
+    ERROR_INVALID_DEVICE = cudlaErrorInvalidDevice
+    ErrorInvalidDevice = ERROR_INVALID_DEVICE  # backward-compat alias
+    ERROR_INVALID_ATTRIBUTE = cudlaErrorInvalidAttribute
+    ErrorInvalidAttribute = ERROR_INVALID_ATTRIBUTE  # backward-compat alias
+    ERROR_INCOMPATIBLE_DLA_SW_VERSION = cudlaErrorIncompatibleDlaSWVersion
+    ErrorIncompatibleDlaSWVersion = ERROR_INCOMPATIBLE_DLA_SW_VERSION  # backward-compat alias
+    ERROR_MEMORY_REGISTERED = cudlaErrorMemoryRegistered
+    ErrorMemoryRegistered = ERROR_MEMORY_REGISTERED  # backward-compat alias
+    ERROR_INVALID_MODULE = cudlaErrorInvalidModule
+    ErrorInvalidModule = ERROR_INVALID_MODULE  # backward-compat alias
+    ERROR_UNSUPPORTED_OPERATION = cudlaErrorUnsupportedOperation
+    ErrorUnsupportedOperation = ERROR_UNSUPPORTED_OPERATION  # backward-compat alias
+    ERROR_NV_SCI = cudlaErrorNvSci
+    ErrorNvSci = ERROR_NV_SCI  # backward-compat alias
+    ERROR_DRIVER_NOT_FOUND = cudlaErrorDriverNotFound
+    ErrorDriverNotFound = ERROR_DRIVER_NOT_FOUND  # backward-compat alias
+    ERROR_DLA_ERR_INVALID_INPUT = cudlaErrorDlaErrInvalidInput
+    ErrorDlaErrInvalidInput = ERROR_DLA_ERR_INVALID_INPUT  # backward-compat alias
+    ERROR_DLA_ERR_INVALID_PRE_ACTION = cudlaErrorDlaErrInvalidPreAction
+    ErrorDlaErrInvalidPreAction = ERROR_DLA_ERR_INVALID_PRE_ACTION  # backward-compat alias
+    ERROR_DLA_ERR_NO_MEM = cudlaErrorDlaErrNoMem
+    ErrorDlaErrNoMem = ERROR_DLA_ERR_NO_MEM  # backward-compat alias
+    ERROR_DLA_ERR_PROCESSOR_BUSY = cudlaErrorDlaErrProcessorBusy
+    ErrorDlaErrProcessorBusy = ERROR_DLA_ERR_PROCESSOR_BUSY  # backward-compat alias
+    ERROR_DLA_ERR_TASK_STATUS_MISMATCH = cudlaErrorDlaErrTaskStatusMismatch
+    ErrorDlaErrTaskStatusMismatch = ERROR_DLA_ERR_TASK_STATUS_MISMATCH  # backward-compat alias
+    ERROR_DLA_ERR_ENGINE_TIMEOUT = cudlaErrorDlaErrEngineTimeout
+    ErrorDlaErrEngineTimeout = ERROR_DLA_ERR_ENGINE_TIMEOUT  # backward-compat alias
+    ERROR_DLA_ERR_DATA_MISMATCH = cudlaErrorDlaErrDataMismatch
+    ErrorDlaErrDataMismatch = ERROR_DLA_ERR_DATA_MISMATCH  # backward-compat alias
+    ERROR_UNKNOWN = cudlaErrorUnknown
+    ErrorUnknown = ERROR_UNKNOWN  # backward-compat alias
 
-class Mode(_cyb_IntEnum):
+class Mode(_cyb_FastEnum):
     """
     See `cudlaMode`.
     """
     CUDA_DLA = CUDLA_CUDA_DLA
     STANDALONE = CUDLA_STANDALONE
 
-class ModuleAttributeType(_cyb_IntEnum):
+class ModuleAttributeType(_cyb_FastEnum):
     """
     See `cudlaModuleAttributeType`.
     """
@@ -1640,7 +1668,7 @@ class ModuleAttributeType(_cyb_IntEnum):
     NUM_OUTPUT_TASK_STATISTICS = CUDLA_NUM_OUTPUT_TASK_STATISTICS
     OUTPUT_TASK_STATISTICS_DESCRIPTORS = CUDLA_OUTPUT_TASK_STATISTICS_DESCRIPTORS
 
-class FenceType(_cyb_IntEnum):
+class FenceType(_cyb_FastEnum):
     """
     See `cudlaFenceType`.
     """
@@ -1649,7 +1677,7 @@ class FenceType(_cyb_IntEnum):
     FENCE_SOF = CUDLA_NVSCISYNC_FENCE_SOF
     NVSCISYNC_FENCE_SOF = FENCE_SOF  # backward-compat alias
 
-class ModuleLoadFlags(_cyb_IntEnum):
+class ModuleLoadFlags(_cyb_FastEnum):
     """
     See `cudlaModuleLoadFlags`.
     """
@@ -1658,7 +1686,7 @@ class ModuleLoadFlags(_cyb_IntEnum):
     ENABLE_FAULT_DIAGNOSTICS = CUDLA_MODULE_ENABLE_FAULT_DIAGNOSTICS
     MODULE_ENABLE_FAULT_DIAGNOSTICS = ENABLE_FAULT_DIAGNOSTICS  # backward-compat alias
 
-class SubmissionFlags(_cyb_IntEnum):
+class SubmissionFlags(_cyb_FastEnum):
     """
     See `cudlaSubmissionFlags`.
     """
@@ -1669,7 +1697,7 @@ class SubmissionFlags(_cyb_IntEnum):
     DIAGNOSTICS_TASK = CUDLA_SUBMIT_DIAGNOSTICS_TASK
     SUBMIT_DIAGNOSTICS_TASK = DIAGNOSTICS_TASK  # backward-compat alias
 
-class AccessPermissionFlags(_cyb_IntEnum):
+class AccessPermissionFlags(_cyb_FastEnum):
     """
     See `cudlaAccessPermissionFlags`.
     """
@@ -1677,14 +1705,14 @@ class AccessPermissionFlags(_cyb_IntEnum):
     READ_ONLY_PERM = CUDLA_READ_ONLY_PERM
     TASK_STATISTICS = CUDLA_TASK_STATISTICS
 
-class DevAttributeType(_cyb_IntEnum):
+class DevAttributeType(_cyb_FastEnum):
     """
     See `cudlaDevAttributeType`.
     """
     UNIFIED_ADDRESSING = CUDLA_UNIFIED_ADDRESSING
     DEVICE_VERSION = CUDLA_DEVICE_VERSION
 
-class ScratchMemoryConfig(_cyb_IntEnum):
+class ScratchMemoryConfig(_cyb_FastEnum):
     """
     See `cudlaScratchMemoryConfig`.
     """
@@ -1864,4 +1892,4 @@ cpdef module_get_attributes(intptr_t h_module, int attr_type):
             free(desc_buf)
     else:
         raise ValueError(f"Unknown attribute type: {attr_type}")
-del _cyb_IntEnum
+del _cyb_FastEnum
