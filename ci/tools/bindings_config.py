@@ -120,7 +120,7 @@ def wheel_python_versions(toolkit_version: str, platform: str, versions: Sequenc
     if platform == "win-arm64":
         if Version(toolkit_version).release[:2] < (13, 4):
             return []
-        # Retained release tags can include Python 3.10, which has no WoA wheels.
+        # Python 3.10 has no Windows ARM64 wheels.
         return [version for version in versions if version != "3.10"]
     return list(versions)
 
@@ -207,7 +207,7 @@ def resolve_release_bindings_package(
     release_tag: str,
     release_source_root: Path,
 ) -> dict[str, object]:
-    """Resolve a release from its tagged source, including retained CUDA 13 tags."""
+    """Resolve a release from the package registry in its tagged source."""
     if not release_source_root.is_dir():
         raise ValueError(f"release source root is not a directory: {release_source_root}")
 
@@ -220,38 +220,16 @@ def resolve_release_bindings_package(
         raise ValueError(f"unsupported release tag: {release_tag!r}")
 
     try:
-        raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-        legacy_config = "schema_version" not in raw
-        if legacy_config:
-            current_toolkit = raw["cuda"]["build"]["version"]
-            if _TOOLKIT_VERSION_PATTERN.fullmatch(current_toolkit) is None or not current_toolkit.startswith("13."):
-                raise ValueError("legacy release compatibility requires a CUDA 13 build toolkit")
-            current_root = (
-                "cuda_bindings_13" if (release_source_root / "cuda_bindings_13").is_dir() else "cuda_bindings"
-            )
-            package = BindingsPackage(current_root, tuple(map(int, current_toolkit.split("."))), "current")
-            if bindings_version is not None and bindings_version.release[0] == 12:
-                maintenance_toolkit = raw["cuda"]["prev_build"]["version"]
-                if _TOOLKIT_VERSION_PATTERN.fullmatch(maintenance_toolkit) is None:
-                    raise ValueError("legacy prev_build toolkit must have major.minor.patch format")
-                package = BindingsPackage(
-                    "cuda_bindings_12", tuple(map(int, maintenance_toolkit.split("."))), "maintenance"
-                )
-        else:
-            config = parse_config(raw)
-            package = (
-                config.package_for_release_status("current") if is_dependent_release else config.match_tag(release_tag)
-            )
+        config = load_config(config_path)
+        package = (
+            config.package_for_release_status("current") if is_dependent_release else config.match_tag(release_tag)
+        )
     except (OSError, yaml.YAMLError, KeyError, TypeError, ValueError) as error:
         raise ValueError(f"could not resolve release source config {config_path}: {error}") from error
     if package is None:
         raise ValueError(
             f"no CUDA bindings package root in tagged config {config_path} matches release tag: {release_tag!r}"
         )
-    if bindings_version is not None and not package.matches_tag(release_tag):
-        raise ValueError(f"release tag {release_tag!r} does not match tagged toolkit {package.toolkit_version}")
-    if legacy_config and not (release_source_root / package.package_root).is_dir():
-        raise ValueError(f"tagged source has no bindings root {package.package_root!r}")
 
     record: dict[str, object] = {
         "package_root": package.package_root,
@@ -259,8 +237,6 @@ def resolve_release_bindings_package(
     }
     if bindings_version is not None:
         record["release_version"] = str(bindings_version)
-    if legacy_config and package.release_status == "current":
-        record["allow_legacy_python_artifact"] = True
     return record
 
 

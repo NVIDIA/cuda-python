@@ -21,8 +21,10 @@ docs build prevents asset uploads, package publication, and finalization.
 
 The workflow revision supplies the release tools; release notes and the
 package registry (`ci/versions.yml`) come from `git-tag`. Current tooling
-uses the toolkit configuration in the tagged source, including retained CUDA 13
-sources that predate the package-root registry. The release-notes job exports
+requires that source to use the `schema_version: 2` package-root registry.
+For older layouts, select a compatible historical workflow ref as described
+in the [bindings release guide](RELEASE-bindings.md#older-release-layouts).
+The release-notes job exports
 the checked version and rejects an empty version before documentation, asset
 uploads, or package publication can start. Pathfinder package publication also
 requires successful draft metadata preparation. Existing tags stay immutable.

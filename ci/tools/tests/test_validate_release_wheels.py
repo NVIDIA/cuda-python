@@ -203,19 +203,3 @@ def test_cuda_core_uses_the_complete_binary_wheel_matrix(tmp_path):
     )
 
     assert result.returncode == 0, result.stderr
-
-
-@pytest.mark.agent_authored(model="GPT-6")
-def test_retained_tag_uses_its_build_workflow_python_matrix(tmp_path):
-    write_release_matrix(tmp_path, platforms=("linux-64", "win-arm64"))
-    (tmp_path / "ci/versions.yml").write_text("cuda:\n  build:\n    version: '13.4.2'\n", encoding="utf-8")
-    (tmp_path / ".github/workflows/build-wheel.yml").write_text(
-        yaml.safe_dump({"jobs": {"build": {"strategy": {"matrix": {"python-version": ["3.10", "3.12"]}}}}}),
-        encoding="utf-8",
-    )
-
-    assert expected_binary_targets(tmp_path, {"toolkit_version": "13.4.2"}) == {
-        WheelTarget("cp310", "cp310", "manylinux-x86_64"),
-        WheelTarget("cp312", "cp312", "manylinux-x86_64"),
-        WheelTarget("cp312", "cp312", "win_arm64"),
-    }

@@ -128,11 +128,6 @@ if [[ "$IS_BINDINGS_RELEASE" == true && "$COMPONENT" == "cuda-python" ]]; then
     ARTIFACT_NAME="cuda-python-wheel-cuda${TOOLKIT_VERSION}"
     if grep -Fxq "$ARTIFACT_NAME" <<< "$ARTIFACT_NAMES"; then
         MATCHING_ARTIFACTS+=("$ARTIFACT_NAME")
-    elif [[ "$TOOLKIT_VERSION" == 13.* ]] \
-        && jq -e '.allow_legacy_python_artifact == true' \
-            <<< "$RESOLVED_BINDINGS_PACKAGE_JSON" >/dev/null \
-        && grep -Fxq "cuda-python-wheel" <<< "$ARTIFACT_NAMES"; then
-        MATCHING_ARTIFACTS+=("cuda-python-wheel")
     fi
 else
     if [[ "$IS_BINDINGS_RELEASE" == true ]]; then
