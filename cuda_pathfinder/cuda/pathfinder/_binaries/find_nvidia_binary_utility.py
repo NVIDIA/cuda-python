@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from cuda.pathfinder._binaries import supported_nvidia_binaries, windows_nsight
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
-from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages_ordered
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 from .._utils.resolve_path import resolve_path
@@ -193,10 +193,8 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
 
     # 1. Search in site-packages (NVIDIA wheels)
     candidate_dirs = supported_nvidia_binaries.SITE_PACKAGES_BINDIRS.get(utility_name, ())
-    dirs = []
-
-    for sub_dir in candidate_dirs:
-        dirs.extend(find_sub_dirs_all_sitepackages(sub_dir.split(os.sep)))
+    patterns = tuple(tuple(sub_dir.split(os.sep)) for sub_dir in candidate_dirs)
+    dirs = find_sub_dirs_all_sitepackages_ordered(patterns) if patterns else []
 
     # 2. Search in Conda environment
     if (conda_prefix := os.environ.get("CONDA_PREFIX")) is not None:

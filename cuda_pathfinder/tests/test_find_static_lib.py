@@ -94,7 +94,7 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
 
     monkeypatch.setattr(
         find_static_lib_module,
-        "find_sub_dirs_all_sitepackages",
+        "find_sub_dirs_all_sitepackages_ordered",
         lambda _sub_dir: [str(site_packages_lib_dir)],
     )
     monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
@@ -212,7 +212,7 @@ def test_locate_static_lib_conda_rel_path_fallback(monkeypatch, tmp_path):
 
     monkeypatch.setattr(
         find_static_lib_module,
-        "find_sub_dirs_all_sitepackages",
+        "find_sub_dirs_all_sitepackages_ordered",
         lambda _sub_dir: [],
     )
     monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
@@ -272,7 +272,7 @@ def test_find_static_lib_not_found_error_includes_cuda_home_directory_listing(mo
 
     monkeypatch.setattr(
         find_static_lib_module,
-        "find_sub_dirs_all_sitepackages",
+        "find_sub_dirs_all_sitepackages_ordered",
         lambda _sub_dir: [],
     )
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
@@ -295,7 +295,7 @@ def test_find_static_lib_not_found_error_without_cuda_home(monkeypatch):
 
     monkeypatch.setattr(
         find_static_lib_module,
-        "find_sub_dirs_all_sitepackages",
+        "find_sub_dirs_all_sitepackages_ordered",
         lambda _sub_dir: [],
     )
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
