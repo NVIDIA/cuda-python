@@ -26,8 +26,8 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
   dependency wiring. Logic shared with `cuda-bindings` (toolchain selection,
   the compiler flag set, the Cython cache helpers and the rebuild stamps)
   lives in `_build_shared.py`. `cuda_bindings_13/_build_shared.py` is canonical;
-  `cuda_core/_build_shared.py` must be either a symlink to it or a byte-for-byte
-  identical copy.
+  each package-local `_build_shared.py` must be a symlink to it or a byte-for-byte
+  identical copy, including maintenance bindings roots.
 
 ## Build and version coupling
 
@@ -51,30 +51,48 @@ This file describes `cuda_core`, the high-level Pythonic CUDA subpackage in the
 
 ### Bumping the cuda-bindings floor
 
-By policy, the floor of each major is the newest `cuda-bindings` release of
-that major at the time of a `cuda.core` release. The bump is therefore a
-release step. A `cuda-bindings` minor release does not trigger it. The first
-change that uses a `cuda-bindings` API newer than the old floor also requires
-a bump. To bump:
+By policy, the floor of each major is the oldest `cuda-bindings` release that
+meets two conditions. It was generated from the `cuda.h` major.minor that the
+`cuda.core` wheels are built against, the toolkit pin of that major in
+`ci/versions.yml`. It provides every `cuda-bindings` API that `cuda.core` uses
+and every fix that `cuda.core` relies on. The floor's minor therefore equals
+the build toolkit's minor, and the floor's patch is the lowest one that
+qualifies.
+
+Three events move a floor:
+
+- A change uses a `cuda-bindings` API newer than the floor. Bump the floor in
+  the same pull request. The new floor must already be released on PyPI;
+  release `cuda-bindings` first.
+- A change relies on a bug fix in a newer `cuda-bindings`. Bump the floor in
+  the same pull request, under the same condition.
+- The build toolkit moves to a new minor. Move the floor to the lowest
+  suitable release of that minor, as described under "CUDA Toolkit minor
+  bumps".
+
+Nothing else moves a floor. A new `cuda-bindings` release does not, and a
+`cuda.core` release does not. Do not raise a floor to the newest release. To
+bump:
 
 1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
    `pyproject.toml`. That is the only version to type.
-2. Check `ci/versions.yml`. The `build` pin is the current major and the
-   `prev_build` pin is the prior major. Neither toolkit pin may sit below its
-   floor's major.minor, or CI builds a configuration that the build rejects. A
-   toolkit ahead of the floor is the bump window described below. The
-   pre-commit hook `check-cuda-core-bindings-floor`
-   (`toolshed/check_cuda_core_bindings_floor.py`) checks the pins. It also
+2. Check each `cuda.bindings.package_roots.<root>.toolkit_version` in
+   `ci/versions.yml`. Neither toolkit pin may sit below the corresponding
+   floor's major.minor, or CI builds a configuration that the build rejects.
+   A toolkit ahead of the floor is the bump window described below. The
+   pre-commit hook `check-bindings-config` checks these pins against the floors.
+   The separate `check-cuda-core-bindings-floor` hook
+   (`toolshed/check_cuda_core_bindings_floor.py`) validates the extras and
    checks that no documentation page spells a floor out by hand.
-3. Add to the release notes a "Breaking Changes" entry that names the new
-   floors. The support-policy table in `docs/source/support.rst` reads the
-   floors and the release version at docs-build time. It needs no edit.
+3. Add to the release notes an entry that names the new floors. The
+   support-policy table in `docs/source/support.rst` reads the floors and the
+   release version at docs-build time. It needs no edit.
 4. If the pins moved past what the pixi lock files resolve, refresh the lock
    files.
 5. Pin `cuda-bindings` to match in the conda-forge `cuda-core` feedstock. The
    feedstock lives outside this repository.
 
-A `cuda-core` release also bumps the `cuda-core~=X.Y.0` pin in
+A `cuda-core` release bumps the `cuda-core~=X.Y.0` pin in
 `cuda_python/setup.py`, followed by a `cuda-python` release (see
 `.github/RELEASE-core.md`).
 
@@ -98,7 +116,12 @@ the literal floor, until the floor is bumped. The order is:
 
 1. Bump the toolkit.
 2. Release `cuda-bindings` for the new minor.
-3. Bump the floor here.
+3. Move the floor here to the lowest suitable release of the new minor. That
+   is normally its first release.
+
+A `cuda.core` release must not ship while the window is open. In the window,
+the `cu<major>` extra can resolve to a `cuda-bindings` that fails the header
+check at import, and CI does not test the literal floor.
 
 ## Testing expectations
 

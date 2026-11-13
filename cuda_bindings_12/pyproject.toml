@@ -7,7 +7,6 @@ requires = [
     "setuptools>=80.0.0",
     "setuptools-scm[simple]>=8,!=10.1",
     "cython>=3.2.5,<3.3",
-    "pyclibrary>=0.1.7"
 ]
 build-backend = "build_hooks"
 backend-path = ["."]
@@ -54,7 +53,6 @@ build = [
     "setuptools>=80.0.0",
     "setuptools-scm[simple]>=8,!=10.1",
     "cython>=3.2.5,<3.3",
-    "pyclibrary>=0.1.7",
 ]
 test = [
     "cython>=3.2.5,<3.3",
@@ -80,8 +78,29 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 [tool.setuptools.packages.find]
 include = ["cuda*"]
 
+# Keep implementation sources and generation templates in sdists, while wheels
+# retain Cython declarations/includes and required headers for downstream builds.
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"*" = ["*.pxd", "*.pxi"]
+"cuda.bindings._bindings" = ["*.h"]
+"cuda.bindings._lib" = ["*.h"]
+
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
+
+[tool.cibuildwheel]
+skip = "*-musllinux_*"
+build-verbosity = 1
+
+[tool.cibuildwheel.linux]
+archs = "native"
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
 
 [tool.ruff]
 line-length = 120

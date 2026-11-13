@@ -11,7 +11,9 @@ Please refer to the [Installation page](https://nvidia.github.io/cuda-python/cud
 
 ## Developing
 
-This subpackage adheres to the developing practices described in the parent metapackage [CONTRIBUTING.md](https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md).
+Follow the repository [contribution guide](../CONTRIBUTING.md) and the
+[shared regeneration and review guidance](../ci/README.md#maintaining-both-bindings-roots)
+for source builds and cross-major changes.
 
 CUDA 12.9 sources are developed here on `main`. This root and
 `cuda_bindings_13/` build the same distribution and Python namespace; use
@@ -37,15 +39,16 @@ Use `build_tests.bat` on Windows. Free-threaded Python also needs the
 `test-ft` dependency group.
 
 Versions follow reachable `v12.*` tags through standard `setuptools-scm`.
-The retained `v12.9.11a0` milestone on `main` anchors CUDA 12 development
-versions. See the repository's
+Source builds need the matching tag and the history connecting it to the
+checkout. See the repository's
 [version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
 
 ## Testing
 
-Install the package and its `test` dependency group with
-`python -m pip install -v -e . --group test` (pip 25.1 or newer).
+Run the commands below from `cuda_bindings_12/`, in an environment containing
+the CUDA 12 bindings. With pip 25.1 or newer, install the package and its
+`test` dependency group with `python -m pip install -v -e . --group test`.
 
 Multiple testing options are available:
 
@@ -67,13 +70,16 @@ To run these tests:
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
 1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
-2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both cythonize the tests and build them.
+2. Run the `build_tests` script located in `tests/cython` appropriate to your platform. This will both cythonize the tests and build them.
 
 To run these tests:
 * `python -m pytest tests/cython/` against editable installations
 * `pytest tests/cython/` against installed packages
 
 ### Samples
+
+Running the samples requires CUDA 12 NVRTC, supplied by the CUDA Toolkit or
+`nvidia-cuda-nvrtc-cu12`. The `test` dependency group does not install it.
 
 Various [CUDA Samples](https://github.com/NVIDIA/cuda-samples/tree/master) that were rewritten using CUDA Python are located in `examples`.
 
@@ -88,10 +94,12 @@ In addition, extra examples are included:
   wrappers of the driver API.
 
 To run these samples:
-* `python -m pytest tests/cython/` against editable installations
-* `pytest tests/cython/` against installed packages
+* `python -m pytest examples/` against editable installations
+* `pytest examples/` against installed packages
 
 ### Benchmark
 
 See the shared [cuda.bindings benchmark harness](../benchmarks/cuda_bindings/README.md)
-for performance benchmarks and usage instructions.
+for performance benchmarks and usage instructions. Its configured environments
+currently target CUDA 13; benchmarking CUDA 12 requires a compatible environment
+configured separately.

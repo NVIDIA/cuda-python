@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: "CI: Upload git archive"
+name: "CI: Upload release artifacts"
 
 on:
   workflow_call:
@@ -10,22 +10,20 @@ on:
       git-tag:
         type: string
         required: true
-      run-id:
-        description: "The GHA run ID that generated validated artifacts"
+      artifact-id:
+        description: "Immutable artifact ID prepared and validated by this workflow run"
         type: string
         required: true
       component:
-        description: "Component to download wheels for"
         type: string
         required: true
       dry-run:
-        description: "Validate release artifacts without uploading them to the GitHub release"
+        description: "Skip GitHub release uploads; preparation already saved the dry-run artifact"
         type: boolean
         required: false
         default: false
 
 concurrency:
-  # Keep upload locks component-specific and separate from the caller's workflow lock.
   group: release-upload-${{ inputs.component }}
   cancel-in-progress: false
 
@@ -33,71 +31,24 @@ permissions:
   contents: write
 
 jobs:
-  # create source archive and upload it to the published release
-  # URL to the archive: https://github.com/NVIDIA/<repo>/releases/download/<tag>/<repo>-<tag>.tar.gz
   upload:
-    if: ${{ !github.event.repository.fork }}
+    if: ${{ !github.event.repository.fork && !inputs.dry-run }}
     runs-on: ubuntu-latest
-    env:
-      ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ inputs.git-tag }}
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Download prepared release artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
-          fetch-depth: 1
-          ref: ${{ inputs.git-tag }}
-
-      - name: Create Release Directory
-        run: mkdir -p release
-
-      - name: Archive Source
-        run: >
-          git archive
-          --format=tar.gz
-          --prefix="${{ env.ARCHIVE_NAME }}/"
-          --output="release/${{ env.ARCHIVE_NAME }}.tar.gz"
-          ${{ inputs.git-tag }}
-
-      - name: Compute Checksum
-        run: >
-          sha256sum "release/${{ env.ARCHIVE_NAME }}.tar.gz"
-          | awk '{print $1}'
-          > "release/${{ env.ARCHIVE_NAME }}.tar.gz.sha256sum"
-
-      - name: Upload Archive
-        if: ${{ !inputs.dry-run }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release upload
-          --clobber "${{ inputs.git-tag }}"
-          --repo "${{ github.repository }}"
-          release/*
-
-      - name: Download and Validate Wheels
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Use the shared script to download wheels
-          ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
-
-          # Validate that release wheels match the expected version from tag.
-          ./ci/tools/validate-release-wheels "${{ inputs.git-tag }}" "${{ inputs.component }}" "release/wheels"
-
-      - name: Upload Wheels
-        if: ${{ !inputs.dry-run }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
-            echo "Uploading wheels to release ${{ inputs.git-tag }}"
-            gh release upload --clobber "${{ inputs.git-tag }}" --repo "${{ github.repository }}" release/wheels/*
-          fi
-
-      - name: Upload dry-run release artifacts
-        if: ${{ inputs.dry-run }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: release-artifacts-dry-run-${{ inputs.component }}-${{ inputs.git-tag }}
+          artifact-ids: ${{ inputs.artifact-id }}
           path: release/
-          retention-days: 3
+          merge-multiple: true
+
+      - name: Upload archive, checksum, and wheels
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_GIT_TAG: ${{ inputs.git-tag }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+        run: >-
+          gh release upload
+          --clobber "$RELEASE_GIT_TAG"
+          --repo "$RELEASE_REPOSITORY"
+          release/*.tar.gz release/*.sha256sum release/wheels/*.whl

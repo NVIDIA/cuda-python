@@ -22,7 +22,7 @@ extern "C" int _Py_IsFinalizing(void);
 // call.
 //
 // If that race is lost on a non-finalizer thread, CPython's behavior is
-// version-dependent: on older supported versions (3.10-3.13) it may abruptly
+// version-dependent: on older supported versions (3.11-3.13) it may abruptly
 // terminate the current thread (historically via PyThread_exit_thread(),
 // without normal C++ unwinding), while on newer versions (3.14+) it may hang
 // the thread until process exit.

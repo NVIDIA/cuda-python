@@ -108,8 +108,8 @@ def _settled_open_fds():
 
 
 def _has_note(exc, text):
-    """Whether ``text`` is in one of the exception's notes, or in its message on Python 3.10."""
-    return any(text in note for note in getattr(exc, "__notes__", ())) or text in str(exc)
+    """Whether ``text`` is in one of the exception's notes"""
+    return any(text in note for note in getattr(exc, "__notes__", ()))
 
 
 def _forge(desc, **fields):
