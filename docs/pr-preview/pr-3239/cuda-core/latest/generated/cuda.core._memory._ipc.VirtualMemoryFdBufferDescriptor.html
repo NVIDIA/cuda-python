@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f79c4ecb"></script>
+    <script src="../_static/documentation_options.js?v=65f6177e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev321';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev23';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -791,8 +791,7 @@ allocation that backs the buffer, in address order (<code class="docutils litera
 <a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><code class="xref py py-class docutils literal notranslate"><span class="pre">IPCAllocationHandle</span></code></a> that the descriptor owns and closes when it
 is released), with each allocation’s size (<code class="docutils literal notranslate"><span class="pre">sizes</span></code>) and the buffer’s
 size (<code class="docutils literal notranslate"><span class="pre">size</span></code>, which may be smaller than their sum). <code class="docutils literal notranslate"><span class="pre">handle_type</span></code> is
-<code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code>, the only handle type cuda.core shares today; the rules
-below describe file descriptors.</p>
+<code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code>; the rules below describe file descriptors.</p>
 <p>A descriptor pins the physical memory while it exists, in every process
 that holds one, and nothing else does: the exporting buffer keeps no
 descriptor, and an imported buffer does not keep the one it came from. A
@@ -878,7 +877,13 @@ from <code class="docutils literal notranslate"><span class="pre">buf.ipc_descri
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.handle_type">
 <span class="sig-name descname"><span class="pre">handle_type</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.handle_type" title="Link to this definition">#</a></dt>
-<dd><p>The handle type the exporter used; the importing resource must be configured with the same.</p>
+<dd><p>VirtualMemoryHandleType</p>
+<p>The export handle type; the importing resource must use the same type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_VirtualMemoryDescriptor.handle_type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -905,6 +910,11 @@ from <code class="docutils literal notranslate"><span class="pre">buf.ipc_descri
 <span class="sig-name descname"><span class="pre">sizes</span></span><a class="headerlink" href="#cuda.core._memory._ipc.VirtualMemoryFdBufferDescriptor.sizes" title="Link to this definition">#</a></dt>
 <dd><p>tuple[int, …]</p>
 <p>Size of each physical allocation, in address order; the sum is at least <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_VirtualMemoryDescriptor.sizes</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

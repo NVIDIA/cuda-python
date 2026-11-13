@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0fedfaed"></script>
+    <script src="../_static/documentation_options.js?v=94622d56"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.4.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev49';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -607,6 +607,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cufile.html">cufile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nvml.html">nvml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
@@ -2060,169 +2061,172 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mem_host_unregister</span></code></p></td>
 <td><p>Unregisters a memory range that was registered with cuMemHostRegister.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_peer</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy</span></code></p></td>
+<td><p>Copies memory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_peer</span></code></p></td>
 <td><p>Copies device memory between two contexts.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htod_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htod_v2</span></code></p></td>
 <td><p>Copies memory from Host to Device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtoh_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtoh_v2</span></code></p></td>
 <td><p>Copies memory from Device to Host.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtod_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtod_v2</span></code></p></td>
 <td><p>Copies memory from Device to Device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtoa_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtoa_v2</span></code></p></td>
 <td><p>Copies memory from Device to Array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atod_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atod_v2</span></code></p></td>
 <td><p>Copies memory from Array to Device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htoa_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htoa_v2</span></code></p></td>
 <td><p>Copies memory from Host to Array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atoh_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atoh_v2</span></code></p></td>
 <td><p>Copies memory from Array to Host.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atoa_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atoa_v2</span></code></p></td>
 <td><p>Copies memory from Array to Array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_2d_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_2d_v2</span></code></p></td>
 <td><p>Copies memory for 2D arrays.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_2d_unaligned_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_2d_unaligned_v2</span></code></p></td>
 <td><p>Copies memory for 2D arrays.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_v2</span></code></p></td>
 <td><p>Copies memory for 3D arrays.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_peer</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_peer</span></code></p></td>
 <td><p>Copies memory between contexts.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_async</span></code></p></td>
 <td><p>Copies memory asynchronously.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_peer_async</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_peer_async</span></code></p></td>
 <td><p>Copies device memory between two contexts asynchronously.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htod_async_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htod_async_v2</span></code></p></td>
 <td><p>Copies memory from Host to Device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtoh_async_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtoh_async_v2</span></code></p></td>
 <td><p>Copies memory from Device to Host.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtod_async_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_dtod_async_v2</span></code></p></td>
 <td><p>Copies memory from Device to Device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htoa_async_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_htoa_async_v2</span></code></p></td>
 <td><p>Copies memory from Host to Array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atoh_async_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_atoh_async_v2</span></code></p></td>
 <td><p>Copies memory from Array to Host.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_2d_async_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_2d_async_v2</span></code></p></td>
 <td><p>Copies memory for 2D arrays.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_async_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_async_v2</span></code></p></td>
 <td><p>Copies memory for 3D arrays.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_peer_async</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_peer_async</span></code></p></td>
 <td><p>Copies memory between contexts asynchronously.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_batch_async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_batch_async</span></code></p></td>
 <td><p>Perform a batch of memory copies asynchronously.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_batch_async_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_batch_async_v2</span></code></p></td>
 <td><p>Performs a batch of memory copies asynchronously.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_batch_async_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_batch_async_v2</span></code></p></td>
 <td><p>Performs a batch of 3D memory copies asynchronously.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_with_attributes_async</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_with_attributes_async</span></code></p></td>
 <td><p>Performs asynchronous memory copy operation with the specified attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_with_attributes_async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memcpy_3d_with_attributes_async</span></code></p></td>
 <td><p>Performs 3D memory copy with attributes asynchronously.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d8_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d8_v2</span></code></p></td>
 <td><p>Initializes device memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d16_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d16_v2</span></code></p></td>
 <td><p>Initializes device memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d32_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d32_v2</span></code></p></td>
 <td><p>Initializes device memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d8_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d8_v2</span></code></p></td>
 <td><p>Initializes device memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d16_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d16_v2</span></code></p></td>
 <td><p>Initializes device memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d32_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d32_v2</span></code></p></td>
 <td><p>Initializes device memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d8_async</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d8_async</span></code></p></td>
 <td><p>Sets device memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d16_async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d16_async</span></code></p></td>
 <td><p>Sets device memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d32_async</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d32_async</span></code></p></td>
 <td><p>Sets device memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d8_async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d8_async</span></code></p></td>
 <td><p>Sets device memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d16_async</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d16_async</span></code></p></td>
 <td><p>Sets device memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d32_async</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">memset_d2d32_async</span></code></p></td>
 <td><p>Sets device memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_create_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_create_v2</span></code></p></td>
 <td><p>Creates a 1D or 2D CUDA array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_descriptor_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_descriptor_v2</span></code></p></td>
 <td><p>Get a 1D or 2D CUDA array descriptor.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_sparse_properties</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_sparse_properties</span></code></p></td>
 <td><p>Returns the layout properties of a sparse CUDA array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_get_sparse_properties</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_get_sparse_properties</span></code></p></td>
 <td><p>Returns the layout properties of a sparse CUDA mipmapped array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_memory_requirements</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_memory_requirements</span></code></p></td>
 <td><p>Returns the memory requirements of a CUDA array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_get_memory_requirements</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_get_memory_requirements</span></code></p></td>
 <td><p>Returns the memory requirements of a CUDA mipmapped array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_plane</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_get_plane</span></code></p></td>
 <td><p>Gets a CUDA array plane from a CUDA array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_destroy</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_destroy</span></code></p></td>
 <td><p>Destroys a CUDA array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_3d_create_v2</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_3d_create_v2</span></code></p></td>
 <td><p>Creates a 3D CUDA array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_3d_get_descriptor_v2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">array_3d_get_descriptor_v2</span></code></p></td>
 <td><p>Get a 3D CUDA array descriptor.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_create</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_create</span></code></p></td>
 <td><p>Creates a CUDA mipmapped array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_get_level</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_get_level</span></code></p></td>
 <td><p>Gets a mipmap level of a CUDA mipmapped array.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_destroy</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mipmapped_array_destroy</span></code></p></td>
 <td><p>Destroys a CUDA mipmapped array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mem_get_handle_for_address_range</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mem_get_handle_for_address_range</span></code></p></td>
 <td><p>Return a handle (a dma-buf file descriptor) for an address range.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mem_batch_decompress_async</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mem_batch_decompress_async</span></code></p></td>
 <td><p>Submit a batch of <code class="docutils literal notranslate"><span class="pre">count</span></code> independent decompression operations.</p></td>
 </tr>
 </tbody>

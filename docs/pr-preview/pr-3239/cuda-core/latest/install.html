@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=f79c4ecb"></script>
+    <script src="_static/documentation_options.js?v=65f6177e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev321';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev23';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -837,6 +837,9 @@ extras install a compatible version. Test dependencies now use the <code class="
 <p>If you upgrade <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> alone, the installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> can be older than the new
 release requires. <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> then reports the required version and the <code class="docutils literal notranslate"><span class="pre">pip</span></code> command
 that installs it.</p>
+<p>Do not pin <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> in your own requirements. Depend on <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> with the <code class="docutils literal notranslate"><span class="pre">cu12</span></code>
+or <code class="docutils literal notranslate"><span class="pre">cu13</span></code> extra, and let <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> choose the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version. A pin of your own
+can conflict with the floor of a later <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> release.</p>
 </section>
 <section id="installing-from-conda-conda-forge">
 <h2>Installing from Conda (conda-forge)<a class="headerlink" href="#installing-from-conda-conda-forge" title="Link to this heading">#</a></h2>
@@ -846,7 +849,8 @@ that installs it.</p>
 </div>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">cuda-version=13</span></code> for CUDA 13.</p>
 <p>The conda-forge package depends on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the same CUDA major. The
-<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor of the release also applies to it. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.</p>
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor of the release also applies to it. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.
+As with <code class="docutils literal notranslate"><span class="pre">pip</span></code>, do not pin <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> yourself. Let <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> choose it.</p>
 </section>
 <section id="development-environment">
 <h2>Development environment<a class="headerlink" href="#development-environment" title="Link to this heading">#</a></h2>
@@ -868,10 +872,10 @@ obtain the most recent build, use the following commands:</p>
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cuda-core-python312-linux-64-*/cuda_core*.whl<span class="o">[</span>cu13<span class="o">]</span>
 </pre></div>
 </div>
-<p>Replace <code class="docutils literal notranslate"><span class="pre">python312</span></code> with your Python version (e.g. <code class="docutils literal notranslate"><span class="pre">python310</span></code>, <code class="docutils literal notranslate"><span class="pre">python311</span></code>,
-<code class="docutils literal notranslate"><span class="pre">python313</span></code>, <code class="docutils literal notranslate"><span class="pre">python314</span></code>, <code class="docutils literal notranslate"><span class="pre">python314t</span></code>). For aarch64, replace <code class="docutils literal notranslate"><span class="pre">linux-64</span></code>
-with <code class="docutils literal notranslate"><span class="pre">linux-aarch64</span></code>; for Windows, use <code class="docutils literal notranslate"><span class="pre">win-64</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">cu13</span></code> with
-<code class="docutils literal notranslate"><span class="pre">cu12</span></code> for CUDA 12.x environments.</p>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">python312</span></code> with your Python version (e.g. <code class="docutils literal notranslate"><span class="pre">python311</span></code>,
+<code class="docutils literal notranslate"><span class="pre">python313</span></code>, <code class="docutils literal notranslate"><span class="pre">python314</span></code>, <code class="docutils literal notranslate"><span class="pre">python314t</span></code>, <code class="docutils literal notranslate"><span class="pre">python315</span></code>, <code class="docutils literal notranslate"><span class="pre">python315t</span></code>).
+For aarch64, replace <code class="docutils literal notranslate"><span class="pre">linux-64</span></code> with <code class="docutils literal notranslate"><span class="pre">linux-aarch64</span></code>; for Windows, use
+<code class="docutils literal notranslate"><span class="pre">win-64</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">cu13</span></code> with <code class="docutils literal notranslate"><span class="pre">cu12</span></code> for CUDA 12.x environments.</p>
 </section>
 <section id="installing-from-source">
 <span id="cuda-core-source-install"></span><h3>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h3>
@@ -890,7 +894,7 @@ constrain it with <code class="docutils literal notranslate"><span class="pre">P
 recipe below. On native Windows outside WSL, complete its Windows setup
 <em>before</em> cloning so Git can create the build-critical
 <code class="docutils literal notranslate"><span class="pre">cuda_core/_build_shared.py</span></code> symlink.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>--filter<span class="o">=</span>blob:none<span class="w"> </span>--also-filter-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
@@ -918,7 +922,7 @@ for details.</p>
 <p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> is a fast Python package and project manager. Before cloning, check the
 <a class="reference internal" href="#cuda-core-source-install"><span class="std std-ref">source-build prerequisites</span></a>.
 For example, to work on <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> against CUDA 13:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>--filter<span class="o">=</span>blob:none<span class="w"> </span>--also-filter-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python/cuda_core
 <span class="gp">$ </span>uv<span class="w"> </span>venv
 <span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">   </span><span class="c1"># On Windows: .venv\Scripts\activate</span>
@@ -935,7 +939,7 @@ For example, to work on <code class="docutils literal notranslate"><span class="
 <p><a class="reference external" href="https://pixi.sh/">pixi</a> provides a reproducible development environment across the repository.
 Before cloning, check the <a class="reference internal" href="#cuda-core-source-install"><span class="std std-ref">source-build prerequisites</span></a>.
 For example, to work against CUDA 13:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>--config<span class="w"> </span>core.symlinks<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--config<span class="w"> </span>submodule.recurse<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--recurse-submodules<span class="w"> </span>--filter<span class="o">=</span>blob:none<span class="w"> </span>--also-filter-submodules<span class="w"> </span>https://github.com/NVIDIA/cuda-python.git
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>cuda-python
 <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>cu13<span class="w"> </span>test-core
 </pre></div>

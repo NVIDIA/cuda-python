@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f79c4ecb"></script>
+    <script src="../_static/documentation_options.js?v=65f6177e"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev321';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev23';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -820,6 +820,11 @@ You can query these capabilities through
 <code class="docutils literal notranslate"><span class="pre">Device.properties.host_numa_memory_pools_supported</span></code>. If the required pool
 is unsupported and stream-ordered allocation is not needed, use
 <a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a>.</p>
+<p>The driver makes a host memory pool accessible only from the host by
+default, so the resource grants the device that is current when it is
+created read and write access to the pool. Kernels on other devices cannot
+access its buffers. Without options, the grant applies to the driver’s
+current pool, which the whole process shares.</p>
 <p>To create an IPC-Enabled memory resource (MR) that is capable of sharing
 allocations between processes, specify <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> in the initializer
 option. When IPC is enabled and <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is not specified, the NUMA node
@@ -1048,7 +1053,7 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.is_device_accessible">
 <span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>Return True. This memory resource provides device-accessible buffers.</p>
+<dd><p>Return True. The device that is current when the resource is created can read and write its buffers.</p>
 </dd></dl>
 
 <dl class="py attribute">
