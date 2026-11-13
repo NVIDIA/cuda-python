@@ -129,22 +129,3 @@ def test_nonrelease_components_stage_wheels_without_test_artifacts(tmp_path, com
     )
     assert result.returncode == 0, result.stderr
     assert {path.name for path in (tmp_path / "dist").iterdir()} == {f"{artifact}.whl" for artifact in expected}
-
-
-@pytest.mark.parametrize(
-    ("toolkit", "artifacts", "expected"),
-    [
-        ("13.4.2", ["cuda-python-wheel"], "cuda-python-wheel"),
-        ("13.4.2", ["cuda-python-wheel", "cuda-python-wheel-cuda13.4.2"], "cuda-python-wheel-cuda13.4.2"),
-        ("12.9.1", ["cuda-python-wheel"], None),
-    ],
-)
-@pytest.mark.agent_authored(model="GPT-6")
-def test_legacy_metapackage_fallback_is_limited_to_cuda_13(tmp_path, toolkit, artifacts, expected):
-    package = {"toolkit_version": toolkit, "allow_legacy_python_artifact": True}
-    result = run_download(tmp_path, artifacts, "cuda-python", package=package, tag=f"v{toolkit}")
-
-    assert (result.returncode == 0) == (expected is not None), result.stderr
-    assert {path.name for path in (tmp_path / "dist").glob("*.whl")} == (
-        set() if expected is None else {f"{expected}.whl"}
-    )

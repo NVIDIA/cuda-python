@@ -263,6 +263,10 @@ setuptools-scm's default tag parser. Each root's `git_describe_command`
 selects its CUDA ABI major for source builds (`v12.*` or `v13.*`),
 independently of the toolkit minor used to build it.
 
+Release workflows on `main` require `schema_version: 2` in the tagged source
+too. For older layouts, use an appropriate historical workflow ref and its
+own inputs; see [older release layouts](../.github/RELEASE-bindings.md#older-release-layouts).
+
 The repository-private `cuda-python-ci-tools` package provides the shared
 configuration readers and their dependencies. Workflows use these helpers
 from their control revision when inspecting another source revision. Install
@@ -373,8 +377,10 @@ source revision; the helper comes from the workflow control revision.
 directories on `main`. The registry identifies CUDA 12 as the maintenance
 line. Routine CUDA 12 fixes, tests, and documentation belong in
 `cuda_bindings_12/`. The old `12.9.x` branch stays frozen except for emergency
-fixes using compatible historical tooling; reconcile any such fix into the
-CUDA 12 directory on `main` and assess the CUDA 13 directory too.
+fixes using compatible historical tooling. Release old-layout tags from a
+validated workflow on the appropriate maintenance branch or historical tag,
+rather than from `main`. Reconcile any emergency fix into the CUDA 12 directory
+on `main` and assess the CUDA 13 directory too.
 
 For independent releases from a shared source commit, see
 [two tags at one commit](../.github/RELEASE-bindings.md#two-tags-at-one-commit).
