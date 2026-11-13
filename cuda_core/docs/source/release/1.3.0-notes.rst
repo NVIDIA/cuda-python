@@ -26,8 +26,31 @@ Highlights
 - A new :doc:`error handling <../error_handling>` policy: :class:`CUDAWarning` reports CUDA
   errors that cannot be raised, and :class:`CUDAOutOfMemoryError` is a :class:`MemoryError`.
 
+- Waits on the same NVML event set are now serialized by a lock, including
+  concurrent synchronous and asynchronous waits. This adds a small locking
+  overhead to :meth:`~system._device.DeviceEvents.wait` and
+  :meth:`~system._system_events.RegisteredSystemEvents.wait`; a synchronous
+  call may block behind another consumer. Use ``wait_async`` in an event loop.
+  Async waits include time waiting for the lock in their timeout budget
+  without blocking the loop.
+
+- :meth:`~system._system_events.RegisteredSystemEvents.wait` now raises
+  ``ValueError`` for ``buffer_size < 1`` before consuming any pending events.
+
 New features
 ------------
+
+- Added :meth:`~system._device.DeviceEvents.wait_async` and
+  :meth:`~system._system_events.RegisteredSystemEvents.wait_async` for waiting
+  for NVML device and system events without blocking an asyncio event loop.
+  Native waits use bounded slices, and cancellation drains the in-flight
+  slice before returning. Events consumed during cancellation are kept for
+  the next wait, with system batches delivered in ``buffer_size`` pieces.
+  A native error from a cancelled slice is also kept for the next wait, so
+  it does not replace the task's ``CancelledError``. For these async APIs,
+  ``timeout_ms=0`` waits indefinitely; for synchronous ``wait``, it skips
+  waiting.
+  (`#1458 <https://github.com/NVIDIA/cuda-python/issues/1458>`__)
 
 - Added read-only ``GraphDefinition.id``, ``Graph.id``, ``GraphNode.local_id``
   and ``GraphNode.tools_id`` properties (CUDA 13 build and driver 13.1+), and
