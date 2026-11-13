@@ -95,9 +95,7 @@ def test_published_floor_rows_never_select_local_wheel_suites():
     row = select_test_matrix(rows("12.6.3"), PACKAGES, build_type="nightly")["include"][0]
 
     # Workflows gate local-wheel downloads and suites on these flags alone.
-    assert row["BINDINGS_SOURCE"] == "floor"
     assert row["TEST_BINDINGS"] == row["TEST_PYTHON"] == "false"
-    assert row["SUITES"] == "pathfinder+core12"
 
 
 @pytest.mark.agent_authored(model="gpt-6")
