@@ -25,3 +25,11 @@ Bug Fixes
   call and free the buffers allocated for getters.
 * ``get_cuda_native_handle`` preserves a ``KeyError`` raised inside a
   registered getter instead of reporting an unknown type.
+
+Packaging
+---------
+
+* Wheels omit ``.pyx`` implementation sources and ``.in`` generation templates,
+  following the CUDA 13 packaging policy. Cython declarations and includes
+  (``.pxd`` and ``.pxi``), and required headers, remain available for downstream
+  Cython builds. Source distributions retain the inputs needed to build the package.
