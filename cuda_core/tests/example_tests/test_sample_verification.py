@@ -99,6 +99,43 @@ def test_unsupported_core_sample_paths_return_waiver(
     assert len(waiver_returns) == 1
 
 
+@pytest.mark.agent_authored(model="deepseek-v4.1-flash-1017")
+def test_simple_p2p_gates_allocation_on_memory_pool_support() -> None:
+    """Allocations must be gated on mempool support instead of raising (NVBug 7081727)."""
+    sample_path = REPO_ROOT / "samples" / "cuda_core" / "simpleP2P" / "simpleP2P.py"
+    tree = ast.parse(sample_path.read_text(encoding="utf-8"), filename=str(sample_path))
+    gated_attributes = {"memory_pools_supported", "host_memory_pools_supported"}
+
+    gates = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.If)
+        and isinstance(node.test, ast.UnaryOp)
+        and isinstance(node.test.op, ast.Not)
+        and isinstance(node.test.operand, ast.Attribute)
+        and node.test.operand.attr in gated_attributes
+        and any(
+            isinstance(statement, ast.Return)
+            and isinstance(statement.value, ast.Name)
+            and statement.value.id == "EXIT_WAIVED"
+            for statement in node.body
+        )
+    ]
+    assert {node.test.operand.attr for node in gates} == gated_attributes
+
+    allocation_lines = [
+        node.lineno
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id in {"DeviceMemoryResource", "PinnedMemoryResource"}
+    ]
+    assert allocation_lines
+    assert max(node.lineno for node in gates) < min(allocation_lines), (
+        "memory pool support must be checked before allocating"
+    )
+
+
 @pytest.mark.agent_authored(model="gpt-5")
 def test_verify_array_result_or_raise_enforces_match(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.syspath_prepend(str(UTILITIES_DIR))
