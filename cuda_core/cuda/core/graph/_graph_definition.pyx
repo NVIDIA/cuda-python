@@ -13,14 +13,17 @@ from libcpp.vector cimport vector
 
 from cuda.bindings cimport cydriver
 
-from cuda.core.graph._graph_node cimport GraphNode
+from cuda.core.graph._graph_node cimport GraphNode, GN_check_valid
 from cuda.core._rt cimport (
     GraphHandle,
     as_cu,
     as_intptr,
     as_py,
+    attach_rollback_failure,
     create_graph_handle,
     create_graph_node_handle,
+    graph_clone_attachments,
+    invalidate_root_graph_state,
 )
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 IF CUDA_CORE_BUILD_MAJOR >= 13:
@@ -359,6 +362,79 @@ cdef class GraphDefinition:
         from cuda.core.graph._graph_builder import _instantiate_graph
 
         return _instantiate_graph(self, options)
+
+    def clone(self) -> GraphDefinition:
+        """Create an independent copy of this graph definition.
+
+        Nodes, edges, parameters, and nested child graphs are copied. Resources
+        referenced by nodes (buffers, kernels, events, and callbacks) are shared
+        and independently retained; their contents are not copied. Subsequent
+        graph mutations do not affect the other definition or its executables.
+
+        Returns
+        -------
+        GraphDefinition
+            An independently owned graph hierarchy. Use :meth:`find_node` on
+            the clone to obtain the counterparts of source nodes.
+
+        Notes
+        -----
+        Attached resources remain alive independently for each graph and are released
+        at the appropriate lifetime boundary.
+        Driver errors propagate as :class:`~cuda.core.CUDAError`.
+        """
+        GD_check_valid(self)
+        cdef GraphDefinition cloned = GraphDefinition.__new__(GraphDefinition)
+        cdef cydriver.CUgraph graph = NULL
+        cdef cydriver.CUresult result
+        try:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuGraphClone(&graph, as_cu(self._h_graph)))
+            cloned._h_graph = create_graph_handle(graph)
+            HANDLE_RETURN(graph_clone_attachments(cloned._h_graph, self._h_graph))
+        except:
+            if graph != NULL:
+                # attempt roollback
+                with nogil:
+                    result = cydriver.cuGraphDestroy(graph)
+                if result == cydriver.CUDA_SUCCESS:
+                    if cloned._h_graph:
+                        invalidate_root_graph_state(cloned._h_graph)
+                else:
+                    attach_rollback_failure(
+                        b"cuGraphDestroy", result,
+                        b"failed while rolling back a cloned graph")
+            raise
+        return cloned
+
+    def find_node(self, GraphNode original not None: GraphNode) -> GraphNode:
+        """Find a source node's counterpart in this cloned graph.
+
+        Parameters
+        ----------
+        original : GraphNode
+            A valid node from the source graph that existed when this graph
+            was cloned. The corresponding cloned node must still exist.
+
+        Returns
+        -------
+        GraphNode
+            The corresponding node, with its operation-specific subclass.
+
+        Notes
+        -----
+        Lookup is local to this graph.
+        Raises :class:`~cuda.core.CUDAError` for nodes without a counterpart.
+        """
+        GD_check_valid(self)
+        GN_check_valid(original)
+        if original._is_entry:
+            raise ValueError("The entry node has no cloned counterpart")
+        cdef cydriver.CUgraphNode node = NULL
+        with nogil:
+            HANDLE_RETURN(cydriver.cuGraphNodeFindInClone(
+                &node, as_cu(original._h_node), as_cu(self._h_graph)))
+        return GraphNode._create(self._h_graph, node)
 
     def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None = None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.

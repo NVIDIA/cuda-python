@@ -29,6 +29,12 @@ Highlights
 New features
 ------------
 
+- Added :meth:`graph.GraphDefinition.clone` and
+  :meth:`graph.GraphDefinition.find_node` to copy graph definitions, including
+  nested child graphs, and obtain corresponding nodes in the clone. Clones
+  retain references to underlying resources.
+  (`#2438 <https://github.com/NVIDIA/cuda-python/issues/2438>`__)
+
 - Added read-only ``GraphDefinition.id``, ``Graph.id``, ``GraphNode.local_id``
   and ``GraphNode.tools_id`` properties (CUDA 13 build and driver 13.1+), and
   ``KernelAttributes.device_node_update_supported`` (CUDA 13 build and driver 13.3+).

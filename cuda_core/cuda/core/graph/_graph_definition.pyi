@@ -192,6 +192,45 @@ class GraphDefinition:
         Graph
             An executable graph that can be launched on a stream.
         """
+    def clone(self) -> GraphDefinition:
+        """Create an independent copy of this graph definition.
+
+        Nodes, edges, parameters, and nested child graphs are copied. Resources
+        referenced by nodes (buffers, kernels, events, and callbacks) are shared
+        and independently retained; their contents are not copied. Subsequent
+        graph mutations do not affect the other definition or its executables.
+
+        Returns
+        -------
+        GraphDefinition
+            An independently owned graph hierarchy. Use :meth:`find_node` on
+            the clone to obtain the counterparts of source nodes.
+
+        Notes
+        -----
+        Attached resources remain alive independently for each graph and are released
+        at the appropriate lifetime boundary.
+        Driver errors propagate as :class:`~cuda.core.CUDAError`.
+        """
+    def find_node(self, original: GraphNode) -> GraphNode:
+        """Find a source node's counterpart in this cloned graph.
+
+        Parameters
+        ----------
+        original : GraphNode
+            A valid node from the source graph that existed when this graph
+            was cloned. The corresponding cloned node must still exist.
+
+        Returns
+        -------
+        GraphNode
+            The corresponding node, with its operation-specific subclass.
+
+        Notes
+        -----
+        Lookup is local to this graph.
+        Raises :class:`~cuda.core.CUDAError` for nodes without a counterpart.
+        """
     def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None=None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.
 
