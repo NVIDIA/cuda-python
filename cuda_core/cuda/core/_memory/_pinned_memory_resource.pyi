@@ -74,10 +74,10 @@ class PinnedMemoryResource(_MemPool):
     :class:`LegacyPinnedMemoryResource`.
 
     The driver makes a host memory pool accessible only from the host by
-    default, so the resource grants the device that is current when it is
-    created read and write access to the pool. Kernels on other devices cannot
-    access its buffers. Without options, the grant applies to the driver's
-    current pool, which the whole process shares.
+    default, so the resource grants read and write access to the pool to every
+    device that supports host memory pools (host NUMA memory pools if the pool
+    has a NUMA node), as ``cudaMallocHost`` does. Without options, the grant
+    applies to the driver's current pool, which the whole process shares.
 
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
@@ -173,7 +173,7 @@ class PinnedMemoryResource(_MemPool):
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement."""
     @property
     def is_device_accessible(self) -> bool:
-        """Return True. The device that is current when the resource is created can read and write its buffers."""
+        """Return True. Every device that supports this kind of host memory pool can read and write its buffers."""
     @property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
