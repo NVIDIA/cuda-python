@@ -1,0 +1,6 @@
+﻿cuda.core.system.GpuNotFoundError
+=================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: GpuNotFoundError
