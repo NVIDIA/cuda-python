@@ -34,7 +34,7 @@ def _source(root, *, old=False, schema2=False):
     ("old", "schema2", "tag", "expected_root", "legacy_artifact"),
     [
         (True, False, "v13.4.4", "cuda_bindings", True),
-        (False, False, "v13.4.4", "cuda_bindings_13", True),
+        (False, False, "v12.9.11", "cuda_bindings_12", False),
         (False, True, "v12.9.11", "cuda_bindings_12", False),
         (False, True, "v13.4.9", "cuda_bindings_13", False),
     ],
@@ -48,10 +48,10 @@ def test_tagged_source_compatibility(tmp_path, old, schema2, tag, expected_root,
     assert record.get("allow_legacy_python_artifact", False) is legacy_artifact
 
 
-@pytest.mark.agent_authored(model="claude-fable-5-2")
-def test_schema_less_source_cannot_resolve_cuda12(tmp_path):
-    source, _ = _source(tmp_path)
-    with pytest.raises(ValueError, match="does not match tagged toolkit"):
+@pytest.mark.agent_authored(model="gpt-6")
+def test_old_cuda13_source_cannot_resolve_cuda12(tmp_path):
+    source, _ = _source(tmp_path, old=True)
+    with pytest.raises(ValueError, match="no bindings root"):
         resolve_release_bindings_package("v12.9.11", source)
 
 

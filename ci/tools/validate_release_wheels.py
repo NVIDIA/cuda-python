@@ -89,7 +89,7 @@ def version_from_tag(
 def _release_python_versions(release_source_root: Path) -> list[str]:
     path = release_source_root / _VERSIONS_CONFIG
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if "python" in config:
+    if "python" in config or "schema_version" in config:
         return config["python"]["supported"]
     # Retained CUDA 13 tags predate the shared Python-version list.
     workflow = release_source_root / ".github/workflows/build-wheel.yml"

@@ -223,12 +223,20 @@ def resolve_release_bindings_package(
         raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
         legacy_config = "schema_version" not in raw
         if legacy_config:
-            # Tagged sources that predate the registry built only CUDA 13 bindings.
-            toolkit = raw["cuda"]["build"]["version"]
-            if _TOOLKIT_VERSION_PATTERN.fullmatch(toolkit) is None or not toolkit.startswith("13."):
+            current_toolkit = raw["cuda"]["build"]["version"]
+            if _TOOLKIT_VERSION_PATTERN.fullmatch(current_toolkit) is None or not current_toolkit.startswith("13."):
                 raise ValueError("legacy release compatibility requires a CUDA 13 build toolkit")
-            root = "cuda_bindings_13" if (release_source_root / "cuda_bindings_13").is_dir() else "cuda_bindings"
-            package = BindingsPackage(root, tuple(map(int, toolkit.split("."))), "current")
+            current_root = (
+                "cuda_bindings_13" if (release_source_root / "cuda_bindings_13").is_dir() else "cuda_bindings"
+            )
+            package = BindingsPackage(current_root, tuple(map(int, current_toolkit.split("."))), "current")
+            if bindings_version is not None and bindings_version.release[0] == 12:
+                maintenance_toolkit = raw["cuda"]["prev_build"]["version"]
+                if _TOOLKIT_VERSION_PATTERN.fullmatch(maintenance_toolkit) is None:
+                    raise ValueError("legacy prev_build toolkit must have major.minor.patch format")
+                package = BindingsPackage(
+                    "cuda_bindings_12", tuple(map(int, maintenance_toolkit.split("."))), "maintenance"
+                )
         else:
             config = parse_config(raw)
             package = (
@@ -242,6 +250,8 @@ def resolve_release_bindings_package(
         )
     if bindings_version is not None and not package.matches_tag(release_tag):
         raise ValueError(f"release tag {release_tag!r} does not match tagged toolkit {package.toolkit_version}")
+    if legacy_config and not (release_source_root / package.package_root).is_dir():
+        raise ValueError(f"tagged source has no bindings root {package.package_root!r}")
 
     record: dict[str, object] = {
         "package_root": package.package_root,
@@ -249,7 +259,7 @@ def resolve_release_bindings_package(
     }
     if bindings_version is not None:
         record["release_version"] = str(bindings_version)
-    if legacy_config:
+    if legacy_config and package.release_status == "current":
         record["allow_legacy_python_artifact"] = True
     return record
 
@@ -282,7 +292,18 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.command == "write-github-env":
-            write_github_env(json.load(sys.stdin), args.github_env)
+            if (
+                args.package_roots
+                or args.check_package_metadata
+                or args.release_status
+                or args.release_tag
+                or args.release_source_root is not None
+            ):
+                parser.error("write-github-env does not accept registry selectors")
+            value = json.load(sys.stdin)
+            if not isinstance(value, dict):
+                raise ValueError("stdin for write-github-env must contain a JSON object")
+            write_github_env(value, args.github_env)
             return 0
         if args.release_tag:
             if args.release_source_root is None:
