@@ -96,7 +96,7 @@ def add_dll_directory(dll_abs_path: str) -> None:
 
     # Update PATH as a fallback for dependent DLL resolution
     curr_path = os.environ.get("PATH")
-    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
+    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((dirpath, curr_path))
 
 
 def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) -> str:
