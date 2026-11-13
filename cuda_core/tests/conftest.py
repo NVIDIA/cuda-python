@@ -308,6 +308,10 @@ def init_cuda(request):
         try:
             device.sync()
         except BaseException as exc:
+            from helpers.oom_diagnostics import record_exception_if_oom
+
+            # The report hook runs after the finally below has popped context.
+            record_exception_if_oom(request.node, "teardown (before context pop)", exc)
             if primary_error is None:
                 primary_error = exc
                 raise

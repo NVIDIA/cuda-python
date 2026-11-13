@@ -18,12 +18,19 @@ import platform
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from datetime import UTC, datetime
 
+LIFECYCLE_CASES = tuple(
+    (f"lifecycle-{stream}-{access}", stream, access == "revoke")
+    for stream in ("legacy", "per-thread", "nonblocking")
+    for access in ("revoke", "keep-access")
+)
 CASE_NAMES = (
     "isolated-watermarks",
     "pinned-kernel-access",
+    *(name for name, _, _ in LIFECYCLE_CASES),
     "owned-reserved",
     "owned-used",
     "warmed-owned-reserved",
@@ -67,6 +74,40 @@ def build_cases(root, output, cycles):
         "PinnedMR",
     )
     pytest_case("pinned-kernel-access", ["tests/test_memory.py::test_pinned_memory_resource_kernel_access"], 1)
+    for name, stream, revoke in LIFECYCLE_CASES:
+        raw_output = output / name
+        command = [
+            sys.executable,
+            "-I",
+            "-u",
+            str(pathlib.Path(__file__).with_name("pinned_pool_probe.py").resolve()),
+            "--mode",
+            "owned-capped",
+            "--host-id",
+            "-1",
+            # Each pytest repetition runs both watermark kinds in this order.
+            "--cycles",
+            str(2 * cycles),
+            "--watermark",
+            "alternating",
+            "--stream",
+            stream,
+            "--low-overhead",
+            "--output-dir",
+            str(raw_output),
+        ]
+        if revoke:
+            command.append("--revoke-access")
+        cases.append(
+            {
+                "name": name,
+                "cwd": str(root),
+                "command": command,
+                "kind": "raw",
+                "raw_output": str(raw_output),
+                "timeout_seconds": 120,
+            }
+        )
     for mode, prefix in (("owned-capped", "owned"), ("warmed-owned-capped", "warmed-owned")):
         for watermark in ("reserved", "used"):
             name = f"{prefix}-{watermark}"
@@ -109,6 +150,7 @@ def run_case(case, output, env):
         else pathlib.Path(case["raw_output"]) / "summary.json"
     )
     report_path.unlink(missing_ok=True)
+    timed_out = threading.Event()
     started = time.monotonic()
     print(f"Starting {case['name']}: {json.dumps(case['command'])}", flush=True)
     with (
@@ -125,19 +167,38 @@ def run_case(case, output, env):
             bufsize=1,
         ) as process,
     ):
-        for line in process.stdout:
-            sys.stdout.write(line)
-            sys.stdout.flush()
-            log.write(line)
-            log.flush()
-        returncode = process.wait()
+
+        def stop_hung_probe():
+            if process.poll() is None:
+                timed_out.set()
+                process.kill()
+
+        # Only the standalone lifecycle probes get this watchdog. A driver
+        # hang must leave time to run the other variants and upload progress.
+        timer = None
+        if "timeout_seconds" in case:
+            timer = threading.Timer(case["timeout_seconds"], stop_hung_probe)
+            timer.daemon = True
+            timer.start()
+        try:
+            for line in process.stdout:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+                log.write(line)
+                log.flush()
+            returncode = process.wait()
+        finally:
+            if timer is not None:
+                timer.cancel()
+                timer.join()
     result = {
         **case,
         "log_path": str(log_path),
         "returncode": returncode,
+        "timed_out": timed_out.is_set(),
         "elapsed_seconds": time.monotonic() - started,
     }
-    result["failed"] = returncode != 0
+    result["failed"] = returncode != 0 or timed_out.is_set()
     try:
         report = json.loads(report_path.read_text(encoding="utf-8"))
         result["report"] = report

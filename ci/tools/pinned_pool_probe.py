@@ -2,18 +2,27 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Phase-logged raw-driver HOST-pool probe; deliberately does not import cuda.core."""
+"""Raw-driver HOST-pool probe; deliberately does not import cuda.core.
+
+The low-overhead mode buffers the last 128 events and suppresses metadata
+queries inside the cycle loop. progress.json records the latest API boundary
+in shared mapped memory, including when a native crash prevents summary.json.
+With --watermark alternating, one cycle creates/destroys one pool; consecutive
+cycles reset reserved, then used, matching the repeated pytest case.
+"""
 
 import argparse
 import ctypes
 import importlib.metadata
 import json
+import mmap
 import os
 import platform
 import subprocess
 import sys
 import time
 import traceback
+from collections import deque
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
@@ -23,16 +32,21 @@ parser.add_argument(
 parser.add_argument("--output-dir", type=Path, required=True)
 parser.add_argument("--host-id", type=int, default=0)
 parser.add_argument("--lookup-api", choices=("current", "default"), default="current")
-parser.add_argument("--watermark", choices=("none", "reserved", "used"), default="none")
+parser.add_argument("--watermark", choices=("none", "reserved", "used", "alternating"), default="none")
 parser.add_argument("--cycles", type=int, default=1)
+parser.add_argument("--stream", choices=("null", "legacy", "per-thread", "nonblocking"), default="null")
+parser.add_argument("--revoke-access", action="store_true")
+parser.add_argument("--low-overhead", action="store_true", help="Buffer recent events; omit per-cycle metadata probes.")
 parser.add_argument("--allow-warmup-allocation-oom", action="store_true")
 args = parser.parse_args()
-if not 1 <= args.cycles <= 100:
-    parser.error("--cycles must be between 1 and 100")
+if not 1 <= args.cycles <= 10000:
+    parser.error("--cycles must be between 1 and 10000")
 if args.allow_warmup_allocation_oom and args.mode != "warmed-owned-capped":
     parser.error("--allow-warmup-allocation-oom requires warmed-owned-capped mode")
 if args.watermark != "none" and args.mode not in ("owned-capped", "warmed-owned-capped"):
     parser.error("--watermark requires an owned-capped mode")
+if (args.low_overhead or args.revoke_access or args.stream != "null") and args.mode != "owned-capped":
+    parser.error("--low-overhead, --revoke-access and --stream require owned-capped mode")
 args.output_dir.mkdir(parents=True, exist_ok=True)
 stem = f"raw-{args.mode}"
 if args.watermark != "none":
@@ -46,6 +60,33 @@ allowed_warmup_ooms = []
 iteration = -1
 current_stage = "startup"
 driver = None
+stream = None
+in_hot_loop = False
+recent_events = deque(maxlen=128)
+progress_frozen = False
+progress_file = None
+progress_map = None
+if args.low_overhead:
+    # Shared mapped pages survive a child-process crash without a flush/syscall
+    # at each API boundary. The file is whitespace-padded JSON, readable as-is.
+    progress_file = (args.output_dir / "progress.json").open("w+b")
+    progress_file.write(b" " * 1024)
+    progress_file.flush()
+    progress_map = mmap.mmap(progress_file.fileno(), 1024, access=mmap.ACCESS_WRITE)
+
+
+def write_event(row):
+    line = json.dumps(row, default=str, sort_keys=True)
+    jsonl.write(line + "\n")
+    jsonl.flush()
+    rows.append(row)
+    print(line, flush=True)
+
+
+def flush_recent_events():
+    for row in recent_events:
+        write_event(row)
+    recent_events.clear()
 
 
 def emit(event, **data):
@@ -58,12 +99,15 @@ def emit(event, **data):
         "monotonic_ns": time.monotonic_ns(),
         **data,
     }
-    line = json.dumps(row, default=str, sort_keys=True)
-    # Flush to the artifact before stdout: native aborts must preserve the last API boundary.
-    jsonl.write(line + "\n")
-    jsonl.flush()
-    rows.append(row)
-    print(line, flush=True)
+    if progress_map is not None and not progress_frozen and event in ("api_begin", "raw_status"):
+        progress = {key: row[key] for key in ("iteration", "stage", "event", "api")}
+        progress["status"] = data.get("status")
+        encoded = json.dumps(progress).encode("ascii") + b"\n"
+        progress_map[:] = encoded.ljust(1024, b" ")
+    if args.low_overhead and in_hot_loop:
+        recent_events.append(row)
+    else:
+        write_event(row)
 
 
 def stage(name):
@@ -189,6 +233,8 @@ def snapshot(phase):
 
 
 def os_snapshot(phase):
+    if args.low_overhead and in_hot_loop:
+        return
     try:
         snapshot(phase)
     except (OSError, RuntimeError) as exc:
@@ -294,6 +340,8 @@ def baseline_metadata():
 
 
 def attributes(pool, phase):
+    if args.low_overhead and in_hot_loop:
+        return
     names = (
         "MAX_POOL_SIZE",
         "ALLOCATION_TYPE",
@@ -395,22 +443,23 @@ def default_pool_allocate(prefix, do_allocate):
 
 
 def reset_watermark(pool):
-    stage(f"owned_{args.watermark}_watermark_read_before")
-    high_attr = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{args.watermark.upper()}_MEM_HIGH")
-    current_attr = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{args.watermark.upper()}_MEM_CURRENT")
+    kind = ("reserved" if iteration % 2 == 0 else "used") if args.watermark == "alternating" else args.watermark
+    stage(f"owned_{kind}_watermark_read_before")
+    high_attr = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{kind.upper()}_MEM_HIGH")
+    current_attr = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{kind.upper()}_MEM_CURRENT")
     (high,) = api("cuMemPoolGetAttribute", pool, high_attr)
     (current,) = api("cuMemPoolGetAttribute", pool, current_attr)
     high, current = int(high), int(current)
-    emit("watermark_before", kind=args.watermark, high=int(high), current=int(current))
+    emit("watermark_before", kind=kind, high=int(high), current=int(current))
     if high < 1048576 or current >= 1048576:
         raise AssertionError(f"Unexpected pre-reset watermark: high={high}, current={current}")
-    stage(f"owned_{args.watermark}_watermark_set_zero")
+    stage(f"owned_{kind}_watermark_set_zero")
     api("cuMemPoolSetAttribute", pool, high_attr, driver.cuuint64_t(0))
-    stage(f"owned_{args.watermark}_watermark_verify")
+    stage(f"owned_{kind}_watermark_verify")
     (high,) = api("cuMemPoolGetAttribute", pool, high_attr)
     (current,) = api("cuMemPoolGetAttribute", pool, current_attr)
     high, current = int(high), int(current)
-    emit("watermark_after", kind=args.watermark, high=int(high), current=int(current))
+    emit("watermark_after", kind=kind, high=int(high), current=int(current))
     if high != current:
         raise AssertionError(f"Reset watermark mismatch: high={high}, current={current}")
 
@@ -437,11 +486,11 @@ def owned_cycle():
     grant_access(pool)
     os_snapshot("owned_after_access_grant")
     stage("owned_allocate_1MiB")
-    (ptr,) = api("cuMemAllocFromPoolAsync", 1048576, pool, driver.CUstream(0))
+    (ptr,) = api("cuMemAllocFromPoolAsync", 1048576, pool, stream)
     os_snapshot("owned_after_allocate_1MiB")
     attributes(pool, "owned_after_allocate_1MiB")
     stage("owned_free_enqueue")
-    api("cuMemFreeAsync", ptr, driver.CUstream(0))
+    api("cuMemFreeAsync", ptr, stream)
     # Keep this adjacency: free -> first sync, with only flushed CPU log writes between.
     stage("owned_initial_sync")
     api("cuCtxSynchronize")
@@ -452,6 +501,18 @@ def owned_cycle():
     os_snapshot("owned_after_trim")
     if args.watermark != "none":
         reset_watermark(pool)
+    if args.revoke_access:
+        # Match cuda.core's deleter, including the per-device requests. Stop on
+        # the first rejected revoke instead of hiding its status as best effort.
+        stage("owned_revoke_device_count")
+        (count,) = api("cuDeviceGetCount")
+        revoke = driver.CUmemAccessDesc()
+        revoke.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        revoke.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_NONE
+        for device_id in range(count):
+            stage(f"owned_revoke_device_{device_id}")
+            revoke.location.id = device_id
+            api("cuMemPoolSetAccess", pool, [revoke], 1)
     stage("owned_destroy")
     api("cuMemPoolDestroy", pool)
     os_snapshot("owned_after_destroy")
@@ -471,7 +532,9 @@ emit(
     lookup_api=args.lookup_api,
     cycles=args.cycles,
     alloc_type="PINNED",
-    stream=0,
+    stream=args.stream,
+    revoke_access=args.revoke_access,
+    low_overhead=args.low_overhead,
     default_allocation_bytes=4096,
     owned_allocation_bytes=1048576,
     owned_requested_maxSize=2097152,
@@ -490,12 +553,18 @@ try:
     api("cuCtxPushCurrent", ctx)
     context_current = True
     baseline_metadata()
+    if args.stream == "nonblocking":
+        stage("private_stream_create")
+        (stream,) = api("cuStreamCreate", driver.CUstream_flags.CU_STREAM_NON_BLOCKING)
+    else:
+        stream = driver.CUstream({"null": 0, "legacy": 1, "per-thread": 2}[args.stream])
     if args.mode == "warmed-owned-capped":
         default_pool_allocate("warmup_default", True)
         os_snapshot("warmed_owned_baseline")
     stage("baseline_context_pop")
     api("cuCtxPopCurrent")
     context_current = False
+    in_hot_loop = True
     for iteration in range(args.cycles):
         stage("iteration_context_push")
         api("cuCtxPushCurrent", ctx)
@@ -510,11 +579,27 @@ try:
         os_snapshot("after_context_pop")
         completed += 1
         emit("iteration_complete", completed_cycles=completed)
+    in_hot_loop = False
+    flush_recent_events()
+    if args.stream == "nonblocking":
+        stage("private_stream_destroy_context_push")
+        api("cuCtxPushCurrent", ctx)
+        context_current = True
+        stage("private_stream_destroy")
+        api("cuStreamDestroy", stream)
+        stage("private_stream_destroy_context_pop")
+        api("cuCtxPopCurrent")
+        context_current = False
     stage("primary_context_release")
     api("cuDevicePrimaryCtxRelease", driver.CUdevice(0))
     primary_retained = False
     os_snapshot("after_primary_context_release")
 except BaseException as exc:
+    # Freeze the last experiment boundary before diagnostics/cleanup issue any
+    # other CUDA calls. Preserve the original status even if those calls fail.
+    progress_frozen = True
+    in_hot_loop = False
+    flush_recent_events()
     failed_stage = current_stage
     failure = {
         "error_type": type(exc).__name__,
@@ -522,6 +607,9 @@ except BaseException as exc:
         "stage": failed_stage,
         "iteration": iteration,
         "traceback": traceback.format_exc(),
+        "api": getattr(exc, "api", None),
+        "status": getattr(exc, "status", None),
+        "status_name": getattr(exc, "status_name", None),
     }
     emit("failure", **failure)
     stage("failure_probes")
@@ -543,6 +631,10 @@ finally:
         "failed" if failure is not None else ("completed_with_allowed_warmup_oom" if allowed_warmup_ooms else "passed")
     )
     summary = {
+        "stream": args.stream,
+        "revoke_access": args.revoke_access,
+        "low_overhead": args.low_overhead,
+        "watermark": args.watermark,
         "requested_cycles": args.cycles,
         "completed_cycles": completed,
         "passed": failure is None and not allowed_warmup_ooms,
@@ -557,4 +649,7 @@ finally:
     (args.output_dir / f"{stem}-summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     jsonl.close()
+    if progress_map is not None:
+        progress_map.close()
+        progress_file.close()
 raise SystemExit(1 if failure else 0)

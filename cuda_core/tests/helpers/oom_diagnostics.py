@@ -514,27 +514,34 @@ def record_if_oom(item, call, report, recorder=None, snapshot=None):
 
     Returns the emitted text, or None when nothing was captured.
     """
+    if not report.failed or call.excinfo is None:
+        return None
+    return record_exception_if_oom(item, call.when, call.excinfo.value, recorder=recorder, snapshot=snapshot)
+
+
+def record_exception_if_oom(item, phase, exc, recorder=None, snapshot=None):
+    """Capture an OOM before fixture cleanup pops its context.
+
+    Shares the report hook's latch so later reports cannot replace the useful
+    snapshot with a no-current-context result. Diagnostic errors must not mask
+    the original CUDA exception or prevent the fixture's context cleanup.
+    """
     if recorder is None:
         recorder = _default_recorder
-
-    if recorder.captured or not report.failed or call.excinfo is None:
+    if recorder.captured or not recorder.matches(str(exc)):
         return None
-
-    exc_text = str(call.excinfo.value)
-    if not recorder.matches(exc_text):
+    try:
+        text = recorder.capture(item.nodeid, phase, str(exc), item.config.rootpath, snapshot=snapshot)
+        if text is None:
+            return None
+        terminal_reporter = item.config.pluginmanager.get_plugin("terminalreporter")
+        if terminal_reporter is not None:
+            terminal_reporter.write_line("")
+            terminal_reporter.write_line(text)
+        return text
+    except Exception as diagnostic_error:
+        exc.add_note(f"OOM diagnostics failed: {type(diagnostic_error).__name__}: {diagnostic_error}")
         return None
-
-    text = recorder.capture(item.nodeid, call.when, exc_text, item.config.rootpath, snapshot=snapshot)
-    if text is None:
-        return None
-
-    # terminalreporter writes outside pytest's stdout capture, so this survives
-    # into a redirected log; a bare print() would not.
-    terminal_reporter = item.config.pluginmanager.get_plugin("terminalreporter")
-    if terminal_reporter is not None:
-        terminal_reporter.write_line("")
-        terminal_reporter.write_line(text)
-    return text
 
 
 def report_terminal_summary(terminalreporter, recorder=None):
