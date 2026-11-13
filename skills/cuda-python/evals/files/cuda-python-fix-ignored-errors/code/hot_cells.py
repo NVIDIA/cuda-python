@@ -5,6 +5,7 @@
 """Count the cells of a temperature grid that are above a threshold, on the GPU."""
 
 import ctypes
+import sys
 
 import numpy as np
 
@@ -65,7 +66,7 @@ def main():
     driver.cuCtxSynchronize()
     driver.cuMemcpyDtoH(count.ctypes.data, d_count, count.nbytes)
 
-    print(f"hot cells: {int(count[0])} of {N}")
+    sys.stdout.write(f"hot cells: {int(count[0])} of {N}\n")
 
     driver.cuMemFree(d_grid)
     driver.cuMemFree(d_count)

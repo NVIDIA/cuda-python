@@ -4,6 +4,8 @@
 
 """Denoise frames: CuPy pre-processing, a custom CUDA kernel, CuPy post-processing, all asynchronous."""
 
+import sys
+
 import cupy as cp
 import numpy as np
 
@@ -49,7 +51,7 @@ def main():
     cupy_stream.synchronize()
     kernel_stream.sync()
     for frame, total in enumerate(totals.get()):
-        print(f"frame {frame}: sum|x| = {total:.1f}")
+        sys.stdout.write(f"frame {frame}: sum|x| = {total:.1f}\n")
 
 
 if __name__ == "__main__":

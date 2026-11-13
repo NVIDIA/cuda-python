@@ -4,6 +4,8 @@
 
 """Soft-threshold a noisy signal on the GPU and time the kernel (PyCUDA version)."""
 
+import sys
+
 import numpy as np
 import pycuda.autoinit  # noqa: F401
 import pycuda.driver as drv
@@ -48,10 +50,10 @@ drv.memcpy_dtoh_async(h_out, d_out, stream)
 stream.synchronize()
 out[:] = h_out
 
-print(f"kernel time measured: {end.time_since(start) > 0.0}")
-print(f"nonzero: {int(np.count_nonzero(out))} of {n}")
-print(f"sum of |out|: {np.abs(out).sum(dtype=np.float64):.3f}")
-print(f"out[1000:1004]: {[round(float(v), 5) for v in out[1000:1004]]}")
+sys.stdout.write(f"kernel time measured: {end.time_since(start) > 0.0}\n")
+sys.stdout.write(f"nonzero: {int(np.count_nonzero(out))} of {n}\n")
+sys.stdout.write(f"sum of |out|: {np.abs(out).sum(dtype=np.float64):.3f}\n")
+sys.stdout.write(f"out[1000:1004]: {[round(float(v), 5) for v in out[1000:1004]]}\n")
 
 d_in.free()
 d_out.free()

@@ -42,7 +42,7 @@ all new Python code as far as the API is available, only fall back to
 | Task | cuda.core API |
 |---|---|
 | Compile CUDA C++ at runtime | `Program(src, code_type="c++", options=ProgramOptions(...)).compile("cubin")`, `.get_kernel(name)` |
-| Device and pinned memory | `dev.allocate(nbytes, stream=s)`, `LegacyPinnedMemoryResource()`, `PinnedMemoryResource()`, `Buffer.copy_to` / `copy_from` / `fill` |
+| Device and pinned memory | `dev.allocate(nbytes, stream=s)`, `PinnedMemoryResource()`, `Buffer.copy_to` / `copy_from` / `fill` |
 | CUDA graphs | `stream.create_graph_builder()` (types in `cuda.core.graph`) |
 | Link with LTO | `ProgramOptions(link_time_optimization=True)`, `.compile("ltoir")`, `Linker(a, b, options=LinkerOptions(link_time_optimization=True)).link("cubin")` |
 | GPU monitoring (NVML) | `cuda.core.system`: `system.Device.get_all_devices()`, `.name`, `.uuid`, `.memory_info`, `.temperature.get_sensor()`, `.utilization.gpu`, `system.get_kernel_mode_driver_version()` |
@@ -57,7 +57,7 @@ asynchronous, so results are only valid after `stream.sync()`.
 ```python
 import numpy as np
 
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, launch
+from cuda.core import Device, LaunchConfig, PinnedMemoryResource, Program, launch
 
 # extern "C" keeps the kernel name unmangled so get_kernel("scale") can find it.
 code = r"""

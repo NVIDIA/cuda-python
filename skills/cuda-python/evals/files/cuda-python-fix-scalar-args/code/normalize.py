@@ -4,6 +4,8 @@
 
 """Normalize raw sensor readings on the GPU: y = (x - offset) * gain."""
 
+import sys
+
 import numpy as np
 
 from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, Program, launch
@@ -48,7 +50,7 @@ def main():
     d_y.copy_to(h_y, stream=stream)
     stream.sync()
 
-    print(f"min={y.min():.4f} mean={y.mean(dtype=np.float64):.4f} max={y.max():.4f}")
+    sys.stdout.write(f"min={y.min():.4f} mean={y.mean(dtype=np.float64):.4f} max={y.max():.4f}\n")
 
     for buf in (d_x, d_y, h_x, h_y):
         buf.close(stream)

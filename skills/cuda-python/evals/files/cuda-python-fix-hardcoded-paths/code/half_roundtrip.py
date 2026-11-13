@@ -4,6 +4,8 @@
 
 """Measure the error of storing float32 weights as half precision, per layer."""
 
+import sys
+
 import cupy as cp
 import numpy as np
 
@@ -49,7 +51,7 @@ def main():
     for layer in range(4):
         launch(stream, config, kernel, w.data.ptr, err.data.ptr, np.int32(layer), np.int32(N))
         stream.sync()
-        print(f"layer {layer}: max half-precision error = {float(err.max()):.6f}")
+        sys.stdout.write(f"layer {layer}: max half-precision error = {float(err.max()):.6f}\n")
 
 
 if __name__ == "__main__":

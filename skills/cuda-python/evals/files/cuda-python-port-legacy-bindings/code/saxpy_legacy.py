@@ -4,12 +4,14 @@
 
 """SAXPY with the CUDA Python low-level bindings (written for cuda-python 11.8)."""
 
+import sys
+
 import numpy as np
 
 from cuda import cuda, nvrtc
 
 
-def ASSERT_DRV(err):
+def assert_drv(err):
     if isinstance(err, cuda.CUresult):
         if err != cuda.CUresult.CUDA_SUCCESS:
             raise RuntimeError(f"Cuda Error: {err}")
@@ -33,79 +35,79 @@ void saxpy(float a, float *x, float *y, float *out, size_t n)
 
 # Initialize CUDA Driver API
 (err,) = cuda.cuInit(0)
-ASSERT_DRV(err)
+assert_drv(err)
 
 # Retrieve handle for device 0
-err, cuDevice = cuda.cuDeviceGet(0)
-ASSERT_DRV(err)
+err, cu_device = cuda.cuDeviceGet(0)
+assert_drv(err)
 
 # Derive target architecture for device 0
-err, major = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice)
-ASSERT_DRV(err)
-err, minor = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice)
-ASSERT_DRV(err)
+err, major = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cu_device)
+assert_drv(err)
+err, minor = cuda.cuDeviceGetAttribute(cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cu_device)
+assert_drv(err)
 arch_arg = bytes(f"--gpu-architecture=compute_{major}{minor}", "ascii")
 
 # Create program
 err, prog = nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, [], [])
-ASSERT_DRV(err)
+assert_drv(err)
 
 # Compile program
 opts = [b"--fmad=false", arch_arg]
 (err,) = nvrtc.nvrtcCompileProgram(prog, 2, opts)
-ASSERT_DRV(err)
+assert_drv(err)
 
 # Get PTX from compilation
-err, ptxSize = nvrtc.nvrtcGetPTXSize(prog)
-ASSERT_DRV(err)
-ptx = b" " * ptxSize
+err, ptx_size = nvrtc.nvrtcGetPTXSize(prog)
+assert_drv(err)
+ptx = b" " * ptx_size
 (err,) = nvrtc.nvrtcGetPTX(prog, ptx)
-ASSERT_DRV(err)
+assert_drv(err)
 
 # Create context
-err, context = cuda.cuCtxCreate(0, cuDevice)
-ASSERT_DRV(err)
+err, context = cuda.cuCtxCreate(0, cu_device)
+assert_drv(err)
 
 # Load PTX as module data and retrieve function
 ptx = np.char.array(ptx)
 err, module = cuda.cuModuleLoadData(ptx.ctypes.data)
-ASSERT_DRV(err)
+assert_drv(err)
 err, kernel = cuda.cuModuleGetFunction(module, b"saxpy")
-ASSERT_DRV(err)
+assert_drv(err)
 
 NUM_THREADS = 512  # Threads per block
 NUM_BLOCKS = 32768  # Blocks per grid
 
 a = np.array([2.0], dtype=np.float32)
 n = np.array(NUM_THREADS * NUM_BLOCKS, dtype=np.uint64)
-bufferSize = n * a.itemsize
+buffer_size = n * a.itemsize
 
-hX = (np.arange(n, dtype=np.float32) % 1000.0).astype(dtype=np.float32)
-hY = (np.arange(n, dtype=np.float32) % 7.0).astype(dtype=np.float32)
-hOut = np.zeros(n).astype(dtype=np.float32)
+h_x = (np.arange(n, dtype=np.float32) % 1000.0).astype(dtype=np.float32)
+h_y = (np.arange(n, dtype=np.float32) % 7.0).astype(dtype=np.float32)
+h_out = np.zeros(n).astype(dtype=np.float32)
 
-err, dXclass = cuda.cuMemAlloc(bufferSize)
-ASSERT_DRV(err)
-err, dYclass = cuda.cuMemAlloc(bufferSize)
-ASSERT_DRV(err)
-err, dOutclass = cuda.cuMemAlloc(bufferSize)
-ASSERT_DRV(err)
+err, d_x_class = cuda.cuMemAlloc(buffer_size)
+assert_drv(err)
+err, d_y_class = cuda.cuMemAlloc(buffer_size)
+assert_drv(err)
+err, d_out_class = cuda.cuMemAlloc(buffer_size)
+assert_drv(err)
 
 err, stream = cuda.cuStreamCreate(0)
-ASSERT_DRV(err)
+assert_drv(err)
 
-(err,) = cuda.cuMemcpyHtoDAsync(dXclass, hX.ctypes.data, bufferSize, stream)
-ASSERT_DRV(err)
-(err,) = cuda.cuMemcpyHtoDAsync(dYclass, hY.ctypes.data, bufferSize, stream)
-ASSERT_DRV(err)
+(err,) = cuda.cuMemcpyHtoDAsync(d_x_class, h_x.ctypes.data, buffer_size, stream)
+assert_drv(err)
+(err,) = cuda.cuMemcpyHtoDAsync(d_y_class, h_y.ctypes.data, buffer_size, stream)
+assert_drv(err)
 
 # The following code example is not intuitive
 # Subject to change in a future release
-dX = np.array([int(dXclass)], dtype=np.uint64)
-dY = np.array([int(dYclass)], dtype=np.uint64)
-dOut = np.array([int(dOutclass)], dtype=np.uint64)
+d_x = np.array([int(d_x_class)], dtype=np.uint64)
+d_y = np.array([int(d_y_class)], dtype=np.uint64)
+d_out = np.array([int(d_out_class)], dtype=np.uint64)
 
-args = [a, dX, dY, dOut, n]
+args = [a, d_x, d_y, d_out, n]
 args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
 (err,) = cuda.cuLaunchKernel(
@@ -121,29 +123,29 @@ args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
     args.ctypes.data,  # kernel arguments
     0,  # extra (ignore)
 )
-ASSERT_DRV(err)
+assert_drv(err)
 
-(err,) = cuda.cuMemcpyDtoHAsync(hOut.ctypes.data, dOutclass, bufferSize, stream)
-ASSERT_DRV(err)
+(err,) = cuda.cuMemcpyDtoHAsync(h_out.ctypes.data, d_out_class, buffer_size, stream)
+assert_drv(err)
 (err,) = cuda.cuStreamSynchronize(stream)
-ASSERT_DRV(err)
+assert_drv(err)
 
 # Assert values are same after running kernel
-hZ = a * hX + hY
-if not np.allclose(hOut, hZ):
+h_z = a * h_x + h_y
+if not np.allclose(h_out, h_z):
     raise ValueError("Error outside tolerance for host-device vectors")
 
-print(f"saxpy ok: n={int(n)} out[:4]={hOut[:4].tolist()} sum={hOut.sum(dtype=np.float64):.1f}")
+sys.stdout.write(f"saxpy ok: n={int(n)} out[:4]={h_out[:4].tolist()} sum={h_out.sum(dtype=np.float64):.1f}\n")
 
 (err,) = cuda.cuStreamDestroy(stream)
-ASSERT_DRV(err)
-(err,) = cuda.cuMemFree(dXclass)
-ASSERT_DRV(err)
-(err,) = cuda.cuMemFree(dYclass)
-ASSERT_DRV(err)
-(err,) = cuda.cuMemFree(dOutclass)
-ASSERT_DRV(err)
+assert_drv(err)
+(err,) = cuda.cuMemFree(d_x_class)
+assert_drv(err)
+(err,) = cuda.cuMemFree(d_y_class)
+assert_drv(err)
+(err,) = cuda.cuMemFree(d_out_class)
+assert_drv(err)
 (err,) = cuda.cuModuleUnload(module)
-ASSERT_DRV(err)
+assert_drv(err)
 (err,) = cuda.cuCtxDestroy(context)
-ASSERT_DRV(err)
+assert_drv(err)

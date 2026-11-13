@@ -4,6 +4,7 @@
 
 """Explicit 1-D heat diffusion on a small rod, many time steps."""
 
+import sys
 import time
 
 import cupy as cp
@@ -54,8 +55,8 @@ def main():
     stream.sync()
     elapsed = time.perf_counter() - t0
 
-    print(f"steps: {STEPS}  time: {elapsed:.3f} s  ({elapsed / STEPS * 1e6:.2f} us/step)")
-    print(f"checksum: {float(u.sum(dtype=cp.float64)):.3f}  peak: {float(u.max()):.4f}")
+    sys.stdout.write(f"steps: {STEPS}  time: {elapsed:.3f} s  ({elapsed / STEPS * 1e6:.2f} us/step)\n")
+    sys.stdout.write(f"checksum: {float(u.sum(dtype=cp.float64)):.3f}  peak: {float(u.max()):.4f}\n")
 
 
 if __name__ == "__main__":

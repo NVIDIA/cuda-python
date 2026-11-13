@@ -4,6 +4,8 @@
 
 """Link a device-function library into a kernel, run it, and time it (written for cuda-core 0.3)."""
 
+import sys
+
 import numpy as np
 
 from cuda.core.experimental import (
@@ -45,7 +47,7 @@ N = 1 << 20
 
 
 def main():
-    print(f"devices: {system.num_devices}")
+    sys.stdout.write(f"devices: {system.num_devices}\n")
     dev = Device(0)
     dev.set_current()
     stream = dev.create_stream()
@@ -55,10 +57,10 @@ def main():
     lib_ir = Program(LIBRARY, code_type="c++", options=options).compile("ltoir")
     ker_ir = Program(KERNEL, code_type="c++", options=options).compile("ltoir")
     linker = Linker(lib_ir, ker_ir, options=LinkerOptions(arch=f"sm_{dev.arch}", link_time_optimization=True))
-    print(f"linker backend: {linker.backend}")
+    sys.stdout.write(f"linker backend: {linker.backend}\n")
     kernel = linker.link("cubin").get_kernel("ramp")
-    print(f"kernel arguments: {kernel.num_arguments}")
-    print(f"max threads per block: {kernel.attributes.max_threads_per_block()}")
+    sys.stdout.write(f"kernel arguments: {kernel.num_arguments}\n")
+    sys.stdout.write(f"max threads per block: {kernel.attributes.max_threads_per_block()}\n")
 
     # Pinned host staging buffers and device buffers.
     nbytes = N * 4
@@ -74,7 +76,7 @@ def main():
 
     table = np.zeros((4, N // 4), dtype=np.float32)
     view = StridedMemoryView(table, stream_ptr=-1)
-    print(f"host view: shape={view.shape} dtype={view.dtype} on_gpu={view.is_device_accessible}")
+    sys.stdout.write(f"host view: shape={view.shape} dtype={view.dtype} on_gpu={view.is_device_accessible}\n")
 
     h_x.copy_to(d_x, stream=stream)
     config = LaunchConfig(grid=N // 256, block=256, cooperative_launch=False)
@@ -86,9 +88,9 @@ def main():
     d_y.copy_to(h_y, stream=stream)
     stream.sync()
 
-    print(f"timing disabled: {end.is_timing_disabled}")
-    print(f"kernel time measured: {end - start > 0.0}")
-    print(f"sum={y.sum(dtype=np.float64):.3f} y[N//2]={y[N // 2]:.6f}")
+    sys.stdout.write(f"timing disabled: {end.is_timing_disabled}\n")
+    sys.stdout.write(f"kernel time measured: {end - start > 0.0}\n")
+    sys.stdout.write(f"sum={y.sum(dtype=np.float64):.3f} y[N//2]={y[N // 2]:.6f}\n")
 
     for buf in (d_x, d_y, h_x, h_y):
         buf.close()

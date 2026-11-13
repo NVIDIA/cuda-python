@@ -4,6 +4,8 @@
 
 """Apply a per-sensor gain and a bias to the temperature channel of a readings table, in place."""
 
+import sys
+
 import cupy as cp
 import numpy as np
 
@@ -40,10 +42,10 @@ def main():
     config = LaunchConfig(grid=N_SENSORS // block, block=block)
     launch(stream, config, kernel, temps.data.ptr, gain.data.ptr, BIAS, np.int32(N_SENSORS))
 
-    print(f"temperature mean: {float(temps.mean()):.4f}")
-    print(f"temperature last: {float(temps[-1]):.4f}")
-    print(f"pressure mean:    {float(readings[:, 0].mean()):.4f}")
-    print(f"humidity mean:    {float(readings[:, 2].mean()):.4f}")
+    sys.stdout.write(f"temperature mean: {float(temps.mean()):.4f}\n")
+    sys.stdout.write(f"temperature last: {float(temps[-1]):.4f}\n")
+    sys.stdout.write(f"pressure mean:    {float(readings[:, 0].mean()):.4f}\n")
+    sys.stdout.write(f"humidity mean:    {float(readings[:, 2].mean()):.4f}\n")
 
 
 if __name__ == "__main__":
