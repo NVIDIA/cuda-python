@@ -298,14 +298,6 @@ if [[ -z "${RUN_ID}" ]]; then
 fi
 
 echo "Found workflow run ID: ${RUN_ID} for tag '${REF}'" >&2
-
-echo "Verifying artifacts exist for run ${RUN_ID}..." >&2
-ARTIFACT_LIST=$(gh run view "${RUN_ID}" --repo "${REPOSITORY}" --json url || echo "")
-
-if [[ -z "${ARTIFACT_LIST}" ]]; then
-    echo "Warning: Could not verify artifacts for workflow run ${RUN_ID}" >&2
-fi
-
 echo "${RUN_ID}"
 
 if [[ "${HEAD_SHA_FLAG}" == 1 ]]; then

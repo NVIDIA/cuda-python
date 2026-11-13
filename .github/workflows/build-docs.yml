@@ -157,8 +157,6 @@ jobs:
             DOCS_GITHUB_REF=$(python ci/tools/checkout_source_links.py --github-ref)
           fi
 
-          echo "CUDA_BINDINGS_SOURCE_DIR=${BINDINGS_PACKAGE_ROOT}" >> "$GITHUB_ENV"
-
           # make outputs from the previous job as env vars
           CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-linux-64"
           echo "CUDA_PYTHON_DOCS_GITHUB_REF=${DOCS_GITHUB_REF}" >> $GITHUB_ENV
