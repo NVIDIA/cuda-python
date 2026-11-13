@@ -927,6 +927,11 @@ def test_alloc_memory_type_host(init_cuda):
     """HOST graph alloc nodes reconstruct memory_type from the driver, not the Python argument."""
     skip_if_mempool_unsupported()
     from cuda.core._utils.cuda_utils import CUDAError
+    from cuda.core._utils.version import driver_version
+
+    # CUDA 12 rejects HOST pool properties before graph support is checked.
+    if driver_version() < (13, 0, 0):
+        pytest.skip("CUDA drivers before 13.0 reject HOST allocation properties")
 
     g = GraphDefinition()
     try:
