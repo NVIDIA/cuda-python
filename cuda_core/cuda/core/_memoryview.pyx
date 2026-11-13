@@ -695,6 +695,10 @@ cdef inline int _smv_dtype_numpy_to_dlpack(object dtype_obj, DLDataType* out_dty
         if bits not in (64, 128):
             raise BufferError(f"Unsupported complex dtype: {np_dtype}")
         code = <uint8_t>kDLComplex
+    elif np_dtype.type is bfloat16:
+        # ml_dtypes bfloat16 has kind "V", so the kind chain cannot reach it;
+        # the byte-order check above has already run for it.
+        code = <uint8_t>kDLBfloat
     else:
         raise BufferError(f"Unsupported dtype for DLPack export: {np_dtype}")
 
