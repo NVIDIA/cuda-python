@@ -118,19 +118,8 @@ jobs:
           venv: .venv
 
       - name: Set environment variables
-        env:
-          BUILD_CUDA_VER: ${{ env.CUDA_VER }}
-          CURRENT_BUILD_CUDA_VER: ${{ env.CUDA_VER }}
-          BINDINGS_SOURCE: local
-          BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
-          PATHFINDER_SOURCE: artifact
-          CUDA_VER: ${{ env.CUDA_VER }}
-          HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
-          LOCAL_CTK: ${{ env.LOCAL_CTK }}
-          PY_VER: ${{ env.PY_VER }}
-          SHA: ${{ github.sha }}
         run: |
-          python ci/tools/ci_env.py test
+          echo "CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up mini CTK

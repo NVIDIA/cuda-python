@@ -89,7 +89,6 @@ def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
     current = env["CURRENT_BUILD_CUDA_VER"]
     source = env["BINDINGS_SOURCE"]
     bindings_root, build = env["BINDINGS_SOURCE_DIR"], env["BUILD_CUDA_VER"]
-    local = source == "local"
     sanitizer = (
         python == "3.12" and env["CUDA_VER"] != "11.8.0" and env["LOCAL_CTK"] == "1" and host.startswith("linux")
     )
@@ -97,10 +96,10 @@ def test_environment(env: Mapping[str, str], root: Path) -> dict[str, str]:
         "SETUP_SANITIZER": "1" if sanitizer else "0",
         "BINDINGS_SOURCE": source,
         "CUDA_BINDINGS_ROOT": bindings_root,
-        "PATHFINDER_SOURCE": env.get("PATHFINDER_SOURCE") or "artifact",
+        "PATHFINDER_SOURCE": env["PATHFINDER_SOURCE"],
         "CUDA_PYTHON_ARTIFACT_NAME": python_artifact(build),
-        "SKIP_CUDA_BINDINGS_TEST": (env.get("SKIP_BINDINGS_TEST_OVERRIDE") or "0") if local else "1",
-        "SKIP_CYTHON_TEST": "0" if local else "1",
+        # Compiled Cython tests require the local bindings they were built with.
+        "SKIP_CYTHON_TEST": "0" if source == "local" else "1",
         "TEST_CUDA_MAJOR": test_major,
         "TEST_CUDA_MINOR": test_minor,
         "CUDA_BINDINGS_ARTIFACT_NAME": bindings_artifact(python, build, host, sha),
@@ -126,8 +125,6 @@ def main() -> None:
     values["CUDA_PYTHON_PARALLEL_LEVEL"] = subprocess.check_output(["nproc"], text=True).strip()  # noqa: S607
     with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as output:
         for name, value in values.items():
-            if value is None:
-                raise ValueError(f"missing environment value for {name}")
             output.write(f"{name}={str(value).lower() if isinstance(value, bool) else value}\n")
     with Path(os.environ["GITHUB_PATH"]).open("a", encoding="utf-8") as output:
         output.write(f"{Path(__file__).resolve().parent}\n")

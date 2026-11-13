@@ -37,28 +37,28 @@ def select_test_matrix(
             continue
         ctk_target = ".".join(source_row["CUDA_VER"].split(".")[:2])
         package = next((package for package in packages if package["ctk_target"] == ctk_target), None)
-        root = "" if package is None else package["package_root"]
-        components = ("pathfinder", "bindings", "core", "python")
-        if modules is None:
-            tests = {f"TEST_{name.upper()}": True for name in components}
-        else:
-            tests = {
-                "TEST_PATHFINDER": modules["pathfinder"]["needs_test"],
-                "TEST_BINDINGS": package is not None and modules["bindings"]["package_roots"][root]["needs_test"],
-                "TEST_CORE": modules["core"]["cuda_majors"][variant]["needs_test"],
-                "TEST_PYTHON": package is not None and modules["python"]["package_roots"][root]["needs_test"],
-            }
+        # Bindings and metapackage suites need the row's own local wheels;
+        # published-floor rows test Core or a nightly integration only.
+        local = package is not None
+        bindings = package or current_package
+        root = bindings["package_root"]
+        tests = {
+            "TEST_PATHFINDER": modules is None or modules["pathfinder"]["needs_test"],
+            "TEST_BINDINGS": local and (modules is None or modules["bindings"]["package_roots"][root]["needs_test"]),
+            "TEST_CORE": modules is None or modules["core"]["cuda_majors"][variant]["needs_test"],
+            "TEST_PYTHON": local and (modules is None or modules["python"]["package_roots"][root]["needs_test"]),
+        }
         suites = []
         if test_mode != "standard":
             suites.append(test_mode)
         else:
             if tests["TEST_PATHFINDER"]:
                 suites.append("pathfinder")
-            if package is not None and tests["TEST_BINDINGS"]:
+            if tests["TEST_BINDINGS"]:
                 suites.append(f"bindings{major}")
             if tests["TEST_CORE"]:
                 suites.append(f"core{major}")
-            if package is not None and tests["TEST_PYTHON"]:
+            if tests["TEST_PYTHON"]:
                 suites.append(f"meta{major}")
         if not suites:
             continue
@@ -68,14 +68,13 @@ def select_test_matrix(
         runner_driver = driver if driver in ("latest", "earliest") else "latest"
         if platform == "linux" and runner_driver != driver and source_row.get("FLAVOR") == "wsl":
             raise ValueError("custom DRIVER is not supported with FLAVOR=wsl")
-        bindings = package or current_package
         selected.append(
             {
                 **source_row,
                 **{name: str(value).lower() for name, value in tests.items()},
                 "RUNNER_DRIVER": runner_driver,
-                "BINDINGS_SOURCE": "floor" if package is None else "local",
-                "BINDINGS_SOURCE_DIR": bindings["package_root"],
+                "BINDINGS_SOURCE": "local" if local else "floor",
+                "BINDINGS_SOURCE_DIR": root,
                 "BINDINGS_BUILD_VERSION": bindings["toolkit_version"],
                 "CURRENT_BUILD_CUDA_VER": current_package["toolkit_version"],
                 "PATHFINDER_SOURCE": "artifact" if workplan is None else workplan["sources"]["pathfinder"],

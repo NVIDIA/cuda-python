@@ -88,6 +88,8 @@ def test_nightly_subsets_may_use_published_floor_bindings(test_mode):
     matrix = select_test_matrix(rows("12.6.3"), PACKAGES, build_type="nightly", test_mode=test_mode)
 
     assert [row["BINDINGS_SOURCE"] for row in matrix["include"]] == ["floor"]
+    # Workflows gate local-wheel downloads and suites on these flags alone.
+    assert matrix["include"][0]["TEST_BINDINGS"] == matrix["include"][0]["TEST_PYTHON"] == "false"
 
 
 @pytest.mark.agent_authored(model="gpt-6")

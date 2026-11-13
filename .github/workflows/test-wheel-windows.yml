@@ -177,10 +177,9 @@ jobs:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           HOST_PLATFORM: ${{ inputs.host-platform }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-          PATHFINDER_SOURCE: ${{ matrix.PATHFINDER_SOURCE || 'artifact' }}
+          PATHFINDER_SOURCE: ${{ matrix.PATHFINDER_SOURCE }}
           PY_VER: ${{ matrix.PY_VER }}
           SHA: ${{ inputs.sha || github.sha }}
-          SKIP_BINDINGS_TEST_OVERRIDE: ${{ env.TEST_BINDINGS != 'true' && '1' || '0' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: python .ci-control/ci/tools/ci_env.py test
 
@@ -202,7 +201,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download cuda-python build artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'local' }}
+        if: ${{ env.TEST_PYTHON == 'true' }}
         uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_PYTHON_ARTIFACT_NAME }}
@@ -223,7 +222,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda-python artifacts
-        if: ${{ env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE == 'local' }}
+        if: ${{ env.TEST_PYTHON == 'true' }}
         run: |
           Get-Location
           Get-ChildItem cuda_python*.whl | Select-Object Mode, LastWriteTime, Length, FullName
@@ -236,7 +235,7 @@ jobs:
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_ARTIFACTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
 
       - name: Download cuda.bindings Cython tests
-        if: ${{ env.TEST_BINDINGS == 'true' && env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ env.TEST_BINDINGS == 'true' }}
         uses: $/.github/actions/download-artifact-retry
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
@@ -245,7 +244,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Display structure of downloaded cuda.bindings Cython tests
-        if: ${{ env.TEST_BINDINGS == 'true' && env.SKIP_CYTHON_TEST == '0' }}
+        if: ${{ env.TEST_BINDINGS == 'true' }}
         run: |
           Get-Location
           Get-ChildItem -Recurse -Force $env:CUDA_BINDINGS_CYTHON_TESTS_DIR | Select-Object Mode, LastWriteTime, Length, FullName
@@ -335,7 +334,7 @@ jobs:
         run: python ci/tools/check_pathfinder_ctk_libs.py nvrtc cupti
 
       - name: Run cuda.bindings tests
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_BINDINGS == 'true' && env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        if: ${{ inputs.test-mode == 'standard' && env.TEST_BINDINGS == 'true' }}
         env:
           CUDA_VER: ${{ matrix.CUDA_VER }}
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
@@ -351,7 +350,7 @@ jobs:
         run: run-tests core
 
       - name: Ensure cuda-python installable
-        if: ${{ inputs.test-mode == 'standard' && env.TEST_PYTHON == 'true' && env.BINDINGS_SOURCE != 'floor' }}
+        if: ${{ inputs.test-mode == 'standard' && env.TEST_PYTHON == 'true' }}
         env:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
