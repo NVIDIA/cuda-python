@@ -73,9 +73,10 @@ For each supported CUDA major version, each ``cuda-core`` release declares a min
 ``cuda-bindings`` version, its *floor*. The floor is the oldest ``cuda-bindings`` release that
 meets two conditions. It was generated from the ``cuda.h`` major.minor that the published
 ``cuda-core`` wheels are built against. It provides every ``cuda-bindings`` API and fix that
-``cuda-core`` needs. The ``cu12`` and ``cu13`` extras of ``cuda-core`` in ``pyproject.toml``
-declare the floors of the current release. The build, the import-time check, this page, and CI
-all read them from there.
+``cuda-core`` needs. The ``minimal-sysctk12`` and ``minimal-sysctk13`` extras of ``cuda-core``
+in ``pyproject.toml`` declare the floors of the current release, and the ``cu12`` and ``cu13``
+extras include them. The build, the import-time check, this page, and CI all read them from
+there. pip and uv see a floor only when ``cuda-core`` is installed with one of these extras.
 
 .. list-table:: ``cuda-bindings`` floors
    :header-rows: 1

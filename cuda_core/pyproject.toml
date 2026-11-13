@@ -52,16 +52,22 @@ classifiers = [
 dependencies = [
     "cuda-pathfinder >=1.4.2",
     "numpy",
+    # No version: the floors are in the minimal-sysctk<major> extras below.
+    "cuda-bindings",
 ]
 
-# The cuda-bindings pins below are the cuda-bindings *floors* of this release, one
-# per CUDA major. This is the only place that declares them. build_hooks.py, the
-# import-time check, the docs and CI read them from here (see
-# cuda/core/_bindings_floor.py and the "Bumping the cuda-bindings floor"
-# checklist in AGENTS.md). Keep the form `>=<floor>,<<next major>`.
+# The cuda-bindings pins in the minimal-sysctk<major> extras are the cuda-bindings
+# *floors* of this release, one per CUDA major. This is the only place that
+# declares them. build_hooks.py, the import-time check, the docs and CI read them
+# from here (see cuda/core/_bindings_floor.py and the "Bumping the cuda-bindings
+# floor" checklist in AGENTS.md). Keep the form `>=<floor>,<<next major>`.
+# The cu<major> extras include them, so that pip and uv see the floor whichever
+# extra a dependent requests.
 [project.optional-dependencies]
-cu12 = ["cuda-bindings[all]>=12.9.8,<13", "cuda-toolkit==12.*"]
-cu13 = ["cuda-bindings[all]>=13.5.0,<14", "cuda-toolkit==13.*"]
+minimal-sysctk12 = ["cuda-bindings>=12.9.8,<13"]
+minimal-sysctk13 = ["cuda-bindings>=13.5.0,<14"]
+cu12 = ["cuda-core[minimal-sysctk12]", "cuda-bindings[all]", "cuda-toolkit==12.*"]
+cu13 = ["cuda-core[minimal-sysctk13]", "cuda-bindings[all]", "cuda-toolkit==13.*"]
 
 [dependency-groups]
 # Keep build in sync with build-system.requires; install local cuda-pathfinder separately.
@@ -101,6 +107,19 @@ conflicts = [
     [
         { extra = "cu12" },
         { extra = "cu13" },
+    ],
+    # uv locks every pair of extras unless told otherwise, and cu<major> includes minimal-sysctk<major>.
+    [
+        { extra = "minimal-sysctk12" },
+        { extra = "minimal-sysctk13" },
+    ],
+    [
+        { extra = "cu12" },
+        { extra = "minimal-sysctk13" },
+    ],
+    [
+        { extra = "cu13" },
+        { extra = "minimal-sysctk12" },
     ],
     [
         { group = "test-cu12" },

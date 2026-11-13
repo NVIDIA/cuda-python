@@ -759,13 +759,17 @@ class TestBuildConfigurationCheck:
 
 
 class TestBindingsFloorsFromPyproject:
-    """_bindings_floors() reads the cu<major> extras of pyproject.toml. A malformed extra fails the build."""
+    """_bindings_floors() reads the minimal-sysctk<major> extras of pyproject.toml.
+
+    A malformed extra fails the build.
+    """
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_malformed_extra_is_a_build_error(self, tmp_path, monkeypatch):
         pyproject = tmp_path / "pyproject.toml"
         pyproject.write_text(
-            '[project]\nname = "cuda-core"\n[project.optional-dependencies]\ncu13 = ["cuda-bindings>=13.4"]\n'
+            '[project]\nname = "cuda-core"\n'
+            '[project.optional-dependencies]\nminimal-sysctk13 = ["cuda-bindings>=13.4"]\n'
         )
         monkeypatch.setattr(build_hooks, "_PYPROJECT_PATH", pyproject)
         monkeypatch.setenv("CUDA_CORE_BUILD_MAJOR", "13")
@@ -777,7 +781,9 @@ class TestBindingsFloorsFromPyproject:
                 build_hooks._get_cuda_bindings_require,
                 lambda: build_hooks._build_define_macros("13"),
             ):
-                with pytest.raises(RuntimeError, match=r"pyproject\.toml: the 'cu13' extra must pin cuda-bindings"):
+                with pytest.raises(
+                    RuntimeError, match=r"pyproject\.toml: the 'minimal-sysctk13' extra must pin cuda-bindings"
+                ):
                     call()
         finally:
             build_hooks._bindings_floors.cache_clear()

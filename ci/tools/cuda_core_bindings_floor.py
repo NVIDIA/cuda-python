@@ -14,10 +14,10 @@ ci/tools/ci_env.py). This script reads the floor from the wheel under test, not
 from the checkout, so a nightly job that tests a wheel built from another
 commit reads that wheel's floor.
 
-The floors are declared once, by the `cu12`/`cu13` extras in
-cuda_core/pyproject.toml, and the wheel's METADATA carries them as
-`Requires-Dist: cuda-bindings[all]<14,>=13.4.1; extra == "cu13"`. This script
-reads that line.
+The floors are declared once, by the `minimal-sysctk12`/`minimal-sysctk13`
+extras in cuda_core/pyproject.toml, and the wheel's METADATA carries them as
+`Requires-Dist: cuda-bindings<14,>=13.4.1; extra == "minimal-sysctk13"`. This
+script reads that line.
 """
 
 from __future__ import annotations
@@ -28,29 +28,33 @@ import sys
 import zipfile
 from pathlib import Path
 
-# The cuda-bindings requirement of one `cu<major>` extra in METADATA. The name
-# is followed by `[`, an operator or whitespace so that other names do not match.
+# The cuda-bindings requirement of one `minimal-sysctk<major>` extra in METADATA. The
+# name is followed by `[`, an operator or whitespace so that other names do not match.
 _REQUIRES_DIST_RE = re.compile(
-    r"^Requires-Dist:\s*cuda-bindings(?=[\[<>=!~\s])(?P<spec>[^;]*);\s*extra\s*==\s*['\"]cu(?P<major>\d+)['\"]"
+    r"^Requires-Dist:\s*cuda-bindings(?=[\[<>=!~\s])(?P<spec>[^;]*);"
+    r"\s*extra\s*==\s*['\"]minimal-sysctk(?P<major>\d+)['\"]"
 )
 _FLOOR_RE = re.compile(r">=\s*(\d+)\.(\d+)\.(\d+)")
 
 
 def floor_from_metadata(metadata: str, major: int) -> str:
-    """The floor that the `cu<major>` extra of a wheel's METADATA pins cuda-bindings to."""
+    """The floor that the `minimal-sysctk<major>` extra of a wheel's METADATA pins cuda-bindings to."""
     for line in metadata.splitlines():
         m = _REQUIRES_DIST_RE.match(line)
         if m is None or int(m.group("major")) != major:
             continue
         floor = _FLOOR_RE.search(m.group("spec"))
         if floor is None:
-            raise SystemExit(f"METADATA pins cuda-bindings without a floor for the cu{major} extra: {line.strip()!r}")
+            raise SystemExit(
+                f"METADATA pins cuda-bindings without a floor for the minimal-sysctk{major} extra: {line.strip()!r}"
+            )
         if int(floor.group(1)) != major:
             raise SystemExit(
-                f"METADATA pins a cuda-bindings floor of another major for the cu{major} extra: {line.strip()!r}"
+                "METADATA pins a cuda-bindings floor of another major for the "
+                f"minimal-sysctk{major} extra: {line.strip()!r}"
             )
         return ".".join(floor.groups())
-    raise SystemExit(f"METADATA declares no cuda-bindings requirement for the cu{major} extra")
+    raise SystemExit(f"METADATA declares no cuda-bindings requirement for the minimal-sysctk{major} extra")
 
 
 def floor_from_wheel(wheel: Path, major: int) -> str:

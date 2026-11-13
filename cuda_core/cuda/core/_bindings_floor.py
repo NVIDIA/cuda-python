@@ -14,9 +14,11 @@ a cuda.core release does not. See
 https://github.com/NVIDIA/cuda-python/issues/2783 and the support policy in the
 documentation.
 
-Exactly one place declares the floors: the ``cu12`` and ``cu13`` extras in
-``pyproject.toml``. Each extra pins ``cuda-bindings>=<floor>,<<next major>``.
-Everything else derives from them through :func:`floors_from_extras`:
+Exactly one place declares the floors: the ``minimal-sysctk12`` and
+``minimal-sysctk13`` extras in ``pyproject.toml``. Each extra pins
+``cuda-bindings>=<floor>,<<next major>``. The ``cu12`` and ``cu13`` extras
+include them, so that pip and uv see the floor whichever extra a dependent
+requests. Everything else derives from them through :func:`floors_from_extras`:
 
 - The build backend, ``build_hooks.py``, checks the installed cuda-bindings
   against the floor. It checks that the ``cuda.h`` that it compiles against is
@@ -29,7 +31,9 @@ Everything else derives from them through :func:`floors_from_extras`:
 - The ``check-bindings-config`` pre-commit hook checks that each registered
   toolkit in ``ci/versions.yml`` is not below its corresponding floor
   major.minor. The separate ``check-cuda-core-bindings-floor`` hook validates
-  the extras and prevents documentation from hardcoding the floors.
+  the extras, checks that each ``cu<major>`` extra includes its
+  ``minimal-sysctk<major>`` extra, and prevents documentation from hardcoding
+  the floors.
 
 The build and the tools above load this module by file path. It therefore uses
 the standard library only and must not import anything from ``cuda``.
@@ -51,7 +55,7 @@ __all__ = [
 ]
 
 _RELEASE_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)")
-_EXTRA_RE = re.compile(r"^cu(\d+)$")
+_EXTRA_RE = re.compile(r"^minimal-sysctk(\d+)$")
 # A cuda-bindings requirement, with or without extras such as `[all]`, up to
 # an optional environment marker. After the name, the lookahead requires `[`, an
 # operator, a marker, whitespace or the end, so that other names do not match.
@@ -91,10 +95,10 @@ def cuda_version_of(triple: tuple[int, int, int]) -> int:
 
 
 def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[int, int, int]]:
-    """The floor per CUDA major, from the ``cu<major>`` extras of ``pyproject.toml``.
+    """The floor per CUDA major, from the ``minimal-sysctk<major>`` extras of ``pyproject.toml``.
 
     ``extras`` is the parsed ``[project.optional-dependencies]`` table. Each
-    ``cu<N>`` extra must list exactly one cuda-bindings requirement with two
+    ``minimal-sysctk<N>`` extra must list exactly one cuda-bindings requirement with two
     specifiers, in either order. One is the floor, ``>=<N>.<minor>.<patch>``.
     The other is an upper bound that excludes the next major, ``<<N+1>`` or
     ``==<N>.*``. Anything else raises ValueError with the name of the extra, so
@@ -128,7 +132,7 @@ def floors_from_extras(extras: Mapping[str, Sequence[str]]) -> dict[int, tuple[i
             )
         floors[major] = floor
     if not floors:
-        raise ValueError("pyproject.toml declares no cu<major> extra")
+        raise ValueError("pyproject.toml declares no minimal-sysctk<major> extra")
     return dict(sorted(floors.items()))
 
 

@@ -85,32 +85,41 @@ def test_floors_come_from_the_pyproject_extras(hook):
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_floors_from_extras_accepts_the_declared_form():
     extras = {
-        "cu12": ["cuda-bindings[all]>=12.9.8,<13", "cuda-toolkit==12.*"],
-        "cu13": ["cuda-bindings[all]<14,>=13.4.1", "cuda-toolkit==13.*"],
+        "minimal-sysctk12": ["cuda-bindings>=12.9.8,<13"],
+        "minimal-sysctk13": ["cuda-bindings[all]<14,>=13.4.1"],
+        # cu<N> carries the floor through minimal-sysctk<N>; its unversioned cuda-bindings is not a floor.
+        "cu12": ["cuda-core[minimal-sysctk12]", "cuda-bindings[all]", "cuda-toolkit==12.*"],
+        "cu13": ["cuda-core[minimal-sysctk13]", "cuda-bindings[all]", "cuda-toolkit==13.*"],
         "test": ["pytest"],
     }
     assert floors_from_extras(extras) == {12: (12, 9, 8), 13: (13, 4, 1)}
-    assert floors_from_extras({"cu13": ['cuda-bindings>=13.4.1,<14 ; python_version >= "3.10"']}) == {13: (13, 4, 1)}
+    marked = {"minimal-sysctk13": ['cuda-bindings>=13.4.1,<14 ; python_version >= "3.10"']}
+    assert floors_from_extras(marked) == {13: (13, 4, 1)}
     # Other spellings of the same upper bound.
-    assert floors_from_extras({"cu13": ["cuda-bindings>=13.4.1,<14.0"]}) == {13: (13, 4, 1)}
-    assert floors_from_extras({"cu13": ["cuda-bindings>=13.4.1,==13.*"]}) == {13: (13, 4, 1)}
+    assert floors_from_extras({"minimal-sysctk13": ["cuda-bindings>=13.4.1,<14.0"]}) == {13: (13, 4, 1)}
+    assert floors_from_extras({"minimal-sysctk13": ["cuda-bindings>=13.4.1,==13.*"]}) == {13: (13, 4, 1)}
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize(
     ("extras", "message"),
     [
-        ({"cu13": ["cuda-toolkit==13.*"]}, "exactly one cuda-bindings requirement, found 0"),
-        ({"cu13": ["cuda-bindings>=13.4.1", "cuda-bindings<14"]}, "exactly one cuda-bindings requirement, found 2"),
-        ({"cu13": ["cuda-bindings>=13.4.1"]}, "must pin cuda-bindings as"),
-        ({"cu13": ["cuda-bindings>=13.4,<14"]}, "must pin cuda-bindings as"),
-        ({"cu13": ["cuda-bindings>=13.4.1,<14,==13.*"]}, "must pin cuda-bindings as"),
-        ({"cu13": ["cuda-bindings>=13.4.1,<13.5"]}, "must pin cuda-bindings as"),  # a minor, not a major
-        ({"cu13": ["cuda-bindings>=12.9.8,<14"]}, "does not confine it to CUDA 13"),
-        ({"cu13": ["cuda-bindings>=13.4.1,<13"]}, "does not confine it to CUDA 13"),
-        ({"cu13": ["cuda-bindings>=13.4.1,<15"]}, "does not confine it to CUDA 13"),
-        ({"cu13": ["cuda-bindings>=13.4.1,==12.*"]}, "does not confine it to CUDA 13"),
-        ({"test": ["pytest"]}, "declares no cu<major> extra"),
+        ({"minimal-sysctk13": ["cuda-toolkit==13.*"]}, "exactly one cuda-bindings requirement, found 0"),
+        (
+            {"minimal-sysctk13": ["cuda-bindings>=13.4.1", "cuda-bindings<14"]},
+            "exactly one cuda-bindings requirement, found 2",
+        ),
+        ({"minimal-sysctk13": ["cuda-bindings>=13.4.1"]}, "must pin cuda-bindings as"),
+        ({"minimal-sysctk13": ["cuda-bindings>=13.4,<14"]}, "must pin cuda-bindings as"),
+        ({"minimal-sysctk13": ["cuda-bindings>=13.4.1,<14,==13.*"]}, "must pin cuda-bindings as"),
+        ({"minimal-sysctk13": ["cuda-bindings>=13.4.1,<13.5"]}, "must pin cuda-bindings as"),  # a minor, not a major
+        ({"minimal-sysctk13": ["cuda-bindings>=12.9.8,<14"]}, "does not confine it to CUDA 13"),
+        ({"minimal-sysctk13": ["cuda-bindings>=13.4.1,<13"]}, "does not confine it to CUDA 13"),
+        ({"minimal-sysctk13": ["cuda-bindings>=13.4.1,<15"]}, "does not confine it to CUDA 13"),
+        ({"minimal-sysctk13": ["cuda-bindings>=13.4.1,==12.*"]}, "does not confine it to CUDA 13"),
+        ({"test": ["pytest"]}, "declares no minimal-sysctk<major> extra"),
+        # The 1.3.0 layout, which pinned the floor in cu<N> only.
+        ({"cu13": ["cuda-bindings[all]>=13.4.1,<14"]}, "declares no minimal-sysctk<major> extra"),
     ],
 )
 def test_floors_from_extras_rejects_other_forms(extras, message):
@@ -120,7 +129,7 @@ def test_floors_from_extras_rejects_other_forms(extras, message):
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_floors_from_extras_ignores_lookalike_names():
-    extras = {"cu13": ["cuda-bindings-extra>=1.0", "cuda-bindings>=13.4.1,<14"]}
+    extras = {"minimal-sysctk13": ["cuda-bindings-extra>=1.0", "cuda-bindings>=13.4.1,<14"]}
     assert floors_from_extras(extras) == {13: (13, 4, 1)}
 
 
@@ -354,10 +363,35 @@ class TestConsistencyHook:
         core.mkdir(parents=True)
         shutil.copy(CUDA_CORE / "cuda" / "core" / "_bindings_floor.py", core)
         (tmp_path / "cuda_core" / "pyproject.toml").write_text(
-            '[project.optional-dependencies]\ncu13 = ["cuda-bindings[all]>=13.4,<14"]\n', encoding="utf-8"
+            '[project.optional-dependencies]\nminimal-sysctk13 = ["cuda-bindings>=13.4,<14"]\n', encoding="utf-8"
         )
         assert hook.main(["--repo-root", str(tmp_path)]) == 1
-        assert "pyproject.toml: the 'cu13' extra must pin cuda-bindings" in capsys.readouterr().err
+        assert "pyproject.toml: the 'minimal-sysctk13' extra must pin cuda-bindings" in capsys.readouterr().err
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    @pytest.mark.parametrize(
+        "cu13",
+        [
+            '["cuda-bindings[all]>=13.4.1,<14", "cuda-toolkit==13.*"]',
+            '["cuda-core[minimal-sysctk12]", "cuda-bindings[all]", "cuda-toolkit==13.*"]',
+            None,
+        ],
+    )
+    def test_a_cu_extra_without_its_minimal_sysctk_extra_fails_the_hook(self, hook, tmp_path, cu13):
+        pyproject = tmp_path / "cuda_core" / "pyproject.toml"
+        pyproject.parent.mkdir()
+        text = '[project.optional-dependencies]\nminimal-sysctk13 = ["cuda-bindings>=13.4.1,<14"]\n'
+        if cu13 is not None:
+            text += f"cu13 = {cu13}\n"
+        pyproject.write_text(text, encoding="utf-8")
+        assert hook.cu_extra_problems(tmp_path, {13: (13, 4, 1)}) == [
+            f"{hook.PYPROJECT}: the 'cu13' extra must list 'cuda-core[minimal-sysctk13]', so that it carries the floor"
+        ]
+        pyproject.write_text(
+            text.split("cu13 =")[0] + 'cu13 = ["cuda-core[minimal-sysctk13]", "cuda-bindings[all]"]\n',
+            encoding="utf-8",
+        )
+        assert hook.cu_extra_problems(tmp_path, {13: (13, 4, 1)}) == []
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_docs_must_use_the_substitutions(self, hook, tmp_path):

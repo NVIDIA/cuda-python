@@ -27,11 +27,18 @@ Name: cuda-core
 Version: 1.3.0
 Requires-Dist: cuda-pathfinder>=1.4.2
 Requires-Dist: numpy
+Requires-Dist: cuda-bindings
+Provides-Extra: minimal-sysctk12
+Requires-Dist: cuda-bindings<13,>=12.9.8; extra == "minimal-sysctk12"
+Provides-Extra: minimal-sysctk13
+Requires-Dist: cuda-bindings<14,>=13.4.1; extra == "minimal-sysctk13"
 Provides-Extra: cu12
-Requires-Dist: cuda-bindings[all]<13,>=12.9.8; extra == "cu12"
+Requires-Dist: cuda-core[minimal-sysctk12]; extra == "cu12"
+Requires-Dist: cuda-bindings[all]; extra == "cu12"
 Requires-Dist: cuda-toolkit==12.*; extra == "cu12"
 Provides-Extra: cu13
-Requires-Dist: cuda-bindings[all]<14,>=13.4.1; extra == "cu13"
+Requires-Dist: cuda-core[minimal-sysctk13]; extra == "cu13"
+Requires-Dist: cuda-bindings[all]; extra == "cu13"
 Requires-Dist: cuda-toolkit==13.*; extra == "cu13"
 """
 
@@ -53,38 +60,39 @@ def test_reads_the_floor_of_each_extra(tmp_path, major, floor):
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_accepts_other_spellings_of_the_requirement():
-    metadata = 'Requires-Dist: cuda-bindings>=13.4.1,==13.*; extra == "cu13"\n'
+    metadata = 'Requires-Dist: cuda-bindings>=13.4.1,==13.*; extra == "minimal-sysctk13"\n'
     assert tool.floor_from_metadata(metadata, 13) == "13.4.1"
-    metadata = "Requires-Dist: cuda-bindings [all] >= 13.4.1, < 14 ; extra == 'cu13'\n"
+    metadata = "Requires-Dist: cuda-bindings [all] >= 13.4.1, < 14 ; extra == 'minimal-sysctk13'\n"
     assert tool.floor_from_metadata(metadata, 13) == "13.4.1"
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_ignores_lookalike_names_and_other_extras():
     metadata = (
-        'Requires-Dist: cuda-bindings-extra>=1.0; extra == "cu13"\n'
-        'Requires-Dist: cuda-bindings[all]<13,>=12.9.8; extra == "cu12"\n'
-        'Requires-Dist: cuda-bindings[all]<14,>=13.4.1; extra == "cu13"\n'
+        'Requires-Dist: cuda-bindings-extra>=1.0; extra == "minimal-sysctk13"\n'
+        'Requires-Dist: cuda-bindings<13,>=12.9.8; extra == "minimal-sysctk12"\n'
+        'Requires-Dist: cuda-bindings[all]; extra == "cu13"\n'
+        'Requires-Dist: cuda-bindings<14,>=13.4.1; extra == "minimal-sysctk13"\n'
     )
     assert tool.floor_from_metadata(metadata, 13) == "13.4.1"
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_rejects_a_missing_extra(tmp_path):
-    with pytest.raises(SystemExit, match="no cuda-bindings requirement for the cu11 extra"):
+    with pytest.raises(SystemExit, match="no cuda-bindings requirement for the minimal-sysctk11 extra"):
         tool.floor_from_wheel(_wheel(tmp_path), 11)
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_rejects_a_requirement_without_a_floor():
-    with pytest.raises(SystemExit, match="without a floor for the cu13 extra"):
-        tool.floor_from_metadata('Requires-Dist: cuda-bindings==13.*; extra == "cu13"\n', 13)
+    with pytest.raises(SystemExit, match="without a floor for the minimal-sysctk13 extra"):
+        tool.floor_from_metadata('Requires-Dist: cuda-bindings==13.*; extra == "minimal-sysctk13"\n', 13)
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_rejects_a_floor_of_another_major():
-    with pytest.raises(SystemExit, match="floor of another major for the cu13 extra"):
-        tool.floor_from_metadata('Requires-Dist: cuda-bindings>=12.9.8,<14; extra == "cu13"\n', 13)
+    with pytest.raises(SystemExit, match="floor of another major for the minimal-sysctk13 extra"):
+        tool.floor_from_metadata('Requires-Dist: cuda-bindings>=12.9.8,<14; extra == "minimal-sysctk13"\n', 13)
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")

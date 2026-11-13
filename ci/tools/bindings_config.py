@@ -137,7 +137,7 @@ def check_core_toolkit_floors(config: BindingsConfig, repo_root: Path) -> None:
     floors = module.floors_from_extras(extras)
     pins = {int(package.cuda_major): package for package in config.package_roots}
     if pins.keys() != floors.keys():
-        raise ValueError("registered CUDA majors must match cuda_core's cu<N> extras")
+        raise ValueError("registered CUDA majors must match cuda_core's minimal-sysctk<N> extras")
     for major, floor in floors.items():
         package = pins[major]
         if package.toolkit[:2] < floor[:2]:
