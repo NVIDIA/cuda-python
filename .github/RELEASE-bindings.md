@@ -13,38 +13,19 @@ Release each line independently. A bindings release also needs its matching
 `cuda-python` metapackage release; it does not require a release of the other
 CUDA major, `cuda-core`, or `cuda-pathfinder`.
 
-Major-line maintenance may include selected API, Python, platform, or other
-compatibility changes. Decide those changes explicitly and describe them in
-the release notes. Once a patch release is frozen, admit only its approved
-fixes and release prerequisites. Do not infer patch-release scope solely
-from the registry's `maintenance` role.
-
-For an ordinary release, select a tested commit on `main`. If stabilization
-must continue while development advances, create a short release branch such
-as `release/bindings-12.9.11` from the chosen commit. For an emergency after a
-release, start from its exact tag, provided that tag contains the new package
-layout. For the first release after this transition, use a validated commit
-containing both roots. Keep routine development on `main`; the historical
-`12.9.x` branch stays frozen except for emergency fixes using compatible
-historical tooling. Reconcile those fixes into the main-tree maintenance
-root. Keep the package layout and release tooling together on new release branches.
-
+Select a tested source commit containing the intended package directory.
 Record the source commit, intended tag, selected package root, release owner,
-and accepted changes in the release checklist. A branch is a temporary scope
-boundary, not a separate long-term home for shared infrastructure.
+and accepted changes in the release checklist.
 
-## Move fixes between integration and release branches
+## Apply fixes across CUDA-major directories
 
-Prefer a reviewed fix on `main`, then backport it to the selected release
-branch in a separate PR. Inspect the diff, request CI using the normal PR
-approval procedure, and review it before merging. Conflicts and toolkit-specific
-generated changes require an explicitly reviewed adaptation.
-
-If urgency requires a fix on the release branch first, link a follow-up PR
-reconciling the fix back into `main` before closing the release checklist. In either
-direction, assess both bindings roots and record why a change applies to one
-or both. Regenerate affected generated files from the intended toolkit and
-cybind inputs instead of blindly copying generated output between majors.
+CUDA 12 and CUDA 13 sources occupy separate directories on `main`. Assess
+fixes in both directories and record the matching change or why it does not
+apply. For handwritten changes, the contribution guide gives a
+[path-relative patch example](../CONTRIBUTING.md#transferring-fixes-between-bindings-roots).
+Regenerate generated files from their generation source and each directory's
+intended toolkit inputs. Follow the
+[shared regeneration and review guidance](../ci/README.md#maintaining-both-bindings-roots).
 
 ## Validate and publish the selected line
 
@@ -70,9 +51,8 @@ cybind inputs instead of blindly copying generated output between majors.
    `vX.Y.Z` GitHub Release draft. Check its release notes, versioned
    documentation links, source archive, checksum, and wheels. These component
    workflows leave the draft for the release owner to publish.
-7. Finish post-release QA and announcements, return every applicable fix to
-   `main`, and close the stabilization effort. Retain immutable tags and the
-   branch history needed for diagnosis.
+7. Finish post-release QA and announcements and return every applicable fix
+   to `main`.
 
 For a bindings `vX.Y.Z` tag, tag CI validates that line's bindings documentation.
 Validate the metapackage documentation in the separate `component=cuda-python`
@@ -86,19 +66,17 @@ and its matching metapackage version to
 [`cuda_python/docs/nv-versions.json`](../cuda_python/docs/nv-versions.json)
 on `main`. Documentation deployments from `main` own these shared version
 selectors. Release deployments publish versioned pages without replacing the
-selectors or shared `latest` pages; updating a selector only on a stabilization
-branch will not update the public selector.
+selectors or shared `latest` pages.
 
 The workflow revision used for a release is its **control revision**; the
 tagged commit is its **source revision**. Record both and the artifact CI run
 ID. Release routing uses the package layout and toolkit settings in
-`ci/versions.yml` at the release tag. Retained CUDA 13 tags also support the
-older `cuda.build.version` configuration, the `cuda_bindings` source directory,
-and their original build matrix and metapackage artifact name. New CUDA 12
-releases require the local `cuda_bindings_12` root and toolkit-qualified
-artifacts. The workflow control revision never supplies missing tagged toolkit
-settings or replaces tagged release notes. Older CUDA 12 branch releases use
-their compatible historical tooling.
+`ci/versions.yml` at the release tag. When retrying an interrupted CUDA 13
+release, retained tags can use their original configuration, source layout,
+build matrix, and artifact names while those artifacts remain available.
+New CUDA 12 releases require the local `cuda_bindings_12` directory and
+toolkit-qualified artifacts. The workflow control revision never supplies
+missing tagged toolkit settings or replaces tagged release notes.
 
 In **CI: Release**, normal bindings and metapackage releases each require
 their own exact-version, nonempty release notes in the tagged source. Notes

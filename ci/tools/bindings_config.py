@@ -6,9 +6,12 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
+import subprocess
 import sys
+import tomllib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -124,6 +127,30 @@ def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     return parse_config(yaml.safe_load(path.read_text(encoding="utf-8")))
 
 
+def write_nightly_source_outputs(config_path: Path, output_path: Path) -> None:
+    """Append nightly configuration read from the wheel artifact's source."""
+    raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    if "schema_version" not in raw:
+        # Preserve the artifact source's original test and artifact contract.
+        toolkit = raw["cuda"]["build"]["version"]
+        branch = raw["backport_branch"]
+        subprocess.run(["git", "check-ref-format", f"refs/heads/{branch}"], check=True)  # noqa: S603, S607
+        config_json = "LEGACY_CONFIG"
+    else:
+        if raw["schema_version"] != SCHEMA_VERSION:
+            raise ValueError(f"unsupported nightly source schema: {raw['schema_version']!r}")
+        config = parse_config(raw)
+        toolkit = config.package_for_release_status("current").toolkit_version
+        branch = ""
+        config_json = config.to_json()
+    if _TOOLKIT_VERSION_PATTERN.fullmatch(toolkit) is None:
+        raise ValueError(f"invalid nightly source build toolkit: {toolkit!r}")
+    with output_path.open("a", encoding="utf-8") as output:
+        output.write(f"bindings_config={config_json}\n")
+        output.write(f"cuda_build_ver={toolkit}\n")
+        output.write(f"legacy_backport_branch={branch}\n")
+
+
 def wheel_python_versions(toolkit_version: str, platform: str, versions: Sequence[str]) -> list[str]:
     """Select wheel interpreters, including Windows ARM64's toolkit/Python limits."""
     if platform == "win-arm64":
@@ -132,6 +159,59 @@ def wheel_python_versions(toolkit_version: str, platform: str, versions: Sequenc
         # Retained release tags can include Python 3.10, which has no WoA wheels.
         return [version for version in versions if version != "3.10"]
     return list(versions)
+
+
+def check_core_toolkit_floors(config: BindingsConfig, repo_root: Path) -> None:
+    """Check toolkit pins against core's existing, standard-library floor reader."""
+    core = repo_root / "cuda_core"
+    floor_path = core / "cuda" / "core" / "_bindings_floor.py"
+    spec = importlib.util.spec_from_file_location("_cuda_core_bindings_floor", floor_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with (core / "pyproject.toml").open("rb") as stream:
+        extras = tomllib.load(stream)["project"]["optional-dependencies"]
+    floors = module.floors_from_extras(extras)
+    pins = {int(package.cuda_major): package for package in config.package_roots}
+    if pins.keys() != floors.keys():
+        raise ValueError("registered CUDA majors must match cuda_core's cu<N> extras")
+    for major, floor in floors.items():
+        package = pins[major]
+        if package.toolkit[:2] < floor[:2]:
+            raise ValueError(
+                f"{package.package_root} toolkit {package.toolkit_version} is below "
+                f"the CUDA {major} bindings floor {'.'.join(map(str, floor))}"
+            )
+
+
+def check_package_metadata(config: BindingsConfig, repo_root: Path) -> None:
+    """Check consistency of package metadata in the selected source tree."""
+    check_core_toolkit_floors(config, repo_root)
+    selectors: dict[str, str] = {}
+    for package in config.package_roots:
+        path = repo_root / package.package_root / "pyproject.toml"
+        with path.open("rb") as stream:
+            scm = tomllib.load(stream)["tool"]["setuptools_scm"]
+        if "tag_regex" in scm:
+            raise ValueError(f"{path} must use setuptools-scm's default tag parser")
+        command = scm["git_describe_command"]
+        if command.count("--match") != 1:
+            raise ValueError(f"{path} must specify one git_describe_command --match selector")
+        selector = command[command.index("--match") + 1]
+        expected_selector = f"v{package.cuda_major}.*"
+        if selector != expected_selector:
+            raise ValueError(
+                f"{path} --match must select registered CUDA major {package.cuda_major} "
+                f"using {expected_selector!r} for the {package.release_status} root, got {selector!r}"
+            )
+        selectors[package.cuda_major] = selector
+        if "fallback_version" in scm:
+            raise ValueError(f"{path} bindings root must not declare fallback_version")
+
+    path = repo_root / "cuda_python" / "pyproject.toml"
+    with path.open("rb") as stream:
+        meta_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
+    if meta_selectors != selectors:
+        raise ValueError(f"{path} scm-describe-match-by-major must match the bindings package selectors")
 
 
 def parse_prefixed_version(tag: str, prefix: str) -> Version | None:
@@ -237,8 +317,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     output = parser.add_mutually_exclusive_group()
     output.add_argument("--package-roots", action="store_true")
+    output.add_argument("--check-package-metadata", action="store_true")
     output.add_argument("--release-status", choices=sorted(RELEASE_STATUSES))
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
+    output.add_argument("--nightly-source-output", type=Path, metavar="GITHUB_OUTPUT")
     parser.add_argument("--release-source-root", type=Path)
     commands = parser.add_subparsers(dest="command")
     write_env = commands.add_parser("write-github-env", help="append package JSON from stdin to GITHUB_ENV")
@@ -247,12 +329,24 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.command == "write-github-env":
-            if args.package_roots or args.release_status or args.release_tag or args.release_source_root is not None:
+            if (
+                args.package_roots
+                or args.check_package_metadata
+                or args.release_status
+                or args.release_tag
+                or args.nightly_source_output is not None
+                or args.release_source_root is not None
+            ):
                 parser.error("write-github-env does not accept registry selectors")
             value = json.load(sys.stdin)
             if not isinstance(value, dict):
                 raise ValueError("stdin for write-github-env must contain a JSON object")
             write_github_env(value, args.github_env)
+            return 0
+        if args.nightly_source_output is not None:
+            if args.release_source_root is not None:
+                parser.error("--release-source-root requires --release-tag")
+            write_nightly_source_outputs(args.config, args.nightly_source_output)
             return 0
         if args.release_tag:
             if args.release_source_root is None:
@@ -262,6 +356,9 @@ def main(argv: list[str] | None = None) -> int:
             if args.release_source_root is not None:
                 parser.error("--release-source-root requires --release-tag")
             config = load_config(args.config)
+            if args.check_package_metadata:
+                check_package_metadata(config, REPO_ROOT)
+                return 0
             if args.release_status:
                 result = config.package_for_release_status(args.release_status).to_dict()
             else:
