@@ -487,10 +487,43 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests core
 
+      - name: Set up MSVC for native pinned-memory reproducer
+        if: ${{ inputs.test-mode == 'diagnostic-pinned-memory' }}
+        uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
+        with:
+          arch: x64
+
+      - name: Build native pinned-memory reproducer
+        if: ${{ inputs.test-mode == 'diagnostic-pinned-memory' }}
+        # The diagnostic runner reports a missing binary as failure and still
+        # runs the Python probes. Upload the compiler log even on build failure.
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $out = "pinned-memory-diagnostics/native"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          if (Test-Path "$out/pinned_pool_probe.exe") { Remove-Item "$out/pinned_pool_probe.exe" }
+          Copy-Item .ci-control/ci/tools/pinned_pool_probe.cpp $out
+          Copy-Item .ci-control/ci/tools/pinned_pool_probe_native.md $out
+          $cudaLib = Join-Path $env:CUDA_PATH "lib/x64/cuda.lib"
+          if (!(Test-Path $cudaLib)) { $cudaLib = Join-Path $env:CUDA_PATH "lib/cuda.lib" }
+          $buildArgs = @(
+            "/nologo", "/std:c++17", "/EHsc", "/W4", "/O2", "/MT",
+            "/I$env:CUDA_PATH/include", "$out/pinned_pool_probe.cpp",
+            "/Fo$out/pinned_pool_probe.obj", "/Fe$out/pinned_pool_probe.exe",
+            "/link", $cudaLib
+          )
+          "cl.exe $buildArgs" | Tee-Object "$out/build.log"
+          & cl.exe @buildArgs 2>&1 | Tee-Object -Append "$out/build.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Diagnose pinned-memory failures
         if: ${{ inputs.test-mode == 'diagnostic-pinned-memory' }}
         shell: bash --noprofile --norc -xeuo pipefail {0}
-        run: python .ci-control/ci/tools/diagnose_pinned_memory.py --cycles 100 --output-dir pinned-memory-diagnostics
+        run: >-
+          python .ci-control/ci/tools/diagnose_pinned_memory.py --cycles 100
+          --output-dir pinned-memory-diagnostics
+          --native-executable pinned-memory-diagnostics/native/pinned_pool_probe.exe
 
       - name: Upload pinned-memory diagnostics
         if: ${{ !cancelled() && inputs.test-mode == 'diagnostic-pinned-memory' }}

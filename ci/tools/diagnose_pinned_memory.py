@@ -27,7 +27,19 @@ LIFECYCLE_CASES = tuple(
     for stream in ("legacy", "per-thread", "nonblocking")
     for access in ("revoke", "keep-access")
 )
+NATIVE_CASES = (
+    *(
+        (f"native-{stream}-{access}", stream, access == "revoke", "baseline")
+        for stream in ("legacy", "per-thread", "nonblocking")
+        for access in ("revoke", "keep-access")
+    ),
+    *(
+        (f"native-legacy-keep-access-{variant}", "legacy", False, variant)
+        for variant in ("no-trim", "no-reset", "reuse")
+    ),
+)
 CASE_NAMES = (
+    *(name for name, _, _, _ in NATIVE_CASES),
     "isolated-watermarks",
     "pinned-kernel-access",
     *(name for name, _, _ in LIFECYCLE_CASES),
@@ -40,9 +52,35 @@ CASE_NAMES = (
 OOM_FILENAME = "cuda_core_oom_diagnostics.txt"
 
 
-def build_cases(root, output, cycles):
+def build_cases(root, output, cycles, native_executable=None):
     core = root / "cuda_core"
     cases = []
+    if native_executable is not None:
+        for name, stream, revoke, variant in NATIVE_CASES:
+            raw_output = output / name
+            command = [
+                str(native_executable),
+                "--stream",
+                stream,
+                "--variant",
+                variant,
+                "--cycles",
+                str(2 * cycles),
+                "--output-dir",
+                str(raw_output),
+            ]
+            if revoke:
+                command.append("--revoke-access")
+            cases.append(
+                {
+                    "name": name,
+                    "cwd": str(root),
+                    "command": command,
+                    "kind": "native",
+                    "raw_output": str(raw_output),
+                    "timeout_seconds": 120,
+                }
+            )
 
     def pytest_case(name, selectors, count, selection=None):
         command = [
@@ -269,11 +307,19 @@ def main():
     parser.add_argument("--repo-root", type=pathlib.Path, default=pathlib.Path.cwd())
     parser.add_argument("--output-dir", type=pathlib.Path, default=pathlib.Path("pinned-memory-diagnostics"))
     parser.add_argument("--cycles", type=int, default=100)
+    parser.add_argument(
+        "--native-executable",
+        type=pathlib.Path,
+        help="Also run native driver probes using this prebuilt executable (no Python in the child).",
+    )
     parser.add_argument("--case", choices=CASE_NAMES, action="append", help="Run only these cases; may be repeated.")
     args = parser.parse_args()
     if not 1 <= args.cycles <= 100:
         parser.error("--cycles must be between 1 and 100")
 
+    if args.case and any(name.startswith("native-") for name in args.case) and args.native_executable is None:
+        parser.error("Native cases require --native-executable")
+    native_executable = args.native_executable.resolve() if args.native_executable is not None else None
     root = args.repo_root.resolve()
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -293,6 +339,11 @@ def main():
             versions[package] = importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError:
             versions[package] = "not installed"
+    cases = [
+        case
+        for case in build_cases(root, output, args.cycles, native_executable)
+        if args.case is None or case["name"] in args.case
+    ]
     summary = {
         "started_at": datetime.now(UTC).isoformat(),
         "completed": False,
@@ -302,7 +353,7 @@ def main():
         "package_versions": versions,
         "pytest_addopts": env["PYTEST_ADDOPTS"],
         "cycles": args.cycles,
-        "requested_cases": args.case or list(CASE_NAMES),
+        "requested_cases": [case["name"] for case in cases],
         "cases": [],
     }
     summary_path = output / "summary.json"
@@ -311,10 +362,15 @@ def main():
     existing_oom = root / "cuda_core" / OOM_FILENAME
     if existing_oom.exists():
         shutil.move(existing_oom, output / ("preexisting-" + OOM_FILENAME))
-    for case in build_cases(root, output, args.cycles):
-        if args.case is not None and case["name"] not in args.case:
-            continue
-        summary["cases"].append(run_case(case, output, env))
+    for case in cases:
+        # A missing executable/build failure is a failed experiment, not a skip.
+        # Continue collecting independent cases and preserve the build log.
+        try:
+            result = run_case(case, output, env)
+        except OSError as exc:
+            result = {**case, "failed": True, "launch_error": str(exc)}
+            print(f"Could not run {case['name']}: {exc}", flush=True)
+        summary["cases"].append(result)
         summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     summary["completed"] = True
     summary["finished_at"] = datetime.now(UTC).isoformat()
