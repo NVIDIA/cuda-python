@@ -223,6 +223,46 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ env.CURRENT_CUDA_VERSION }}
 
+      - name: Build native pinned-memory reproducer
+        id: native-pinned-memory
+        if: ${{ inputs.host-platform == 'win-64' && strategy.job-index == 0 && env.TEST_CORE_CURRENT == 'true' }}
+        # Build once per Windows matrix on the CPU runner with MSVC installed.
+        # Publish failures too: the diagnostic job rejects a missing executable
+        # while still collecting evidence from the independent Python probes.
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $out = "native-pinned-memory"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          if (Test-Path "$out/pinned_pool_probe.exe") { Remove-Item "$out/pinned_pool_probe.exe" }
+          Copy-Item ci/tools/pinned_pool_probe.cpp $out
+          Copy-Item ci/tools/pinned_pool_probe_native.md $out
+          $cudaLib = Join-Path $env:CUDA_PATH "lib/x64/cuda.lib"
+          if (!(Test-Path $cudaLib)) { $cudaLib = Join-Path $env:CUDA_PATH "lib/cuda.lib" }
+          $buildArgs = @(
+            "/nologo", "/std:c++17", "/EHsc", "/W4", "/O2", "/MT",
+            "/I$env:CUDA_PATH/include", "$out/pinned_pool_probe.cpp",
+            "/Fo$out/pinned_pool_probe.obj", "/Fe$out/pinned_pool_probe.exe",
+            "/link", $cudaLib
+          )
+          "source_revision=$env:GITHUB_SHA toolkit=$env:CURRENT_CUDA_VERSION" | Tee-Object "$out/build.log"
+          "cl.exe $buildArgs" | Tee-Object -Append "$out/build.log"
+          & cl.exe @buildArgs 2>&1 | Tee-Object -Append "$out/build.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload native pinned-memory reproducer
+        if: ${{ !cancelled() && steps.native-pinned-memory.outcome != 'skipped' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: native-pinned-memory-${{ inputs.host-platform }}-${{ github.sha }}
+          path: |
+            native-pinned-memory/*.exe
+            native-pinned-memory/*.cpp
+            native-pinned-memory/*.md
+            native-pinned-memory/build.log
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Build cuda.bindings ${{ env.CURRENT_CUDA_MAJOR }} wheel
         if: ${{ env.BUILD_BINDINGS_CURRENT == 'true' }}
         uses: pypa/cibuildwheel@f9b966cfadf4109556cadc5bb39ddb72d0ce664e  # v4.3.5

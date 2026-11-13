@@ -4,12 +4,22 @@
 Python, cuda.bindings, cuda.core, or the CUDA runtime. It requires CUDA 13.x
 headers and a driver supporting HOST memory pools.
 
-The dedicated Windows pinned-memory CDCI job builds it with MSVC and the same
-mini toolkit as the Python diagnostics. The executable, source, build log, and
-per-case results are included in the existing pinned-memory diagnostic artifact.
-Each case runs in a fresh process with a 120-second watchdog. Build failures,
-CUDA errors, crashes, timeouts, and incomplete reports fail the diagnostic job;
-other cases continue so their results can still be compared.
+The Windows wheel build compiles it once on the CPU runner with MSVC and the
+current mini toolkit, before switching to the maintenance toolkit. It publishes
+`native-pinned-memory-win-64-<workflow SHA>` containing the executable, source,
+instructions, and build log. This also runs when Core wheels are reused but
+current-major Core tests are required.
+
+The dedicated pinned-memory CDCI job downloads that artifact from the current
+run; the GPU test runner needs no Visual Studio installation. The executable
+matches the workflow revision and diagnostic tools, including when older wheels
+are selected for testing. The downloaded files and per-case results are included
+in the existing pinned-memory diagnostic artifact.
+
+Each case runs in a fresh process with a 120-second watchdog. A failed build
+still publishes its source and log; a missing executable fails the native cases
+while the Python probes continue. CUDA errors, crashes, timeouts, and incomplete
+reports also fail the diagnostic job.
 
 ## Build and run independently
 
