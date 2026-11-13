@@ -76,7 +76,7 @@ clear_mempool_peer_access(CUmemoryPool pool, int owner_device) noexcept
 // owner_device is the ordinal of a device-located pool, or -1 when there is no
 // device to skip (host pools) or the location is unknown (imported pools).
 static MemoryPoolHandle
-wrap_mempool_owned(CUmemoryPool pool, int owner_device, bool revoke_peer_access)
+wrap_mempool_owned(CUmemoryPool pool, int owner_device)
 {
     auto *raw = new MemoryPoolBox{pool};
     // Count before constructing the shared_ptr: if its control-block allocation
@@ -85,11 +85,9 @@ wrap_mempool_owned(CUmemoryPool pool, int owner_device, bool revoke_peer_access)
     // clang-format off
     auto box = std::shared_ptr<const MemoryPoolBox>(
         raw,
-        [owner_device, revoke_peer_access](const MemoryPoolBox *b) {
+        [owner_device](const MemoryPoolBox *b) {
             GILReleaseGuard gil;
-            if (revoke_peer_access) {
-                clear_mempool_peer_access(b->resource, owner_device);
-            }
+            clear_mempool_peer_access(b->resource, owner_device);
             pw_cuMemPoolDestroy(b->resource);
             g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
             delete b;
@@ -115,13 +113,7 @@ create_mempool_handle(const CUmemPoolProps &props)
         return {};
     }
     int owner_device = props.location.type == CU_MEM_LOCATION_TYPE_DEVICE ? props.location.id : -1;
-    // Workaround for gh-3426: avoid revoking GPU access to pinned host pools
-    // before destruction. Managed pools can have the same preferred locations;
-    // preserve their access-revocation cleanup.
-    const bool is_pinned_host_pool =
-        props.allocType == CU_MEM_ALLOCATION_TYPE_PINNED &&
-        (props.location.type == CU_MEM_LOCATION_TYPE_HOST || props.location.type == CU_MEM_LOCATION_TYPE_HOST_NUMA);
-    return wrap_mempool_owned(pool, owner_device, !is_pinned_host_pool);
+    return wrap_mempool_owned(pool, owner_device);
 }
 
 MemoryPoolHandle
@@ -151,8 +143,7 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
     if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemPoolImportFromShareableHandle, &pool, handle_ptr, handle_type, 0))) {
         return {};
     }
-    // Imported pools have no location metadata here; preserve their cleanup.
-    return wrap_mempool_owned(pool, -1, true);
+    return wrap_mempool_owned(pool, -1);
 }
 
 // ============================================================================
