@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=335719e84ce1d6e1fcd12d7a0d627d5c7f8be1a80379cae902ebe72fa3b1a03f
+# This code was automatically generated with version 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=264def9594c0d23752f232304eca179db14162c9d952745a939811278d336c50
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -4874,6 +4874,187 @@ cdef class CUDA_EVENT_WAIT_NODE_PARAMS_st:
     cdef CUevent _event
 
 
+cdef class CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st:
+    """
+    CUDA Batch Memcpy Node Parameters
+
+    Attributes
+    ----------
+
+    count : size_t
+        Size of `dsts`, `srcs` and `sizes` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    dsts : CUdeviceptr
+        Array of destination pointers. This field can be updated in an
+        instantiated graph.
+
+
+    srcs : CUdeviceptr
+        Array of source pointers. This field can be updated in an
+        instantiated graph.
+
+
+    sizes : size_t
+        Array of sizes for memcpy operations. This field can be updated in
+        an instantiated graph. A size of 0 disables the individual copy
+        operation.
+
+
+    attrs : CUmemcpyAttributes
+        Array of memcpy attributes. The array contents cannot be updated in
+        an instantiated graph.
+
+
+    attrsIdxs : size_t
+        Array of indices specifying which copies each entry in `attrs`
+        applies to. The array contents cannot be updated in an instantiated
+        graph.
+
+
+    numAttrs : size_t
+        Size of `attrs` and `attrsIdxs` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    ctx : CUcontext
+        Preferred context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st* _val_ptr
+    cdef cydriver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st* _pvt_ptr
+
+    cdef size_t _dsts_length
+    cdef cydriver.CUdeviceptr* _dsts
+
+
+    cdef size_t _srcs_length
+    cdef cydriver.CUdeviceptr* _srcs
+
+
+    cdef _HelperInputVoidPtr _cysizes
+
+
+    cdef size_t _attrs_length
+    cdef cydriver.CUmemcpyAttributes* _attrs
+
+
+    cdef _HelperInputVoidPtr _cyattrsIdxs
+
+
+    cdef CUcontext _ctx
+
+
+    cdef CUgreenCtx _gCtx
+
+
+cdef class CUDA_FABRIC_COPY_BATCH_OP_st:
+    """
+    Struct representing a single copy operation for use with
+    cuFabricCpyBatchAsync
+
+    Attributes
+    ----------
+
+    src : CUfabricCpyOperand
+        Source copy operand.
+
+
+    dst : CUfabricCpyOperand
+        Destination copy operand.
+
+
+    size : size_t
+        Size in bytes. Zero makes this operation a no-op.
+
+
+    flags : unsigned int
+        Additional flags for fabric copy. Must be 0.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cydriver.CUDA_FABRIC_COPY_BATCH_OP_st _pvt_val
+    cdef cydriver.CUDA_FABRIC_COPY_BATCH_OP_st* _pvt_ptr
+
+    cdef CUfabricCpyOperand _src
+
+
+    cdef CUfabricCpyOperand _dst
+
+
+cdef class CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st:
+    """
+    CUDA fabric copy batch node parameters  The application must keep
+    every logical endpoint ID referenced by `opList` valid and bound
+    for as long as a graph or executable graph may use the node. Fabric
+    copy batch nodes are not supported in device-launched graphs or
+    conditional nodes.
+
+    Attributes
+    ----------
+
+    numOps : size_t
+        Number of entries in `opList`. This field cannot be updated after
+        instantiation.
+
+
+    opList : CUDA_FABRIC_COPY_BATCH_OP
+        Array of fabric copy operations. Logical endpoint IDs and operand
+        types cannot be updated after instantiation.
+
+
+    flags : unsigned long long
+        Flags for future use. Must be zero and cannot be updated after
+        instantiation.
+
+
+    ctx : CUcontext
+        Preferred context. This field cannot be updated after
+        instantiation.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context. This field cannot be updated after
+        instantiation.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st* _val_ptr
+    cdef cydriver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st* _pvt_ptr
+
+    cdef size_t _opList_length
+    cdef cydriver.CUDA_FABRIC_COPY_BATCH_OP* _opList
+
+
+    cdef CUcontext _ctx
+
+
+    cdef CUgreenCtx _gCtx
+
+
 cdef class CUgraphNodeParams_st:
     """
     Graph node parameters. See cuGraphAddNode.
@@ -4937,6 +5118,14 @@ cdef class CUgraphNodeParams_st:
         Conditional node parameters.
 
 
+    memcpyBatch : CUDA_MEMCPY_BATCH_NODE_PARAMS_V1
+        Batch memcpy node parameters.
+
+
+    fabricCpyBatch : CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1
+        Fabric copy batch node parameters.
+
+
     asBytes : bytes
         Padding as bytes
 
@@ -4987,6 +5176,12 @@ cdef class CUgraphNodeParams_st:
 
 
     cdef CUDA_CONDITIONAL_NODE_PARAMS _conditional
+
+
+    cdef CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 _memcpyBatch
+
+
+    cdef CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 _fabricCpyBatch
 
 
 cdef class CUcheckpointCustomStoragePerDeviceData_st:
@@ -5368,6 +5563,114 @@ cdef class CUlogicalEndpointProp_struct:
     cdef anon_struct27 _multicast
 
 
+cdef class anon_struct28:
+    """
+    Attributes
+    ----------
+
+    ptr : CUdeviceptr
+
+
+
+    locHint : CUmemLocation
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cydriver.CUfabricCpyOperand_st* _pvt_ptr
+
+    cdef CUdeviceptr _ptr
+
+
+    cdef CUmemLocation _locHint
+
+
+cdef class anon_struct29:
+    """
+    Attributes
+    ----------
+
+    id : CUlogicalEndpointId
+
+
+
+    offset : cuuint64_t
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cydriver.CUfabricCpyOperand_st* _pvt_ptr
+
+    cdef CUlogicalEndpointId _id
+
+
+    cdef cuuint64_t _offset
+
+
+cdef class anon_union22:
+    """
+    Attributes
+    ----------
+
+    ptr : anon_struct28
+
+
+
+    le : anon_struct29
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cydriver.CUfabricCpyOperand_st* _pvt_ptr
+
+    cdef anon_struct28 _ptr
+
+
+    cdef anon_struct29 _le
+
+
+cdef class CUfabricCpyOperand_st:
+    """
+    Struct representing an operand for copy with cuFabricCpyBatchAsync
+
+    Attributes
+    ----------
+
+    type : CUfabricCpyOperandType
+
+
+
+    op : anon_union22
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cydriver.CUfabricCpyOperand_st* _val_ptr
+    cdef cydriver.CUfabricCpyOperand_st* _pvt_ptr
+
+    cdef anon_union22 _op
+
+
 cdef class CUdevSmResource_st:
     """
     Attributes
@@ -5545,7 +5848,7 @@ cdef class CUdevResource_st:
     cdef cydriver.CUdevResource_st* _nextResource
 
 
-cdef class anon_union21:
+cdef class anon_union24:
     """
     Attributes
     ----------
@@ -5575,7 +5878,7 @@ cdef class CUeglFrame_st:
     Attributes
     ----------
 
-    frame : anon_union21
+    frame : anon_union24
 
 
 
@@ -5624,7 +5927,7 @@ cdef class CUeglFrame_st:
     cdef cydriver.CUeglFrame_st* _val_ptr
     cdef cydriver.CUeglFrame_st* _pvt_ptr
 
-    cdef anon_union21 _frame
+    cdef anon_union24 _frame
 
 
 cdef class CUdeviceptr:
@@ -10525,6 +10828,276 @@ cdef class CUDA_EVENT_WAIT_NODE_PARAMS(CUDA_EVENT_WAIT_NODE_PARAMS_st):
     """
     pass
 
+cdef class CUDA_MEMCPY_BATCH_NODE_PARAMS_V1(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st):
+    """
+    CUDA Batch Memcpy Node Parameters
+
+    Attributes
+    ----------
+
+    count : size_t
+        Size of `dsts`, `srcs` and `sizes` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    dsts : CUdeviceptr
+        Array of destination pointers. This field can be updated in an
+        instantiated graph.
+
+
+    srcs : CUdeviceptr
+        Array of source pointers. This field can be updated in an
+        instantiated graph.
+
+
+    sizes : size_t
+        Array of sizes for memcpy operations. This field can be updated in
+        an instantiated graph. A size of 0 disables the individual copy
+        operation.
+
+
+    attrs : CUmemcpyAttributes
+        Array of memcpy attributes. The array contents cannot be updated in
+        an instantiated graph.
+
+
+    attrsIdxs : size_t
+        Array of indices specifying which copies each entry in `attrs`
+        applies to. The array contents cannot be updated in an instantiated
+        graph.
+
+
+    numAttrs : size_t
+        Size of `attrs` and `attrsIdxs` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    ctx : CUcontext
+        Preferred context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
+cdef class CUDA_MEMCPY_BATCH_NODE_PARAMS(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1):
+    """
+    CUDA Batch Memcpy Node Parameters
+
+    Attributes
+    ----------
+
+    count : size_t
+        Size of `dsts`, `srcs` and `sizes` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    dsts : CUdeviceptr
+        Array of destination pointers. This field can be updated in an
+        instantiated graph.
+
+
+    srcs : CUdeviceptr
+        Array of source pointers. This field can be updated in an
+        instantiated graph.
+
+
+    sizes : size_t
+        Array of sizes for memcpy operations. This field can be updated in
+        an instantiated graph. A size of 0 disables the individual copy
+        operation.
+
+
+    attrs : CUmemcpyAttributes
+        Array of memcpy attributes. The array contents cannot be updated in
+        an instantiated graph.
+
+
+    attrsIdxs : size_t
+        Array of indices specifying which copies each entry in `attrs`
+        applies to. The array contents cannot be updated in an instantiated
+        graph.
+
+
+    numAttrs : size_t
+        Size of `attrs` and `attrsIdxs` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    ctx : CUcontext
+        Preferred context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context to use for the copies. This field cannot be
+        updated in an instantiated graph.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
+cdef class CUDA_FABRIC_COPY_BATCH_OP_v1(CUDA_FABRIC_COPY_BATCH_OP_st):
+    """
+    Struct representing a single copy operation for use with
+    cuFabricCpyBatchAsync
+
+    Attributes
+    ----------
+
+    src : CUfabricCpyOperand
+        Source copy operand.
+
+
+    dst : CUfabricCpyOperand
+        Destination copy operand.
+
+
+    size : size_t
+        Size in bytes. Zero makes this operation a no-op.
+
+
+    flags : unsigned int
+        Additional flags for fabric copy. Must be 0.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
+cdef class CUDA_FABRIC_COPY_BATCH_OP(CUDA_FABRIC_COPY_BATCH_OP_v1):
+    """
+    Struct representing a single copy operation for use with
+    cuFabricCpyBatchAsync
+
+    Attributes
+    ----------
+
+    src : CUfabricCpyOperand
+        Source copy operand.
+
+
+    dst : CUfabricCpyOperand
+        Destination copy operand.
+
+
+    size : size_t
+        Size in bytes. Zero makes this operation a no-op.
+
+
+    flags : unsigned int
+        Additional flags for fabric copy. Must be 0.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
+cdef class CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st):
+    """
+    CUDA fabric copy batch node parameters  The application must keep
+    every logical endpoint ID referenced by `opList` valid and bound
+    for as long as a graph or executable graph may use the node. Fabric
+    copy batch nodes are not supported in device-launched graphs or
+    conditional nodes.
+
+    Attributes
+    ----------
+
+    numOps : size_t
+        Number of entries in `opList`. This field cannot be updated after
+        instantiation.
+
+
+    opList : CUDA_FABRIC_COPY_BATCH_OP
+        Array of fabric copy operations. Logical endpoint IDs and operand
+        types cannot be updated after instantiation.
+
+
+    flags : unsigned long long
+        Flags for future use. Must be zero and cannot be updated after
+        instantiation.
+
+
+    ctx : CUcontext
+        Preferred context. This field cannot be updated after
+        instantiation.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context. This field cannot be updated after
+        instantiation.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
+cdef class CUDA_FABRIC_CPY_BATCH_NODE_PARAMS(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1):
+    """
+    CUDA fabric copy batch node parameters  The application must keep
+    every logical endpoint ID referenced by `opList` valid and bound
+    for as long as a graph or executable graph may use the node. Fabric
+    copy batch nodes are not supported in device-launched graphs or
+    conditional nodes.
+
+    Attributes
+    ----------
+
+    numOps : size_t
+        Number of entries in `opList`. This field cannot be updated after
+        instantiation.
+
+
+    opList : CUDA_FABRIC_COPY_BATCH_OP
+        Array of fabric copy operations. Logical endpoint IDs and operand
+        types cannot be updated after instantiation.
+
+
+    flags : unsigned long long
+        Flags for future use. Must be zero and cannot be updated after
+        instantiation.
+
+
+    ctx : CUcontext
+        Preferred context. This field cannot be updated after
+        instantiation.
+
+
+    gCtx : CUgreenCtx
+        Preferred green context. This field cannot be updated after
+        instantiation.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
 cdef class CUgraphNodeParams(CUgraphNodeParams_st):
     """
     Graph node parameters. See cuGraphAddNode.
@@ -10586,6 +11159,14 @@ cdef class CUgraphNodeParams(CUgraphNodeParams_st):
 
     conditional : CUDA_CONDITIONAL_NODE_PARAMS
         Conditional node parameters.
+
+
+    memcpyBatch : CUDA_MEMCPY_BATCH_NODE_PARAMS_V1
+        Batch memcpy node parameters.
+
+
+    fabricCpyBatch : CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1
+        Fabric copy batch node parameters.
 
 
     asBytes : bytes
@@ -10892,6 +11473,28 @@ cdef class CUlogicalEndpointProp(CUlogicalEndpointProp_struct):
     """
     pass
 
+cdef class CUfabricCpyOperand(CUfabricCpyOperand_st):
+    """
+    Struct representing an operand for copy with cuFabricCpyBatchAsync
+
+    Attributes
+    ----------
+
+    type : CUfabricCpyOperandType
+
+
+
+    op : anon_union22
+
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+
 cdef class CUdevSmResource(CUdevSmResource_st):
     """
     Attributes
@@ -11094,7 +11697,7 @@ cdef class CUeglFrame_v1(CUeglFrame_st):
     Attributes
     ----------
 
-    frame : anon_union21
+    frame : anon_union24
 
 
 
@@ -11150,7 +11753,7 @@ cdef class CUeglFrame(CUeglFrame_v1):
     Attributes
     ----------
 
-    frame : anon_union21
+    frame : anon_union24
 
 
 

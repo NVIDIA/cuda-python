@@ -19,16 +19,34 @@ jobs:
   coverage-vars:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
+      BINDINGS_CONFIG: ${{ steps.get-vars.outputs.bindings_config }}
+      BINDINGS_ROOT: ${{ steps.get-vars.outputs.bindings_root }}
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - name: Get CUDA version
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.11"
+
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -e ./ci
+
+      - name: Resolve current CUDA bindings package
         id: get-vars
         run: |
-          cuda_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "cuda_ver=$cuda_ver" >> $GITHUB_OUTPUT
+          current=$(python3 -m ci.tools.bindings_config --release-status current)
+          {
+            echo "bindings_config=$(python3 -m ci.tools.bindings_config)"
+            echo "bindings_root=$(jq -r '.package_root' <<< "$current")"
+            echo "cuda_ver=$(jq -r '.toolkit_version' <<< "$current")"
+          } >> "$GITHUB_OUTPUT"
 
   coverage-linux:
     name: Coverage (Linux)
@@ -43,6 +61,7 @@ jobs:
     env:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
@@ -71,12 +90,17 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
-          # third_party/cccl provides the CCCL headers cuda.core compiles against.
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
 
       - name: Fix workspace ownership
         run: |
           chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
@@ -89,23 +113,29 @@ jobs:
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
 
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ env.PY_VER }}
+          venv: .venv
+
       - name: Set environment variables
         env:
+          BINDINGS_CONFIG: ${{ needs.coverage-vars.outputs.BINDINGS_CONFIG }}
           BUILD_CUDA_VER: ${{ env.CUDA_VER }}
+          CURRENT_BUILD_CUDA_VER: ${{ env.CUDA_VER }}
+          BINDINGS_SOURCE: local
+          BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
+          DEFAULT_BINDINGS_SOURCE_DIR: ${{ env.BINDINGS_ROOT }}
+          PATHFINDER_SOURCE: artifact
           CUDA_VER: ${{ env.CUDA_VER }}
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
           LOCAL_CTK: ${{ env.LOCAL_CTK }}
           PY_VER: ${{ env.PY_VER }}
           SHA: ${{ github.sha }}
         run: |
-          ./ci/tools/env-vars test
+          python ci/tools/ci_env.py test
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
-
-      - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: ${{ env.PY_VER }}
-          venv: .venv
 
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
@@ -133,8 +163,8 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          .venv/bin/pip wheel -v --no-deps ./cuda_bindings_13 -w ./wheels/
-          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings_13/pyproject.toml:test
+          .venv/bin/pip wheel -v --no-deps ./${BINDINGS_ROOT} -w ./wheels/
+          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./${BINDINGS_ROOT}/pyproject.toml:test
 
       - name: Constrain cuda-core to the local cuda-bindings wheel
         run: |
@@ -179,7 +209,16 @@ jobs:
         continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings_13/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/${BINDINGS_ROOT}/tests
+
+      - name: Trace cuda.core imports
+        continue-on-error: true
+        run: |
+          cd $INSTALL_ROOT
+          # Trace collection-time imports before the regular pytest-cov run.
+          "$REPO_ROOT/.venv/bin/python" -m coverage run \
+            --append --source=./cuda --rcfile="$REPO_ROOT/.coveragerc" \
+            -m pytest -p no:pytest_cov --collect-only -qq "$REPO_ROOT/cuda_core/tests"
 
       - name: Run cuda.core tests
         continue-on-error: true
@@ -223,6 +262,7 @@ jobs:
     env:
       HOST_PLATFORM: "win-64"
       CUDA_PYTHON_COVERAGE: "1"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
@@ -238,25 +278,23 @@ jobs:
           # but not historical blobs.
           fetch-depth: 0
           filter: blob:none
-          # third_party/cccl provides the CCCL headers cuda.core compiles against.
-          submodules: true
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
           venv: .venv
+          stack-reserve: 8388608
 
       - name: Set up MSVC
         uses: step-security/msvc-dev-cmd@22c98154b708dbd743e6f27a933cf6ceba3305c4  # v1.13.1
-
-      - name: Raise the interpreter's stack reserve to 8 MiB
-        # Importing the coverage-built cuda.bindings.driver overflows the
-        # 2,000,000-byte main-thread stack of python-build-standalone (#3330).
-        run: |
-          base_py="$(.venv/Scripts/python -c 'import sys; print(sys._base_executable)')"
-          editbin -nologo -stack:8388608 "$base_py"
-          dumpbin -nologo -headers "$base_py" | grep -i "size of stack reserve"
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -283,8 +321,7 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          cd cuda_bindings_13
-          ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
+          .venv/Scripts/pip wheel -v --no-deps "./${BINDINGS_ROOT}" -w ./wheels/
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         run: |
@@ -349,6 +386,7 @@ jobs:
       HOST_PLATFORM: "win-64"
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     defaults:
       run:
@@ -381,10 +419,11 @@ jobs:
           nvidia-smi
 
       - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
+        uses: $/.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
           venv: .venv
+          stack-reserve: 8388608
 
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
@@ -419,7 +458,7 @@ jobs:
         run: |
           .venv/Scripts/pip install coverage pytest-cov Cython
           .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
-          .venv/Scripts/pip install --group ./cuda_bindings_13/pyproject.toml:test
+          .venv/Scripts/pip install --group ./${BINDINGS_ROOT}/pyproject.toml:test
           .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root
@@ -435,22 +474,31 @@ jobs:
           cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
           "$GITHUB_WORKSPACE/.venv/Scripts/pytest" -v --cov=./cuda --cov-append --cov-context=test --cov-config="$GITHUB_WORKSPACE/.coveragerc" "$GITHUB_WORKSPACE/cuda_pathfinder/tests"
 
-      # Cython linetrace under coverage on Windows needs more stack than the
-      # default 1 MB thread size.  The helper runs pytest on an 8 MB thread.
-      - name: Run cuda.bindings tests (with 8MB stack)
+      # The patched interpreter provides the larger stack on the main thread
+      # and in child interpreters. Deferred cleanup needs pytest on the main thread.
+      - name: Run cuda.bindings tests
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
+            "$GITHUB_WORKSPACE/${BINDINGS_ROOT}/tests"
 
-      - name: Run cuda.core tests (with 8MB stack)
+      - name: Trace cuda.core imports
         continue-on-error: true
         run: |
-          "$GITHUB_WORKSPACE/.venv/Scripts/python" "$GITHUB_WORKSPACE/ci/tools/run_pytest_with_stack.py" \
-            --cwd "${{ steps.install-root.outputs.INSTALL_ROOT }}" \
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          # Use a separate process so pytest-cov retains lifecycle contexts.
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m coverage run \
+            --append --source=./cuda --rcfile="$GITHUB_WORKSPACE/.coveragerc" \
+            -m pytest -p no:pytest_cov --collect-only -qq "$GITHUB_WORKSPACE/cuda_core/tests"
+
+      - name: Run cuda.core tests
+        continue-on-error: true
+        run: |
+          cd "${{ steps.install-root.outputs.INSTALL_ROOT }}"
+          "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
             "$GITHUB_WORKSPACE/cuda_core/tests"

@@ -8,6 +8,8 @@ deleter paths, ``from_dlpack`` error handling, and the
 """
 
 import ctypes
+import gc
+import weakref
 from pathlib import Path
 
 try:
@@ -103,6 +105,41 @@ def test_dlpack_view_of_buffer_reuses_exporting_buffer(init_cuda):
         del adjusted, view
     finally:
         buffer.close()
+
+
+class _EphemeralDLPackExporter:
+    """CPU exporter whose capsule is the only owner of a freshly created array."""
+
+    def __init__(self):
+        self.array_ref = None
+
+    def __dlpack_device__(self):
+        return (int(DLDeviceType.kDLCPU), 0)
+
+    def __dlpack__(self, **kwargs):
+        array = np.arange(4, dtype=np.int32)
+        self.array_ref = weakref.ref(array)
+        return array.__dlpack__(**kwargs)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_dlpack_derived_view_keeps_capsule_owned_storage_alive(init_cuda):
+    """A derived view keeps capsule-owned storage alive until the last view is released."""
+    exporter = _EphemeralDLPackExporter()
+    original = StridedMemoryView.from_dlpack(exporter, stream_ptr=-1)
+    derived = original.view(dtype=original.dtype)
+    ptr = original.ptr
+    del original
+    gc.collect()
+
+    # Check liveness before reading, so a regression fails without touching freed memory.
+    assert exporter.array_ref() is not None
+    assert derived.ptr == ptr
+    assert np.from_dlpack(derived).tolist() == [0, 1, 2, 3]
+
+    del derived
+    # No gc.collect(): the capsule must be released by reference counting, not a cycle.
+    assert exporter.array_ref() is None
 
 
 def test_dlpack_export_unversioned_capsule_and_deleter():

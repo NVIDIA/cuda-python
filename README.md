@@ -48,6 +48,15 @@ The list of available interfaces is:
 * cuFile
 * NVML
 
+## Bindings source roots
+
+Both bindings release lines are maintained on `main`: current CUDA 13 sources
+live in [`cuda_bindings_13/`](cuda_bindings_13/), and CUDA 12.9 maintenance
+sources live in [`cuda_bindings_12/`](cuda_bindings_12/). Both build the same
+`cuda-bindings` distribution and `cuda.bindings` namespace; develop and test
+them in separate Python environments. See the [contributor guide](CONTRIBUTING.md)
+for source selection and changes across majors.
+
 ## License
 
 CUDA Python is licensed under the [Apache License 2.0](./LICENSE). Third-party
@@ -59,7 +68,8 @@ The root `LICENSE` governs the repository as a whole:
 
 | Subproject       | License    | License file                                             |
 | ---------------- | ---------- | -------------------------------------------------------- |
-| `cuda.bindings`  | Apache-2.0 | [`cuda_bindings_13/LICENSE`](./cuda_bindings_13/LICENSE)       |
+| `cuda.bindings` (CUDA 13) | Apache-2.0 | [`cuda_bindings_13/LICENSE`](./cuda_bindings_13/LICENSE) |
+| `cuda.bindings` (CUDA 12) | Apache-2.0 | [`cuda_bindings_12/LICENSE`](./cuda_bindings_12/LICENSE) |
 | `cuda.core`      | Apache-2.0 | [`cuda_core/LICENSE`](./cuda_core/LICENSE)               |
 | `cuda.pathfinder`| Apache-2.0 | [`cuda_pathfinder/LICENSE`](./cuda_pathfinder/LICENSE)   |
 | `cuda-python`    | Apache-2.0 | [`cuda_python/LICENSE`](./cuda_python/LICENSE)           |

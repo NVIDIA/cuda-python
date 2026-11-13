@@ -31,6 +31,8 @@ from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatfo
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
+from .._utils.resolve_path import resolve_path
+
 # ---------------------------------------------------------------------------
 # Data types
 # ---------------------------------------------------------------------------
@@ -76,7 +78,7 @@ def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
     for rel_path in rel_dirs:
         for dirname in sorted(glob.glob(os.path.join(root, rel_path))):
             if os.path.isdir(dirname):
-                yield os.path.normpath(dirname)
+                yield str(resolve_path(dirname))
 
 
 def _iter_lib_dirs_using_anchor(
@@ -225,12 +227,12 @@ def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | None:
 
 
 def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
-    """Search ``$CUDA_PATH`` / ``$CUDA_HOME``.
+    """Search ``$CUDA_PATH`` / ``$CUDA_HOME`` as fallback toolkit roots.
 
-    On Windows, this is the normal fallback for system-installed CTK DLLs when
-    they are not already discoverable via the native ``LoadLibraryExW(..., 0)``
-    path used by :func:`cuda.pathfinder._dynamic_libs.load_dl_windows.load_with_system_search`.
-    Python 3.8+ does not include ``PATH`` in that native DLL search.
+    This step runs after native system search on both platforms. On Windows,
+    native ``LoadLibraryExW(..., 0)`` search can already discover CTK DLLs
+    through ``PATH``, subject to the process's DLL search policy. These roots
+    do not override earlier discoveries or pin the runtime toolkit.
 
     The returned ``found_via`` is always ``"CUDA_PATH"`` regardless of which
     environment variable actually provided the value.
@@ -247,7 +249,7 @@ def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
         for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
-            result = _find_under_anchor_root(ctx, os.path.normpath(root), "ProgramFiles")
+            result = _find_under_anchor_root(ctx, str(resolve_path(root)), "ProgramFiles")
             if result is not None:
                 return result
     return None

@@ -4,6 +4,14 @@
         "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/"
     },
     {
+        "version": "1.9.0",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.9.0/"
+    },
+    {
+        "version": "1.8.6",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.8.6/"
+    },
+    {
         "version": "1.8.5",
         "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.8.5/"
     },
