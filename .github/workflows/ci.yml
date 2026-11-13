@@ -531,6 +531,34 @@ jobs:
       nruns: ${{ (github.event_name == 'schedule' && 5) || 1}}
       workplan: ${{ needs.detect-changes.outputs.workplan }}
 
+  # Dedicated fresh-process reproductions of the Windows host-pool failures.
+  # The normal Windows matrix still supplies full bindings-major coverage.
+  test-windows-pinned-memory:
+    name: Pinned-memory diagnostics
+    if: ${{ github.repository_owner == 'nvidia' &&
+            !fromJSON(needs.should-skip.outputs.doc-only) &&
+            needs.detect-changes.outputs.platform-windows == 'true' &&
+            fromJSON(needs.detect-changes.outputs.workplan).modules.core.cuda_majors.cu13.needs_test }}
+    permissions:
+      actions: read
+      contents: read
+    needs:
+      - should-skip
+      - detect-changes
+      - build-linux-64
+      - build-windows
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-windows.yml
+    with:
+      build-type: pull-request
+      host-platform: win-64
+      bindings-config: ${{ needs.detect-changes.outputs.bindings-config }}
+      workplan: ${{ needs.detect-changes.outputs.workplan }}
+      test-mode: diagnostic-pinned-memory
+      matrix_filter: >-
+        map(select(.PY_VER == "3.14" and .CUDA_VER == "13.5.0" and
+        .LOCAL_CTK == "1" and .GPU == "l4" and .GPU_COUNT == "1" and .DRIVER_MODE == "MCDM"))
+
   doc:
     name: Docs
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -569,6 +597,7 @@ jobs:
       - test-linux-64
       - test-linux-aarch64
       - test-windows
+      - test-windows-pinned-memory
       - api-check-core-vs-release
       - api-check-core-vs-base
       - doc
@@ -576,6 +605,7 @@ jobs:
       - name: Exit
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
+          CORE_CU13_TEST: ${{ fromJSON(needs.detect-changes.outputs.workplan || '{}').modules.core.cuda_majors.cu13.needs_test }}
         run: |
           # GitHub treats `result == 'skipped'` as success for required
           # status checks (see CCCL gate comment + cccl#605). The previous
@@ -645,6 +675,12 @@ jobs:
           check_result "test-linux-64"      "$linux_expected"
           check_result "test-linux-aarch64" "$linux_expected"
           check_result "test-windows"       "$windows_expected"
+
+          expected="skipped"
+          if [[ "$windows_expected" == "success" && "$CORE_CU13_TEST" != "false" ]]; then
+            expected="success"
+          fi
+          check_result "test-windows-pinned-memory" "$expected"
 
           # API compatibility checks run for cuda_core source changes and for
           # conservative full runs when reusable base artifacts are unavailable.

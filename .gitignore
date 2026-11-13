@@ -18,6 +18,7 @@ __pycache__/
 !*_impl.cpp
 !cuda_bindings_13/cuda/bindings/_bindings/loader.cpp
 !cuda_core/cuda/core/_cpp/**/*.cpp
+!ci/tools/pinned_pool_probe.cpp
 cache_driver
 cache_runtime
 cache_nvrtc
