@@ -75,6 +75,7 @@ jobs:
       RUN_ID: ${{ steps.find.outputs.run_id }}
       HEAD_SHA: ${{ steps.find.outputs.head_sha }}
       CUDA_BUILD_VER: ${{ steps.find.outputs.cuda_build_ver }}
+      BINDINGS_CONFIG: LEGACY_CONFIG
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -132,6 +133,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -150,6 +152,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-aarch64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -168,6 +171,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -188,6 +192,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -206,6 +211,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-aarch64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -224,6 +230,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -244,6 +251,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -262,6 +270,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -282,6 +291,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -300,6 +310,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: win-64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}
@@ -320,6 +331,7 @@ jobs:
     with:
       build-type: nightly
       host-platform: linux-aarch64
+      bindings-config: ${{ needs.find-wheels.outputs.BINDINGS_CONFIG }}
       build-ctk-ver: ${{ needs.find-wheels.outputs.CUDA_BUILD_VER }}
       run-id: ${{ needs.find-wheels.outputs.RUN_ID }}
       sha: ${{ needs.find-wheels.outputs.HEAD_SHA }}

@@ -94,8 +94,15 @@ jobs:
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
 
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: ${{ env.PY_VER }}
+          venv: .venv
+
       - name: Set environment variables
         env:
+          BINDINGS_CONFIG: LEGACY_CONFIG
           BUILD_CUDA_VER: ${{ env.CUDA_VER }}
           CUDA_VER: ${{ env.CUDA_VER }}
           HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
@@ -103,14 +110,8 @@ jobs:
           PY_VER: ${{ env.PY_VER }}
           SHA: ${{ github.sha }}
         run: |
-          ./ci/tools/env-vars test
+          python ci/tools/ci_env.py test
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
-
-      - name: Set up Python
-        uses: ./.github/actions/setup-hardened-python
-        with:
-          python-version: ${{ env.PY_VER }}
-          venv: .venv
 
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}

@@ -83,6 +83,19 @@ class BindingsConfig:
     def package_for_release_status(self, release_status: str) -> BindingsPackage:
         return next(package for package in self.package_roots if package.release_status == release_status)
 
+    @property
+    def windows_arm64_single_cuda_major(self) -> bool:
+        return self.package_for_release_status("current").cuda_major == "13"
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "python": {"supported": list(self.python_supported)},
+            "package_roots": [package.to_dict() for package in self.package_roots],
+        }
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict(), separators=(",", ":"), sort_keys=True)
+
     def match_tag(self, tag: str) -> BindingsPackage | None:
         return next((package for package in self.package_roots if package.matches_tag(tag)), None)
 

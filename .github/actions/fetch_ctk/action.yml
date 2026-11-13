@@ -34,20 +34,24 @@ inputs:
       Override to install from an alternate redistrib server.
     required: false
     default: "https://developer.download.nvidia.com/compute/cuda/redist"
+  redistrib-tool:
+    description: "Path to fetch_ctk_redistrib.py, relative to the runtime workspace"
+    required: false
+    default: "ci/tools/fetch_ctk_redistrib.py"
 
 runs:
   using: composite
   steps:
     - name: Install Unix dependencies
       if: ${{ runner.os == 'Linux' }}
-      uses: ./.github/actions/install_unix_deps
+      uses: $/.github/actions/install_unix_deps
       with:
         dependencies: "zstd curl xz-utils"
         dependent_exes: "zstd curl xz"
 
     - name: Install Windows dependencies
       if: ${{ runner.os == 'Windows' }}
-      uses: ./.github/actions/install_windows_deps
+      uses: $/.github/actions/install_windows_deps
       with:
         dependent_exes: "curl unzip tar sha256sum cygpath"
 
@@ -83,7 +87,7 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # Use the runtime workspace mount so this also works inside container jobs.
-        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/${{ inputs.redistrib-tool }}"
         CTK_BASE_URL="${{ inputs.redist-base-url }}"
         # A trailing slash would defeat the public-server comparison below and double up in URLs.
         CTK_BASE_URL="${CTK_BASE_URL%/}"
@@ -148,7 +152,7 @@ runs:
         mkdir $CACHE_TMP_DIR
 
         # Use the runtime workspace mount so this also works inside container jobs.
-        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/${{ inputs.redistrib-tool }}"
         # CTK_BASE_URL and the verified manifest at CTK_JSON_FILE come from
         # "Set up CTK cache variable".
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
