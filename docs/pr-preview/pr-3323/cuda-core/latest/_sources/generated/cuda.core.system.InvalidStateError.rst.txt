@@ -1,6 +1,0 @@
-﻿cuda.core.system.InvalidStateError
-==================================
-
-.. currentmodule:: cuda.core.system
-
-.. autoexception:: InvalidStateError
