@@ -10,7 +10,7 @@
 
 CI installs `cuda-bindings==<floor>` next to a freshly built cuda-core wheel to
 test the oldest cuda-bindings that wheel supports (BINDINGS_SOURCE=floor in
-ci/tools/env-vars). This script reads the floor from the wheel under test, not
+ci/tools/ci_env.py). This script reads the floor from the wheel under test, not
 from the checkout, so a nightly job that tests a wheel built from another
 commit reads that wheel's floor.
 
