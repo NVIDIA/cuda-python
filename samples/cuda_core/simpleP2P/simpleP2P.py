@@ -152,6 +152,18 @@ def run(num_elements=1024 * 1024 * 16):
 
     print(f"\nUsing GPU{gpuid[0]} ({dev0.name}) and GPU{gpuid[1]} ({dev1.name})")
 
+    # The buffers below are allocated from the device and host memory pools, so
+    # that peer access can be granted with cuMemPoolSetAccess. Configurations
+    # without memory pools (for example devices in TCC mode) cannot run this
+    # sample, so waive instead of failing while allocating.
+    for device, label in ((dev0, f"GPU{gpuid[0]}"), (dev1, f"GPU{gpuid[1]}")):
+        if not device.properties.memory_pools_supported:
+            print(f"\nDeviceMemoryResource requires CUDA memory pools, which are not supported on {label}. Waiving.")
+            return EXIT_WAIVED
+        if not device.properties.host_memory_pools_supported:
+            print(f"\nPinnedMemoryResource requires host memory pools, which are not supported on {label}. Waiving.")
+            return EXIT_WAIVED
+
     # Allocate buffers with P2P access
     buf_size = num_elements * np.dtype(np.float32).itemsize
     print(f"\nAllocating buffers ({int(buf_size / 1024 / 1024)}MB on GPU{gpuid[0]}, GPU{gpuid[1]} and CPU Host)...")

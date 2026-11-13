@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import ast
+import importlib.util
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -97,6 +100,83 @@ def test_unsupported_core_sample_paths_return_waiver(
         if isinstance(node, ast.Return) and isinstance(node.value, ast.Name) and node.value.id == "EXIT_WAIVED"
     ]
     assert len(waiver_returns) == 1
+
+
+def _load_simple_p2p(monkeypatch: pytest.MonkeyPatch):
+    sample_path = REPO_ROOT / "samples" / "cuda_core" / "simpleP2P" / "simpleP2P.py"
+    spec = importlib.util.spec_from_file_location("_test_simple_p2p", sample_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    with monkeypatch.context() as import_ctx:
+        import_ctx.setattr(sys, "path", list(sys.path))
+        spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize(
+    ("unsupported_gpu", "unsupported_capability"),
+    [
+        (0, "memory_pools_supported"),
+        (1, "memory_pools_supported"),
+        (0, "host_memory_pools_supported"),
+        (1, "host_memory_pools_supported"),
+    ],
+)
+@pytest.mark.agent_authored(model="gemini-4-carbon-high")
+def test_simple_p2p_waives_before_allocation_without_memory_pool_support(
+    monkeypatch: pytest.MonkeyPatch,
+    unsupported_gpu: int,
+    unsupported_capability: str,
+) -> None:
+    """Missing device or host mempool support on any selected GPU must waive before allocating (NVBug 7081727)."""
+    module = _load_simple_p2p(monkeypatch)
+
+    # GPU 0 is non-P2P so the sample selects the (1, 2) pair rather than hardcoded ordinals (0, 1).
+    p2p_pair = (1, 2)
+    target_device_id = p2p_pair[unsupported_gpu]
+    devices = []
+    for device_id in range(3):
+        props = {
+            "memory_pools_supported": True,
+            "host_memory_pools_supported": True,
+        }
+        if device_id == target_device_id:
+            props[unsupported_capability] = False
+        devices.append(
+            SimpleNamespace(
+                device_id=device_id,
+                name=f"FakeGPU{device_id}",
+                properties=SimpleNamespace(**props),
+                can_access_peer=lambda other, dev_id=device_id: (
+                    dev_id in p2p_pair and other.device_id in p2p_pair and dev_id != other.device_id
+                ),
+                set_current=lambda: None,
+            )
+        )
+
+    class _FakeDeviceFactory:
+        def __new__(cls, device_id: int):
+            return devices[int(device_id)]
+
+        @staticmethod
+        def get_all_devices():
+            return list(devices)
+
+    constructed_resources: list[str] = []
+
+    def _record_construction(kind: str):
+        def _fail(*args, **kwargs):
+            constructed_resources.append(kind)
+            raise AssertionError(f"{kind} must not be constructed when memory pools are unsupported")
+
+        return _fail
+
+    monkeypatch.setattr(module, "Device", _FakeDeviceFactory)
+    monkeypatch.setattr(module, "DeviceMemoryResource", _record_construction("DeviceMemoryResource"))
+    monkeypatch.setattr(module, "PinnedMemoryResource", _record_construction("PinnedMemoryResource"))
+
+    assert module.run(num_elements=16) == module.EXIT_WAIVED
+    assert constructed_resources == []
 
 
 @pytest.mark.agent_authored(model="gpt-5")
