@@ -547,7 +547,8 @@ Types
    EccSramUniqueUncorrectedErrorEntry_v1
    EncoderSessionInfo
    EventData
-   EventData_v2
+   EventSetGetContextInfo_v1
+   EventSetGetGpuOperationalEventContextLegacyXid_v1
    ExcludedDeviceInfo
    FBCSessionInfo
    FBCStats
@@ -561,7 +562,6 @@ Types
    GpuFabricInfo_v4
    GpuInstanceInfo
    GpuOperationalEventConfig_v1
-   GpuOperationalEventContextLegacyXid_v1
    GpuInstancePlacement
    GpuInstanceProfileInfo_v3
    GpuThermalSettings
@@ -590,7 +590,6 @@ Types
    NvlinkTelemetrySample_v1
    NvlinkTelemetrySamples_v1
    ObservedMetrics
-   OperationalEventContextInfo_v1
    PciInfo
    PciInfoExt_v1
    PerfMetricControllerSample

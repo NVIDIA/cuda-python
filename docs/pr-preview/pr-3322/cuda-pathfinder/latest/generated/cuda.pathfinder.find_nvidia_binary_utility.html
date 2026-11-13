@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7e97f9bf"></script>
+    <script src="../_static/documentation_options.js?v=60b3a732"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.8.7';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.9.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -461,6 +461,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.9.0-notes.html">1.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.8.6-notes.html">1.8.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.8.5-notes.html">1.8.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.8.4-notes.html">1.8.4</a></li>
@@ -565,9 +566,9 @@ extension will be automatically appended if not present. The function
 also recognizes <code class="docutils literal notranslate"><span class="pre">.bat</span></code> and <code class="docutils literal notranslate"><span class="pre">.cmd</span></code> files on Windows.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Absolute path to the discovered executable, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
-if the utility cannot be found. The returned path is normalized
-(absolute and with resolved separators).</p>
+<dd class="field-even"><p>Resolved absolute path to the discovered executable, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> if the utility cannot be found. Symlinks and parent-directory
+components are resolved to identify the selected executable.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a> or None</p>

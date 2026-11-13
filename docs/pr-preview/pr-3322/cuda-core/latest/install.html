@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=92592e1b"></script>
+    <script src="_static/documentation_options.js?v=1a40da45"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.1.dev394';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -837,6 +837,9 @@ extras install a compatible version. Test dependencies now use the <code class="
 <p>If you upgrade <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> alone, the installed <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> can be older than the new
 release requires. <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">cuda.core</span></code> then reports the required version and the <code class="docutils literal notranslate"><span class="pre">pip</span></code> command
 that installs it.</p>
+<p>Do not pin <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> in your own requirements. Depend on <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> with the <code class="docutils literal notranslate"><span class="pre">cu12</span></code>
+or <code class="docutils literal notranslate"><span class="pre">cu13</span></code> extra, and let <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> choose the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> version. A pin of your own
+can conflict with the floor of a later <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> release.</p>
 </section>
 <section id="installing-from-conda-conda-forge">
 <h2>Installing from Conda (conda-forge)<a class="headerlink" href="#installing-from-conda-conda-forge" title="Link to this heading">#</a></h2>
@@ -846,7 +849,8 @@ that installs it.</p>
 </div>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">cuda-version=13</span></code> for CUDA 13.</p>
 <p>The conda-forge package depends on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> of the same CUDA major. The
-<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor of the release also applies to it. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.</p>
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> floor of the release also applies to it. See <a class="reference internal" href="support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.
+As with <code class="docutils literal notranslate"><span class="pre">pip</span></code>, do not pin <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> yourself. Let <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> choose it.</p>
 </section>
 <section id="development-environment">
 <h2>Development environment<a class="headerlink" href="#development-environment" title="Link to this heading">#</a></h2>
