@@ -1,0 +1,6 @@
+﻿cuda.core.system.TimeoutError
+=============================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: TimeoutError
