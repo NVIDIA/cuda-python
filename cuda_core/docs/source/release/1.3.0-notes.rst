@@ -461,8 +461,8 @@ Fixes and enhancements
   (`#2840 <https://github.com/NVIDIA/cuda-python/issues/2840>`__)
 
 - :meth:`Buffer.from_ipc_descriptor` no longer unmaps a newly imported
-  buffer when another thread releases the same descriptor at the same time.
-  The import now waits for the pending release to finish.
+  memory pool buffer when another thread releases the same descriptor at the
+  same time. The import now waits for the pending release to finish.
   (`#3450 <https://github.com/NVIDIA/cuda-python/pull/3450>`__)
 
 - :class:`Linker` passes boolean nvJitLink options as ``1`` or ``0``.
