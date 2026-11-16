@@ -91,7 +91,9 @@ test = [
     "pyglet==2.1.14",
     "cffi==2.1.1",
 ]
-ml-dtypes = ["ml-dtypes>=0.5.4"]
+# ml-dtypes 0.7 lets NumPy export bfloat16, so the bfloat16 DLPack test runs and fails
+# until #3359 fixes #3337. Remove the upper bound when #3359 merges.
+ml-dtypes = ["ml-dtypes>=0.5.4,<0.7"]
 test-ft = ["pytest-run-parallel==0.10.0"]
 test-cu12 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda12x; python_version < '3.15'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = [ {include-group = "ml-dtypes" }, {include-group = "test" }, "cupy-cuda13x; python_version < '3.15'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
