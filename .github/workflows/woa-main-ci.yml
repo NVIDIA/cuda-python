@@ -3,16 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: "WoA main CI"
-run-name: "WoA main CI for ${{ inputs.public_run_id || 'latest main commit' }}"
+run-name: "WoA main CI for ${{ inputs.public_run_id || 'latest successful public main CI run' }}"
 
 on:
-  schedule:
-    # 03:17 UTC daily, offset from the other nightly workflows.
-    - cron: "17 3 * * *"
+  workflow_call:
+    inputs:
+      public_run_id:
+        description: Public CI run selected by the nightly find-wheels job
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       public_run_id:
-        description: Eligible public main CI run; leave empty to use the latest main commit
+        description: Eligible public main CI run; leave empty to find the latest successful main CI run
         required: false
         type: string
 
@@ -36,6 +39,15 @@ jobs:
       public-run-id: ${{ steps.resolve.outputs.public_run_id }}
       public-sha: ${{ steps.resolve.outputs.public_sha }}
     steps:
+      - name: Checkout CI selection helpers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            ci/tools/lookup-run-id
+          sparse-checkout-cone-mode: false
+
       - name: Resolve exact public build
         id: resolve
         env:
@@ -51,18 +63,15 @@ jobs:
             exit 0
           }
 
-          echo "Resolving public CI run: ${PUBLIC_RUN_ID:-latest main commit}."
+          echo "Resolving public CI run: ${PUBLIC_RUN_ID:-latest successful main push}."
           public_sha=''
           if [[ -z "$PUBLIC_RUN_ID" ]]; then
-            public_sha=$(gh api repos/NVIDIA/cuda-python/commits/main --jq .sha)
+            lookup_output=$(./ci/tools/lookup-run-id --branch main --event push --head-sha NVIDIA/cuda-python CI)
+            mapfile -t lookup_result <<< "$lookup_output"
+            [[ ${#lookup_result[@]} == 2 ]]
+            PUBLIC_RUN_ID=${lookup_result[0]}
+            public_sha=${lookup_result[1]}
             [[ "$public_sha" =~ ^[0-9a-f]{40}$ ]]
-            PUBLIC_RUN_ID=$(gh api --method GET \
-              repos/NVIDIA/cuda-python/actions/workflows/ci.yml/runs \
-              -f branch=main -f event=push -f head_sha="$public_sha" -F per_page=100 \
-              --jq '.workflow_runs | max_by(.id) | .id // empty')
-            if [[ -z "$PUBLIC_RUN_ID" ]]; then
-              skip_resolution "No push CI run exists for latest main commit $public_sha; no older commit will be selected."
-            fi
           fi
           [[ "$PUBLIC_RUN_ID" =~ ^[1-9][0-9]*$ ]]
           run=$(gh api \
@@ -76,11 +85,10 @@ jobs:
               repository: (.repository.full_name == "NVIDIA/cuda-python"),
               workflow_id: (.workflow_id == 155304118),
               workflow_path: (.path == ".github/workflows/ci.yml"),
-              event: (.event == "push"),
+              event: (.event == "push" or .event == "schedule" or .event == "workflow_dispatch"),
               branch: (.head_branch == "main"),
               status_and_conclusion: ((.status == "in_progress" and .conclusion == null) or
-                                     (.status == "completed" and
-                                      (.conclusion == "success" or .conclusion == "failure"))),
+                                     (.status == "completed" and .conclusion == "success")),
               expected_sha: ($sha == "" or .head_sha == $sha),
               sha_format: ((.head_sha // "") | test("^[0-9a-f]{40}$"))
             }
