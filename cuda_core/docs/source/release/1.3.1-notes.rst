@@ -1,0 +1,21 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.3.1 Release Notes
+=================================
+
+Fixes and enhancements
+-----------------------
+
+- :class:`PinnedMemoryResource` construction without options no longer
+  invalidates a CUDA graph capture in progress on another thread. ``cuda.core``
+  1.3.0 introduced a ``cuMemPoolSetAccess`` call in the constructor (#3405);
+  the driver refuses that call, and invalidates any concurrent global-mode
+  capture, unless it runs in relaxed capture mode. The fix applies the same
+  relaxed-mode wrapper already used for pool attribute reads and writes and
+  :meth:`~_memory._memory_pool._MemPool.trim`. Captures started with the
+  default ``begin_building()`` mode are unaffected; global mode is the default
+  in several external libraries (for example ``torch.cuda.graph``).
+  (`#3451 <https://github.com/NVIDIA/cuda-python/issues/3451>`__)
