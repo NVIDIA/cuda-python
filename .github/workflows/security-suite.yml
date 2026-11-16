@@ -7,7 +7,6 @@
 # Pulse runs on Linux nv-gha-runners (Docker image + OIDC/Vault) — Linux-only by design.
 # The local secret-scan-trufflehog pre-commit hook is cross-platform (Linux/macOS/Windows).
 # Pinned by commit SHA to the security-workflows v0.6.0 release.
-# The vulnerability and malware scans cross a Charon tunnel; see ci/README.md.
 
 name: Security Suite (Secret, Vulnerability, Malware, SAST)
 
@@ -119,8 +118,8 @@ jobs:
   security-suite:
     name: Security Suite
     needs: python-wheels
-    # Repository-specific workflow opt-ins use CI_CUSTOMIZATIONS_* Actions variables;
-    # see ci/README.md. Enable this only after the security-suite prerequisites exist.
+    # Repository-specific workflow opt-ins use CI_CUSTOMIZATIONS_* Actions variables.
+    # Enable this only after the security-suite prerequisites exist.
     if: >-
       !cancelled() &&
       (needs.python-wheels.result == 'success' || github.ref != 'refs/heads/main') &&
@@ -147,7 +146,8 @@ jobs:
       vuln-runs-on: linux-amd64-cpu4
       vuln-python-wheels-artifact: ${{ github.ref == 'refs/heads/main' && 'python-wheels' || '' }}
       vuln-python-project: ${{ github.ref == 'refs/heads/main' && 'cuda-python' || '' }}
-      # Pull-request mirrors scan source, minus the two packages Detect cannot resolve from it.
+      # Mirrors have no wheels, and Detect cannot resolve these two packages from source, so
+      # it skips them there. Their dependencies are covered by the wheel scan on main.
       vuln-detect-properties: >-
         ${{ github.ref == 'refs/heads/main' && '{}' ||
             '{"detect.excluded.directories": "cuda_core,cuda_python"}' }}
