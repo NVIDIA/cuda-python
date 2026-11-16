@@ -1,9 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. This code was automatically generated with version 13.4.1. Do not modify it directly.
+.. This code was automatically generated with version 13.5.0. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=408acc02ad695c94ce3060966b62863084ed3f1ac77da7e731e37b3cf7cf9b27
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5a96949e99bab12ac8015bc287f315eb9b632da85705f73841ff2c540cdcbd02
 -------
 runtime
 -------
@@ -66,6 +66,7 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParamsV2
 .. autoclass:: cuda.bindings.runtime.cudaConditionalNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaMemcpyBatchNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaChildGraphNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaEventRecordNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaEventWaitNodeParams
@@ -2895,6 +2896,12 @@ Data types used by CUDA Runtime
         Number of multiprocessors on each locality domain
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrTensorMapLargeTensorMinSize
+
+
+        Smallest tensor size in bytes at which TMA descriptors are treated as "large" (BASE_128KB OOB mode). tensors >= this threshold are eligible for the tensormap.replace.assume_large PTX modifier. Returns INT_MAX on devices without this distinction where assume_large is a no-op.
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax
 
 .. autoclass:: cuda.bindings.runtime.cudaMemPoolAttr
@@ -3393,13 +3400,19 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill
 
 
-        Treats constraints as a hint, ignoring them if necessary to reach the requested smCount. Lets smCount be a non-multiple of coscheduledSmCount, filling the difference between SM count and already assigned co-scheduled groupings with other SMs. When used with cudaDevSmResourceGroupLocalityDomainId, backfill fills up to the requested smCount using the target locality domain first, then SMs not attributed to any locality domain, then SMs from other locality domains. If no SMs can be found in the requested locality domain, cudaErrorInvalidResourceConfiguration is returned.
+        Treats constraints as a hint, ignoring them if necessary to reach the requested smCount. Lets smCount be a non-multiple of coscheduledSmCount, filling the difference between SM count and already assigned co-scheduled groupings with other SMs. When used with cudaDevSmResourceGroupLocalityDomainId, backfill fills up to the requested smCount using the target locality domain first, then SMs not attributed to any locality domain, then SMs from other locality domains. If no SMs can be found in the requested locality domain, cudaErrorInvalidResourceConfiguration is returned. When used with ``cudaDevSmResourceGroupLocalityDomainNonPortableId``, backfill follows the same behavior after first consuming all SMs from the target locality domain.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId
 
 
         The SMs must be located on a specific locality domain, specified by localityDomainId
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainSupplementalSms
+
+
+        Modifier to ``cudaDevSmResourceGroupLocalityDomainId`` which allows selection of SMs in the locality domain exceeding the :py:obj:`~.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount`.
 
 .. autoclass:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags
 
@@ -3834,10 +3847,22 @@ Data types used by CUDA Runtime
                                            call :py:obj:`~.cudaGraphSetConditional` from device code.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemcpyBatch
+
+
+        Batch Memcpy Node
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeReserved16
 
 
         Reserved.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeExternalEngine
+
+
+        Reserved for External Engine node
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount
@@ -4099,6 +4124,12 @@ Data types used by CUDA Runtime
 
 
         Adds :py:obj:`~.cudaConditionalNodeParams` to output
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyBatchNodeParams
+
+
+        Adds batch memcpy node parameters to the output
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphInstantiateFlags
 
@@ -5425,6 +5456,10 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaNvSciSyncAttrWait
 
     When /p flags of :py:obj:`~.cudaDeviceGetNvSciSyncAttributes` is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cudaDeviceGetNvSciSyncAttributes`.
+
+.. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroupLocalityDomainIdAny
+
+    Special value for localityDomainId when cudaDevSmResourceSplit is called with cudaDevSmResourceGroupLocalityDomainId. Selects SMs from the union of all available locality domains in the input SM resource. See also: cudaDevSmResourceGroupLocalityDomainId for the set of SMs in a single locality domain.
 
 .. autoattribute:: cuda.bindings.runtime.cudaGraphKernelNodePortDefault
 

@@ -1,9 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. This code was automatically generated with version 13.4.1. Do not modify it directly.
+.. This code was automatically generated with version 13.5.0. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=03c58049a86a77a6113432e5935ea831b2fd6d6980b3f98f20b0025d043e801a
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=076c7bd6707e9d4ee49e8bea215de4623bdb8ae7df8b601fa9d596cdbb3207fa
 -----
 nvrtc
 -----
@@ -147,7 +147,7 @@ NVRTC defines the following types and functions for bundled headers installation
 Supported Compile Options
 -------------------------
 
-NVRTC supports the compile options below. Option names with two preceding dashs (``--``) are long option names and option names with one preceding dash (``-``) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (``=``) is used to separate the compile option argument from the compile option name, e.g., ``"--gpu-architecture=compute_100"``. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, ``"--gpu-architecture"`` ``"compute_100"``. Single-character short option names, such as ``-D``, ``-U``, and ``-I``, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, ``"-D=<def>"``, ``"-D<def>"``, and ``"-D <def>"`` are all supported.
+NVRTC supports the compile options below. Option names with two preceding dashes (``--``) are long option names and option names with one preceding dash (``-``) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (``=``) is used to separate the compile option argument from the compile option name, e.g., ``"--gpu-architecture=compute_100"``. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, ``"--gpu-architecture"`` ``"compute_100"``. Single-character short option names, such as ``-D``, ``-U``, and ``-I``, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, ``"-D=<def>"``, ``"-D<def>"``, and ``"-D <def>"`` are all supported.
 
 
 
@@ -231,6 +231,16 @@ Do extensible whole program compilation of device code.
 
 
 
+  - ``--tile-preview=SIMT`` (``-tile-preview``)
+
+Enable Tile preview features and define the macro ``__CUDACC_TILE_PREVIEW_SIMT__`` .
+
+
+
+
+
+
+
   - ``--enable-tile`` (``-enable-tile``)
 
 Enable support for Tile constructs (e.g. ``__tile__`` ) and define the macro ``__CUDACC_TILE__`` .
@@ -265,7 +275,7 @@ Enable support for parsing Tile constructs and define the macro ``__CUDACC_TILE_
 
 Consider an unannotated function or static storage duration variable as having an implicit ``__tile__`` annotation. If the static storage duration variable violates Tile restrictions (e.g. cannot be of pointer type), then the implicit annotation is silently omitted by default; use ``-diagnose-implicit-tile-var`` to enable compiler diagnostics for such cases.
 
-``-default-tile`` can be used in conjunction with ``-default-device``. If both flags are specified, the unannotated function and/or static storage duration variable will be considered to have both ``__tile__`` and ``__device__`` implict annotations. There will be a separate copy of the function/variable in the generated SIMT and cuda_tile programs, at present.
+``-default-tile`` can be used in conjunction with ``-default-device``. If both flags are specified, the unannotated function and/or static storage duration variable will be considered to have both ``__tile__`` and ``__device__`` implicit annotations. There will be a separate copy of the function/variable in the generated SIMT and cuda_tile programs, at present.
 
 
 
@@ -721,7 +731,7 @@ Print a message in the compilation log, if a PCH file was created or used in the
 
   - ``--instantiate-templates-in-pch={true|false}`` (``-instantiate-templates-in-pch``)
 
-Enable or disable instantiatiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).
+Enable or disable instantiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).
 
 
 

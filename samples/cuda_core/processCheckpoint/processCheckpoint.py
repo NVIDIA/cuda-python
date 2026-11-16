@@ -44,7 +44,6 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from typing import List
 
 import numpy as np
 
@@ -118,7 +117,7 @@ def _time_call(fn, *args, **kwargs) -> float:
     return (time.monotonic() - t0) * 1000.0
 
 
-def run_lifecycle(proc: checkpoint.Process, lock_timeout_ms: int) -> List[StepTiming]:
+def run_lifecycle(proc: checkpoint.Process, lock_timeout_ms: int) -> list[StepTiming]:
     """
     Drive the full `lock -> checkpoint -> restore -> unlock` cycle on
     `proc` and return per-step timings with the state observed after
@@ -128,7 +127,7 @@ def run_lifecycle(proc: checkpoint.Process, lock_timeout_ms: int) -> List[StepTi
     the `locked` state. You must still call `unlock()` to return to
     `running`.
     """
-    timings: List[StepTiming] = [StepTiming("initial", 0.0, proc.state)]
+    timings: list[StepTiming] = [StepTiming("initial", 0.0, proc.state)]
 
     ms = _time_call(proc.lock, timeout_ms=lock_timeout_ms)
     timings.append(StepTiming("lock", ms, proc.state))
@@ -145,7 +144,7 @@ def run_lifecycle(proc: checkpoint.Process, lock_timeout_ms: int) -> List[StepTi
     return timings
 
 
-def print_timings(timings: List[StepTiming]) -> None:
+def print_timings(timings: list[StepTiming]) -> None:
     print()
     header = f"{'step':<14}{'duration (ms)':>18}{'state after':>18}"
     print(header)

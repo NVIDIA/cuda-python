@@ -345,6 +345,19 @@ def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type
         assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
 
+def test_device_node_update_supported(get_saxpy_kernel_cubin):
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
+
+    kernel, _ = get_saxpy_kernel_cubin
+
+    for device in Device.get_all_devices():
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 3, 0):
+            with pytest.raises(NotImplementedError):
+                _ = kernel.attributes[device].device_node_update_supported
+        else:
+            assert isinstance(kernel.attributes[device].device_node_update_supported, bool)
+
+
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod.symbol_mapping

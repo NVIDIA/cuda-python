@@ -133,13 +133,17 @@ def test_http_timeout_map_entries_are_retryable(tmp_path, code):
     ],
 )
 @pytest.mark.agent_authored(model="gpt-6")
-def test_permanent_or_unknown_failures_stop_without_sleep_or_retry(tmp_path, monkeypatch, failure):
+def test_permanent_or_unknown_failures_stop_without_sleep_or_retry(tmp_path, monkeypatch, capsys, failure):
     report = tmp_path / "lychee.json"
     write_report(report, report_data(errors=[failure]))
     monkeypatch.setattr(retry_lychee.time, "sleep", lambda _delay: pytest.fail("Unexpected sleep"))
 
     assert retry_lychee.retry_lychee(2, report, run_attempt=unexpected_retry) == 2
     assert "permanent or unclassified" in report.with_suffix(".md").read_text(encoding="utf-8")
+    out = capsys.readouterr().out
+    assert "permanent or unclassified" in out
+    assert "| Source | URL | Status |" in out
+    assert retry_lychee.escape_markdown(failure["url"]) in out
 
 
 @pytest.mark.agent_authored(model="gpt-6")

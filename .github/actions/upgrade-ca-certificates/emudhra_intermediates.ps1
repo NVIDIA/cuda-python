@@ -69,3 +69,56 @@ function Test-ExplicitlyDistrusted([System.Security.Cryptography.X509Certificate
         $chain.Dispose()
     }
 }
+
+# Classifies how Windows chain building treats the certificate, using only the
+# local trust state (no revocation, no AIA downloads):
+#   ExplicitDistrust : in LocalMachine\Disallowed or Microsoft's disallowed list
+#   NoTrustAnchor    : the chain no longer ends in a trusted root, and
+#                      UntrustedRoot / PartialChain are the only problems
+#                      reported, e.g. because the root was removed
+#   Trusted          : the chain builds cleanly, so the compromised key is usable
+#   Indeterminate    : the build failed for some other reason; never a pass
+# Verification time is pinned (the instant used by runner_trust_probe.sh) so an
+# expired certificate cannot masquerade as untrusted.
+# A PartialChain only shows that the root is untrusted if the issuers are
+# available to the build, so callers pass the non-root issuers in
+# $ExtraCertificates. Issuers that are roots need not be supplied: a missing
+# root is exactly the condition this function reports as NoTrustAnchor.
+function Get-ChainTrustState(
+    [System.Security.Cryptography.X509Certificates.X509Certificate2]$Cert,
+    [System.Security.Cryptography.X509Certificates.X509Certificate2[]]$ExtraCertificates = @()
+) {
+    $explicitDistrust = [System.Security.Cryptography.X509Certificates.X509ChainStatusFlags]::ExplicitDistrust
+    $noAnchor = [int]([System.Security.Cryptography.X509Certificates.X509ChainStatusFlags]::UntrustedRoot -bor
+        [System.Security.Cryptography.X509Certificates.X509ChainStatusFlags]::PartialChain)
+    $chain = [System.Security.Cryptography.X509Certificates.X509Chain]::new()
+    try {
+        foreach ($extra in $ExtraCertificates) {
+            [void]$chain.ChainPolicy.ExtraStore.Add($extra)
+        }
+        $chain.ChainPolicy.RevocationMode = [System.Security.Cryptography.X509Certificates.X509RevocationMode]::NoCheck
+        $chain.ChainPolicy.VerificationTime = [DateTime]::new(2026, 10, 23, 0, 0, 0, [DateTimeKind]::Utc)
+        # DisableCertificateDownloads does not exist on .NET Framework (Windows PowerShell 5.1).
+        if ($chain.ChainPolicy | Get-Member -Name DisableCertificateDownloads) {
+            $chain.ChainPolicy.DisableCertificateDownloads = $true
+        }
+        $built = $chain.Build($Cert)
+        $statuses = @($chain.ChainStatus) + @($chain.ChainElements | ForEach-Object { $_.ChainElementStatus })
+        $names = @($statuses | ForEach-Object { $_.Status.ToString() } | Where-Object { $_ -ne 'NoError' } | Sort-Object -Unique)
+        if ($statuses | Where-Object { $_.Status.HasFlag($explicitDistrust) }) {
+            $state = 'ExplicitDistrust'
+        } elseif ($built) {
+            $state = 'Trusted'
+        } elseif (
+            ($statuses | Where-Object { ([int]$_.Status -band $noAnchor) -ne 0 }) -and
+            -not ($statuses | Where-Object { ([int]$_.Status -band (-bnot $noAnchor)) -ne 0 })
+        ) {
+            $state = 'NoTrustAnchor'
+        } else {
+            $state = 'Indeterminate'
+        }
+        return [pscustomobject]@{ State = $state; Statuses = ($names -join ',') }
+    } finally {
+        $chain.Dispose()
+    }
+}

@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=11827bb18f0653afd95163d1d140a0ec529d3d025b1ca1da61f96ee88f48d948
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=41c2a2147ee34ceed11d38eb00faa851b5c1d5f10c215a0df65f85b22a41757c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -17,11 +17,6 @@ from cpython.buffer cimport (
     Py_buffer as _cyb_Py_buffer,
 )
 cimport cpython.memoryview as _cyb_cpython_memoryview
-from cpython.object cimport PyObject as _cyb_PyObject
-from cpython.ref cimport (
-    Py_CLEAR as _cyb_Py_CLEAR,
-    Py_XINCREF as _cyb_Py_XINCREF,
-)
 from cython cimport view as _cyb_view
 from libc.stdint cimport intptr_t
 from libc.stdlib cimport (
@@ -51,6 +46,14 @@ cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, in
     buffer.shape = &buffer.len
     buffer.strides = &buffer.itemsize
     buffer.suboffsets = NULL
+
+cdef inline intptr_t _cyb_array_ptr(object arr) except? 0:
+    cdef _cyb_cpython.Py_buffer view
+    cdef intptr_t ptr
+    _cyb_cpython.PyObject_GetBuffer(arr, &view, _cyb_cpython_buffer.PyBUF_STRIDES)
+    ptr = <intptr_t>view.buf
+    _cyb_cpython.PyBuffer_Release(&view)
+    return ptr
 
 cdef _cyb_from_buffer(buffer, size, lowpp_type):
     cdef _cyb_cpython.Py_buffer view
@@ -309,14 +312,14 @@ class ValueType(_cyb_FastEnum):
 
     See `nvmlValueType_t`.
     """
-    DOUBLE = NVML_VALUE_TYPE_DOUBLE
-    UNSIGNED_INT = NVML_VALUE_TYPE_UNSIGNED_INT
-    UNSIGNED_LONG = NVML_VALUE_TYPE_UNSIGNED_LONG
-    UNSIGNED_LONG_LONG = NVML_VALUE_TYPE_UNSIGNED_LONG_LONG
-    SIGNED_LONG_LONG = NVML_VALUE_TYPE_SIGNED_LONG_LONG
-    SIGNED_INT = NVML_VALUE_TYPE_SIGNED_INT
-    UNSIGNED_SHORT = NVML_VALUE_TYPE_UNSIGNED_SHORT
-    COUNT = NVML_VALUE_TYPE_COUNT
+    DOUBLE = (NVML_VALUE_TYPE_DOUBLE, 'Double-precision floating-point value.')
+    UNSIGNED_INT = (NVML_VALUE_TYPE_UNSIGNED_INT, 'Unsigned 32-bit integer value.')
+    UNSIGNED_LONG = (NVML_VALUE_TYPE_UNSIGNED_LONG, 'Unsigned long integer value.')
+    UNSIGNED_LONG_LONG = (NVML_VALUE_TYPE_UNSIGNED_LONG_LONG, 'Unsigned 64-bit integer value.')
+    SIGNED_LONG_LONG = (NVML_VALUE_TYPE_SIGNED_LONG_LONG, 'Signed 64-bit integer value.')
+    SIGNED_INT = (NVML_VALUE_TYPE_SIGNED_INT, 'Signed 32-bit integer value.')
+    UNSIGNED_SHORT = (NVML_VALUE_TYPE_UNSIGNED_SHORT, 'Unsigned 16-bit integer value.')
+    COUNT = (NVML_VALUE_TYPE_COUNT, 'Maximum value above +1.')
 
 class PerfPolicyType(_cyb_FastEnum):
     """
@@ -483,10 +486,10 @@ class BrandType(_cyb_FastEnum):
     BRAND_TITAN_RTX = TITAN_RTX  # backward-compat alias
     NVIDIA_DLA = NVML_BRAND_NVIDIA_DLA
     BRAND_NVIDIA_DLA = NVIDIA_DLA  # backward-compat alias
-    NVIDIA_VGAMEDEV = NVML_BRAND_NVIDIA_VGAMEDEV
-    BRAND_NVIDIA_VGAMEDEV = NVIDIA_VGAMEDEV  # backward-compat alias
     NVIDIA_NPU = NVML_BRAND_NVIDIA_NPU
     BRAND_NVIDIA_NPU = NVIDIA_NPU  # backward-compat alias
+    NVIDIA_VGAMEDEV = NVML_BRAND_NVIDIA_VGAMEDEV
+    BRAND_NVIDIA_VGAMEDEV = NVIDIA_VGAMEDEV  # backward-compat alias
     COUNT = NVML_BRAND_COUNT
     BRAND_COUNT = COUNT  # backward-compat alias
 
@@ -720,7 +723,7 @@ class Return(_cyb_FastEnum):
     ERROR_CORRUPTED_INFOROM = (NVML_ERROR_CORRUPTED_INFOROM, 'infoROM is corrupted')
     ERROR_GPU_IS_LOST = (NVML_ERROR_GPU_IS_LOST, 'The GPU has fallen off the bus or has otherwise become inaccessible.')
     ERROR_RESET_REQUIRED = (NVML_ERROR_RESET_REQUIRED, 'The GPU requires a reset before it can be used again.')
-    ERROR_OPERATING_SYSTEM = (NVML_ERROR_OPERATING_SYSTEM, 'The GPU control device has been blocked by the operating system/cgroups.')
+    ERROR_OPERATING_SYSTEM = (NVML_ERROR_OPERATING_SYSTEM, 'A generic operating system error occurred.')
     ERROR_LIB_RM_VERSION_MISMATCH = (NVML_ERROR_LIB_RM_VERSION_MISMATCH, 'RM detects a driver/library version mismatch.')
     ERROR_IN_USE = (NVML_ERROR_IN_USE, 'An operation cannot be performed because the GPU is currently in use.')
     ERROR_MEMORY = (NVML_ERROR_MEMORY, 'Insufficient memory.')
@@ -1943,6 +1946,8 @@ class GpmMetricId(_cyb_FastEnum):
 
 class PowerProfileType(_cyb_FastEnum):
     """
+    Workload power profile identifiers.
+
     See `nvmlPowerProfileType_t`.
     """
     MAX_P = NVML_POWER_PROFILE_MAX_P
@@ -2965,7 +2970,7 @@ class InsufficientPowerError(NvmlError):
     pass
 class DriverNotLoadedError(NvmlError):
     pass
-class TimeoutError(NvmlError):
+class NvmlTimeoutError(NvmlError):
     pass
 class IrqIssueError(NvmlError):
     pass
@@ -2985,7 +2990,7 @@ class LibRmVersionMismatchError(NvmlError):
     pass
 class InUseError(NvmlError):
     pass
-class MemoryError(NvmlError):
+class NvmlMemoryError(NvmlError):
     pass
 class NoDataError(NvmlError):
     pass
@@ -3030,7 +3035,7 @@ cdef object _nvml_error_factory(int status):
     elif status == 9:
         return DriverNotLoadedError(pystatus)
     elif status == 10:
-        return TimeoutError(pystatus)
+        return NvmlTimeoutError(pystatus)
     elif status == 11:
         return IrqIssueError(pystatus)
     elif status == 12:
@@ -3050,7 +3055,7 @@ cdef object _nvml_error_factory(int status):
     elif status == 19:
         return InUseError(pystatus)
     elif status == 20:
-        return MemoryError(pystatus)
+        return NvmlMemoryError(pystatus)
     elif status == 21:
         return NoDataError(pystatus)
     elif status == 22:
@@ -3348,24 +3353,24 @@ cdef class PciInfo:
     """
     cdef:
         nvmlPciInfo_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPciInfo_t *>_cyb_calloc(1, sizeof(nvmlPciInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PciInfo")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPciInfo_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PciInfo object at {hex(id(self))}>"
@@ -3528,11 +3533,12 @@ cdef class PciInfo:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PciInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPciInfo_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPciInfo_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -4160,6 +4166,7 @@ cdef _get_process_info_dtype_offsets():
     })
 
 process_info_dtype = _get_process_info_dtype_offsets()
+cdef object process_info_dtype_record = _numpy.dtype((_numpy.record, process_info_dtype))
 
 cdef class ProcessInfo:
     """Empty-initialize an array of `nvmlProcessInfo_t`.
@@ -4176,8 +4183,7 @@ cdef class ProcessInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_info_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=process_info_dtype_record)
         assert self._data.itemsize == sizeof(nvmlProcessInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessInfo_t) }"
 
@@ -4190,17 +4196,17 @@ cdef class ProcessInfo:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -4221,49 +4227,58 @@ cdef class ProcessInfo:
     def pid(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
+        self._data["pid"] = val
 
     @property
     def used_gpu_memory(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.used_gpu_memory[0])
-        return self._data.used_gpu_memory
+            return int(self._data["used_gpu_memory"][0])
+        return self._data["used_gpu_memory"]
 
     @used_gpu_memory.setter
     def used_gpu_memory(self, val):
-        self._data.used_gpu_memory = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
+        self._data["used_gpu_memory"] = val
 
     @property
     def gpu_instance_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.gpu_instance_id[0])
-        return self._data.gpu_instance_id
+            return int(self._data["gpu_instance_id"][0])
+        return self._data["gpu_instance_id"]
 
     @gpu_instance_id.setter
     def gpu_instance_id(self, val):
-        self._data.gpu_instance_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
+        self._data["gpu_instance_id"] = val
 
     @property
     def compute_instance_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.compute_instance_id[0])
-        return self._data.compute_instance_id
+            return int(self._data["compute_instance_id"][0])
+        return self._data["compute_instance_id"]
 
     @compute_instance_id.setter
     def compute_instance_id(self, val):
-        self._data.compute_instance_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessInfo instance is read-only")
+        self._data["compute_instance_id"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ProcessInfo obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -4271,10 +4286,18 @@ cdef class ProcessInfo:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ProcessInfo.from_data(self._data[key_:key_+1])
+            obj = ProcessInfo.__new__(ProcessInfo)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == process_info_dtype:
-            return ProcessInfo.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == process_info_dtype:
+                obj = ProcessInfo.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -4299,8 +4322,7 @@ cdef class ProcessInfo:
             raise ValueError("data array must be 1D")
         if data.dtype != process_info_dtype:
             raise ValueError("data array must be of dtype process_info_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=process_info_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -4320,10 +4342,8 @@ cdef class ProcessInfo:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessInfo_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=process_info_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=process_info_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -4343,6 +4363,7 @@ cdef _get_process_detail_v1_dtype_offsets():
     })
 
 process_detail_v1_dtype = _get_process_detail_v1_dtype_offsets()
+cdef object process_detail_v1_dtype_record = _numpy.dtype((_numpy.record, process_detail_v1_dtype))
 
 cdef class ProcessDetail_v1:
     """Empty-initialize an array of `nvmlProcessDetail_v1_t`.
@@ -4359,8 +4380,7 @@ cdef class ProcessDetail_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_detail_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=process_detail_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlProcessDetail_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessDetail_v1_t) }"
 
@@ -4373,17 +4393,17 @@ cdef class ProcessDetail_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -4404,60 +4424,71 @@ cdef class ProcessDetail_v1:
     def pid(self):
         """Union[~_numpy.uint32, int]: Process ID."""
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
+        self._data["pid"] = val
 
     @property
     def used_gpu_memory(self):
         """Union[~_numpy.uint64, int]: Amount of used GPU memory in bytes. Under WDDM, NVML_VALUE_NOT_AVAILABLE is always reported because Windows KMD manages all the memory and not the NVIDIA driver"""
         if self._data.size == 1:
-            return int(self._data.used_gpu_memory[0])
-        return self._data.used_gpu_memory
+            return int(self._data["used_gpu_memory"][0])
+        return self._data["used_gpu_memory"]
 
     @used_gpu_memory.setter
     def used_gpu_memory(self, val):
-        self._data.used_gpu_memory = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
+        self._data["used_gpu_memory"] = val
 
     @property
     def gpu_instance_id(self):
         """Union[~_numpy.uint32, int]: If MIG is enabled, stores a valid GPU instance ID. gpuInstanceId is."""
         if self._data.size == 1:
-            return int(self._data.gpu_instance_id[0])
-        return self._data.gpu_instance_id
+            return int(self._data["gpu_instance_id"][0])
+        return self._data["gpu_instance_id"]
 
     @gpu_instance_id.setter
     def gpu_instance_id(self, val):
-        self._data.gpu_instance_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
+        self._data["gpu_instance_id"] = val
 
     @property
     def compute_instance_id(self):
         """Union[~_numpy.uint32, int]: If MIG is enabled, stores a valid compute instance ID. computeInstanceId."""
         if self._data.size == 1:
-            return int(self._data.compute_instance_id[0])
-        return self._data.compute_instance_id
+            return int(self._data["compute_instance_id"][0])
+        return self._data["compute_instance_id"]
 
     @compute_instance_id.setter
     def compute_instance_id(self, val):
-        self._data.compute_instance_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
+        self._data["compute_instance_id"] = val
 
     @property
     def used_gpu_cc_protected_memory(self):
         """Union[~_numpy.uint64, int]: Amount of used GPU conf compute protected memory in bytes."""
         if self._data.size == 1:
-            return int(self._data.used_gpu_cc_protected_memory[0])
-        return self._data.used_gpu_cc_protected_memory
+            return int(self._data["used_gpu_cc_protected_memory"][0])
+        return self._data["used_gpu_cc_protected_memory"]
 
     @used_gpu_cc_protected_memory.setter
     def used_gpu_cc_protected_memory(self, val):
-        self._data.used_gpu_cc_protected_memory = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessDetail_v1 instance is read-only")
+        self._data["used_gpu_cc_protected_memory"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ProcessDetail_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -4465,10 +4496,18 @@ cdef class ProcessDetail_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ProcessDetail_v1.from_data(self._data[key_:key_+1])
+            obj = ProcessDetail_v1.__new__(ProcessDetail_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == process_detail_v1_dtype:
-            return ProcessDetail_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == process_detail_v1_dtype:
+                obj = ProcessDetail_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -4493,8 +4532,7 @@ cdef class ProcessDetail_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != process_detail_v1_dtype:
             raise ValueError("data array must be of dtype process_detail_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=process_detail_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -4514,10 +4552,8 @@ cdef class ProcessDetail_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessDetail_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=process_detail_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=process_detail_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -5053,6 +5089,7 @@ cdef _get_bridge_chip_info_dtype_offsets():
     })
 
 bridge_chip_info_dtype = _get_bridge_chip_info_dtype_offsets()
+cdef object bridge_chip_info_dtype_record = _numpy.dtype((_numpy.record, bridge_chip_info_dtype))
 
 cdef class BridgeChipInfo:
     """Empty-initialize an array of `nvmlBridgeChipInfo_t`.
@@ -5069,8 +5106,7 @@ cdef class BridgeChipInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=bridge_chip_info_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=bridge_chip_info_dtype_record)
         assert self._data.itemsize == sizeof(nvmlBridgeChipInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlBridgeChipInfo_t) }"
 
@@ -5083,17 +5119,17 @@ cdef class BridgeChipInfo:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -5114,27 +5150,32 @@ cdef class BridgeChipInfo:
     def type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.type[0])
-        return self._data.type
+            return int(self._data["type"][0])
+        return self._data["type"]
 
     @type.setter
     def type(self, val):
-        self._data.type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This BridgeChipInfo instance is read-only")
+        self._data["type"] = val
 
     @property
     def fw_version(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.fw_version[0])
-        return self._data.fw_version
+            return int(self._data["fw_version"][0])
+        return self._data["fw_version"]
 
     @fw_version.setter
     def fw_version(self, val):
-        self._data.fw_version = val
+        if not self._data.flags.writeable:
+            raise ValueError("This BridgeChipInfo instance is read-only")
+        self._data["fw_version"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef BridgeChipInfo obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -5142,10 +5183,18 @@ cdef class BridgeChipInfo:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return BridgeChipInfo.from_data(self._data[key_:key_+1])
+            obj = BridgeChipInfo.__new__(BridgeChipInfo)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == bridge_chip_info_dtype:
-            return BridgeChipInfo.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == bridge_chip_info_dtype:
+                obj = BridgeChipInfo.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -5170,8 +5219,7 @@ cdef class BridgeChipInfo:
             raise ValueError("data array must be 1D")
         if data.dtype != bridge_chip_info_dtype:
             raise ValueError("data array must be of dtype bridge_chip_info_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=bridge_chip_info_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -5191,10 +5239,8 @@ cdef class BridgeChipInfo:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlBridgeChipInfo_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=bridge_chip_info_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=bridge_chip_info_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -5225,24 +5271,24 @@ cdef class Value:
     """
     cdef:
         nvmlValue_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlValue_t *>_cyb_calloc(1, sizeof(nvmlValue_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating Value")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlValue_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.Value object at {hex(id(self))}>"
@@ -5397,11 +5443,12 @@ cdef class Value:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating Value")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlValue_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlValue_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -5422,6 +5469,7 @@ cdef _get__py_anon_pod0_dtype_offsets():
     })
 
 _py_anon_pod0_dtype = _get__py_anon_pod0_dtype_offsets()
+cdef object _py_anon_pod0_dtype_record = _numpy.dtype((_numpy.record, _py_anon_pod0_dtype))
 
 cdef class _py_anon_pod0:
     """Empty-initialize an array of `cuda_bindings_nvml__anon_pod0`.
@@ -5438,8 +5486,7 @@ cdef class _py_anon_pod0:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod0_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=_py_anon_pod0_dtype_record)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod0), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod0) }"
 
@@ -5452,17 +5499,17 @@ cdef class _py_anon_pod0:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -5483,60 +5530,71 @@ cdef class _py_anon_pod0:
     def controller(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.controller[0])
-        return self._data.controller
+            return int(self._data["controller"][0])
+        return self._data["controller"]
 
     @controller.setter
     def controller(self, val):
-        self._data.controller = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
+        self._data["controller"] = val
 
     @property
     def default_min_temp(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.default_min_temp[0])
-        return self._data.default_min_temp
+            return int(self._data["default_min_temp"][0])
+        return self._data["default_min_temp"]
 
     @default_min_temp.setter
     def default_min_temp(self, val):
-        self._data.default_min_temp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
+        self._data["default_min_temp"] = val
 
     @property
     def default_max_temp(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.default_max_temp[0])
-        return self._data.default_max_temp
+            return int(self._data["default_max_temp"][0])
+        return self._data["default_max_temp"]
 
     @default_max_temp.setter
     def default_max_temp(self, val):
-        self._data.default_max_temp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
+        self._data["default_max_temp"] = val
 
     @property
     def current_temp(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.current_temp[0])
-        return self._data.current_temp
+            return int(self._data["current_temp"][0])
+        return self._data["current_temp"]
 
     @current_temp.setter
     def current_temp(self, val):
-        self._data.current_temp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
+        self._data["current_temp"] = val
 
     @property
     def target(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.target[0])
-        return self._data.target
+            return int(self._data["target"][0])
+        return self._data["target"]
 
     @target.setter
     def target(self, val):
-        self._data.target = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod0 instance is read-only")
+        self._data["target"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef _py_anon_pod0 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -5544,10 +5602,18 @@ cdef class _py_anon_pod0:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return _py_anon_pod0.from_data(self._data[key_:key_+1])
+            obj = _py_anon_pod0.__new__(_py_anon_pod0)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == _py_anon_pod0_dtype:
-            return _py_anon_pod0.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == _py_anon_pod0_dtype:
+                obj = _py_anon_pod0.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -5572,8 +5638,7 @@ cdef class _py_anon_pod0:
             raise ValueError("data array must be 1D")
         if data.dtype != _py_anon_pod0_dtype:
             raise ValueError("data array must be of dtype _py_anon_pod0_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=_py_anon_pod0_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -5593,10 +5658,8 @@ cdef class _py_anon_pod0:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(cuda_bindings_nvml__anon_pod0) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=_py_anon_pod0_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=_py_anon_pod0_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -5774,6 +5837,7 @@ cdef _get_clk_mon_fault_info_dtype_offsets():
     })
 
 clk_mon_fault_info_dtype = _get_clk_mon_fault_info_dtype_offsets()
+cdef object clk_mon_fault_info_dtype_record = _numpy.dtype((_numpy.record, clk_mon_fault_info_dtype))
 
 cdef class ClkMonFaultInfo:
     """Empty-initialize an array of `nvmlClkMonFaultInfo_t`.
@@ -5790,8 +5854,7 @@ cdef class ClkMonFaultInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=clk_mon_fault_info_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=clk_mon_fault_info_dtype_record)
         assert self._data.itemsize == sizeof(nvmlClkMonFaultInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlClkMonFaultInfo_t) }"
 
@@ -5804,17 +5867,17 @@ cdef class ClkMonFaultInfo:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -5835,27 +5898,32 @@ cdef class ClkMonFaultInfo:
     def clk_api_domain(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.clk_api_domain[0])
-        return self._data.clk_api_domain
+            return int(self._data["clk_api_domain"][0])
+        return self._data["clk_api_domain"]
 
     @clk_api_domain.setter
     def clk_api_domain(self, val):
-        self._data.clk_api_domain = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ClkMonFaultInfo instance is read-only")
+        self._data["clk_api_domain"] = val
 
     @property
     def clk_domain_fault_mask(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.clk_domain_fault_mask[0])
-        return self._data.clk_domain_fault_mask
+            return int(self._data["clk_domain_fault_mask"][0])
+        return self._data["clk_domain_fault_mask"]
 
     @clk_domain_fault_mask.setter
     def clk_domain_fault_mask(self, val):
-        self._data.clk_domain_fault_mask = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ClkMonFaultInfo instance is read-only")
+        self._data["clk_domain_fault_mask"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ClkMonFaultInfo obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -5863,10 +5931,18 @@ cdef class ClkMonFaultInfo:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ClkMonFaultInfo.from_data(self._data[key_:key_+1])
+            obj = ClkMonFaultInfo.__new__(ClkMonFaultInfo)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == clk_mon_fault_info_dtype:
-            return ClkMonFaultInfo.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == clk_mon_fault_info_dtype:
+                obj = ClkMonFaultInfo.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -5891,8 +5967,7 @@ cdef class ClkMonFaultInfo:
             raise ValueError("data array must be 1D")
         if data.dtype != clk_mon_fault_info_dtype:
             raise ValueError("data array must be of dtype clk_mon_fault_info_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=clk_mon_fault_info_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -5912,10 +5987,8 @@ cdef class ClkMonFaultInfo:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlClkMonFaultInfo_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=clk_mon_fault_info_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=clk_mon_fault_info_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -6121,6 +6194,7 @@ cdef _get_process_utilization_sample_dtype_offsets():
     })
 
 process_utilization_sample_dtype = _get_process_utilization_sample_dtype_offsets()
+cdef object process_utilization_sample_dtype_record = _numpy.dtype((_numpy.record, process_utilization_sample_dtype))
 
 cdef class ProcessUtilizationSample:
     """Empty-initialize an array of `nvmlProcessUtilizationSample_t`.
@@ -6137,8 +6211,7 @@ cdef class ProcessUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=process_utilization_sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationSample_t) }"
 
@@ -6151,17 +6224,17 @@ cdef class ProcessUtilizationSample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -6182,71 +6255,84 @@ cdef class ProcessUtilizationSample:
     def pid(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
+        self._data["pid"] = val
 
     @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.time_stamp[0])
-        return self._data.time_stamp
+            return int(self._data["time_stamp"][0])
+        return self._data["time_stamp"]
 
     @time_stamp.setter
     def time_stamp(self, val):
-        self._data.time_stamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
+        self._data["time_stamp"] = val
 
     @property
     def sm_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.sm_util[0])
-        return self._data.sm_util
+            return int(self._data["sm_util"][0])
+        return self._data["sm_util"]
 
     @sm_util.setter
     def sm_util(self, val):
-        self._data.sm_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
+        self._data["sm_util"] = val
 
     @property
     def mem_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.mem_util[0])
-        return self._data.mem_util
+            return int(self._data["mem_util"][0])
+        return self._data["mem_util"]
 
     @mem_util.setter
     def mem_util(self, val):
-        self._data.mem_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
+        self._data["mem_util"] = val
 
     @property
     def enc_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.enc_util[0])
-        return self._data.enc_util
+            return int(self._data["enc_util"][0])
+        return self._data["enc_util"]
 
     @enc_util.setter
     def enc_util(self, val):
-        self._data.enc_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
+        self._data["enc_util"] = val
 
     @property
     def dec_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.dec_util[0])
-        return self._data.dec_util
+            return int(self._data["dec_util"][0])
+        return self._data["dec_util"]
 
     @dec_util.setter
     def dec_util(self, val):
-        self._data.dec_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationSample instance is read-only")
+        self._data["dec_util"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ProcessUtilizationSample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -6254,10 +6340,18 @@ cdef class ProcessUtilizationSample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ProcessUtilizationSample.from_data(self._data[key_:key_+1])
+            obj = ProcessUtilizationSample.__new__(ProcessUtilizationSample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == process_utilization_sample_dtype:
-            return ProcessUtilizationSample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == process_utilization_sample_dtype:
+                obj = ProcessUtilizationSample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -6282,8 +6376,7 @@ cdef class ProcessUtilizationSample:
             raise ValueError("data array must be 1D")
         if data.dtype != process_utilization_sample_dtype:
             raise ValueError("data array must be of dtype process_utilization_sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=process_utilization_sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -6303,10 +6396,8 @@ cdef class ProcessUtilizationSample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessUtilizationSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_sample_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -6329,6 +6420,7 @@ cdef _get_process_utilization_info_v1_dtype_offsets():
     })
 
 process_utilization_info_v1_dtype = _get_process_utilization_info_v1_dtype_offsets()
+cdef object process_utilization_info_v1_dtype_record = _numpy.dtype((_numpy.record, process_utilization_info_v1_dtype))
 
 cdef class ProcessUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlProcessUtilizationInfo_v1_t`.
@@ -6345,8 +6437,7 @@ cdef class ProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=process_utilization_info_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=process_utilization_info_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlProcessUtilizationInfo_v1_t) }"
 
@@ -6359,17 +6450,17 @@ cdef class ProcessUtilizationInfo_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -6390,93 +6481,110 @@ cdef class ProcessUtilizationInfo_v1:
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: CPU Timestamp in microseconds."""
         if self._data.size == 1:
-            return int(self._data.time_stamp[0])
-        return self._data.time_stamp
+            return int(self._data["time_stamp"][0])
+        return self._data["time_stamp"]
 
     @time_stamp.setter
     def time_stamp(self, val):
-        self._data.time_stamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["time_stamp"] = val
 
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: PID of process."""
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["pid"] = val
 
     @property
     def sm_util(self):
         """Union[~_numpy.uint32, int]: SM (3D/Compute) Util Value."""
         if self._data.size == 1:
-            return int(self._data.sm_util[0])
-        return self._data.sm_util
+            return int(self._data["sm_util"][0])
+        return self._data["sm_util"]
 
     @sm_util.setter
     def sm_util(self, val):
-        self._data.sm_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["sm_util"] = val
 
     @property
     def mem_util(self):
         """Union[~_numpy.uint32, int]: Frame Buffer Memory Util Value."""
         if self._data.size == 1:
-            return int(self._data.mem_util[0])
-        return self._data.mem_util
+            return int(self._data["mem_util"][0])
+        return self._data["mem_util"]
 
     @mem_util.setter
     def mem_util(self, val):
-        self._data.mem_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["mem_util"] = val
 
     @property
     def enc_util(self):
         """Union[~_numpy.uint32, int]: Encoder Util Value."""
         if self._data.size == 1:
-            return int(self._data.enc_util[0])
-        return self._data.enc_util
+            return int(self._data["enc_util"][0])
+        return self._data["enc_util"]
 
     @enc_util.setter
     def enc_util(self, val):
-        self._data.enc_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["enc_util"] = val
 
     @property
     def dec_util(self):
         """Union[~_numpy.uint32, int]: Decoder Util Value."""
         if self._data.size == 1:
-            return int(self._data.dec_util[0])
-        return self._data.dec_util
+            return int(self._data["dec_util"][0])
+        return self._data["dec_util"]
 
     @dec_util.setter
     def dec_util(self, val):
-        self._data.dec_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["dec_util"] = val
 
     @property
     def jpg_util(self):
         """Union[~_numpy.uint32, int]: Jpeg Util Value."""
         if self._data.size == 1:
-            return int(self._data.jpg_util[0])
-        return self._data.jpg_util
+            return int(self._data["jpg_util"][0])
+        return self._data["jpg_util"]
 
     @jpg_util.setter
     def jpg_util(self, val):
-        self._data.jpg_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["jpg_util"] = val
 
     @property
     def ofa_util(self):
         """Union[~_numpy.uint32, int]: Ofa Util Value."""
         if self._data.size == 1:
-            return int(self._data.ofa_util[0])
-        return self._data.ofa_util
+            return int(self._data["ofa_util"][0])
+        return self._data["ofa_util"]
 
     @ofa_util.setter
     def ofa_util(self, val):
-        self._data.ofa_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ProcessUtilizationInfo_v1 instance is read-only")
+        self._data["ofa_util"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ProcessUtilizationInfo_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -6484,10 +6592,18 @@ cdef class ProcessUtilizationInfo_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ProcessUtilizationInfo_v1.from_data(self._data[key_:key_+1])
+            obj = ProcessUtilizationInfo_v1.__new__(ProcessUtilizationInfo_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == process_utilization_info_v1_dtype:
-            return ProcessUtilizationInfo_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == process_utilization_info_v1_dtype:
+                obj = ProcessUtilizationInfo_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -6512,8 +6628,7 @@ cdef class ProcessUtilizationInfo_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != process_utilization_info_v1_dtype:
             raise ValueError("data array must be of dtype process_utilization_info_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=process_utilization_info_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -6533,10 +6648,8 @@ cdef class ProcessUtilizationInfo_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlProcessUtilizationInfo_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_info_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=process_utilization_info_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -7266,6 +7379,7 @@ cdef _get__py_anon_pod1_dtype_offsets():
     })
 
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
+cdef object _py_anon_pod1_dtype_record = _numpy.dtype((_numpy.record, _py_anon_pod1_dtype))
 
 cdef class _py_anon_pod1:
     """Empty-initialize an array of `cuda_bindings_nvml__anon_pod1`.
@@ -7282,8 +7396,7 @@ cdef class _py_anon_pod1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=_py_anon_pod1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=_py_anon_pod1_dtype_record)
         assert self._data.itemsize == sizeof(cuda_bindings_nvml__anon_pod1), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(cuda_bindings_nvml__anon_pod1) }"
 
@@ -7296,17 +7409,17 @@ cdef class _py_anon_pod1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -7327,49 +7440,58 @@ cdef class _py_anon_pod1:
     def b_is_present(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.b_is_present[0])
-        return self._data.b_is_present
+            return int(self._data["b_is_present"][0])
+        return self._data["b_is_present"]
 
     @b_is_present.setter
     def b_is_present(self, val):
-        self._data.b_is_present = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._data["b_is_present"] = val
 
     @property
     def percentage(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.percentage[0])
-        return self._data.percentage
+            return int(self._data["percentage"][0])
+        return self._data["percentage"]
 
     @percentage.setter
     def percentage(self, val):
-        self._data.percentage = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._data["percentage"] = val
 
     @property
     def inc_threshold(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.inc_threshold[0])
-        return self._data.inc_threshold
+            return int(self._data["inc_threshold"][0])
+        return self._data["inc_threshold"]
 
     @inc_threshold.setter
     def inc_threshold(self, val):
-        self._data.inc_threshold = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._data["inc_threshold"] = val
 
     @property
     def dec_threshold(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.dec_threshold[0])
-        return self._data.dec_threshold
+            return int(self._data["dec_threshold"][0])
+        return self._data["dec_threshold"]
 
     @dec_threshold.setter
     def dec_threshold(self, val):
-        self._data.dec_threshold = val
+        if not self._data.flags.writeable:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._data["dec_threshold"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef _py_anon_pod1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -7377,10 +7499,18 @@ cdef class _py_anon_pod1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return _py_anon_pod1.from_data(self._data[key_:key_+1])
+            obj = _py_anon_pod1.__new__(_py_anon_pod1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == _py_anon_pod1_dtype:
-            return _py_anon_pod1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == _py_anon_pod1_dtype:
+                obj = _py_anon_pod1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -7405,8 +7535,7 @@ cdef class _py_anon_pod1:
             raise ValueError("data array must be 1D")
         if data.dtype != _py_anon_pod1_dtype:
             raise ValueError("data array must be of dtype _py_anon_pod1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=_py_anon_pod1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -7426,10 +7555,8 @@ cdef class _py_anon_pod1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(cuda_bindings_nvml__anon_pod1) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=_py_anon_pod1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=_py_anon_pod1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -7762,6 +7889,7 @@ cdef _get_vgpu_process_utilization_sample_dtype_offsets():
     })
 
 vgpu_process_utilization_sample_dtype = _get_vgpu_process_utilization_sample_dtype_offsets()
+cdef object vgpu_process_utilization_sample_dtype_record = _numpy.dtype((_numpy.record, vgpu_process_utilization_sample_dtype))
 
 cdef class VgpuProcessUtilizationSample:
     """Empty-initialize an array of `nvmlVgpuProcessUtilizationSample_t`.
@@ -7778,8 +7906,7 @@ cdef class VgpuProcessUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_process_utilization_sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=vgpu_process_utilization_sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationSample_t) }"
 
@@ -7792,17 +7919,17 @@ cdef class VgpuProcessUtilizationSample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -7823,91 +7950,108 @@ cdef class VgpuProcessUtilizationSample:
     def vgpu_instance(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.vgpu_instance[0])
-        return self._data.vgpu_instance
+            return int(self._data["vgpu_instance"][0])
+        return self._data["vgpu_instance"]
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
-        self._data.vgpu_instance = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["vgpu_instance"] = val
 
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["pid"] = val
 
     @property
     def process_name(self):
         """~_numpy.int8: (array of length 64)."""
-        return self._data.process_name
+        return self._data["process_name"]
 
     @process_name.setter
     def process_name(self, val):
-        self._data.process_name = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["process_name"] = val
 
     @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.time_stamp[0])
-        return self._data.time_stamp
+            return int(self._data["time_stamp"][0])
+        return self._data["time_stamp"]
 
     @time_stamp.setter
     def time_stamp(self, val):
-        self._data.time_stamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["time_stamp"] = val
 
     @property
     def sm_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.sm_util[0])
-        return self._data.sm_util
+            return int(self._data["sm_util"][0])
+        return self._data["sm_util"]
 
     @sm_util.setter
     def sm_util(self, val):
-        self._data.sm_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["sm_util"] = val
 
     @property
     def mem_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.mem_util[0])
-        return self._data.mem_util
+            return int(self._data["mem_util"][0])
+        return self._data["mem_util"]
 
     @mem_util.setter
     def mem_util(self, val):
-        self._data.mem_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["mem_util"] = val
 
     @property
     def enc_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.enc_util[0])
-        return self._data.enc_util
+            return int(self._data["enc_util"][0])
+        return self._data["enc_util"]
 
     @enc_util.setter
     def enc_util(self, val):
-        self._data.enc_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["enc_util"] = val
 
     @property
     def dec_util(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.dec_util[0])
-        return self._data.dec_util
+            return int(self._data["dec_util"][0])
+        return self._data["dec_util"]
 
     @dec_util.setter
     def dec_util(self, val):
-        self._data.dec_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationSample instance is read-only")
+        self._data["dec_util"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef VgpuProcessUtilizationSample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -7915,10 +8059,18 @@ cdef class VgpuProcessUtilizationSample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return VgpuProcessUtilizationSample.from_data(self._data[key_:key_+1])
+            obj = VgpuProcessUtilizationSample.__new__(VgpuProcessUtilizationSample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_process_utilization_sample_dtype:
-            return VgpuProcessUtilizationSample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == vgpu_process_utilization_sample_dtype:
+                obj = VgpuProcessUtilizationSample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -7943,8 +8095,7 @@ cdef class VgpuProcessUtilizationSample:
             raise ValueError("data array must be 1D")
         if data.dtype != vgpu_process_utilization_sample_dtype:
             raise ValueError("data array must be of dtype vgpu_process_utilization_sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=vgpu_process_utilization_sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -7964,10 +8115,8 @@ cdef class VgpuProcessUtilizationSample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuProcessUtilizationSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_sample_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -7992,6 +8141,7 @@ cdef _get_vgpu_process_utilization_info_v1_dtype_offsets():
     })
 
 vgpu_process_utilization_info_v1_dtype = _get_vgpu_process_utilization_info_v1_dtype_offsets()
+cdef object vgpu_process_utilization_info_v1_dtype_record = _numpy.dtype((_numpy.record, vgpu_process_utilization_info_v1_dtype))
 
 cdef class VgpuProcessUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlVgpuProcessUtilizationInfo_v1_t`.
@@ -8008,8 +8158,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_process_utilization_info_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=vgpu_process_utilization_info_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlVgpuProcessUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuProcessUtilizationInfo_v1_t) }"
 
@@ -8022,17 +8171,17 @@ cdef class VgpuProcessUtilizationInfo_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -8052,114 +8201,135 @@ cdef class VgpuProcessUtilizationInfo_v1:
     @property
     def process_name(self):
         """~_numpy.int8: (array of length 64).Name of process running within the vGPU VM."""
-        return self._data.process_name
+        return self._data["process_name"]
 
     @process_name.setter
     def process_name(self, val):
-        self._data.process_name = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["process_name"] = val
 
     @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: CPU Timestamp in microseconds."""
         if self._data.size == 1:
-            return int(self._data.time_stamp[0])
-        return self._data.time_stamp
+            return int(self._data["time_stamp"][0])
+        return self._data["time_stamp"]
 
     @time_stamp.setter
     def time_stamp(self, val):
-        self._data.time_stamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["time_stamp"] = val
 
     @property
     def vgpu_instance(self):
         """Union[~_numpy.uint32, int]: vGPU Instance"""
         if self._data.size == 1:
-            return int(self._data.vgpu_instance[0])
-        return self._data.vgpu_instance
+            return int(self._data["vgpu_instance"][0])
+        return self._data["vgpu_instance"]
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
-        self._data.vgpu_instance = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["vgpu_instance"] = val
 
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: PID of process running within the vGPU VM."""
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["pid"] = val
 
     @property
     def sm_util(self):
         """Union[~_numpy.uint32, int]: SM (3D/Compute) Util Value."""
         if self._data.size == 1:
-            return int(self._data.sm_util[0])
-        return self._data.sm_util
+            return int(self._data["sm_util"][0])
+        return self._data["sm_util"]
 
     @sm_util.setter
     def sm_util(self, val):
-        self._data.sm_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["sm_util"] = val
 
     @property
     def mem_util(self):
         """Union[~_numpy.uint32, int]: Frame Buffer Memory Util Value."""
         if self._data.size == 1:
-            return int(self._data.mem_util[0])
-        return self._data.mem_util
+            return int(self._data["mem_util"][0])
+        return self._data["mem_util"]
 
     @mem_util.setter
     def mem_util(self, val):
-        self._data.mem_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["mem_util"] = val
 
     @property
     def enc_util(self):
         """Union[~_numpy.uint32, int]: Encoder Util Value."""
         if self._data.size == 1:
-            return int(self._data.enc_util[0])
-        return self._data.enc_util
+            return int(self._data["enc_util"][0])
+        return self._data["enc_util"]
 
     @enc_util.setter
     def enc_util(self, val):
-        self._data.enc_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["enc_util"] = val
 
     @property
     def dec_util(self):
         """Union[~_numpy.uint32, int]: Decoder Util Value."""
         if self._data.size == 1:
-            return int(self._data.dec_util[0])
-        return self._data.dec_util
+            return int(self._data["dec_util"][0])
+        return self._data["dec_util"]
 
     @dec_util.setter
     def dec_util(self, val):
-        self._data.dec_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["dec_util"] = val
 
     @property
     def jpg_util(self):
         """Union[~_numpy.uint32, int]: Jpeg Util Value."""
         if self._data.size == 1:
-            return int(self._data.jpg_util[0])
-        return self._data.jpg_util
+            return int(self._data["jpg_util"][0])
+        return self._data["jpg_util"]
 
     @jpg_util.setter
     def jpg_util(self, val):
-        self._data.jpg_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["jpg_util"] = val
 
     @property
     def ofa_util(self):
         """Union[~_numpy.uint32, int]: Ofa Util Value."""
         if self._data.size == 1:
-            return int(self._data.ofa_util[0])
-        return self._data.ofa_util
+            return int(self._data["ofa_util"][0])
+        return self._data["ofa_util"]
 
     @ofa_util.setter
     def ofa_util(self, val):
-        self._data.ofa_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuProcessUtilizationInfo_v1 instance is read-only")
+        self._data["ofa_util"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef VgpuProcessUtilizationInfo_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -8167,10 +8337,18 @@ cdef class VgpuProcessUtilizationInfo_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return VgpuProcessUtilizationInfo_v1.from_data(self._data[key_:key_+1])
+            obj = VgpuProcessUtilizationInfo_v1.__new__(VgpuProcessUtilizationInfo_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_process_utilization_info_v1_dtype:
-            return VgpuProcessUtilizationInfo_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == vgpu_process_utilization_info_v1_dtype:
+                obj = VgpuProcessUtilizationInfo_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -8195,8 +8373,7 @@ cdef class VgpuProcessUtilizationInfo_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != vgpu_process_utilization_info_v1_dtype:
             raise ValueError("data array must be of dtype vgpu_process_utilization_info_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=vgpu_process_utilization_info_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -8216,10 +8393,8 @@ cdef class VgpuProcessUtilizationInfo_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuProcessUtilizationInfo_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_info_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_process_utilization_info_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -8245,24 +8420,24 @@ cdef class _py_anon_pod2:
     """
     cdef:
         cuda_bindings_nvml__anon_pod2 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod2 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -8362,11 +8537,12 @@ cdef class _py_anon_pod2:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod2")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod2))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod2 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8392,24 +8568,24 @@ cdef class _py_anon_pod3:
     """
     cdef:
         cuda_bindings_nvml__anon_pod3 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod3 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -8498,11 +8674,12 @@ cdef class _py_anon_pod3:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod3")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod3))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod3 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8524,6 +8701,7 @@ cdef _get_vgpu_scheduler_log_entry_dtype_offsets():
     })
 
 vgpu_scheduler_log_entry_dtype = _get_vgpu_scheduler_log_entry_dtype_offsets()
+cdef object vgpu_scheduler_log_entry_dtype_record = _numpy.dtype((_numpy.record, vgpu_scheduler_log_entry_dtype))
 
 cdef class VgpuSchedulerLogEntry:
     """Empty-initialize an array of `nvmlVgpuSchedulerLogEntry_t`.
@@ -8540,8 +8718,7 @@ cdef class VgpuSchedulerLogEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_dtype_record)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_t) }"
 
@@ -8554,17 +8731,17 @@ cdef class VgpuSchedulerLogEntry:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -8585,71 +8762,84 @@ cdef class VgpuSchedulerLogEntry:
     def timestamp(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.timestamp[0])
-        return self._data.timestamp
+            return int(self._data["timestamp"][0])
+        return self._data["timestamp"]
 
     @timestamp.setter
     def timestamp(self, val):
-        self._data.timestamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
+        self._data["timestamp"] = val
 
     @property
     def time_run_total(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.time_run_total[0])
-        return self._data.time_run_total
+            return int(self._data["time_run_total"][0])
+        return self._data["time_run_total"]
 
     @time_run_total.setter
     def time_run_total(self, val):
-        self._data.time_run_total = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
+        self._data["time_run_total"] = val
 
     @property
     def time_run(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.time_run[0])
-        return self._data.time_run
+            return int(self._data["time_run"][0])
+        return self._data["time_run"]
 
     @time_run.setter
     def time_run(self, val):
-        self._data.time_run = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
+        self._data["time_run"] = val
 
     @property
     def sw_runlist_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.sw_runlist_id[0])
-        return self._data.sw_runlist_id
+            return int(self._data["sw_runlist_id"][0])
+        return self._data["sw_runlist_id"]
 
     @sw_runlist_id.setter
     def sw_runlist_id(self, val):
-        self._data.sw_runlist_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
+        self._data["sw_runlist_id"] = val
 
     @property
     def target_time_slice(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.target_time_slice[0])
-        return self._data.target_time_slice
+            return int(self._data["target_time_slice"][0])
+        return self._data["target_time_slice"]
 
     @target_time_slice.setter
     def target_time_slice(self, val):
-        self._data.target_time_slice = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
+        self._data["target_time_slice"] = val
 
     @property
     def cumulative_preemption_time(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.cumulative_preemption_time[0])
-        return self._data.cumulative_preemption_time
+            return int(self._data["cumulative_preemption_time"][0])
+        return self._data["cumulative_preemption_time"]
 
     @cumulative_preemption_time.setter
     def cumulative_preemption_time(self, val):
-        self._data.cumulative_preemption_time = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry instance is read-only")
+        self._data["cumulative_preemption_time"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef VgpuSchedulerLogEntry obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -8657,10 +8847,18 @@ cdef class VgpuSchedulerLogEntry:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return VgpuSchedulerLogEntry.from_data(self._data[key_:key_+1])
+            obj = VgpuSchedulerLogEntry.__new__(VgpuSchedulerLogEntry)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_scheduler_log_entry_dtype:
-            return VgpuSchedulerLogEntry.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == vgpu_scheduler_log_entry_dtype:
+                obj = VgpuSchedulerLogEntry.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -8685,8 +8883,7 @@ cdef class VgpuSchedulerLogEntry:
             raise ValueError("data array must be 1D")
         if data.dtype != vgpu_scheduler_log_entry_dtype:
             raise ValueError("data array must be of dtype vgpu_scheduler_log_entry_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=vgpu_scheduler_log_entry_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -8706,10 +8903,8 @@ cdef class VgpuSchedulerLogEntry:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -8735,24 +8930,24 @@ cdef class _py_anon_pod4:
     """
     cdef:
         cuda_bindings_nvml__anon_pod4 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod4 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod4")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod4 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod4 object at {hex(id(self))}>"
@@ -8852,11 +9047,12 @@ cdef class _py_anon_pod4:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod4")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod4))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod4 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -8882,24 +9078,24 @@ cdef class _py_anon_pod5:
     """
     cdef:
         cuda_bindings_nvml__anon_pod5 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod5 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod5")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod5 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod5 object at {hex(id(self))}>"
@@ -8988,11 +9184,12 @@ cdef class _py_anon_pod5:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod5")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod5))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod5 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -9239,24 +9436,24 @@ cdef class VgpuLicenseExpiry:
     """
     cdef:
         nvmlVgpuLicenseExpiry_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuLicenseExpiry")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuLicenseExpiry_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuLicenseExpiry object at {hex(id(self))}>"
@@ -9411,11 +9608,12 @@ cdef class VgpuLicenseExpiry:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuLicenseExpiry_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuLicenseExpiry_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -9447,24 +9645,24 @@ cdef class GridLicenseExpiry:
     """
     cdef:
         nvmlGridLicenseExpiry_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlGridLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlGridLicenseExpiry_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GridLicenseExpiry")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlGridLicenseExpiry_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.GridLicenseExpiry object at {hex(id(self))}>"
@@ -9619,11 +9817,12 @@ cdef class GridLicenseExpiry:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GridLicenseExpiry")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGridLicenseExpiry_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlGridLicenseExpiry_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -10112,6 +10311,7 @@ cdef _get_hwbc_entry_dtype_offsets():
     })
 
 hwbc_entry_dtype = _get_hwbc_entry_dtype_offsets()
+cdef object hwbc_entry_dtype_record = _numpy.dtype((_numpy.record, hwbc_entry_dtype))
 
 cdef class HwbcEntry:
     """Empty-initialize an array of `nvmlHwbcEntry_t`.
@@ -10128,8 +10328,7 @@ cdef class HwbcEntry:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=hwbc_entry_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=hwbc_entry_dtype_record)
         assert self._data.itemsize == sizeof(nvmlHwbcEntry_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlHwbcEntry_t) }"
 
@@ -10142,17 +10341,17 @@ cdef class HwbcEntry:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -10173,25 +10372,30 @@ cdef class HwbcEntry:
     def hwbc_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.hwbc_id[0])
-        return self._data.hwbc_id
+            return int(self._data["hwbc_id"][0])
+        return self._data["hwbc_id"]
 
     @hwbc_id.setter
     def hwbc_id(self, val):
-        self._data.hwbc_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This HwbcEntry instance is read-only")
+        self._data["hwbc_id"] = val
 
     @property
     def firmware_version(self):
         """~_numpy.int8: (array of length 32)."""
-        return self._data.firmware_version
+        return self._data["firmware_version"]
 
     @firmware_version.setter
     def firmware_version(self, val):
-        self._data.firmware_version = val
+        if not self._data.flags.writeable:
+            raise ValueError("This HwbcEntry instance is read-only")
+        self._data["firmware_version"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef HwbcEntry obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -10199,10 +10403,18 @@ cdef class HwbcEntry:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return HwbcEntry.from_data(self._data[key_:key_+1])
+            obj = HwbcEntry.__new__(HwbcEntry)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == hwbc_entry_dtype:
-            return HwbcEntry.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == hwbc_entry_dtype:
+                obj = HwbcEntry.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -10227,8 +10439,7 @@ cdef class HwbcEntry:
             raise ValueError("data array must be 1D")
         if data.dtype != hwbc_entry_dtype:
             raise ValueError("data array must be of dtype hwbc_entry_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=hwbc_entry_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -10248,10 +10459,8 @@ cdef class HwbcEntry:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlHwbcEntry_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=hwbc_entry_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=hwbc_entry_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -10751,6 +10960,7 @@ cdef _get_unit_fan_info_dtype_offsets():
     })
 
 unit_fan_info_dtype = _get_unit_fan_info_dtype_offsets()
+cdef object unit_fan_info_dtype_record = _numpy.dtype((_numpy.record, unit_fan_info_dtype))
 
 cdef class UnitFanInfo:
     """Empty-initialize an array of `nvmlUnitFanInfo_t`.
@@ -10767,8 +10977,7 @@ cdef class UnitFanInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=unit_fan_info_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=unit_fan_info_dtype_record)
         assert self._data.itemsize == sizeof(nvmlUnitFanInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlUnitFanInfo_t) }"
 
@@ -10781,17 +10990,17 @@ cdef class UnitFanInfo:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -10812,27 +11021,32 @@ cdef class UnitFanInfo:
     def speed(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.speed[0])
-        return self._data.speed
+            return int(self._data["speed"][0])
+        return self._data["speed"]
 
     @speed.setter
     def speed(self, val):
-        self._data.speed = val
+        if not self._data.flags.writeable:
+            raise ValueError("This UnitFanInfo instance is read-only")
+        self._data["speed"] = val
 
     @property
     def state(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.state[0])
-        return self._data.state
+            return int(self._data["state"][0])
+        return self._data["state"]
 
     @state.setter
     def state(self, val):
-        self._data.state = val
+        if not self._data.flags.writeable:
+            raise ValueError("This UnitFanInfo instance is read-only")
+        self._data["state"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef UnitFanInfo obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -10840,10 +11054,18 @@ cdef class UnitFanInfo:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return UnitFanInfo.from_data(self._data[key_:key_+1])
+            obj = UnitFanInfo.__new__(UnitFanInfo)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == unit_fan_info_dtype:
-            return UnitFanInfo.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == unit_fan_info_dtype:
+                obj = UnitFanInfo.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -10868,8 +11090,7 @@ cdef class UnitFanInfo:
             raise ValueError("data array must be 1D")
         if data.dtype != unit_fan_info_dtype:
             raise ValueError("data array must be of dtype unit_fan_info_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=unit_fan_info_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -10889,10 +11110,8 @@ cdef class UnitFanInfo:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlUnitFanInfo_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=unit_fan_info_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=unit_fan_info_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -11082,6 +11301,7 @@ cdef _get_system_event_data_v1_dtype_offsets():
     })
 
 system_event_data_v1_dtype = _get_system_event_data_v1_dtype_offsets()
+cdef object system_event_data_v1_dtype_record = _numpy.dtype((_numpy.record, system_event_data_v1_dtype))
 
 cdef class SystemEventData_v1:
     """Empty-initialize an array of `nvmlSystemEventData_v1_t`.
@@ -11098,8 +11318,7 @@ cdef class SystemEventData_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=system_event_data_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=system_event_data_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlSystemEventData_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSystemEventData_v1_t) }"
 
@@ -11112,17 +11331,17 @@ cdef class SystemEventData_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -11143,27 +11362,32 @@ cdef class SystemEventData_v1:
     def event_type(self):
         """Union[~_numpy.uint64, int]: Information about what specific system event occurred."""
         if self._data.size == 1:
-            return int(self._data.event_type[0])
-        return self._data.event_type
+            return int(self._data["event_type"][0])
+        return self._data["event_type"]
 
     @event_type.setter
     def event_type(self, val):
-        self._data.event_type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This SystemEventData_v1 instance is read-only")
+        self._data["event_type"] = val
 
     @property
     def gpu_id(self):
         """Union[~_numpy.uint32, int]: gpuId in PCI format"""
         if self._data.size == 1:
-            return int(self._data.gpu_id[0])
-        return self._data.gpu_id
+            return int(self._data["gpu_id"][0])
+        return self._data["gpu_id"]
 
     @gpu_id.setter
     def gpu_id(self, val):
-        self._data.gpu_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This SystemEventData_v1 instance is read-only")
+        self._data["gpu_id"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef SystemEventData_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -11171,10 +11395,18 @@ cdef class SystemEventData_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return SystemEventData_v1.from_data(self._data[key_:key_+1])
+            obj = SystemEventData_v1.__new__(SystemEventData_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == system_event_data_v1_dtype:
-            return SystemEventData_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == system_event_data_v1_dtype:
+                obj = SystemEventData_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -11199,8 +11431,7 @@ cdef class SystemEventData_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != system_event_data_v1_dtype:
             raise ValueError("data array must be of dtype system_event_data_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=system_event_data_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -11220,10 +11451,8 @@ cdef class SystemEventData_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlSystemEventData_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=system_event_data_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=system_event_data_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -11432,6 +11661,7 @@ cdef _get_encoder_session_info_dtype_offsets():
     })
 
 encoder_session_info_dtype = _get_encoder_session_info_dtype_offsets()
+cdef object encoder_session_info_dtype_record = _numpy.dtype((_numpy.record, encoder_session_info_dtype))
 
 cdef class EncoderSessionInfo:
     """Empty-initialize an array of `nvmlEncoderSessionInfo_t`.
@@ -11448,8 +11678,7 @@ cdef class EncoderSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=encoder_session_info_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=encoder_session_info_dtype_record)
         assert self._data.itemsize == sizeof(nvmlEncoderSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEncoderSessionInfo_t) }"
 
@@ -11462,17 +11691,17 @@ cdef class EncoderSessionInfo:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -11493,93 +11722,110 @@ cdef class EncoderSessionInfo:
     def session_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.session_id[0])
-        return self._data.session_id
+            return int(self._data["session_id"][0])
+        return self._data["session_id"]
 
     @session_id.setter
     def session_id(self, val):
-        self._data.session_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["session_id"] = val
 
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["pid"] = val
 
     @property
     def vgpu_instance(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.vgpu_instance[0])
-        return self._data.vgpu_instance
+            return int(self._data["vgpu_instance"][0])
+        return self._data["vgpu_instance"]
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
-        self._data.vgpu_instance = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["vgpu_instance"] = val
 
     @property
     def codec_type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.codec_type[0])
-        return self._data.codec_type
+            return int(self._data["codec_type"][0])
+        return self._data["codec_type"]
 
     @codec_type.setter
     def codec_type(self, val):
-        self._data.codec_type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["codec_type"] = val
 
     @property
     def h_resolution(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.h_resolution[0])
-        return self._data.h_resolution
+            return int(self._data["h_resolution"][0])
+        return self._data["h_resolution"]
 
     @h_resolution.setter
     def h_resolution(self, val):
-        self._data.h_resolution = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["h_resolution"] = val
 
     @property
     def v_resolution(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.v_resolution[0])
-        return self._data.v_resolution
+            return int(self._data["v_resolution"][0])
+        return self._data["v_resolution"]
 
     @v_resolution.setter
     def v_resolution(self, val):
-        self._data.v_resolution = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["v_resolution"] = val
 
     @property
     def average_fps(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.average_fps[0])
-        return self._data.average_fps
+            return int(self._data["average_fps"][0])
+        return self._data["average_fps"]
 
     @average_fps.setter
     def average_fps(self, val):
-        self._data.average_fps = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["average_fps"] = val
 
     @property
     def average_latency(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.average_latency[0])
-        return self._data.average_latency
+            return int(self._data["average_latency"][0])
+        return self._data["average_latency"]
 
     @average_latency.setter
     def average_latency(self, val):
-        self._data.average_latency = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EncoderSessionInfo instance is read-only")
+        self._data["average_latency"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef EncoderSessionInfo obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -11587,10 +11833,18 @@ cdef class EncoderSessionInfo:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return EncoderSessionInfo.from_data(self._data[key_:key_+1])
+            obj = EncoderSessionInfo.__new__(EncoderSessionInfo)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == encoder_session_info_dtype:
-            return EncoderSessionInfo.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == encoder_session_info_dtype:
+                obj = EncoderSessionInfo.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -11615,8 +11869,7 @@ cdef class EncoderSessionInfo:
             raise ValueError("data array must be 1D")
         if data.dtype != encoder_session_info_dtype:
             raise ValueError("data array must be of dtype encoder_session_info_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=encoder_session_info_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -11636,10 +11889,8 @@ cdef class EncoderSessionInfo:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlEncoderSessionInfo_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=encoder_session_info_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=encoder_session_info_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -11815,6 +12066,7 @@ cdef _get_fbc_session_info_dtype_offsets():
     })
 
 fbc_session_info_dtype = _get_fbc_session_info_dtype_offsets()
+cdef object fbc_session_info_dtype_record = _numpy.dtype((_numpy.record, fbc_session_info_dtype))
 
 cdef class FBCSessionInfo:
     """Empty-initialize an array of `nvmlFBCSessionInfo_t`.
@@ -11831,8 +12083,7 @@ cdef class FBCSessionInfo:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=fbc_session_info_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=fbc_session_info_dtype_record)
         assert self._data.itemsize == sizeof(nvmlFBCSessionInfo_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFBCSessionInfo_t) }"
 
@@ -11845,17 +12096,17 @@ cdef class FBCSessionInfo:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -11876,137 +12127,162 @@ cdef class FBCSessionInfo:
     def session_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.session_id[0])
-        return self._data.session_id
+            return int(self._data["session_id"][0])
+        return self._data["session_id"]
 
     @session_id.setter
     def session_id(self, val):
-        self._data.session_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["session_id"] = val
 
     @property
     def pid(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.pid[0])
-        return self._data.pid
+            return int(self._data["pid"][0])
+        return self._data["pid"]
 
     @pid.setter
     def pid(self, val):
-        self._data.pid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["pid"] = val
 
     @property
     def vgpu_instance(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.vgpu_instance[0])
-        return self._data.vgpu_instance
+            return int(self._data["vgpu_instance"][0])
+        return self._data["vgpu_instance"]
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
-        self._data.vgpu_instance = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["vgpu_instance"] = val
 
     @property
     def display_ordinal(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.display_ordinal[0])
-        return self._data.display_ordinal
+            return int(self._data["display_ordinal"][0])
+        return self._data["display_ordinal"]
 
     @display_ordinal.setter
     def display_ordinal(self, val):
-        self._data.display_ordinal = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["display_ordinal"] = val
 
     @property
     def session_type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.session_type[0])
-        return self._data.session_type
+            return int(self._data["session_type"][0])
+        return self._data["session_type"]
 
     @session_type.setter
     def session_type(self, val):
-        self._data.session_type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["session_type"] = val
 
     @property
     def session_flags(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.session_flags[0])
-        return self._data.session_flags
+            return int(self._data["session_flags"][0])
+        return self._data["session_flags"]
 
     @session_flags.setter
     def session_flags(self, val):
-        self._data.session_flags = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["session_flags"] = val
 
     @property
     def h_max_resolution(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.h_max_resolution[0])
-        return self._data.h_max_resolution
+            return int(self._data["h_max_resolution"][0])
+        return self._data["h_max_resolution"]
 
     @h_max_resolution.setter
     def h_max_resolution(self, val):
-        self._data.h_max_resolution = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["h_max_resolution"] = val
 
     @property
     def v_max_resolution(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.v_max_resolution[0])
-        return self._data.v_max_resolution
+            return int(self._data["v_max_resolution"][0])
+        return self._data["v_max_resolution"]
 
     @v_max_resolution.setter
     def v_max_resolution(self, val):
-        self._data.v_max_resolution = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["v_max_resolution"] = val
 
     @property
     def h_resolution(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.h_resolution[0])
-        return self._data.h_resolution
+            return int(self._data["h_resolution"][0])
+        return self._data["h_resolution"]
 
     @h_resolution.setter
     def h_resolution(self, val):
-        self._data.h_resolution = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["h_resolution"] = val
 
     @property
     def v_resolution(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.v_resolution[0])
-        return self._data.v_resolution
+            return int(self._data["v_resolution"][0])
+        return self._data["v_resolution"]
 
     @v_resolution.setter
     def v_resolution(self, val):
-        self._data.v_resolution = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["v_resolution"] = val
 
     @property
     def average_fps(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.average_fps[0])
-        return self._data.average_fps
+            return int(self._data["average_fps"][0])
+        return self._data["average_fps"]
 
     @average_fps.setter
     def average_fps(self, val):
-        self._data.average_fps = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["average_fps"] = val
 
     @property
     def average_latency(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.average_latency[0])
-        return self._data.average_latency
+            return int(self._data["average_latency"][0])
+        return self._data["average_latency"]
 
     @average_latency.setter
     def average_latency(self, val):
-        self._data.average_latency = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FBCSessionInfo instance is read-only")
+        self._data["average_latency"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef FBCSessionInfo obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -12014,10 +12290,18 @@ cdef class FBCSessionInfo:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return FBCSessionInfo.from_data(self._data[key_:key_+1])
+            obj = FBCSessionInfo.__new__(FBCSessionInfo)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == fbc_session_info_dtype:
-            return FBCSessionInfo.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == fbc_session_info_dtype:
+                obj = FBCSessionInfo.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -12042,8 +12326,7 @@ cdef class FBCSessionInfo:
             raise ValueError("data array must be 1D")
         if data.dtype != fbc_session_info_dtype:
             raise ValueError("data array must be of dtype fbc_session_info_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=fbc_session_info_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -12063,10 +12346,8 @@ cdef class FBCSessionInfo:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlFBCSessionInfo_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=fbc_session_info_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=fbc_session_info_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -13678,24 +13959,24 @@ cdef class VgpuVersion:
     """
     cdef:
         nvmlVgpuVersion_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuVersion_t *>_cyb_calloc(1, sizeof(nvmlVgpuVersion_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuVersion")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuVersion_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuVersion object at {hex(id(self))}>"
@@ -13795,11 +14076,12 @@ cdef class VgpuVersion:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuVersion")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuVersion_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuVersion_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -14188,6 +14470,7 @@ cdef _get_gpu_instance_placement_dtype_offsets():
     })
 
 gpu_instance_placement_dtype = _get_gpu_instance_placement_dtype_offsets()
+cdef object gpu_instance_placement_dtype_record = _numpy.dtype((_numpy.record, gpu_instance_placement_dtype))
 
 cdef class GpuInstancePlacement:
     """Empty-initialize an array of `nvmlGpuInstancePlacement_t`.
@@ -14204,8 +14487,7 @@ cdef class GpuInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=gpu_instance_placement_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=gpu_instance_placement_dtype_record)
         assert self._data.itemsize == sizeof(nvmlGpuInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGpuInstancePlacement_t) }"
 
@@ -14218,17 +14500,17 @@ cdef class GpuInstancePlacement:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -14249,27 +14531,32 @@ cdef class GpuInstancePlacement:
     def start(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.start[0])
-        return self._data.start
+            return int(self._data["start"][0])
+        return self._data["start"]
 
     @start.setter
     def start(self, val):
-        self._data.start = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GpuInstancePlacement instance is read-only")
+        self._data["start"] = val
 
     @property
     def size_(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.size_[0])
-        return self._data.size_
+            return int(self._data["size_"][0])
+        return self._data["size_"]
 
     @size_.setter
     def size_(self, val):
-        self._data.size_ = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GpuInstancePlacement instance is read-only")
+        self._data["size_"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef GpuInstancePlacement obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -14277,10 +14564,18 @@ cdef class GpuInstancePlacement:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return GpuInstancePlacement.from_data(self._data[key_:key_+1])
+            obj = GpuInstancePlacement.__new__(GpuInstancePlacement)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == gpu_instance_placement_dtype:
-            return GpuInstancePlacement.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == gpu_instance_placement_dtype:
+                obj = GpuInstancePlacement.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -14305,8 +14600,7 @@ cdef class GpuInstancePlacement:
             raise ValueError("data array must be 1D")
         if data.dtype != gpu_instance_placement_dtype:
             raise ValueError("data array must be of dtype gpu_instance_placement_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=gpu_instance_placement_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -14326,10 +14620,8 @@ cdef class GpuInstancePlacement:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlGpuInstancePlacement_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=gpu_instance_placement_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=gpu_instance_placement_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -14619,6 +14911,7 @@ cdef _get_compute_instance_placement_dtype_offsets():
     })
 
 compute_instance_placement_dtype = _get_compute_instance_placement_dtype_offsets()
+cdef object compute_instance_placement_dtype_record = _numpy.dtype((_numpy.record, compute_instance_placement_dtype))
 
 cdef class ComputeInstancePlacement:
     """Empty-initialize an array of `nvmlComputeInstancePlacement_t`.
@@ -14635,8 +14928,7 @@ cdef class ComputeInstancePlacement:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=compute_instance_placement_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=compute_instance_placement_dtype_record)
         assert self._data.itemsize == sizeof(nvmlComputeInstancePlacement_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlComputeInstancePlacement_t) }"
 
@@ -14649,17 +14941,17 @@ cdef class ComputeInstancePlacement:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -14680,27 +14972,32 @@ cdef class ComputeInstancePlacement:
     def start(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.start[0])
-        return self._data.start
+            return int(self._data["start"][0])
+        return self._data["start"]
 
     @start.setter
     def start(self, val):
-        self._data.start = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ComputeInstancePlacement instance is read-only")
+        self._data["start"] = val
 
     @property
     def size_(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.size_[0])
-        return self._data.size_
+            return int(self._data["size_"][0])
+        return self._data["size_"]
 
     @size_.setter
     def size_(self, val):
-        self._data.size_ = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ComputeInstancePlacement instance is read-only")
+        self._data["size_"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ComputeInstancePlacement obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -14708,10 +15005,18 @@ cdef class ComputeInstancePlacement:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ComputeInstancePlacement.from_data(self._data[key_:key_+1])
+            obj = ComputeInstancePlacement.__new__(ComputeInstancePlacement)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == compute_instance_placement_dtype:
-            return ComputeInstancePlacement.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == compute_instance_placement_dtype:
+                obj = ComputeInstancePlacement.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -14736,8 +15041,7 @@ cdef class ComputeInstancePlacement:
             raise ValueError("data array must be 1D")
         if data.dtype != compute_instance_placement_dtype:
             raise ValueError("data array must be of dtype compute_instance_placement_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=compute_instance_placement_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -14757,10 +15061,8 @@ cdef class ComputeInstancePlacement:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlComputeInstancePlacement_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=compute_instance_placement_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=compute_instance_placement_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -15727,6 +16029,7 @@ cdef _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets():
     })
 
 ecc_sram_unique_uncorrected_error_entry_v1_dtype = _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets()
+cdef object ecc_sram_unique_uncorrected_error_entry_v1_dtype_record = _numpy.dtype((_numpy.record, ecc_sram_unique_uncorrected_error_entry_v1_dtype))
 
 cdef class EccSramUniqueUncorrectedErrorEntry_v1:
     """Empty-initialize an array of `nvmlEccSramUniqueUncorrectedErrorEntry_v1_t`.
@@ -15743,8 +16046,7 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) }"
 
@@ -15757,17 +16059,17 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -15788,82 +16090,97 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
     def unit(self):
         """Union[~_numpy.uint32, int]: the SRAM unit index"""
         if self._data.size == 1:
-            return int(self._data.unit[0])
-        return self._data.unit
+            return int(self._data["unit"][0])
+        return self._data["unit"]
 
     @unit.setter
     def unit(self, val):
-        self._data.unit = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
+        self._data["unit"] = val
 
     @property
     def location(self):
         """Union[~_numpy.uint32, int]: the error location within the SRAM unit"""
         if self._data.size == 1:
-            return int(self._data.location[0])
-        return self._data.location
+            return int(self._data["location"][0])
+        return self._data["location"]
 
     @location.setter
     def location(self, val):
-        self._data.location = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
+        self._data["location"] = val
 
     @property
     def sublocation(self):
         """Union[~_numpy.uint32, int]: the error sublocation within the SRAM unit"""
         if self._data.size == 1:
-            return int(self._data.sublocation[0])
-        return self._data.sublocation
+            return int(self._data["sublocation"][0])
+        return self._data["sublocation"]
 
     @sublocation.setter
     def sublocation(self, val):
-        self._data.sublocation = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
+        self._data["sublocation"] = val
 
     @property
     def extlocation(self):
         """Union[~_numpy.uint32, int]: the error extlocation within the SRAM unit"""
         if self._data.size == 1:
-            return int(self._data.extlocation[0])
-        return self._data.extlocation
+            return int(self._data["extlocation"][0])
+        return self._data["extlocation"]
 
     @extlocation.setter
     def extlocation(self, val):
-        self._data.extlocation = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
+        self._data["extlocation"] = val
 
     @property
     def address(self):
         """Union[~_numpy.uint32, int]: the error address within the SRAM unit"""
         if self._data.size == 1:
-            return int(self._data.address[0])
-        return self._data.address
+            return int(self._data["address"][0])
+        return self._data["address"]
 
     @address.setter
     def address(self, val):
-        self._data.address = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
+        self._data["address"] = val
 
     @property
     def is_parity(self):
         """Union[~_numpy.uint32, int]: if the SRAM error is parity or not"""
         if self._data.size == 1:
-            return int(self._data.is_parity[0])
-        return self._data.is_parity
+            return int(self._data["is_parity"][0])
+        return self._data["is_parity"]
 
     @is_parity.setter
     def is_parity(self, val):
-        self._data.is_parity = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
+        self._data["is_parity"] = val
 
     @property
     def count(self):
         """Union[~_numpy.uint32, int]: the error count at the same SRAM address"""
         if self._data.size == 1:
-            return int(self._data.count[0])
-        return self._data.count
+            return int(self._data["count"][0])
+        return self._data["count"]
 
     @count.setter
     def count(self, val):
-        self._data.count = val
+        if not self._data.flags.writeable:
+            raise ValueError("This EccSramUniqueUncorrectedErrorEntry_v1 instance is read-only")
+        self._data["count"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef EccSramUniqueUncorrectedErrorEntry_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -15871,10 +16188,18 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return EccSramUniqueUncorrectedErrorEntry_v1.from_data(self._data[key_:key_+1])
+            obj = EccSramUniqueUncorrectedErrorEntry_v1.__new__(EccSramUniqueUncorrectedErrorEntry_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == ecc_sram_unique_uncorrected_error_entry_v1_dtype:
-            return EccSramUniqueUncorrectedErrorEntry_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == ecc_sram_unique_uncorrected_error_entry_v1_dtype:
+                obj = EccSramUniqueUncorrectedErrorEntry_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -15899,8 +16224,7 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != ecc_sram_unique_uncorrected_error_entry_v1_dtype:
             raise ValueError("data array must be of dtype ecc_sram_unique_uncorrected_error_entry_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -15920,10 +16244,8 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -16282,6 +16604,7 @@ cdef _get_nvlink_firmware_version_dtype_offsets():
     })
 
 nvlink_firmware_version_dtype = _get_nvlink_firmware_version_dtype_offsets()
+cdef object nvlink_firmware_version_dtype_record = _numpy.dtype((_numpy.record, nvlink_firmware_version_dtype))
 
 cdef class NvlinkFirmwareVersion:
     """Empty-initialize an array of `nvmlNvlinkFirmwareVersion_t`.
@@ -16298,8 +16621,7 @@ cdef class NvlinkFirmwareVersion:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=nvlink_firmware_version_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=nvlink_firmware_version_dtype_record)
         assert self._data.itemsize == sizeof(nvmlNvlinkFirmwareVersion_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkFirmwareVersion_t) }"
 
@@ -16312,17 +16634,17 @@ cdef class NvlinkFirmwareVersion:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -16343,49 +16665,58 @@ cdef class NvlinkFirmwareVersion:
     def ucode_type(self):
         """Union[~_numpy.uint8, int]: """
         if self._data.size == 1:
-            return int(self._data.ucode_type[0])
-        return self._data.ucode_type
+            return int(self._data["ucode_type"][0])
+        return self._data["ucode_type"]
 
     @ucode_type.setter
     def ucode_type(self, val):
-        self._data.ucode_type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._data["ucode_type"] = val
 
     @property
     def major(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.major[0])
-        return self._data.major
+            return int(self._data["major"][0])
+        return self._data["major"]
 
     @major.setter
     def major(self, val):
-        self._data.major = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._data["major"] = val
 
     @property
     def minor(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.minor[0])
-        return self._data.minor
+            return int(self._data["minor"][0])
+        return self._data["minor"]
 
     @minor.setter
     def minor(self, val):
-        self._data.minor = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._data["minor"] = val
 
     @property
     def sub_minor(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.sub_minor[0])
-        return self._data.sub_minor
+            return int(self._data["sub_minor"][0])
+        return self._data["sub_minor"]
 
     @sub_minor.setter
     def sub_minor(self, val):
-        self._data.sub_minor = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._data["sub_minor"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef NvlinkFirmwareVersion obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -16393,10 +16724,18 @@ cdef class NvlinkFirmwareVersion:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return NvlinkFirmwareVersion.from_data(self._data[key_:key_+1])
+            obj = NvlinkFirmwareVersion.__new__(NvlinkFirmwareVersion)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == nvlink_firmware_version_dtype:
-            return NvlinkFirmwareVersion.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == nvlink_firmware_version_dtype:
+                obj = NvlinkFirmwareVersion.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -16421,8 +16760,7 @@ cdef class NvlinkFirmwareVersion:
             raise ValueError("data array must be 1D")
         if data.dtype != nvlink_firmware_version_dtype:
             raise ValueError("data array must be of dtype nvlink_firmware_version_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=nvlink_firmware_version_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -16442,10 +16780,8 @@ cdef class NvlinkFirmwareVersion:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlNvlinkFirmwareVersion_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=nvlink_firmware_version_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=nvlink_firmware_version_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -16470,24 +16806,24 @@ cdef class PRMCounterInput_v1:
     """
     cdef:
         nvmlPRMCounterInput_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPRMCounterInput_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterInput_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterInput_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterInput_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterInput_v1 object at {hex(id(self))}>"
@@ -16576,11 +16912,12 @@ cdef class PRMCounterInput_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterInput_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterInput_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPRMCounterInput_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -16764,6 +17101,7 @@ cdef _get_vgpu_scheduler_log_entry_v2_dtype_offsets():
     })
 
 vgpu_scheduler_log_entry_v2_dtype = _get_vgpu_scheduler_log_entry_v2_dtype_offsets()
+cdef object vgpu_scheduler_log_entry_v2_dtype_record = _numpy.dtype((_numpy.record, vgpu_scheduler_log_entry_v2_dtype))
 
 cdef class VgpuSchedulerLogEntry_v2:
     """Empty-initialize an array of `nvmlVgpuSchedulerLogEntry_v2_t`.
@@ -16780,8 +17118,7 @@ cdef class VgpuSchedulerLogEntry_v2:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_scheduler_log_entry_v2_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=vgpu_scheduler_log_entry_v2_dtype_record)
         assert self._data.itemsize == sizeof(nvmlVgpuSchedulerLogEntry_v2_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuSchedulerLogEntry_v2_t) }"
 
@@ -16794,17 +17131,17 @@ cdef class VgpuSchedulerLogEntry_v2:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -16825,82 +17162,97 @@ cdef class VgpuSchedulerLogEntry_v2:
     def timestamp(self):
         """Union[~_numpy.uint64, int]: OUT: Timestamp in ns when this software runlist was preeempted."""
         if self._data.size == 1:
-            return int(self._data.timestamp[0])
-        return self._data.timestamp
+            return int(self._data["timestamp"][0])
+        return self._data["timestamp"]
 
     @timestamp.setter
     def timestamp(self, val):
-        self._data.timestamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
+        self._data["timestamp"] = val
 
     @property
     def time_run_total(self):
         """Union[~_numpy.uint64, int]: OUT: Total time in ns this software runlist has run."""
         if self._data.size == 1:
-            return int(self._data.time_run_total[0])
-        return self._data.time_run_total
+            return int(self._data["time_run_total"][0])
+        return self._data["time_run_total"]
 
     @time_run_total.setter
     def time_run_total(self, val):
-        self._data.time_run_total = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
+        self._data["time_run_total"] = val
 
     @property
     def time_run(self):
         """Union[~_numpy.uint64, int]: OUT: Time in ns this software runlist ran before preemption."""
         if self._data.size == 1:
-            return int(self._data.time_run[0])
-        return self._data.time_run
+            return int(self._data["time_run"][0])
+        return self._data["time_run"]
 
     @time_run.setter
     def time_run(self, val):
-        self._data.time_run = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
+        self._data["time_run"] = val
 
     @property
     def sw_runlist_id(self):
         """Union[~_numpy.uint32, int]: OUT: Software runlist Id."""
         if self._data.size == 1:
-            return int(self._data.sw_runlist_id[0])
-        return self._data.sw_runlist_id
+            return int(self._data["sw_runlist_id"][0])
+        return self._data["sw_runlist_id"]
 
     @sw_runlist_id.setter
     def sw_runlist_id(self, val):
-        self._data.sw_runlist_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
+        self._data["sw_runlist_id"] = val
 
     @property
     def target_time_slice(self):
         """Union[~_numpy.uint64, int]: OUT: The actual timeslice after deduction."""
         if self._data.size == 1:
-            return int(self._data.target_time_slice[0])
-        return self._data.target_time_slice
+            return int(self._data["target_time_slice"][0])
+        return self._data["target_time_slice"]
 
     @target_time_slice.setter
     def target_time_slice(self, val):
-        self._data.target_time_slice = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
+        self._data["target_time_slice"] = val
 
     @property
     def cumulative_preemption_time(self):
         """Union[~_numpy.uint64, int]: OUT: Preemption time in ns for this SW runlist."""
         if self._data.size == 1:
-            return int(self._data.cumulative_preemption_time[0])
-        return self._data.cumulative_preemption_time
+            return int(self._data["cumulative_preemption_time"][0])
+        return self._data["cumulative_preemption_time"]
 
     @cumulative_preemption_time.setter
     def cumulative_preemption_time(self, val):
-        self._data.cumulative_preemption_time = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
+        self._data["cumulative_preemption_time"] = val
 
     @property
     def weight(self):
         """Union[~_numpy.uint32, int]: OUT: Current weight of this SW runlist."""
         if self._data.size == 1:
-            return int(self._data.weight[0])
-        return self._data.weight
+            return int(self._data["weight"][0])
+        return self._data["weight"]
 
     @weight.setter
     def weight(self, val):
-        self._data.weight = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuSchedulerLogEntry_v2 instance is read-only")
+        self._data["weight"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef VgpuSchedulerLogEntry_v2 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -16908,10 +17260,18 @@ cdef class VgpuSchedulerLogEntry_v2:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return VgpuSchedulerLogEntry_v2.from_data(self._data[key_:key_+1])
+            obj = VgpuSchedulerLogEntry_v2.__new__(VgpuSchedulerLogEntry_v2)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_scheduler_log_entry_v2_dtype:
-            return VgpuSchedulerLogEntry_v2.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == vgpu_scheduler_log_entry_v2_dtype:
+                obj = VgpuSchedulerLogEntry_v2.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -16936,8 +17296,7 @@ cdef class VgpuSchedulerLogEntry_v2:
             raise ValueError("data array must be 1D")
         if data.dtype != vgpu_scheduler_log_entry_v2_dtype:
             raise ValueError("data array must be of dtype vgpu_scheduler_log_entry_v2_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=vgpu_scheduler_log_entry_v2_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -16957,10 +17316,8 @@ cdef class VgpuSchedulerLogEntry_v2:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuSchedulerLogEntry_v2_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_v2_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_scheduler_log_entry_v2_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -17691,24 +18048,24 @@ cdef class CPERCursor_v1:
     """
     cdef:
         nvmlCPERCursor_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlCPERCursor_v1_t *>_cyb_calloc(1, sizeof(nvmlCPERCursor_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating CPERCursor_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlCPERCursor_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.CPERCursor_v1 object at {hex(id(self))}>"
@@ -17823,11 +18180,12 @@ cdef class CPERCursor_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating CPERCursor_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlCPERCursor_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlCPERCursor_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -18172,6 +18530,7 @@ cdef _get_pmgr_pwr_tuple_dtype_offsets():
     })
 
 pmgr_pwr_tuple_dtype = _get_pmgr_pwr_tuple_dtype_offsets()
+cdef object pmgr_pwr_tuple_dtype_record = _numpy.dtype((_numpy.record, pmgr_pwr_tuple_dtype))
 
 cdef class PmgrPwrTuple:
     """Empty-initialize an array of `nvmlPmgrPwrTuple_t`.
@@ -18188,8 +18547,7 @@ cdef class PmgrPwrTuple:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pmgr_pwr_tuple_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=pmgr_pwr_tuple_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPmgrPwrTuple_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPmgrPwrTuple_t) }"
 
@@ -18202,17 +18560,17 @@ cdef class PmgrPwrTuple:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -18233,16 +18591,19 @@ cdef class PmgrPwrTuple:
     def pwrm_w(self):
         """Union[~_numpy.uint32, int]: Power consumption in milliwatts."""
         if self._data.size == 1:
-            return int(self._data.pwrm_w[0])
-        return self._data.pwrm_w
+            return int(self._data["pwrm_w"][0])
+        return self._data["pwrm_w"]
 
     @pwrm_w.setter
     def pwrm_w(self, val):
-        self._data.pwrm_w = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PmgrPwrTuple instance is read-only")
+        self._data["pwrm_w"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PmgrPwrTuple obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -18250,10 +18611,18 @@ cdef class PmgrPwrTuple:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PmgrPwrTuple.from_data(self._data[key_:key_+1])
+            obj = PmgrPwrTuple.__new__(PmgrPwrTuple)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == pmgr_pwr_tuple_dtype:
-            return PmgrPwrTuple.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == pmgr_pwr_tuple_dtype:
+                obj = PmgrPwrTuple.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -18278,8 +18647,7 @@ cdef class PmgrPwrTuple:
             raise ValueError("data array must be 1D")
         if data.dtype != pmgr_pwr_tuple_dtype:
             raise ValueError("data array must be of dtype pmgr_pwr_tuple_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=pmgr_pwr_tuple_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -18299,10 +18667,8 @@ cdef class PmgrPwrTuple:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPmgrPwrTuple_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=pmgr_pwr_tuple_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=pmgr_pwr_tuple_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -18319,6 +18685,7 @@ cdef _get_rail_metrics_dtype_offsets():
     })
 
 rail_metrics_dtype = _get_rail_metrics_dtype_offsets()
+cdef object rail_metrics_dtype_record = _numpy.dtype((_numpy.record, rail_metrics_dtype))
 
 cdef class RailMetrics:
     """Empty-initialize an array of `nvmlRailMetrics_t`.
@@ -18335,8 +18702,7 @@ cdef class RailMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=rail_metrics_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=rail_metrics_dtype_record)
         assert self._data.itemsize == sizeof(nvmlRailMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlRailMetrics_t) }"
 
@@ -18349,17 +18715,17 @@ cdef class RailMetrics:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -18380,27 +18746,32 @@ cdef class RailMetrics:
     def freqk_hz(self):
         """Union[~_numpy.uint32, int]: Frequency in kilohertz."""
         if self._data.size == 1:
-            return int(self._data.freqk_hz[0])
-        return self._data.freqk_hz
+            return int(self._data["freqk_hz"][0])
+        return self._data["freqk_hz"]
 
     @freqk_hz.setter
     def freqk_hz(self, val):
-        self._data.freqk_hz = val
+        if not self._data.flags.writeable:
+            raise ValueError("This RailMetrics instance is read-only")
+        self._data["freqk_hz"] = val
 
     @property
     def util_pct(self):
         """Union[~_numpy.uint64, int]: Utilization percentage (fixed-point)."""
         if self._data.size == 1:
-            return int(self._data.util_pct[0])
-        return self._data.util_pct
+            return int(self._data["util_pct"][0])
+        return self._data["util_pct"]
 
     @util_pct.setter
     def util_pct(self, val):
-        self._data.util_pct = val
+        if not self._data.flags.writeable:
+            raise ValueError("This RailMetrics instance is read-only")
+        self._data["util_pct"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef RailMetrics obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -18408,10 +18779,18 @@ cdef class RailMetrics:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return RailMetrics.from_data(self._data[key_:key_+1])
+            obj = RailMetrics.__new__(RailMetrics)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == rail_metrics_dtype:
-            return RailMetrics.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == rail_metrics_dtype:
+                obj = RailMetrics.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -18436,8 +18815,7 @@ cdef class RailMetrics:
             raise ValueError("data array must be 1D")
         if data.dtype != rail_metrics_dtype:
             raise ValueError("data array must be of dtype rail_metrics_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=rail_metrics_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -18457,10 +18835,8 @@ cdef class RailMetrics:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlRailMetrics_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=rail_metrics_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=rail_metrics_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -18476,6 +18852,7 @@ cdef _get_pwr_model_metrics_dlppm1x_perf_dtype_offsets():
     })
 
 pwr_model_metrics_dlppm1x_perf_dtype = _get_pwr_model_metrics_dlppm1x_perf_dtype_offsets()
+cdef object pwr_model_metrics_dlppm1x_perf_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_dlppm1x_perf_dtype))
 
 cdef class PwrModelMetricsDlppm1xPerf:
     """Empty-initialize an array of `nvmlPwrModelMetricsDlppm1xPerf_t`.
@@ -18492,8 +18869,7 @@ cdef class PwrModelMetricsDlppm1xPerf:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_perf_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xPerf_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xPerf_t) }"
 
@@ -18506,17 +18882,17 @@ cdef class PwrModelMetricsDlppm1xPerf:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -18537,16 +18913,19 @@ cdef class PwrModelMetricsDlppm1xPerf:
     def perfms(self):
         """Union[~_numpy.uint32, int]: Performance metric in milliseconds."""
         if self._data.size == 1:
-            return int(self._data.perfms[0])
-        return self._data.perfms
+            return int(self._data["perfms"][0])
+        return self._data["perfms"]
 
     @perfms.setter
     def perfms(self, val):
-        self._data.perfms = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1xPerf instance is read-only")
+        self._data["perfms"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PwrModelMetricsDlppm1xPerf obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -18554,10 +18933,18 @@ cdef class PwrModelMetricsDlppm1xPerf:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PwrModelMetricsDlppm1xPerf.from_data(self._data[key_:key_+1])
+            obj = PwrModelMetricsDlppm1xPerf.__new__(PwrModelMetricsDlppm1xPerf)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_dlppm1x_perf_dtype:
-            return PwrModelMetricsDlppm1xPerf.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == pwr_model_metrics_dlppm1x_perf_dtype:
+                obj = PwrModelMetricsDlppm1xPerf.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -18582,8 +18969,7 @@ cdef class PwrModelMetricsDlppm1xPerf:
             raise ValueError("data array must be 1D")
         if data.dtype != pwr_model_metrics_dlppm1x_perf_dtype:
             raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_perf_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=pwr_model_metrics_dlppm1x_perf_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -18603,10 +18989,8 @@ cdef class PwrModelMetricsDlppm1xPerf:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPwrModelMetricsDlppm1xPerf_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_perf_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_perf_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -18623,6 +19007,7 @@ cdef _get_pwr_model_metrics_sample_pfpp1x_dtype_offsets():
     })
 
 pwr_model_metrics_sample_pfpp1x_dtype = _get_pwr_model_metrics_sample_pfpp1x_dtype_offsets()
+cdef object pwr_model_metrics_sample_pfpp1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_sample_pfpp1x_dtype))
 
 cdef class PwrModelMetricsSamplePfpp1x:
     """Empty-initialize an array of `nvmlPwrModelMetricsSamplePfpp1x_t`.
@@ -18639,8 +19024,7 @@ cdef class PwrModelMetricsSamplePfpp1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=pwr_model_metrics_sample_pfpp1x_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsSamplePfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsSamplePfpp1x_t) }"
 
@@ -18653,17 +19037,17 @@ cdef class PwrModelMetricsSamplePfpp1x:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -18683,26 +19067,31 @@ cdef class PwrModelMetricsSamplePfpp1x:
     @property
     def freqk_hz(self):
         """~_numpy.uint32: (array of length 16).Array of input frequencies in kilohertz for each domain."""
-        return self._data.freqk_hz
+        return self._data["freqk_hz"]
 
     @freqk_hz.setter
     def freqk_hz(self, val):
-        self._data.freqk_hz = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsSamplePfpp1x instance is read-only")
+        self._data["freqk_hz"] = val
 
     @property
     def est_tgp_pwrm_w(self):
         """Union[~_numpy.uint32, int]: Estimated Total Graphics Power in milliwatts."""
         if self._data.size == 1:
-            return int(self._data.est_tgp_pwrm_w[0])
-        return self._data.est_tgp_pwrm_w
+            return int(self._data["est_tgp_pwrm_w"][0])
+        return self._data["est_tgp_pwrm_w"]
 
     @est_tgp_pwrm_w.setter
     def est_tgp_pwrm_w(self, val):
-        self._data.est_tgp_pwrm_w = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsSamplePfpp1x instance is read-only")
+        self._data["est_tgp_pwrm_w"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PwrModelMetricsSamplePfpp1x obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -18710,10 +19099,18 @@ cdef class PwrModelMetricsSamplePfpp1x:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PwrModelMetricsSamplePfpp1x.from_data(self._data[key_:key_+1])
+            obj = PwrModelMetricsSamplePfpp1x.__new__(PwrModelMetricsSamplePfpp1x)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_sample_pfpp1x_dtype:
-            return PwrModelMetricsSamplePfpp1x.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == pwr_model_metrics_sample_pfpp1x_dtype:
+                obj = PwrModelMetricsSamplePfpp1x.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -18738,8 +19135,7 @@ cdef class PwrModelMetricsSamplePfpp1x:
             raise ValueError("data array must be 1D")
         if data.dtype != pwr_model_metrics_sample_pfpp1x_dtype:
             raise ValueError("data array must be of dtype pwr_model_metrics_sample_pfpp1x_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=pwr_model_metrics_sample_pfpp1x_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -18759,10 +19155,8 @@ cdef class PwrModelMetricsSamplePfpp1x:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPwrModelMetricsSamplePfpp1x_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_sample_pfpp1x_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_sample_pfpp1x_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -18779,6 +19173,7 @@ cdef _get_pwr_model_operating_point_pfpp1x_dtype_offsets():
     })
 
 pwr_model_operating_point_pfpp1x_dtype = _get_pwr_model_operating_point_pfpp1x_dtype_offsets()
+cdef object pwr_model_operating_point_pfpp1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_operating_point_pfpp1x_dtype))
 
 cdef class PwrModelOperatingPointPfpp1x:
     """Empty-initialize an array of `nvmlPwrModelOperatingPointPfpp1x_t`.
@@ -18795,8 +19190,7 @@ cdef class PwrModelOperatingPointPfpp1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_operating_point_pfpp1x_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=pwr_model_operating_point_pfpp1x_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPwrModelOperatingPointPfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelOperatingPointPfpp1x_t) }"
 
@@ -18809,17 +19203,17 @@ cdef class PwrModelOperatingPointPfpp1x:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -18840,27 +19234,32 @@ cdef class PwrModelOperatingPointPfpp1x:
     def freqk_hz(self):
         """Union[~_numpy.uint32, int]: Operating frequency in kilohertz."""
         if self._data.size == 1:
-            return int(self._data.freqk_hz[0])
-        return self._data.freqk_hz
+            return int(self._data["freqk_hz"][0])
+        return self._data["freqk_hz"]
 
     @freqk_hz.setter
     def freqk_hz(self, val):
-        self._data.freqk_hz = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelOperatingPointPfpp1x instance is read-only")
+        self._data["freqk_hz"] = val
 
     @property
     def pwrm_w(self):
         """Union[~_numpy.uint32, int]: Power consumption at this frequency in milliwatts."""
         if self._data.size == 1:
-            return int(self._data.pwrm_w[0])
-        return self._data.pwrm_w
+            return int(self._data["pwrm_w"][0])
+        return self._data["pwrm_w"]
 
     @pwrm_w.setter
     def pwrm_w(self, val):
-        self._data.pwrm_w = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelOperatingPointPfpp1x instance is read-only")
+        self._data["pwrm_w"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PwrModelOperatingPointPfpp1x obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -18868,10 +19267,18 @@ cdef class PwrModelOperatingPointPfpp1x:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PwrModelOperatingPointPfpp1x.from_data(self._data[key_:key_+1])
+            obj = PwrModelOperatingPointPfpp1x.__new__(PwrModelOperatingPointPfpp1x)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_operating_point_pfpp1x_dtype:
-            return PwrModelOperatingPointPfpp1x.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == pwr_model_operating_point_pfpp1x_dtype:
+                obj = PwrModelOperatingPointPfpp1x.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -18896,8 +19303,7 @@ cdef class PwrModelOperatingPointPfpp1x:
             raise ValueError("data array must be 1D")
         if data.dtype != pwr_model_operating_point_pfpp1x_dtype:
             raise ValueError("data array must be of dtype pwr_model_operating_point_pfpp1x_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=pwr_model_operating_point_pfpp1x_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -18917,10 +19323,8 @@ cdef class PwrModelOperatingPointPfpp1x:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPwrModelOperatingPointPfpp1x_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_operating_point_pfpp1x_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_operating_point_pfpp1x_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -19554,24 +19958,24 @@ cdef class GpuFabricClique_v1:
     """
     cdef:
         nvmlGpuFabricClique_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlGpuFabricClique_v1_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricClique_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating GpuFabricClique_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlGpuFabricClique_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.GpuFabricClique_v1 object at {hex(id(self))}>"
@@ -19671,11 +20075,12 @@ cdef class GpuFabricClique_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating GpuFabricClique_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricClique_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlGpuFabricClique_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -20164,7 +20569,7 @@ cdef class EventSetWait_v3:
 
     @property
     def attributes(self):
-        """int: [out] Bitmask of `NVML_OPERATIONAL_EVENT_ATTR_*` values for structured events. May contain newer bits not named in this header. 0 for NVML event-bit events. May include `NVML_OPERATIONAL_EVENT_ATTR_OVERFLOW` if events or associated payloads were dropped."""
+        """int: [out] Bitmask of `NVML_OPERATIONAL_EVENT_ATTR_*` values for structured events. May contain newer bits not named in this header. 0 for NVML event-bit events."""
         return self._ptr[0].attributes
 
     @attributes.setter
@@ -20419,6 +20824,7 @@ cdef _get_nvlink_telemetry_sample_v1_dtype_offsets():
     })
 
 nvlink_telemetry_sample_v1_dtype = _get_nvlink_telemetry_sample_v1_dtype_offsets()
+cdef object nvlink_telemetry_sample_v1_dtype_record = _numpy.dtype((_numpy.record, nvlink_telemetry_sample_v1_dtype))
 
 cdef class NvlinkTelemetrySample_v1:
     """Empty-initialize an array of `nvmlNvlinkTelemetrySample_v1_t`.
@@ -20435,8 +20841,7 @@ cdef class NvlinkTelemetrySample_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=nvlink_telemetry_sample_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=nvlink_telemetry_sample_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlNvlinkTelemetrySample_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlNvlinkTelemetrySample_v1_t) }"
 
@@ -20449,17 +20854,17 @@ cdef class NvlinkTelemetrySample_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -20480,60 +20885,71 @@ cdef class NvlinkTelemetrySample_v1:
     def link_id(self):
         """Union[~_numpy.uint32, int]: [in] LinkId"""
         if self._data.size == 1:
-            return int(self._data.link_id[0])
-        return self._data.link_id
+            return int(self._data["link_id"][0])
+        return self._data["link_id"]
 
     @link_id.setter
     def link_id(self, val):
-        self._data.link_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
+        self._data["link_id"] = val
 
     @property
     def sample_type(self):
         """Union[~_numpy.uint32, int]: [in] Type of telemetry to sample, specified by `nvmlNvlinkTelemetrySampleType_t`"""
         if self._data.size == 1:
-            return int(self._data.sample_type[0])
-        return self._data.sample_type
+            return int(self._data["sample_type"][0])
+        return self._data["sample_type"]
 
     @sample_type.setter
     def sample_type(self, val):
-        self._data.sample_type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
+        self._data["sample_type"] = val
 
     @property
     def sample_count(self):
         """Union[~_numpy.uint32, int]: [in,out]: Number of samples users need to allocate. If set to 0, will return max supported count of samples without touching the ``samples`` pointer."""
         if self._data.size == 1:
-            return int(self._data.sample_count[0])
-        return self._data.sample_count
+            return int(self._data["sample_count"][0])
+        return self._data["sample_count"]
 
     @sample_count.setter
     def sample_count(self, val):
-        self._data.sample_count = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
+        self._data["sample_count"] = val
 
     @property
     def samples(self):
         """Union[~_numpy.intp, int]: [in,out]: Array of samples allocated by the user. Can be set to NULL when getting count"""
         if self._data.size == 1:
-            return int(self._data.samples[0])
-        return self._data.samples
+            return int(self._data["samples"][0])
+        return self._data["samples"]
 
     @samples.setter
     def samples(self, val):
-        self._data.samples = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
+        self._data["samples"] = val
 
     @property
     def nvml_return(self):
         """Union[~_numpy.int32, int]: [out]: Return code for retrieving this sample. This must be checked by the client before looking at any output values, as they are invalid if ``nvmlReturn != NVML_SUCCESS``."""
         if self._data.size == 1:
-            return int(self._data.nvml_return[0])
-        return self._data.nvml_return
+            return int(self._data["nvml_return"][0])
+        return self._data["nvml_return"]
 
     @nvml_return.setter
     def nvml_return(self, val):
-        self._data.nvml_return = val
+        if not self._data.flags.writeable:
+            raise ValueError("This NvlinkTelemetrySample_v1 instance is read-only")
+        self._data["nvml_return"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef NvlinkTelemetrySample_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -20541,10 +20957,18 @@ cdef class NvlinkTelemetrySample_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return NvlinkTelemetrySample_v1.from_data(self._data[key_:key_+1])
+            obj = NvlinkTelemetrySample_v1.__new__(NvlinkTelemetrySample_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == nvlink_telemetry_sample_v1_dtype:
-            return NvlinkTelemetrySample_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == nvlink_telemetry_sample_v1_dtype:
+                obj = NvlinkTelemetrySample_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -20569,8 +20993,7 @@ cdef class NvlinkTelemetrySample_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != nvlink_telemetry_sample_v1_dtype:
             raise ValueError("data array must be of dtype nvlink_telemetry_sample_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=nvlink_telemetry_sample_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -20590,10 +21013,8 @@ cdef class NvlinkTelemetrySample_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlNvlinkTelemetrySample_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=nvlink_telemetry_sample_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=nvlink_telemetry_sample_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -20619,24 +21040,24 @@ cdef class EccBankRemapperHistogram_v1:
     """
     cdef:
         nvmlEccBankRemapperHistogram_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlEccBankRemapperHistogram_v1_t *>_cyb_calloc(1, sizeof(nvmlEccBankRemapperHistogram_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlEccBankRemapperHistogram_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.EccBankRemapperHistogram_v1 object at {hex(id(self))}>"
@@ -20736,11 +21157,905 @@ cdef class EccBankRemapperHistogram_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating EccBankRemapperHistogram_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccBankRemapperHistogram_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlEccBankRemapperHistogram_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_gpu_uptime_v1_dtype_offsets():
+    cdef nvmlGpuUptime_v1_t pod
+    return _numpy.dtype({
+        'names': ['uptime'],
+        'formats': [_numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.uptime)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuUptime_v1_t),
+    })
+
+gpu_uptime_v1_dtype = _get_gpu_uptime_v1_dtype_offsets()
+
+cdef class GpuUptime_v1:
+    """Empty-initialize an instance of `nvmlGpuUptime_v1_t`.
+
+
+    .. seealso:: `nvmlGpuUptime_v1_t`
+    """
+    cdef:
+        nvmlGpuUptime_v1_t _data
+        nvmlGpuUptime_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.GpuUptime_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef GpuUptime_v1 other_
+        if not isinstance(other, GpuUptime_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuUptime_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuUptime_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuUptime_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlGpuUptime_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuUptime_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuUptime_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def uptime(self):
+        """int: [out] Number of seconds the GPU has been up since it was initialized by the driver"""
+        return self._ptr[0].uptime
+
+    @uptime.setter
+    def uptime(self, val):
+        if self._readonly:
+            raise ValueError("This GpuUptime_v1 instance is read-only")
+        self._ptr[0].uptime = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuUptime_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuUptime_v1_t), GpuUptime_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an GpuUptime_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `gpu_uptime_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "gpu_uptime_v1_dtype", gpu_uptime_v1_dtype, GpuUptime_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an GpuUptime_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef GpuUptime_v1 obj = GpuUptime_v1.__new__(GpuUptime_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuUptime_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlGpuUptime_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_system_conf_compute_settings_v2_dtype_offsets():
+    cdef nvmlSystemConfComputeSettings_v2_t pod
+    return _numpy.dtype({
+        'names': ['version', 'environment', 'cc_feature', 'dev_tools_mode', 'multi_gpu_mode', 'tdisp_state'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.environment)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ccFeature)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.multiGpuMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.tdispState)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlSystemConfComputeSettings_v2_t),
+    })
+
+system_conf_compute_settings_v2_dtype = _get_system_conf_compute_settings_v2_dtype_offsets()
+
+cdef class SystemConfComputeSettings_v2:
+    """Empty-initialize an instance of `nvmlSystemConfComputeSettings_v2_t`.
+
+
+    .. seealso:: `nvmlSystemConfComputeSettings_v2_t`
+    """
+    cdef:
+        nvmlSystemConfComputeSettings_v2_t _data
+        nvmlSystemConfComputeSettings_v2_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.SystemConfComputeSettings_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef SystemConfComputeSettings_v2 other_
+        if not isinstance(other, SystemConfComputeSettings_v2):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlSystemConfComputeSettings_v2_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlSystemConfComputeSettings_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlSystemConfComputeSettings_v2_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlSystemConfComputeSettings_v2_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlSystemConfComputeSettings_v2_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: """
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def environment(self):
+        """int: """
+        return self._ptr[0].environment
+
+    @environment.setter
+    def environment(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].environment = val
+
+    @property
+    def cc_feature(self):
+        """int: """
+        return self._ptr[0].ccFeature
+
+    @cc_feature.setter
+    def cc_feature(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].ccFeature = val
+
+    @property
+    def dev_tools_mode(self):
+        """int: """
+        return self._ptr[0].devToolsMode
+
+    @dev_tools_mode.setter
+    def dev_tools_mode(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].devToolsMode = val
+
+    @property
+    def multi_gpu_mode(self):
+        """int: """
+        return self._ptr[0].multiGpuMode
+
+    @multi_gpu_mode.setter
+    def multi_gpu_mode(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].multiGpuMode = val
+
+    @property
+    def tdisp_state(self):
+        """int: """
+        return self._ptr[0].tdispState
+
+    @tdisp_state.setter
+    def tdisp_state(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].tdispState = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an SystemConfComputeSettings_v2 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlSystemConfComputeSettings_v2_t), SystemConfComputeSettings_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an SystemConfComputeSettings_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `system_conf_compute_settings_v2_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "system_conf_compute_settings_v2_dtype", system_conf_compute_settings_v2_dtype, SystemConfComputeSettings_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an SystemConfComputeSettings_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef SystemConfComputeSettings_v2 obj = SystemConfComputeSettings_v2.__new__(SystemConfComputeSettings_v2)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlSystemConfComputeSettings_v2_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlSystemConfComputeSettings_v2_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_get_remap_table_info_v1_dtype_offsets():
+    cdef nvmlNvlinkGetRemapTableInfo_v1_t pod
+    return _numpy.dtype({
+        'names': ['alid', 'fla_remap_tab_addr', 'gpa_remap_tab_addr', 'remap_tab_size'],
+        'formats': [_numpy.uint32, (_numpy.uint32, 4096), (_numpy.uint32, 4096), _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.alid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.flaRemapTabAddr)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpaRemapTabAddr)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.remapTabSize)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkGetRemapTableInfo_v1_t),
+    })
+
+nvlink_get_remap_table_info_v1_dtype = _get_nvlink_get_remap_table_info_v1_dtype_offsets()
+
+cdef class NvlinkGetRemapTableInfo_v1:
+    """Empty-initialize an instance of `nvmlNvlinkGetRemapTableInfo_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkGetRemapTableInfo_v1_t`
+    """
+    cdef:
+        nvmlNvlinkGetRemapTableInfo_v1_t _data
+        nvmlNvlinkGetRemapTableInfo_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkGetRemapTableInfo_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkGetRemapTableInfo_v1 other_
+        if not isinstance(other, NvlinkGetRemapTableInfo_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkGetRemapTableInfo_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkGetRemapTableInfo_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkGetRemapTableInfo_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def alid(self):
+        """int: ALID of the GPU."""
+        return self._ptr[0].alid
+
+    @alid.setter
+    def alid(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+        self._ptr[0].alid = val
+
+    @property
+    def fla_remap_tab_addr(self):
+        """~_numpy.uint32: (array of length 4096).FLA remap table addrs for all the remap table entries."""
+        if self._ptr[0].remapTabSize == 0:
+            return _numpy.array([])
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].flaRemapTabAddr))
+        return _numpy.asarray(arr)
+
+    @fla_remap_tab_addr.setter
+    def fla_remap_tab_addr(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field fla_remap_tab_addr, max is 4096, got {len(val)}")
+        self._ptr[0].remapTabSize = len(val)
+        if len(val) == 0:
+            return
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
+        _cyb_memcpy(<void *>(&(self._ptr[0].flaRemapTabAddr)), <void *>(arr.data), sizeof(unsigned int) * len(val))
+
+    @property
+    def gpa_remap_tab_addr(self):
+        """~_numpy.uint32: (array of length 4096).SPA/GPA remap table addrs for all the remap table entries."""
+        if self._ptr[0].remapTabSize == 0:
+            return _numpy.array([])
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].gpaRemapTabAddr))
+        return _numpy.asarray(arr)
+
+    @gpa_remap_tab_addr.setter
+    def gpa_remap_tab_addr(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field gpa_remap_tab_addr, max is 4096, got {len(val)}")
+        self._ptr[0].remapTabSize = len(val)
+        if len(val) == 0:
+            return
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
+        _cyb_memcpy(<void *>(&(self._ptr[0].gpaRemapTabAddr)), <void *>(arr.data), sizeof(unsigned int) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkGetRemapTableInfo_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t), NvlinkGetRemapTableInfo_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkGetRemapTableInfo_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_get_remap_table_info_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_get_remap_table_info_v1_dtype", nvlink_get_remap_table_info_v1_dtype, NvlinkGetRemapTableInfo_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkGetRemapTableInfo_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkGetRemapTableInfo_v1 obj = NvlinkGetRemapTableInfo_v1.__new__(NvlinkGetRemapTableInfo_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkGetRemapTableInfo_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_set_nvle_ready_v1_dtype_offsets():
+    cdef nvmlNvlinkSetNvleReady_v1_t pod
+    return _numpy.dtype({
+        'names': ['b_nvle_ready'],
+        'formats': [_numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.bNvleReady)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkSetNvleReady_v1_t),
+    })
+
+nvlink_set_nvle_ready_v1_dtype = _get_nvlink_set_nvle_ready_v1_dtype_offsets()
+
+cdef class NvlinkSetNvleReady_v1:
+    """Empty-initialize an instance of `nvmlNvlinkSetNvleReady_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkSetNvleReady_v1_t`
+    """
+    cdef:
+        nvmlNvlinkSetNvleReady_v1_t _data
+        nvmlNvlinkSetNvleReady_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkSetNvleReady_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkSetNvleReady_v1 other_
+        if not isinstance(other, NvlinkSetNvleReady_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSetNvleReady_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSetNvleReady_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetNvleReady_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkSetNvleReady_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkSetNvleReady_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetNvleReady_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def b_nvle_ready(self):
+        """int: Whether NVLE is ready on the GPU."""
+        return self._ptr[0].bNvleReady
+
+    @b_nvle_ready.setter
+    def b_nvle_ready(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetNvleReady_v1 instance is read-only")
+        self._ptr[0].bNvleReady = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkSetNvleReady_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkSetNvleReady_v1_t), NvlinkSetNvleReady_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkSetNvleReady_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_set_nvle_ready_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_set_nvle_ready_v1_dtype", nvlink_set_nvle_ready_v1_dtype, NvlinkSetNvleReady_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkSetNvleReady_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkSetNvleReady_v1 obj = NvlinkSetNvleReady_v1.__new__(NvlinkSetNvleReady_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkSetNvleReady_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkSetNvleReady_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_lock_remap_table_v1_dtype_offsets():
+    cdef nvmlNvlinkLockRemapTable_v1_t pod
+    return _numpy.dtype({
+        'names': ['b_remap_table_locked', 'b_remap_table_lock_disabled'],
+        'formats': [_numpy.uint8, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.bRemapTableLocked)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bRemapTableLockDisabled)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkLockRemapTable_v1_t),
+    })
+
+nvlink_lock_remap_table_v1_dtype = _get_nvlink_lock_remap_table_v1_dtype_offsets()
+
+cdef class NvlinkLockRemapTable_v1:
+    """Empty-initialize an instance of `nvmlNvlinkLockRemapTable_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkLockRemapTable_v1_t`
+    """
+    cdef:
+        nvmlNvlinkLockRemapTable_v1_t _data
+        nvmlNvlinkLockRemapTable_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkLockRemapTable_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkLockRemapTable_v1 other_
+        if not isinstance(other, NvlinkLockRemapTable_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkLockRemapTable_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkLockRemapTable_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkLockRemapTable_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkLockRemapTable_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkLockRemapTable_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkLockRemapTable_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def b_remap_table_locked(self):
+        """int: Whether the remap table of the GPU is locked."""
+        return self._ptr[0].bRemapTableLocked
+
+    @b_remap_table_locked.setter
+    def b_remap_table_locked(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkLockRemapTable_v1 instance is read-only")
+        self._ptr[0].bRemapTableLocked = val
+
+    @property
+    def b_remap_table_lock_disabled(self):
+        """int: Whether locking of the remap table is disabled."""
+        return self._ptr[0].bRemapTableLockDisabled
+
+    @b_remap_table_lock_disabled.setter
+    def b_remap_table_lock_disabled(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkLockRemapTable_v1 instance is read-only")
+        self._ptr[0].bRemapTableLockDisabled = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkLockRemapTable_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkLockRemapTable_v1_t), NvlinkLockRemapTable_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkLockRemapTable_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_lock_remap_table_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_lock_remap_table_v1_dtype", nvlink_lock_remap_table_v1_dtype, NvlinkLockRemapTable_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkLockRemapTable_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkLockRemapTable_v1 obj = NvlinkLockRemapTable_v1.__new__(NvlinkLockRemapTable_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkLockRemapTable_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkLockRemapTable_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_nvle_private_info_v1_dtype_offsets():
+    cdef nvmlNvlinkNvlePrivateInfo_v1_t pod
+    return _numpy.dtype({
+        'names': ['data_', 'size_'],
+        'formats': [(_numpy.uint8, 256), _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.data)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkNvlePrivateInfo_v1_t),
+    })
+
+nvlink_nvle_private_info_v1_dtype = _get_nvlink_nvle_private_info_v1_dtype_offsets()
+
+cdef class NvlinkNvlePrivateInfo_v1:
+    """Empty-initialize an instance of `nvmlNvlinkNvlePrivateInfo_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkNvlePrivateInfo_v1_t`
+    """
+    cdef:
+        nvmlNvlinkNvlePrivateInfo_v1_t *_ptr
+        object _owner
+        bint _owns_ptr
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlNvlinkNvlePrivateInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating NvlinkNvlePrivateInfo_v1")
+        self._owns_ptr = True
+        self._owner = None
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlNvlinkNvlePrivateInfo_v1_t *ptr
+        if self._owns_ptr and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkNvlePrivateInfo_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkNvlePrivateInfo_v1 other_
+        if not isinstance(other, NvlinkNvlePrivateInfo_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkNvlePrivateInfo_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkNvlePrivateInfo_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkNvlePrivateInfo_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkNvlePrivateInfo_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def data_(self):
+        """~_numpy.uint8: (array of length 256).Buffer that receives the opaque private info blob."""
+        if self._ptr[0].size == 0:
+            return _numpy.array([])
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].size,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].data))
+        return _numpy.asarray(arr)
+
+    @data_.setter
+    def data_(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkNvlePrivateInfo_v1 instance is read-only")
+        if len(val) > 256:
+            raise ValueError(f"Too many elements for field data_, max is 256, got {len(val)}")
+        self._ptr[0].size = len(val)
+        if len(val) == 0:
+            return
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].size,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        _cyb_memcpy(<void *>(&(self._ptr[0].data)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkNvlePrivateInfo_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t), NvlinkNvlePrivateInfo_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkNvlePrivateInfo_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_nvle_private_info_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_nvle_private_info_v1_dtype", nvlink_nvle_private_info_v1_dtype, NvlinkNvlePrivateInfo_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkNvlePrivateInfo_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkNvlePrivateInfo_v1 obj = NvlinkNvlePrivateInfo_v1.__new__(NvlinkNvlePrivateInfo_v1)
+        if owner is None:
+            obj._ptr = <nvmlNvlinkNvlePrivateInfo_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating NvlinkNvlePrivateInfo_v1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+            obj._owns_ptr = True
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkNvlePrivateInfo_v1_t *>ptr
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -21204,6 +22519,7 @@ cdef _get_sample_dtype_offsets():
     })
 
 sample_dtype = _get_sample_dtype_offsets()
+cdef object sample_dtype_record = _numpy.dtype((_numpy.record, sample_dtype))
 
 cdef class Sample:
     """Empty-initialize an array of `nvmlSample_t`.
@@ -21220,8 +22536,7 @@ cdef class Sample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSample_t) }"
 
@@ -21234,17 +22549,17 @@ cdef class Sample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -21265,25 +22580,30 @@ cdef class Sample:
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.time_stamp[0])
-        return self._data.time_stamp
+            return int(self._data["time_stamp"][0])
+        return self._data["time_stamp"]
 
     @time_stamp.setter
     def time_stamp(self, val):
-        self._data.time_stamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This Sample instance is read-only")
+        self._data["time_stamp"] = val
 
     @property
     def sample_value(self):
         """value_dtype: """
-        return self._data.sample_value
+        return self._data["sample_value"].view(_numpy.recarray)
 
     @sample_value.setter
     def sample_value(self, val):
-        self._data.sample_value = val
+        if not self._data.flags.writeable:
+            raise ValueError("This Sample instance is read-only")
+        self._data["sample_value"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef Sample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -21291,10 +22611,18 @@ cdef class Sample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return Sample.from_data(self._data[key_:key_+1])
+            obj = Sample.__new__(Sample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == sample_dtype:
-            return Sample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == sample_dtype:
+                obj = Sample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -21319,8 +22647,7 @@ cdef class Sample:
             raise ValueError("data array must be 1D")
         if data.dtype != sample_dtype:
             raise ValueError("data array must be of dtype sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -21340,10 +22667,8 @@ cdef class Sample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=sample_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -21364,6 +22689,7 @@ cdef _get_vgpu_instance_utilization_sample_dtype_offsets():
     })
 
 vgpu_instance_utilization_sample_dtype = _get_vgpu_instance_utilization_sample_dtype_offsets()
+cdef object vgpu_instance_utilization_sample_dtype_record = _numpy.dtype((_numpy.record, vgpu_instance_utilization_sample_dtype))
 
 cdef class VgpuInstanceUtilizationSample:
     """Empty-initialize an array of `nvmlVgpuInstanceUtilizationSample_t`.
@@ -21380,8 +22706,7 @@ cdef class VgpuInstanceUtilizationSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=vgpu_instance_utilization_sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationSample_t) }"
 
@@ -21394,17 +22719,17 @@ cdef class VgpuInstanceUtilizationSample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -21425,63 +22750,76 @@ cdef class VgpuInstanceUtilizationSample:
     def vgpu_instance(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.vgpu_instance[0])
-        return self._data.vgpu_instance
+            return int(self._data["vgpu_instance"][0])
+        return self._data["vgpu_instance"]
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
-        self._data.vgpu_instance = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
+        self._data["vgpu_instance"] = val
 
     @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
-            return int(self._data.time_stamp[0])
-        return self._data.time_stamp
+            return int(self._data["time_stamp"][0])
+        return self._data["time_stamp"]
 
     @time_stamp.setter
     def time_stamp(self, val):
-        self._data.time_stamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
+        self._data["time_stamp"] = val
 
     @property
     def sm_util(self):
         """value_dtype: """
-        return self._data.sm_util
+        return self._data["sm_util"].view(_numpy.recarray)
 
     @sm_util.setter
     def sm_util(self, val):
-        self._data.sm_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
+        self._data["sm_util"] = val
 
     @property
     def mem_util(self):
         """value_dtype: """
-        return self._data.mem_util
+        return self._data["mem_util"].view(_numpy.recarray)
 
     @mem_util.setter
     def mem_util(self, val):
-        self._data.mem_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
+        self._data["mem_util"] = val
 
     @property
     def enc_util(self):
         """value_dtype: """
-        return self._data.enc_util
+        return self._data["enc_util"].view(_numpy.recarray)
 
     @enc_util.setter
     def enc_util(self, val):
-        self._data.enc_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
+        self._data["enc_util"] = val
 
     @property
     def dec_util(self):
         """value_dtype: """
-        return self._data.dec_util
+        return self._data["dec_util"].view(_numpy.recarray)
 
     @dec_util.setter
     def dec_util(self, val):
-        self._data.dec_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationSample instance is read-only")
+        self._data["dec_util"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef VgpuInstanceUtilizationSample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -21489,10 +22827,18 @@ cdef class VgpuInstanceUtilizationSample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return VgpuInstanceUtilizationSample.from_data(self._data[key_:key_+1])
+            obj = VgpuInstanceUtilizationSample.__new__(VgpuInstanceUtilizationSample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_instance_utilization_sample_dtype:
-            return VgpuInstanceUtilizationSample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == vgpu_instance_utilization_sample_dtype:
+                obj = VgpuInstanceUtilizationSample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -21517,8 +22863,7 @@ cdef class VgpuInstanceUtilizationSample:
             raise ValueError("data array must be 1D")
         if data.dtype != vgpu_instance_utilization_sample_dtype:
             raise ValueError("data array must be of dtype vgpu_instance_utilization_sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=vgpu_instance_utilization_sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -21538,10 +22883,8 @@ cdef class VgpuInstanceUtilizationSample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuInstanceUtilizationSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_sample_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -21564,6 +22907,7 @@ cdef _get_vgpu_instance_utilization_info_v1_dtype_offsets():
     })
 
 vgpu_instance_utilization_info_v1_dtype = _get_vgpu_instance_utilization_info_v1_dtype_offsets()
+cdef object vgpu_instance_utilization_info_v1_dtype_record = _numpy.dtype((_numpy.record, vgpu_instance_utilization_info_v1_dtype))
 
 cdef class VgpuInstanceUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlVgpuInstanceUtilizationInfo_v1_t`.
@@ -21580,8 +22924,7 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=vgpu_instance_utilization_info_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=vgpu_instance_utilization_info_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t) }"
 
@@ -21594,17 +22937,17 @@ cdef class VgpuInstanceUtilizationInfo_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -21625,81 +22968,98 @@ cdef class VgpuInstanceUtilizationInfo_v1:
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: CPU Timestamp in microseconds."""
         if self._data.size == 1:
-            return int(self._data.time_stamp[0])
-        return self._data.time_stamp
+            return int(self._data["time_stamp"][0])
+        return self._data["time_stamp"]
 
     @time_stamp.setter
     def time_stamp(self, val):
-        self._data.time_stamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["time_stamp"] = val
 
     @property
     def vgpu_instance(self):
         """Union[~_numpy.uint32, int]: vGPU Instance"""
         if self._data.size == 1:
-            return int(self._data.vgpu_instance[0])
-        return self._data.vgpu_instance
+            return int(self._data["vgpu_instance"][0])
+        return self._data["vgpu_instance"]
 
     @vgpu_instance.setter
     def vgpu_instance(self, val):
-        self._data.vgpu_instance = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["vgpu_instance"] = val
 
     @property
     def sm_util(self):
         """value_dtype: SM (3D/Compute) Util Value."""
-        return self._data.sm_util
+        return self._data["sm_util"].view(_numpy.recarray)
 
     @sm_util.setter
     def sm_util(self, val):
-        self._data.sm_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["sm_util"] = val
 
     @property
     def mem_util(self):
         """value_dtype: Frame Buffer Memory Util Value."""
-        return self._data.mem_util
+        return self._data["mem_util"].view(_numpy.recarray)
 
     @mem_util.setter
     def mem_util(self, val):
-        self._data.mem_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["mem_util"] = val
 
     @property
     def enc_util(self):
         """value_dtype: Encoder Util Value."""
-        return self._data.enc_util
+        return self._data["enc_util"].view(_numpy.recarray)
 
     @enc_util.setter
     def enc_util(self, val):
-        self._data.enc_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["enc_util"] = val
 
     @property
     def dec_util(self):
         """value_dtype: Decoder Util Value."""
-        return self._data.dec_util
+        return self._data["dec_util"].view(_numpy.recarray)
 
     @dec_util.setter
     def dec_util(self, val):
-        self._data.dec_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["dec_util"] = val
 
     @property
     def jpg_util(self):
         """value_dtype: Jpeg Util Value."""
-        return self._data.jpg_util
+        return self._data["jpg_util"].view(_numpy.recarray)
 
     @jpg_util.setter
     def jpg_util(self, val):
-        self._data.jpg_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["jpg_util"] = val
 
     @property
     def ofa_util(self):
         """value_dtype: Ofa Util Value."""
-        return self._data.ofa_util
+        return self._data["ofa_util"].view(_numpy.recarray)
 
     @ofa_util.setter
     def ofa_util(self, val):
-        self._data.ofa_util = val
+        if not self._data.flags.writeable:
+            raise ValueError("This VgpuInstanceUtilizationInfo_v1 instance is read-only")
+        self._data["ofa_util"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef VgpuInstanceUtilizationInfo_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -21707,10 +23067,18 @@ cdef class VgpuInstanceUtilizationInfo_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return VgpuInstanceUtilizationInfo_v1.from_data(self._data[key_:key_+1])
+            obj = VgpuInstanceUtilizationInfo_v1.__new__(VgpuInstanceUtilizationInfo_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == vgpu_instance_utilization_info_v1_dtype:
-            return VgpuInstanceUtilizationInfo_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == vgpu_instance_utilization_info_v1_dtype:
+                obj = VgpuInstanceUtilizationInfo_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -21735,8 +23103,7 @@ cdef class VgpuInstanceUtilizationInfo_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != vgpu_instance_utilization_info_v1_dtype:
             raise ValueError("data array must be of dtype vgpu_instance_utilization_info_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=vgpu_instance_utilization_info_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -21756,10 +23123,8 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_info_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_info_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -21781,6 +23146,7 @@ cdef _get_field_value_dtype_offsets():
     })
 
 field_value_dtype = _get_field_value_dtype_offsets()
+cdef object field_value_dtype_record = _numpy.dtype((_numpy.record, field_value_dtype))
 
 cdef class FieldValue:
     """Empty-initialize an array of `nvmlFieldValue_t`.
@@ -21797,8 +23163,7 @@ cdef class FieldValue:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=field_value_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=field_value_dtype_record)
         assert self._data.itemsize == sizeof(nvmlFieldValue_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlFieldValue_t) }"
 
@@ -21811,17 +23176,17 @@ cdef class FieldValue:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -21842,80 +23207,95 @@ cdef class FieldValue:
     def field_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.field_id[0])
-        return self._data.field_id
+            return int(self._data["field_id"][0])
+        return self._data["field_id"]
 
     @field_id.setter
     def field_id(self, val):
-        self._data.field_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
+        self._data["field_id"] = val
 
     @property
     def scope_id(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.scope_id[0])
-        return self._data.scope_id
+            return int(self._data["scope_id"][0])
+        return self._data["scope_id"]
 
     @scope_id.setter
     def scope_id(self, val):
-        self._data.scope_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
+        self._data["scope_id"] = val
 
     @property
     def timestamp(self):
         """Union[~_numpy.int64, int]: """
         if self._data.size == 1:
-            return int(self._data.timestamp[0])
-        return self._data.timestamp
+            return int(self._data["timestamp"][0])
+        return self._data["timestamp"]
 
     @timestamp.setter
     def timestamp(self, val):
-        self._data.timestamp = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
+        self._data["timestamp"] = val
 
     @property
     def latency_usec(self):
         """Union[~_numpy.int64, int]: """
         if self._data.size == 1:
-            return int(self._data.latency_usec[0])
-        return self._data.latency_usec
+            return int(self._data["latency_usec"][0])
+        return self._data["latency_usec"]
 
     @latency_usec.setter
     def latency_usec(self, val):
-        self._data.latency_usec = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
+        self._data["latency_usec"] = val
 
     @property
     def value_type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.value_type[0])
-        return self._data.value_type
+            return int(self._data["value_type"][0])
+        return self._data["value_type"]
 
     @value_type.setter
     def value_type(self, val):
-        self._data.value_type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
+        self._data["value_type"] = val
 
     @property
     def nvml_return(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.nvml_return[0])
-        return self._data.nvml_return
+            return int(self._data["nvml_return"][0])
+        return self._data["nvml_return"]
 
     @nvml_return.setter
     def nvml_return(self, val):
-        self._data.nvml_return = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
+        self._data["nvml_return"] = val
 
     @property
     def value(self):
         """value_dtype: """
-        return self._data.value
+        return self._data["value"].view(_numpy.recarray)
 
     @value.setter
     def value(self, val):
-        self._data.value = val
+        if not self._data.flags.writeable:
+            raise ValueError("This FieldValue instance is read-only")
+        self._data["value"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef FieldValue obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -21923,10 +23303,18 @@ cdef class FieldValue:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return FieldValue.from_data(self._data[key_:key_+1])
+            obj = FieldValue.__new__(FieldValue)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == field_value_dtype:
-            return FieldValue.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == field_value_dtype:
+                obj = FieldValue.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -21951,8 +23339,7 @@ cdef class FieldValue:
             raise ValueError("data array must be 1D")
         if data.dtype != field_value_dtype:
             raise ValueError("data array must be of dtype field_value_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=field_value_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -21972,10 +23359,8 @@ cdef class FieldValue:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlFieldValue_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=field_value_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=field_value_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -22002,24 +23387,24 @@ cdef class PRMCounterValue_v1:
     """
     cdef:
         nvmlPRMCounterValue_v1_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlPRMCounterValue_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterValue_v1_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating PRMCounterValue_v1")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlPRMCounterValue_v1_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.PRMCounterValue_v1 object at {hex(id(self))}>"
@@ -22135,11 +23520,12 @@ cdef class PRMCounterValue_v1:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating PRMCounterValue_v1")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPRMCounterValue_v1_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlPRMCounterValue_v1_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -22931,24 +24317,24 @@ cdef class VgpuSchedulerParams:
     """
     cdef:
         nvmlVgpuSchedulerParams_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuSchedulerParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerParams")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerParams_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerParams object at {hex(id(self))}>"
@@ -23058,11 +24444,12 @@ cdef class VgpuSchedulerParams:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerParams_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuSchedulerParams_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -23089,24 +24476,24 @@ cdef class VgpuSchedulerSetParams:
     """
     cdef:
         nvmlVgpuSchedulerSetParams_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlVgpuSchedulerSetParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerSetParams_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating VgpuSchedulerSetParams")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerSetParams_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.VgpuSchedulerSetParams object at {hex(id(self))}>"
@@ -23216,11 +24603,12 @@ cdef class VgpuSchedulerSetParams:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating VgpuSchedulerSetParams")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlVgpuSchedulerSetParams_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlVgpuSchedulerSetParams_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -23396,6 +24784,7 @@ cdef _get_grid_licensable_feature_dtype_offsets():
     })
 
 grid_licensable_feature_dtype = _get_grid_licensable_feature_dtype_offsets()
+cdef object grid_licensable_feature_dtype_record = _numpy.dtype((_numpy.record, grid_licensable_feature_dtype))
 
 cdef class GridLicensableFeature:
     """Empty-initialize an array of `nvmlGridLicensableFeature_t`.
@@ -23412,8 +24801,7 @@ cdef class GridLicensableFeature:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=grid_licensable_feature_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=grid_licensable_feature_dtype_record)
         assert self._data.itemsize == sizeof(nvmlGridLicensableFeature_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlGridLicensableFeature_t) }"
 
@@ -23426,17 +24814,17 @@ cdef class GridLicensableFeature:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -23457,65 +24845,78 @@ cdef class GridLicensableFeature:
     def feature_code(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
-            return int(self._data.feature_code[0])
-        return self._data.feature_code
+            return int(self._data["feature_code"][0])
+        return self._data["feature_code"]
 
     @feature_code.setter
     def feature_code(self, val):
-        self._data.feature_code = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
+        self._data["feature_code"] = val
 
     @property
     def feature_state(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.feature_state[0])
-        return self._data.feature_state
+            return int(self._data["feature_state"][0])
+        return self._data["feature_state"]
 
     @feature_state.setter
     def feature_state(self, val):
-        self._data.feature_state = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
+        self._data["feature_state"] = val
 
     @property
     def license_info(self):
         """~_numpy.int8: (array of length 128)."""
-        return self._data.license_info
+        return self._data["license_info"]
 
     @license_info.setter
     def license_info(self, val):
-        self._data.license_info = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
+        self._data["license_info"] = val
 
     @property
     def product_name(self):
         """~_numpy.int8: (array of length 128)."""
-        return self._data.product_name
+        return self._data["product_name"]
 
     @product_name.setter
     def product_name(self, val):
-        self._data.product_name = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
+        self._data["product_name"] = val
 
     @property
     def feature_enabled(self):
         """Union[~_numpy.uint32, int]: """
         if self._data.size == 1:
-            return int(self._data.feature_enabled[0])
-        return self._data.feature_enabled
+            return int(self._data["feature_enabled"][0])
+        return self._data["feature_enabled"]
 
     @feature_enabled.setter
     def feature_enabled(self, val):
-        self._data.feature_enabled = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
+        self._data["feature_enabled"] = val
 
     @property
     def license_expiry(self):
         """grid_license_expiry_dtype: """
-        return self._data.license_expiry
+        return self._data["license_expiry"].view(_numpy.recarray)
 
     @license_expiry.setter
     def license_expiry(self, val):
-        self._data.license_expiry = val
+        if not self._data.flags.writeable:
+            raise ValueError("This GridLicensableFeature instance is read-only")
+        self._data["license_expiry"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef GridLicensableFeature obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -23523,10 +24924,18 @@ cdef class GridLicensableFeature:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return GridLicensableFeature.from_data(self._data[key_:key_+1])
+            obj = GridLicensableFeature.__new__(GridLicensableFeature)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == grid_licensable_feature_dtype:
-            return GridLicensableFeature.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == grid_licensable_feature_dtype:
+                obj = GridLicensableFeature.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -23551,8 +24960,7 @@ cdef class GridLicensableFeature:
             raise ValueError("data array must be 1D")
         if data.dtype != grid_licensable_feature_dtype:
             raise ValueError("data array must be of dtype grid_licensable_feature_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=grid_licensable_feature_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -23572,10 +24980,8 @@ cdef class GridLicensableFeature:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlGridLicensableFeature_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=grid_licensable_feature_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=grid_licensable_feature_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -24454,24 +25860,24 @@ cdef class NvlinkFirmwareInfo:
     """
     cdef:
         nvmlNvlinkFirmwareInfo_t *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <nvmlNvlinkFirmwareInfo_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareInfo_t))
         if self._ptr == NULL:
             raise MemoryError("Error allocating NvlinkFirmwareInfo")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef nvmlNvlinkFirmwareInfo_t *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}.NvlinkFirmwareInfo object at {hex(id(self))}>"
@@ -24523,7 +25929,7 @@ cdef class NvlinkFirmwareInfo:
         """NvlinkFirmwareVersion: OUT - NVLINK firmware version."""
         return NvlinkFirmwareVersion.from_ptr(
             <intptr_t>&(self._ptr[0].firmwareVersion),
-            100,
+            self._ptr[0].numValidEntries,
             readonly=self._readonly,
             owner=self,
         )
@@ -24533,20 +25939,12 @@ cdef class NvlinkFirmwareInfo:
         if self._readonly:
             raise ValueError("This NvlinkFirmwareInfo instance is read-only")
         cdef NvlinkFirmwareVersion val_ = val
-        if len(val) != 100:
-            raise ValueError(f"Expected length { 100 } for field firmware_version, got {len(val)}")
-        _cyb_memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * 100)
-
-    @property
-    def num_valid_entries(self):
-        """int: OUT - Number of valid firmware entries."""
-        return self._ptr[0].numValidEntries
-
-    @num_valid_entries.setter
-    def num_valid_entries(self, val):
-        if self._readonly:
-            raise ValueError("This NvlinkFirmwareInfo instance is read-only")
-        self._ptr[0].numValidEntries = val
+        if len(val) > 100:
+            raise ValueError(f"Expected length < 100 for field firmware_version, got {len(val)}")
+        self._ptr[0].numValidEntries = len(val)
+        if len(val) == 0:
+            return
+        _cyb_memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * self._ptr[0].numValidEntries)
 
     @staticmethod
     def from_buffer(buffer):
@@ -24579,11 +25977,12 @@ cdef class NvlinkFirmwareInfo:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating NvlinkFirmwareInfo")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareInfo_t))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <nvmlNvlinkFirmwareInfo_t *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -24947,6 +26346,7 @@ cdef _get_core_rail_metrics_dtype_offsets():
     })
 
 core_rail_metrics_dtype = _get_core_rail_metrics_dtype_offsets()
+cdef object core_rail_metrics_dtype_record = _numpy.dtype((_numpy.record, core_rail_metrics_dtype))
 
 cdef class CoreRailMetrics:
     """Empty-initialize an array of `nvmlCoreRailMetrics_t`.
@@ -24963,8 +26363,7 @@ cdef class CoreRailMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=core_rail_metrics_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=core_rail_metrics_dtype_record)
         assert self._data.itemsize == sizeof(nvmlCoreRailMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlCoreRailMetrics_t) }"
 
@@ -24977,17 +26376,17 @@ cdef class CoreRailMetrics:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -25007,15 +26406,18 @@ cdef class CoreRailMetrics:
     @property
     def rails(self):
         """rail_metrics_dtype: (array of length 2).Array of core rail metrics."""
-        return self._data.rails
+        return self._data["rails"].view(_numpy.recarray)
 
     @rails.setter
     def rails(self, val):
-        self._data.rails = val
+        if not self._data.flags.writeable:
+            raise ValueError("This CoreRailMetrics instance is read-only")
+        self._data["rails"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef CoreRailMetrics obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -25023,10 +26425,18 @@ cdef class CoreRailMetrics:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return CoreRailMetrics.from_data(self._data[key_:key_+1])
+            obj = CoreRailMetrics.__new__(CoreRailMetrics)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == core_rail_metrics_dtype:
-            return CoreRailMetrics.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == core_rail_metrics_dtype:
+                obj = CoreRailMetrics.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -25051,8 +26461,7 @@ cdef class CoreRailMetrics:
             raise ValueError("data array must be 1D")
         if data.dtype != core_rail_metrics_dtype:
             raise ValueError("data array must be of dtype core_rail_metrics_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=core_rail_metrics_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -25072,10 +26481,8 @@ cdef class CoreRailMetrics:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlCoreRailMetrics_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=core_rail_metrics_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=core_rail_metrics_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -25096,6 +26503,7 @@ cdef _get_pwr_model_metrics_pfpp1x_dtype_offsets():
     })
 
 pwr_model_metrics_pfpp1x_dtype = _get_pwr_model_metrics_pfpp1x_dtype_offsets()
+cdef object pwr_model_metrics_pfpp1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_pfpp1x_dtype))
 
 cdef class PwrModelMetricsPfpp1x:
     """Empty-initialize an array of `nvmlPwrModelMetricsPfpp1x_t`.
@@ -25113,8 +26521,7 @@ cdef class PwrModelMetricsPfpp1x:
         readonly tuple _estimated_metrics
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_pfpp1x_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=pwr_model_metrics_pfpp1x_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsPfpp1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsPfpp1x_t) }"
 
@@ -25127,17 +26534,17 @@ cdef class PwrModelMetricsPfpp1x:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -25157,6 +26564,19 @@ cdef class PwrModelMetricsPfpp1x:
     @property
     def estimated_metrics(self):
         """PwrModelMetricsSamplePfpp1x: Array of estimated metrics for different operating points."""
+        if self._estimated_metrics is None:
+            estimated_metrics_list = list()
+            estimated_metrics_base = _cyb_array_ptr(self._data)
+            estimated_metrics_offset = pwr_model_metrics_pfpp1x_dtype.fields["estimated_metrics"][1]
+            estimated_metrics_stride = self._data.strides[0]
+            estimated_metrics_readonly = not self._data.flags.writeable
+            estimated_metrics_sizes = self._data["num_vf_points"]
+            for i in range(self._data.size):
+                addr = estimated_metrics_base + i * estimated_metrics_stride + estimated_metrics_offset
+                n = int(estimated_metrics_sizes[i])
+                estimated_metrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=self, readonly=estimated_metrics_readonly)
+                estimated_metrics_list.append(estimated_metrics_obj)
+            self._estimated_metrics = tuple(estimated_metrics_list)
         if self._data.size == 1:
             return self._estimated_metrics[0]
         return self._estimated_metrics
@@ -25165,45 +26585,54 @@ cdef class PwrModelMetricsPfpp1x:
     def b_valid(self):
         """Union[~_numpy.uint8, int]: Validity flag: non-zero if metrics are valid."""
         if self._data.size == 1:
-            return int(self._data.b_valid[0])
-        return self._data.b_valid
+            return int(self._data["b_valid"][0])
+        return self._data["b_valid"]
 
     @b_valid.setter
     def b_valid(self, val):
-        self._data.b_valid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
+        self._data["b_valid"] = val
 
     @property
     def max_perf_per_watt_point(self):
         """pwr_model_operating_point_pfpp1x_dtype: Operating point with maximum performance per watt."""
-        return self._data.max_perf_per_watt_point
+        return self._data["max_perf_per_watt_point"].view(_numpy.recarray)
 
     @max_perf_per_watt_point.setter
     def max_perf_per_watt_point(self, val):
-        self._data.max_perf_per_watt_point = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
+        self._data["max_perf_per_watt_point"] = val
 
     @property
     def fmax_at_vmax_point(self):
         """pwr_model_operating_point_pfpp1x_dtype: Operating point at maximum frequency and voltage."""
-        return self._data.fmax_at_vmax_point
+        return self._data["fmax_at_vmax_point"].view(_numpy.recarray)
 
     @fmax_at_vmax_point.setter
     def fmax_at_vmax_point(self, val):
-        self._data.fmax_at_vmax_point = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
+        self._data["fmax_at_vmax_point"] = val
 
     @property
     def tgp_headroomm_w(self):
         """Union[~_numpy.uint32, int]: TGP headroom in milliwatts."""
         if self._data.size == 1:
-            return int(self._data.tgp_headroomm_w[0])
-        return self._data.tgp_headroomm_w
+            return int(self._data["tgp_headroomm_w"][0])
+        return self._data["tgp_headroomm_w"]
 
     @tgp_headroomm_w.setter
     def tgp_headroomm_w(self, val):
-        self._data.tgp_headroomm_w = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsPfpp1x instance is read-only")
+        self._data["tgp_headroomm_w"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PwrModelMetricsPfpp1x obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -25211,10 +26640,18 @@ cdef class PwrModelMetricsPfpp1x:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PwrModelMetricsPfpp1x.from_data(self._data[key_:key_+1])
+            obj = PwrModelMetricsPfpp1x.__new__(PwrModelMetricsPfpp1x)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_pfpp1x_dtype:
-            return PwrModelMetricsPfpp1x.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == pwr_model_metrics_pfpp1x_dtype:
+                obj = PwrModelMetricsPfpp1x.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -25239,15 +26676,7 @@ cdef class PwrModelMetricsPfpp1x:
             raise ValueError("data array must be 1D")
         if data.dtype != pwr_model_metrics_pfpp1x_dtype:
             raise ValueError("data array must be of dtype pwr_model_metrics_pfpp1x_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        estimatedMetrics_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
-            n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=False)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+        obj._data = data.view(dtype=pwr_model_metrics_pfpp1x_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -25267,17 +26696,8 @@ cdef class PwrModelMetricsPfpp1x:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPwrModelMetricsPfpp1x_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_pfpp1x_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_pfpp1x_dtype_record)
         obj._owner = owner
-
-        estimatedMetrics_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
-            n = int(obj._data.num_vf_points[i])
-            estimatedMetrics_obj = PwrModelMetricsSamplePfpp1x.from_ptr(addr, n, owner=obj, readonly=readonly)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
         return obj
 
 
@@ -25796,6 +27216,195 @@ cdef class EccBankRemapperStatus_v1:
         return obj
 
 
+cdef _get_nvlink_setup_nvle_encryption_key_v1_dtype_offsets():
+    cdef nvmlNvlinkSetupNvleEncryptionKey_v1_t pod
+    return _numpy.dtype({
+        'names': ['nvle_key', 'local_gpu_alid', 'remote_gpu_alid', 'local_gpu_nvle_private_info', 'remote_gpu_nvle_private_info'],
+        'formats': [(_numpy.uint8, 32), _numpy.uint32, _numpy.uint32, nvlink_nvle_private_info_v1_dtype, nvlink_nvle_private_info_v1_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.nvleKey)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.localGpuAlid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.remoteGpuAlid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.localGpuNvlePrivateInfo)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.remoteGpuNvlePrivateInfo)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t),
+    })
+
+nvlink_setup_nvle_encryption_key_v1_dtype = _get_nvlink_setup_nvle_encryption_key_v1_dtype_offsets()
+
+cdef class NvlinkSetupNvleEncryptionKey_v1:
+    """Empty-initialize an instance of `nvmlNvlinkSetupNvleEncryptionKey_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkSetupNvleEncryptionKey_v1_t`
+    """
+    cdef:
+        nvmlNvlinkSetupNvleEncryptionKey_v1_t _data
+        nvmlNvlinkSetupNvleEncryptionKey_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkSetupNvleEncryptionKey_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkSetupNvleEncryptionKey_v1 other_
+        if not isinstance(other, NvlinkSetupNvleEncryptionKey_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def local_gpu_nvle_private_info(self):
+        """NvlinkNvlePrivateInfo_v1: NVLE private info of the local GPU."""
+        return NvlinkNvlePrivateInfo_v1.from_ptr(
+            <intptr_t>&(self._ptr[0].localGpuNvlePrivateInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @local_gpu_nvle_private_info.setter
+    def local_gpu_nvle_private_info(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        cdef NvlinkNvlePrivateInfo_v1 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].localGpuNvlePrivateInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkNvlePrivateInfo_v1_t) * 1)
+
+    @property
+    def remote_gpu_nvle_private_info(self):
+        """NvlinkNvlePrivateInfo_v1: NVLE private info of the remote GPU."""
+        return NvlinkNvlePrivateInfo_v1.from_ptr(
+            <intptr_t>&(self._ptr[0].remoteGpuNvlePrivateInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @remote_gpu_nvle_private_info.setter
+    def remote_gpu_nvle_private_info(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        cdef NvlinkNvlePrivateInfo_v1 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].remoteGpuNvlePrivateInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkNvlePrivateInfo_v1_t) * 1)
+
+    @property
+    def nvle_key(self):
+        """~_numpy.uint8: (array of length 32).Key secret from which keyMgr will derive the key."""
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].nvleKey))
+        return _numpy.asarray(arr)
+
+    @nvle_key.setter
+    def nvle_key(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        if len(val) != 32:
+            raise ValueError(f"Expected length { 32 } for field nvle_key, got {len(val)}")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        _cyb_memcpy(<void *>(&(self._ptr[0].nvleKey)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @property
+    def local_gpu_alid(self):
+        """int: ALID of the local GPU."""
+        return self._ptr[0].localGpuAlid
+
+    @local_gpu_alid.setter
+    def local_gpu_alid(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        self._ptr[0].localGpuAlid = val
+
+    @property
+    def remote_gpu_alid(self):
+        """int: ALID of the remote GPU."""
+        return self._ptr[0].remoteGpuAlid
+
+    @remote_gpu_alid.setter
+    def remote_gpu_alid(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        self._ptr[0].remoteGpuAlid = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkSetupNvleEncryptionKey_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t), NvlinkSetupNvleEncryptionKey_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkSetupNvleEncryptionKey_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_setup_nvle_encryption_key_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_setup_nvle_encryption_key_v1_dtype", nvlink_setup_nvle_encryption_key_v1_dtype, NvlinkSetupNvleEncryptionKey_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkSetupNvleEncryptionKey_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkSetupNvleEncryptionKey_v1 obj = NvlinkSetupNvleEncryptionKey_v1.__new__(NvlinkSetupNvleEncryptionKey_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkSetupNvleEncryptionKey_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_vgpu_instances_utilization_info_v1_dtype_offsets():
     cdef nvmlVgpuInstancesUtilizationInfo_v1_t pod
     return _numpy.dtype({
@@ -25985,6 +27594,7 @@ cdef _get_prm_counter_v1_dtype_offsets():
     })
 
 prm_counter_v1_dtype = _get_prm_counter_v1_dtype_offsets()
+cdef object prm_counter_v1_dtype_record = _numpy.dtype((_numpy.record, prm_counter_v1_dtype))
 
 cdef class PRMCounter_v1:
     """Empty-initialize an array of `nvmlPRMCounter_v1_t`.
@@ -26001,8 +27611,7 @@ cdef class PRMCounter_v1:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=prm_counter_v1_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=prm_counter_v1_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPRMCounter_v1_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPRMCounter_v1_t) }"
 
@@ -26015,17 +27624,17 @@ cdef class PRMCounter_v1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -26046,34 +27655,41 @@ cdef class PRMCounter_v1:
     def counter_id(self):
         """Union[~_numpy.uint32, int]: Counter ID, one of `nvmlPRMCounterId_t`."""
         if self._data.size == 1:
-            return int(self._data.counter_id[0])
-        return self._data.counter_id
+            return int(self._data["counter_id"][0])
+        return self._data["counter_id"]
 
     @counter_id.setter
     def counter_id(self, val):
-        self._data.counter_id = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
+        self._data["counter_id"] = val
 
     @property
     def in_data(self):
         """prm_counter_input_v1_dtype: PRM input values."""
-        return self._data.in_data
+        return self._data["in_data"].view(_numpy.recarray)
 
     @in_data.setter
     def in_data(self, val):
-        self._data.in_data = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
+        self._data["in_data"] = val
 
     @property
     def counter_value(self):
         """prm_counter_value_v1_dtype: Counter value."""
-        return self._data.counter_value
+        return self._data["counter_value"].view(_numpy.recarray)
 
     @counter_value.setter
     def counter_value(self, val):
-        self._data.counter_value = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PRMCounter_v1 instance is read-only")
+        self._data["counter_value"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PRMCounter_v1 obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -26081,10 +27697,18 @@ cdef class PRMCounter_v1:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PRMCounter_v1.from_data(self._data[key_:key_+1])
+            obj = PRMCounter_v1.__new__(PRMCounter_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == prm_counter_v1_dtype:
-            return PRMCounter_v1.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == prm_counter_v1_dtype:
+                obj = PRMCounter_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -26109,8 +27733,7 @@ cdef class PRMCounter_v1:
             raise ValueError("data array must be 1D")
         if data.dtype != prm_counter_v1_dtype:
             raise ValueError("data array must be of dtype prm_counter_v1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=prm_counter_v1_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -26130,10 +27753,8 @@ cdef class PRMCounter_v1:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPRMCounter_v1_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=prm_counter_v1_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=prm_counter_v1_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -27358,6 +28979,160 @@ cdef class NvLinkInfo_v2:
         return obj
 
 
+cdef _get_nv_link_info_v3_dtype_offsets():
+    cdef nvmlNvLinkInfo_v3_t pod
+    return _numpy.dtype({
+        'names': ['is_nvle_enabled', 'firmware_info', 'is_nvle_ready'],
+        'formats': [_numpy.uint32, nvlink_firmware_info_dtype, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isNvleReady)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvLinkInfo_v3_t),
+    })
+
+nv_link_info_v3_dtype = _get_nv_link_info_v3_dtype_offsets()
+
+cdef class NvLinkInfo_v3:
+    """Empty-initialize an instance of `nvmlNvLinkInfo_v3_t`.
+
+
+    .. seealso:: `nvmlNvLinkInfo_v3_t`
+    """
+    cdef:
+        nvmlNvLinkInfo_v3_t _data
+        nvmlNvLinkInfo_v3_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvLinkInfo_v3 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvLinkInfo_v3 other_
+        if not isinstance(other, NvLinkInfo_v3):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v3_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v3_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvLinkInfo_v3 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvLinkInfo_v3_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvLinkInfo_v3_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvLinkInfo_v3_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def firmware_info(self):
+        """NvlinkFirmwareInfo: OUT - NVLINK Firmware info."""
+        return NvlinkFirmwareInfo.from_ptr(
+            <intptr_t>&(self._ptr[0].firmwareInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @firmware_info.setter
+    def firmware_info(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v3 instance is read-only")
+        cdef NvlinkFirmwareInfo val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].firmwareInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareInfo_t) * 1)
+
+    @property
+    def is_nvle_enabled(self):
+        """int: OUT - NVLINK encryption enablement."""
+        return self._ptr[0].isNvleEnabled
+
+    @is_nvle_enabled.setter
+    def is_nvle_enabled(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v3 instance is read-only")
+        self._ptr[0].isNvleEnabled = val
+
+    @property
+    def is_nvle_ready(self):
+        """int: OUT - Whether NVLE is ready on the GPU."""
+        return self._ptr[0].isNvleReady
+
+    @is_nvle_ready.setter
+    def is_nvle_ready(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v3 instance is read-only")
+        self._ptr[0].isNvleReady = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvLinkInfo_v3 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvLinkInfo_v3_t), NvLinkInfo_v3)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvLinkInfo_v3 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nv_link_info_v3_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nv_link_info_v3_dtype", nv_link_info_v3_dtype, NvLinkInfo_v3)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvLinkInfo_v3 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvLinkInfo_v3 obj = NvLinkInfo_v3.__new__(NvLinkInfo_v3)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvLinkInfo_v3_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvLinkInfo_v3_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_pwr_model_metrics_dlppm1x_dtype_offsets():
     cdef nvmlPwrModelMetricsDlppm1x_t pod
     return _numpy.dtype({
@@ -27374,6 +29149,7 @@ cdef _get_pwr_model_metrics_dlppm1x_dtype_offsets():
     })
 
 pwr_model_metrics_dlppm1x_dtype = _get_pwr_model_metrics_dlppm1x_dtype_offsets()
+cdef object pwr_model_metrics_dlppm1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_dlppm1x_dtype))
 
 cdef class PwrModelMetricsDlppm1x:
     """Empty-initialize an array of `nvmlPwrModelMetricsDlppm1x_t`.
@@ -27390,8 +29166,7 @@ cdef class PwrModelMetricsDlppm1x:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1x_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1x_t) }"
 
@@ -27404,17 +29179,17 @@ cdef class PwrModelMetricsDlppm1x:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -27435,52 +29210,63 @@ cdef class PwrModelMetricsDlppm1x:
     def b_valid(self):
         """Union[~_numpy.uint8, int]: Validity flag: non-zero if metrics are valid."""
         if self._data.size == 1:
-            return int(self._data.b_valid[0])
-        return self._data.b_valid
+            return int(self._data["b_valid"][0])
+        return self._data["b_valid"]
 
     @b_valid.setter
     def b_valid(self, val):
-        self._data.b_valid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
+        self._data["b_valid"] = val
 
     @property
     def core_rail(self):
         """core_rail_metrics_dtype: Core rail metrics."""
-        return self._data.core_rail
+        return self._data["core_rail"].view(_numpy.recarray)
 
     @core_rail.setter
     def core_rail(self, val):
-        self._data.core_rail = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
+        self._data["core_rail"] = val
 
     @property
     def fb_rail(self):
         """rail_metrics_dtype: Fb rail metrics."""
-        return self._data.fb_rail
+        return self._data["fb_rail"].view(_numpy.recarray)
 
     @fb_rail.setter
     def fb_rail(self, val):
-        self._data.fb_rail = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
+        self._data["fb_rail"] = val
 
     @property
     def tgp_pwr_tuple(self):
         """pmgr_pwr_tuple_dtype: Total Graphics Power (TGP) in milliwatts."""
-        return self._data.tgp_pwr_tuple
+        return self._data["tgp_pwr_tuple"].view(_numpy.recarray)
 
     @tgp_pwr_tuple.setter
     def tgp_pwr_tuple(self, val):
-        self._data.tgp_pwr_tuple = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
+        self._data["tgp_pwr_tuple"] = val
 
     @property
     def perf_metrics(self):
         """pwr_model_metrics_dlppm1x_perf_dtype: Performance metrics."""
-        return self._data.perf_metrics
+        return self._data["perf_metrics"].view(_numpy.recarray)
 
     @perf_metrics.setter
     def perf_metrics(self, val):
-        self._data.perf_metrics = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PwrModelMetricsDlppm1x instance is read-only")
+        self._data["perf_metrics"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PwrModelMetricsDlppm1x obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -27488,10 +29274,18 @@ cdef class PwrModelMetricsDlppm1x:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PwrModelMetricsDlppm1x.from_data(self._data[key_:key_+1])
+            obj = PwrModelMetricsDlppm1x.__new__(PwrModelMetricsDlppm1x)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_dlppm1x_dtype:
-            return PwrModelMetricsDlppm1x.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == pwr_model_metrics_dlppm1x_dtype:
+                obj = PwrModelMetricsDlppm1x.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -27516,8 +29310,7 @@ cdef class PwrModelMetricsDlppm1x:
             raise ValueError("data array must be 1D")
         if data.dtype != pwr_model_metrics_dlppm1x_dtype:
             raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=pwr_model_metrics_dlppm1x_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -27537,10 +29330,8 @@ cdef class PwrModelMetricsDlppm1x:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPwrModelMetricsDlppm1x_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -27556,6 +29347,7 @@ cdef _get_perf_metrics_pfpp1x_sample_dtype_offsets():
     })
 
 perf_metrics_pfpp1x_sample_dtype = _get_perf_metrics_pfpp1x_sample_dtype_offsets()
+cdef object perf_metrics_pfpp1x_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metrics_pfpp1x_sample_dtype))
 
 cdef class PerfMetricsPfpp1xSample:
     """Empty-initialize an array of `nvmlPerfMetricsPfpp1xSample_t`.
@@ -27572,8 +29364,7 @@ cdef class PerfMetricsPfpp1xSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_pfpp1x_sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=perf_metrics_pfpp1x_sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsPfpp1xSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsPfpp1xSample_t) }"
 
@@ -27586,17 +29377,17 @@ cdef class PerfMetricsPfpp1xSample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -27616,15 +29407,18 @@ cdef class PerfMetricsPfpp1xSample:
     @property
     def estimated_metrics(self):
         """pwr_model_metrics_pfpp1x_dtype: Estimated metrics from the PFPP 1x controller."""
-        return self._data.estimated_metrics
+        return self._data["estimated_metrics"].view(_numpy.recarray)
 
     @estimated_metrics.setter
     def estimated_metrics(self, val):
-        self._data.estimated_metrics = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricsPfpp1xSample instance is read-only")
+        self._data["estimated_metrics"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PerfMetricsPfpp1xSample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -27632,10 +29426,18 @@ cdef class PerfMetricsPfpp1xSample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PerfMetricsPfpp1xSample.from_data(self._data[key_:key_+1])
+            obj = PerfMetricsPfpp1xSample.__new__(PerfMetricsPfpp1xSample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == perf_metrics_pfpp1x_sample_dtype:
-            return PerfMetricsPfpp1xSample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == perf_metrics_pfpp1x_sample_dtype:
+                obj = PerfMetricsPfpp1xSample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -27660,8 +29462,7 @@ cdef class PerfMetricsPfpp1xSample:
             raise ValueError("data array must be 1D")
         if data.dtype != perf_metrics_pfpp1x_sample_dtype:
             raise ValueError("data array must be of dtype perf_metrics_pfpp1x_sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=perf_metrics_pfpp1x_sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -27681,10 +29482,8 @@ cdef class PerfMetricsPfpp1xSample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPerfMetricsPfpp1xSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_pfpp1x_sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_pfpp1x_sample_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -27701,6 +29500,7 @@ cdef _get_pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_offsets():
     })
 
 pwr_model_metrics_dlppm1x_dramclk_estimates_dtype = _get_pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_offsets()
+cdef object pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_dlppm1x_dramclk_estimates_dtype))
 
 cdef class PwrModelMetricsDlppm1xDramclkEstimates:
     """Empty-initialize an array of `nvmlPwrModelMetricsDlppm1xDramclkEstimates_t`.
@@ -27718,8 +29518,7 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         readonly tuple _estimated_metrics
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t) }"
 
@@ -27732,17 +29531,17 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -27762,6 +29561,19 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
     @property
     def estimated_metrics(self):
         """PwrModelMetricsDlppm1x: Array of estimated metrics for each inference loop."""
+        if self._estimated_metrics is None:
+            estimated_metrics_list = list()
+            estimated_metrics_base = _cyb_array_ptr(self._data)
+            estimated_metrics_offset = pwr_model_metrics_dlppm1x_dramclk_estimates_dtype.fields["estimated_metrics"][1]
+            estimated_metrics_stride = self._data.strides[0]
+            estimated_metrics_readonly = not self._data.flags.writeable
+            estimated_metrics_sizes = self._data["num_estimated_metrics"]
+            for i in range(self._data.size):
+                addr = estimated_metrics_base + i * estimated_metrics_stride + estimated_metrics_offset
+                n = int(estimated_metrics_sizes[i])
+                estimated_metrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=self, readonly=estimated_metrics_readonly)
+                estimated_metrics_list.append(estimated_metrics_obj)
+            self._estimated_metrics = tuple(estimated_metrics_list)
         if self._data.size == 1:
             return self._estimated_metrics[0]
         return self._estimated_metrics
@@ -27769,6 +29581,7 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PwrModelMetricsDlppm1xDramclkEstimates obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -27776,10 +29589,18 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PwrModelMetricsDlppm1xDramclkEstimates.from_data(self._data[key_:key_+1])
+            obj = PwrModelMetricsDlppm1xDramclkEstimates.__new__(PwrModelMetricsDlppm1xDramclkEstimates)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == pwr_model_metrics_dlppm1x_dramclk_estimates_dtype:
-            return PwrModelMetricsDlppm1xDramclkEstimates.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == pwr_model_metrics_dlppm1x_dramclk_estimates_dtype:
+                obj = PwrModelMetricsDlppm1xDramclkEstimates.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -27804,15 +29625,7 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
             raise ValueError("data array must be 1D")
         if data.dtype != pwr_model_metrics_dlppm1x_dramclk_estimates_dtype:
             raise ValueError("data array must be of dtype pwr_model_metrics_dlppm1x_dramclk_estimates_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        estimatedMetrics_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
-            n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=False)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
+        obj._data = data.view(dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -27832,17 +29645,8 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_record)
         obj._owner = owner
-
-        estimatedMetrics_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.estimatedMetrics[i].__array_interface__['data'][0]
-            n = int(obj._data.num_estimated_metrics[i])
-            estimatedMetrics_obj = PwrModelMetricsDlppm1x.from_ptr(addr, n, owner=obj, readonly=readonly)
-            estimatedMetrics_list.append(estimatedMetrics_obj)
-        obj._estimatedMetrics = tuple(estimatedMetrics_list)
         return obj
 
 
@@ -27863,6 +29667,7 @@ cdef _get_observed_metrics_dtype_offsets():
     })
 
 observed_metrics_dtype = _get_observed_metrics_dtype_offsets()
+cdef object observed_metrics_dtype_record = _numpy.dtype((_numpy.record, observed_metrics_dtype))
 
 cdef class ObservedMetrics:
     """Empty-initialize an array of `nvmlObservedMetrics_t`.
@@ -27879,8 +29684,7 @@ cdef class ObservedMetrics:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=observed_metrics_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=observed_metrics_dtype_record)
         assert self._data.itemsize == sizeof(nvmlObservedMetrics_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlObservedMetrics_t) }"
 
@@ -27893,17 +29697,17 @@ cdef class ObservedMetrics:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -27923,62 +29727,75 @@ cdef class ObservedMetrics:
     @property
     def initial_dramclk_est(self):
         """pwr_model_metrics_dlppm1x_dramclk_estimates_dtype: (array of length 3).Initial DRAMCLK estimates for different scenarios."""
-        return self._data.initial_dramclk_est
+        return self._data["initial_dramclk_est"].view(_numpy.recarray)
 
     @initial_dramclk_est.setter
     def initial_dramclk_est(self, val):
-        self._data.initial_dramclk_est = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
+        self._data["initial_dramclk_est"] = val
 
     @property
     def b_valid(self):
         """Union[~_numpy.uint8, int]: Validity flag: non-zero if observed metrics are valid."""
         if self._data.size == 1:
-            return int(self._data.b_valid[0])
-        return self._data.b_valid
+            return int(self._data["b_valid"][0])
+        return self._data["b_valid"]
 
     @b_valid.setter
     def b_valid(self, val):
-        self._data.b_valid = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
+        self._data["b_valid"] = val
 
     @property
     def core_rail(self):
         """core_rail_metrics_dtype: Observed core rail metrics."""
-        return self._data.core_rail
+        return self._data["core_rail"].view(_numpy.recarray)
 
     @core_rail.setter
     def core_rail(self, val):
-        self._data.core_rail = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
+        self._data["core_rail"] = val
 
     @property
     def fb_rail(self):
         """rail_metrics_dtype: Observed fb rail metrics."""
-        return self._data.fb_rail
+        return self._data["fb_rail"].view(_numpy.recarray)
 
     @fb_rail.setter
     def fb_rail(self, val):
-        self._data.fb_rail = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
+        self._data["fb_rail"] = val
 
     @property
     def tgp_pwr_tuple(self):
         """pmgr_pwr_tuple_dtype: Observed Total Graphics Power (TGP) in milliwatts."""
-        return self._data.tgp_pwr_tuple
+        return self._data["tgp_pwr_tuple"].view(_numpy.recarray)
 
     @tgp_pwr_tuple.setter
     def tgp_pwr_tuple(self, val):
-        self._data.tgp_pwr_tuple = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
+        self._data["tgp_pwr_tuple"] = val
 
     @property
     def perf_metrics(self):
         """pwr_model_metrics_dlppm1x_perf_dtype: Observed performance metrics."""
-        return self._data.perf_metrics
+        return self._data["perf_metrics"].view(_numpy.recarray)
 
     @perf_metrics.setter
     def perf_metrics(self, val):
-        self._data.perf_metrics = val
+        if not self._data.flags.writeable:
+            raise ValueError("This ObservedMetrics instance is read-only")
+        self._data["perf_metrics"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef ObservedMetrics obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -27986,10 +29803,18 @@ cdef class ObservedMetrics:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return ObservedMetrics.from_data(self._data[key_:key_+1])
+            obj = ObservedMetrics.__new__(ObservedMetrics)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == observed_metrics_dtype:
-            return ObservedMetrics.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == observed_metrics_dtype:
+                obj = ObservedMetrics.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -28014,8 +29839,7 @@ cdef class ObservedMetrics:
             raise ValueError("data array must be 1D")
         if data.dtype != observed_metrics_dtype:
             raise ValueError("data array must be of dtype observed_metrics_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=observed_metrics_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -28035,10 +29859,8 @@ cdef class ObservedMetrics:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlObservedMetrics_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=observed_metrics_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=observed_metrics_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -28054,6 +29876,7 @@ cdef _get_perf_metrics_dlppc2x_sample_dtype_offsets():
     })
 
 perf_metrics_dlppc2x_sample_dtype = _get_perf_metrics_dlppc2x_sample_dtype_offsets()
+cdef object perf_metrics_dlppc2x_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metrics_dlppc2x_sample_dtype))
 
 cdef class PerfMetricsDlppc2xSample:
     """Empty-initialize an array of `nvmlPerfMetricsDlppc2xSample_t`.
@@ -28070,8 +29893,7 @@ cdef class PerfMetricsDlppc2xSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_dlppc2x_sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=perf_metrics_dlppc2x_sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsDlppc2xSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsDlppc2xSample_t) }"
 
@@ -28084,17 +29906,17 @@ cdef class PerfMetricsDlppc2xSample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -28114,15 +29936,18 @@ cdef class PerfMetricsDlppc2xSample:
     @property
     def observed_metrics(self):
         """observed_metrics_dtype: Observed metrics from the DLPPC 2x controller."""
-        return self._data.observed_metrics
+        return self._data["observed_metrics"].view(_numpy.recarray)
 
     @observed_metrics.setter
     def observed_metrics(self, val):
-        self._data.observed_metrics = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricsDlppc2xSample instance is read-only")
+        self._data["observed_metrics"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PerfMetricsDlppc2xSample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -28130,10 +29955,18 @@ cdef class PerfMetricsDlppc2xSample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PerfMetricsDlppc2xSample.from_data(self._data[key_:key_+1])
+            obj = PerfMetricsDlppc2xSample.__new__(PerfMetricsDlppc2xSample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == perf_metrics_dlppc2x_sample_dtype:
-            return PerfMetricsDlppc2xSample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == perf_metrics_dlppc2x_sample_dtype:
+                obj = PerfMetricsDlppc2xSample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -28158,8 +29991,7 @@ cdef class PerfMetricsDlppc2xSample:
             raise ValueError("data array must be 1D")
         if data.dtype != perf_metrics_dlppc2x_sample_dtype:
             raise ValueError("data array must be of dtype perf_metrics_dlppc2x_sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=perf_metrics_dlppc2x_sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -28179,10 +30011,8 @@ cdef class PerfMetricsDlppc2xSample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPerfMetricsDlppc2xSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_dlppc2x_sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_dlppc2x_sample_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -28208,24 +30038,24 @@ cdef class _py_anon_pod8:
     """
     cdef:
         cuda_bindings_nvml__anon_pod8 *_ptr
-        _cyb_PyObject *_owner
+        object _owner
+        bint _owns_ptr
         bint _readonly
 
     def __init__(self):
         self._ptr = <cuda_bindings_nvml__anon_pod8 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod8))
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod8")
-        self._owner = NULL
+        self._owns_ptr = True
+        self._owner = None
         self._readonly = False
 
     def __dealloc__(self):
         cdef cuda_bindings_nvml__anon_pod8 *ptr
-        if self._owner == NULL and self._ptr != NULL:
+        if self._owns_ptr and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             _cyb_free(ptr)
-        _cyb_Py_CLEAR(self._owner)
-        self._owner = NULL
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod8 object at {hex(id(self))}>"
@@ -28337,11 +30167,12 @@ cdef class _py_anon_pod8:
             if obj._ptr == NULL:
                 raise MemoryError("Error allocating _py_anon_pod8")
             _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_nvml__anon_pod8))
-            obj._owner = NULL
+            obj._owns_ptr = True
+            obj._owner = None
         else:
             obj._ptr = <cuda_bindings_nvml__anon_pod8 *>ptr
-            obj._owner = <_cyb_PyObject *>owner
-            _cyb_Py_XINCREF(obj._owner)
+            obj._owns_ptr = False
+            obj._owner = owner
         obj._readonly = readonly
         return obj
 
@@ -28359,6 +30190,7 @@ cdef _get_perf_metric_controller_sample_dtype_offsets():
     })
 
 perf_metric_controller_sample_dtype = _get_perf_metric_controller_sample_dtype_offsets()
+cdef object perf_metric_controller_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metric_controller_sample_dtype))
 
 cdef class PerfMetricControllerSample:
     """Empty-initialize an array of `nvmlPerfMetricControllerSample_t`.
@@ -28375,8 +30207,7 @@ cdef class PerfMetricControllerSample:
         object _owner
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metric_controller_sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=perf_metric_controller_sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPerfMetricControllerSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricControllerSample_t) }"
 
@@ -28389,17 +30220,17 @@ cdef class PerfMetricControllerSample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -28420,25 +30251,30 @@ cdef class PerfMetricControllerSample:
     def controller_type(self):
         """Union[~_numpy.uint32, int]: Controller type: NVML_PERF_METRICS_CONTROLLER_TYPE_DLPPC_2X or NVML_PERF_METRICS_CONTROLLER_TYPE_PFPP_1X."""
         if self._data.size == 1:
-            return int(self._data.controller_type[0])
-        return self._data.controller_type
+            return int(self._data["controller_type"][0])
+        return self._data["controller_type"]
 
     @controller_type.setter
     def controller_type(self, val):
-        self._data.controller_type = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricControllerSample instance is read-only")
+        self._data["controller_type"] = val
 
     @property
     def data_(self):
         """_py_anon_pod8_dtype: Union containing controller-specific data."""
-        return self._data.data_
+        return self._data["data_"].view(_numpy.recarray)
 
     @data_.setter
     def data_(self, val):
-        self._data.data_ = val
+        if not self._data.flags.writeable:
+            raise ValueError("This PerfMetricControllerSample instance is read-only")
+        self._data["data_"] = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PerfMetricControllerSample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -28446,10 +30282,18 @@ cdef class PerfMetricControllerSample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PerfMetricControllerSample.from_data(self._data[key_:key_+1])
+            obj = PerfMetricControllerSample.__new__(PerfMetricControllerSample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == perf_metric_controller_sample_dtype:
-            return PerfMetricControllerSample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == perf_metric_controller_sample_dtype:
+                obj = PerfMetricControllerSample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -28474,8 +30318,7 @@ cdef class PerfMetricControllerSample:
             raise ValueError("data array must be 1D")
         if data.dtype != perf_metric_controller_sample_dtype:
             raise ValueError("data array must be of dtype perf_metric_controller_sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
+        obj._data = data.view(dtype=perf_metric_controller_sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -28495,10 +30338,8 @@ cdef class PerfMetricControllerSample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPerfMetricControllerSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=perf_metric_controller_sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=perf_metric_controller_sample_dtype_record)
         obj._owner = owner
-
         return obj
 
 
@@ -28515,6 +30356,7 @@ cdef _get_perf_metrics_sample_dtype_offsets():
     })
 
 perf_metrics_sample_dtype = _get_perf_metrics_sample_dtype_offsets()
+cdef object perf_metrics_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metrics_sample_dtype))
 
 cdef class PerfMetricsSample:
     """Empty-initialize an array of `nvmlPerfMetricsSample_t`.
@@ -28532,8 +30374,7 @@ cdef class PerfMetricsSample:
         readonly tuple _controller_data
 
     def __init__(self, size=1):
-        arr = _numpy.empty(size, dtype=perf_metrics_sample_dtype)
-        self._data = arr.view(_numpy.recarray)
+        self._data = _numpy.zeros(size, dtype=perf_metrics_sample_dtype_record)
         assert self._data.itemsize == sizeof(nvmlPerfMetricsSample_t), \
             f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlPerfMetricsSample_t) }"
 
@@ -28546,17 +30387,17 @@ cdef class PerfMetricsSample:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
         if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
             raise TypeError("int() argument must be a bytes-like object of size 1, or a "
                             "C-contiguous array. To get the pointer address of a "
                             "non-contiguous array, use .ptr")
-        return self._data.ctypes.data
+        return _cyb_array_ptr(self._data)
 
     def __len__(self):
         return self._data.size
@@ -28576,6 +30417,19 @@ cdef class PerfMetricsSample:
     @property
     def controller_data(self):
         """PerfMetricControllerSample: Array of controller samples."""
+        if self._controller_data is None:
+            controller_data_list = list()
+            controller_data_base = _cyb_array_ptr(self._data)
+            controller_data_offset = perf_metrics_sample_dtype.fields["controller_data"][1]
+            controller_data_stride = self._data.strides[0]
+            controller_data_readonly = not self._data.flags.writeable
+            controller_data_sizes = self._data["num_controller_data"]
+            for i in range(self._data.size):
+                addr = controller_data_base + i * controller_data_stride + controller_data_offset
+                n = int(controller_data_sizes[i])
+                controller_data_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=self, readonly=controller_data_readonly)
+                controller_data_list.append(controller_data_obj)
+            self._controller_data = tuple(controller_data_list)
         if self._data.size == 1:
             return self._controller_data[0]
         return self._controller_data
@@ -28583,6 +30437,7 @@ cdef class PerfMetricsSample:
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
+        cdef PerfMetricsSample obj
         if isinstance(key, int):
             key_ = key
             size = self._data.size
@@ -28590,10 +30445,18 @@ cdef class PerfMetricsSample:
                 raise IndexError("index is out of bounds")
             if key_ < 0:
                 key_ += size
-            return PerfMetricsSample.from_data(self._data[key_:key_+1])
+            obj = PerfMetricsSample.__new__(PerfMetricsSample)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
         out = self._data[key]
-        if isinstance(out, _numpy.recarray) and out.dtype == perf_metrics_sample_dtype:
-            return PerfMetricsSample.from_data(out)
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == perf_metrics_sample_dtype:
+                obj = PerfMetricsSample.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
         return out
 
     def __setitem__(self, key, val):
@@ -28618,15 +30481,7 @@ cdef class PerfMetricsSample:
             raise ValueError("data array must be 1D")
         if data.dtype != perf_metrics_sample_dtype:
             raise ValueError("data array must be of dtype perf_metrics_sample_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        controllerData_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.controllerData[i].__array_interface__['data'][0]
-            n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=False)
-            controllerData_list.append(controllerData_obj)
-        obj._controllerData = tuple(controllerData_list)
+        obj._data = data.view(dtype=perf_metrics_sample_dtype_record, type=_numpy.ndarray)
         return obj
 
     @staticmethod
@@ -28646,17 +30501,8 @@ cdef class PerfMetricsSample:
         cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
         cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(nvmlPerfMetricsSample_t) * size, flag)
-        data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_sample_dtype)
-        obj._data = data.view(_numpy.recarray)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=perf_metrics_sample_dtype_record)
         obj._owner = owner
-
-        controllerData_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.controllerData[i].__array_interface__['data'][0]
-            n = int(obj._data.num_controller_data[i])
-            controllerData_obj = PerfMetricControllerSample.from_ptr(addr, n, owner=obj, readonly=readonly)
-            controllerData_list.append(controllerData_obj)
-        obj._controllerData = tuple(controllerData_list)
         return obj
 
 
@@ -28808,6 +30654,10 @@ cpdef init_v2():
     For all products.
 
     .. note::
+        With the environment variable ``NVML_MPS_DEVICE_ENUMERATION`` set to 1, this
+        API selects the MPS locality-domain view described in ``MPS Locality Domain
+        Device Enumeration``.
+    .. note::
         A reference count of the number of initializations is maintained, and a
         corresponding call to :func:`shutdown` needs to be issued once usage of the
         NVML Library is complete. Shutdown will only occur after the reference count
@@ -28836,6 +30686,10 @@ cpdef init_with_flags(unsigned int flags):
             Init behavior.
 
     .. note::
+        With the environment variable ``NVML_MPS_DEVICE_ENUMERATION`` set to 1, this
+        API selects the MPS locality-domain view. ``NVML_INIT_FLAG_NO_ATTACH`` is not
+        supported in that view. See ``MPS Locality Domain Device Enumeration``.
+    .. note::
         A reference count of the number of initializations is maintained, and a
         corresponding call to :func:`shutdown` needs to be issued once usage of the
         NVML Library is complete. Shutdown will only occur after the reference count
@@ -28859,6 +30713,9 @@ cpdef shutdown():
     times than :func:`init_v2` or :func:`init_with_flags`.
     For all products.
 
+    .. note::
+        The final matching shutdown releases the process-local MPS locality-domain view
+        described in ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlShutdown`
     """
     with nogil:
@@ -28874,6 +30731,9 @@ cpdef str error_string(int result):
     Args:
         result (Return): NVML error code to convert.
 
+    .. note::
+        This helper is available in the MPS locality-domain view described in ``MPS
+        Locality Domain Device Enumeration``.
     .. seealso:: `nvmlErrorString`
     """
     cdef const char *_output_cstr_
@@ -28893,7 +30753,7 @@ cpdef str system_get_driver_version():
     nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
 
     Returns:
-        char: Reference in which to return the version identifier.
+        str: Reference in which to return the version identifier.
 
     .. seealso:: `nvmlSystemGetDriverVersion`
     """
@@ -28909,13 +30769,15 @@ cpdef str system_get_nvml_version():
     """Retrieves the version of the NVML library.
 
     For all products.
-    The version identifier is an alphanumeric string. It will not exceed 80
-    characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
 
     Returns:
-        char: Reference in which to return the version identifier.
+        str: Reference in which to return the version identifier.
 
+    .. note::
+        This query is available in the MPS locality-domain view described in ``MPS
+        Locality Domain Device Enumeration``. The version identifier is an alphanumeric
+        string. It will not exceed 80 characters in length (including the NULL
+        terminator). See nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
     .. seealso:: `nvmlSystemGetNVMLVersion`
     """
     cdef unsigned int length = 80
@@ -28930,7 +30792,7 @@ cpdef int system_get_cuda_driver_version() except *:
     """Retrieves the version of the CUDA driver.
 
     For all products.
-    The CUDA driver version returned will be retreived from the currently installed
+    The CUDA driver version returned will be retrieved from the currently installed
     version of CUDA. If the cuda library is not found, this function will return a
     known supported version number.
 
@@ -28975,7 +30837,7 @@ cpdef str system_get_process_name(unsigned int pid):
         pid (unsigned int): The identifier of the process.
 
     Returns:
-        char: Reference in which to return the process name.
+        str: Reference in which to return the process name.
 
     .. seealso:: `nvmlSystemGetProcessName`
     """
@@ -29242,6 +31104,10 @@ cpdef unsigned int device_get_count_v2() except? 0:
         unsigned int: Reference in which to return the number of
             accessible devices.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the number of MPS-reported
+        device entries. Each locality domain has its own NVML index and
+        ``nvmlDevice_t`` handle. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetCount_v2`
     """
     cdef unsigned int device_count
@@ -29311,6 +31177,9 @@ cpdef intptr_t device_get_handle_by_index_v2(unsigned int index) except? 0:
     Returns:
         intptr_t: Reference in which to return the device handle.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the locality-domain handle
+        associated with ``index``. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetHandleByIndex_v2`
     """
     cdef Device device
@@ -29363,6 +31232,10 @@ cpdef intptr_t device_get_handle_by_uuid(uuid) except? 0:
         intptr_t: Reference in which to return the device handle or MIG
             device handle.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the locality-domain handle
+        whose MPS-provided UUID matches ``uuid``. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetHandleByUUID`
     """
     if not isinstance(uuid, str):
@@ -29399,6 +31272,11 @@ cpdef intptr_t device_get_handle_by_pci_bus_id_v2(pci_bus_id) except? 0:
     .. note::
         NVML 4.304 and older version of nvmlDeviceGetHandleByPciBusId"_v1" returns
         NVML_ERROR_NOT_FOUND instead of NVML_ERROR_NO_PERMISSION.
+    .. note::
+        In the MPS locality-domain view, multiple locality domains can share a PCI bus
+        ID. This API returns the first matching handle in NVML enumeration order. Use
+        UUID or index to select a specific locality domain. See ``MPS Locality Domain
+        Device Enumeration``.
     .. seealso:: `nvmlDeviceGetHandleByPciBusId_v2`
     """
     if not isinstance(pci_bus_id, str):
@@ -29426,8 +31304,11 @@ cpdef str device_get_name(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the product name.
+        str: Reference in which to return the product name.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the name supplied by MPS for
+        the locality domain. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetName`
     """
     cdef unsigned int length = 96
@@ -29483,6 +31364,9 @@ cpdef unsigned int device_get_index(intptr_t device) except? 0:
         unsigned int: Reference in which to return the NVML index of the
             device.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the NVML index of the
+        locality-domain handle. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetIndex`
     """
     cdef unsigned int index
@@ -29505,7 +31389,7 @@ cpdef str device_get_serial(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the board/module serial number.
+        str: Reference in which to return the board/module serial number.
 
     .. seealso:: `nvmlDeviceGetSerial`
     """
@@ -29636,6 +31520,10 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
             CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on
             32-bit machines.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the CPU affinity of the
+        physical parent associated with the locality-domain handle. See ``MPS Locality
+        Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
     cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
@@ -29687,6 +31575,9 @@ cpdef unsigned int device_get_numa_node_id(intptr_t device) except? 0:
     Returns:
         unsigned int: NUMA node ID of the device.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the NUMA node supplied by MPS
+        for the locality domain. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetNumaNodeId`
     """
     cdef unsigned int node
@@ -29758,6 +31649,10 @@ cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_inde
         int: Reference in which to return the status of the ``p2p_index``
             between ``device1`` and ``device2``.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the directed P2P status
+        supplied by MPS for the two locality-domain handles. See ``MPS Locality Domain
+        Device Enumeration``.
     .. seealso:: `nvmlDeviceGetP2PStatus`
     """
     cdef _GpuP2PStatus p2p_status
@@ -29783,8 +31678,11 @@ cpdef str device_get_uuid(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the GPU UUID.
+        str: Reference in which to return the GPU UUID.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the UUID supplied by MPS for
+        the locality domain. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetUUID`
     """
     cdef unsigned int length = 96
@@ -29825,7 +31723,7 @@ cpdef str device_get_board_part_number(intptr_t device):
         device (intptr_t): Identifier of the target device.
 
     Returns:
-        char: Reference to the buffer to return.
+        str: Reference to the buffer to return.
 
     .. seealso:: `nvmlDeviceGetBoardPartNumber`
     """
@@ -29853,7 +31751,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
         object (InforomObject): The target infoROM object.
 
     Returns:
-        char: Reference in which to return the infoROM version.
+        str: Reference in which to return the infoROM version.
 
     .. seealso:: `nvmlDeviceGetInforomVersion`
     """
@@ -29879,7 +31777,7 @@ cpdef str device_get_inforom_image_version(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference in which to return the infoROM image version.
+        str: Reference in which to return the infoROM image version.
 
     .. seealso:: `nvmlDeviceGetInforomImageVersion`
     """
@@ -30061,6 +31959,11 @@ cpdef object device_get_pci_info_v3(intptr_t device):
     Returns:
         nvmlPciInfo_t: Reference in which to return the PCI info.
 
+    .. note::
+        In the MPS locality-domain view, this API and its v1 and v2 variants return the
+        PCI attributes supplied by MPS. Multiple locality domains can report the same
+        physical parent's PCI attributes. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetPciInfo_v3`
     """
     cdef PciInfo pci_py = PciInfo()
@@ -30853,7 +32756,7 @@ cpdef device_set_clock_offsets(intptr_t device, info):
 
     .. seealso:: `nvmlDeviceSetClockOffsets`
     """
-    cdef intptr_t _info_ptr_ = int(info)
+    cdef intptr_t _info_ptr_ = 0 if info is None else int(info)
     with nogil:
         __status__ = nvmlDeviceSetClockOffsets(<Device>device, <nvmlClockOffset_t*>_info_ptr_)
     check_status(__status__)
@@ -31064,6 +32967,10 @@ cpdef object device_get_memory_info_v2(intptr_t device):
         On certain SOC platforms, the integrated GPU (iGPU) does not use a dedicated
         framebuffer but instead shares memory with the system. As a result,
         ``NVML_ERROR_NOT_SUPPORTED`` will be returned in this case.
+    .. note::
+        In the MPS locality-domain view, this API returns MPS-provided total, used,
+        free, and reserved memory for the locality domain. See ``MPS Locality Domain
+        Device Enumeration``.
     .. seealso:: `nvmlDeviceGetMemoryInfo_v2`
     """
     cdef Memory_v2 memory_py = Memory_v2()
@@ -31119,6 +33026,10 @@ cpdef tuple device_get_cuda_compute_capability(intptr_t device):
         - int: Reference in which to return the minor CUDA compute
                 capability.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the compute capability
+        supplied by MPS for the locality domain. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetCudaComputeCapability`
     """
     cdef int major
@@ -31619,7 +33530,7 @@ cpdef str device_get_vbios_version(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Reference to which to return the VBIOS version.
+        str: Reference to which to return the VBIOS version.
 
     .. seealso:: `nvmlDeviceGetVbiosVersion`
     """
@@ -32058,7 +33969,7 @@ cpdef unsigned int device_get_bus_type(intptr_t device) except? 0:
 
     return.
 
-    - ``NVML_SUCCESS`` if the bus ``type`` is successfully retreived.
+    - ``NVML_SUCCESS`` if the bus ``type`` is successfully retrieved.
     - ``NVML_ERROR_UNINITIALIZED`` if the library has not been successfully
       initialized.
     - ``NVML_ERROR_INVALID_ARGUMENT`` if ``device`` is invalid or ``type`` is NULL.
@@ -32358,6 +34269,10 @@ cpdef int device_get_accounting_mode(intptr_t device) except? -1:
     Returns:
         int: Reference in which to return the current accounting mode.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the physical parent's
+        accounting mode as reported by MPS. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetAccountingMode`
     """
     cdef _EnableState mode
@@ -33402,7 +35317,7 @@ cpdef device_set_nvlink_bw_mode(intptr_t device, set_bw_mode):
 
     .. seealso:: `nvmlDeviceSetNvlinkBwMode`
     """
-    cdef intptr_t _set_bw_mode_ptr_ = int(set_bw_mode)
+    cdef intptr_t _set_bw_mode_ptr_ = 0 if set_bw_mode is None else int(set_bw_mode)
     set_bw_mode.version = NVML_VERSION_STRUCT(sizeof(nvmlNvlinkSetBwMode_v1_t), 1)
     with nogil:
         __status__ = nvmlDeviceSetNvlinkBwMode(<Device>device, <nvmlNvlinkSetBwMode_t*>_set_bw_mode_ptr_)
@@ -33545,7 +35460,7 @@ cpdef device_modify_drain_state(pci_info, int new_state):
 
     .. seealso:: `nvmlDeviceModifyDrainState`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceModifyDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, <_EnableState>new_state)
     check_status(__status__)
@@ -33566,7 +35481,7 @@ cpdef int device_query_drain_state(pci_info) except? -1:
 
     .. seealso:: `nvmlDeviceQueryDrainState`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     cdef _EnableState current_state
     with nogil:
         __status__ = nvmlDeviceQueryDrainState(<nvmlPciInfo_t*>_pci_info_ptr_, &current_state)
@@ -33593,7 +35508,7 @@ cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state):
 
     .. seealso:: `nvmlDeviceRemoveGpu_v2`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceRemoveGpu_v2(<nvmlPciInfo_t*>_pci_info_ptr_, <_DetachGpuState>gpu_state, <_PcieLinkState>link_state)
     check_status(__status__)
@@ -33614,7 +35529,7 @@ cpdef device_discover_gpus(pci_info):
 
     .. seealso:: `nvmlDeviceDiscoverGpus`
     """
-    cdef intptr_t _pci_info_ptr_ = int(pci_info)
+    cdef intptr_t _pci_info_ptr_ = 0 if pci_info is None else int(pci_info)
     with nogil:
         __status__ = nvmlDeviceDiscoverGpus(<nvmlPciInfo_t*>_pci_info_ptr_)
     check_status(__status__)
@@ -33904,7 +35819,7 @@ cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        char: Pointer to string array to return class in.
+        str: Pointer to string array to return class in.
 
     .. seealso:: `nvmlVgpuTypeGetClass`
     """
@@ -34047,7 +35962,7 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
         vgpu_type_id (unsigned int): Handle to vGPU type.
 
     Returns:
-        char: Pointer to buffer to return license info.
+        str: Pointer to buffer to return license info.
 
     .. seealso:: `nvmlVgpuTypeGetLicense`
     """
@@ -34199,7 +36114,7 @@ cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
 
     Returns:
         A 2-tuple containing:
-        - char: Pointer to caller-supplied buffer to hold VM ID.
+        - str: Pointer to caller-supplied buffer to hold VM ID.
         - int: Pointer to hold VM ID type.
 
     .. seealso:: `nvmlVgpuInstanceGetVmID`
@@ -34227,7 +36142,7 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Pointer to caller-supplied buffer to hold vGPU UUID.
+        str: Pointer to caller-supplied buffer to hold vGPU UUID.
 
     .. seealso:: `nvmlVgpuInstanceGetUUID`
     """
@@ -34257,7 +36172,7 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Caller-supplied buffer to return driver version string.
+        str: Caller-supplied buffer to return driver version string.
 
     .. seealso:: `nvmlVgpuInstanceGetVmDriverVersion`
     """
@@ -34584,7 +36499,7 @@ cpdef str vgpu_instance_get_gpu_pci_id(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Caller-supplied buffer to return vGPU PCI Id string.
+        str: Caller-supplied buffer to return vGPU PCI Id string.
 
     .. seealso:: `nvmlVgpuInstanceGetGpuPciId`
     """
@@ -34638,7 +36553,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
             instance.
 
     Returns:
-        char: Pointer to caller-supplied buffer to hold MDEV UUID.
+        str: Pointer to caller-supplied buffer to hold MDEV UUID.
 
     .. seealso:: `nvmlVgpuInstanceGetMdevUUID`
     """
@@ -34668,7 +36583,9 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, p_scheduler):
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState`
     """
-    cdef intptr_t _p_scheduler_ptr_ = int(p_scheduler)
+    cdef intptr_t _p_scheduler_ptr_ = 0 if p_scheduler is None else int(p_scheduler)
+    if _p_scheduler_ptr_ == 0:
+        raise ValueError("p_scheduler must not be None")
     (<nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_).version = NVML_VERSION_STRUCT(sizeof(nvmlVgpuSchedulerState_v1_t), 1)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_t*>_p_scheduler_ptr_)
@@ -34734,7 +36651,7 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
         device (intptr_t): The identifier of the target device.
 
     Returns:
-        char: Pointer to caller-supplied buffer into which
+        str: Pointer to caller-supplied buffer into which
             ``pgpu_metadata`` is written.
 
     .. seealso:: `nvmlDeviceGetPgpuMetadataString`
@@ -34894,7 +36811,7 @@ cpdef set_vgpu_version(vgpu_version):
         the NVIDIA vGPU Manager supports. Otherwise, an error is returned.
     .. seealso:: `nvmlSetVgpuVersion`
     """
-    cdef intptr_t _vgpu_version_ptr_ = int(vgpu_version)
+    cdef intptr_t _vgpu_version_ptr_ = 0 if vgpu_version is None else int(vgpu_version)
     with nogil:
         __status__ = nvmlSetVgpuVersion(<nvmlVgpuVersion_t*>_vgpu_version_ptr_)
     check_status(__status__)
@@ -35377,7 +37294,7 @@ cpdef intptr_t device_create_gpu_instance_with_placement(intptr_t device, unsign
 
     .. seealso:: `nvmlDeviceCreateGpuInstanceWithPlacement`
     """
-    cdef intptr_t _placement_ptr_ = int(placement)
+    cdef intptr_t _placement_ptr_ = 0 if placement is None else int(placement)
     cdef GpuInstance gpu_instance
     with nogil:
         __status__ = nvmlDeviceCreateGpuInstanceWithPlacement(<Device>device, profile_id, <const nvmlGpuInstancePlacement_t*>_placement_ptr_, &gpu_instance)
@@ -35585,7 +37502,7 @@ cpdef intptr_t gpu_instance_create_compute_instance_with_placement(intptr_t gpu_
 
     .. seealso:: `nvmlGpuInstanceCreateComputeInstanceWithPlacement`
     """
-    cdef intptr_t _placement_ptr_ = int(placement)
+    cdef intptr_t _placement_ptr_ = 0 if placement is None else int(placement)
     cdef ComputeInstance compute_instance
     with nogil:
         __status__ = nvmlGpuInstanceCreateComputeInstanceWithPlacement(<GpuInstance>gpu_instance, profile_id, <const nvmlComputeInstancePlacement_t*>_placement_ptr_, &compute_instance)
@@ -35926,7 +37843,7 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, power_mizer_mode):
 
     .. seealso:: `nvmlDeviceSetPowerMizerMode_v1`
     """
-    cdef intptr_t _power_mizer_mode_ptr_ = int(power_mizer_mode)
+    cdef intptr_t _power_mizer_mode_ptr_ = 0 if power_mizer_mode is None else int(power_mizer_mode)
     with nogil:
         __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>_power_mizer_mode_ptr_)
     check_status(__status__)
@@ -36059,7 +37976,7 @@ cpdef device_set_vgpu_scheduler_state_v2(intptr_t device, p_scheduler_state):
 
     .. seealso:: `nvmlDeviceSetVgpuSchedulerState_v2`
     """
-    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
+    cdef intptr_t _p_scheduler_state_ptr_ = 0 if p_scheduler_state is None else int(p_scheduler_state)
     with nogil:
         __status__ = nvmlDeviceSetVgpuSchedulerState_v2(<Device>device, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
@@ -36081,7 +37998,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state_v2(intptr_t gpu_instance, p_schedule
 
     .. seealso:: `nvmlGpuInstanceSetVgpuSchedulerState_v2`
     """
-    cdef intptr_t _p_scheduler_state_ptr_ = int(p_scheduler_state)
+    cdef intptr_t _p_scheduler_state_ptr_ = 0 if p_scheduler_state is None else int(p_scheduler_state)
     with nogil:
         __status__ = nvmlGpuInstanceSetVgpuSchedulerState_v2(<GpuInstance>gpu_instance, <nvmlVgpuSchedulerState_v2_t*>_p_scheduler_state_ptr_)
     check_status(__status__)
@@ -36274,7 +38191,7 @@ cpdef device_set_memory_limits_v1(intptr_t device, limits):
         MIG handles are not supported.
     .. seealso:: `nvmlDeviceSetMemoryLimits_v1`
     """
-    cdef intptr_t _limits_ptr_ = int(limits)
+    cdef intptr_t _limits_ptr_ = 0 if limits is None else int(limits)
     with nogil:
         __status__ = nvmlDeviceSetMemoryLimits_v1(<Device>device, <nvmlSetMemoryLimits_v1_t*>_limits_ptr_)
     check_status(__status__)
@@ -36435,7 +38352,7 @@ cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, config):
 
     .. seealso:: `nvmlEventSetRegisterGpuOperationalEvents_v1`
     """
-    cdef intptr_t _config_ptr_ = int(config)
+    cdef intptr_t _config_ptr_ = 0 if config is None else int(config)
     with nogil:
         __status__ = nvmlEventSetRegisterGpuOperationalEvents_v1(<EventSet>event_set, <const nvmlGpuOperationalEventConfig_v1_t*>_config_ptr_)
     check_status(__status__)
@@ -36478,7 +38395,7 @@ cpdef object device_get_bank_remapper_status_v1(intptr_t device):
 
     Returns:
         nvmlEccBankRemapperStatus_v1_t: Reference to
-            ``nvmlEccBankRemapperStatus_t``.
+            ``nvmlEccBankRemapperStatus_v1_t``.
 
     .. seealso:: `nvmlDeviceGetBankRemapperStatus_v1`
     """
@@ -36488,6 +38405,174 @@ cpdef object device_get_bank_remapper_status_v1(intptr_t device):
         __status__ = nvmlDeviceGetBankRemapperStatus_v1(<Device>device, p_bank_remapper_status)
     check_status(__status__)
     return p_bank_remapper_status_py
+
+
+cpdef object device_get_gpu_uptime_v1(intptr_t device):
+    """Retrieves the GPU uptime. The uptime denotes the number of seconds elapsed since the GPU was initialized by the driver. The uptime resets to zero on a host reboot, driver unload/reload, or a GPU reset.
+
+    For MIG device handles, the parent GPU uptime is returned.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlGpuUptime_v1_t: Reference in which to return the GPU uptime.
+
+    .. seealso:: `nvmlDeviceGetGpuUptime_v1`
+    """
+    cdef GpuUptime_v1 uptime_py = GpuUptime_v1()
+    cdef nvmlGpuUptime_v1_t *uptime = <nvmlGpuUptime_v1_t *><intptr_t>(uptime_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetGpuUptime_v1(<Device>device, uptime)
+    check_status(__status__)
+    return uptime_py
+
+
+cpdef object system_get_conf_compute_settings_v2():
+    """Get Conf Computing System Settings, version 2.
+
+    Returns everything ``nvmlSystemGetConfComputeSettings`` reports, plus the TDISP
+    state of the GPUs in ``tdispState``.
+    All GPUs, and therefore all TDIs, are expected to be in the same state. If they
+    are not, the system level state is ambiguous and NVML_ERROR_UNKNOWN is
+    returned.
+    For Hopper ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
+
+    Returns:
+        nvmlSystemConfComputeSettings_v2_t: System CC settings.
+
+    .. seealso:: `nvmlSystemGetConfComputeSettings_v2`
+    """
+    cdef SystemConfComputeSettings_v2 settings_py = SystemConfComputeSettings_v2()
+    cdef nvmlSystemConfComputeSettings_v2_t *settings = <nvmlSystemConfComputeSettings_v2_t *><intptr_t>(settings_py._get_ptr())
+    settings.version = NVML_VERSION_STRUCT(sizeof(nvmlSystemConfComputeSettings_v2_t), 2)
+    with nogil:
+        __status__ = nvmlSystemGetConfComputeSettings_v2(settings)
+    check_status(__status__)
+    return settings_py
+
+
+cpdef object device_get_nvlink_info_v3(intptr_t device):
+    """Query NVLINK information associated with this device (v3).
+
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvLinkInfo_v3_t: Reference to ``nvmlNvLinkInfo_v3_t``.
+
+    .. seealso:: `nvmlDeviceGetNvLinkInfo_v3`
+    """
+    cdef NvLinkInfo_v3 info_py = NvLinkInfo_v3()
+    cdef nvmlNvLinkInfo_v3_t *info = <nvmlNvLinkInfo_v3_t *><intptr_t>(info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetNvLinkInfo_v3(<Device>device, info)
+    check_status(__status__)
+    return info_py
+
+
+cpdef object device_get_nvlink_remap_table_info_v1(intptr_t device):
+    """Get the NVLink remap table information.
+
+    This API returns the remap table addresses for all the entries in the FLA and
+    SPA/GPA remap tables.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvlinkGetRemapTableInfo_v1_t: Reference to
+            ``nvmlNvlinkGetRemapTableInfo_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceGetNvlinkRemapTableInfo_v1`
+    """
+    cdef NvlinkGetRemapTableInfo_v1 remap_table_info_py = NvlinkGetRemapTableInfo_v1()
+    cdef nvmlNvlinkGetRemapTableInfo_v1_t *remap_table_info = <nvmlNvlinkGetRemapTableInfo_v1_t *><intptr_t>(remap_table_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetNvlinkRemapTableInfo_v1(<Device>device, remap_table_info)
+    check_status(__status__)
+    return remap_table_info_py
+
+
+cpdef device_set_nvlink_nvle_ready_v1(intptr_t device, set_nvle_ready):
+    """Set the NVLink NVLE ready state.
+
+    This API signals whether NVLE (NVLink Encryption) is ready on the given device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        set_nvle_ready (intptr_t): Reference to
+            ``nvmlNvlinkSetNvleReady_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceSetNvlinkNvleReady_v1`
+    """
+    cdef intptr_t _set_nvle_ready_ptr_ = 0 if set_nvle_ready is None else int(set_nvle_ready)
+    with nogil:
+        __status__ = nvmlDeviceSetNvlinkNvleReady_v1(<Device>device, <nvmlNvlinkSetNvleReady_v1_t*>_set_nvle_ready_ptr_)
+    check_status(__status__)
+
+
+cpdef device_lock_nvlink_remap_table_v1(intptr_t device, remap_table_lock_info):
+    """Lock the NVLink remap table to prevent MSE from making further updates.
+
+    This API requests to lock the remap table to prevent MSE (Multi-Socket Engine)
+    from making any further updates to the remap table for the given links.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        remap_table_lock_info (intptr_t): Reference to
+            ``nvmlNvlinkLockRemapTable_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceLockNvlinkRemapTable_v1`
+    """
+    cdef intptr_t _remap_table_lock_info_ptr_ = 0 if remap_table_lock_info is None else int(remap_table_lock_info)
+    with nogil:
+        __status__ = nvmlDeviceLockNvlinkRemapTable_v1(<Device>device, <nvmlNvlinkLockRemapTable_v1_t*>_remap_table_lock_info_ptr_)
+    check_status(__status__)
+
+
+cpdef device_setup_nvlink_nvle_encryption_key_v1(intptr_t device, encryption_key):
+    """Setup the NVLink NVLE encryption key.
+
+    This API sets the NVLE encryption key between GPUs with the given ALIDs.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        encryption_key (intptr_t): Reference to
+            ``nvmlNvlinkSetupNvleEncryptionKey_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceSetupNvlinkNvleEncryptionKey_v1`
+    """
+    cdef intptr_t _encryption_key_ptr_ = 0 if encryption_key is None else int(encryption_key)
+    with nogil:
+        __status__ = nvmlDeviceSetupNvlinkNvleEncryptionKey_v1(<Device>device, <nvmlNvlinkSetupNvleEncryptionKey_v1_t*>_encryption_key_ptr_)
+    check_status(__status__)
+
+
+cpdef object device_get_nvlink_nvle_private_info_v1(intptr_t device):
+    """Get NVLink NVLE private (opaque) information.
+
+    This API retrieves opaque NVLE private information for the given device and
+    copies it into the ``data`` buffer, setting ``size`` to the number of bytes
+    written.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvlinkNvlePrivateInfo_v1_t: Reference to
+            ``nvmlNvlinkNvlePrivateInfo_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceGetNvlinkNvlePrivateInfo_v1`
+    """
+    cdef NvlinkNvlePrivateInfo_v1 private_info_py = NvlinkNvlePrivateInfo_v1()
+    cdef nvmlNvlinkNvlePrivateInfo_v1_t *private_info = <nvmlNvlinkNvlePrivateInfo_v1_t *><intptr_t>(private_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetNvlinkNvlePrivateInfo_v1(<Device>device, private_info)
+    check_status(__status__)
+    return private_info_py
 
 
 cpdef str system_get_driver_branch():
@@ -36674,6 +38759,7 @@ cdef FieldValue _cast_field_values(values):
             values_[i].scope_id = v[1]
         elif isinstance(v, int):
             values_[i].field_id = v
+            values_[i].scope_id = 0
         else:
             raise ValueError("Each entry must be an integer field ID, or a tuple of (field ID, scope ID)")
     return values_
@@ -36686,6 +38772,8 @@ cpdef object device_get_field_values(intptr_t device, values):
         device (intptr_t): The device handle of the GPU to request field values for.
         values (FieldValue): Array of FieldValue specifying what to retrieve.
 
+    Entries left unpopulated by NVML report ``ERROR_UNKNOWN`` in ``nvml_return``.
+
     .. seealso:: `nvmlDeviceGetFieldValues`
     """
     cdef FieldValue values_ = _cast_field_values(values)
@@ -36695,6 +38783,10 @@ cpdef object device_get_field_values(intptr_t device, values):
     # Passing a valuesCount of 0 to nvmlDeviceGetFieldValues returns NVML_INVALID_ARGUMENT
     if valuesCount == 0:
         return values_
+
+    # nvbug 6952048: native NVML can return success without populating an entry.
+    # Reset every query so untouched entries cannot retain stale success statuses.
+    values_.nvml_return = NVML_ERROR_UNKNOWN
 
     with nogil:
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
@@ -38017,4 +40109,8 @@ cpdef bytes event_set_get_context_data_v1(intptr_t set, unsigned int index):
         __status__ = nvmlEventSetGetContextData_v1(<EventSet>set, &params)
     check_status(__status__)
     return data
+
+
+TimeoutError = NvmlTimeoutError
+MemoryError = NvmlMemoryError
 del _cyb_FastEnum

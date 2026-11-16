@@ -1,1924 +1,1277 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
 # SPDX-License-Identifier: Apache-2.0
-
+#
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=61af0372d09a2cd574c4c1e6ba8f3412828209f65c8fdb2acdd18ad9a300146d
-cimport cuda.bindings._bindings.cyruntime as cyruntime
-cimport cython
 
-{{if 'cudaDeviceReset' in found_functions}}
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f0b358f9b17443961d62446fdc6ca004be07f64a5065cb4fce248353984d2bec
+from ._internal cimport runtime as _runtime
 
 cdef cudaError_t cudaDeviceReset() except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceReset()
-{{endif}}
+    return _runtime._cudaDeviceReset()
 
-{{if 'cudaDeviceSynchronize' in found_functions}}
 
 cdef cudaError_t cudaDeviceSynchronize() except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceSynchronize()
-{{endif}}
+    return _runtime._cudaDeviceSynchronize()
 
-{{if 'cudaDeviceSetLimit' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetLimit(cudaLimit limit, size_t value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceSetLimit(limit, value)
-{{endif}}
+    return _runtime._cudaDeviceSetLimit(limit, value)
 
-{{if 'cudaDeviceGetLimit' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetLimit(size_t* pValue, cudaLimit limit) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetLimit(pValue, limit)
-{{endif}}
+    return _runtime._cudaDeviceGetLimit(pValue, limit)
 
-{{if 'cudaDeviceGetTexture1DLinearMaxWidth' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetTexture1DLinearMaxWidth(size_t* maxWidthInElements, const cudaChannelFormatDesc* fmtDesc, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetTexture1DLinearMaxWidth(maxWidthInElements, fmtDesc, device)
-{{endif}}
+    return _runtime._cudaDeviceGetTexture1DLinearMaxWidth(maxWidthInElements, fmtDesc, device)
 
-{{if 'cudaDeviceGetCacheConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetCacheConfig(cudaFuncCache* pCacheConfig) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetCacheConfig(pCacheConfig)
-{{endif}}
+    return _runtime._cudaDeviceGetCacheConfig(pCacheConfig)
 
-{{if 'cudaDeviceGetStreamPriorityRange' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetStreamPriorityRange(int* leastPriority, int* greatestPriority) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetStreamPriorityRange(leastPriority, greatestPriority)
-{{endif}}
+    return _runtime._cudaDeviceGetStreamPriorityRange(leastPriority, greatestPriority)
 
-{{if 'cudaDeviceSetCacheConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetCacheConfig(cudaFuncCache cacheConfig) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceSetCacheConfig(cacheConfig)
-{{endif}}
+    return _runtime._cudaDeviceSetCacheConfig(cacheConfig)
 
-{{if 'cudaDeviceGetByPCIBusId' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetByPCIBusId(int* device, const char* pciBusId) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetByPCIBusId(device, pciBusId)
-{{endif}}
+    return _runtime._cudaDeviceGetByPCIBusId(device, pciBusId)
 
-{{if 'cudaDeviceGetPCIBusId' in found_functions}}
 
-cdef cudaError_t cudaDeviceGetPCIBusId(char* pciBusId, int length, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetPCIBusId(pciBusId, length, device)
-{{endif}}
+cdef cudaError_t cudaDeviceGetPCIBusId(char* pciBusId, int len, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaDeviceGetPCIBusId(pciBusId, len, device)
 
-{{if 'cudaIpcGetEventHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcGetEventHandle(cudaIpcEventHandle_t* handle, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaIpcGetEventHandle(handle, event)
-{{endif}}
+    return _runtime._cudaIpcGetEventHandle(handle, event)
 
-{{if 'cudaIpcOpenEventHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcOpenEventHandle(cudaEvent_t* event, cudaIpcEventHandle_t handle) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaIpcOpenEventHandle(event, handle)
-{{endif}}
+    return _runtime._cudaIpcOpenEventHandle(event, handle)
 
-{{if 'cudaIpcGetMemHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcGetMemHandle(cudaIpcMemHandle_t* handle, void* devPtr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaIpcGetMemHandle(handle, devPtr)
-{{endif}}
+    return _runtime._cudaIpcGetMemHandle(handle, devPtr)
 
-{{if 'cudaIpcOpenMemHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcOpenMemHandle(void** devPtr, cudaIpcMemHandle_t handle, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaIpcOpenMemHandle(devPtr, handle, flags)
-{{endif}}
+    return _runtime._cudaIpcOpenMemHandle(devPtr, handle, flags)
 
-{{if 'cudaIpcCloseMemHandle' in found_functions}}
 
 cdef cudaError_t cudaIpcCloseMemHandle(void* devPtr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaIpcCloseMemHandle(devPtr)
-{{endif}}
+    return _runtime._cudaIpcCloseMemHandle(devPtr)
 
-{{if 'cudaDeviceFlushGPUDirectRDMAWrites' in found_functions}}
 
 cdef cudaError_t cudaDeviceFlushGPUDirectRDMAWrites(cudaFlushGPUDirectRDMAWritesTarget target, cudaFlushGPUDirectRDMAWritesScope scope) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceFlushGPUDirectRDMAWrites(target, scope)
-{{endif}}
+    return _runtime._cudaDeviceFlushGPUDirectRDMAWrites(target, scope)
 
-{{if 'cudaDeviceRegisterAsyncNotification' in found_functions}}
 
 cdef cudaError_t cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void* userData, cudaAsyncCallbackHandle_t* callback) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceRegisterAsyncNotification(device, callbackFunc, userData, callback)
-{{endif}}
+    return _runtime._cudaDeviceRegisterAsyncNotification(device, callbackFunc, userData, callback)
 
-{{if 'cudaDeviceUnregisterAsyncNotification' in found_functions}}
 
 cdef cudaError_t cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceUnregisterAsyncNotification(device, callback)
-{{endif}}
+    return _runtime._cudaDeviceUnregisterAsyncNotification(device, callback)
 
-{{if 'cudaDeviceGetSharedMemConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetSharedMemConfig(cudaSharedMemConfig* pConfig) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetSharedMemConfig(pConfig)
-{{endif}}
+    return _runtime._cudaDeviceGetSharedMemConfig(pConfig)
 
-{{if 'cudaDeviceSetSharedMemConfig' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetSharedMemConfig(cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceSetSharedMemConfig(config)
-{{endif}}
+    return _runtime._cudaDeviceSetSharedMemConfig(config)
 
-{{if 'cudaGetLastError' in found_functions}}
 
 cdef cudaError_t cudaGetLastError() except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetLastError()
-{{endif}}
+    return _runtime._cudaGetLastError()
 
-{{if 'cudaPeekAtLastError' in found_functions}}
 
 cdef cudaError_t cudaPeekAtLastError() except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaPeekAtLastError()
-{{endif}}
+    return _runtime._cudaPeekAtLastError()
 
-{{if 'cudaGetErrorName' in found_functions}}
 
-cdef const char* cudaGetErrorName(cudaError_t error) except ?NULL nogil:
-    return cyruntime._cudaGetErrorName(error)
-{{endif}}
+cdef const char* cudaGetErrorName(cudaError_t error) except?NULL nogil:
+    return _runtime._cudaGetErrorName(error)
 
-{{if 'cudaGetErrorString' in found_functions}}
 
-cdef const char* cudaGetErrorString(cudaError_t error) except ?NULL nogil:
-    return cyruntime._cudaGetErrorString(error)
-{{endif}}
+cdef const char* cudaGetErrorString(cudaError_t error) except?NULL nogil:
+    return _runtime._cudaGetErrorString(error)
 
-{{if 'cudaGetDeviceCount' in found_functions}}
 
 cdef cudaError_t cudaGetDeviceCount(int* count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetDeviceCount(count)
-{{endif}}
+    return _runtime._cudaGetDeviceCount(count)
 
-{{if 'cudaGetDeviceProperties_v2' in found_functions}}
 
 cdef cudaError_t cudaGetDeviceProperties(cudaDeviceProp* prop, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetDeviceProperties_v2(prop, device)
-{{endif}}
+    return _runtime._cudaGetDeviceProperties_v2(prop, device)
 
-{{if 'cudaDeviceGetAttribute' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetAttribute(int* value, cudaDeviceAttr attr, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetAttribute(value, attr, device)
-{{endif}}
+    return _runtime._cudaDeviceGetAttribute(value, attr, device)
 
-{{if 'cudaDeviceGetDefaultMemPool' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetDefaultMemPool(cudaMemPool_t* memPool, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetDefaultMemPool(memPool, device)
-{{endif}}
+    return _runtime._cudaDeviceGetDefaultMemPool(memPool, device)
 
-{{if 'cudaDeviceSetMemPool' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetMemPool(int device, cudaMemPool_t memPool) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceSetMemPool(device, memPool)
-{{endif}}
+    return _runtime._cudaDeviceSetMemPool(device, memPool)
 
-{{if 'cudaDeviceGetMemPool' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetMemPool(cudaMemPool_t* memPool, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetMemPool(memPool, device)
-{{endif}}
+    return _runtime._cudaDeviceGetMemPool(memPool, device)
 
-{{if 'cudaDeviceGetNvSciSyncAttributes' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetNvSciSyncAttributes(void* nvSciSyncAttrList, int device, int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, device, flags)
-{{endif}}
+    return _runtime._cudaDeviceGetNvSciSyncAttributes(nvSciSyncAttrList, device, flags)
 
-{{if 'cudaDeviceGetP2PAttribute' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetP2PAttribute(int* value, cudaDeviceP2PAttr attr, int srcDevice, int dstDevice) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetP2PAttribute(value, attr, srcDevice, dstDevice)
-{{endif}}
+    return _runtime._cudaDeviceGetP2PAttribute(value, attr, srcDevice, dstDevice)
 
-{{if 'cudaChooseDevice' in found_functions}}
 
 cdef cudaError_t cudaChooseDevice(int* device, const cudaDeviceProp* prop) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaChooseDevice(device, prop)
-{{endif}}
+    return _runtime._cudaChooseDevice(device, prop)
 
-{{if 'cudaInitDevice' in found_functions}}
 
 cdef cudaError_t cudaInitDevice(int device, unsigned int deviceFlags, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaInitDevice(device, deviceFlags, flags)
-{{endif}}
+    return _runtime._cudaInitDevice(device, deviceFlags, flags)
 
-{{if 'cudaSetDevice' in found_functions}}
 
 cdef cudaError_t cudaSetDevice(int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaSetDevice(device)
-{{endif}}
+    return _runtime._cudaSetDevice(device)
 
-{{if 'cudaGetDevice' in found_functions}}
 
 cdef cudaError_t cudaGetDevice(int* device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetDevice(device)
-{{endif}}
+    return _runtime._cudaGetDevice(device)
 
-{{if 'cudaSetDeviceFlags' in found_functions}}
 
 cdef cudaError_t cudaSetDeviceFlags(unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaSetDeviceFlags(flags)
-{{endif}}
+    return _runtime._cudaSetDeviceFlags(flags)
 
-{{if 'cudaGetDeviceFlags' in found_functions}}
 
 cdef cudaError_t cudaGetDeviceFlags(unsigned int* flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetDeviceFlags(flags)
-{{endif}}
+    return _runtime._cudaGetDeviceFlags(flags)
 
-{{if 'cudaStreamCreate' in found_functions}}
 
 cdef cudaError_t cudaStreamCreate(cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamCreate(pStream)
-{{endif}}
+    return _runtime._cudaStreamCreate(pStream)
 
-{{if 'cudaStreamCreateWithFlags' in found_functions}}
 
 cdef cudaError_t cudaStreamCreateWithFlags(cudaStream_t* pStream, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamCreateWithFlags(pStream, flags)
-{{endif}}
+    return _runtime._cudaStreamCreateWithFlags(pStream, flags)
 
-{{if 'cudaStreamCreateWithPriority' in found_functions}}
 
 cdef cudaError_t cudaStreamCreateWithPriority(cudaStream_t* pStream, unsigned int flags, int priority) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamCreateWithPriority(pStream, flags, priority)
-{{endif}}
+    return _runtime._cudaStreamCreateWithPriority(pStream, flags, priority)
 
-{{if 'cudaStreamGetPriority' in found_functions}}
 
 cdef cudaError_t cudaStreamGetPriority(cudaStream_t hStream, int* priority) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamGetPriority(hStream, priority)
-{{endif}}
+    return _runtime._cudaStreamGetPriority(hStream, priority)
 
-{{if 'cudaStreamGetFlags' in found_functions}}
 
 cdef cudaError_t cudaStreamGetFlags(cudaStream_t hStream, unsigned int* flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamGetFlags(hStream, flags)
-{{endif}}
+    return _runtime._cudaStreamGetFlags(hStream, flags)
 
-{{if 'cudaStreamGetId' in found_functions}}
 
 cdef cudaError_t cudaStreamGetId(cudaStream_t hStream, unsigned long long* streamId) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamGetId(hStream, streamId)
-{{endif}}
+    return _runtime._cudaStreamGetId(hStream, streamId)
 
-{{if 'cudaStreamGetDevice' in found_functions}}
 
 cdef cudaError_t cudaStreamGetDevice(cudaStream_t hStream, int* device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamGetDevice(hStream, device)
-{{endif}}
+    return _runtime._cudaStreamGetDevice(hStream, device)
 
-{{if 'cudaCtxResetPersistingL2Cache' in found_functions}}
 
 cdef cudaError_t cudaCtxResetPersistingL2Cache() except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaCtxResetPersistingL2Cache()
-{{endif}}
+    return _runtime._cudaCtxResetPersistingL2Cache()
 
-{{if 'cudaStreamCopyAttributes' in found_functions}}
 
 cdef cudaError_t cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t src) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamCopyAttributes(dst, src)
-{{endif}}
+    return _runtime._cudaStreamCopyAttributes(dst, src)
 
-{{if 'cudaStreamGetAttribute' in found_functions}}
 
 cdef cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, cudaStreamAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamGetAttribute(hStream, attr, value_out)
-{{endif}}
+    return _runtime._cudaStreamGetAttribute(hStream, attr, value_out)
 
-{{if 'cudaStreamSetAttribute' in found_functions}}
 
 cdef cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaStreamAttrID attr, const cudaStreamAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamSetAttribute(hStream, attr, value)
-{{endif}}
+    return _runtime._cudaStreamSetAttribute(hStream, attr, value)
 
-{{if 'cudaStreamDestroy' in found_functions}}
 
 cdef cudaError_t cudaStreamDestroy(cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamDestroy(stream)
-{{endif}}
+    return _runtime._cudaStreamDestroy(stream)
 
-{{if 'cudaStreamWaitEvent' in found_functions}}
 
 cdef cudaError_t cudaStreamWaitEvent(cudaStream_t stream, cudaEvent_t event, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamWaitEvent(stream, event, flags)
-{{endif}}
+    return _runtime._cudaStreamWaitEvent(stream, event, flags)
 
-{{if 'cudaStreamAddCallback' in found_functions}}
 
 cdef cudaError_t cudaStreamAddCallback(cudaStream_t stream, cudaStreamCallback_t callback, void* userData, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamAddCallback(stream, callback, userData, flags)
-{{endif}}
+    return _runtime._cudaStreamAddCallback(stream, callback, userData, flags)
 
-{{if 'cudaStreamSynchronize' in found_functions}}
 
 cdef cudaError_t cudaStreamSynchronize(cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamSynchronize(stream)
-{{endif}}
+    return _runtime._cudaStreamSynchronize(stream)
 
-{{if 'cudaStreamQuery' in found_functions}}
 
 cdef cudaError_t cudaStreamQuery(cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamQuery(stream)
-{{endif}}
+    return _runtime._cudaStreamQuery(stream)
 
-{{if 'cudaStreamAttachMemAsync' in found_functions}}
 
 cdef cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void* devPtr, size_t length, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamAttachMemAsync(stream, devPtr, length, flags)
-{{endif}}
+    return _runtime._cudaStreamAttachMemAsync(stream, devPtr, length, flags)
 
-{{if 'cudaStreamBeginCapture' in found_functions}}
 
 cdef cudaError_t cudaStreamBeginCapture(cudaStream_t stream, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamBeginCapture(stream, mode)
-{{endif}}
+    return _runtime._cudaStreamBeginCapture(stream, mode)
 
-{{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
 
 cdef cudaError_t cudaStreamBeginCaptureToGraph(cudaStream_t stream, cudaGraph_t graph, const cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaStreamCaptureMode mode) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamBeginCaptureToGraph(stream, graph, dependencies, dependencyData, numDependencies, mode)
-{{endif}}
+    return _runtime._cudaStreamBeginCaptureToGraph(stream, graph, dependencies, dependencyData, numDependencies, mode)
 
-{{if 'cudaThreadExchangeStreamCaptureMode' in found_functions}}
 
 cdef cudaError_t cudaThreadExchangeStreamCaptureMode(cudaStreamCaptureMode* mode) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaThreadExchangeStreamCaptureMode(mode)
-{{endif}}
+    return _runtime._cudaThreadExchangeStreamCaptureMode(mode)
 
-{{if 'cudaStreamEndCapture' in found_functions}}
 
 cdef cudaError_t cudaStreamEndCapture(cudaStream_t stream, cudaGraph_t* pGraph) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamEndCapture(stream, pGraph)
-{{endif}}
+    return _runtime._cudaStreamEndCapture(stream, pGraph)
 
-{{if 'cudaStreamIsCapturing' in found_functions}}
 
 cdef cudaError_t cudaStreamIsCapturing(cudaStream_t stream, cudaStreamCaptureStatus* pCaptureStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamIsCapturing(stream, pCaptureStatus)
-{{endif}}
+    return _runtime._cudaStreamIsCapturing(stream, pCaptureStatus)
 
-{{if 'cudaStreamGetCaptureInfo_v2' in found_functions}}
 
 cdef cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, size_t* numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamGetCaptureInfo_v2(stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
-{{endif}}
+    return _runtime._cudaStreamGetCaptureInfo_v2(stream, captureStatus_out, id_out, graph_out, dependencies_out, numDependencies_out)
 
-{{if 'cudaStreamGetCaptureInfo_v3' in found_functions}}
 
 cdef cudaError_t cudaStreamGetCaptureInfo_v3(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, const cudaGraphEdgeData** edgeData_out, size_t* numDependencies_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamGetCaptureInfo_v3(stream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
-{{endif}}
+    return _runtime._cudaStreamGetCaptureInfo_v3(stream, captureStatus_out, id_out, graph_out, dependencies_out, edgeData_out, numDependencies_out)
 
-{{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
 cdef cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t* dependencies, size_t numDependencies, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamUpdateCaptureDependencies(stream, dependencies, numDependencies, flags)
-{{endif}}
+    return _runtime._cudaStreamUpdateCaptureDependencies(stream, dependencies, numDependencies, flags)
 
-{{if 'cudaStreamUpdateCaptureDependencies_v2' in found_functions}}
 
 cdef cudaError_t cudaStreamUpdateCaptureDependencies_v2(cudaStream_t stream, cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaStreamUpdateCaptureDependencies_v2(stream, dependencies, dependencyData, numDependencies, flags)
-{{endif}}
+    return _runtime._cudaStreamUpdateCaptureDependencies_v2(stream, dependencies, dependencyData, numDependencies, flags)
 
-{{if 'cudaEventCreate' in found_functions}}
 
 cdef cudaError_t cudaEventCreate(cudaEvent_t* event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventCreate(event)
-{{endif}}
+    return _runtime._cudaEventCreate(event)
 
-{{if 'cudaEventCreateWithFlags' in found_functions}}
 
 cdef cudaError_t cudaEventCreateWithFlags(cudaEvent_t* event, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventCreateWithFlags(event, flags)
-{{endif}}
+    return _runtime._cudaEventCreateWithFlags(event, flags)
 
-{{if 'cudaEventRecord' in found_functions}}
 
 cdef cudaError_t cudaEventRecord(cudaEvent_t event, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventRecord(event, stream)
-{{endif}}
+    return _runtime._cudaEventRecord(event, stream)
 
-{{if 'cudaEventRecordWithFlags' in found_functions}}
 
 cdef cudaError_t cudaEventRecordWithFlags(cudaEvent_t event, cudaStream_t stream, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventRecordWithFlags(event, stream, flags)
-{{endif}}
+    return _runtime._cudaEventRecordWithFlags(event, stream, flags)
 
-{{if 'cudaEventQuery' in found_functions}}
 
 cdef cudaError_t cudaEventQuery(cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventQuery(event)
-{{endif}}
+    return _runtime._cudaEventQuery(event)
 
-{{if 'cudaEventSynchronize' in found_functions}}
 
 cdef cudaError_t cudaEventSynchronize(cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventSynchronize(event)
-{{endif}}
+    return _runtime._cudaEventSynchronize(event)
 
-{{if 'cudaEventDestroy' in found_functions}}
 
 cdef cudaError_t cudaEventDestroy(cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventDestroy(event)
-{{endif}}
+    return _runtime._cudaEventDestroy(event)
 
-{{if 'cudaEventElapsedTime' in found_functions}}
 
 cdef cudaError_t cudaEventElapsedTime(float* ms, cudaEvent_t start, cudaEvent_t end) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventElapsedTime(ms, start, end)
-{{endif}}
+    return _runtime._cudaEventElapsedTime(ms, start, end)
 
-{{if 'cudaEventElapsedTime_v2' in found_functions}}
 
 cdef cudaError_t cudaEventElapsedTime_v2(float* ms, cudaEvent_t start, cudaEvent_t end) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventElapsedTime_v2(ms, start, end)
-{{endif}}
+    return _runtime._cudaEventElapsedTime_v2(ms, start, end)
 
-{{if 'cudaImportExternalMemory' in found_functions}}
 
 cdef cudaError_t cudaImportExternalMemory(cudaExternalMemory_t* extMem_out, const cudaExternalMemoryHandleDesc* memHandleDesc) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaImportExternalMemory(extMem_out, memHandleDesc)
-{{endif}}
+    return _runtime._cudaImportExternalMemory(extMem_out, memHandleDesc)
 
-{{if 'cudaExternalMemoryGetMappedBuffer' in found_functions}}
 
 cdef cudaError_t cudaExternalMemoryGetMappedBuffer(void** devPtr, cudaExternalMemory_t extMem, const cudaExternalMemoryBufferDesc* bufferDesc) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaExternalMemoryGetMappedBuffer(devPtr, extMem, bufferDesc)
-{{endif}}
+    return _runtime._cudaExternalMemoryGetMappedBuffer(devPtr, extMem, bufferDesc)
 
-{{if 'cudaExternalMemoryGetMappedMipmappedArray' in found_functions}}
 
 cdef cudaError_t cudaExternalMemoryGetMappedMipmappedArray(cudaMipmappedArray_t* mipmap, cudaExternalMemory_t extMem, const cudaExternalMemoryMipmappedArrayDesc* mipmapDesc) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaExternalMemoryGetMappedMipmappedArray(mipmap, extMem, mipmapDesc)
-{{endif}}
+    return _runtime._cudaExternalMemoryGetMappedMipmappedArray(mipmap, extMem, mipmapDesc)
 
-{{if 'cudaDestroyExternalMemory' in found_functions}}
 
 cdef cudaError_t cudaDestroyExternalMemory(cudaExternalMemory_t extMem) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDestroyExternalMemory(extMem)
-{{endif}}
+    return _runtime._cudaDestroyExternalMemory(extMem)
 
-{{if 'cudaImportExternalSemaphore' in found_functions}}
 
 cdef cudaError_t cudaImportExternalSemaphore(cudaExternalSemaphore_t* extSem_out, const cudaExternalSemaphoreHandleDesc* semHandleDesc) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaImportExternalSemaphore(extSem_out, semHandleDesc)
-{{endif}}
+    return _runtime._cudaImportExternalSemaphore(extSem_out, semHandleDesc)
 
-{{if 'cudaSignalExternalSemaphoresAsync_v2' in found_functions}}
 
 cdef cudaError_t cudaSignalExternalSemaphoresAsync(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreSignalParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaSignalExternalSemaphoresAsync_v2(extSemArray, paramsArray, numExtSems, stream)
-{{endif}}
+    return _runtime._cudaSignalExternalSemaphoresAsync_v2(extSemArray, paramsArray, numExtSems, stream)
 
-{{if 'cudaWaitExternalSemaphoresAsync_v2' in found_functions}}
 
 cdef cudaError_t cudaWaitExternalSemaphoresAsync(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreWaitParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaWaitExternalSemaphoresAsync_v2(extSemArray, paramsArray, numExtSems, stream)
-{{endif}}
+    return _runtime._cudaWaitExternalSemaphoresAsync_v2(extSemArray, paramsArray, numExtSems, stream)
 
-{{if 'cudaDestroyExternalSemaphore' in found_functions}}
 
 cdef cudaError_t cudaDestroyExternalSemaphore(cudaExternalSemaphore_t extSem) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDestroyExternalSemaphore(extSem)
-{{endif}}
+    return _runtime._cudaDestroyExternalSemaphore(extSem)
 
-{{if 'cudaFuncSetCacheConfig' in found_functions}}
 
 cdef cudaError_t cudaFuncSetCacheConfig(const void* func, cudaFuncCache cacheConfig) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFuncSetCacheConfig(func, cacheConfig)
-{{endif}}
+    return _runtime._cudaFuncSetCacheConfig(func, cacheConfig)
 
-{{if 'cudaFuncGetAttributes' in found_functions}}
 
 cdef cudaError_t cudaFuncGetAttributes(cudaFuncAttributes* attr, const void* func) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFuncGetAttributes(attr, func)
-{{endif}}
+    return _runtime._cudaFuncGetAttributes(attr, func)
 
-{{if 'cudaFuncSetAttribute' in found_functions}}
 
 cdef cudaError_t cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, int value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFuncSetAttribute(func, attr, value)
-{{endif}}
+    return _runtime._cudaFuncSetAttribute(func, attr, value)
 
-{{if 'cudaLaunchHostFunc' in found_functions}}
+
+cdef cudaError_t cudaFuncGetName(const char** name, const void* func) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaFuncGetName(name, func)
+
+
+cdef cudaError_t cudaFuncGetParamInfo(const void* func, size_t paramIndex, size_t* paramOffset, size_t* paramSize) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaFuncGetParamInfo(func, paramIndex, paramOffset, paramSize)
+
 
 cdef cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLaunchHostFunc(stream, fn, userData)
-{{endif}}
+    return _runtime._cudaLaunchHostFunc(stream, fn, userData)
 
-{{if 'cudaFuncSetSharedMemConfig' in found_functions}}
 
 cdef cudaError_t cudaFuncSetSharedMemConfig(const void* func, cudaSharedMemConfig config) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFuncSetSharedMemConfig(func, config)
-{{endif}}
+    return _runtime._cudaFuncSetSharedMemConfig(func, config)
 
-{{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
 
 cdef cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, const void* func, int blockSize, size_t dynamicSMemSize) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaOccupancyMaxActiveBlocksPerMultiprocessor(numBlocks, func, blockSize, dynamicSMemSize)
-{{endif}}
+    return _runtime._cudaOccupancyMaxActiveBlocksPerMultiprocessor(numBlocks, func, blockSize, dynamicSMemSize)
 
-{{if 'cudaOccupancyAvailableDynamicSMemPerBlock' in found_functions}}
 
 cdef cudaError_t cudaOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSmemSize, const void* func, int numBlocks, int blockSize) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaOccupancyAvailableDynamicSMemPerBlock(dynamicSmemSize, func, numBlocks, blockSize)
-{{endif}}
+    return _runtime._cudaOccupancyAvailableDynamicSMemPerBlock(dynamicSmemSize, func, numBlocks, blockSize)
 
-{{if 'cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}
 
 cdef cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks, const void* func, int blockSize, size_t dynamicSMemSize, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(numBlocks, func, blockSize, dynamicSMemSize, flags)
-{{endif}}
+    return _runtime._cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(numBlocks, func, blockSize, dynamicSMemSize, flags)
 
-{{if 'cudaMallocManaged' in found_functions}}
 
 cdef cudaError_t cudaMallocManaged(void** devPtr, size_t size, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMallocManaged(devPtr, size, flags)
-{{endif}}
+    return _runtime._cudaMallocManaged(devPtr, size, flags)
 
-{{if 'cudaMalloc' in found_functions}}
 
 cdef cudaError_t cudaMalloc(void** devPtr, size_t size) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMalloc(devPtr, size)
-{{endif}}
+    return _runtime._cudaMalloc(devPtr, size)
 
-{{if 'cudaMallocHost' in found_functions}}
 
 cdef cudaError_t cudaMallocHost(void** ptr, size_t size) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMallocHost(ptr, size)
-{{endif}}
+    return _runtime._cudaMallocHost(ptr, size)
 
-{{if 'cudaMallocPitch' in found_functions}}
 
 cdef cudaError_t cudaMallocPitch(void** devPtr, size_t* pitch, size_t width, size_t height) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMallocPitch(devPtr, pitch, width, height)
-{{endif}}
+    return _runtime._cudaMallocPitch(devPtr, pitch, width, height)
 
-{{if 'cudaMallocArray' in found_functions}}
 
 cdef cudaError_t cudaMallocArray(cudaArray_t* array, const cudaChannelFormatDesc* desc, size_t width, size_t height, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMallocArray(array, desc, width, height, flags)
-{{endif}}
+    return _runtime._cudaMallocArray(array, desc, width, height, flags)
 
-{{if 'cudaFree' in found_functions}}
 
 cdef cudaError_t cudaFree(void* devPtr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFree(devPtr)
-{{endif}}
+    return _runtime._cudaFree(devPtr)
 
-{{if 'cudaFreeHost' in found_functions}}
 
 cdef cudaError_t cudaFreeHost(void* ptr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFreeHost(ptr)
-{{endif}}
+    return _runtime._cudaFreeHost(ptr)
 
-{{if 'cudaFreeArray' in found_functions}}
 
 cdef cudaError_t cudaFreeArray(cudaArray_t array) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFreeArray(array)
-{{endif}}
+    return _runtime._cudaFreeArray(array)
 
-{{if 'cudaFreeMipmappedArray' in found_functions}}
 
 cdef cudaError_t cudaFreeMipmappedArray(cudaMipmappedArray_t mipmappedArray) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFreeMipmappedArray(mipmappedArray)
-{{endif}}
+    return _runtime._cudaFreeMipmappedArray(mipmappedArray)
 
-{{if 'cudaHostAlloc' in found_functions}}
 
 cdef cudaError_t cudaHostAlloc(void** pHost, size_t size, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaHostAlloc(pHost, size, flags)
-{{endif}}
+    return _runtime._cudaHostAlloc(pHost, size, flags)
 
-{{if 'cudaHostRegister' in found_functions}}
 
 cdef cudaError_t cudaHostRegister(void* ptr, size_t size, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaHostRegister(ptr, size, flags)
-{{endif}}
+    return _runtime._cudaHostRegister(ptr, size, flags)
 
-{{if 'cudaHostUnregister' in found_functions}}
 
 cdef cudaError_t cudaHostUnregister(void* ptr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaHostUnregister(ptr)
-{{endif}}
+    return _runtime._cudaHostUnregister(ptr)
 
-{{if 'cudaHostGetDevicePointer' in found_functions}}
 
 cdef cudaError_t cudaHostGetDevicePointer(void** pDevice, void* pHost, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaHostGetDevicePointer(pDevice, pHost, flags)
-{{endif}}
+    return _runtime._cudaHostGetDevicePointer(pDevice, pHost, flags)
 
-{{if 'cudaHostGetFlags' in found_functions}}
 
 cdef cudaError_t cudaHostGetFlags(unsigned int* pFlags, void* pHost) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaHostGetFlags(pFlags, pHost)
-{{endif}}
+    return _runtime._cudaHostGetFlags(pFlags, pHost)
 
-{{if 'cudaMalloc3D' in found_functions}}
 
 cdef cudaError_t cudaMalloc3D(cudaPitchedPtr* pitchedDevPtr, cudaExtent extent) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMalloc3D(pitchedDevPtr, extent)
-{{endif}}
+    return _runtime._cudaMalloc3D(pitchedDevPtr, extent)
 
-{{if 'cudaMalloc3DArray' in found_functions}}
 
 cdef cudaError_t cudaMalloc3DArray(cudaArray_t* array, const cudaChannelFormatDesc* desc, cudaExtent extent, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMalloc3DArray(array, desc, extent, flags)
-{{endif}}
+    return _runtime._cudaMalloc3DArray(array, desc, extent, flags)
 
-{{if 'cudaMallocMipmappedArray' in found_functions}}
 
 cdef cudaError_t cudaMallocMipmappedArray(cudaMipmappedArray_t* mipmappedArray, const cudaChannelFormatDesc* desc, cudaExtent extent, unsigned int numLevels, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMallocMipmappedArray(mipmappedArray, desc, extent, numLevels, flags)
-{{endif}}
+    return _runtime._cudaMallocMipmappedArray(mipmappedArray, desc, extent, numLevels, flags)
 
-{{if 'cudaGetMipmappedArrayLevel' in found_functions}}
 
 cdef cudaError_t cudaGetMipmappedArrayLevel(cudaArray_t* levelArray, cudaMipmappedArray_const_t mipmappedArray, unsigned int level) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetMipmappedArrayLevel(levelArray, mipmappedArray, level)
-{{endif}}
+    return _runtime._cudaGetMipmappedArrayLevel(levelArray, mipmappedArray, level)
 
-{{if 'cudaMemcpy3D' in found_functions}}
 
 cdef cudaError_t cudaMemcpy3D(const cudaMemcpy3DParms* p) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy3D(p)
-{{endif}}
+    return _runtime._cudaMemcpy3D(p)
 
-{{if 'cudaMemcpy3DPeer' in found_functions}}
 
 cdef cudaError_t cudaMemcpy3DPeer(const cudaMemcpy3DPeerParms* p) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy3DPeer(p)
-{{endif}}
+    return _runtime._cudaMemcpy3DPeer(p)
 
-{{if 'cudaMemcpy3DAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpy3DAsync(const cudaMemcpy3DParms* p, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy3DAsync(p, stream)
-{{endif}}
+    return _runtime._cudaMemcpy3DAsync(p, stream)
 
-{{if 'cudaMemcpy3DPeerAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpy3DPeerAsync(const cudaMemcpy3DPeerParms* p, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy3DPeerAsync(p, stream)
-{{endif}}
+    return _runtime._cudaMemcpy3DPeerAsync(p, stream)
 
-{{if 'cudaMemGetInfo' in found_functions}}
 
 cdef cudaError_t cudaMemGetInfo(size_t* free, size_t* total) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemGetInfo(free, total)
-{{endif}}
+    return _runtime._cudaMemGetInfo(free, total)
 
-{{if 'cudaArrayGetInfo' in found_functions}}
 
 cdef cudaError_t cudaArrayGetInfo(cudaChannelFormatDesc* desc, cudaExtent* extent, unsigned int* flags, cudaArray_t array) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaArrayGetInfo(desc, extent, flags, array)
-{{endif}}
+    return _runtime._cudaArrayGetInfo(desc, extent, flags, array)
 
-{{if 'cudaArrayGetPlane' in found_functions}}
 
 cdef cudaError_t cudaArrayGetPlane(cudaArray_t* pPlaneArray, cudaArray_t hArray, unsigned int planeIdx) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaArrayGetPlane(pPlaneArray, hArray, planeIdx)
-{{endif}}
+    return _runtime._cudaArrayGetPlane(pPlaneArray, hArray, planeIdx)
 
-{{if 'cudaArrayGetMemoryRequirements' in found_functions}}
 
 cdef cudaError_t cudaArrayGetMemoryRequirements(cudaArrayMemoryRequirements* memoryRequirements, cudaArray_t array, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaArrayGetMemoryRequirements(memoryRequirements, array, device)
-{{endif}}
+    return _runtime._cudaArrayGetMemoryRequirements(memoryRequirements, array, device)
 
-{{if 'cudaMipmappedArrayGetMemoryRequirements' in found_functions}}
 
 cdef cudaError_t cudaMipmappedArrayGetMemoryRequirements(cudaArrayMemoryRequirements* memoryRequirements, cudaMipmappedArray_t mipmap, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMipmappedArrayGetMemoryRequirements(memoryRequirements, mipmap, device)
-{{endif}}
+    return _runtime._cudaMipmappedArrayGetMemoryRequirements(memoryRequirements, mipmap, device)
 
-{{if 'cudaArrayGetSparseProperties' in found_functions}}
 
 cdef cudaError_t cudaArrayGetSparseProperties(cudaArraySparseProperties* sparseProperties, cudaArray_t array) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaArrayGetSparseProperties(sparseProperties, array)
-{{endif}}
+    return _runtime._cudaArrayGetSparseProperties(sparseProperties, array)
 
-{{if 'cudaMipmappedArrayGetSparseProperties' in found_functions}}
 
 cdef cudaError_t cudaMipmappedArrayGetSparseProperties(cudaArraySparseProperties* sparseProperties, cudaMipmappedArray_t mipmap) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMipmappedArrayGetSparseProperties(sparseProperties, mipmap)
-{{endif}}
+    return _runtime._cudaMipmappedArrayGetSparseProperties(sparseProperties, mipmap)
 
-{{if 'cudaMemcpy' in found_functions}}
 
 cdef cudaError_t cudaMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy(dst, src, count, kind)
-{{endif}}
+    return _runtime._cudaMemcpy(dst, src, count, kind)
 
-{{if 'cudaMemcpyPeer' in found_functions}}
 
 cdef cudaError_t cudaMemcpyPeer(void* dst, int dstDevice, const void* src, int srcDevice, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyPeer(dst, dstDevice, src, srcDevice, count)
-{{endif}}
+    return _runtime._cudaMemcpyPeer(dst, dstDevice, src, srcDevice, count)
 
-{{if 'cudaMemcpy2D' in found_functions}}
 
 cdef cudaError_t cudaMemcpy2D(void* dst, size_t dpitch, const void* src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy2D(dst, dpitch, src, spitch, width, height, kind)
-{{endif}}
+    return _runtime._cudaMemcpy2D(dst, dpitch, src, spitch, width, height, kind)
 
-{{if 'cudaMemcpy2DToArray' in found_functions}}
 
 cdef cudaError_t cudaMemcpy2DToArray(cudaArray_t dst, size_t wOffset, size_t hOffset, const void* src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy2DToArray(dst, wOffset, hOffset, src, spitch, width, height, kind)
-{{endif}}
+    return _runtime._cudaMemcpy2DToArray(dst, wOffset, hOffset, src, spitch, width, height, kind)
 
-{{if 'cudaMemcpy2DFromArray' in found_functions}}
 
 cdef cudaError_t cudaMemcpy2DFromArray(void* dst, size_t dpitch, cudaArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy2DFromArray(dst, dpitch, src, wOffset, hOffset, width, height, kind)
-{{endif}}
+    return _runtime._cudaMemcpy2DFromArray(dst, dpitch, src, wOffset, hOffset, width, height, kind)
 
-{{if 'cudaMemcpy2DArrayToArray' in found_functions}}
 
 cdef cudaError_t cudaMemcpy2DArrayToArray(cudaArray_t dst, size_t wOffsetDst, size_t hOffsetDst, cudaArray_const_t src, size_t wOffsetSrc, size_t hOffsetSrc, size_t width, size_t height, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy2DArrayToArray(dst, wOffsetDst, hOffsetDst, src, wOffsetSrc, hOffsetSrc, width, height, kind)
-{{endif}}
+    return _runtime._cudaMemcpy2DArrayToArray(dst, wOffsetDst, hOffsetDst, src, wOffsetSrc, hOffsetSrc, width, height, kind)
 
-{{if 'cudaMemcpyAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyAsync(dst, src, count, kind, stream)
-{{endif}}
+    return _runtime._cudaMemcpyAsync(dst, src, count, kind, stream)
 
-{{if 'cudaMemcpyPeerAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpyPeerAsync(void* dst, int dstDevice, const void* src, int srcDevice, size_t count, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyPeerAsync(dst, dstDevice, src, srcDevice, count, stream)
-{{endif}}
+    return _runtime._cudaMemcpyPeerAsync(dst, dstDevice, src, srcDevice, count, stream)
 
-{{if 'cudaMemcpyBatchAsync' in found_functions}}
 
-cdef cudaError_t cudaMemcpyBatchAsync(void** dsts, void** srcs, size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyBatchAsync(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, failIdx, stream)
-{{endif}}
+cdef cudaError_t cudaMemcpyBatchAsync(const void** dsts, void** srcs, size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaMemcpyBatchAsync(dsts, srcs, sizes, count, attrs, attrsIdxs, numAttrs, failIdx, stream)
 
-{{if 'cudaMemcpy3DBatchAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, size_t* failIdx, unsigned long long flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy3DBatchAsync(numOps, opList, failIdx, flags, stream)
-{{endif}}
+    return _runtime._cudaMemcpy3DBatchAsync(numOps, opList, failIdx, flags, stream)
 
-{{if 'cudaMemcpy2DAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpy2DAsync(void* dst, size_t dpitch, const void* src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy2DAsync(dst, dpitch, src, spitch, width, height, kind, stream)
-{{endif}}
+    return _runtime._cudaMemcpy2DAsync(dst, dpitch, src, spitch, width, height, kind, stream)
 
-{{if 'cudaMemcpy2DToArrayAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpy2DToArrayAsync(cudaArray_t dst, size_t wOffset, size_t hOffset, const void* src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy2DToArrayAsync(dst, wOffset, hOffset, src, spitch, width, height, kind, stream)
-{{endif}}
+    return _runtime._cudaMemcpy2DToArrayAsync(dst, wOffset, hOffset, src, spitch, width, height, kind, stream)
 
-{{if 'cudaMemcpy2DFromArrayAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpy2DFromArrayAsync(void* dst, size_t dpitch, cudaArray_const_t src, size_t wOffset, size_t hOffset, size_t width, size_t height, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpy2DFromArrayAsync(dst, dpitch, src, wOffset, hOffset, width, height, kind, stream)
-{{endif}}
+    return _runtime._cudaMemcpy2DFromArrayAsync(dst, dpitch, src, wOffset, hOffset, width, height, kind, stream)
 
-{{if 'cudaMemset' in found_functions}}
 
 cdef cudaError_t cudaMemset(void* devPtr, int value, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemset(devPtr, value, count)
-{{endif}}
+    return _runtime._cudaMemset(devPtr, value, count)
 
-{{if 'cudaMemset2D' in found_functions}}
 
 cdef cudaError_t cudaMemset2D(void* devPtr, size_t pitch, int value, size_t width, size_t height) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemset2D(devPtr, pitch, value, width, height)
-{{endif}}
+    return _runtime._cudaMemset2D(devPtr, pitch, value, width, height)
 
-{{if 'cudaMemset3D' in found_functions}}
 
 cdef cudaError_t cudaMemset3D(cudaPitchedPtr pitchedDevPtr, int value, cudaExtent extent) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemset3D(pitchedDevPtr, value, extent)
-{{endif}}
+    return _runtime._cudaMemset3D(pitchedDevPtr, value, extent)
 
-{{if 'cudaMemsetAsync' in found_functions}}
 
 cdef cudaError_t cudaMemsetAsync(void* devPtr, int value, size_t count, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemsetAsync(devPtr, value, count, stream)
-{{endif}}
+    return _runtime._cudaMemsetAsync(devPtr, value, count, stream)
 
-{{if 'cudaMemset2DAsync' in found_functions}}
 
 cdef cudaError_t cudaMemset2DAsync(void* devPtr, size_t pitch, int value, size_t width, size_t height, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemset2DAsync(devPtr, pitch, value, width, height, stream)
-{{endif}}
+    return _runtime._cudaMemset2DAsync(devPtr, pitch, value, width, height, stream)
 
-{{if 'cudaMemset3DAsync' in found_functions}}
 
 cdef cudaError_t cudaMemset3DAsync(cudaPitchedPtr pitchedDevPtr, int value, cudaExtent extent, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemset3DAsync(pitchedDevPtr, value, extent, stream)
-{{endif}}
+    return _runtime._cudaMemset3DAsync(pitchedDevPtr, value, extent, stream)
 
-{{if 'cudaMemPrefetchAsync' in found_functions}}
 
 cdef cudaError_t cudaMemPrefetchAsync(const void* devPtr, size_t count, int dstDevice, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPrefetchAsync(devPtr, count, dstDevice, stream)
-{{endif}}
+    return _runtime._cudaMemPrefetchAsync(devPtr, count, dstDevice, stream)
 
-{{if 'cudaMemPrefetchAsync_v2' in found_functions}}
 
 cdef cudaError_t cudaMemPrefetchAsync_v2(const void* devPtr, size_t count, cudaMemLocation location, unsigned int flags, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPrefetchAsync_v2(devPtr, count, location, flags, stream)
-{{endif}}
+    return _runtime._cudaMemPrefetchAsync_v2(devPtr, count, location, flags, stream)
 
-{{if 'cudaMemAdvise' in found_functions}}
 
 cdef cudaError_t cudaMemAdvise(const void* devPtr, size_t count, cudaMemoryAdvise advice, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemAdvise(devPtr, count, advice, device)
-{{endif}}
+    return _runtime._cudaMemAdvise(devPtr, count, advice, device)
 
-{{if 'cudaMemAdvise_v2' in found_functions}}
 
 cdef cudaError_t cudaMemAdvise_v2(const void* devPtr, size_t count, cudaMemoryAdvise advice, cudaMemLocation location) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemAdvise_v2(devPtr, count, advice, location)
-{{endif}}
+    return _runtime._cudaMemAdvise_v2(devPtr, count, advice, location)
 
-{{if 'cudaMemRangeGetAttribute' in found_functions}}
 
 cdef cudaError_t cudaMemRangeGetAttribute(void* data, size_t dataSize, cudaMemRangeAttribute attribute, const void* devPtr, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemRangeGetAttribute(data, dataSize, attribute, devPtr, count)
-{{endif}}
+    return _runtime._cudaMemRangeGetAttribute(data, dataSize, attribute, devPtr, count)
 
-{{if 'cudaMemRangeGetAttributes' in found_functions}}
 
 cdef cudaError_t cudaMemRangeGetAttributes(void** data, size_t* dataSizes, cudaMemRangeAttribute* attributes, size_t numAttributes, const void* devPtr, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemRangeGetAttributes(data, dataSizes, attributes, numAttributes, devPtr, count)
-{{endif}}
+    return _runtime._cudaMemRangeGetAttributes(data, dataSizes, attributes, numAttributes, devPtr, count)
 
-{{if 'cudaMemcpyToArray' in found_functions}}
 
 cdef cudaError_t cudaMemcpyToArray(cudaArray_t dst, size_t wOffset, size_t hOffset, const void* src, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyToArray(dst, wOffset, hOffset, src, count, kind)
-{{endif}}
+    return _runtime._cudaMemcpyToArray(dst, wOffset, hOffset, src, count, kind)
 
-{{if 'cudaMemcpyFromArray' in found_functions}}
 
 cdef cudaError_t cudaMemcpyFromArray(void* dst, cudaArray_const_t src, size_t wOffset, size_t hOffset, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyFromArray(dst, src, wOffset, hOffset, count, kind)
-{{endif}}
+    return _runtime._cudaMemcpyFromArray(dst, src, wOffset, hOffset, count, kind)
 
-{{if 'cudaMemcpyArrayToArray' in found_functions}}
 
 cdef cudaError_t cudaMemcpyArrayToArray(cudaArray_t dst, size_t wOffsetDst, size_t hOffsetDst, cudaArray_const_t src, size_t wOffsetSrc, size_t hOffsetSrc, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyArrayToArray(dst, wOffsetDst, hOffsetDst, src, wOffsetSrc, hOffsetSrc, count, kind)
-{{endif}}
+    return _runtime._cudaMemcpyArrayToArray(dst, wOffsetDst, hOffsetDst, src, wOffsetSrc, hOffsetSrc, count, kind)
 
-{{if 'cudaMemcpyToArrayAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpyToArrayAsync(cudaArray_t dst, size_t wOffset, size_t hOffset, const void* src, size_t count, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyToArrayAsync(dst, wOffset, hOffset, src, count, kind, stream)
-{{endif}}
+    return _runtime._cudaMemcpyToArrayAsync(dst, wOffset, hOffset, src, count, kind, stream)
 
-{{if 'cudaMemcpyFromArrayAsync' in found_functions}}
 
 cdef cudaError_t cudaMemcpyFromArrayAsync(void* dst, cudaArray_const_t src, size_t wOffset, size_t hOffset, size_t count, cudaMemcpyKind kind, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemcpyFromArrayAsync(dst, src, wOffset, hOffset, count, kind, stream)
-{{endif}}
+    return _runtime._cudaMemcpyFromArrayAsync(dst, src, wOffset, hOffset, count, kind, stream)
 
-{{if 'cudaMallocAsync' in found_functions}}
 
 cdef cudaError_t cudaMallocAsync(void** devPtr, size_t size, cudaStream_t hStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMallocAsync(devPtr, size, hStream)
-{{endif}}
+    return _runtime._cudaMallocAsync(devPtr, size, hStream)
 
-{{if 'cudaFreeAsync' in found_functions}}
 
 cdef cudaError_t cudaFreeAsync(void* devPtr, cudaStream_t hStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaFreeAsync(devPtr, hStream)
-{{endif}}
+    return _runtime._cudaFreeAsync(devPtr, hStream)
 
-{{if 'cudaMemPoolTrimTo' in found_functions}}
 
 cdef cudaError_t cudaMemPoolTrimTo(cudaMemPool_t memPool, size_t minBytesToKeep) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolTrimTo(memPool, minBytesToKeep)
-{{endif}}
+    return _runtime._cudaMemPoolTrimTo(memPool, minBytesToKeep)
 
-{{if 'cudaMemPoolSetAttribute' in found_functions}}
 
 cdef cudaError_t cudaMemPoolSetAttribute(cudaMemPool_t memPool, cudaMemPoolAttr attr, void* value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolSetAttribute(memPool, attr, value)
-{{endif}}
+    return _runtime._cudaMemPoolSetAttribute(memPool, attr, value)
 
-{{if 'cudaMemPoolGetAttribute' in found_functions}}
 
 cdef cudaError_t cudaMemPoolGetAttribute(cudaMemPool_t memPool, cudaMemPoolAttr attr, void* value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolGetAttribute(memPool, attr, value)
-{{endif}}
+    return _runtime._cudaMemPoolGetAttribute(memPool, attr, value)
 
-{{if 'cudaMemPoolSetAccess' in found_functions}}
 
 cdef cudaError_t cudaMemPoolSetAccess(cudaMemPool_t memPool, const cudaMemAccessDesc* descList, size_t count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolSetAccess(memPool, descList, count)
-{{endif}}
+    return _runtime._cudaMemPoolSetAccess(memPool, descList, count)
 
-{{if 'cudaMemPoolGetAccess' in found_functions}}
 
 cdef cudaError_t cudaMemPoolGetAccess(cudaMemAccessFlags* flags, cudaMemPool_t memPool, cudaMemLocation* location) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolGetAccess(flags, memPool, location)
-{{endif}}
+    return _runtime._cudaMemPoolGetAccess(flags, memPool, location)
 
-{{if 'cudaMemPoolCreate' in found_functions}}
 
 cdef cudaError_t cudaMemPoolCreate(cudaMemPool_t* memPool, const cudaMemPoolProps* poolProps) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolCreate(memPool, poolProps)
-{{endif}}
+    return _runtime._cudaMemPoolCreate(memPool, poolProps)
 
-{{if 'cudaMemPoolDestroy' in found_functions}}
 
 cdef cudaError_t cudaMemPoolDestroy(cudaMemPool_t memPool) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolDestroy(memPool)
-{{endif}}
+    return _runtime._cudaMemPoolDestroy(memPool)
 
-{{if 'cudaMallocFromPoolAsync' in found_functions}}
 
 cdef cudaError_t cudaMallocFromPoolAsync(void** ptr, size_t size, cudaMemPool_t memPool, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMallocFromPoolAsync(ptr, size, memPool, stream)
-{{endif}}
+    return _runtime._cudaMallocFromPoolAsync(ptr, size, memPool, stream)
 
-{{if 'cudaMemPoolExportToShareableHandle' in found_functions}}
 
 cdef cudaError_t cudaMemPoolExportToShareableHandle(void* shareableHandle, cudaMemPool_t memPool, cudaMemAllocationHandleType handleType, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolExportToShareableHandle(shareableHandle, memPool, handleType, flags)
-{{endif}}
+    return _runtime._cudaMemPoolExportToShareableHandle(shareableHandle, memPool, handleType, flags)
 
-{{if 'cudaMemPoolImportFromShareableHandle' in found_functions}}
 
 cdef cudaError_t cudaMemPoolImportFromShareableHandle(cudaMemPool_t* memPool, void* shareableHandle, cudaMemAllocationHandleType handleType, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolImportFromShareableHandle(memPool, shareableHandle, handleType, flags)
-{{endif}}
+    return _runtime._cudaMemPoolImportFromShareableHandle(memPool, shareableHandle, handleType, flags)
 
-{{if 'cudaMemPoolExportPointer' in found_functions}}
 
 cdef cudaError_t cudaMemPoolExportPointer(cudaMemPoolPtrExportData* exportData, void* ptr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolExportPointer(exportData, ptr)
-{{endif}}
+    return _runtime._cudaMemPoolExportPointer(exportData, ptr)
 
-{{if 'cudaMemPoolImportPointer' in found_functions}}
 
 cdef cudaError_t cudaMemPoolImportPointer(void** ptr, cudaMemPool_t memPool, cudaMemPoolPtrExportData* exportData) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaMemPoolImportPointer(ptr, memPool, exportData)
-{{endif}}
+    return _runtime._cudaMemPoolImportPointer(ptr, memPool, exportData)
 
-{{if 'cudaPointerGetAttributes' in found_functions}}
 
 cdef cudaError_t cudaPointerGetAttributes(cudaPointerAttributes* attributes, const void* ptr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaPointerGetAttributes(attributes, ptr)
-{{endif}}
+    return _runtime._cudaPointerGetAttributes(attributes, ptr)
 
-{{if 'cudaDeviceCanAccessPeer' in found_functions}}
 
 cdef cudaError_t cudaDeviceCanAccessPeer(int* canAccessPeer, int device, int peerDevice) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceCanAccessPeer(canAccessPeer, device, peerDevice)
-{{endif}}
+    return _runtime._cudaDeviceCanAccessPeer(canAccessPeer, device, peerDevice)
 
-{{if 'cudaDeviceEnablePeerAccess' in found_functions}}
 
 cdef cudaError_t cudaDeviceEnablePeerAccess(int peerDevice, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceEnablePeerAccess(peerDevice, flags)
-{{endif}}
+    return _runtime._cudaDeviceEnablePeerAccess(peerDevice, flags)
 
-{{if 'cudaDeviceDisablePeerAccess' in found_functions}}
 
 cdef cudaError_t cudaDeviceDisablePeerAccess(int peerDevice) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceDisablePeerAccess(peerDevice)
-{{endif}}
+    return _runtime._cudaDeviceDisablePeerAccess(peerDevice)
 
-{{if 'cudaGraphicsUnregisterResource' in found_functions}}
 
 cdef cudaError_t cudaGraphicsUnregisterResource(cudaGraphicsResource_t resource) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsUnregisterResource(resource)
-{{endif}}
+    return _runtime._cudaGraphicsUnregisterResource(resource)
 
-{{if 'cudaGraphicsResourceSetMapFlags' in found_functions}}
 
 cdef cudaError_t cudaGraphicsResourceSetMapFlags(cudaGraphicsResource_t resource, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsResourceSetMapFlags(resource, flags)
-{{endif}}
+    return _runtime._cudaGraphicsResourceSetMapFlags(resource, flags)
 
-{{if 'cudaGraphicsMapResources' in found_functions}}
 
 cdef cudaError_t cudaGraphicsMapResources(int count, cudaGraphicsResource_t* resources, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsMapResources(count, resources, stream)
-{{endif}}
+    return _runtime._cudaGraphicsMapResources(count, resources, stream)
 
-{{if 'cudaGraphicsUnmapResources' in found_functions}}
 
 cdef cudaError_t cudaGraphicsUnmapResources(int count, cudaGraphicsResource_t* resources, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsUnmapResources(count, resources, stream)
-{{endif}}
+    return _runtime._cudaGraphicsUnmapResources(count, resources, stream)
 
-{{if 'cudaGraphicsResourceGetMappedPointer' in found_functions}}
 
 cdef cudaError_t cudaGraphicsResourceGetMappedPointer(void** devPtr, size_t* size, cudaGraphicsResource_t resource) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsResourceGetMappedPointer(devPtr, size, resource)
-{{endif}}
+    return _runtime._cudaGraphicsResourceGetMappedPointer(devPtr, size, resource)
 
-{{if 'cudaGraphicsSubResourceGetMappedArray' in found_functions}}
 
 cdef cudaError_t cudaGraphicsSubResourceGetMappedArray(cudaArray_t* array, cudaGraphicsResource_t resource, unsigned int arrayIndex, unsigned int mipLevel) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsSubResourceGetMappedArray(array, resource, arrayIndex, mipLevel)
-{{endif}}
+    return _runtime._cudaGraphicsSubResourceGetMappedArray(array, resource, arrayIndex, mipLevel)
 
-{{if 'cudaGraphicsResourceGetMappedMipmappedArray' in found_functions}}
 
 cdef cudaError_t cudaGraphicsResourceGetMappedMipmappedArray(cudaMipmappedArray_t* mipmappedArray, cudaGraphicsResource_t resource) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsResourceGetMappedMipmappedArray(mipmappedArray, resource)
-{{endif}}
+    return _runtime._cudaGraphicsResourceGetMappedMipmappedArray(mipmappedArray, resource)
 
-{{if 'cudaGetChannelDesc' in found_functions}}
 
 cdef cudaError_t cudaGetChannelDesc(cudaChannelFormatDesc* desc, cudaArray_const_t array) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetChannelDesc(desc, array)
-{{endif}}
+    return _runtime._cudaGetChannelDesc(desc, array)
 
-{{if 'cudaCreateChannelDesc' in found_functions}}
-@cython.show_performance_hints(False)
+
 cdef cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) except* nogil:
-    return cyruntime._cudaCreateChannelDesc(x, y, z, w, f)
-{{endif}}
+    return _runtime._cudaCreateChannelDesc(x, y, z, w, f)
 
-{{if 'cudaCreateTextureObject' in found_functions}}
 
 cdef cudaError_t cudaCreateTextureObject(cudaTextureObject_t* pTexObject, const cudaResourceDesc* pResDesc, const cudaTextureDesc* pTexDesc, const cudaResourceViewDesc* pResViewDesc) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaCreateTextureObject(pTexObject, pResDesc, pTexDesc, pResViewDesc)
-{{endif}}
+    return _runtime._cudaCreateTextureObject(pTexObject, pResDesc, pTexDesc, pResViewDesc)
 
-{{if 'cudaDestroyTextureObject' in found_functions}}
 
 cdef cudaError_t cudaDestroyTextureObject(cudaTextureObject_t texObject) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDestroyTextureObject(texObject)
-{{endif}}
+    return _runtime._cudaDestroyTextureObject(texObject)
 
-{{if 'cudaGetTextureObjectResourceDesc' in found_functions}}
 
 cdef cudaError_t cudaGetTextureObjectResourceDesc(cudaResourceDesc* pResDesc, cudaTextureObject_t texObject) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetTextureObjectResourceDesc(pResDesc, texObject)
-{{endif}}
+    return _runtime._cudaGetTextureObjectResourceDesc(pResDesc, texObject)
 
-{{if 'cudaGetTextureObjectTextureDesc' in found_functions}}
 
 cdef cudaError_t cudaGetTextureObjectTextureDesc(cudaTextureDesc* pTexDesc, cudaTextureObject_t texObject) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetTextureObjectTextureDesc(pTexDesc, texObject)
-{{endif}}
+    return _runtime._cudaGetTextureObjectTextureDesc(pTexDesc, texObject)
 
-{{if 'cudaGetTextureObjectResourceViewDesc' in found_functions}}
 
 cdef cudaError_t cudaGetTextureObjectResourceViewDesc(cudaResourceViewDesc* pResViewDesc, cudaTextureObject_t texObject) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetTextureObjectResourceViewDesc(pResViewDesc, texObject)
-{{endif}}
+    return _runtime._cudaGetTextureObjectResourceViewDesc(pResViewDesc, texObject)
 
-{{if 'cudaCreateSurfaceObject' in found_functions}}
 
 cdef cudaError_t cudaCreateSurfaceObject(cudaSurfaceObject_t* pSurfObject, const cudaResourceDesc* pResDesc) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaCreateSurfaceObject(pSurfObject, pResDesc)
-{{endif}}
+    return _runtime._cudaCreateSurfaceObject(pSurfObject, pResDesc)
 
-{{if 'cudaDestroySurfaceObject' in found_functions}}
 
 cdef cudaError_t cudaDestroySurfaceObject(cudaSurfaceObject_t surfObject) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDestroySurfaceObject(surfObject)
-{{endif}}
+    return _runtime._cudaDestroySurfaceObject(surfObject)
 
-{{if 'cudaGetSurfaceObjectResourceDesc' in found_functions}}
 
 cdef cudaError_t cudaGetSurfaceObjectResourceDesc(cudaResourceDesc* pResDesc, cudaSurfaceObject_t surfObject) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetSurfaceObjectResourceDesc(pResDesc, surfObject)
-{{endif}}
+    return _runtime._cudaGetSurfaceObjectResourceDesc(pResDesc, surfObject)
 
-{{if 'cudaDriverGetVersion' in found_functions}}
 
 cdef cudaError_t cudaDriverGetVersion(int* driverVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDriverGetVersion(driverVersion)
-{{endif}}
+    return _runtime._cudaDriverGetVersion(driverVersion)
 
-{{if 'cudaRuntimeGetVersion' in found_functions}}
 
 cdef cudaError_t cudaRuntimeGetVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaRuntimeGetVersion(runtimeVersion)
-{{endif}}
+    return _runtime._cudaRuntimeGetVersion(runtimeVersion)
 
-{{if 'cudaGraphCreate' in found_functions}}
 
 cdef cudaError_t cudaGraphCreate(cudaGraph_t* pGraph, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphCreate(pGraph, flags)
-{{endif}}
+    return _runtime._cudaGraphCreate(pGraph, flags)
 
-{{if 'cudaGraphAddKernelNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaKernelNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddKernelNode(pGraphNode, graph, pDependencies, numDependencies, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphAddKernelNode(pGraphNode, graph, pDependencies, numDependencies, pNodeParams)
 
-{{if 'cudaGraphKernelNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphKernelNodeGetParams(cudaGraphNode_t node, cudaKernelNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphKernelNodeGetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphKernelNodeGetParams(node, pNodeParams)
 
-{{if 'cudaGraphKernelNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const cudaKernelNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphKernelNodeSetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphKernelNodeSetParams(node, pNodeParams)
 
-{{if 'cudaGraphKernelNodeCopyAttributes' in found_functions}}
 
 cdef cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hSrc, cudaGraphNode_t hDst) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphKernelNodeCopyAttributes(hSrc, hDst)
-{{endif}}
+    return _runtime._cudaGraphKernelNodeCopyAttributes(hSrc, hDst)
 
-{{if 'cudaGraphKernelNodeGetAttribute' in found_functions}}
 
 cdef cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, cudaKernelNodeAttrValue* value_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphKernelNodeGetAttribute(hNode, attr, value_out)
-{{endif}}
+    return _runtime._cudaGraphKernelNodeGetAttribute(hNode, attr, value_out)
 
-{{if 'cudaGraphKernelNodeSetAttribute' in found_functions}}
 
 cdef cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaKernelNodeAttrID attr, const cudaKernelNodeAttrValue* value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphKernelNodeSetAttribute(hNode, attr, value)
-{{endif}}
+    return _runtime._cudaGraphKernelNodeSetAttribute(hNode, attr, value)
 
-{{if 'cudaGraphAddMemcpyNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaMemcpy3DParms* pCopyParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddMemcpyNode(pGraphNode, graph, pDependencies, numDependencies, pCopyParams)
-{{endif}}
+    return _runtime._cudaGraphAddMemcpyNode(pGraphNode, graph, pDependencies, numDependencies, pCopyParams)
 
-{{if 'cudaGraphAddMemcpyNode1D' in found_functions}}
 
 cdef cudaError_t cudaGraphAddMemcpyNode1D(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, void* dst, const void* src, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddMemcpyNode1D(pGraphNode, graph, pDependencies, numDependencies, dst, src, count, kind)
-{{endif}}
+    return _runtime._cudaGraphAddMemcpyNode1D(pGraphNode, graph, pDependencies, numDependencies, dst, src, count, kind)
 
-{{if 'cudaGraphMemcpyNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemcpyNodeGetParams(cudaGraphNode_t node, cudaMemcpy3DParms* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphMemcpyNodeGetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphMemcpyNodeGetParams(node, pNodeParams)
 
-{{if 'cudaGraphMemcpyNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemcpyNodeSetParams(cudaGraphNode_t node, const cudaMemcpy3DParms* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphMemcpyNodeSetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphMemcpyNodeSetParams(node, pNodeParams)
 
-{{if 'cudaGraphMemcpyNodeSetParams1D' in found_functions}}
 
 cdef cudaError_t cudaGraphMemcpyNodeSetParams1D(cudaGraphNode_t node, void* dst, const void* src, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphMemcpyNodeSetParams1D(node, dst, src, count, kind)
-{{endif}}
+    return _runtime._cudaGraphMemcpyNodeSetParams1D(node, dst, src, count, kind)
 
-{{if 'cudaGraphAddMemsetNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddMemsetNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaMemsetParams* pMemsetParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddMemsetNode(pGraphNode, graph, pDependencies, numDependencies, pMemsetParams)
-{{endif}}
+    return _runtime._cudaGraphAddMemsetNode(pGraphNode, graph, pDependencies, numDependencies, pMemsetParams)
 
-{{if 'cudaGraphMemsetNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemsetNodeGetParams(cudaGraphNode_t node, cudaMemsetParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphMemsetNodeGetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphMemsetNodeGetParams(node, pNodeParams)
 
-{{if 'cudaGraphMemsetNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemsetNodeSetParams(cudaGraphNode_t node, const cudaMemsetParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphMemsetNodeSetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphMemsetNodeSetParams(node, pNodeParams)
 
-{{if 'cudaGraphAddHostNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddHostNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaHostNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddHostNode(pGraphNode, graph, pDependencies, numDependencies, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphAddHostNode(pGraphNode, graph, pDependencies, numDependencies, pNodeParams)
 
-{{if 'cudaGraphHostNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphHostNodeGetParams(cudaGraphNode_t node, cudaHostNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphHostNodeGetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphHostNodeGetParams(node, pNodeParams)
 
-{{if 'cudaGraphHostNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphHostNodeSetParams(cudaGraphNode_t node, const cudaHostNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphHostNodeSetParams(node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphHostNodeSetParams(node, pNodeParams)
 
-{{if 'cudaGraphAddChildGraphNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddChildGraphNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaGraph_t childGraph) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddChildGraphNode(pGraphNode, graph, pDependencies, numDependencies, childGraph)
-{{endif}}
+    return _runtime._cudaGraphAddChildGraphNode(pGraphNode, graph, pDependencies, numDependencies, childGraph)
 
-{{if 'cudaGraphChildGraphNodeGetGraph' in found_functions}}
 
 cdef cudaError_t cudaGraphChildGraphNodeGetGraph(cudaGraphNode_t node, cudaGraph_t* pGraph) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphChildGraphNodeGetGraph(node, pGraph)
-{{endif}}
+    return _runtime._cudaGraphChildGraphNodeGetGraph(node, pGraph)
 
-{{if 'cudaGraphAddEmptyNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddEmptyNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddEmptyNode(pGraphNode, graph, pDependencies, numDependencies)
-{{endif}}
+    return _runtime._cudaGraphAddEmptyNode(pGraphNode, graph, pDependencies, numDependencies)
 
-{{if 'cudaGraphAddEventRecordNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddEventRecordNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddEventRecordNode(pGraphNode, graph, pDependencies, numDependencies, event)
-{{endif}}
+    return _runtime._cudaGraphAddEventRecordNode(pGraphNode, graph, pDependencies, numDependencies, event)
 
-{{if 'cudaGraphEventRecordNodeGetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventRecordNodeGetEvent(cudaGraphNode_t node, cudaEvent_t* event_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphEventRecordNodeGetEvent(node, event_out)
-{{endif}}
+    return _runtime._cudaGraphEventRecordNodeGetEvent(node, event_out)
 
-{{if 'cudaGraphEventRecordNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventRecordNodeSetEvent(cudaGraphNode_t node, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphEventRecordNodeSetEvent(node, event)
-{{endif}}
+    return _runtime._cudaGraphEventRecordNodeSetEvent(node, event)
 
-{{if 'cudaGraphAddEventWaitNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddEventWaitNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddEventWaitNode(pGraphNode, graph, pDependencies, numDependencies, event)
-{{endif}}
+    return _runtime._cudaGraphAddEventWaitNode(pGraphNode, graph, pDependencies, numDependencies, event)
 
-{{if 'cudaGraphEventWaitNodeGetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventWaitNodeGetEvent(cudaGraphNode_t node, cudaEvent_t* event_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphEventWaitNodeGetEvent(node, event_out)
-{{endif}}
+    return _runtime._cudaGraphEventWaitNodeGetEvent(node, event_out)
 
-{{if 'cudaGraphEventWaitNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphEventWaitNodeSetEvent(cudaGraphNode_t node, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphEventWaitNodeSetEvent(node, event)
-{{endif}}
+    return _runtime._cudaGraphEventWaitNodeSetEvent(node, event)
 
-{{if 'cudaGraphAddExternalSemaphoresSignalNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddExternalSemaphoresSignalNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaExternalSemaphoreSignalNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddExternalSemaphoresSignalNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphAddExternalSemaphoresSignalNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
 
-{{if 'cudaGraphExternalSemaphoresSignalNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresSignalNodeGetParams(cudaGraphNode_t hNode, cudaExternalSemaphoreSignalNodeParams* params_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExternalSemaphoresSignalNodeGetParams(hNode, params_out)
-{{endif}}
+    return _runtime._cudaGraphExternalSemaphoresSignalNodeGetParams(hNode, params_out)
 
-{{if 'cudaGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresSignalNodeSetParams(cudaGraphNode_t hNode, const cudaExternalSemaphoreSignalNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams)
 
-{{if 'cudaGraphAddExternalSemaphoresWaitNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddExternalSemaphoresWaitNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, const cudaExternalSemaphoreWaitNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddExternalSemaphoresWaitNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphAddExternalSemaphoresWaitNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
 
-{{if 'cudaGraphExternalSemaphoresWaitNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresWaitNodeGetParams(cudaGraphNode_t hNode, cudaExternalSemaphoreWaitNodeParams* params_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExternalSemaphoresWaitNodeGetParams(hNode, params_out)
-{{endif}}
+    return _runtime._cudaGraphExternalSemaphoresWaitNodeGetParams(hNode, params_out)
 
-{{if 'cudaGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExternalSemaphoresWaitNodeSetParams(cudaGraphNode_t hNode, const cudaExternalSemaphoreWaitNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams)
 
-{{if 'cudaGraphAddMemAllocNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddMemAllocNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaMemAllocNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddMemAllocNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphAddMemAllocNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
 
-{{if 'cudaGraphMemAllocNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemAllocNodeGetParams(cudaGraphNode_t node, cudaMemAllocNodeParams* params_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphMemAllocNodeGetParams(node, params_out)
-{{endif}}
+    return _runtime._cudaGraphMemAllocNodeGetParams(node, params_out)
 
-{{if 'cudaGraphAddMemFreeNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddMemFreeNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, void* dptr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddMemFreeNode(pGraphNode, graph, pDependencies, numDependencies, dptr)
-{{endif}}
+    return _runtime._cudaGraphAddMemFreeNode(pGraphNode, graph, pDependencies, numDependencies, dptr)
 
-{{if 'cudaGraphMemFreeNodeGetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void* dptr_out) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphMemFreeNodeGetParams(node, dptr_out)
-{{endif}}
+    return _runtime._cudaGraphMemFreeNodeGetParams(node, dptr_out)
 
-{{if 'cudaDeviceGraphMemTrim' in found_functions}}
 
 cdef cudaError_t cudaDeviceGraphMemTrim(int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGraphMemTrim(device)
-{{endif}}
+    return _runtime._cudaDeviceGraphMemTrim(device)
 
-{{if 'cudaDeviceGetGraphMemAttribute' in found_functions}}
 
 cdef cudaError_t cudaDeviceGetGraphMemAttribute(int device, cudaGraphMemAttributeType attr, void* value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceGetGraphMemAttribute(device, attr, value)
-{{endif}}
+    return _runtime._cudaDeviceGetGraphMemAttribute(device, attr, value)
 
-{{if 'cudaDeviceSetGraphMemAttribute' in found_functions}}
 
 cdef cudaError_t cudaDeviceSetGraphMemAttribute(int device, cudaGraphMemAttributeType attr, void* value) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaDeviceSetGraphMemAttribute(device, attr, value)
-{{endif}}
+    return _runtime._cudaDeviceSetGraphMemAttribute(device, attr, value)
 
-{{if 'cudaGraphClone' in found_functions}}
 
 cdef cudaError_t cudaGraphClone(cudaGraph_t* pGraphClone, cudaGraph_t originalGraph) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphClone(pGraphClone, originalGraph)
-{{endif}}
+    return _runtime._cudaGraphClone(pGraphClone, originalGraph)
 
-{{if 'cudaGraphNodeFindInClone' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeFindInClone(cudaGraphNode_t* pNode, cudaGraphNode_t originalNode, cudaGraph_t clonedGraph) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeFindInClone(pNode, originalNode, clonedGraph)
-{{endif}}
+    return _runtime._cudaGraphNodeFindInClone(pNode, originalNode, clonedGraph)
 
-{{if 'cudaGraphNodeGetType' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetType(cudaGraphNode_t node, cudaGraphNodeType* pType) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeGetType(node, pType)
-{{endif}}
+    return _runtime._cudaGraphNodeGetType(node, pType)
 
-{{if 'cudaGraphGetNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t* nodes, size_t* numNodes) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphGetNodes(graph, nodes, numNodes)
-{{endif}}
+    return _runtime._cudaGraphGetNodes(graph, nodes, numNodes)
 
-{{if 'cudaGraphGetRootNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphGetRootNodes(cudaGraph_t graph, cudaGraphNode_t* pRootNodes, size_t* pNumRootNodes) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphGetRootNodes(graph, pRootNodes, pNumRootNodes)
-{{endif}}
+    return _runtime._cudaGraphGetRootNodes(graph, pRootNodes, pNumRootNodes)
 
-{{if 'cudaGraphGetEdges' in found_functions}}
 
 cdef cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, size_t* numEdges) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphGetEdges(graph, from_, to, numEdges)
-{{endif}}
+    return _runtime._cudaGraphGetEdges(graph, from_, to, numEdges)
 
-{{if 'cudaGraphGetEdges_v2' in found_functions}}
 
 cdef cudaError_t cudaGraphGetEdges_v2(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, cudaGraphEdgeData* edgeData, size_t* numEdges) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphGetEdges_v2(graph, from_, to, edgeData, numEdges)
-{{endif}}
+    return _runtime._cudaGraphGetEdges_v2(graph, from_, to, edgeData, numEdges)
 
-{{if 'cudaGraphNodeGetDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, size_t* pNumDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeGetDependencies(node, pDependencies, pNumDependencies)
-{{endif}}
+    return _runtime._cudaGraphNodeGetDependencies(node, pDependencies, pNumDependencies)
 
-{{if 'cudaGraphNodeGetDependencies_v2' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependencies_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, cudaGraphEdgeData* edgeData, size_t* pNumDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeGetDependencies_v2(node, pDependencies, edgeData, pNumDependencies)
-{{endif}}
+    return _runtime._cudaGraphNodeGetDependencies_v2(node, pDependencies, edgeData, pNumDependencies)
 
-{{if 'cudaGraphNodeGetDependentNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, size_t* pNumDependentNodes) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeGetDependentNodes(node, pDependentNodes, pNumDependentNodes)
-{{endif}}
+    return _runtime._cudaGraphNodeGetDependentNodes(node, pDependentNodes, pNumDependentNodes)
 
-{{if 'cudaGraphNodeGetDependentNodes_v2' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetDependentNodes_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, cudaGraphEdgeData* edgeData, size_t* pNumDependentNodes) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeGetDependentNodes_v2(node, pDependentNodes, edgeData, pNumDependentNodes)
-{{endif}}
+    return _runtime._cudaGraphNodeGetDependentNodes_v2(node, pDependentNodes, edgeData, pNumDependentNodes)
 
-{{if 'cudaGraphAddDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddDependencies(graph, from_, to, numDependencies)
-{{endif}}
+    return _runtime._cudaGraphAddDependencies(graph, from_, to, numDependencies)
 
-{{if 'cudaGraphAddDependencies_v2' in found_functions}}
 
 cdef cudaError_t cudaGraphAddDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddDependencies_v2(graph, from_, to, edgeData, numDependencies)
-{{endif}}
+    return _runtime._cudaGraphAddDependencies_v2(graph, from_, to, edgeData, numDependencies)
 
-{{if 'cudaGraphRemoveDependencies' in found_functions}}
 
 cdef cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphRemoveDependencies(graph, from_, to, numDependencies)
-{{endif}}
+    return _runtime._cudaGraphRemoveDependencies(graph, from_, to, numDependencies)
 
-{{if 'cudaGraphRemoveDependencies_v2' in found_functions}}
 
 cdef cudaError_t cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphRemoveDependencies_v2(graph, from_, to, edgeData, numDependencies)
-{{endif}}
+    return _runtime._cudaGraphRemoveDependencies_v2(graph, from_, to, edgeData, numDependencies)
 
-{{if 'cudaGraphDestroyNode' in found_functions}}
 
 cdef cudaError_t cudaGraphDestroyNode(cudaGraphNode_t node) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphDestroyNode(node)
-{{endif}}
+    return _runtime._cudaGraphDestroyNode(node)
 
-{{if 'cudaGraphInstantiate' in found_functions}}
 
 cdef cudaError_t cudaGraphInstantiate(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, unsigned long long flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphInstantiate(pGraphExec, graph, flags)
-{{endif}}
+    return _runtime._cudaGraphInstantiate(pGraphExec, graph, flags)
 
-{{if 'cudaGraphInstantiateWithFlags' in found_functions}}
 
 cdef cudaError_t cudaGraphInstantiateWithFlags(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, unsigned long long flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphInstantiateWithFlags(pGraphExec, graph, flags)
-{{endif}}
+    return _runtime._cudaGraphInstantiateWithFlags(pGraphExec, graph, flags)
 
-{{if 'cudaGraphInstantiateWithParams' in found_functions}}
 
 cdef cudaError_t cudaGraphInstantiateWithParams(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, cudaGraphInstantiateParams* instantiateParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphInstantiateWithParams(pGraphExec, graph, instantiateParams)
-{{endif}}
+    return _runtime._cudaGraphInstantiateWithParams(pGraphExec, graph, instantiateParams)
 
-{{if 'cudaGraphExecGetFlags' in found_functions}}
 
 cdef cudaError_t cudaGraphExecGetFlags(cudaGraphExec_t graphExec, unsigned long long* flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecGetFlags(graphExec, flags)
-{{endif}}
+    return _runtime._cudaGraphExecGetFlags(graphExec, flags)
 
-{{if 'cudaGraphExecKernelNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecKernelNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, const cudaKernelNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams)
 
-{{if 'cudaGraphExecMemcpyNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecMemcpyNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, const cudaMemcpy3DParms* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams)
 
-{{if 'cudaGraphExecMemcpyNodeSetParams1D' in found_functions}}
 
 cdef cudaError_t cudaGraphExecMemcpyNodeSetParams1D(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, void* dst, const void* src, size_t count, cudaMemcpyKind kind) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, count, kind)
-{{endif}}
+    return _runtime._cudaGraphExecMemcpyNodeSetParams1D(hGraphExec, node, dst, src, count, kind)
 
-{{if 'cudaGraphExecMemsetNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecMemsetNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, const cudaMemsetParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams)
 
-{{if 'cudaGraphExecHostNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecHostNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, const cudaHostNodeParams* pNodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams)
-{{endif}}
+    return _runtime._cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams)
 
-{{if 'cudaGraphExecChildGraphNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecChildGraphNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t node, cudaGraph_t childGraph) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph)
-{{endif}}
+    return _runtime._cudaGraphExecChildGraphNodeSetParams(hGraphExec, node, childGraph)
 
-{{if 'cudaGraphExecEventRecordNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphExecEventRecordNodeSetEvent(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event)
-{{endif}}
+    return _runtime._cudaGraphExecEventRecordNodeSetEvent(hGraphExec, hNode, event)
 
-{{if 'cudaGraphExecEventWaitNodeSetEvent' in found_functions}}
 
 cdef cudaError_t cudaGraphExecEventWaitNodeSetEvent(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event)
-{{endif}}
+    return _runtime._cudaGraphExecEventWaitNodeSetEvent(hGraphExec, hNode, event)
 
-{{if 'cudaGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecExternalSemaphoresSignalNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, const cudaExternalSemaphoreSignalNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodeParams)
 
-{{if 'cudaGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecExternalSemaphoresWaitNodeSetParams(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, const cudaExternalSemaphoreWaitNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodeParams)
 
-{{if 'cudaGraphNodeSetEnabled' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeSetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int isEnabled) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeSetEnabled(hGraphExec, hNode, isEnabled)
-{{endif}}
+    return _runtime._cudaGraphNodeSetEnabled(hGraphExec, hNode, isEnabled)
 
-{{if 'cudaGraphNodeGetEnabled' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeGetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int* isEnabled) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeGetEnabled(hGraphExec, hNode, isEnabled)
-{{endif}}
+    return _runtime._cudaGraphNodeGetEnabled(hGraphExec, hNode, isEnabled)
 
-{{if 'cudaGraphExecUpdate' in found_functions}}
 
 cdef cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphExecUpdateResultInfo* resultInfo) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecUpdate(hGraphExec, hGraph, resultInfo)
-{{endif}}
+    return _runtime._cudaGraphExecUpdate(hGraphExec, hGraph, resultInfo)
 
-{{if 'cudaGraphUpload' in found_functions}}
 
 cdef cudaError_t cudaGraphUpload(cudaGraphExec_t graphExec, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphUpload(graphExec, stream)
-{{endif}}
+    return _runtime._cudaGraphUpload(graphExec, stream)
 
-{{if 'cudaGraphLaunch' in found_functions}}
 
 cdef cudaError_t cudaGraphLaunch(cudaGraphExec_t graphExec, cudaStream_t stream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphLaunch(graphExec, stream)
-{{endif}}
+    return _runtime._cudaGraphLaunch(graphExec, stream)
 
-{{if 'cudaGraphExecDestroy' in found_functions}}
 
 cdef cudaError_t cudaGraphExecDestroy(cudaGraphExec_t graphExec) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecDestroy(graphExec)
-{{endif}}
+    return _runtime._cudaGraphExecDestroy(graphExec)
 
-{{if 'cudaGraphDestroy' in found_functions}}
 
 cdef cudaError_t cudaGraphDestroy(cudaGraph_t graph) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphDestroy(graph)
-{{endif}}
+    return _runtime._cudaGraphDestroy(graph)
 
-{{if 'cudaGraphDebugDotPrint' in found_functions}}
 
 cdef cudaError_t cudaGraphDebugDotPrint(cudaGraph_t graph, const char* path, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphDebugDotPrint(graph, path, flags)
-{{endif}}
+    return _runtime._cudaGraphDebugDotPrint(graph, path, flags)
 
-{{if 'cudaUserObjectCreate' in found_functions}}
 
 cdef cudaError_t cudaUserObjectCreate(cudaUserObject_t* object_out, void* ptr, cudaHostFn_t destroy, unsigned int initialRefcount, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaUserObjectCreate(object_out, ptr, destroy, initialRefcount, flags)
-{{endif}}
+    return _runtime._cudaUserObjectCreate(object_out, ptr, destroy, initialRefcount, flags)
 
-{{if 'cudaUserObjectRetain' in found_functions}}
 
 cdef cudaError_t cudaUserObjectRetain(cudaUserObject_t object, unsigned int count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaUserObjectRetain(object, count)
-{{endif}}
+    return _runtime._cudaUserObjectRetain(object, count)
 
-{{if 'cudaUserObjectRelease' in found_functions}}
 
 cdef cudaError_t cudaUserObjectRelease(cudaUserObject_t object, unsigned int count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaUserObjectRelease(object, count)
-{{endif}}
+    return _runtime._cudaUserObjectRelease(object, count)
 
-{{if 'cudaGraphRetainUserObject' in found_functions}}
 
 cdef cudaError_t cudaGraphRetainUserObject(cudaGraph_t graph, cudaUserObject_t object, unsigned int count, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphRetainUserObject(graph, object, count, flags)
-{{endif}}
+    return _runtime._cudaGraphRetainUserObject(graph, object, count, flags)
 
-{{if 'cudaGraphReleaseUserObject' in found_functions}}
 
 cdef cudaError_t cudaGraphReleaseUserObject(cudaGraph_t graph, cudaUserObject_t object, unsigned int count) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphReleaseUserObject(graph, object, count)
-{{endif}}
+    return _runtime._cudaGraphReleaseUserObject(graph, object, count)
 
-{{if 'cudaGraphAddNode' in found_functions}}
 
 cdef cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphAddNode(pGraphNode, graph, pDependencies, numDependencies, nodeParams)
 
-{{if 'cudaGraphAddNode_v2' in found_functions}}
 
 cdef cudaError_t cudaGraphAddNode_v2(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphAddNode_v2(pGraphNode, graph, pDependencies, dependencyData, numDependencies, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphAddNode_v2(pGraphNode, graph, pDependencies, dependencyData, numDependencies, nodeParams)
 
-{{if 'cudaGraphNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphNodeSetParams(node, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphNodeSetParams(node, nodeParams)
 
-{{if 'cudaGraphExecNodeSetParams' in found_functions}}
 
 cdef cudaError_t cudaGraphExecNodeSetParams(cudaGraphExec_t graphExec, cudaGraphNode_t node, cudaGraphNodeParams* nodeParams) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphExecNodeSetParams(graphExec, node, nodeParams)
-{{endif}}
+    return _runtime._cudaGraphExecNodeSetParams(graphExec, node, nodeParams)
 
-{{if 'cudaGraphConditionalHandleCreate' in found_functions}}
 
 cdef cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphConditionalHandleCreate(pHandle_out, graph, defaultLaunchValue, flags)
-{{endif}}
+    return _runtime._cudaGraphConditionalHandleCreate(pHandle_out, graph, defaultLaunchValue, flags)
 
-{{if 'cudaGetDriverEntryPoint' in found_functions}}
 
 cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetDriverEntryPoint(symbol, funcPtr, flags, driverStatus)
-{{endif}}
+    return _runtime._cudaGetDriverEntryPoint(symbol, funcPtr, flags, driverStatus)
 
-{{if 'cudaGetDriverEntryPointByVersion' in found_functions}}
 
 cdef cudaError_t cudaGetDriverEntryPointByVersion(const char* symbol, void** funcPtr, unsigned int cudaVersion, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetDriverEntryPointByVersion(symbol, funcPtr, cudaVersion, flags, driverStatus)
-{{endif}}
+    return _runtime._cudaGetDriverEntryPointByVersion(symbol, funcPtr, cudaVersion, flags, driverStatus)
 
-{{if 'cudaLibraryLoadData' in found_functions}}
 
 cdef cudaError_t cudaLibraryLoadData(cudaLibrary_t* library, const void* code, cudaJitOption* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, cudaLibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryLoadData(library, code, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
-{{endif}}
+    return _runtime._cudaLibraryLoadData(library, code, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
 
-{{if 'cudaLibraryLoadFromFile' in found_functions}}
 
 cdef cudaError_t cudaLibraryLoadFromFile(cudaLibrary_t* library, const char* fileName, cudaJitOption* jitOptions, void** jitOptionsValues, unsigned int numJitOptions, cudaLibraryOption* libraryOptions, void** libraryOptionValues, unsigned int numLibraryOptions) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryLoadFromFile(library, fileName, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
-{{endif}}
+    return _runtime._cudaLibraryLoadFromFile(library, fileName, jitOptions, jitOptionsValues, numJitOptions, libraryOptions, libraryOptionValues, numLibraryOptions)
 
-{{if 'cudaLibraryUnload' in found_functions}}
 
 cdef cudaError_t cudaLibraryUnload(cudaLibrary_t library) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryUnload(library)
-{{endif}}
+    return _runtime._cudaLibraryUnload(library)
 
-{{if 'cudaLibraryGetKernel' in found_functions}}
 
 cdef cudaError_t cudaLibraryGetKernel(cudaKernel_t* pKernel, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryGetKernel(pKernel, library, name)
-{{endif}}
+    return _runtime._cudaLibraryGetKernel(pKernel, library, name)
 
-{{if 'cudaLibraryGetGlobal' in found_functions}}
 
-cdef cudaError_t cudaLibraryGetGlobal(void** dptr, size_t* numbytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryGetGlobal(dptr, numbytes, library, name)
-{{endif}}
+cdef cudaError_t cudaLibraryGetGlobal(void** dptr, size_t* bytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaLibraryGetGlobal(dptr, bytes, library, name)
 
-{{if 'cudaLibraryGetManaged' in found_functions}}
 
-cdef cudaError_t cudaLibraryGetManaged(void** dptr, size_t* numbytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryGetManaged(dptr, numbytes, library, name)
-{{endif}}
+cdef cudaError_t cudaLibraryGetManaged(void** dptr, size_t* bytes, cudaLibrary_t library, const char* name) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return _runtime._cudaLibraryGetManaged(dptr, bytes, library, name)
 
-{{if 'cudaLibraryGetUnifiedFunction' in found_functions}}
 
 cdef cudaError_t cudaLibraryGetUnifiedFunction(void** fptr, cudaLibrary_t library, const char* symbol) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryGetUnifiedFunction(fptr, library, symbol)
-{{endif}}
+    return _runtime._cudaLibraryGetUnifiedFunction(fptr, library, symbol)
 
-{{if 'cudaLibraryGetKernelCount' in found_functions}}
 
 cdef cudaError_t cudaLibraryGetKernelCount(unsigned int* count, cudaLibrary_t lib) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryGetKernelCount(count, lib)
-{{endif}}
+    return _runtime._cudaLibraryGetKernelCount(count, lib)
 
-{{if 'cudaLibraryEnumerateKernels' in found_functions}}
 
 cdef cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned int numKernels, cudaLibrary_t lib) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaLibraryEnumerateKernels(kernels, numKernels, lib)
-{{endif}}
+    return _runtime._cudaLibraryEnumerateKernels(kernels, numKernels, lib)
 
-{{if 'cudaKernelSetAttributeForDevice' in found_functions}}
 
 cdef cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaKernelSetAttributeForDevice(kernel, attr, value, device)
-{{endif}}
+    return _runtime._cudaKernelSetAttributeForDevice(kernel, attr, value, device)
 
-{{if 'cudaGetExportTable' in found_functions}}
 
 cdef cudaError_t cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetExportTable(ppExportTable, pExportTableId)
-{{endif}}
+    return _runtime._cudaGetExportTable(ppExportTable, pExportTableId)
 
-{{if 'cudaGetKernel' in found_functions}}
 
 cdef cudaError_t cudaGetKernel(cudaKernel_t* kernelPtr, const void* entryFuncAddr) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGetKernel(kernelPtr, entryFuncAddr)
-{{endif}}
+    return _runtime._cudaGetKernel(kernelPtr, entryFuncAddr)
 
-{{if 'make_cudaPitchedPtr' in found_functions}}
-@cython.show_performance_hints(False)
-cdef cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil:
-    return cyruntime._make_cudaPitchedPtr(d, p, xsz, ysz)
-{{endif}}
-
-{{if 'make_cudaPos' in found_functions}}
-@cython.show_performance_hints(False)
-cdef cudaPos make_cudaPos(size_t x, size_t y, size_t z) except* nogil:
-    return cyruntime._make_cudaPos(x, y, z)
-{{endif}}
-
-{{if 'make_cudaExtent' in found_functions}}
-@cython.show_performance_hints(False)
-cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) except* nogil:
-    return cyruntime._make_cudaExtent(w, h, d)
-{{endif}}
-
-{{if True}}
 
 cdef cudaError_t cudaGraphicsEGLRegisterImage(cudaGraphicsResource** pCudaResource, EGLImageKHR image, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsEGLRegisterImage(pCudaResource, image, flags)
-{{endif}}
+    return _runtime._cudaGraphicsEGLRegisterImage(pCudaResource, image, flags)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamConsumerConnect(conn, eglStream)
-{{endif}}
+    return _runtime._cudaEGLStreamConsumerConnect(conn, eglStream)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerConnectWithFlags(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamConsumerConnectWithFlags(conn, eglStream, flags)
-{{endif}}
+    return _runtime._cudaEGLStreamConsumerConnectWithFlags(conn, eglStream, flags)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerDisconnect(cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamConsumerDisconnect(conn)
-{{endif}}
+    return _runtime._cudaEGLStreamConsumerDisconnect(conn)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerAcquireFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t* pCudaResource, cudaStream_t* pStream, unsigned int timeout) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, timeout)
-{{endif}}
+    return _runtime._cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, timeout)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerReleaseFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t pCudaResource, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream)
-{{endif}}
+    return _runtime._cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, EGLint width, EGLint height) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamProducerConnect(conn, eglStream, width, height)
-{{endif}}
+    return _runtime._cudaEGLStreamProducerConnect(conn, eglStream, width, height)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerDisconnect(cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamProducerDisconnect(conn)
-{{endif}}
+    return _runtime._cudaEGLStreamProducerDisconnect(conn)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerPresentFrame(cudaEglStreamConnection* conn, cudaEglFrame eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamProducerPresentFrame(conn, eglframe, pStream)
-{{endif}}
+    return _runtime._cudaEGLStreamProducerPresentFrame(conn, eglframe, pStream)
 
-{{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerReturnFrame(cudaEglStreamConnection* conn, cudaEglFrame* eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEGLStreamProducerReturnFrame(conn, eglframe, pStream)
-{{endif}}
+    return _runtime._cudaEGLStreamProducerReturnFrame(conn, eglframe, pStream)
 
-{{if True}}
 
 cdef cudaError_t cudaGraphicsResourceGetMappedEglFrame(cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsResourceGetMappedEglFrame(eglFrame, resource, index, mipLevel)
-{{endif}}
+    return _runtime._cudaGraphicsResourceGetMappedEglFrame(eglFrame, resource, index, mipLevel)
 
-{{if True}}
 
 cdef cudaError_t cudaEventCreateFromEGLSync(cudaEvent_t* phEvent, EGLSyncKHR eglSync, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaEventCreateFromEGLSync(phEvent, eglSync, flags)
-{{endif}}
+    return _runtime._cudaEventCreateFromEGLSync(phEvent, eglSync, flags)
 
-{{if 'cudaProfilerStart' in found_functions}}
 
 cdef cudaError_t cudaProfilerStart() except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaProfilerStart()
-{{endif}}
+    return _runtime._cudaProfilerStart()
 
-{{if 'cudaProfilerStop' in found_functions}}
 
 cdef cudaError_t cudaProfilerStop() except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaProfilerStop()
-{{endif}}
+    return _runtime._cudaProfilerStop()
 
-{{if True}}
 
 cdef cudaError_t cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cudaGLDeviceList deviceList) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGLGetDevices(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)
-{{endif}}
+    return _runtime._cudaGLGetDevices(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)
 
-{{if True}}
 
 cdef cudaError_t cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, GLuint image, GLenum target, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsGLRegisterImage(resource, image, target, flags)
-{{endif}}
+    return _runtime._cudaGraphicsGLRegisterImage(resource, image, target, flags)
 
-{{if True}}
 
 cdef cudaError_t cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, GLuint buffer, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsGLRegisterBuffer(resource, buffer, flags)
-{{endif}}
+    return _runtime._cudaGraphicsGLRegisterBuffer(resource, buffer, flags)
 
-{{if True}}
 
 cdef cudaError_t cudaVDPAUGetDevice(int* device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaVDPAUGetDevice(device, vdpDevice, vdpGetProcAddress)
-{{endif}}
+    return _runtime._cudaVDPAUGetDevice(device, vdpDevice, vdpGetProcAddress)
 
-{{if True}}
 
 cdef cudaError_t cudaVDPAUSetVDPAUDevice(int device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaVDPAUSetVDPAUDevice(device, vdpDevice, vdpGetProcAddress)
-{{endif}}
+    return _runtime._cudaVDPAUSetVDPAUDevice(device, vdpDevice, vdpGetProcAddress)
 
-{{if True}}
 
 cdef cudaError_t cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** resource, VdpVideoSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsVDPAURegisterVideoSurface(resource, vdpSurface, flags)
-{{endif}}
+    return _runtime._cudaGraphicsVDPAURegisterVideoSurface(resource, vdpSurface, flags)
 
-{{if True}}
 
 cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, VdpOutputSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return cyruntime._cudaGraphicsVDPAURegisterOutputSurface(resource, vdpSurface, flags)
-{{endif}}
+    return _runtime._cudaGraphicsVDPAURegisterOutputSurface(resource, vdpSurface, flags)
 
-{{if True}}
 
-from libc.stdint cimport uintptr_t
-from cuda.pathfinder import load_nvidia_dynamic_lib
-{{if 'Windows' == platform.system()}}
-cimport cuda.bindings._lib.windll as windll
-{{else}}
-cimport cuda.bindings._lib.dlfcn as dlfcn
-{{endif}}
+###############################################################################
+# Static inline helpers from driver_functions.h
+###############################################################################
+
+cdef extern from 'driver_functions.h':
+    cudaPitchedPtr _c_make_cudaPitchedPtr "make_cudaPitchedPtr"(void* d, size_t p, size_t xsz, size_t ysz) nogil
+    cudaPos _c_make_cudaPos "make_cudaPos"(size_t x, size_t y, size_t z) nogil
+    cudaExtent _c_make_cudaExtent "make_cudaExtent"(size_t w, size_t h, size_t d) nogil
+
+
+cdef cudaPitchedPtr make_cudaPitchedPtr(void* d, size_t p, size_t xsz, size_t ysz) except* nogil:
+    return _c_make_cudaPitchedPtr(d, p, xsz, ysz)
+
+
+cdef cudaPos make_cudaPos(size_t x, size_t y, size_t z) except* nogil:
+    return _c_make_cudaPos(x, y, z)
+
+
+cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) except* nogil:
+    return _c_make_cudaExtent(w, h, d)
+
+
+###############################################################################
+# getLocalRuntimeVersion
+###############################################################################
 
 cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
-    # Load
-    with gil:
-        loaded_dl = load_nvidia_dynamic_lib("cudart")
-        {{if 'Windows' == platform.system()}}
-        handle = <uintptr_t>loaded_dl._handle_uint
-        {{else}}
-        handle = <void *><uintptr_t>loaded_dl._handle_uint
-        {{endif}}
-
-    {{if 'Windows' == platform.system()}}
-    __cudaRuntimeGetVersion = windll.GetProcAddress(handle, b'cudaRuntimeGetVersion')
-    {{else}}
-    __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
-    {{endif}}
-
-    if __cudaRuntimeGetVersion == NULL:
-        with gil:
-            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {loaded_dl.abs_path}')
-
-    # Call
-    cdef cudaError_t err = cudaSuccess
-    err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
-
-    # We explicitly do *NOT* cleanup the library handle here, acknowledging
-    # that, yes, the handle leaks. The reason is that there's a
-    # `functools.cache` on the top-level caller of this function.
-    #
-    # This means this library would be opened once and then immediately closed,
-    # all the while remaining in the cache lurking there for people to call.
-    #
-    # Since we open the library one time (technically once per unique library name),
-    # there's not a ton of leakage, which we deem acceptable for the 1000x speedup
-    # achieved by caching (ultimately) `ctypes.CDLL` calls.
-    #
-    # Long(er)-term we can explore cleaning up the library using higher-level
-    # Python mechanisms, like `__del__` or `weakref.finalizer`s.
-
-    return err
-{{endif}}
+    return _runtime._getLocalRuntimeVersion(runtimeVersion)

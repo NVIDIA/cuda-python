@@ -244,6 +244,7 @@ def init_cuda(request):
     # live_at_setup stays None until the setup snapshot is recorded.
     device.set_current()
     live_at_setup = None
+    primary_error = None
     try:
         # Set option to avoid spin-waiting on synchronization.
         if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
@@ -275,6 +276,9 @@ def init_cuda(request):
         # not counted, so no cached-default bookkeeping is needed.
         live_at_setup = _live_resource_counts()
         yield device
+    except BaseException as exc:
+        primary_error = exc
+        raise
     finally:
         # pytest holds fixture values in item.funcargs (a pytest-internal dict)
         # until all teardown has run; we deliberately drop them so already
@@ -298,8 +302,23 @@ def init_cuda(request):
         # With pytest-run-parallel this runs after worker join. This also runs
         # when setup raises, so an escalated leftover warning cannot leave the
         # context current.
-        driver.cuCtxSynchronize()
-        _ = _device_unset_current()
+        # The test wrapper may already have popped the calling thread's
+        # context; synchronize the fixture device's bound context explicitly.
+        # Keep the first failure primary; cleanup still runs for interrupts.
+        try:
+            device.sync()
+        except BaseException as exc:
+            if primary_error is None:
+                primary_error = exc
+                raise
+            primary_error.add_note(f"CUDA fixture synchronization failed: {type(exc).__name__}: {exc}")
+        finally:
+            try:
+                _ = _device_unset_current()
+            except BaseException as exc:
+                if primary_error is None:
+                    raise
+                primary_error.add_note(f"CUDA fixture context pop failed: {type(exc).__name__}: {exc}")
         # After the cleanup, so an escalated warning cannot skip it.
         if live_after is not None and any(now < snap for now, snap in zip(live_after, live_at_setup)):
             released = tuple(s - n for s, n in zip(live_at_setup, live_after))
@@ -421,6 +440,70 @@ def vmm_ipc_device_x2(device_x2):
     from helpers.child_processes import track_child_processes
 
     devices = tuple(_require_vmm_ipc_device(device) for device in device_x2)
+    with track_child_processes():
+        yield devices
+
+
+_fabric_allocation_error = {}  # device ordinal -> "" when a fabric allocation works there, else the status
+
+
+def _require_vmm_fabric_device(device):
+    """Return a VMM device with fabric handles and an accessible IMEX channel, or skip."""
+    from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
+
+    if IS_WINDOWS or IS_WSL:
+        pytest.skip("Sharing fabric handles requires Linux")
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+    if not device.properties.handle_type_fabric_supported:
+        pytest.skip("Fabric handles need an NVLink fabric and an accessible IMEX channel")
+    # The attribute does not check for an NVLink fabric, and older drivers do not check for an IMEX
+    # channel either, so it is true on the CI runners (no fabric, no channel), where the allocation
+    # itself is refused. Probe once per device.
+    if device.device_id not in _fabric_allocation_error:
+        from cuda.core import Device, VirtualMemoryResource, VirtualMemoryResourceOptions
+        from cuda.core._utils.cuda_utils import CUDAError
+
+        current = Device()
+        device.set_current()
+        try:
+            mr = VirtualMemoryResource(device, VirtualMemoryResourceOptions(handle_type="fabric"))
+            mr.allocate(1).close()
+            _fabric_allocation_error[device.device_id] = ""
+        except CUDAError as exc:
+            # Only a refused physical allocation means "no fabric here" (NOT_PERMITTED on the CI runners,
+            # INVALID_VALUE on an H200 without an IMEX channel). VirtualMemoryResource attaches its note about
+            # the fabric and IMEX requirements at that stage alone;
+            # a failure of the reservation, the mapping, or the stream setup is a real error and propagates.
+            if "fabric handle" not in " ".join(getattr(exc, "__notes__", ())):
+                raise
+            _fabric_allocation_error[device.device_id] = str(exc).split(":", 1)[0]
+        finally:
+            current.set_current()
+    if _fabric_allocation_error[device.device_id]:
+        pytest.skip(
+            "The device reports fabric handle support, but a fabric allocation is refused here: "
+            + _fabric_allocation_error[device.device_id]
+        )
+    return device
+
+
+@pytest.fixture
+def vmm_fabric_device(init_cuda):
+    """A fabric-capable VMM device, tracking spawned children for teardown."""
+    from helpers.child_processes import track_child_processes
+
+    device = _require_vmm_fabric_device(init_cuda)
+    with track_child_processes():
+        yield device
+
+
+@pytest.fixture
+def vmm_fabric_device_x2(device_x2):
+    """Two fabric-capable VMM devices, tracking spawned children for teardown."""
+    from helpers.child_processes import track_child_processes
+
+    devices = tuple(_require_vmm_fabric_device(device) for device in device_x2)
     with track_child_processes():
         yield devices
 

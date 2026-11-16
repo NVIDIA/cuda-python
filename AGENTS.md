@@ -8,9 +8,60 @@ guide for package-specific conventions and workflows.
 ## Package map
 
 - `cuda_pathfinder/`: Pure-Python library discovery and loading utilities.
-- `cuda_bindings_13/`: Low-level CUDA host API bindings (Cython-heavy).
+- `cuda_bindings_12/`: CUDA 12.9 maintenance bindings (Cython-heavy).
+- `cuda_bindings_13/`: Current CUDA 13 bindings (Cython-heavy).
 - `cuda_core/`: High-level Pythonic CUDA APIs built on top of bindings.
 - `cuda_python/`: Metapackage and docs aggregation.
+
+## Changes across bindings majors
+
+Both `cuda_bindings_12/` and `cuda_bindings_13/` are maintained on `main`.
+When implementing or reviewing a change in either root, inspect the other
+root's corresponding implementation, tests, and relevant build, packaging,
+or documentation files, including files absent from the diff. Check shared
+instructions and configuration affected by the change too. Apply this check
+in both directions, and when changing shared build helpers, generation
+inputs, CI selection, or release routing.
+
+- Make matching changes where the affected behavior applies to both roots.
+  Preserve intentional differences in supported APIs, toolkit inputs, source
+  layout, and compatibility behavior. Do not copy changes mechanically or add an unsupported API to make the roots match.
+- Follow each package's generation instructions: change the generation source
+  and regenerate each affected root against its own inputs. Do not hand-edit
+  generated output.
+- In the implementation or review summary, name the counterpart files inspected
+  and identify the matching changes or explain concretely why none are needed.
+  Reviewers must verify that assessment and flag omitted applicable changes;
+  absence from the diff is not evidence that the other root is unaffected.
+- For transferring handwritten fixes between roots, use the path-relative
+  patch procedure in [CONTRIBUTING.md](CONTRIBUTING.md#transferring-fixes-between-bindings-roots),
+  then inspect and test both results. Regenerate generated bindings instead.
+- For marked SYNCED blocks and package-local copies of shared helpers, also
+  enforce their byte-for-byte invariants. Semantic differences elsewhere do
+  not relax those requirements.
+
+## Synchronized code blocks
+
+Use matching `BEGIN SYNCED <group>` and `END SYNCED <group>` comments for
+deliberately duplicated snippets whose contents must remain byte-for-byte
+identical. The group name identifies all copies; the boundaries define the
+shared snippet, not the surrounding file.
+
+- Before editing a marked block, search from the repository root for its exact
+  `BEGIN SYNCED <group>` marker, for example with `rg -n -F`. Read every copy
+  and update them together, including copies outside the current package.
+- Compare the complete marked blocks after editing. Also check required
+  imports and surrounding assumptions, such as relative directory depth,
+  which may live outside the markers.
+- During review, identify groups touched by the diff and compare every copy,
+  including files absent from the diff. Use the base revision too when markers
+  were removed or renamed. Report drift, missing boundaries, and newly copied
+  snippets that omit the markers as review findings.
+- Preserve both markers when copying a snippet. If a copy must diverge,
+  explain why and explicitly revise the group membership; do not remove or
+  rename a marker merely to conceal drift.
+- In the work or review summary, name the groups and files compared, or state
+  why verification could not be completed.
 
 # Git-derived version lifecycle
 
@@ -36,13 +87,17 @@ For each package tag namespace and target release `X.Y.Z`:
   existing history.
 - Treat pushed tags as immutable. Correct an unsuitable tagged state with a
   new versioned milestone rather than moving or replacing the existing tag.
+- Before reserving a release number or creating an internal milestone, check
+  canonical tags and coordinate with release maintainers. Use an unused release
+  number, including releases tagged on other branches; keep the same target
+  across builds until release coordination requires a change.
 
 Use the package's established tag namespace, such as `vX.Y.Z...` for
 `cuda-bindings` and `cuda-python`, `cuda-core-vX.Y.Z...` for `cuda-core`, and
-`cuda-pathfinder-vX.Y.Z...` for `cuda-pathfinder`. Builds that support the
-pre-tag bootstrap should validate the resulting release tuple rather than
-hard-code the expected alpha/development suffix, and should report the
-effective `git describe` result for traceability.
+`cuda-pathfinder-vX.Y.Z...` for `cuda-pathfinder`. Build validation should
+check the resulting release tuple rather than hard-code the expected
+alpha/development suffix, and report the effective `git describe` result for
+traceability.
 
 # Contributions
 

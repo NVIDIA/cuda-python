@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b9fa4fb6c95c7d5ac8e8a53cc16619a8a1012a0e30bb53b850d9afc19ea9fd67
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=41c2a2147ee34ceed11d38eb00faa851b5c1d5f10c215a0df65f85b22a41757c
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -312,14 +312,14 @@ class ValueType(_cyb_FastEnum):
 
     See `nvmlValueType_t`.
     """
-    DOUBLE = NVML_VALUE_TYPE_DOUBLE
-    UNSIGNED_INT = NVML_VALUE_TYPE_UNSIGNED_INT
-    UNSIGNED_LONG = NVML_VALUE_TYPE_UNSIGNED_LONG
-    UNSIGNED_LONG_LONG = NVML_VALUE_TYPE_UNSIGNED_LONG_LONG
-    SIGNED_LONG_LONG = NVML_VALUE_TYPE_SIGNED_LONG_LONG
-    SIGNED_INT = NVML_VALUE_TYPE_SIGNED_INT
-    UNSIGNED_SHORT = NVML_VALUE_TYPE_UNSIGNED_SHORT
-    COUNT = NVML_VALUE_TYPE_COUNT
+    DOUBLE = (NVML_VALUE_TYPE_DOUBLE, 'Double-precision floating-point value.')
+    UNSIGNED_INT = (NVML_VALUE_TYPE_UNSIGNED_INT, 'Unsigned 32-bit integer value.')
+    UNSIGNED_LONG = (NVML_VALUE_TYPE_UNSIGNED_LONG, 'Unsigned long integer value.')
+    UNSIGNED_LONG_LONG = (NVML_VALUE_TYPE_UNSIGNED_LONG_LONG, 'Unsigned 64-bit integer value.')
+    SIGNED_LONG_LONG = (NVML_VALUE_TYPE_SIGNED_LONG_LONG, 'Signed 64-bit integer value.')
+    SIGNED_INT = (NVML_VALUE_TYPE_SIGNED_INT, 'Signed 32-bit integer value.')
+    UNSIGNED_SHORT = (NVML_VALUE_TYPE_UNSIGNED_SHORT, 'Unsigned 16-bit integer value.')
+    COUNT = (NVML_VALUE_TYPE_COUNT, 'Maximum value above +1.')
 
 class PerfPolicyType(_cyb_FastEnum):
     """
@@ -486,10 +486,10 @@ class BrandType(_cyb_FastEnum):
     BRAND_TITAN_RTX = TITAN_RTX  # backward-compat alias
     NVIDIA_DLA = NVML_BRAND_NVIDIA_DLA
     BRAND_NVIDIA_DLA = NVIDIA_DLA  # backward-compat alias
-    NVIDIA_VGAMEDEV = NVML_BRAND_NVIDIA_VGAMEDEV
-    BRAND_NVIDIA_VGAMEDEV = NVIDIA_VGAMEDEV  # backward-compat alias
     NVIDIA_NPU = NVML_BRAND_NVIDIA_NPU
     BRAND_NVIDIA_NPU = NVIDIA_NPU  # backward-compat alias
+    NVIDIA_VGAMEDEV = NVML_BRAND_NVIDIA_VGAMEDEV
+    BRAND_NVIDIA_VGAMEDEV = NVIDIA_VGAMEDEV  # backward-compat alias
     COUNT = NVML_BRAND_COUNT
     BRAND_COUNT = COUNT  # backward-compat alias
 
@@ -723,7 +723,7 @@ class Return(_cyb_FastEnum):
     ERROR_CORRUPTED_INFOROM = (NVML_ERROR_CORRUPTED_INFOROM, 'infoROM is corrupted')
     ERROR_GPU_IS_LOST = (NVML_ERROR_GPU_IS_LOST, 'The GPU has fallen off the bus or has otherwise become inaccessible.')
     ERROR_RESET_REQUIRED = (NVML_ERROR_RESET_REQUIRED, 'The GPU requires a reset before it can be used again.')
-    ERROR_OPERATING_SYSTEM = (NVML_ERROR_OPERATING_SYSTEM, 'The GPU control device has been blocked by the operating system/cgroups.')
+    ERROR_OPERATING_SYSTEM = (NVML_ERROR_OPERATING_SYSTEM, 'A generic operating system error occurred.')
     ERROR_LIB_RM_VERSION_MISMATCH = (NVML_ERROR_LIB_RM_VERSION_MISMATCH, 'RM detects a driver/library version mismatch.')
     ERROR_IN_USE = (NVML_ERROR_IN_USE, 'An operation cannot be performed because the GPU is currently in use.')
     ERROR_MEMORY = (NVML_ERROR_MEMORY, 'Insufficient memory.')
@@ -1946,6 +1946,8 @@ class GpmMetricId(_cyb_FastEnum):
 
 class PowerProfileType(_cyb_FastEnum):
     """
+    Workload power profile identifiers.
+
     See `nvmlPowerProfileType_t`.
     """
     MAX_P = NVML_POWER_PROFILE_MAX_P
@@ -20567,7 +20569,7 @@ cdef class EventSetWait_v3:
 
     @property
     def attributes(self):
-        """int: [out] Bitmask of `NVML_OPERATIONAL_EVENT_ATTR_*` values for structured events. May contain newer bits not named in this header. 0 for NVML event-bit events. May include `NVML_OPERATIONAL_EVENT_ATTR_OVERFLOW` if events or associated payloads were dropped."""
+        """int: [out] Bitmask of `NVML_OPERATIONAL_EVENT_ATTR_*` values for structured events. May contain newer bits not named in this header. 0 for NVML event-bit events."""
         return self._ptr[0].attributes
 
     @attributes.setter
@@ -21159,6 +21161,899 @@ cdef class EccBankRemapperHistogram_v1:
             obj._owner = None
         else:
             obj._ptr = <nvmlEccBankRemapperHistogram_v1_t *>ptr
+            obj._owns_ptr = False
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_gpu_uptime_v1_dtype_offsets():
+    cdef nvmlGpuUptime_v1_t pod
+    return _numpy.dtype({
+        'names': ['uptime'],
+        'formats': [_numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.uptime)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuUptime_v1_t),
+    })
+
+gpu_uptime_v1_dtype = _get_gpu_uptime_v1_dtype_offsets()
+
+cdef class GpuUptime_v1:
+    """Empty-initialize an instance of `nvmlGpuUptime_v1_t`.
+
+
+    .. seealso:: `nvmlGpuUptime_v1_t`
+    """
+    cdef:
+        nvmlGpuUptime_v1_t _data
+        nvmlGpuUptime_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.GpuUptime_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef GpuUptime_v1 other_
+        if not isinstance(other, GpuUptime_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuUptime_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlGpuUptime_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This GpuUptime_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlGpuUptime_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlGpuUptime_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlGpuUptime_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def uptime(self):
+        """int: [out] Number of seconds the GPU has been up since it was initialized by the driver"""
+        return self._ptr[0].uptime
+
+    @uptime.setter
+    def uptime(self, val):
+        if self._readonly:
+            raise ValueError("This GpuUptime_v1 instance is read-only")
+        self._ptr[0].uptime = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an GpuUptime_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlGpuUptime_v1_t), GpuUptime_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an GpuUptime_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `gpu_uptime_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "gpu_uptime_v1_dtype", gpu_uptime_v1_dtype, GpuUptime_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an GpuUptime_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef GpuUptime_v1 obj = GpuUptime_v1.__new__(GpuUptime_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlGpuUptime_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlGpuUptime_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_system_conf_compute_settings_v2_dtype_offsets():
+    cdef nvmlSystemConfComputeSettings_v2_t pod
+    return _numpy.dtype({
+        'names': ['version', 'environment', 'cc_feature', 'dev_tools_mode', 'multi_gpu_mode', 'tdisp_state'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.environment)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ccFeature)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.multiGpuMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.tdispState)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlSystemConfComputeSettings_v2_t),
+    })
+
+system_conf_compute_settings_v2_dtype = _get_system_conf_compute_settings_v2_dtype_offsets()
+
+cdef class SystemConfComputeSettings_v2:
+    """Empty-initialize an instance of `nvmlSystemConfComputeSettings_v2_t`.
+
+
+    .. seealso:: `nvmlSystemConfComputeSettings_v2_t`
+    """
+    cdef:
+        nvmlSystemConfComputeSettings_v2_t _data
+        nvmlSystemConfComputeSettings_v2_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.SystemConfComputeSettings_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef SystemConfComputeSettings_v2 other_
+        if not isinstance(other, SystemConfComputeSettings_v2):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlSystemConfComputeSettings_v2_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlSystemConfComputeSettings_v2_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlSystemConfComputeSettings_v2_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlSystemConfComputeSettings_v2_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlSystemConfComputeSettings_v2_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: """
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def environment(self):
+        """int: """
+        return self._ptr[0].environment
+
+    @environment.setter
+    def environment(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].environment = val
+
+    @property
+    def cc_feature(self):
+        """int: """
+        return self._ptr[0].ccFeature
+
+    @cc_feature.setter
+    def cc_feature(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].ccFeature = val
+
+    @property
+    def dev_tools_mode(self):
+        """int: """
+        return self._ptr[0].devToolsMode
+
+    @dev_tools_mode.setter
+    def dev_tools_mode(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].devToolsMode = val
+
+    @property
+    def multi_gpu_mode(self):
+        """int: """
+        return self._ptr[0].multiGpuMode
+
+    @multi_gpu_mode.setter
+    def multi_gpu_mode(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].multiGpuMode = val
+
+    @property
+    def tdisp_state(self):
+        """int: """
+        return self._ptr[0].tdispState
+
+    @tdisp_state.setter
+    def tdisp_state(self, val):
+        if self._readonly:
+            raise ValueError("This SystemConfComputeSettings_v2 instance is read-only")
+        self._ptr[0].tdispState = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an SystemConfComputeSettings_v2 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlSystemConfComputeSettings_v2_t), SystemConfComputeSettings_v2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an SystemConfComputeSettings_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `system_conf_compute_settings_v2_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "system_conf_compute_settings_v2_dtype", system_conf_compute_settings_v2_dtype, SystemConfComputeSettings_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an SystemConfComputeSettings_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef SystemConfComputeSettings_v2 obj = SystemConfComputeSettings_v2.__new__(SystemConfComputeSettings_v2)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlSystemConfComputeSettings_v2_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlSystemConfComputeSettings_v2_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_get_remap_table_info_v1_dtype_offsets():
+    cdef nvmlNvlinkGetRemapTableInfo_v1_t pod
+    return _numpy.dtype({
+        'names': ['alid', 'fla_remap_tab_addr', 'gpa_remap_tab_addr', 'remap_tab_size'],
+        'formats': [_numpy.uint32, (_numpy.uint32, 4096), (_numpy.uint32, 4096), _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.alid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.flaRemapTabAddr)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpaRemapTabAddr)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.remapTabSize)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkGetRemapTableInfo_v1_t),
+    })
+
+nvlink_get_remap_table_info_v1_dtype = _get_nvlink_get_remap_table_info_v1_dtype_offsets()
+
+cdef class NvlinkGetRemapTableInfo_v1:
+    """Empty-initialize an instance of `nvmlNvlinkGetRemapTableInfo_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkGetRemapTableInfo_v1_t`
+    """
+    cdef:
+        nvmlNvlinkGetRemapTableInfo_v1_t _data
+        nvmlNvlinkGetRemapTableInfo_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkGetRemapTableInfo_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkGetRemapTableInfo_v1 other_
+        if not isinstance(other, NvlinkGetRemapTableInfo_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkGetRemapTableInfo_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkGetRemapTableInfo_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkGetRemapTableInfo_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def alid(self):
+        """int: ALID of the GPU."""
+        return self._ptr[0].alid
+
+    @alid.setter
+    def alid(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+        self._ptr[0].alid = val
+
+    @property
+    def fla_remap_tab_addr(self):
+        """~_numpy.uint32: (array of length 4096).FLA remap table addrs for all the remap table entries."""
+        if self._ptr[0].remapTabSize == 0:
+            return _numpy.array([])
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].flaRemapTabAddr))
+        return _numpy.asarray(arr)
+
+    @fla_remap_tab_addr.setter
+    def fla_remap_tab_addr(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field fla_remap_tab_addr, max is 4096, got {len(val)}")
+        self._ptr[0].remapTabSize = len(val)
+        if len(val) == 0:
+            return
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
+        _cyb_memcpy(<void *>(&(self._ptr[0].flaRemapTabAddr)), <void *>(arr.data), sizeof(unsigned int) * len(val))
+
+    @property
+    def gpa_remap_tab_addr(self):
+        """~_numpy.uint32: (array of length 4096).SPA/GPA remap table addrs for all the remap table entries."""
+        if self._ptr[0].remapTabSize == 0:
+            return _numpy.array([])
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].gpaRemapTabAddr))
+        return _numpy.asarray(arr)
+
+    @gpa_remap_tab_addr.setter
+    def gpa_remap_tab_addr(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkGetRemapTableInfo_v1 instance is read-only")
+        if len(val) > 4096:
+            raise ValueError(f"Too many elements for field gpa_remap_tab_addr, max is 4096, got {len(val)}")
+        self._ptr[0].remapTabSize = len(val)
+        if len(val) == 0:
+            return
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].remapTabSize,), itemsize=sizeof(unsigned int), format="I", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint32)
+        _cyb_memcpy(<void *>(&(self._ptr[0].gpaRemapTabAddr)), <void *>(arr.data), sizeof(unsigned int) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkGetRemapTableInfo_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t), NvlinkGetRemapTableInfo_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkGetRemapTableInfo_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_get_remap_table_info_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_get_remap_table_info_v1_dtype", nvlink_get_remap_table_info_v1_dtype, NvlinkGetRemapTableInfo_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkGetRemapTableInfo_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkGetRemapTableInfo_v1 obj = NvlinkGetRemapTableInfo_v1.__new__(NvlinkGetRemapTableInfo_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkGetRemapTableInfo_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_set_nvle_ready_v1_dtype_offsets():
+    cdef nvmlNvlinkSetNvleReady_v1_t pod
+    return _numpy.dtype({
+        'names': ['b_nvle_ready'],
+        'formats': [_numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.bNvleReady)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkSetNvleReady_v1_t),
+    })
+
+nvlink_set_nvle_ready_v1_dtype = _get_nvlink_set_nvle_ready_v1_dtype_offsets()
+
+cdef class NvlinkSetNvleReady_v1:
+    """Empty-initialize an instance of `nvmlNvlinkSetNvleReady_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkSetNvleReady_v1_t`
+    """
+    cdef:
+        nvmlNvlinkSetNvleReady_v1_t _data
+        nvmlNvlinkSetNvleReady_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkSetNvleReady_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkSetNvleReady_v1 other_
+        if not isinstance(other, NvlinkSetNvleReady_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSetNvleReady_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSetNvleReady_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetNvleReady_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkSetNvleReady_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkSetNvleReady_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetNvleReady_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def b_nvle_ready(self):
+        """int: Whether NVLE is ready on the GPU."""
+        return self._ptr[0].bNvleReady
+
+    @b_nvle_ready.setter
+    def b_nvle_ready(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetNvleReady_v1 instance is read-only")
+        self._ptr[0].bNvleReady = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkSetNvleReady_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkSetNvleReady_v1_t), NvlinkSetNvleReady_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkSetNvleReady_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_set_nvle_ready_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_set_nvle_ready_v1_dtype", nvlink_set_nvle_ready_v1_dtype, NvlinkSetNvleReady_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkSetNvleReady_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkSetNvleReady_v1 obj = NvlinkSetNvleReady_v1.__new__(NvlinkSetNvleReady_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkSetNvleReady_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkSetNvleReady_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_lock_remap_table_v1_dtype_offsets():
+    cdef nvmlNvlinkLockRemapTable_v1_t pod
+    return _numpy.dtype({
+        'names': ['b_remap_table_locked', 'b_remap_table_lock_disabled'],
+        'formats': [_numpy.uint8, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.bRemapTableLocked)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bRemapTableLockDisabled)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkLockRemapTable_v1_t),
+    })
+
+nvlink_lock_remap_table_v1_dtype = _get_nvlink_lock_remap_table_v1_dtype_offsets()
+
+cdef class NvlinkLockRemapTable_v1:
+    """Empty-initialize an instance of `nvmlNvlinkLockRemapTable_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkLockRemapTable_v1_t`
+    """
+    cdef:
+        nvmlNvlinkLockRemapTable_v1_t _data
+        nvmlNvlinkLockRemapTable_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkLockRemapTable_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkLockRemapTable_v1 other_
+        if not isinstance(other, NvlinkLockRemapTable_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkLockRemapTable_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkLockRemapTable_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkLockRemapTable_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkLockRemapTable_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkLockRemapTable_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkLockRemapTable_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def b_remap_table_locked(self):
+        """int: Whether the remap table of the GPU is locked."""
+        return self._ptr[0].bRemapTableLocked
+
+    @b_remap_table_locked.setter
+    def b_remap_table_locked(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkLockRemapTable_v1 instance is read-only")
+        self._ptr[0].bRemapTableLocked = val
+
+    @property
+    def b_remap_table_lock_disabled(self):
+        """int: Whether locking of the remap table is disabled."""
+        return self._ptr[0].bRemapTableLockDisabled
+
+    @b_remap_table_lock_disabled.setter
+    def b_remap_table_lock_disabled(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkLockRemapTable_v1 instance is read-only")
+        self._ptr[0].bRemapTableLockDisabled = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkLockRemapTable_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkLockRemapTable_v1_t), NvlinkLockRemapTable_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkLockRemapTable_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_lock_remap_table_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_lock_remap_table_v1_dtype", nvlink_lock_remap_table_v1_dtype, NvlinkLockRemapTable_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkLockRemapTable_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkLockRemapTable_v1 obj = NvlinkLockRemapTable_v1.__new__(NvlinkLockRemapTable_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkLockRemapTable_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkLockRemapTable_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_nvle_private_info_v1_dtype_offsets():
+    cdef nvmlNvlinkNvlePrivateInfo_v1_t pod
+    return _numpy.dtype({
+        'names': ['data_', 'size_'],
+        'formats': [(_numpy.uint8, 256), _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.data)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkNvlePrivateInfo_v1_t),
+    })
+
+nvlink_nvle_private_info_v1_dtype = _get_nvlink_nvle_private_info_v1_dtype_offsets()
+
+cdef class NvlinkNvlePrivateInfo_v1:
+    """Empty-initialize an instance of `nvmlNvlinkNvlePrivateInfo_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkNvlePrivateInfo_v1_t`
+    """
+    cdef:
+        nvmlNvlinkNvlePrivateInfo_v1_t *_ptr
+        object _owner
+        bint _owns_ptr
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlNvlinkNvlePrivateInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating NvlinkNvlePrivateInfo_v1")
+        self._owns_ptr = True
+        self._owner = None
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlNvlinkNvlePrivateInfo_v1_t *ptr
+        if self._owns_ptr and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkNvlePrivateInfo_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkNvlePrivateInfo_v1 other_
+        if not isinstance(other, NvlinkNvlePrivateInfo_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkNvlePrivateInfo_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkNvlePrivateInfo_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkNvlePrivateInfo_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkNvlePrivateInfo_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def data_(self):
+        """~_numpy.uint8: (array of length 256).Buffer that receives the opaque private info blob."""
+        if self._ptr[0].size == 0:
+            return _numpy.array([])
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].size,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].data))
+        return _numpy.asarray(arr)
+
+    @data_.setter
+    def data_(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkNvlePrivateInfo_v1 instance is read-only")
+        if len(val) > 256:
+            raise ValueError(f"Too many elements for field data_, max is 256, got {len(val)}")
+        self._ptr[0].size = len(val)
+        if len(val) == 0:
+            return
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(self._ptr[0].size,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        _cyb_memcpy(<void *>(&(self._ptr[0].data)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkNvlePrivateInfo_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t), NvlinkNvlePrivateInfo_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkNvlePrivateInfo_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_nvle_private_info_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_nvle_private_info_v1_dtype", nvlink_nvle_private_info_v1_dtype, NvlinkNvlePrivateInfo_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkNvlePrivateInfo_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkNvlePrivateInfo_v1 obj = NvlinkNvlePrivateInfo_v1.__new__(NvlinkNvlePrivateInfo_v1)
+        if owner is None:
+            obj._ptr = <nvmlNvlinkNvlePrivateInfo_v1_t *>_cyb_malloc(sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating NvlinkNvlePrivateInfo_v1")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+            obj._owns_ptr = True
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkNvlePrivateInfo_v1_t *>ptr
             obj._owns_ptr = False
             obj._owner = owner
         obj._readonly = readonly
@@ -26321,6 +27216,195 @@ cdef class EccBankRemapperStatus_v1:
         return obj
 
 
+cdef _get_nvlink_setup_nvle_encryption_key_v1_dtype_offsets():
+    cdef nvmlNvlinkSetupNvleEncryptionKey_v1_t pod
+    return _numpy.dtype({
+        'names': ['nvle_key', 'local_gpu_alid', 'remote_gpu_alid', 'local_gpu_nvle_private_info', 'remote_gpu_nvle_private_info'],
+        'formats': [(_numpy.uint8, 32), _numpy.uint32, _numpy.uint32, nvlink_nvle_private_info_v1_dtype, nvlink_nvle_private_info_v1_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.nvleKey)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.localGpuAlid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.remoteGpuAlid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.localGpuNvlePrivateInfo)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.remoteGpuNvlePrivateInfo)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t),
+    })
+
+nvlink_setup_nvle_encryption_key_v1_dtype = _get_nvlink_setup_nvle_encryption_key_v1_dtype_offsets()
+
+cdef class NvlinkSetupNvleEncryptionKey_v1:
+    """Empty-initialize an instance of `nvmlNvlinkSetupNvleEncryptionKey_v1_t`.
+
+
+    .. seealso:: `nvmlNvlinkSetupNvleEncryptionKey_v1_t`
+    """
+    cdef:
+        nvmlNvlinkSetupNvleEncryptionKey_v1_t _data
+        nvmlNvlinkSetupNvleEncryptionKey_v1_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkSetupNvleEncryptionKey_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkSetupNvleEncryptionKey_v1 other_
+        if not isinstance(other, NvlinkSetupNvleEncryptionKey_v1):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def local_gpu_nvle_private_info(self):
+        """NvlinkNvlePrivateInfo_v1: NVLE private info of the local GPU."""
+        return NvlinkNvlePrivateInfo_v1.from_ptr(
+            <intptr_t>&(self._ptr[0].localGpuNvlePrivateInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @local_gpu_nvle_private_info.setter
+    def local_gpu_nvle_private_info(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        cdef NvlinkNvlePrivateInfo_v1 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].localGpuNvlePrivateInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkNvlePrivateInfo_v1_t) * 1)
+
+    @property
+    def remote_gpu_nvle_private_info(self):
+        """NvlinkNvlePrivateInfo_v1: NVLE private info of the remote GPU."""
+        return NvlinkNvlePrivateInfo_v1.from_ptr(
+            <intptr_t>&(self._ptr[0].remoteGpuNvlePrivateInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @remote_gpu_nvle_private_info.setter
+    def remote_gpu_nvle_private_info(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        cdef NvlinkNvlePrivateInfo_v1 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].remoteGpuNvlePrivateInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkNvlePrivateInfo_v1_t) * 1)
+
+    @property
+    def nvle_key(self):
+        """~_numpy.uint8: (array of length 32).Key secret from which keyMgr will derive the key."""
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].nvleKey))
+        return _numpy.asarray(arr)
+
+    @nvle_key.setter
+    def nvle_key(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        if len(val) != 32:
+            raise ValueError(f"Expected length { 32 } for field nvle_key, got {len(val)}")
+        cdef _cyb_view.array arr = _cyb_view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        _cyb_memcpy(<void *>(&(self._ptr[0].nvleKey)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @property
+    def local_gpu_alid(self):
+        """int: ALID of the local GPU."""
+        return self._ptr[0].localGpuAlid
+
+    @local_gpu_alid.setter
+    def local_gpu_alid(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        self._ptr[0].localGpuAlid = val
+
+    @property
+    def remote_gpu_alid(self):
+        """int: ALID of the remote GPU."""
+        return self._ptr[0].remoteGpuAlid
+
+    @remote_gpu_alid.setter
+    def remote_gpu_alid(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkSetupNvleEncryptionKey_v1 instance is read-only")
+        self._ptr[0].remoteGpuAlid = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvlinkSetupNvleEncryptionKey_v1 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t), NvlinkSetupNvleEncryptionKey_v1)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkSetupNvleEncryptionKey_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_setup_nvle_encryption_key_v1_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nvlink_setup_nvle_encryption_key_v1_dtype", nvlink_setup_nvle_encryption_key_v1_dtype, NvlinkSetupNvleEncryptionKey_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkSetupNvleEncryptionKey_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkSetupNvleEncryptionKey_v1 obj = NvlinkSetupNvleEncryptionKey_v1.__new__(NvlinkSetupNvleEncryptionKey_v1)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvlinkSetupNvleEncryptionKey_v1_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_vgpu_instances_utilization_info_v1_dtype_offsets():
     cdef nvmlVgpuInstancesUtilizationInfo_v1_t pod
     return _numpy.dtype({
@@ -27895,6 +28979,160 @@ cdef class NvLinkInfo_v2:
         return obj
 
 
+cdef _get_nv_link_info_v3_dtype_offsets():
+    cdef nvmlNvLinkInfo_v3_t pod
+    return _numpy.dtype({
+        'names': ['is_nvle_enabled', 'firmware_info', 'is_nvle_ready'],
+        'formats': [_numpy.uint32, nvlink_firmware_info_dtype, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isNvleReady)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvLinkInfo_v3_t),
+    })
+
+nv_link_info_v3_dtype = _get_nv_link_info_v3_dtype_offsets()
+
+cdef class NvLinkInfo_v3:
+    """Empty-initialize an instance of `nvmlNvLinkInfo_v3_t`.
+
+
+    .. seealso:: `nvmlNvLinkInfo_v3_t`
+    """
+    cdef:
+        nvmlNvLinkInfo_v3_t _data
+        nvmlNvLinkInfo_v3_t *_ptr
+        object _owner
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = &self._data
+        self._owner = None
+        self._readonly = False
+
+    def __repr__(self):
+        return f"<{__name__}.NvLinkInfo_v3 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvLinkInfo_v3 other_
+        if not isinstance(other, NvLinkInfo_v3):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v3_t)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(nvmlNvLinkInfo_v3_t), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This NvLinkInfo_v3 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(nvmlNvLinkInfo_v3_t):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(nvmlNvLinkInfo_v3_t), view.len)
+                    )
+                _cyb_memmove(<void*>&self._data, view.buf, sizeof(nvmlNvLinkInfo_v3_t))
+                self._ptr = &self._data
+                self._owner = None
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def firmware_info(self):
+        """NvlinkFirmwareInfo: OUT - NVLINK Firmware info."""
+        return NvlinkFirmwareInfo.from_ptr(
+            <intptr_t>&(self._ptr[0].firmwareInfo),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @firmware_info.setter
+    def firmware_info(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v3 instance is read-only")
+        cdef NvlinkFirmwareInfo val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].firmwareInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareInfo_t) * 1)
+
+    @property
+    def is_nvle_enabled(self):
+        """int: OUT - NVLINK encryption enablement."""
+        return self._ptr[0].isNvleEnabled
+
+    @is_nvle_enabled.setter
+    def is_nvle_enabled(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v3 instance is read-only")
+        self._ptr[0].isNvleEnabled = val
+
+    @property
+    def is_nvle_ready(self):
+        """int: OUT - Whether NVLE is ready on the GPU."""
+        return self._ptr[0].isNvleReady
+
+    @is_nvle_ready.setter
+    def is_nvle_ready(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v3 instance is read-only")
+        self._ptr[0].isNvleReady = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an NvLinkInfo_v3 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(nvmlNvLinkInfo_v3_t), NvLinkInfo_v3)
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvLinkInfo_v3 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nv_link_info_v3_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "nv_link_info_v3_dtype", nv_link_info_v3_dtype, NvLinkInfo_v3)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvLinkInfo_v3 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvLinkInfo_v3 obj = NvLinkInfo_v3.__new__(NvLinkInfo_v3)
+        if owner is None:
+            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(nvmlNvLinkInfo_v3_t))
+            obj._ptr = &obj._data
+            obj._owner = None
+        else:
+            obj._ptr = <nvmlNvLinkInfo_v3_t *>ptr
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_pwr_model_metrics_dlppm1x_dtype_offsets():
     cdef nvmlPwrModelMetricsDlppm1x_t pod
     return _numpy.dtype({
@@ -29416,6 +30654,10 @@ cpdef init_v2():
     For all products.
 
     .. note::
+        With the environment variable ``NVML_MPS_DEVICE_ENUMERATION`` set to 1, this
+        API selects the MPS locality-domain view described in ``MPS Locality Domain
+        Device Enumeration``.
+    .. note::
         A reference count of the number of initializations is maintained, and a
         corresponding call to :func:`shutdown` needs to be issued once usage of the
         NVML Library is complete. Shutdown will only occur after the reference count
@@ -29444,6 +30686,10 @@ cpdef init_with_flags(unsigned int flags):
             Init behavior.
 
     .. note::
+        With the environment variable ``NVML_MPS_DEVICE_ENUMERATION`` set to 1, this
+        API selects the MPS locality-domain view. ``NVML_INIT_FLAG_NO_ATTACH`` is not
+        supported in that view. See ``MPS Locality Domain Device Enumeration``.
+    .. note::
         A reference count of the number of initializations is maintained, and a
         corresponding call to :func:`shutdown` needs to be issued once usage of the
         NVML Library is complete. Shutdown will only occur after the reference count
@@ -29467,6 +30713,9 @@ cpdef shutdown():
     times than :func:`init_v2` or :func:`init_with_flags`.
     For all products.
 
+    .. note::
+        The final matching shutdown releases the process-local MPS locality-domain view
+        described in ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlShutdown`
     """
     with nogil:
@@ -29482,6 +30731,9 @@ cpdef str error_string(int result):
     Args:
         result (Return): NVML error code to convert.
 
+    .. note::
+        This helper is available in the MPS locality-domain view described in ``MPS
+        Locality Domain Device Enumeration``.
     .. seealso:: `nvmlErrorString`
     """
     cdef const char *_output_cstr_
@@ -29517,13 +30769,15 @@ cpdef str system_get_nvml_version():
     """Retrieves the version of the NVML library.
 
     For all products.
-    The version identifier is an alphanumeric string. It will not exceed 80
-    characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
 
     Returns:
         str: Reference in which to return the version identifier.
 
+    .. note::
+        This query is available in the MPS locality-domain view described in ``MPS
+        Locality Domain Device Enumeration``. The version identifier is an alphanumeric
+        string. It will not exceed 80 characters in length (including the NULL
+        terminator). See nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
     .. seealso:: `nvmlSystemGetNVMLVersion`
     """
     cdef unsigned int length = 80
@@ -29538,7 +30792,7 @@ cpdef int system_get_cuda_driver_version() except *:
     """Retrieves the version of the CUDA driver.
 
     For all products.
-    The CUDA driver version returned will be retreived from the currently installed
+    The CUDA driver version returned will be retrieved from the currently installed
     version of CUDA. If the cuda library is not found, this function will return a
     known supported version number.
 
@@ -29850,6 +31104,10 @@ cpdef unsigned int device_get_count_v2() except? 0:
         unsigned int: Reference in which to return the number of
             accessible devices.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the number of MPS-reported
+        device entries. Each locality domain has its own NVML index and
+        ``nvmlDevice_t`` handle. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetCount_v2`
     """
     cdef unsigned int device_count
@@ -29919,6 +31177,9 @@ cpdef intptr_t device_get_handle_by_index_v2(unsigned int index) except? 0:
     Returns:
         intptr_t: Reference in which to return the device handle.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the locality-domain handle
+        associated with ``index``. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetHandleByIndex_v2`
     """
     cdef Device device
@@ -29971,6 +31232,10 @@ cpdef intptr_t device_get_handle_by_uuid(uuid) except? 0:
         intptr_t: Reference in which to return the device handle or MIG
             device handle.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the locality-domain handle
+        whose MPS-provided UUID matches ``uuid``. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetHandleByUUID`
     """
     if not isinstance(uuid, str):
@@ -30007,6 +31272,11 @@ cpdef intptr_t device_get_handle_by_pci_bus_id_v2(pci_bus_id) except? 0:
     .. note::
         NVML 4.304 and older version of nvmlDeviceGetHandleByPciBusId"_v1" returns
         NVML_ERROR_NOT_FOUND instead of NVML_ERROR_NO_PERMISSION.
+    .. note::
+        In the MPS locality-domain view, multiple locality domains can share a PCI bus
+        ID. This API returns the first matching handle in NVML enumeration order. Use
+        UUID or index to select a specific locality domain. See ``MPS Locality Domain
+        Device Enumeration``.
     .. seealso:: `nvmlDeviceGetHandleByPciBusId_v2`
     """
     if not isinstance(pci_bus_id, str):
@@ -30036,6 +31306,9 @@ cpdef str device_get_name(intptr_t device):
     Returns:
         str: Reference in which to return the product name.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the name supplied by MPS for
+        the locality domain. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetName`
     """
     cdef unsigned int length = 96
@@ -30091,6 +31364,9 @@ cpdef unsigned int device_get_index(intptr_t device) except? 0:
         unsigned int: Reference in which to return the NVML index of the
             device.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the NVML index of the
+        locality-domain handle. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetIndex`
     """
     cdef unsigned int index
@@ -30244,6 +31520,10 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
             CPUs, 64 CPUs per unsigned long on 64-bit machines, 32 on
             32-bit machines.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the CPU affinity of the
+        physical parent associated with the locality-domain handle. See ``MPS Locality
+        Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
     cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
@@ -30295,6 +31575,9 @@ cpdef unsigned int device_get_numa_node_id(intptr_t device) except? 0:
     Returns:
         unsigned int: NUMA node ID of the device.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the NUMA node supplied by MPS
+        for the locality domain. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetNumaNodeId`
     """
     cdef unsigned int node
@@ -30366,6 +31649,10 @@ cpdef int device_get_p2p_status(intptr_t device1, intptr_t device2, int p2p_inde
         int: Reference in which to return the status of the ``p2p_index``
             between ``device1`` and ``device2``.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the directed P2P status
+        supplied by MPS for the two locality-domain handles. See ``MPS Locality Domain
+        Device Enumeration``.
     .. seealso:: `nvmlDeviceGetP2PStatus`
     """
     cdef _GpuP2PStatus p2p_status
@@ -30393,6 +31680,9 @@ cpdef str device_get_uuid(intptr_t device):
     Returns:
         str: Reference in which to return the GPU UUID.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the UUID supplied by MPS for
+        the locality domain. See ``MPS Locality Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetUUID`
     """
     cdef unsigned int length = 96
@@ -30669,6 +31959,11 @@ cpdef object device_get_pci_info_v3(intptr_t device):
     Returns:
         nvmlPciInfo_t: Reference in which to return the PCI info.
 
+    .. note::
+        In the MPS locality-domain view, this API and its v1 and v2 variants return the
+        PCI attributes supplied by MPS. Multiple locality domains can report the same
+        physical parent's PCI attributes. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetPciInfo_v3`
     """
     cdef PciInfo pci_py = PciInfo()
@@ -31672,6 +32967,10 @@ cpdef object device_get_memory_info_v2(intptr_t device):
         On certain SOC platforms, the integrated GPU (iGPU) does not use a dedicated
         framebuffer but instead shares memory with the system. As a result,
         ``NVML_ERROR_NOT_SUPPORTED`` will be returned in this case.
+    .. note::
+        In the MPS locality-domain view, this API returns MPS-provided total, used,
+        free, and reserved memory for the locality domain. See ``MPS Locality Domain
+        Device Enumeration``.
     .. seealso:: `nvmlDeviceGetMemoryInfo_v2`
     """
     cdef Memory_v2 memory_py = Memory_v2()
@@ -31727,6 +33026,10 @@ cpdef tuple device_get_cuda_compute_capability(intptr_t device):
         - int: Reference in which to return the minor CUDA compute
                 capability.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the compute capability
+        supplied by MPS for the locality domain. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetCudaComputeCapability`
     """
     cdef int major
@@ -32666,7 +33969,7 @@ cpdef unsigned int device_get_bus_type(intptr_t device) except? 0:
 
     return.
 
-    - ``NVML_SUCCESS`` if the bus ``type`` is successfully retreived.
+    - ``NVML_SUCCESS`` if the bus ``type`` is successfully retrieved.
     - ``NVML_ERROR_UNINITIALIZED`` if the library has not been successfully
       initialized.
     - ``NVML_ERROR_INVALID_ARGUMENT`` if ``device`` is invalid or ``type`` is NULL.
@@ -32966,6 +34269,10 @@ cpdef int device_get_accounting_mode(intptr_t device) except? -1:
     Returns:
         int: Reference in which to return the current accounting mode.
 
+    .. note::
+        In the MPS locality-domain view, this API returns the physical parent's
+        accounting mode as reported by MPS. See ``MPS Locality Domain Device
+        Enumeration``.
     .. seealso:: `nvmlDeviceGetAccountingMode`
     """
     cdef _EnableState mode
@@ -37088,7 +38395,7 @@ cpdef object device_get_bank_remapper_status_v1(intptr_t device):
 
     Returns:
         nvmlEccBankRemapperStatus_v1_t: Reference to
-            ``nvmlEccBankRemapperStatus_t``.
+            ``nvmlEccBankRemapperStatus_v1_t``.
 
     .. seealso:: `nvmlDeviceGetBankRemapperStatus_v1`
     """
@@ -37098,6 +38405,174 @@ cpdef object device_get_bank_remapper_status_v1(intptr_t device):
         __status__ = nvmlDeviceGetBankRemapperStatus_v1(<Device>device, p_bank_remapper_status)
     check_status(__status__)
     return p_bank_remapper_status_py
+
+
+cpdef object device_get_gpu_uptime_v1(intptr_t device):
+    """Retrieves the GPU uptime. The uptime denotes the number of seconds elapsed since the GPU was initialized by the driver. The uptime resets to zero on a host reboot, driver unload/reload, or a GPU reset.
+
+    For MIG device handles, the parent GPU uptime is returned.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlGpuUptime_v1_t: Reference in which to return the GPU uptime.
+
+    .. seealso:: `nvmlDeviceGetGpuUptime_v1`
+    """
+    cdef GpuUptime_v1 uptime_py = GpuUptime_v1()
+    cdef nvmlGpuUptime_v1_t *uptime = <nvmlGpuUptime_v1_t *><intptr_t>(uptime_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetGpuUptime_v1(<Device>device, uptime)
+    check_status(__status__)
+    return uptime_py
+
+
+cpdef object system_get_conf_compute_settings_v2():
+    """Get Conf Computing System Settings, version 2.
+
+    Returns everything ``nvmlSystemGetConfComputeSettings`` reports, plus the TDISP
+    state of the GPUs in ``tdispState``.
+    All GPUs, and therefore all TDIs, are expected to be in the same state. If they
+    are not, the system level state is ambiguous and NVML_ERROR_UNKNOWN is
+    returned.
+    For Hopper ™️ or newer fully supported devices. Supported on Linux, Windows
+    TCC.
+
+    Returns:
+        nvmlSystemConfComputeSettings_v2_t: System CC settings.
+
+    .. seealso:: `nvmlSystemGetConfComputeSettings_v2`
+    """
+    cdef SystemConfComputeSettings_v2 settings_py = SystemConfComputeSettings_v2()
+    cdef nvmlSystemConfComputeSettings_v2_t *settings = <nvmlSystemConfComputeSettings_v2_t *><intptr_t>(settings_py._get_ptr())
+    settings.version = NVML_VERSION_STRUCT(sizeof(nvmlSystemConfComputeSettings_v2_t), 2)
+    with nogil:
+        __status__ = nvmlSystemGetConfComputeSettings_v2(settings)
+    check_status(__status__)
+    return settings_py
+
+
+cpdef object device_get_nvlink_info_v3(intptr_t device):
+    """Query NVLINK information associated with this device (v3).
+
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvLinkInfo_v3_t: Reference to ``nvmlNvLinkInfo_v3_t``.
+
+    .. seealso:: `nvmlDeviceGetNvLinkInfo_v3`
+    """
+    cdef NvLinkInfo_v3 info_py = NvLinkInfo_v3()
+    cdef nvmlNvLinkInfo_v3_t *info = <nvmlNvLinkInfo_v3_t *><intptr_t>(info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetNvLinkInfo_v3(<Device>device, info)
+    check_status(__status__)
+    return info_py
+
+
+cpdef object device_get_nvlink_remap_table_info_v1(intptr_t device):
+    """Get the NVLink remap table information.
+
+    This API returns the remap table addresses for all the entries in the FLA and
+    SPA/GPA remap tables.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvlinkGetRemapTableInfo_v1_t: Reference to
+            ``nvmlNvlinkGetRemapTableInfo_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceGetNvlinkRemapTableInfo_v1`
+    """
+    cdef NvlinkGetRemapTableInfo_v1 remap_table_info_py = NvlinkGetRemapTableInfo_v1()
+    cdef nvmlNvlinkGetRemapTableInfo_v1_t *remap_table_info = <nvmlNvlinkGetRemapTableInfo_v1_t *><intptr_t>(remap_table_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetNvlinkRemapTableInfo_v1(<Device>device, remap_table_info)
+    check_status(__status__)
+    return remap_table_info_py
+
+
+cpdef device_set_nvlink_nvle_ready_v1(intptr_t device, set_nvle_ready):
+    """Set the NVLink NVLE ready state.
+
+    This API signals whether NVLE (NVLink Encryption) is ready on the given device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        set_nvle_ready (intptr_t): Reference to
+            ``nvmlNvlinkSetNvleReady_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceSetNvlinkNvleReady_v1`
+    """
+    cdef intptr_t _set_nvle_ready_ptr_ = 0 if set_nvle_ready is None else int(set_nvle_ready)
+    with nogil:
+        __status__ = nvmlDeviceSetNvlinkNvleReady_v1(<Device>device, <nvmlNvlinkSetNvleReady_v1_t*>_set_nvle_ready_ptr_)
+    check_status(__status__)
+
+
+cpdef device_lock_nvlink_remap_table_v1(intptr_t device, remap_table_lock_info):
+    """Lock the NVLink remap table to prevent MSE from making further updates.
+
+    This API requests to lock the remap table to prevent MSE (Multi-Socket Engine)
+    from making any further updates to the remap table for the given links.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        remap_table_lock_info (intptr_t): Reference to
+            ``nvmlNvlinkLockRemapTable_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceLockNvlinkRemapTable_v1`
+    """
+    cdef intptr_t _remap_table_lock_info_ptr_ = 0 if remap_table_lock_info is None else int(remap_table_lock_info)
+    with nogil:
+        __status__ = nvmlDeviceLockNvlinkRemapTable_v1(<Device>device, <nvmlNvlinkLockRemapTable_v1_t*>_remap_table_lock_info_ptr_)
+    check_status(__status__)
+
+
+cpdef device_setup_nvlink_nvle_encryption_key_v1(intptr_t device, encryption_key):
+    """Setup the NVLink NVLE encryption key.
+
+    This API sets the NVLE encryption key between GPUs with the given ALIDs.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        encryption_key (intptr_t): Reference to
+            ``nvmlNvlinkSetupNvleEncryptionKey_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceSetupNvlinkNvleEncryptionKey_v1`
+    """
+    cdef intptr_t _encryption_key_ptr_ = 0 if encryption_key is None else int(encryption_key)
+    with nogil:
+        __status__ = nvmlDeviceSetupNvlinkNvleEncryptionKey_v1(<Device>device, <nvmlNvlinkSetupNvleEncryptionKey_v1_t*>_encryption_key_ptr_)
+    check_status(__status__)
+
+
+cpdef object device_get_nvlink_nvle_private_info_v1(intptr_t device):
+    """Get NVLink NVLE private (opaque) information.
+
+    This API retrieves opaque NVLE private information for the given device and
+    copies it into the ``data`` buffer, setting ``size`` to the number of bytes
+    written.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvlinkNvlePrivateInfo_v1_t: Reference to
+            ``nvmlNvlinkNvlePrivateInfo_v1_t`` struct.
+
+    .. seealso:: `nvmlDeviceGetNvlinkNvlePrivateInfo_v1`
+    """
+    cdef NvlinkNvlePrivateInfo_v1 private_info_py = NvlinkNvlePrivateInfo_v1()
+    cdef nvmlNvlinkNvlePrivateInfo_v1_t *private_info = <nvmlNvlinkNvlePrivateInfo_v1_t *><intptr_t>(private_info_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetNvlinkNvlePrivateInfo_v1(<Device>device, private_info)
+    check_status(__status__)
+    return private_info_py
 
 
 cpdef str system_get_driver_branch():

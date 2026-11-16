@@ -29,10 +29,11 @@ COMPONENT_ALIASES: dict[str, tuple[str, ...]] = {
 
 # Known-good sha256 of the redistrib metadata JSON, keyed by CUDA version.
 # Per-archive verification is only trustworthy if the JSON that carries the
-# archive hashes is itself trusted, so we pin the metadata too. A version that
-# is absent here is not blocked -- failing closed would break CI on every new
-# CTK -- but `verify-metadata` emits a warning; add the version's hash below as
-# it enters the matrix to pin it. Regenerate with:
+# archive hashes is itself trusted, so we pin the metadata too. `verify-metadata`
+# fails on a public-server version that is absent here, so add a version's hash
+# below in the same change that adds it to ci/versions.yml or a LOCAL_CTK row of
+# ci/test-matrix.yml; tests/test_fetch_ctk_redistrib.py enforces this.
+# Regenerate with:
 #   curl -fsSL \
 #     https://developer.download.nvidia.com/compute/cuda/redist/redistrib_<ver>.json \
 #     | sha256sum
@@ -41,6 +42,7 @@ KNOWN_REDISTRIB_SHA256: dict[str, str] = {
     "12.9.1": "8335301010b0023ee1ff61eb11e2600ca62002d76780de4089011ad77e0c7630",
     "13.0.2": "fce66717a81c510ffeb89ecc3e79849ab34af3b80139f750876d9033e31d71c2",
     "13.4.2": "015b97aa3977d4d0bade1631b226b6d4cbe48751cc841aad9193295df7f9047a",
+    "13.5.0": "401529e951b845788177f999c0756c520c4d0db1cd4cd05c0a295e331884b596",
 }
 
 
@@ -154,8 +156,8 @@ def verify_metadata_sha256(*, cuda_version: str, metadata_path: str, metadata_so
     manifest under the same version number, so it is never checked against
     them; it only gets a warning.
 
-    Returns a process exit code: 1 on a mismatch (fail closed), 0 when the hash
-    matches, the version is not pinned yet, or the source is custom (warn only).
+    Returns a process exit code: 1 on a mismatch or an unpinned public version
+    (fail closed), 0 when the hash matches or the source is custom (warn only).
     """
     actual = compute_file_sha256(metadata_path)
     if metadata_source == "custom":
@@ -168,11 +170,11 @@ def verify_metadata_sha256(*, cuda_version: str, metadata_path: str, metadata_so
     expected = KNOWN_REDISTRIB_SHA256.get(cuda_version)
     if expected is None:
         print(
-            f"WARNING: no pinned redistrib sha256 for CUDA {cuda_version!r}; got {actual}. "
+            f"ERROR: no pinned redistrib sha256 for CUDA {cuda_version!r}; got {actual}. "
             f"Add it to KNOWN_REDISTRIB_SHA256 in {Path(__file__).name} to pin it.",
             file=sys.stderr,
         )
-        return 0
+        return 1
     if actual != expected:
         print(
             f"ERROR: redistrib metadata sha256 mismatch for CUDA {cuda_version!r}: expected {expected}, got {actual}",
@@ -207,7 +209,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     verify_parser.add_argument("--cuda-version", required=True)
     verify_parser.add_argument("--metadata-path", required=True)
     verify_parser.add_argument("--metadata-source", choices=("public", "custom"), default="public")
-
     return parser.parse_args(argv)
 
 

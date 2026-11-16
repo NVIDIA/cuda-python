@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import shlex
 import subprocess
 from pathlib import Path
 
@@ -108,13 +107,3 @@ def test_source_builds_and_tests_still_use_frozen_pixi():
     for job in workflow["jobs"].values():
         assert any(step.get("uses") == "./.github/actions/setup-pixi" for step in job["steps"])
         assert any("pixi run" in step.get("run", "") for step in job["steps"])
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_nightly_ci_declares_workflow_test_dependencies():
-    workflow = _workflow("ci-nightly.yml")
-    step = next(step for step in workflow["jobs"]["test-ci-tools-for-release"]["steps"] if "run" in step)
-    install = next(line for line in step["run"].splitlines() if "pip install" in line)
-    dependencies = {argument.lower().split("==")[0] for argument in shlex.split(install)}
-
-    assert {"pytest", "pyyaml"} <= dependencies

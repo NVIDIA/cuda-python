@@ -810,10 +810,10 @@ class TestTensorMapHelpers:
     @pytest.mark.parametrize(
         ("kwargs", "match"),
         [
-            (dict(box_dim=5), "box_dim must be a tuple of ints"),
-            (dict(box_dim=(1, "x", 3)), r"box_dim\[1\] must be an int"),
-            (dict(box_dim=(32,), swizzle=2), "swizzle must be a TensorMapSwizzle"),
-            (dict(box_dim=(32,), interleave=0), "interleave must be a TensorMapInterleave"),
+            ({"box_dim": 5}, "box_dim must be a tuple of ints"),
+            ({"box_dim": (1, "x", 3)}, r"box_dim\[1\] must be an int"),
+            ({"box_dim": (32,), "swizzle": 2}, "swizzle must be a TensorMapSwizzle"),
+            ({"box_dim": (32,), "interleave": 0}, "interleave must be a TensorMapInterleave"),
         ],
         ids=["box_dim_non_iterable", "box_dim_non_int_element", "swizzle_wrong_type", "interleave_wrong_type"],
     )

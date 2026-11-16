@@ -64,6 +64,12 @@ class GraphDefinition:
     def __eq__(self, other: object) -> bool: ...
     def __hash__(self) -> int: ...
     @property
+    def id(self) -> int:
+        """The driver-assigned graph ID, as used in GraphViz DOT output.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+    @property
     def is_valid(self) -> bool:
         """Whether this graph definition remains valid."""
     @property

@@ -11,7 +11,7 @@
 
 namespace cuda_core::rt {
 
-#if PY_VERSION_HEX < 0x030D0000
+#if PY_VERSION_HEX < 0x030D0000 && defined(Py_LIMITED_API)
 extern "C" int _Py_IsFinalizing(void);
 #endif
 
@@ -22,7 +22,7 @@ extern "C" int _Py_IsFinalizing(void);
 // call.
 //
 // If that race is lost on a non-finalizer thread, CPython's behavior is
-// version-dependent: on older supported versions (3.10-3.13) it may abruptly
+// version-dependent: on older supported versions (3.11-3.13) it may abruptly
 // terminate the current thread (historically via PyThread_exit_thread(),
 // without normal C++ unwinding), while on newer versions (3.14+) it may hang
 // the thread until process exit.
@@ -72,7 +72,7 @@ class GILReleaseGuard {
 // Use in C++ destructors that need to manipulate Python objects.
 class GILAcquireGuard {
    public:
-    GILAcquireGuard() : acquired_(false)
+    GILAcquireGuard()
     {
         // Don't try to acquire GIL if Python is finalizing
         if (!Py_IsInitialized() || py_is_finalizing()) {
@@ -89,7 +89,7 @@ class GILAcquireGuard {
         }
     }
 
-    bool
+    [[nodiscard]] bool
     acquired() const
     {
         return acquired_;
@@ -100,8 +100,8 @@ class GILAcquireGuard {
     GILAcquireGuard &operator=(const GILAcquireGuard &) = delete;
 
    private:
-    PyGILState_STATE gstate_;
-    bool acquired_;
+    PyGILState_STATE gstate_{};
+    bool acquired_{false};
 };
 
 // Save the Python exception in flight and restore it on scope exit, dropping
@@ -155,12 +155,14 @@ make_py(const char *module_name, const char *class_name, std::intptr_t value) no
         Py_RETURN_NONE;
     }
     PyObject *mod = PyImport_ImportModule(module_name);
-    if (!mod)
+    if (!mod) {
         return nullptr;
+    }
     PyObject *cls = PyObject_GetAttrString(mod, class_name);
     Py_DECREF(mod);
-    if (!cls)
+    if (!cls) {
         return nullptr;
+    }
     PyObject *result = PyObject_CallFunction(cls, "L", value);
     Py_DECREF(cls);
     return result;

@@ -142,7 +142,7 @@ namespace cuda_core::rt {
     X(cuLaunchHostFunc, 10000)                                                  \
     X(cuThreadExchangeStreamCaptureMode, 10010)
 
-#define CUDA_CORE_DECLARE_DRIVER_FN(name, introduced) extern decltype(&name) p_##name;
+#define CUDA_CORE_DECLARE_DRIVER_FN(name, introduced) extern decltype(&(name)) p_##name;
 CUDA_CORE_DRIVER_FUNCTIONS(CUDA_CORE_DECLARE_DRIVER_FN)
 #undef CUDA_CORE_DECLARE_DRIVER_FN
 
@@ -230,7 +230,7 @@ struct Unavailable;
 template <class R, class... A>
 struct Unavailable<R (*)(A...)> {
     static R
-    call(A...) noexcept
+    call(A... /*unused*/) noexcept
     {
         return UnavailableStatus<R>::value;
     }

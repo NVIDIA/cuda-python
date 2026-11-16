@@ -6,7 +6,15 @@ import warnings
 
 import pytest
 
-from cuda.bindings import nvml
+from cuda.bindings import driver, nvml
+
+
+def _driver_version_at_least_13_4():
+    (status,) = driver.cuInit(0)
+    assert status == driver.CUresult.CUDA_SUCCESS
+    status, version = driver.cuDriverGetVersion()
+    assert status == driver.CUresult.CUDA_SUCCESS
+    return version >= 13040
 
 
 def assert_nvml_is_initialized():
@@ -25,7 +33,7 @@ def test_devices_are_the_same_architecture(all_devices):
     # they won't be tested properly.  This tests for the (hopefully rare) case
     # where a system has devices of different architectures and produces a warning.
 
-    all_arches = set(nvml.DeviceArch(nvml.device_get_architecture(device)) for device in all_devices)
+    all_arches = {nvml.DeviceArch(nvml.device_get_architecture(device)) for device in all_devices}
 
     if len(all_arches) > 1:
         warnings.warn(  # noqa: B028
@@ -36,10 +44,14 @@ def test_devices_are_the_same_architecture(all_devices):
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Test not supported on Windows")
+@pytest.mark.thread_unsafe(reason="nvml init affects other threads")
 def test_init_ref_count():
     """
     Verifies that we can call NVML shutdown and init(2) multiple times, and that ref counting works
     """
+    if _driver_version_at_least_13_4():
+        pytest.skip("Init behavior changed in CUDA 13.4")
+
     with pytest.raises(nvml.UninitializedError):
         nvml.shutdown()
 

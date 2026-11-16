@@ -1200,7 +1200,7 @@ def main():
         if kernel_number < 8:
             selected_kernel = kernels(kernel_number)
         else:
-            print("Error: kernel number should be between 0 to 7, you have entered %d".format())
+            print(f"Error: kernel number should be between 0 to 7, you have entered {kernel_number}")
             sys.exit(-1)
 
     major = checkCudaErrors(

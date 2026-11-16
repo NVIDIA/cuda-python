@@ -70,10 +70,12 @@ CUDA library or CUDA driver versions. Refer to the individual module documentati
 **************************************
 
 For each supported CUDA major version, each ``cuda-core`` release declares a minimum
-``cuda-bindings`` version, its *floor*. The floor is the newest ``cuda-bindings`` release of that
-major at the time of the ``cuda-core`` release. The published wheels are built against it. The
-``cu12`` and ``cu13`` extras of ``cuda-core`` in ``pyproject.toml`` declare the floors of the
-current release. The build, the import-time check, this page, and CI all read them from there.
+``cuda-bindings`` version, its *floor*. The floor is the oldest ``cuda-bindings`` release that
+meets two conditions. It was generated from the ``cuda.h`` major.minor that the published
+``cuda-core`` wheels are built against. It provides every ``cuda-bindings`` API and fix that
+``cuda-core`` needs. The ``cu12`` and ``cu13`` extras of ``cuda-core`` in ``pyproject.toml``
+declare the floors of the current release. The build, the import-time check, this page, and CI
+all read them from there.
 
 .. list-table:: ``cuda-bindings`` floors
    :header-rows: 1
@@ -102,9 +104,10 @@ current release. The build, the import-time check, this page, and CI all read th
   features. In that case ``cuda-core`` never crashes or returns a wrong result; depending on the
   feature, it may raise an error or emulate the feature.
 
-A floor moves with each ``cuda-core`` release, to the newest ``cuda-bindings`` of each major at
-that time. It also moves in any release whose changes need a newer ``cuda-bindings`` API. The
-:doc:`release notes <release>` list every move under "Breaking Changes".
+A floor moves only for one of two reasons. A ``cuda-core`` release needs a newer
+``cuda-bindings`` API or fix, or its wheels are built against a newer CUDA minor version. A new
+``cuda-bindings`` release alone does not move a floor, and a ``cuda-core`` release alone does
+not. The :doc:`release notes <release>` list every move.
 
 Python Version Support
 ----------------------

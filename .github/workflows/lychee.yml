@@ -63,8 +63,14 @@ jobs:
           # Keep SCM history/tags without downloading historical source blobs.
           filter: blob:none
           persist-credentials: false
-          # Rendered docs build cuda.core against the pinned CCCL headers.
-          submodules: ${{ matrix.kind == 'rendered' }}
+          # Fetch CCCL separately: checkout's filter does not apply to submodules.
+          submodules: false
+
+      - name: Checkout CCCL submodule
+        if: ${{ matrix.kind == 'rendered' }}
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --depth=1 --filter=blob:none --recursive
 
       - name: Set up Python
         id: python

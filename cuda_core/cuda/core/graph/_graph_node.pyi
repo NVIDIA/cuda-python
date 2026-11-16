@@ -43,6 +43,18 @@ class GraphNode:
             The node type enum value, or None for the entry node.
         """
     @property
+    def local_id(self) -> int:
+        """The node's ID within its graph.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+    @property
+    def tools_id(self) -> int:
+        """The node's ID reported by CUDA profiling and tooling interfaces.
+
+        Requires CUDA 13 build and driver 13.1+
+        """
+    @property
     def graph(self) -> GraphDefinition:
         """Return the GraphDefinition this node belongs to."""
     @property

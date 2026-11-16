@@ -243,7 +243,8 @@ StreamHandle deallocation_stream(const DevicePtrHandle &h) noexcept;
 // Set the deallocation stream for a device pointer handle.
 // Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
 // bound because no CUDA context is current.
-CUresult set_deallocation_stream(const DevicePtrHandle &h, const StreamHandle &h_stream) noexcept;
+// May throw std::bad_alloc.
+CUresult set_deallocation_stream(const DevicePtrHandle &h, const StreamHandle &h_stream);
 
 // ============================================================================
 // Virtual memory management (VMM_DESIGN.md)

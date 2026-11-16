@@ -57,7 +57,6 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from typing import List, Tuple
 
 import numpy as np
 
@@ -142,7 +141,7 @@ def _driver_accepts_split(sm, long_count: int, critical_count: int) -> bool:
     return actual == (long_count, critical_count)
 
 
-def _find_working_split(sm, prefer_critical: int | None = None) -> Tuple[int, int, int] | None:
+def _find_working_split(sm, prefer_critical: int | None = None) -> tuple[int, int, int] | None:
     """
     Probe the driver for a (long, critical) split it actually accepts.
 
@@ -174,14 +173,14 @@ def _find_working_split(sm, prefer_critical: int | None = None) -> Tuple[int, in
     while granularity * 2 <= total:
         base = max(granularity, _align_down(prefer_critical, granularity))
 
-        candidates: List[int] = []
+        candidates: list[int] = []
         seen = set()
 
         # Default-arg binding captures the current loop iteration's values
         # (granularity, seen, candidates). push is never stored — it's only
         # called in this same iteration — but the explicit binding silences
         # ruff B023 and documents the intent.
-        def push(c: int, granularity: int = granularity, seen: set = seen, candidates: List[int] = candidates) -> None:
+        def push(c: int, granularity: int = granularity, seen: set = seen, candidates: list[int] = candidates) -> None:
             if c >= granularity and c <= total - granularity and c not in seen:
                 seen.add(c)
                 candidates.append(c)
@@ -218,7 +217,7 @@ def _format_suggestion(sm, prefer_critical: int | None) -> str | None:
     return f"--split {long_count},{critical_count}"
 
 
-def parse_split(arg: str | None, device: Device) -> Tuple[int, int]:
+def parse_split(arg: str | None, device: Device) -> tuple[int, int]:
     """
     Parse the --split "A,B" CLI argument and validate it against the device.
 
@@ -487,7 +486,7 @@ def run_baseline(
 
 def run_green_context(
     device: Device,
-    split: Tuple[int, int],
+    split: tuple[int, int],
     delay_kernel,
     critical_kernel,
     delay_cycles: int,
@@ -548,7 +547,7 @@ def _fmt_ms(value: float | None, width: int) -> str:
     return f"{value:>{width}.3f}"
 
 
-def print_results(results: List[ScenarioResult]) -> None:
+def print_results(results: list[ScenarioResult]) -> None:
     print()
     header = f"{'scenario':<32}{'SMs (long/crit)':>20}{'long (ms)':>14}{'crit total (ms)':>18}{'crit offset (ms)':>19}"
     print(header)

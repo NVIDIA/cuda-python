@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.4.1 to 13.4.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.5.0. Do not modify it directly.
 
 
 
@@ -11,7 +11,7 @@
 ###############################################################################
 
 # enums
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4eaac7021af14308210cbd9dd8bf938f0b09d395ef079368750627da493fa06e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aaf11ec15d17e7c6051539ba080af5a01b1bf9c8270de12ce2e3b6b6d79bb428
 ctypedef enum nvFatbinResult "nvFatbinResult":
     NVFATBIN_SUCCESS "NVFATBIN_SUCCESS" = 0
     NVFATBIN_ERROR_INTERNAL "NVFATBIN_ERROR_INTERNAL"

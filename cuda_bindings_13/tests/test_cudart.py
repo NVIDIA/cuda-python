@@ -2092,3 +2092,27 @@ def test_ffi_phase2_new_yuv_channel_kinds_descriptor_construction():
             desc.x, desc.y, desc.z, desc.w, desc.f = bits, bits, bits, w_bit, kind
             assert desc.f == kind
             assert desc.x == bits
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+@pytest.mark.parametrize(
+    ("module", "class_name", "constant_name"),
+    [
+        (cuda, "CU_DEV_SM_RESOURCE_GROUP_PARAMS", "CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID_ANY"),
+        (cudart, "cudaDevSmResourceGroupParams", "cudaDevSmResourceGroupLocalityDomainIdAny"),
+    ],
+)
+def test_locality_domain_id_any_sentinel(module, class_name, constant_name):
+    # The names only exist in bindings generated from a CUDA release that has them.
+    if not hasattr(module, class_name) or not hasattr(module, constant_name):
+        pytest.skip(f"{module.__name__} has no {class_name} / {constant_name}")
+    sentinel = getattr(module, constant_name)
+    assert int(sentinel) == 0xFFFFFFFF
+
+    # The field must accept the constant that the bindings export for it, and
+    # the unsigned maximum itself.
+    params = getattr(module, class_name)()
+    params.localityDomainId = sentinel
+    assert params.localityDomainId == 0xFFFFFFFF
+    params.localityDomainId = 0xFFFFFFFF
+    assert params.localityDomainId == 0xFFFFFFFF

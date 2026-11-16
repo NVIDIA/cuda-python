@@ -126,7 +126,7 @@ cleanup_in_context(
     }
     std::invoke(std::forward<AfterCleanup>(after_cleanup));
     if (status != CUDA_SUCCESS || restore != CUDA_SUCCESS) {
-        char operation_name[160];
+        char operation_name[kOperationNameSize];
         format_operation(operation_name, sizeof(operation_name), name, handle);
         if (status != CUDA_SUCCESS) {
             report_cuda_error(operation_name, status, detail);

@@ -9,7 +9,7 @@ Runtime Requirements
 
 ``cuda.bindings`` supports the same platforms as CUDA. Runtime dependencies are:
 
-* Linux (x86-64, arm64) and Windows (x86-64)
+* Linux (x86-64, arm64) and Windows (x86-64, arm64)
 * Python 3.11 - 3.15
 * Driver: Linux (580.65.06 or later) Windows (580.88 or later)
 * Optionally, NVRTC, nvJitLink, nvFatBin, NVVM, cuFile, and cuDLA from CUDA Toolkit 13.x
@@ -18,7 +18,11 @@ Runtime Requirements
 
    The optional CUDA Toolkit components are now installed via the ``cuda-toolkit`` metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit `Windows <https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html>`_ and `Linux <https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html>`_ Installation Guides).
 
-Starting from v12.8.0, ``cuda-python`` becomes a meta package which currently depends only on ``cuda-bindings``; in the future more sub-packages will be added to ``cuda-python``. In the instructions below, we still use ``cuda-python`` as example to serve existing users, but everything is applicable to ``cuda-bindings`` as well.
+The CUDA 13 releases of ``cuda-python`` are a metapackage that installs
+``cuda-bindings``, ``cuda-core``, and ``cuda-pathfinder``. The examples below use
+``cuda-python`` for existing users; install ``cuda-bindings`` directly if you
+only need the low-level interfaces. Its ``all`` extra installs the optional
+Toolkit components listed below.
 
 
 Free-threading Build Support
@@ -108,9 +112,9 @@ obtain the most recent build, use the following commands:
 
 Replace ``python312`` with your Python version (e.g. ``python311``,
 ``python313``, ``python314``, ``python314t``, ``python315``, ``python315t``). For aarch64, replace ``linux-64``
-with ``linux-aarch64``; for Windows, use ``win-64``. Only the current CUDA
-major version is built on ``main``; wheels for the prior CUDA major are
-published from the corresponding backport branch.
+with ``linux-aarch64``; for Windows, use ``win-64``. To use the CUDA 12 line,
+replace ``cuda13`` with ``cuda12`` in both commands. Both supported CUDA major
+lines are published by CI from ``main``.
 
 Installing from Source
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -124,20 +128,22 @@ updates for development.
 Requirements
 ^^^^^^^^^^^^
 
-* CUDA Toolkit headers[^1]
-* CUDA Runtime static library[^2]
-* A git clone of the repository that includes tags[^3]
+* CUDA Toolkit headers [#]_
+* CUDA Runtime static library [#]_
+* A git clone of the repository that includes tags [#]_
 
-[^1]: User projects that ``cimport`` CUDA symbols in Cython must also use CUDA Toolkit (CTK) types as provided by the ``cuda.bindings`` major.minor version. This results in CTK headers becoming a transitive dependency of downstream projects through CUDA Python.
+.. [#] User projects that ``cimport`` CUDA symbols in Cython must also use CUDA Toolkit (CTK) types as provided by the ``cuda.bindings`` major.minor version. This results in CTK headers becoming a transitive dependency of downstream projects through CUDA Python.
 
-[^2]: The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
+.. [#] The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
 
-[^3]: The version is derived from git tags via ``setuptools-scm``, so the clone
-must include tags reaching back to at least the latest ``v*`` tag. Do not use
-``--depth`` or ``--no-tags``: a clone without reachable tags can build with a
-bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository
-<https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#cloning-the-repository>`_
-for details.
+.. [#] The version is derived from git tags via ``setuptools-scm``, so the clone
+   must include a reachable tag matching the release line configured in this
+   package's ``pyproject.toml`` (currently ``v13.*``). A tag from the other CUDA
+   major does not determine this package's version. Do not use ``--depth`` or
+   ``--no-tags``: a clone without matching reachable tags can build with a
+   bogus version such as ``0.1.dev1+g0d22cb444``. See `Cloning the repository
+   <https://github.com/NVIDIA/cuda-python/blob/main/CONTRIBUTING.md#cloning-the-repository>`_
+   for details.
 
 Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. The build checks the header before it compiles anything. A mismatch stops the build with a message that names the ``cuda.h`` it found and the version this source tree needs. Use the ``CUDA_PATH`` (or ``CUDA_HOME``) environment variable to specify the location of your headers. If both are set, ``CUDA_PATH`` takes precedence. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_PATH`` with:
 
