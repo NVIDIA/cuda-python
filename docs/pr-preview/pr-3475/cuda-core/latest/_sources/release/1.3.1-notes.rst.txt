@@ -7,7 +7,12 @@
 =================================
 
 Fixes and enhancements
------------------------
+----------------------
+
+- :meth:`Buffer.from_ipc_descriptor` no longer unmaps a newly imported
+  memory pool buffer when another thread releases the same descriptor at the
+  same time. The import now waits for the pending release to finish.
+  (`#3450 <https://github.com/NVIDIA/cuda-python/pull/3450>`__)
 
 - :class:`PinnedMemoryResource` construction without options no longer
   invalidates a CUDA graph capture in progress on another thread. ``cuda.core``
