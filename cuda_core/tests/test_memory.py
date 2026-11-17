@@ -81,7 +81,7 @@ from cuda.core.typing import (
     VirtualMemoryLocationType,
 )
 from cuda.core.utils import StridedMemoryView
-from cuda_python_test_helpers import IS_WINDOWS
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 
@@ -1464,6 +1464,9 @@ def test_vmm_allocator_basic_allocation(init_cuda, use_device_object, handle_typ
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.skipif(
+    IS_WSL, reason="GPUDirect RDMA is not supported on WSL, but some drivers report the capability there"
+)
 def test_vmm_allocator_policy_configuration(init_cuda):
     """Test VMM allocator with different policy configurations.
 
