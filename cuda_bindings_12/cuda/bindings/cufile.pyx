@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=11c0f6874dbbca1b98aa2e0d38e44146556d4d1a4ce5a5584cbad9c5792792c2
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5c0f0ede5957fb7cbd597e6b23620fecb7128a0740b00a6313f8a4b1c79846f3
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -97,16 +97,21 @@ from cuda.bindings.driver import CUresult as pyCUresult
 ###############################################################################
 
 cdef _get__py_anon_pod1_dtype_offsets():
-    cdef cuda_bindings_cufile__anon_pod1 pod
-    return _numpy.dtype({
-        'names': ['fd', 'handle'],
-        'formats': [_numpy.int32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.fd)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_cufile__anon_pod1),
-    })
+    cdef cuda_bindings_cufile__anon_pod1 *pod = <cuda_bindings_cufile__anon_pod1 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod1))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_cufile__anon_pod1")
+    try:
+        return _numpy.dtype({
+            'names': ['fd', 'handle'],
+            'formats': [_numpy.int32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.fd)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_cufile__anon_pod1),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 
@@ -246,18 +251,23 @@ cdef class _py_anon_pod1:
 
 
 cdef _get__py_anon_pod3_dtype_offsets():
-    cdef cuda_bindings_cufile__anon_pod3 pod
-    return _numpy.dtype({
-        'names': ['dev_ptr_base', 'file_offset', 'dev_ptr_offset', 'size_'],
-        'formats': [_numpy.intp, _numpy.int64, _numpy.int64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.devPtr_base)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.file_offset)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.devPtr_offset)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_cufile__anon_pod3),
-    })
+    cdef cuda_bindings_cufile__anon_pod3 *pod = <cuda_bindings_cufile__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod3))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_cufile__anon_pod3")
+    try:
+        return _numpy.dtype({
+            'names': ['dev_ptr_base', 'file_offset', 'dev_ptr_offset', 'size_'],
+            'formats': [_numpy.intp, _numpy.int64, _numpy.int64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.devPtr_base)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.file_offset)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.devPtr_offset)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_cufile__anon_pod3),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
@@ -419,17 +429,22 @@ cdef class _py_anon_pod3:
 
 
 cdef _get_io_events_dtype_offsets():
-    cdef CUfileIOEvents_t pod
-    return _numpy.dtype({
-        'names': ['cookie', 'status', 'ret'],
-        'formats': [_numpy.intp, _numpy.int32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ret)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUfileIOEvents_t),
-    })
+    cdef CUfileIOEvents_t *pod = <CUfileIOEvents_t *>_cyb_calloc(1, sizeof(CUfileIOEvents_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUfileIOEvents_t")
+    try:
+        return _numpy.dtype({
+            'names': ['cookie', 'status', 'ret'],
+            'formats': [_numpy.intp, _numpy.int32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.cookie)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.status)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ret)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUfileIOEvents_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 io_events_dtype = _get_io_events_dtype_offsets()
 cdef object io_events_dtype_record = _numpy.dtype((_numpy.record, io_events_dtype))
@@ -601,17 +616,22 @@ cdef class IOEvents:
 
 
 cdef _get_descr_dtype_offsets():
-    cdef CUfileDescr_t pod
-    return _numpy.dtype({
-        'names': ['type', 'handle', 'fs_ops'],
-        'formats': [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fs_ops)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUfileDescr_t),
-    })
+    cdef CUfileDescr_t *pod = <CUfileDescr_t *>_cyb_calloc(1, sizeof(CUfileDescr_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUfileDescr_t")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'handle', 'fs_ops'],
+            'formats': [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fs_ops)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUfileDescr_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 descr_dtype = _get_descr_dtype_offsets()
 cdef object descr_dtype_record = _numpy.dtype((_numpy.record, descr_dtype))
@@ -781,15 +801,20 @@ cdef class Descr:
 
 
 cdef _get__py_anon_pod2_dtype_offsets():
-    cdef cuda_bindings_cufile__anon_pod2 pod
-    return _numpy.dtype({
-        'names': ['batch'],
-        'formats': [_py_anon_pod3_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.batch)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_cufile__anon_pod2),
-    })
+    cdef cuda_bindings_cufile__anon_pod2 *pod = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod2))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_cufile__anon_pod2")
+    try:
+        return _numpy.dtype({
+            'names': ['batch'],
+            'formats': [_py_anon_pod3_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.batch)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_cufile__anon_pod2),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
@@ -923,19 +948,24 @@ cdef class _py_anon_pod2:
 
 
 cdef _get_io_params_dtype_offsets():
-    cdef CUfileIOParams_t pod
-    return _numpy.dtype({
-        'names': ['mode', 'u', 'fh', 'opcode', 'cookie'],
-        'formats': [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.u)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fh)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.opcode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUfileIOParams_t),
-    })
+    cdef CUfileIOParams_t *pod = <CUfileIOParams_t *>_cyb_calloc(1, sizeof(CUfileIOParams_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUfileIOParams_t")
+    try:
+        return _numpy.dtype({
+            'names': ['mode', 'u', 'fh', 'opcode', 'cookie'],
+            'formats': [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.mode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.u)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fh)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.opcode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cookie)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUfileIOParams_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 io_params_dtype = _get_io_params_dtype_offsets()
 cdef object io_params_dtype_record = _numpy.dtype((_numpy.record, io_params_dtype))

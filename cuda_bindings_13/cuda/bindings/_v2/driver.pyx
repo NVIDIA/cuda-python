@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4ba4315630cca2c1ae2b59ef0a31d0eeec18669c33ce7af80429e8b3ec4c0d29
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=458291ffe3c940aeb35a9f0715a0fc125913a680017fa109e99dba45829412db
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1020,10 +1020,11 @@ class LaunchMemSyncDomain(_cyb_FastEnum):
     specific stream / graph node / kernel launch. See
     `CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN`, `cuStreamSetAttribute`,
     `cuLaunchKernelEx`, `cuGraphKernelNodeSetAttribute`.  Memory operations
-    done in kernels launched in different domains are considered system-
-    scope distanced. In other words, a GPU scoped memory synchronization is
-    not sufficient for memory order to be observed by kernels in another
-    memory synchronization domain even if they are on the same GPU.
+    done in kernels launched in different domains are considered
+    system-scope distanced. In other words, a GPU scoped memory
+    synchronization is not sufficient for memory order to be observed by
+    kernels in another memory synchronization domain even if they are on
+    the same GPU.
 
     See `CUlaunchMemSyncDomain`.
     """
@@ -2781,15 +2782,20 @@ cdef int check_status_size(int status) except 1 nogil:
 ###############################################################################
 
 cdef _get_uuid_dtype_offsets():
-    cdef CUuuid pod
-    return _numpy.dtype({
-        'names': ['bytes'],
-        'formats': [(_numpy.int8, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.bytes)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUuuid),
-    })
+    cdef CUuuid *pod = <CUuuid *>_cyb_calloc(1, sizeof(CUuuid))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUuuid")
+    try:
+        return _numpy.dtype({
+            'names': ['bytes'],
+            'formats': [(_numpy.int8, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.bytes)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUuuid),
+        })
+    finally:
+        _cyb_free(pod)
 
 uuid_dtype = _get_uuid_dtype_offsets()
 
@@ -2924,15 +2930,20 @@ cdef class Uuid:
 
 
 cdef _get_mem_fabric_handle_v1_dtype_offsets():
-    cdef CUmemFabricHandle_v1 pod
-    return _numpy.dtype({
-        'names': ['data_'],
-        'formats': [(_numpy.uint8, 64)],
-        'offsets': [
-            (<intptr_t>&(pod.data)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemFabricHandle_v1),
-    })
+    cdef CUmemFabricHandle_v1 *pod = <CUmemFabricHandle_v1 *>_cyb_calloc(1, sizeof(CUmemFabricHandle_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemFabricHandle_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['data_'],
+            'formats': [(_numpy.uint8, 64)],
+            'offsets': [
+                (<intptr_t>&(pod.data)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemFabricHandle_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_fabric_handle_v1_dtype = _get_mem_fabric_handle_v1_dtype_offsets()
 
@@ -3055,15 +3066,20 @@ cdef class MemFabricHandle_v1:
 
 
 cdef _get_ipc_event_handle_v1_dtype_offsets():
-    cdef CUipcEventHandle_v1 pod
-    return _numpy.dtype({
-        'names': ['reserved'],
-        'formats': [(_numpy.int8, 64)],
-        'offsets': [
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUipcEventHandle_v1),
-    })
+    cdef CUipcEventHandle_v1 *pod = <CUipcEventHandle_v1 *>_cyb_calloc(1, sizeof(CUipcEventHandle_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUipcEventHandle_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['reserved'],
+            'formats': [(_numpy.int8, 64)],
+            'offsets': [
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUipcEventHandle_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 ipc_event_handle_v1_dtype = _get_ipc_event_handle_v1_dtype_offsets()
 
@@ -3169,15 +3185,20 @@ cdef class IpcEventHandle_v1:
 
 
 cdef _get_ipc_mem_handle_v1_dtype_offsets():
-    cdef CUipcMemHandle_v1 pod
-    return _numpy.dtype({
-        'names': ['reserved'],
-        'formats': [(_numpy.int8, 64)],
-        'offsets': [
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUipcMemHandle_v1),
-    })
+    cdef CUipcMemHandle_v1 *pod = <CUipcMemHandle_v1 *>_cyb_calloc(1, sizeof(CUipcMemHandle_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUipcMemHandle_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['reserved'],
+            'formats': [(_numpy.int8, 64)],
+            'offsets': [
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUipcMemHandle_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 ipc_mem_handle_v1_dtype = _get_ipc_mem_handle_v1_dtype_offsets()
 
@@ -3283,16 +3304,21 @@ cdef class IpcMemHandle_v1:
 
 
 cdef _get_stream_mem_op_flush_remote_writes_params_dtype_offsets():
-    cdef CUstreamMemOpFlushRemoteWritesParams_st pod
-    return _numpy.dtype({
-        'names': ['operation', 'flags_'],
-        'formats': [_numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.operation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamMemOpFlushRemoteWritesParams_st),
-    })
+    cdef CUstreamMemOpFlushRemoteWritesParams_st *pod = <CUstreamMemOpFlushRemoteWritesParams_st *>_cyb_calloc(1, sizeof(CUstreamMemOpFlushRemoteWritesParams_st))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamMemOpFlushRemoteWritesParams_st")
+    try:
+        return _numpy.dtype({
+            'names': ['operation', 'flags_'],
+            'formats': [_numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.operation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamMemOpFlushRemoteWritesParams_st),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_mem_op_flush_remote_writes_params_dtype = _get_stream_mem_op_flush_remote_writes_params_dtype_offsets()
 
@@ -3432,16 +3458,21 @@ cdef class StreamMemOpFlushRemoteWritesParams:
 
 
 cdef _get_stream_mem_op_memory_barrier_params_dtype_offsets():
-    cdef CUstreamMemOpMemoryBarrierParams_st pod
-    return _numpy.dtype({
-        'names': ['operation', 'flags_'],
-        'formats': [_numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.operation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamMemOpMemoryBarrierParams_st),
-    })
+    cdef CUstreamMemOpMemoryBarrierParams_st *pod = <CUstreamMemOpMemoryBarrierParams_st *>_cyb_calloc(1, sizeof(CUstreamMemOpMemoryBarrierParams_st))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamMemOpMemoryBarrierParams_st")
+    try:
+        return _numpy.dtype({
+            'names': ['operation', 'flags_'],
+            'formats': [_numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.operation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamMemOpMemoryBarrierParams_st),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_mem_op_memory_barrier_params_dtype = _get_stream_mem_op_memory_barrier_params_dtype_offsets()
 
@@ -3581,21 +3612,26 @@ cdef class StreamMemOpMemoryBarrierParams:
 
 
 cdef _get_stream_mem_op_atomic_reduction_params_dtype_offsets():
-    cdef CUstreamMemOpAtomicReductionParams_st pod
-    return _numpy.dtype({
-        'names': ['operation', 'flags_', 'reduction_op', 'data_type', 'address', 'value', 'alias'],
-        'formats': [_numpy.int32, _numpy.uint32, _numpy.int32, _numpy.int32, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.operation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reductionOp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.address)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.alias)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamMemOpAtomicReductionParams_st),
-    })
+    cdef CUstreamMemOpAtomicReductionParams_st *pod = <CUstreamMemOpAtomicReductionParams_st *>_cyb_calloc(1, sizeof(CUstreamMemOpAtomicReductionParams_st))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamMemOpAtomicReductionParams_st")
+    try:
+        return _numpy.dtype({
+            'names': ['operation', 'flags_', 'reduction_op', 'data_type', 'address', 'value', 'alias'],
+            'formats': [_numpy.int32, _numpy.uint32, _numpy.int32, _numpy.int32, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.operation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reductionOp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.address)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.alias)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamMemOpAtomicReductionParams_st),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_mem_op_atomic_reduction_params_dtype = _get_stream_mem_op_atomic_reduction_params_dtype_offsets()
 
@@ -3790,15 +3826,20 @@ cdef class StreamMemOpAtomicReductionParams:
 
 
 cdef _get__py_anon_pod3_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod3 pod
-    return _numpy.dtype({
-        'names': ['bytes_over_budget'],
-        'formats': [_numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.bytesOverBudget)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod3),
-    })
+    cdef cuda_bindings_driver__anon_pod3 *pod = <cuda_bindings_driver__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod3))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod3")
+    try:
+        return _numpy.dtype({
+            'names': ['bytes_over_budget'],
+            'formats': [_numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.bytesOverBudget)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod3),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
@@ -3927,24 +3968,29 @@ cdef class _py_anon_pod3:
 
 
 cdef _get_dev_prop_v1_dtype_offsets():
-    cdef CUdevprop_v1 pod
-    return _numpy.dtype({
-        'names': ['max_threads_per_block', 'max_threads_dim', 'max_grid_size', 'shared_mem_per_block', 'total_constant_memory', 'simd_width', 'mem_pitch', 'regs_per_block', 'clock_rate', 'texture_align'],
-        'formats': [_numpy.int32, (_numpy.int32, 3), (_numpy.int32, 3), _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.maxThreadsPerBlock)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxThreadsDim)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxGridSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedMemPerBlock)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.totalConstantMemory)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.SIMDWidth)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memPitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.regsPerBlock)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clockRate)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.textureAlign)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUdevprop_v1),
-    })
+    cdef CUdevprop_v1 *pod = <CUdevprop_v1 *>_cyb_calloc(1, sizeof(CUdevprop_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUdevprop_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['max_threads_per_block', 'max_threads_dim', 'max_grid_size', 'shared_mem_per_block', 'total_constant_memory', 'simd_width', 'mem_pitch', 'regs_per_block', 'clock_rate', 'texture_align'],
+            'formats': [_numpy.int32, (_numpy.int32, 3), (_numpy.int32, 3), _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.maxThreadsPerBlock)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxThreadsDim)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxGridSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedMemPerBlock)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.totalConstantMemory)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.SIMDWidth)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memPitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.regsPerBlock)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clockRate)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.textureAlign)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUdevprop_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 dev_prop_v1_dtype = _get_dev_prop_v1_dtype_offsets()
 
@@ -4172,19 +4218,24 @@ cdef class DevProp_v1:
 
 
 cdef _get_access_policy_window_v1_dtype_offsets():
-    cdef CUaccessPolicyWindow_v1 pod
-    return _numpy.dtype({
-        'names': ['base_ptr', 'num_bytes', 'hit_ratio', 'hit_prop', 'miss_prop'],
-        'formats': [_numpy.intp, _numpy.uint64, _numpy.float32, _numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.base_ptr)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.num_bytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hitRatio)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hitProp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.missProp)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUaccessPolicyWindow_v1),
-    })
+    cdef CUaccessPolicyWindow_v1 *pod = <CUaccessPolicyWindow_v1 *>_cyb_calloc(1, sizeof(CUaccessPolicyWindow_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUaccessPolicyWindow_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['base_ptr', 'num_bytes', 'hit_ratio', 'hit_prop', 'miss_prop'],
+            'formats': [_numpy.intp, _numpy.uint64, _numpy.float32, _numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.base_ptr)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.num_bytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hitRatio)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hitProp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.missProp)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUaccessPolicyWindow_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 access_policy_window_v1_dtype = _get_access_policy_window_v1_dtype_offsets()
 
@@ -4345,26 +4396,31 @@ cdef class AccessPolicyWindow_v1:
 
 
 cdef _get_kernel_node_params_v2_dtype_offsets():
-    cdef CUDA_KERNEL_NODE_PARAMS_v2 pod
-    return _numpy.dtype({
-        'names': ['func', 'grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'kernel_params', 'extra', 'kern', 'ctx'],
-        'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.func)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.kernelParams)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extra)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.kern)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_KERNEL_NODE_PARAMS_v2),
-    })
+    cdef CUDA_KERNEL_NODE_PARAMS_v2 *pod = <CUDA_KERNEL_NODE_PARAMS_v2 *>_cyb_calloc(1, sizeof(CUDA_KERNEL_NODE_PARAMS_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_KERNEL_NODE_PARAMS_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['func', 'grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'kernel_params', 'extra', 'kern', 'ctx'],
+            'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.func)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.kernelParams)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extra)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.kern)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_KERNEL_NODE_PARAMS_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 kernel_node_params_v2_dtype = _get_kernel_node_params_v2_dtype_offsets()
 
@@ -4602,26 +4658,31 @@ cdef class KernelNodeParams_v2:
 
 
 cdef _get_kernel_node_params_v3_dtype_offsets():
-    cdef CUDA_KERNEL_NODE_PARAMS_v3 pod
-    return _numpy.dtype({
-        'names': ['func', 'grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'kernel_params', 'extra', 'kern', 'ctx'],
-        'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.func)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.kernelParams)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extra)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.kern)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_KERNEL_NODE_PARAMS_v3),
-    })
+    cdef CUDA_KERNEL_NODE_PARAMS_v3 *pod = <CUDA_KERNEL_NODE_PARAMS_v3 *>_cyb_calloc(1, sizeof(CUDA_KERNEL_NODE_PARAMS_v3))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_KERNEL_NODE_PARAMS_v3")
+    try:
+        return _numpy.dtype({
+            'names': ['func', 'grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'kernel_params', 'extra', 'kern', 'ctx'],
+            'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.func)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.kernelParams)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extra)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.kern)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_KERNEL_NODE_PARAMS_v3),
+        })
+    finally:
+        _cyb_free(pod)
 
 kernel_node_params_v3_dtype = _get_kernel_node_params_v3_dtype_offsets()
 
@@ -4871,20 +4932,25 @@ cdef class KernelNodeParams_v3:
 
 
 cdef _get_mem_set_node_params_v1_dtype_offsets():
-    cdef CUDA_MEMSET_NODE_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['dst', 'pitch', 'value', 'element_size', 'width', 'height'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.dst)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.elementSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.height)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMSET_NODE_PARAMS_v1),
-    })
+    cdef CUDA_MEMSET_NODE_PARAMS_v1 *pod = <CUDA_MEMSET_NODE_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_MEMSET_NODE_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMSET_NODE_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['dst', 'pitch', 'value', 'element_size', 'width', 'height'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.dst)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.elementSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.height)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMSET_NODE_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_set_node_params_v1_dtype = _get_mem_set_node_params_v1_dtype_offsets()
 
@@ -5056,21 +5122,26 @@ cdef class MemSetNodeParams_v1:
 
 
 cdef _get_mem_set_node_params_v2_dtype_offsets():
-    cdef CUDA_MEMSET_NODE_PARAMS_v2 pod
-    return _numpy.dtype({
-        'names': ['dst', 'pitch', 'value', 'element_size', 'width', 'height', 'ctx'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.dst)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.elementSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMSET_NODE_PARAMS_v2),
-    })
+    cdef CUDA_MEMSET_NODE_PARAMS_v2 *pod = <CUDA_MEMSET_NODE_PARAMS_v2 *>_cyb_calloc(1, sizeof(CUDA_MEMSET_NODE_PARAMS_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMSET_NODE_PARAMS_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['dst', 'pitch', 'value', 'element_size', 'width', 'height', 'ctx'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.dst)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.elementSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMSET_NODE_PARAMS_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_set_node_params_v2_dtype = _get_mem_set_node_params_v2_dtype_offsets()
 
@@ -5265,16 +5336,21 @@ cdef class MemSetNodeParams_v2:
 
 
 cdef _get_host_node_params_v1_dtype_offsets():
-    cdef CUDA_HOST_NODE_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['fn', 'user_data'],
-        'formats': [_numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.fn)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.userData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_HOST_NODE_PARAMS_v1),
-    })
+    cdef CUDA_HOST_NODE_PARAMS_v1 *pod = <CUDA_HOST_NODE_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_HOST_NODE_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_HOST_NODE_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['fn', 'user_data'],
+            'formats': [_numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.fn)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.userData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_HOST_NODE_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 host_node_params_v1_dtype = _get_host_node_params_v1_dtype_offsets()
 
@@ -5402,19 +5478,24 @@ cdef class HostNodeParams_v1:
 
 
 cdef _get_conditional_node_params_dtype_offsets():
-    cdef CUDA_CONDITIONAL_NODE_PARAMS pod
-    return _numpy.dtype({
-        'names': ['handle', 'type', 'size_', 'ph_graph_out', 'ctx'],
-        'formats': [_numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.phGraph_out)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_CONDITIONAL_NODE_PARAMS),
-    })
+    cdef CUDA_CONDITIONAL_NODE_PARAMS *pod = <CUDA_CONDITIONAL_NODE_PARAMS *>_cyb_calloc(1, sizeof(CUDA_CONDITIONAL_NODE_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_CONDITIONAL_NODE_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['handle', 'type', 'size_', 'ph_graph_out', 'ctx'],
+            'formats': [_numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.phGraph_out)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_CONDITIONAL_NODE_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 conditional_node_params_dtype = _get_conditional_node_params_dtype_offsets()
 
@@ -5587,18 +5668,23 @@ cdef class ConditionalNodeParams:
 
 
 cdef _get_graph_edge_data_dtype_offsets():
-    cdef CUgraphEdgeData pod
-    return _numpy.dtype({
-        'names': ['from_port', 'to_port', 'type', 'reserved'],
-        'formats': [_numpy.uint8, _numpy.uint8, _numpy.uint8, (_numpy.uint8, 5)],
-        'offsets': [
-            (<intptr_t>&(pod.from_port)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.to_port)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUgraphEdgeData),
-    })
+    cdef CUgraphEdgeData *pod = <CUgraphEdgeData *>_cyb_calloc(1, sizeof(CUgraphEdgeData))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUgraphEdgeData")
+    try:
+        return _numpy.dtype({
+            'names': ['from_port', 'to_port', 'type', 'reserved'],
+            'formats': [_numpy.uint8, _numpy.uint8, _numpy.uint8, (_numpy.uint8, 5)],
+            'offsets': [
+                (<intptr_t>&(pod.from_port)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.to_port)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUgraphEdgeData),
+        })
+    finally:
+        _cyb_free(pod)
 
 graph_edge_data_dtype = _get_graph_edge_data_dtype_offsets()
 cdef object graph_edge_data_dtype_record = _numpy.dtype((_numpy.record, graph_edge_data_dtype))
@@ -5770,18 +5856,23 @@ cdef class GraphEdgeData:
 
 
 cdef _get_graph_instantiate_params_dtype_offsets():
-    cdef CUDA_GRAPH_INSTANTIATE_PARAMS pod
-    return _numpy.dtype({
-        'names': ['flags_', 'h_upload_stream', 'h_err_node_out', 'result_out'],
-        'formats': [_numpy.uint64, _numpy.intp, _numpy.intp, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hUploadStream)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hErrNode_out)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.result_out)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_GRAPH_INSTANTIATE_PARAMS),
-    })
+    cdef CUDA_GRAPH_INSTANTIATE_PARAMS *pod = <CUDA_GRAPH_INSTANTIATE_PARAMS *>_cyb_calloc(1, sizeof(CUDA_GRAPH_INSTANTIATE_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_GRAPH_INSTANTIATE_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['flags_', 'h_upload_stream', 'h_err_node_out', 'result_out'],
+            'formats': [_numpy.uint64, _numpy.intp, _numpy.intp, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hUploadStream)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hErrNode_out)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.result_out)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_GRAPH_INSTANTIATE_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 graph_instantiate_params_dtype = _get_graph_instantiate_params_dtype_offsets()
 
@@ -5931,16 +6022,21 @@ cdef class GraphInstantiateParams:
 
 
 cdef _get_launch_mem_sync_domain_map_dtype_offsets():
-    cdef CUlaunchMemSyncDomainMap pod
-    return _numpy.dtype({
-        'names': ['default_', 'remote'],
-        'formats': [_numpy.uint8, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.default_)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.remote)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUlaunchMemSyncDomainMap),
-    })
+    cdef CUlaunchMemSyncDomainMap *pod = <CUlaunchMemSyncDomainMap *>_cyb_calloc(1, sizeof(CUlaunchMemSyncDomainMap))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUlaunchMemSyncDomainMap")
+    try:
+        return _numpy.dtype({
+            'names': ['default_', 'remote'],
+            'formats': [_numpy.uint8, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.default_)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.remote)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUlaunchMemSyncDomainMap),
+        })
+    finally:
+        _cyb_free(pod)
 
 launch_mem_sync_domain_map_dtype = _get_launch_mem_sync_domain_map_dtype_offsets()
 
@@ -6080,17 +6176,22 @@ cdef class LaunchMemSyncDomainMap:
 
 
 cdef _get__py_anon_pod5_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod5 pod
-    return _numpy.dtype({
-        'names': ['x', 'y', 'z'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.x)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.y)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.z)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod5),
-    })
+    cdef cuda_bindings_driver__anon_pod5 *pod = <cuda_bindings_driver__anon_pod5 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod5))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod5")
+    try:
+        return _numpy.dtype({
+            'names': ['x', 'y', 'z'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.x)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.y)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.z)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod5),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod5_dtype = _get__py_anon_pod5_dtype_offsets()
 
@@ -6241,17 +6342,22 @@ cdef class _py_anon_pod5:
 
 
 cdef _get__py_anon_pod6_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod6 pod
-    return _numpy.dtype({
-        'names': ['event', 'flags_', 'trigger_at_block_start'],
-        'formats': [_numpy.intp, _numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.event)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.triggerAtBlockStart)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod6),
-    })
+    cdef cuda_bindings_driver__anon_pod6 *pod = <cuda_bindings_driver__anon_pod6 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod6))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod6")
+    try:
+        return _numpy.dtype({
+            'names': ['event', 'flags_', 'trigger_at_block_start'],
+            'formats': [_numpy.intp, _numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.event)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.triggerAtBlockStart)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod6),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod6_dtype = _get__py_anon_pod6_dtype_offsets()
 
@@ -6402,16 +6508,21 @@ cdef class _py_anon_pod6:
 
 
 cdef _get__py_anon_pod7_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod7 pod
-    return _numpy.dtype({
-        'names': ['event', 'flags_'],
-        'formats': [_numpy.intp, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.event)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod7),
-    })
+    cdef cuda_bindings_driver__anon_pod7 *pod = <cuda_bindings_driver__anon_pod7 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod7))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod7")
+    try:
+        return _numpy.dtype({
+            'names': ['event', 'flags_'],
+            'formats': [_numpy.intp, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.event)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod7),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod7_dtype = _get__py_anon_pod7_dtype_offsets()
 
@@ -6551,17 +6662,22 @@ cdef class _py_anon_pod7:
 
 
 cdef _get__py_anon_pod8_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod8 pod
-    return _numpy.dtype({
-        'names': ['x', 'y', 'z'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.x)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.y)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.z)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod8),
-    })
+    cdef cuda_bindings_driver__anon_pod8 *pod = <cuda_bindings_driver__anon_pod8 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod8))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod8")
+    try:
+        return _numpy.dtype({
+            'names': ['x', 'y', 'z'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.x)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.y)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.z)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod8),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod8_dtype = _get__py_anon_pod8_dtype_offsets()
 
@@ -6712,16 +6828,21 @@ cdef class _py_anon_pod8:
 
 
 cdef _get__py_anon_pod9_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod9 pod
-    return _numpy.dtype({
-        'names': ['device_updatable', 'dev_node'],
-        'formats': [_numpy.int32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.deviceUpdatable)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.devNode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod9),
-    })
+    cdef cuda_bindings_driver__anon_pod9 *pod = <cuda_bindings_driver__anon_pod9 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod9))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod9")
+    try:
+        return _numpy.dtype({
+            'names': ['device_updatable', 'dev_node'],
+            'formats': [_numpy.int32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.deviceUpdatable)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.devNode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod9),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod9_dtype = _get__py_anon_pod9_dtype_offsets()
 
@@ -6861,15 +6982,20 @@ cdef class _py_anon_pod9:
 
 
 cdef _get_exec_affinity_sm_count_v1_dtype_offsets():
-    cdef CUexecAffinitySmCount_v1 pod
-    return _numpy.dtype({
-        'names': ['val'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.val)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUexecAffinitySmCount_v1),
-    })
+    cdef CUexecAffinitySmCount_v1 *pod = <CUexecAffinitySmCount_v1 *>_cyb_calloc(1, sizeof(CUexecAffinitySmCount_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUexecAffinitySmCount_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['val'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.val)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUexecAffinitySmCount_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 exec_affinity_sm_count_v1_dtype = _get_exec_affinity_sm_count_v1_dtype_offsets()
 
@@ -6986,16 +7112,21 @@ cdef class ExecAffinitySmCount_v1:
 
 
 cdef _get_ctx_cig_param_dtype_offsets():
-    cdef CUctxCigParam pod
-    return _numpy.dtype({
-        'names': ['shared_data_type', 'shared_data'],
-        'formats': [_numpy.int32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.sharedDataType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUctxCigParam),
-    })
+    cdef CUctxCigParam *pod = <CUctxCigParam *>_cyb_calloc(1, sizeof(CUctxCigParam))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUctxCigParam")
+    try:
+        return _numpy.dtype({
+            'names': ['shared_data_type', 'shared_data'],
+            'formats': [_numpy.int32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.sharedDataType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUctxCigParam),
+        })
+    finally:
+        _cyb_free(pod)
 
 ctx_cig_param_dtype = _get_ctx_cig_param_dtype_offsets()
 
@@ -7123,18 +7254,23 @@ cdef class CtxCigParam:
 
 
 cdef _get_library_host_universal_function_and_data_table_dtype_offsets():
-    cdef CUlibraryHostUniversalFunctionAndDataTable pod
-    return _numpy.dtype({
-        'names': ['function_table', 'function_window_size', 'data_table', 'data_window_size'],
-        'formats': [_numpy.intp, _numpy.uint64, _numpy.intp, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.functionTable)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.functionWindowSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataTable)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataWindowSize)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUlibraryHostUniversalFunctionAndDataTable),
-    })
+    cdef CUlibraryHostUniversalFunctionAndDataTable *pod = <CUlibraryHostUniversalFunctionAndDataTable *>_cyb_calloc(1, sizeof(CUlibraryHostUniversalFunctionAndDataTable))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUlibraryHostUniversalFunctionAndDataTable")
+    try:
+        return _numpy.dtype({
+            'names': ['function_table', 'function_window_size', 'data_table', 'data_window_size'],
+            'formats': [_numpy.intp, _numpy.uint64, _numpy.intp, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.functionTable)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.functionWindowSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataTable)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataWindowSize)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUlibraryHostUniversalFunctionAndDataTable),
+        })
+    finally:
+        _cyb_free(pod)
 
 library_host_universal_function_and_data_table_dtype = _get_library_host_universal_function_and_data_table_dtype_offsets()
 
@@ -7284,30 +7420,35 @@ cdef class LibraryHostUniversalFunctionAndDataTable:
 
 
 cdef _get_mem_cpy2d_v2_dtype_offsets():
-    cdef CUDA_MEMCPY2D_v2 pod
-    return _numpy.dtype({
-        'names': ['src_x_in_bytes', 'src_y', 'src_memory_type', 'src_host', 'src_device', 'src_array', 'src_pitch', 'dst_x_in_bytes', 'dst_y', 'dst_memory_type', 'dst_host', 'dst_device', 'dst_array', 'dst_pitch', 'width_in_bytes', 'height'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.srcXInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcMemoryType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcHost)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcDevice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcPitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstXInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstMemoryType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstHost)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstDevice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstPitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.WidthInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Height)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMCPY2D_v2),
-    })
+    cdef CUDA_MEMCPY2D_v2 *pod = <CUDA_MEMCPY2D_v2 *>_cyb_calloc(1, sizeof(CUDA_MEMCPY2D_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMCPY2D_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['src_x_in_bytes', 'src_y', 'src_memory_type', 'src_host', 'src_device', 'src_array', 'src_pitch', 'dst_x_in_bytes', 'dst_y', 'dst_memory_type', 'dst_host', 'dst_device', 'dst_array', 'dst_pitch', 'width_in_bytes', 'height'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.srcXInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcMemoryType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcHost)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcDevice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcPitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstXInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstMemoryType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstHost)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstDevice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstPitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.WidthInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Height)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMCPY2D_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_cpy2d_v2_dtype = _get_mem_cpy2d_v2_dtype_offsets()
 
@@ -7589,39 +7730,44 @@ cdef class MemCpy2d_v2:
 
 
 cdef _get_mem_cpy3d_v2_dtype_offsets():
-    cdef CUDA_MEMCPY3D_v2 pod
-    return _numpy.dtype({
-        'names': ['src_x_in_bytes', 'src_y', 'src_z', 'src_lod', 'src_memory_type', 'src_host', 'src_device', 'src_array', 'reserved0', 'src_pitch', 'src_height', 'dst_x_in_bytes', 'dst_y', 'dst_z', 'dst_lod', 'dst_memory_type', 'dst_host', 'dst_device', 'dst_array', 'reserved1', 'dst_pitch', 'dst_height', 'width_in_bytes', 'height', 'depth'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.srcXInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcLOD)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcMemoryType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcHost)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcDevice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved0)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcPitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcHeight)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstXInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstLOD)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstMemoryType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstHost)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstDevice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved1)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstPitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstHeight)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.WidthInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Depth)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMCPY3D_v2),
-    })
+    cdef CUDA_MEMCPY3D_v2 *pod = <CUDA_MEMCPY3D_v2 *>_cyb_calloc(1, sizeof(CUDA_MEMCPY3D_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMCPY3D_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['src_x_in_bytes', 'src_y', 'src_z', 'src_lod', 'src_memory_type', 'src_host', 'src_device', 'src_array', 'reserved0', 'src_pitch', 'src_height', 'dst_x_in_bytes', 'dst_y', 'dst_z', 'dst_lod', 'dst_memory_type', 'dst_host', 'dst_device', 'dst_array', 'reserved1', 'dst_pitch', 'dst_height', 'width_in_bytes', 'height', 'depth'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.srcXInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcLOD)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcMemoryType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcHost)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcDevice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved0)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcPitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcHeight)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstXInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstLOD)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstMemoryType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstHost)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstDevice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved1)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstPitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstHeight)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.WidthInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Depth)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMCPY3D_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_cpy3d_v2_dtype = _get_mem_cpy3d_v2_dtype_offsets()
 
@@ -7980,39 +8126,44 @@ cdef class MemCpy3d_v2:
 
 
 cdef _get_mem_cpy3d_peer_v1_dtype_offsets():
-    cdef CUDA_MEMCPY3D_PEER_v1 pod
-    return _numpy.dtype({
-        'names': ['src_x_in_bytes', 'src_y', 'src_z', 'src_lod', 'src_memory_type', 'src_host', 'src_device', 'src_array', 'src_context', 'src_pitch', 'src_height', 'dst_x_in_bytes', 'dst_y', 'dst_z', 'dst_lod', 'dst_memory_type', 'dst_host', 'dst_device', 'dst_array', 'dst_context', 'dst_pitch', 'dst_height', 'width_in_bytes', 'height', 'depth'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.srcXInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcLOD)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcMemoryType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcHost)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcDevice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcContext)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcPitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcHeight)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstXInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstLOD)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstMemoryType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstHost)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstDevice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstContext)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstPitch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstHeight)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.WidthInBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Depth)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMCPY3D_PEER_v1),
-    })
+    cdef CUDA_MEMCPY3D_PEER_v1 *pod = <CUDA_MEMCPY3D_PEER_v1 *>_cyb_calloc(1, sizeof(CUDA_MEMCPY3D_PEER_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMCPY3D_PEER_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['src_x_in_bytes', 'src_y', 'src_z', 'src_lod', 'src_memory_type', 'src_host', 'src_device', 'src_array', 'src_context', 'src_pitch', 'src_height', 'dst_x_in_bytes', 'dst_y', 'dst_z', 'dst_lod', 'dst_memory_type', 'dst_host', 'dst_device', 'dst_array', 'dst_context', 'dst_pitch', 'dst_height', 'width_in_bytes', 'height', 'depth'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.srcXInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcLOD)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcMemoryType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcHost)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcDevice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcContext)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcPitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcHeight)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstXInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstLOD)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstMemoryType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstHost)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstDevice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstContext)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstPitch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstHeight)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.WidthInBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Depth)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMCPY3D_PEER_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_cpy3d_peer_v1_dtype = _get_mem_cpy3d_peer_v1_dtype_offsets()
 
@@ -8393,18 +8544,23 @@ cdef class MemCpy3dPeer_v1:
 
 
 cdef _get_array_descriptor_v2_dtype_offsets():
-    cdef CUDA_ARRAY_DESCRIPTOR_v2 pod
-    return _numpy.dtype({
-        'names': ['width', 'height', 'format', 'num_channels'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.Width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Format)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.NumChannels)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_ARRAY_DESCRIPTOR_v2),
-    })
+    cdef CUDA_ARRAY_DESCRIPTOR_v2 *pod = <CUDA_ARRAY_DESCRIPTOR_v2 *>_cyb_calloc(1, sizeof(CUDA_ARRAY_DESCRIPTOR_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_ARRAY_DESCRIPTOR_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['width', 'height', 'format', 'num_channels'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.Width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Format)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.NumChannels)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_ARRAY_DESCRIPTOR_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 array_descriptor_v2_dtype = _get_array_descriptor_v2_dtype_offsets()
 
@@ -8554,20 +8710,25 @@ cdef class ArrayDescriptor_v2:
 
 
 cdef _get_array3d_descriptor_v2_dtype_offsets():
-    cdef CUDA_ARRAY3D_DESCRIPTOR_v2 pod
-    return _numpy.dtype({
-        'names': ['width', 'height', 'depth', 'format', 'num_channels', 'flags_'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.Width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Depth)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Format)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.NumChannels)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.Flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_ARRAY3D_DESCRIPTOR_v2),
-    })
+    cdef CUDA_ARRAY3D_DESCRIPTOR_v2 *pod = <CUDA_ARRAY3D_DESCRIPTOR_v2 *>_cyb_calloc(1, sizeof(CUDA_ARRAY3D_DESCRIPTOR_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_ARRAY3D_DESCRIPTOR_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['width', 'height', 'depth', 'format', 'num_channels', 'flags_'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.Width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Depth)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Format)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.NumChannels)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.Flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_ARRAY3D_DESCRIPTOR_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 array3d_descriptor_v2_dtype = _get_array3d_descriptor_v2_dtype_offsets()
 
@@ -8739,17 +8900,22 @@ cdef class Array3dDescriptor_v2:
 
 
 cdef _get__py_anon_pod11_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod11 pod
-    return _numpy.dtype({
-        'names': ['width', 'height', 'depth'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.depth)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod11),
-    })
+    cdef cuda_bindings_driver__anon_pod11 *pod = <cuda_bindings_driver__anon_pod11 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod11))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod11")
+    try:
+        return _numpy.dtype({
+            'names': ['width', 'height', 'depth'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.depth)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod11),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod11_dtype = _get__py_anon_pod11_dtype_offsets()
 
@@ -8900,17 +9066,22 @@ cdef class _py_anon_pod11:
 
 
 cdef _get_array_memory_requirements_v1_dtype_offsets():
-    cdef CUDA_ARRAY_MEMORY_REQUIREMENTS_v1 pod
-    return _numpy.dtype({
-        'names': ['size_', 'alignment', 'reserved'],
-        'formats': [_numpy.uint64, _numpy.uint64, (_numpy.uint32, 4)],
-        'offsets': [
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.alignment)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_ARRAY_MEMORY_REQUIREMENTS_v1),
-    })
+    cdef CUDA_ARRAY_MEMORY_REQUIREMENTS_v1 *pod = <CUDA_ARRAY_MEMORY_REQUIREMENTS_v1 *>_cyb_calloc(1, sizeof(CUDA_ARRAY_MEMORY_REQUIREMENTS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_ARRAY_MEMORY_REQUIREMENTS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['size_', 'alignment', 'reserved'],
+            'formats': [_numpy.uint64, _numpy.uint64, (_numpy.uint32, 4)],
+            'offsets': [
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.alignment)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_ARRAY_MEMORY_REQUIREMENTS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 array_memory_requirements_v1_dtype = _get_array_memory_requirements_v1_dtype_offsets()
 
@@ -9038,15 +9209,20 @@ cdef class ArrayMemoryRequirements_v1:
 
 
 cdef _get__py_anon_pod13_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod13 pod
-    return _numpy.dtype({
-        'names': ['h_array'],
-        'formats': [_numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.hArray)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod13),
-    })
+    cdef cuda_bindings_driver__anon_pod13 *pod = <cuda_bindings_driver__anon_pod13 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod13))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod13")
+    try:
+        return _numpy.dtype({
+            'names': ['h_array'],
+            'formats': [_numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.hArray)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod13),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod13_dtype = _get__py_anon_pod13_dtype_offsets()
 
@@ -9175,15 +9351,20 @@ cdef class _py_anon_pod13:
 
 
 cdef _get__py_anon_pod14_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod14 pod
-    return _numpy.dtype({
-        'names': ['h_mipmapped_array'],
-        'formats': [_numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.hMipmappedArray)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod14),
-    })
+    cdef cuda_bindings_driver__anon_pod14 *pod = <cuda_bindings_driver__anon_pod14 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod14))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod14")
+    try:
+        return _numpy.dtype({
+            'names': ['h_mipmapped_array'],
+            'formats': [_numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.hMipmappedArray)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod14),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod14_dtype = _get__py_anon_pod14_dtype_offsets()
 
@@ -9312,18 +9493,23 @@ cdef class _py_anon_pod14:
 
 
 cdef _get__py_anon_pod15_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod15 pod
-    return _numpy.dtype({
-        'names': ['dev_ptr', 'format', 'num_channels', 'size_in_bytes'],
-        'formats': [_numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.devPtr)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.format)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numChannels)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sizeInBytes)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod15),
-    })
+    cdef cuda_bindings_driver__anon_pod15 *pod = <cuda_bindings_driver__anon_pod15 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod15))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod15")
+    try:
+        return _numpy.dtype({
+            'names': ['dev_ptr', 'format', 'num_channels', 'size_in_bytes'],
+            'formats': [_numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.devPtr)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.format)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numChannels)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sizeInBytes)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod15),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod15_dtype = _get__py_anon_pod15_dtype_offsets()
 
@@ -9485,20 +9671,25 @@ cdef class _py_anon_pod15:
 
 
 cdef _get__py_anon_pod16_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod16 pod
-    return _numpy.dtype({
-        'names': ['dev_ptr', 'format', 'num_channels', 'width', 'height', 'pitch_in_bytes'],
-        'formats': [_numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.devPtr)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.format)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numChannels)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pitchInBytes)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod16),
-    })
+    cdef cuda_bindings_driver__anon_pod16 *pod = <cuda_bindings_driver__anon_pod16 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod16))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod16")
+    try:
+        return _numpy.dtype({
+            'names': ['dev_ptr', 'format', 'num_channels', 'width', 'height', 'pitch_in_bytes'],
+            'formats': [_numpy.uint64, _numpy.int32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.devPtr)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.format)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numChannels)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pitchInBytes)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod16),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod16_dtype = _get__py_anon_pod16_dtype_offsets()
 
@@ -9682,15 +9873,20 @@ cdef class _py_anon_pod16:
 
 
 cdef _get__py_anon_pod17_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod17 pod
-    return _numpy.dtype({
-        'names': ['reserved'],
-        'formats': [(_numpy.int32, 32)],
-        'offsets': [
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod17),
-    })
+    cdef cuda_bindings_driver__anon_pod17 *pod = <cuda_bindings_driver__anon_pod17 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod17))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod17")
+    try:
+        return _numpy.dtype({
+            'names': ['reserved'],
+            'formats': [(_numpy.int32, 32)],
+            'offsets': [
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod17),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod17_dtype = _get__py_anon_pod17_dtype_offsets()
 
@@ -9808,24 +10004,29 @@ cdef class _py_anon_pod17:
 
 
 cdef _get_texture_desc_v1_dtype_offsets():
-    cdef CUDA_TEXTURE_DESC_v1 pod
-    return _numpy.dtype({
-        'names': ['address_mode', 'filter_mode', 'flags_', 'max_anisotropy', 'mipmap_filter_mode', 'mipmap_level_bias', 'min_mipmap_level_clamp', 'max_mipmap_level_clamp', 'border_color', 'reserved'],
-        'formats': [(_numpy.int32, 3), _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.float32, _numpy.float32, _numpy.float32, (_numpy.float32, 4), (_numpy.int32, 12)],
-        'offsets': [
-            (<intptr_t>&(pod.addressMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.filterMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxAnisotropy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.mipmapFilterMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.mipmapLevelBias)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minMipmapLevelClamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxMipmapLevelClamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.borderColor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_TEXTURE_DESC_v1),
-    })
+    cdef CUDA_TEXTURE_DESC_v1 *pod = <CUDA_TEXTURE_DESC_v1 *>_cyb_calloc(1, sizeof(CUDA_TEXTURE_DESC_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_TEXTURE_DESC_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['address_mode', 'filter_mode', 'flags_', 'max_anisotropy', 'mipmap_filter_mode', 'mipmap_level_bias', 'min_mipmap_level_clamp', 'max_mipmap_level_clamp', 'border_color', 'reserved'],
+            'formats': [(_numpy.int32, 3), _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.float32, _numpy.float32, _numpy.float32, (_numpy.float32, 4), (_numpy.int32, 12)],
+            'offsets': [
+                (<intptr_t>&(pod.addressMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.filterMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxAnisotropy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.mipmapFilterMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.mipmapLevelBias)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minMipmapLevelClamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxMipmapLevelClamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.borderColor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_TEXTURE_DESC_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 texture_desc_v1_dtype = _get_texture_desc_v1_dtype_offsets()
 
@@ -10042,23 +10243,28 @@ cdef class TextureDesc_v1:
 
 
 cdef _get_resource_view_desc_v1_dtype_offsets():
-    cdef CUDA_RESOURCE_VIEW_DESC_v1 pod
-    return _numpy.dtype({
-        'names': ['format', 'width', 'height', 'depth', 'first_mipmap_level', 'last_mipmap_level', 'first_layer', 'last_layer', 'reserved'],
-        'formats': [_numpy.int32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.uint32, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.format)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.depth)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.firstMipmapLevel)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.lastMipmapLevel)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.firstLayer)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.lastLayer)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_RESOURCE_VIEW_DESC_v1),
-    })
+    cdef CUDA_RESOURCE_VIEW_DESC_v1 *pod = <CUDA_RESOURCE_VIEW_DESC_v1 *>_cyb_calloc(1, sizeof(CUDA_RESOURCE_VIEW_DESC_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_RESOURCE_VIEW_DESC_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['format', 'width', 'height', 'depth', 'first_mipmap_level', 'last_mipmap_level', 'first_layer', 'last_layer', 'reserved'],
+            'formats': [_numpy.int32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.uint32, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.format)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.depth)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.firstMipmapLevel)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.lastMipmapLevel)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.firstLayer)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.lastLayer)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_RESOURCE_VIEW_DESC_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 resource_view_desc_v1_dtype = _get_resource_view_desc_v1_dtype_offsets()
 
@@ -10252,15 +10458,20 @@ cdef class ResourceViewDesc_v1:
 
 
 cdef _get_tensor_map_dtype_offsets():
-    cdef CUtensorMap pod
-    return _numpy.dtype({
-        'names': ['opaque'],
-        'formats': [(_numpy.uint64, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.opaque)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUtensorMap),
-    })
+    cdef CUtensorMap *pod = <CUtensorMap *>_cyb_calloc(1, sizeof(CUtensorMap))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUtensorMap")
+    try:
+        return _numpy.dtype({
+            'names': ['opaque'],
+            'formats': [(_numpy.uint64, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.opaque)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUtensorMap),
+        })
+    finally:
+        _cyb_free(pod)
 
 tensor_map_dtype = _get_tensor_map_dtype_offsets()
 
@@ -10383,16 +10594,21 @@ cdef class TensorMap:
 
 
 cdef _get_pointer_attribute_p2p_tokens_v1_dtype_offsets():
-    cdef CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1 pod
-    return _numpy.dtype({
-        'names': ['p2p_token', 'va_space_token'],
-        'formats': [_numpy.uint64, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.p2pToken)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vaSpaceToken)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1),
-    })
+    cdef CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1 *pod = <CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1 *>_cyb_calloc(1, sizeof(CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['p2p_token', 'va_space_token'],
+            'formats': [_numpy.uint64, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.p2pToken)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vaSpaceToken)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 pointer_attribute_p2p_tokens_v1_dtype = _get_pointer_attribute_p2p_tokens_v1_dtype_offsets()
 
@@ -10520,24 +10736,29 @@ cdef class PointerAttributeP2PTokens_v1:
 
 
 cdef _get_launch_params_v1_dtype_offsets():
-    cdef CUDA_LAUNCH_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['function', 'grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'h_stream', 'kernel_params'],
-        'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.function)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hStream)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.kernelParams)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_LAUNCH_PARAMS_v1),
-    })
+    cdef CUDA_LAUNCH_PARAMS_v1 *pod = <CUDA_LAUNCH_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_LAUNCH_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_LAUNCH_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['function', 'grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'h_stream', 'kernel_params'],
+            'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.function)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hStream)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.kernelParams)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_LAUNCH_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 launch_params_v1_dtype = _get_launch_params_v1_dtype_offsets()
 
@@ -10753,16 +10974,21 @@ cdef class LaunchParams_v1:
 
 
 cdef _get__py_anon_pod19_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod19 pod
-    return _numpy.dtype({
-        'names': ['handle', 'name'],
-        'formats': [_numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod19),
-    })
+    cdef cuda_bindings_driver__anon_pod19 *pod = <cuda_bindings_driver__anon_pod19 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod19))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod19")
+    try:
+        return _numpy.dtype({
+            'names': ['handle', 'name'],
+            'formats': [_numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.name)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod19),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod19_dtype = _get__py_anon_pod19_dtype_offsets()
 
@@ -10902,18 +11128,23 @@ cdef class _py_anon_pod19:
 
 
 cdef _get_external_memory_buffer_desc_v1_dtype_offsets():
-    cdef CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1 pod
-    return _numpy.dtype({
-        'names': ['offset', 'size_', 'flags_', 'reserved'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.offset)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1),
-    })
+    cdef CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1 *pod = <CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1 *>_cyb_calloc(1, sizeof(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['offset', 'size_', 'flags_', 'reserved'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.offset)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_memory_buffer_desc_v1_dtype = _get_external_memory_buffer_desc_v1_dtype_offsets()
 
@@ -11052,16 +11283,21 @@ cdef class ExternalMemoryBufferDesc_v1:
 
 
 cdef _get__py_anon_pod21_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod21 pod
-    return _numpy.dtype({
-        'names': ['handle', 'name'],
-        'formats': [_numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod21),
-    })
+    cdef cuda_bindings_driver__anon_pod21 *pod = <cuda_bindings_driver__anon_pod21 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod21))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod21")
+    try:
+        return _numpy.dtype({
+            'names': ['handle', 'name'],
+            'formats': [_numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.name)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod21),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod21_dtype = _get__py_anon_pod21_dtype_offsets()
 
@@ -11201,15 +11437,20 @@ cdef class _py_anon_pod21:
 
 
 cdef _get__py_anon_pod23_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod23 pod
-    return _numpy.dtype({
-        'names': ['value'],
-        'formats': [_numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod23),
-    })
+    cdef cuda_bindings_driver__anon_pod23 *pod = <cuda_bindings_driver__anon_pod23 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod23))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod23")
+    try:
+        return _numpy.dtype({
+            'names': ['value'],
+            'formats': [_numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod23),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod23_dtype = _get__py_anon_pod23_dtype_offsets()
 
@@ -11338,16 +11579,21 @@ cdef class _py_anon_pod23:
 
 
 cdef _get__py_anon_pod24_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod24 pod
-    return _numpy.dtype({
-        'names': ['fence', 'reserved'],
-        'formats': [_numpy.intp, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.fence)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod24),
-    })
+    cdef cuda_bindings_driver__anon_pod24 *pod = <cuda_bindings_driver__anon_pod24 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod24))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod24")
+    try:
+        return _numpy.dtype({
+            'names': ['fence', 'reserved'],
+            'formats': [_numpy.intp, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.fence)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod24),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod24_dtype = _get__py_anon_pod24_dtype_offsets()
 
@@ -11476,15 +11722,20 @@ cdef class _py_anon_pod24:
 
 
 cdef _get__py_anon_pod25_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod25 pod
-    return _numpy.dtype({
-        'names': ['key'],
-        'formats': [_numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.key)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod25),
-    })
+    cdef cuda_bindings_driver__anon_pod25 *pod = <cuda_bindings_driver__anon_pod25 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod25))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod25")
+    try:
+        return _numpy.dtype({
+            'names': ['key'],
+            'formats': [_numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.key)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod25),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod25_dtype = _get__py_anon_pod25_dtype_offsets()
 
@@ -11613,15 +11864,20 @@ cdef class _py_anon_pod25:
 
 
 cdef _get__py_anon_pod27_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod27 pod
-    return _numpy.dtype({
-        'names': ['value'],
-        'formats': [_numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod27),
-    })
+    cdef cuda_bindings_driver__anon_pod27 *pod = <cuda_bindings_driver__anon_pod27 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod27))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod27")
+    try:
+        return _numpy.dtype({
+            'names': ['value'],
+            'formats': [_numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod27),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod27_dtype = _get__py_anon_pod27_dtype_offsets()
 
@@ -11750,16 +12006,21 @@ cdef class _py_anon_pod27:
 
 
 cdef _get__py_anon_pod28_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod28 pod
-    return _numpy.dtype({
-        'names': ['fence', 'reserved'],
-        'formats': [_numpy.intp, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.fence)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod28),
-    })
+    cdef cuda_bindings_driver__anon_pod28 *pod = <cuda_bindings_driver__anon_pod28 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod28))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod28")
+    try:
+        return _numpy.dtype({
+            'names': ['fence', 'reserved'],
+            'formats': [_numpy.intp, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.fence)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod28),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod28_dtype = _get__py_anon_pod28_dtype_offsets()
 
@@ -11888,16 +12149,21 @@ cdef class _py_anon_pod28:
 
 
 cdef _get__py_anon_pod29_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod29 pod
-    return _numpy.dtype({
-        'names': ['key', 'timeout_ms'],
-        'formats': [_numpy.uint64, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.key)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeoutMs)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod29),
-    })
+    cdef cuda_bindings_driver__anon_pod29 *pod = <cuda_bindings_driver__anon_pod29 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod29))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod29")
+    try:
+        return _numpy.dtype({
+            'names': ['key', 'timeout_ms'],
+            'formats': [_numpy.uint64, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.key)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeoutMs)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod29),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod29_dtype = _get__py_anon_pod29_dtype_offsets()
 
@@ -12037,16 +12303,21 @@ cdef class _py_anon_pod29:
 
 
 cdef _get__py_anon_pod32_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod32 pod
-    return _numpy.dtype({
-        'names': ['mipmap', 'array'],
-        'formats': [_numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.mipmap)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.array)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod32),
-    })
+    cdef cuda_bindings_driver__anon_pod32 *pod = <cuda_bindings_driver__anon_pod32 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod32))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod32")
+    try:
+        return _numpy.dtype({
+            'names': ['mipmap', 'array'],
+            'formats': [_numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.mipmap)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.array)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod32),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod32_dtype = _get__py_anon_pod32_dtype_offsets()
 
@@ -12186,22 +12457,27 @@ cdef class _py_anon_pod32:
 
 
 cdef _get__py_anon_pod34_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod34 pod
-    return _numpy.dtype({
-        'names': ['level', 'layer', 'offset_x', 'offset_y', 'offset_z', 'extent_width', 'extent_height', 'extent_depth'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.level)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.layer)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.offsetX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.offsetY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.offsetZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extentWidth)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extentHeight)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extentDepth)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod34),
-    })
+    cdef cuda_bindings_driver__anon_pod34 *pod = <cuda_bindings_driver__anon_pod34 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod34))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod34")
+    try:
+        return _numpy.dtype({
+            'names': ['level', 'layer', 'offset_x', 'offset_y', 'offset_z', 'extent_width', 'extent_height', 'extent_depth'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.level)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.layer)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.offsetX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.offsetY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.offsetZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extentWidth)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extentHeight)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extentDepth)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod34),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod34_dtype = _get__py_anon_pod34_dtype_offsets()
 
@@ -12407,17 +12683,22 @@ cdef class _py_anon_pod34:
 
 
 cdef _get__py_anon_pod35_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod35 pod
-    return _numpy.dtype({
-        'names': ['layer', 'offset', 'size_'],
-        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.layer)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.offset)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod35),
-    })
+    cdef cuda_bindings_driver__anon_pod35 *pod = <cuda_bindings_driver__anon_pod35 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod35))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod35")
+    try:
+        return _numpy.dtype({
+            'names': ['layer', 'offset', 'size_'],
+            'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.layer)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.offset)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod35),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod35_dtype = _get__py_anon_pod35_dtype_offsets()
 
@@ -12568,15 +12849,20 @@ cdef class _py_anon_pod35:
 
 
 cdef _get__py_anon_pod36_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod36 pod
-    return _numpy.dtype({
-        'names': ['mem_handle'],
-        'formats': [_numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.memHandle)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod36),
-    })
+    cdef cuda_bindings_driver__anon_pod36 *pod = <cuda_bindings_driver__anon_pod36 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod36))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod36")
+    try:
+        return _numpy.dtype({
+            'names': ['mem_handle'],
+            'formats': [_numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.memHandle)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod36),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod36_dtype = _get__py_anon_pod36_dtype_offsets()
 
@@ -12705,16 +12991,21 @@ cdef class _py_anon_pod36:
 
 
 cdef _get__py_anon_pod38_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod38 pod
-    return _numpy.dtype({
-        'names': ['device_id', 'locality_domain_id'],
-        'formats': [_numpy.uint8, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.deviceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.localityDomainId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod38),
-    })
+    cdef cuda_bindings_driver__anon_pod38 *pod = <cuda_bindings_driver__anon_pod38 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod38))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod38")
+    try:
+        return _numpy.dtype({
+            'names': ['device_id', 'locality_domain_id'],
+            'formats': [_numpy.uint8, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.deviceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.localityDomainId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod38),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod38_dtype = _get__py_anon_pod38_dtype_offsets()
 
@@ -12854,18 +13145,23 @@ cdef class _py_anon_pod38:
 
 
 cdef _get__py_anon_pod39_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod39 pod
-    return _numpy.dtype({
-        'names': ['compression_type', 'gpu_direct_rdma_capable', 'usage', 'reserved'],
-        'formats': [_numpy.uint8, _numpy.uint8, _numpy.uint16, (_numpy.uint8, 4)],
-        'offsets': [
-            (<intptr_t>&(pod.compressionType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuDirectRDMACapable)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.usage)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod39),
-    })
+    cdef cuda_bindings_driver__anon_pod39 *pod = <cuda_bindings_driver__anon_pod39 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod39))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod39")
+    try:
+        return _numpy.dtype({
+            'names': ['compression_type', 'gpu_direct_rdma_capable', 'usage', 'reserved'],
+            'formats': [_numpy.uint8, _numpy.uint8, _numpy.uint16, (_numpy.uint8, 4)],
+            'offsets': [
+                (<intptr_t>&(pod.compressionType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuDirectRDMACapable)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.usage)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod39),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod39_dtype = _get__py_anon_pod39_dtype_offsets()
 
@@ -13016,18 +13312,23 @@ cdef class _py_anon_pod39:
 
 
 cdef _get_multicast_object_prop_v1_dtype_offsets():
-    cdef CUmulticastObjectProp_v1 pod
-    return _numpy.dtype({
-        'names': ['num_devices', 'size_', 'handle_types', 'flags_'],
-        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.numDevices)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.handleTypes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmulticastObjectProp_v1),
-    })
+    cdef CUmulticastObjectProp_v1 *pod = <CUmulticastObjectProp_v1 *>_cyb_calloc(1, sizeof(CUmulticastObjectProp_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmulticastObjectProp_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['num_devices', 'size_', 'handle_types', 'flags_'],
+            'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.numDevices)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handleTypes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmulticastObjectProp_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 multicast_object_prop_v1_dtype = _get_multicast_object_prop_v1_dtype_offsets()
 
@@ -13177,17 +13478,22 @@ cdef class MulticastObjectProp_v1:
 
 
 cdef _get_graph_exec_update_result_info_v1_dtype_offsets():
-    cdef CUgraphExecUpdateResultInfo_v1 pod
-    return _numpy.dtype({
-        'names': ['result', 'error_node', 'error_from_node'],
-        'formats': [_numpy.int32, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.result)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.errorNode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.errorFromNode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUgraphExecUpdateResultInfo_v1),
-    })
+    cdef CUgraphExecUpdateResultInfo_v1 *pod = <CUgraphExecUpdateResultInfo_v1 *>_cyb_calloc(1, sizeof(CUgraphExecUpdateResultInfo_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUgraphExecUpdateResultInfo_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['result', 'error_node', 'error_from_node'],
+            'formats': [_numpy.int32, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.result)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.errorNode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.errorFromNode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUgraphExecUpdateResultInfo_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 graph_exec_update_result_info_v1_dtype = _get_graph_exec_update_result_info_v1_dtype_offsets()
 
@@ -13326,15 +13632,20 @@ cdef class GraphExecUpdateResultInfo_v1:
 
 
 cdef _get_mem_pool_ptr_export_data_v1_dtype_offsets():
-    cdef CUmemPoolPtrExportData_v1 pod
-    return _numpy.dtype({
-        'names': ['reserved'],
-        'formats': [(_numpy.uint8, 64)],
-        'offsets': [
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemPoolPtrExportData_v1),
-    })
+    cdef CUmemPoolPtrExportData_v1 *pod = <CUmemPoolPtrExportData_v1 *>_cyb_calloc(1, sizeof(CUmemPoolPtrExportData_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemPoolPtrExportData_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['reserved'],
+            'formats': [(_numpy.uint8, 64)],
+            'offsets': [
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemPoolPtrExportData_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_pool_ptr_export_data_v1_dtype = _get_mem_pool_ptr_export_data_v1_dtype_offsets()
 
@@ -13440,17 +13751,22 @@ cdef class MemPoolPtrExportData_v1:
 
 
 cdef _get_offset3d_v1_dtype_offsets():
-    cdef CUoffset3D_v1 pod
-    return _numpy.dtype({
-        'names': ['x', 'y', 'z'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.x)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.y)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.z)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUoffset3D_v1),
-    })
+    cdef CUoffset3D_v1 *pod = <CUoffset3D_v1 *>_cyb_calloc(1, sizeof(CUoffset3D_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUoffset3D_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['x', 'y', 'z'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.x)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.y)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.z)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUoffset3D_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 offset3d_v1_dtype = _get_offset3d_v1_dtype_offsets()
 
@@ -13589,17 +13905,22 @@ cdef class Offset3D_v1:
 
 
 cdef _get_extent3d_v1_dtype_offsets():
-    cdef CUextent3D_v1 pod
-    return _numpy.dtype({
-        'names': ['width', 'height', 'depth'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.width)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.height)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.depth)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUextent3D_v1),
-    })
+    cdef CUextent3D_v1 *pod = <CUextent3D_v1 *>_cyb_calloc(1, sizeof(CUextent3D_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUextent3D_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['width', 'height', 'depth'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.width)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.height)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.depth)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUextent3D_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 extent3d_v1_dtype = _get_extent3d_v1_dtype_offsets()
 
@@ -13738,15 +14059,20 @@ cdef class Extent3D_v1:
 
 
 cdef _get_mem_free_node_params_dtype_offsets():
-    cdef CUDA_MEM_FREE_NODE_PARAMS pod
-    return _numpy.dtype({
-        'names': ['dptr'],
-        'formats': [_numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.dptr)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEM_FREE_NODE_PARAMS),
-    })
+    cdef CUDA_MEM_FREE_NODE_PARAMS *pod = <CUDA_MEM_FREE_NODE_PARAMS *>_cyb_calloc(1, sizeof(CUDA_MEM_FREE_NODE_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEM_FREE_NODE_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['dptr'],
+            'formats': [_numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.dptr)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEM_FREE_NODE_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_free_node_params_dtype = _get_mem_free_node_params_dtype_offsets()
 
@@ -13875,16 +14201,21 @@ cdef class MemFreeNodeParams:
 
 
 cdef _get_child_graph_node_params_dtype_offsets():
-    cdef CUDA_CHILD_GRAPH_NODE_PARAMS pod
-    return _numpy.dtype({
-        'names': ['graph', 'ownership'],
-        'formats': [_numpy.intp, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.graph)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ownership)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_CHILD_GRAPH_NODE_PARAMS),
-    })
+    cdef CUDA_CHILD_GRAPH_NODE_PARAMS *pod = <CUDA_CHILD_GRAPH_NODE_PARAMS *>_cyb_calloc(1, sizeof(CUDA_CHILD_GRAPH_NODE_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_CHILD_GRAPH_NODE_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['graph', 'ownership'],
+            'formats': [_numpy.intp, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.graph)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ownership)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_CHILD_GRAPH_NODE_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 child_graph_node_params_dtype = _get_child_graph_node_params_dtype_offsets()
 
@@ -14024,15 +14355,20 @@ cdef class ChildGraphNodeParams:
 
 
 cdef _get_event_wait_node_params_dtype_offsets():
-    cdef CUDA_EVENT_WAIT_NODE_PARAMS pod
-    return _numpy.dtype({
-        'names': ['event'],
-        'formats': [_numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.event)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EVENT_WAIT_NODE_PARAMS),
-    })
+    cdef CUDA_EVENT_WAIT_NODE_PARAMS *pod = <CUDA_EVENT_WAIT_NODE_PARAMS *>_cyb_calloc(1, sizeof(CUDA_EVENT_WAIT_NODE_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EVENT_WAIT_NODE_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['event'],
+            'formats': [_numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.event)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EVENT_WAIT_NODE_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 event_wait_node_params_dtype = _get_event_wait_node_params_dtype_offsets()
 
@@ -14161,17 +14497,22 @@ cdef class EventWaitNodeParams:
 
 
 cdef _get_checkpoint_lock_args_dtype_offsets():
-    cdef CUcheckpointLockArgs pod
-    return _numpy.dtype({
-        'names': ['timeout_ms', 'reserved0', 'reserved1'],
-        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.uint64, 7)],
-        'offsets': [
-            (<intptr_t>&(pod.timeoutMs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved0)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved1)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUcheckpointLockArgs),
-    })
+    cdef CUcheckpointLockArgs *pod = <CUcheckpointLockArgs *>_cyb_calloc(1, sizeof(CUcheckpointLockArgs))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUcheckpointLockArgs")
+    try:
+        return _numpy.dtype({
+            'names': ['timeout_ms', 'reserved0', 'reserved1'],
+            'formats': [_numpy.uint32, _numpy.uint32, (_numpy.uint64, 7)],
+            'offsets': [
+                (<intptr_t>&(pod.timeoutMs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved0)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved1)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUcheckpointLockArgs),
+        })
+    finally:
+        _cyb_free(pod)
 
 checkpoint_lock_args_dtype = _get_checkpoint_lock_args_dtype_offsets()
 
@@ -14288,15 +14629,20 @@ cdef class CheckpointLockArgs:
 
 
 cdef _get_checkpoint_unlock_args_dtype_offsets():
-    cdef CUcheckpointUnlockArgs pod
-    return _numpy.dtype({
-        'names': ['reserved'],
-        'formats': [(_numpy.uint64, 8)],
-        'offsets': [
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUcheckpointUnlockArgs),
-    })
+    cdef CUcheckpointUnlockArgs *pod = <CUcheckpointUnlockArgs *>_cyb_calloc(1, sizeof(CUcheckpointUnlockArgs))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUcheckpointUnlockArgs")
+    try:
+        return _numpy.dtype({
+            'names': ['reserved'],
+            'formats': [(_numpy.uint64, 8)],
+            'offsets': [
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUcheckpointUnlockArgs),
+        })
+    finally:
+        _cyb_free(pod)
 
 checkpoint_unlock_args_dtype = _get_checkpoint_unlock_args_dtype_offsets()
 
@@ -14402,21 +14748,26 @@ cdef class CheckpointUnlockArgs:
 
 
 cdef _get_mem_decompress_params_dtype_offsets():
-    cdef CUmemDecompressParams pod
-    return _numpy.dtype({
-        'names': ['src_num_bytes', 'dst_num_bytes', 'dst_act_bytes', 'src', 'dst', 'algo', 'padding'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.int32, (_numpy.uint8, 20)],
-        'offsets': [
-            (<intptr_t>&(pod.srcNumBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstNumBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstActBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.src)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dst)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.algo)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.padding)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemDecompressParams),
-    })
+    cdef CUmemDecompressParams *pod = <CUmemDecompressParams *>_cyb_calloc(1, sizeof(CUmemDecompressParams))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemDecompressParams")
+    try:
+        return _numpy.dtype({
+            'names': ['src_num_bytes', 'dst_num_bytes', 'dst_act_bytes', 'src', 'dst', 'algo', 'padding'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.int32, (_numpy.uint8, 20)],
+            'offsets': [
+                (<intptr_t>&(pod.srcNumBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstNumBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstActBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.src)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dst)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.algo)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.padding)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemDecompressParams),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_decompress_params_dtype = _get_mem_decompress_params_dtype_offsets()
 
@@ -14588,19 +14939,24 @@ cdef class MemDecompressParams:
 
 
 cdef _get_dev_sm_resource_dtype_offsets():
-    cdef CUdevSmResource pod
-    return _numpy.dtype({
-        'names': ['sm_count', 'min_sm_partition_size', 'sm_coscheduled_alignment', 'flags_', 'locality_domain_id'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.smCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minSmPartitionSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.smCoscheduledAlignment)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.localityDomainId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUdevSmResource),
-    })
+    cdef CUdevSmResource *pod = <CUdevSmResource *>_cyb_calloc(1, sizeof(CUdevSmResource))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUdevSmResource")
+    try:
+        return _numpy.dtype({
+            'names': ['sm_count', 'min_sm_partition_size', 'sm_coscheduled_alignment', 'flags_', 'locality_domain_id'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.smCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minSmPartitionSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.smCoscheduledAlignment)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.localityDomainId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUdevSmResource),
+        })
+    finally:
+        _cyb_free(pod)
 
 dev_sm_resource_dtype = _get_dev_sm_resource_dtype_offsets()
 
@@ -14773,17 +15129,22 @@ cdef class DevSmResource:
 
 
 cdef _get_dev_workqueue_config_resource_dtype_offsets():
-    cdef CUdevWorkqueueConfigResource pod
-    return _numpy.dtype({
-        'names': ['device_', 'wq_concurrency_limit', 'sharing_scope'],
-        'formats': [_numpy.int32, _numpy.uint32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.wqConcurrencyLimit)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharingScope)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUdevWorkqueueConfigResource),
-    })
+    cdef CUdevWorkqueueConfigResource *pod = <CUdevWorkqueueConfigResource *>_cyb_calloc(1, sizeof(CUdevWorkqueueConfigResource))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUdevWorkqueueConfigResource")
+    try:
+        return _numpy.dtype({
+            'names': ['device_', 'wq_concurrency_limit', 'sharing_scope'],
+            'formats': [_numpy.int32, _numpy.uint32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.device)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.wqConcurrencyLimit)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharingScope)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUdevWorkqueueConfigResource),
+        })
+    finally:
+        _cyb_free(pod)
 
 dev_workqueue_config_resource_dtype = _get_dev_workqueue_config_resource_dtype_offsets()
 
@@ -14934,15 +15295,20 @@ cdef class DevWorkqueueConfigResource:
 
 
 cdef _get_dev_workqueue_resource_dtype_offsets():
-    cdef CUdevWorkqueueResource pod
-    return _numpy.dtype({
-        'names': ['reserved'],
-        'formats': [(_numpy.uint8, 40)],
-        'offsets': [
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUdevWorkqueueResource),
-    })
+    cdef CUdevWorkqueueResource *pod = <CUdevWorkqueueResource *>_cyb_calloc(1, sizeof(CUdevWorkqueueResource))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUdevWorkqueueResource")
+    try:
+        return _numpy.dtype({
+            'names': ['reserved'],
+            'formats': [(_numpy.uint8, 40)],
+            'offsets': [
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUdevWorkqueueResource),
+        })
+    finally:
+        _cyb_free(pod)
 
 dev_workqueue_resource_dtype = _get_dev_workqueue_resource_dtype_offsets()
 
@@ -15060,20 +15426,25 @@ cdef class DevWorkqueueResource:
 
 
 cdef _get_dev_sm_resource_group_params_dtype_offsets():
-    cdef CU_DEV_SM_RESOURCE_GROUP_PARAMS pod
-    return _numpy.dtype({
-        'names': ['sm_count', 'coscheduled_sm_count', 'preferred_coscheduled_sm_count', 'flags_', 'locality_domain_id', 'reserved'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.uint32, 11)],
-        'offsets': [
-            (<intptr_t>&(pod.smCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.coscheduledSmCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.preferredCoscheduledSmCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.localityDomainId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS),
-    })
+    cdef CU_DEV_SM_RESOURCE_GROUP_PARAMS *pod = <CU_DEV_SM_RESOURCE_GROUP_PARAMS *>_cyb_calloc(1, sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CU_DEV_SM_RESOURCE_GROUP_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['sm_count', 'coscheduled_sm_count', 'preferred_coscheduled_sm_count', 'flags_', 'locality_domain_id', 'reserved'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.uint32, 11)],
+            'offsets': [
+                (<intptr_t>&(pod.smCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.coscheduledSmCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.preferredCoscheduledSmCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.localityDomainId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 dev_sm_resource_group_params_dtype = _get_dev_sm_resource_group_params_dtype_offsets()
 cdef object dev_sm_resource_group_params_dtype_record = _numpy.dtype((_numpy.record, dev_sm_resource_group_params_dtype))
@@ -15271,16 +15642,21 @@ cdef class DevSmResourceGroupParams:
 
 
 cdef _get_stream_cig_param_dtype_offsets():
-    cdef CUstreamCigParam pod
-    return _numpy.dtype({
-        'names': ['stream_shared_data_type', 'stream_shared_data'],
-        'formats': [_numpy.int32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.streamSharedDataType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.streamSharedData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamCigParam),
-    })
+    cdef CUstreamCigParam *pod = <CUstreamCigParam *>_cyb_calloc(1, sizeof(CUstreamCigParam))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamCigParam")
+    try:
+        return _numpy.dtype({
+            'names': ['stream_shared_data_type', 'stream_shared_data'],
+            'formats': [_numpy.int32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.streamSharedDataType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.streamSharedData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamCigParam),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_cig_param_dtype = _get_stream_cig_param_dtype_offsets()
 
@@ -15408,15 +15784,20 @@ cdef class StreamCigParam:
 
 
 cdef _get_logical_endpoint_fabric_handle_dtype_offsets():
-    cdef CUlogicalEndpointFabricHandle pod
-    return _numpy.dtype({
-        'names': ['data_'],
-        'formats': [(_numpy.uint8, 64)],
-        'offsets': [
-            (<intptr_t>&(pod.data)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUlogicalEndpointFabricHandle),
-    })
+    cdef CUlogicalEndpointFabricHandle *pod = <CUlogicalEndpointFabricHandle *>_cyb_calloc(1, sizeof(CUlogicalEndpointFabricHandle))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUlogicalEndpointFabricHandle")
+    try:
+        return _numpy.dtype({
+            'names': ['data_'],
+            'formats': [(_numpy.uint8, 64)],
+            'offsets': [
+                (<intptr_t>&(pod.data)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUlogicalEndpointFabricHandle),
+        })
+    finally:
+        _cyb_free(pod)
 
 logical_endpoint_fabric_handle_dtype = _get_logical_endpoint_fabric_handle_dtype_offsets()
 
@@ -15539,15 +15920,20 @@ cdef class LogicalEndpointFabricHandle:
 
 
 cdef _get__py_anon_pod47_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod47 pod
-    return _numpy.dtype({
-        'names': ['device_'],
-        'formats': [_numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod47),
-    })
+    cdef cuda_bindings_driver__anon_pod47 *pod = <cuda_bindings_driver__anon_pod47 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod47))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod47")
+    try:
+        return _numpy.dtype({
+            'names': ['device_'],
+            'formats': [_numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.device)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod47),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod47_dtype = _get__py_anon_pod47_dtype_offsets()
 
@@ -15676,15 +16062,20 @@ cdef class _py_anon_pod47:
 
 
 cdef _get__py_anon_pod48_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod48 pod
-    return _numpy.dtype({
-        'names': ['num_devices'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.numDevices)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod48),
-    })
+    cdef cuda_bindings_driver__anon_pod48 *pod = <cuda_bindings_driver__anon_pod48 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod48))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod48")
+    try:
+        return _numpy.dtype({
+            'names': ['num_devices'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.numDevices)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod48),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod48_dtype = _get__py_anon_pod48_dtype_offsets()
 
@@ -15813,16 +16204,21 @@ cdef class _py_anon_pod48:
 
 
 cdef _get_clique_info_dtype_offsets():
-    cdef CUcliqueInfo pod
-    return _numpy.dtype({
-        'names': ['type', 'id'],
-        'formats': [_numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUcliqueInfo),
-    })
+    cdef CUcliqueInfo *pod = <CUcliqueInfo *>_cyb_calloc(1, sizeof(CUcliqueInfo))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUcliqueInfo")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'id'],
+            'formats': [_numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUcliqueInfo),
+        })
+    finally:
+        _cyb_free(pod)
 
 clique_info_dtype = _get_clique_info_dtype_offsets()
 cdef object clique_info_dtype_record = _numpy.dtype((_numpy.record, clique_info_dtype))
@@ -15981,16 +16377,21 @@ cdef class CliqueInfo:
 
 
 cdef _get_checkpoint_gpu_pair_dtype_offsets():
-    cdef CUcheckpointGpuPair pod
-    return _numpy.dtype({
-        'names': ['old_uuid', 'new_uuid'],
-        'formats': [uuid_dtype, uuid_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.oldUuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.newUuid)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUcheckpointGpuPair),
-    })
+    cdef CUcheckpointGpuPair *pod = <CUcheckpointGpuPair *>_cyb_calloc(1, sizeof(CUcheckpointGpuPair))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUcheckpointGpuPair")
+    try:
+        return _numpy.dtype({
+            'names': ['old_uuid', 'new_uuid'],
+            'formats': [uuid_dtype, uuid_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.oldUuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.newUuid)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUcheckpointGpuPair),
+        })
+    finally:
+        _cyb_free(pod)
 
 checkpoint_gpu_pair_dtype = _get_checkpoint_gpu_pair_dtype_offsets()
 
@@ -16128,20 +16529,25 @@ cdef class CheckpointGpuPair:
 
 
 cdef _get_stream_mem_op_wait_value_params_dtype_offsets():
-    cdef CUstreamMemOpWaitValueParams_st pod
-    return _numpy.dtype({
-        'names': ['operation', 'address', 'value', 'value64', 'flags_', 'alias'],
-        'formats': [_numpy.int32, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.operation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.address)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value64)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.alias)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamMemOpWaitValueParams_st),
-    })
+    cdef CUstreamMemOpWaitValueParams_st *pod = <CUstreamMemOpWaitValueParams_st *>_cyb_calloc(1, sizeof(CUstreamMemOpWaitValueParams_st))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamMemOpWaitValueParams_st")
+    try:
+        return _numpy.dtype({
+            'names': ['operation', 'address', 'value', 'value64', 'flags_', 'alias'],
+            'formats': [_numpy.int32, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.operation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.address)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value64)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.alias)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamMemOpWaitValueParams_st),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_mem_op_wait_value_params_dtype = _get_stream_mem_op_wait_value_params_dtype_offsets()
 
@@ -16325,20 +16731,25 @@ cdef class StreamMemOpWaitValueParams:
 
 
 cdef _get_stream_mem_op_write_value_params_dtype_offsets():
-    cdef CUstreamMemOpWriteValueParams_st pod
-    return _numpy.dtype({
-        'names': ['operation', 'address', 'value', 'value64', 'flags_', 'alias'],
-        'formats': [_numpy.int32, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.operation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.address)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value64)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.alias)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamMemOpWriteValueParams_st),
-    })
+    cdef CUstreamMemOpWriteValueParams_st *pod = <CUstreamMemOpWriteValueParams_st *>_cyb_calloc(1, sizeof(CUstreamMemOpWriteValueParams_st))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamMemOpWriteValueParams_st")
+    try:
+        return _numpy.dtype({
+            'names': ['operation', 'address', 'value', 'value64', 'flags_', 'alias'],
+            'formats': [_numpy.int32, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.operation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.address)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value64)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.alias)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamMemOpWriteValueParams_st),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_mem_op_write_value_params_dtype = _get_stream_mem_op_write_value_params_dtype_offsets()
 
@@ -16522,15 +16933,20 @@ cdef class StreamMemOpWriteValueParams:
 
 
 cdef _get__py_anon_pod2_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod2 pod
-    return _numpy.dtype({
-        'names': ['over_budget'],
-        'formats': [_py_anon_pod3_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.overBudget)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod2),
-    })
+    cdef cuda_bindings_driver__anon_pod2 *pod = <cuda_bindings_driver__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod2))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod2")
+    try:
+        return _numpy.dtype({
+            'names': ['over_budget'],
+            'formats': [_py_anon_pod3_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.overBudget)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod2),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
@@ -16664,19 +17080,24 @@ cdef class _py_anon_pod2:
 
 
 cdef _get_host_node_params_v2_dtype_offsets():
-    cdef CUDA_HOST_NODE_PARAMS_v2 pod
-    return _numpy.dtype({
-        'names': ['fn', 'user_data', 'sync_mode', 'ctx', 'g_ctx'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.fn)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.userData)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.syncMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_HOST_NODE_PARAMS_v2),
-    })
+    cdef CUDA_HOST_NODE_PARAMS_v2 *pod = <CUDA_HOST_NODE_PARAMS_v2 *>_cyb_calloc(1, sizeof(CUDA_HOST_NODE_PARAMS_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_HOST_NODE_PARAMS_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['fn', 'user_data', 'sync_mode', 'ctx', 'g_ctx'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.fn)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.userData)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.syncMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gCtx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_HOST_NODE_PARAMS_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 host_node_params_v2_dtype = _get_host_node_params_v2_dtype_offsets()
 
@@ -16849,32 +17270,37 @@ cdef class HostNodeParams_v2:
 
 
 cdef _get_launch_attribute_value_dtype_offsets():
-    cdef CUlaunchAttributeValue pod
-    return _numpy.dtype({
-        'names': ['pad', 'access_policy_window', 'cooperative', 'sync_policy', 'cluster_dim', 'cluster_scheduling_policy_preference', 'programmatic_stream_serialization_allowed', 'programmatic_event', 'launch_completion_event', 'priority', 'mem_sync_domain_map', 'mem_sync_domain', 'preferred_cluster_dim', 'device_updatable_kernel_node', 'shared_mem_carveout', 'nvlink_util_centric_scheduling', 'portable_cluster_size_mode', 'shared_memory_mode'],
-        'formats': [(_numpy.int8, 64), access_policy_window_v1_dtype, _numpy.int32, _numpy.int32, _py_anon_pod5_dtype, _numpy.int32, _numpy.int32, _py_anon_pod6_dtype, _py_anon_pod7_dtype, _numpy.int32, launch_mem_sync_domain_map_dtype, _numpy.int32, _py_anon_pod8_dtype, _py_anon_pod9_dtype, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.pad)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.accessPolicyWindow)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cooperative)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.syncPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clusterDim)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clusterSchedulingPolicyPreference)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.programmaticStreamSerializationAllowed)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.programmaticEvent)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.launchCompletionEvent)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.priority)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memSyncDomainMap)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memSyncDomain)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.preferredClusterDim)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.deviceUpdatableKernelNode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedMemCarveout)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvlinkUtilCentricScheduling)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.portableClusterSizeMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedMemoryMode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUlaunchAttributeValue),
-    })
+    cdef CUlaunchAttributeValue *pod = <CUlaunchAttributeValue *>_cyb_calloc(1, sizeof(CUlaunchAttributeValue))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUlaunchAttributeValue")
+    try:
+        return _numpy.dtype({
+            'names': ['pad', 'access_policy_window', 'cooperative', 'sync_policy', 'cluster_dim', 'cluster_scheduling_policy_preference', 'programmatic_stream_serialization_allowed', 'programmatic_event', 'launch_completion_event', 'priority', 'mem_sync_domain_map', 'mem_sync_domain', 'preferred_cluster_dim', 'device_updatable_kernel_node', 'shared_mem_carveout', 'nvlink_util_centric_scheduling', 'portable_cluster_size_mode', 'shared_memory_mode'],
+            'formats': [(_numpy.int8, 64), access_policy_window_v1_dtype, _numpy.int32, _numpy.int32, _py_anon_pod5_dtype, _numpy.int32, _numpy.int32, _py_anon_pod6_dtype, _py_anon_pod7_dtype, _numpy.int32, launch_mem_sync_domain_map_dtype, _numpy.int32, _py_anon_pod8_dtype, _py_anon_pod9_dtype, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.pad)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.accessPolicyWindow)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cooperative)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.syncPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clusterDim)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clusterSchedulingPolicyPreference)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.programmaticStreamSerializationAllowed)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.programmaticEvent)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.launchCompletionEvent)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.priority)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memSyncDomainMap)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memSyncDomain)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.preferredClusterDim)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.deviceUpdatableKernelNode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedMemCarveout)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvlinkUtilCentricScheduling)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.portableClusterSizeMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedMemoryMode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUlaunchAttributeValue),
+        })
+    finally:
+        _cyb_free(pod)
 
 launch_attribute_value_dtype = _get_launch_attribute_value_dtype_offsets()
 
@@ -17214,15 +17640,20 @@ cdef class LaunchAttributeValue:
 
 
 cdef _get__py_anon_pod10_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod10 pod
-    return _numpy.dtype({
-        'names': ['sm_count'],
-        'formats': [exec_affinity_sm_count_v1_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.smCount)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod10),
-    })
+    cdef cuda_bindings_driver__anon_pod10 *pod = <cuda_bindings_driver__anon_pod10 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod10))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod10")
+    try:
+        return _numpy.dtype({
+            'names': ['sm_count'],
+            'formats': [exec_affinity_sm_count_v1_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.smCount)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod10),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod10_dtype = _get__py_anon_pod10_dtype_offsets()
 
@@ -17356,18 +17787,23 @@ cdef class _py_anon_pod10:
 
 
 cdef _get_mem_cpy_node_params_dtype_offsets():
-    cdef CUDA_MEMCPY_NODE_PARAMS pod
-    return _numpy.dtype({
-        'names': ['flags_', 'reserved', 'copy_ctx', 'copy_params'],
-        'formats': [_numpy.int32, _numpy.int32, _numpy.intp, mem_cpy3d_v2_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.copyCtx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.copyParams)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMCPY_NODE_PARAMS),
-    })
+    cdef CUDA_MEMCPY_NODE_PARAMS *pod = <CUDA_MEMCPY_NODE_PARAMS *>_cyb_calloc(1, sizeof(CUDA_MEMCPY_NODE_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMCPY_NODE_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['flags_', 'reserved', 'copy_ctx', 'copy_params'],
+            'formats': [_numpy.int32, _numpy.int32, _numpy.intp, mem_cpy3d_v2_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.copyCtx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.copyParams)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMCPY_NODE_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_cpy_node_params_dtype = _get_mem_cpy_node_params_dtype_offsets()
 
@@ -17523,18 +17959,23 @@ cdef class MemCpyNodeParams:
 
 
 cdef _get_external_memory_mipmapped_array_desc_v1_dtype_offsets():
-    cdef CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1 pod
-    return _numpy.dtype({
-        'names': ['offset', 'array_desc', 'num_levels', 'reserved'],
-        'formats': [_numpy.uint64, array3d_descriptor_v2_dtype, _numpy.uint32, (_numpy.uint32, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.offset)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.arrayDesc)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numLevels)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1),
-    })
+    cdef CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1 *pod = <CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1 *>_cyb_calloc(1, sizeof(CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['offset', 'array_desc', 'num_levels', 'reserved'],
+            'formats': [_numpy.uint64, array3d_descriptor_v2_dtype, _numpy.uint32, (_numpy.uint32, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.offset)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.arrayDesc)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numLevels)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_memory_mipmapped_array_desc_v1_dtype = _get_external_memory_mipmapped_array_desc_v1_dtype_offsets()
 
@@ -17678,19 +18119,24 @@ cdef class ExternalMemoryMipmappedArrayDesc_v1:
 
 
 cdef _get_array_sparse_properties_v1_dtype_offsets():
-    cdef CUDA_ARRAY_SPARSE_PROPERTIES_v1 pod
-    return _numpy.dtype({
-        'names': ['tile_extent', 'miptail_first_level', 'miptail_size', 'flags_', 'reserved'],
-        'formats': [_py_anon_pod11_dtype, _numpy.uint32, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 4)],
-        'offsets': [
-            (<intptr_t>&(pod.tileExtent)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.miptailFirstLevel)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.miptailSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_ARRAY_SPARSE_PROPERTIES_v1),
-    })
+    cdef CUDA_ARRAY_SPARSE_PROPERTIES_v1 *pod = <CUDA_ARRAY_SPARSE_PROPERTIES_v1 *>_cyb_calloc(1, sizeof(CUDA_ARRAY_SPARSE_PROPERTIES_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_ARRAY_SPARSE_PROPERTIES_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['tile_extent', 'miptail_first_level', 'miptail_size', 'flags_', 'reserved'],
+            'formats': [_py_anon_pod11_dtype, _numpy.uint32, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 4)],
+            'offsets': [
+                (<intptr_t>&(pod.tileExtent)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.miptailFirstLevel)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.miptailSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_ARRAY_SPARSE_PROPERTIES_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 array_sparse_properties_v1_dtype = _get_array_sparse_properties_v1_dtype_offsets()
 
@@ -17845,19 +18291,24 @@ cdef class ArraySparseProperties_v1:
 
 
 cdef _get__py_anon_pod12_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod12 pod
-    return _numpy.dtype({
-        'names': ['array', 'mipmap', 'linear', 'pitch2d', 'reserved'],
-        'formats': [_py_anon_pod13_dtype, _py_anon_pod14_dtype, _py_anon_pod15_dtype, _py_anon_pod16_dtype, _py_anon_pod17_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.array)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.mipmap)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.linear)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pitch2D)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod12),
-    })
+    cdef cuda_bindings_driver__anon_pod12 *pod = <cuda_bindings_driver__anon_pod12 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod12))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod12")
+    try:
+        return _numpy.dtype({
+            'names': ['array', 'mipmap', 'linear', 'pitch2d', 'reserved'],
+            'formats': [_py_anon_pod13_dtype, _py_anon_pod14_dtype, _py_anon_pod15_dtype, _py_anon_pod16_dtype, _py_anon_pod17_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.array)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.mipmap)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.linear)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pitch2D)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod12),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod12_dtype = _get__py_anon_pod12_dtype_offsets()
 
@@ -18039,17 +18490,22 @@ cdef class _py_anon_pod12:
 
 
 cdef _get__py_anon_pod18_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod18 pod
-    return _numpy.dtype({
-        'names': ['fd', 'win32', 'nv_sci_buf_object'],
-        'formats': [_numpy.int32, _py_anon_pod19_dtype, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.fd)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.win32)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvSciBufObject)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod18),
-    })
+    cdef cuda_bindings_driver__anon_pod18 *pod = <cuda_bindings_driver__anon_pod18 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod18))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod18")
+    try:
+        return _numpy.dtype({
+            'names': ['fd', 'win32', 'nv_sci_buf_object'],
+            'formats': [_numpy.int32, _py_anon_pod19_dtype, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.fd)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.win32)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvSciBufObject)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod18),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod18_dtype = _get__py_anon_pod18_dtype_offsets()
 
@@ -18205,17 +18661,22 @@ cdef class _py_anon_pod18:
 
 
 cdef _get__py_anon_pod20_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod20 pod
-    return _numpy.dtype({
-        'names': ['fd', 'win32', 'nv_sci_sync_obj'],
-        'formats': [_numpy.int32, _py_anon_pod21_dtype, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.fd)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.win32)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvSciSyncObj)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod20),
-    })
+    cdef cuda_bindings_driver__anon_pod20 *pod = <cuda_bindings_driver__anon_pod20 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod20))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod20")
+    try:
+        return _numpy.dtype({
+            'names': ['fd', 'win32', 'nv_sci_sync_obj'],
+            'formats': [_numpy.int32, _py_anon_pod21_dtype, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.fd)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.win32)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvSciSyncObj)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod20),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod20_dtype = _get__py_anon_pod20_dtype_offsets()
 
@@ -18371,18 +18832,23 @@ cdef class _py_anon_pod20:
 
 
 cdef _get__py_anon_pod22_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod22 pod
-    return _numpy.dtype({
-        'names': ['fence', 'nv_sci_sync', 'keyed_mutex', 'reserved'],
-        'formats': [_py_anon_pod23_dtype, _py_anon_pod24_dtype, _py_anon_pod25_dtype, (_numpy.uint32, 12)],
-        'offsets': [
-            (<intptr_t>&(pod.fence)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvSciSync)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.keyedMutex)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod22),
-    })
+    cdef cuda_bindings_driver__anon_pod22 *pod = <cuda_bindings_driver__anon_pod22 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod22))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod22")
+    try:
+        return _numpy.dtype({
+            'names': ['fence', 'nv_sci_sync', 'keyed_mutex', 'reserved'],
+            'formats': [_py_anon_pod23_dtype, _py_anon_pod24_dtype, _py_anon_pod25_dtype, (_numpy.uint32, 12)],
+            'offsets': [
+                (<intptr_t>&(pod.fence)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvSciSync)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.keyedMutex)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod22),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod22_dtype = _get__py_anon_pod22_dtype_offsets()
 
@@ -18548,18 +19014,23 @@ cdef class _py_anon_pod22:
 
 
 cdef _get__py_anon_pod26_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod26 pod
-    return _numpy.dtype({
-        'names': ['fence', 'nv_sci_sync', 'keyed_mutex', 'reserved'],
-        'formats': [_py_anon_pod27_dtype, _py_anon_pod28_dtype, _py_anon_pod29_dtype, (_numpy.uint32, 10)],
-        'offsets': [
-            (<intptr_t>&(pod.fence)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvSciSync)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.keyedMutex)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod26),
-    })
+    cdef cuda_bindings_driver__anon_pod26 *pod = <cuda_bindings_driver__anon_pod26 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod26))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod26")
+    try:
+        return _numpy.dtype({
+            'names': ['fence', 'nv_sci_sync', 'keyed_mutex', 'reserved'],
+            'formats': [_py_anon_pod27_dtype, _py_anon_pod28_dtype, _py_anon_pod29_dtype, (_numpy.uint32, 10)],
+            'offsets': [
+                (<intptr_t>&(pod.fence)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvSciSync)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.keyedMutex)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod26),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod26_dtype = _get__py_anon_pod26_dtype_offsets()
 
@@ -18725,16 +19196,21 @@ cdef class _py_anon_pod26:
 
 
 cdef _get__py_anon_pod33_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod33 pod
-    return _numpy.dtype({
-        'names': ['sparse_level', 'miptail'],
-        'formats': [_py_anon_pod34_dtype, _py_anon_pod35_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.sparseLevel)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.miptail)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod33),
-    })
+    cdef cuda_bindings_driver__anon_pod33 *pod = <cuda_bindings_driver__anon_pod33 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod33))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod33")
+    try:
+        return _numpy.dtype({
+            'names': ['sparse_level', 'miptail'],
+            'formats': [_py_anon_pod34_dtype, _py_anon_pod35_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.sparseLevel)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.miptail)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod33),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod33_dtype = _get__py_anon_pod33_dtype_offsets()
 
@@ -18884,16 +19360,21 @@ cdef class _py_anon_pod33:
 
 
 cdef _get__py_anon_pod42_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod42 pod
-    return _numpy.dtype({
-        'names': ['array', 'offset'],
-        'formats': [_numpy.intp, offset3d_v1_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.array)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.offset)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod42),
-    })
+    cdef cuda_bindings_driver__anon_pod42 *pod = <cuda_bindings_driver__anon_pod42 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod42))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod42")
+    try:
+        return _numpy.dtype({
+            'names': ['array', 'offset'],
+            'formats': [_numpy.intp, offset3d_v1_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.array)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.offset)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod42),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod42_dtype = _get__py_anon_pod42_dtype_offsets()
 
@@ -19038,17 +19519,22 @@ cdef class _py_anon_pod42:
 
 
 cdef _get_event_record_node_params_dtype_offsets():
-    cdef CUDA_EVENT_RECORD_NODE_PARAMS pod
-    return _numpy.dtype({
-        'names': ['event', 'ctx', 'g_ctx'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.event)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EVENT_RECORD_NODE_PARAMS),
-    })
+    cdef CUDA_EVENT_RECORD_NODE_PARAMS *pod = <CUDA_EVENT_RECORD_NODE_PARAMS *>_cyb_calloc(1, sizeof(CUDA_EVENT_RECORD_NODE_PARAMS))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EVENT_RECORD_NODE_PARAMS")
+    try:
+        return _numpy.dtype({
+            'names': ['event', 'ctx', 'g_ctx'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.event)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gCtx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EVENT_RECORD_NODE_PARAMS),
+        })
+    finally:
+        _cyb_free(pod)
 
 event_record_node_params_dtype = _get_event_record_node_params_dtype_offsets()
 
@@ -19199,19 +19685,24 @@ cdef class EventRecordNodeParams:
 
 
 cdef _get_fabric_cpy_batch_node_params_v1_dtype_offsets():
-    cdef CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 pod
-    return _numpy.dtype({
-        'names': ['num_ops', 'op_list', 'flags_', 'ctx', 'g_ctx'],
-        'formats': [_numpy.uint64, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.numOps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.opList)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1),
-    })
+    cdef CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 *pod = <CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1 *>_cyb_calloc(1, sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1")
+    try:
+        return _numpy.dtype({
+            'names': ['num_ops', 'op_list', 'flags_', 'ctx', 'g_ctx'],
+            'formats': [_numpy.uint64, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.numOps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.opList)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gCtx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1),
+        })
+    finally:
+        _cyb_free(pod)
 
 fabric_cpy_batch_node_params_v1_dtype = _get_fabric_cpy_batch_node_params_v1_dtype_offsets()
 
@@ -19384,15 +19875,20 @@ cdef class FabricCpyBatchNodeParamsV1:
 
 
 cdef _get_stream_cig_capture_params_dtype_offsets():
-    cdef CUstreamCigCaptureParams pod
-    return _numpy.dtype({
-        'names': ['stream_cig_params'],
-        'formats': [_numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.streamCigParams)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamCigCaptureParams),
-    })
+    cdef CUstreamCigCaptureParams *pod = <CUstreamCigCaptureParams *>_cyb_calloc(1, sizeof(CUstreamCigCaptureParams))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamCigCaptureParams")
+    try:
+        return _numpy.dtype({
+            'names': ['stream_cig_params'],
+            'formats': [_numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.streamCigParams)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamCigCaptureParams),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_cig_capture_params_dtype = _get_stream_cig_capture_params_dtype_offsets()
 
@@ -19509,21 +20005,26 @@ cdef class StreamCigCaptureParams:
 
 
 cdef _get_stream_batch_mem_op_params_v1_dtype_offsets():
-    cdef CUstreamBatchMemOpParams_v1 pod
-    return _numpy.dtype({
-        'names': ['operation', 'wait_value', 'write_value', 'flush_remote_writes', 'memory_barrier', 'atomic_reduction', 'pad'],
-        'formats': [_numpy.int32, stream_mem_op_wait_value_params_dtype, stream_mem_op_write_value_params_dtype, stream_mem_op_flush_remote_writes_params_dtype, stream_mem_op_memory_barrier_params_dtype, stream_mem_op_atomic_reduction_params_dtype, (_numpy.uint64, 6)],
-        'offsets': [
-            (<intptr_t>&(pod.operation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.waitValue)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.writeValue)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flushRemoteWrites)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memoryBarrier)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.atomicReduction)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pad)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUstreamBatchMemOpParams_v1),
-    })
+    cdef CUstreamBatchMemOpParams_v1 *pod = <CUstreamBatchMemOpParams_v1 *>_cyb_calloc(1, sizeof(CUstreamBatchMemOpParams_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUstreamBatchMemOpParams_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['operation', 'wait_value', 'write_value', 'flush_remote_writes', 'memory_barrier', 'atomic_reduction', 'pad'],
+            'formats': [_numpy.int32, stream_mem_op_wait_value_params_dtype, stream_mem_op_write_value_params_dtype, stream_mem_op_flush_remote_writes_params_dtype, stream_mem_op_memory_barrier_params_dtype, stream_mem_op_atomic_reduction_params_dtype, (_numpy.uint64, 6)],
+            'offsets': [
+                (<intptr_t>&(pod.operation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.waitValue)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.writeValue)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flushRemoteWrites)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memoryBarrier)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.atomicReduction)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pad)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUstreamBatchMemOpParams_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 stream_batch_mem_op_params_v1_dtype = _get_stream_batch_mem_op_params_v1_dtype_offsets()
 cdef object stream_batch_mem_op_params_v1_dtype_record = _numpy.dtype((_numpy.record, stream_batch_mem_op_params_v1_dtype))
@@ -19814,16 +20315,21 @@ cdef class StreamBatchMemOpParams_v1:
 
 
 cdef _get_async_notification_info_dtype_offsets():
-    cdef CUasyncNotificationInfo pod
-    return _numpy.dtype({
-        'names': ['type', 'info'],
-        'formats': [_numpy.int32, _py_anon_pod2_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.info)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUasyncNotificationInfo),
-    })
+    cdef CUasyncNotificationInfo *pod = <CUasyncNotificationInfo *>_cyb_calloc(1, sizeof(CUasyncNotificationInfo))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUasyncNotificationInfo")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'info'],
+            'formats': [_numpy.int32, _py_anon_pod2_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.info)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUasyncNotificationInfo),
+        })
+    finally:
+        _cyb_free(pod)
 
 async_notification_info_dtype = _get_async_notification_info_dtype_offsets()
 
@@ -19956,16 +20462,21 @@ cdef class AsyncNotificationInfo:
 
 
 cdef _get_launch_attribute_dtype_offsets():
-    cdef CUlaunchAttribute pod
-    return _numpy.dtype({
-        'names': ['id', 'value'],
-        'formats': [_numpy.int32, launch_attribute_value_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUlaunchAttribute),
-    })
+    cdef CUlaunchAttribute *pod = <CUlaunchAttribute *>_cyb_calloc(1, sizeof(CUlaunchAttribute))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUlaunchAttribute")
+    try:
+        return _numpy.dtype({
+            'names': ['id', 'value'],
+            'formats': [_numpy.int32, launch_attribute_value_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUlaunchAttribute),
+        })
+    finally:
+        _cyb_free(pod)
 
 launch_attribute_dtype = _get_launch_attribute_dtype_offsets()
 
@@ -20098,16 +20609,21 @@ cdef class LaunchAttribute:
 
 
 cdef _get_exec_affinity_param_v1_dtype_offsets():
-    cdef CUexecAffinityParam_v1 pod
-    return _numpy.dtype({
-        'names': ['type', 'param'],
-        'formats': [_numpy.int32, _py_anon_pod10_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.param)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUexecAffinityParam_v1),
-    })
+    cdef CUexecAffinityParam_v1 *pod = <CUexecAffinityParam_v1 *>_cyb_calloc(1, sizeof(CUexecAffinityParam_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUexecAffinityParam_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'param'],
+            'formats': [_numpy.int32, _py_anon_pod10_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.param)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUexecAffinityParam_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 exec_affinity_param_v1_dtype = _get_exec_affinity_param_v1_dtype_offsets()
 cdef object exec_affinity_param_v1_dtype_record = _numpy.dtype((_numpy.record, exec_affinity_param_v1_dtype))
@@ -20282,17 +20798,22 @@ cdef class ExecAffinityParam_v1:
 
 
 cdef _get_resource_desc_v1_dtype_offsets():
-    cdef CUDA_RESOURCE_DESC_v1 pod
-    return _numpy.dtype({
-        'names': ['res_type', 'res', 'flags_'],
-        'formats': [_numpy.int32, _py_anon_pod12_dtype, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.resType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.res)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_RESOURCE_DESC_v1),
-    })
+    cdef CUDA_RESOURCE_DESC_v1 *pod = <CUDA_RESOURCE_DESC_v1 *>_cyb_calloc(1, sizeof(CUDA_RESOURCE_DESC_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_RESOURCE_DESC_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['res_type', 'res', 'flags_'],
+            'formats': [_numpy.int32, _py_anon_pod12_dtype, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.resType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.res)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_RESOURCE_DESC_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 resource_desc_v1_dtype = _get_resource_desc_v1_dtype_offsets()
 
@@ -20436,19 +20957,24 @@ cdef class ResourceDesc_v1:
 
 
 cdef _get_external_memory_handle_desc_v1_dtype_offsets():
-    cdef CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1 pod
-    return _numpy.dtype({
-        'names': ['type', 'handle', 'size_', 'flags_', 'reserved'],
-        'formats': [_numpy.int32, _py_anon_pod18_dtype, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1),
-    })
+    cdef CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1 *pod = <CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1 *>_cyb_calloc(1, sizeof(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'handle', 'size_', 'flags_', 'reserved'],
+            'formats': [_numpy.int32, _py_anon_pod18_dtype, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_memory_handle_desc_v1_dtype = _get_external_memory_handle_desc_v1_dtype_offsets()
 
@@ -20603,18 +21129,23 @@ cdef class ExternalMemoryHandleDesc_v1:
 
 
 cdef _get_external_semaphore_handle_desc_v1_dtype_offsets():
-    cdef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1 pod
-    return _numpy.dtype({
-        'names': ['type', 'handle', 'flags_', 'reserved'],
-        'formats': [_numpy.int32, _py_anon_pod20_dtype, _numpy.uint32, (_numpy.uint32, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1),
-    })
+    cdef CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1 *pod = <CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1 *>_cyb_calloc(1, sizeof(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'handle', 'flags_', 'reserved'],
+            'formats': [_numpy.int32, _py_anon_pod20_dtype, _numpy.uint32, (_numpy.uint32, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_semaphore_handle_desc_v1_dtype = _get_external_semaphore_handle_desc_v1_dtype_offsets()
 
@@ -20758,17 +21289,22 @@ cdef class ExternalSemaphoreHandleDesc_v1:
 
 
 cdef _get_external_semaphore_signal_params_v1_dtype_offsets():
-    cdef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['params', 'flags_', 'reserved'],
-        'formats': [_py_anon_pod22_dtype, _numpy.uint32, (_numpy.uint32, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.params)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1),
-    })
+    cdef CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 *pod = <CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['params', 'flags_', 'reserved'],
+            'formats': [_py_anon_pod22_dtype, _numpy.uint32, (_numpy.uint32, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.params)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_semaphore_signal_params_v1_dtype = _get_external_semaphore_signal_params_v1_dtype_offsets()
 
@@ -20901,17 +21437,22 @@ cdef class ExternalSemaphoreSignalParams_v1:
 
 
 cdef _get_external_semaphore_wait_params_v1_dtype_offsets():
-    cdef CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['params', 'flags_', 'reserved'],
-        'formats': [_py_anon_pod26_dtype, _numpy.uint32, (_numpy.uint32, 16)],
-        'offsets': [
-            (<intptr_t>&(pod.params)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1),
-    })
+    cdef CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 *pod = <CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['params', 'flags_', 'reserved'],
+            'formats': [_py_anon_pod26_dtype, _numpy.uint32, (_numpy.uint32, 16)],
+            'offsets': [
+                (<intptr_t>&(pod.params)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_semaphore_wait_params_v1_dtype = _get_external_semaphore_wait_params_v1_dtype_offsets()
 
@@ -21044,25 +21585,30 @@ cdef class ExternalSemaphoreWaitParams_v1:
 
 
 cdef _get_array_map_info_v1_dtype_offsets():
-    cdef CUarrayMapInfo_v1 pod
-    return _numpy.dtype({
-        'names': ['resource_type', 'resource', 'subresource_type', 'subresource', 'mem_operation_type', 'mem_handle_type', 'mem_handle', 'offset', 'device_bit_mask', 'flags_', 'reserved'],
-        'formats': [_numpy.int32, _py_anon_pod32_dtype, _numpy.int32, _py_anon_pod33_dtype, _numpy.int32, _numpy.int32, _py_anon_pod36_dtype, _numpy.uint64, _numpy.uint32, _numpy.uint32, (_numpy.uint32, 2)],
-        'offsets': [
-            (<intptr_t>&(pod.resourceType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.resource)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.subresourceType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.subresource)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memOperationType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memHandleType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memHandle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.offset)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.deviceBitMask)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUarrayMapInfo_v1),
-    })
+    cdef CUarrayMapInfo_v1 *pod = <CUarrayMapInfo_v1 *>_cyb_calloc(1, sizeof(CUarrayMapInfo_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUarrayMapInfo_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['resource_type', 'resource', 'subresource_type', 'subresource', 'mem_operation_type', 'mem_handle_type', 'mem_handle', 'offset', 'device_bit_mask', 'flags_', 'reserved'],
+            'formats': [_numpy.int32, _py_anon_pod32_dtype, _numpy.int32, _py_anon_pod33_dtype, _numpy.int32, _numpy.int32, _py_anon_pod36_dtype, _numpy.uint64, _numpy.uint32, _numpy.uint32, (_numpy.uint32, 2)],
+            'offsets': [
+                (<intptr_t>&(pod.resourceType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.resource)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.subresourceType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.subresource)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memOperationType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memHandleType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memHandle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.offset)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.deviceBitMask)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUarrayMapInfo_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 array_map_info_v1_dtype = _get_array_map_info_v1_dtype_offsets()
 cdef object array_map_info_v1_dtype_record = _numpy.dtype((_numpy.record, array_map_info_v1_dtype))
@@ -21373,17 +21919,22 @@ cdef class ArrayMapInfo_v1:
 
 
 cdef _get_mem_location_v1_dtype_offsets():
-    cdef CUmemLocation_v1 pod
-    return _numpy.dtype({
-        'names': ['type', 'id', 'localized'],
-        'formats': [_numpy.int32, _numpy.int32, _py_anon_pod38_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.localized)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemLocation_v1),
-    })
+    cdef CUmemLocation_v1 *pod = <CUmemLocation_v1 *>_cyb_calloc(1, sizeof(CUmemLocation_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemLocation_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'id', 'localized'],
+            'formats': [_numpy.int32, _numpy.int32, _py_anon_pod38_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.localized)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemLocation_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_location_v1_dtype = _get_mem_location_v1_dtype_offsets()
 
@@ -21527,16 +22078,21 @@ cdef class MemLocation_v1:
 
 
 cdef _get_checkpoint_checkpoint_args_dtype_offsets():
-    cdef CUcheckpointCheckpointArgs pod
-    return _numpy.dtype({
-        'names': ['custom_storage_info_out', 'reserved'],
-        'formats': [_numpy.intp, (_numpy.int8, 56)],
-        'offsets': [
-            (<intptr_t>&(pod.customStorageInfo_out)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUcheckpointCheckpointArgs),
-    })
+    cdef CUcheckpointCheckpointArgs *pod = <CUcheckpointCheckpointArgs *>_cyb_calloc(1, sizeof(CUcheckpointCheckpointArgs))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUcheckpointCheckpointArgs")
+    try:
+        return _numpy.dtype({
+            'names': ['custom_storage_info_out', 'reserved'],
+            'formats': [_numpy.intp, (_numpy.int8, 56)],
+            'offsets': [
+                (<intptr_t>&(pod.customStorageInfo_out)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUcheckpointCheckpointArgs),
+        })
+    finally:
+        _cyb_free(pod)
 
 checkpoint_checkpoint_args_dtype = _get_checkpoint_checkpoint_args_dtype_offsets()
 
@@ -21653,19 +22209,24 @@ cdef class CheckpointCheckpointArgs:
 
 
 cdef _get_checkpoint_restore_args_dtype_offsets():
-    cdef CUcheckpointRestoreArgs pod
-    return _numpy.dtype({
-        'names': ['gpu_pairs', 'gpu_pairs_count', 'padding0', 'custom_storage_info_out', 'reserved'],
-        'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.intp, (_numpy.int8, 40)],
-        'offsets': [
-            (<intptr_t>&(pod.gpuPairs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuPairsCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.padding0)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.customStorageInfo_out)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUcheckpointRestoreArgs),
-    })
+    cdef CUcheckpointRestoreArgs *pod = <CUcheckpointRestoreArgs *>_cyb_calloc(1, sizeof(CUcheckpointRestoreArgs))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUcheckpointRestoreArgs")
+    try:
+        return _numpy.dtype({
+            'names': ['gpu_pairs', 'gpu_pairs_count', 'padding0', 'custom_storage_info_out', 'reserved'],
+            'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.intp, (_numpy.int8, 40)],
+            'offsets': [
+                (<intptr_t>&(pod.gpuPairs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuPairsCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.padding0)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.customStorageInfo_out)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUcheckpointRestoreArgs),
+        })
+    finally:
+        _cyb_free(pod)
 
 checkpoint_restore_args_dtype = _get_checkpoint_restore_args_dtype_offsets()
 
@@ -21804,21 +22365,26 @@ cdef class CheckpointRestoreArgs:
 
 
 cdef _get_dev_resource_v1_dtype_offsets():
-    cdef CUdevResource_v1 pod
-    return _numpy.dtype({
-        'names': ['type', '_internal_padding', 'sm', 'wq_config', 'wq', '_oversize', 'next_resource'],
-        'formats': [_numpy.int32, (_numpy.uint8, 92), dev_sm_resource_dtype, dev_workqueue_config_resource_dtype, dev_workqueue_resource_dtype, (_numpy.uint8, 40), _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod._internal_padding)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sm)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.wqConfig)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.wq)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod._oversize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nextResource)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUdevResource_v1),
-    })
+    cdef CUdevResource_v1 *pod = <CUdevResource_v1 *>_cyb_calloc(1, sizeof(CUdevResource_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUdevResource_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['type', '_internal_padding', 'sm', 'wq_config', 'wq', '_oversize', 'next_resource'],
+            'formats': [_numpy.int32, (_numpy.uint8, 92), dev_sm_resource_dtype, dev_workqueue_config_resource_dtype, dev_workqueue_resource_dtype, (_numpy.uint8, 40), _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod._internal_padding)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sm)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.wqConfig)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.wq)) - (<intptr_t>pod),
+                (<intptr_t>&(pod._oversize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nextResource)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUdevResource_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 dev_resource_v1_dtype = _get_dev_resource_v1_dtype_offsets()
 cdef object dev_resource_v1_dtype_record = _numpy.dtype((_numpy.record, dev_resource_v1_dtype))
@@ -22086,20 +22652,25 @@ cdef class DevResource_v1:
 
 
 cdef _get_logical_endpoint_prop_dtype_offsets():
-    cdef CUlogicalEndpointProp pod
-    return _numpy.dtype({
-        'names': ['type', 'unicast', 'multicast', 'size_', 'ipc_handle_types', 'flags_'],
-        'formats': [_numpy.int32, _py_anon_pod47_dtype, _py_anon_pod48_dtype, _numpy.uint64, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.unicast)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.multicast)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ipcHandleTypes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUlogicalEndpointProp),
-    })
+    cdef CUlogicalEndpointProp *pod = <CUlogicalEndpointProp *>_cyb_calloc(1, sizeof(CUlogicalEndpointProp))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUlogicalEndpointProp")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'unicast', 'multicast', 'size_', 'ipc_handle_types', 'flags_'],
+            'formats': [_numpy.int32, _py_anon_pod47_dtype, _py_anon_pod48_dtype, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.unicast)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.multicast)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ipcHandleTypes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUlogicalEndpointProp),
+        })
+    finally:
+        _cyb_free(pod)
 
 logical_endpoint_prop_dtype = _get_logical_endpoint_prop_dtype_offsets()
 
@@ -22281,18 +22852,23 @@ cdef class LogicalEndpointProp:
 
 
 cdef _get_batch_mem_op_node_params_v1_dtype_offsets():
-    cdef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['ctx', 'count', 'param_array', 'flags_'],
-        'formats': [_numpy.intp, _numpy.uint32, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.paramArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1),
-    })
+    cdef CUDA_BATCH_MEM_OP_NODE_PARAMS_v1 *pod = <CUDA_BATCH_MEM_OP_NODE_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_BATCH_MEM_OP_NODE_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['ctx', 'count', 'param_array', 'flags_'],
+            'formats': [_numpy.intp, _numpy.uint32, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.paramArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 batch_mem_op_node_params_v1_dtype = _get_batch_mem_op_node_params_v1_dtype_offsets()
 
@@ -22442,18 +23018,23 @@ cdef class BatchMemOpNodeParams_v1:
 
 
 cdef _get_batch_mem_op_node_params_v2_dtype_offsets():
-    cdef CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 pod
-    return _numpy.dtype({
-        'names': ['ctx', 'count', 'param_array', 'flags_'],
-        'formats': [_numpy.intp, _numpy.uint32, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.paramArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_BATCH_MEM_OP_NODE_PARAMS_v2),
-    })
+    cdef CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 *pod = <CUDA_BATCH_MEM_OP_NODE_PARAMS_v2 *>_cyb_calloc(1, sizeof(CUDA_BATCH_MEM_OP_NODE_PARAMS_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_BATCH_MEM_OP_NODE_PARAMS_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['ctx', 'count', 'param_array', 'flags_'],
+            'formats': [_numpy.intp, _numpy.uint32, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.paramArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_BATCH_MEM_OP_NODE_PARAMS_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 batch_mem_op_node_params_v2_dtype = _get_batch_mem_op_node_params_v2_dtype_offsets()
 
@@ -22615,24 +23196,29 @@ cdef class BatchMemOpNodeParams_v2:
 
 
 cdef _get_launch_config_dtype_offsets():
-    cdef CUlaunchConfig pod
-    return _numpy.dtype({
-        'names': ['grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'h_stream', 'attrs', 'num_attrs'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.gridDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimX)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimY)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hStream)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attrs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numAttrs)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUlaunchConfig),
-    })
+    cdef CUlaunchConfig *pod = <CUlaunchConfig *>_cyb_calloc(1, sizeof(CUlaunchConfig))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUlaunchConfig")
+    try:
+        return _numpy.dtype({
+            'names': ['grid_dim_x', 'grid_dim_y', 'grid_dim_z', 'block_dim_x', 'block_dim_y', 'block_dim_z', 'shared_mem_bytes', 'h_stream', 'attrs', 'num_attrs'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.gridDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimX)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimY)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.blockDimZ)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedMemBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hStream)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attrs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numAttrs)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUlaunchConfig),
+        })
+    finally:
+        _cyb_free(pod)
 
 launch_config_dtype = _get_launch_config_dtype_offsets()
 
@@ -22848,17 +23434,22 @@ cdef class LaunchConfig:
 
 
 cdef _get_ctx_create_params_dtype_offsets():
-    cdef CUctxCreateParams pod
-    return _numpy.dtype({
-        'names': ['exec_affinity_params', 'num_exec_affinity_params', 'cig_params'],
-        'formats': [_numpy.intp, _numpy.int32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.execAffinityParams)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numExecAffinityParams)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cigParams)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUctxCreateParams),
-    })
+    cdef CUctxCreateParams *pod = <CUctxCreateParams *>_cyb_calloc(1, sizeof(CUctxCreateParams))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUctxCreateParams")
+    try:
+        return _numpy.dtype({
+            'names': ['exec_affinity_params', 'num_exec_affinity_params', 'cig_params'],
+            'formats': [_numpy.intp, _numpy.int32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.execAffinityParams)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numExecAffinityParams)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cigParams)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUctxCreateParams),
+        })
+    finally:
+        _cyb_free(pod)
 
 ctx_create_params_dtype = _get_ctx_create_params_dtype_offsets()
 
@@ -22997,17 +23588,22 @@ cdef class CtxCreateParams:
 
 
 cdef _get_ext_sem_signal_node_params_v1_dtype_offsets():
-    cdef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['ext_sem_array', 'params_array', 'num_ext_sems'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.extSemArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.paramsArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numExtSems)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1),
-    })
+    cdef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1 *pod = <CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['ext_sem_array', 'params_array', 'num_ext_sems'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.extSemArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.paramsArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numExtSems)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 ext_sem_signal_node_params_v1_dtype = _get_ext_sem_signal_node_params_v1_dtype_offsets()
 
@@ -23146,19 +23742,24 @@ cdef class ExtSemSignalNodeParams_v1:
 
 
 cdef _get_ext_sem_signal_node_params_v2_dtype_offsets():
-    cdef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2 pod
-    return _numpy.dtype({
-        'names': ['ext_sem_array', 'params_array', 'num_ext_sems', 'ctx', 'g_ctx'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.extSemArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.paramsArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numExtSems)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2),
-    })
+    cdef CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2 *pod = <CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2 *>_cyb_calloc(1, sizeof(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['ext_sem_array', 'params_array', 'num_ext_sems', 'ctx', 'g_ctx'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.extSemArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.paramsArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numExtSems)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gCtx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 ext_sem_signal_node_params_v2_dtype = _get_ext_sem_signal_node_params_v2_dtype_offsets()
 
@@ -23331,17 +23932,22 @@ cdef class ExtSemSignalNodeParams_v2:
 
 
 cdef _get_ext_sem_wait_node_params_v1_dtype_offsets():
-    cdef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['ext_sem_array', 'params_array', 'num_ext_sems'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.extSemArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.paramsArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numExtSems)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1),
-    })
+    cdef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1 *pod = <CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['ext_sem_array', 'params_array', 'num_ext_sems'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.extSemArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.paramsArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numExtSems)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 ext_sem_wait_node_params_v1_dtype = _get_ext_sem_wait_node_params_v1_dtype_offsets()
 
@@ -23480,19 +24086,24 @@ cdef class ExtSemWaitNodeParams_v1:
 
 
 cdef _get_ext_sem_wait_node_params_v2_dtype_offsets():
-    cdef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2 pod
-    return _numpy.dtype({
-        'names': ['ext_sem_array', 'params_array', 'num_ext_sems', 'ctx', 'g_ctx'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.extSemArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.paramsArray)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numExtSems)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2),
-    })
+    cdef CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2 *pod = <CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2 *>_cyb_calloc(1, sizeof(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['ext_sem_array', 'params_array', 'num_ext_sems', 'ctx', 'g_ctx'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.extSemArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.paramsArray)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numExtSems)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gCtx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 ext_sem_wait_node_params_v2_dtype = _get_ext_sem_wait_node_params_v2_dtype_offsets()
 
@@ -23665,19 +24276,24 @@ cdef class ExtSemWaitNodeParams_v2:
 
 
 cdef _get_mem_allocation_prop_v1_dtype_offsets():
-    cdef CUmemAllocationProp_v1 pod
-    return _numpy.dtype({
-        'names': ['type', 'requested_handle_types', 'location', 'win32handle_meta_data', 'alloc_flags'],
-        'formats': [_numpy.int32, _numpy.int32, mem_location_v1_dtype, _numpy.intp, _py_anon_pod39_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.requestedHandleTypes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.location)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.win32HandleMetaData)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.allocFlags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemAllocationProp_v1),
-    })
+    cdef CUmemAllocationProp_v1 *pod = <CUmemAllocationProp_v1 *>_cyb_calloc(1, sizeof(CUmemAllocationProp_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemAllocationProp_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'requested_handle_types', 'location', 'win32handle_meta_data', 'alloc_flags'],
+            'formats': [_numpy.int32, _numpy.int32, mem_location_v1_dtype, _numpy.intp, _py_anon_pod39_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.requestedHandleTypes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.location)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.win32HandleMetaData)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.allocFlags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemAllocationProp_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_allocation_prop_v1_dtype = _get_mem_allocation_prop_v1_dtype_offsets()
 
@@ -23848,16 +24464,21 @@ cdef class MemAllocationProp_v1:
 
 
 cdef _get_mem_access_desc_v1_dtype_offsets():
-    cdef CUmemAccessDesc_v1 pod
-    return _numpy.dtype({
-        'names': ['location', 'flags_'],
-        'formats': [mem_location_v1_dtype, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.location)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemAccessDesc_v1),
-    })
+    cdef CUmemAccessDesc_v1 *pod = <CUmemAccessDesc_v1 *>_cyb_calloc(1, sizeof(CUmemAccessDesc_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemAccessDesc_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['location', 'flags_'],
+            'formats': [mem_location_v1_dtype, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.location)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemAccessDesc_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_access_desc_v1_dtype = _get_mem_access_desc_v1_dtype_offsets()
 cdef object mem_access_desc_v1_dtype_record = _numpy.dtype((_numpy.record, mem_access_desc_v1_dtype))
@@ -24032,22 +24653,27 @@ cdef class MemAccessDesc_v1:
 
 
 cdef _get_mem_pool_props_v1_dtype_offsets():
-    cdef CUmemPoolProps_v1 pod
-    return _numpy.dtype({
-        'names': ['alloc_type', 'handle_types', 'location', 'win32security_attributes', 'max_size', 'usage', 'gpu_direct_rdma_capable', 'reserved'],
-        'formats': [_numpy.int32, _numpy.int32, mem_location_v1_dtype, _numpy.intp, _numpy.uint64, _numpy.uint16, _numpy.uint8, (_numpy.uint8, 53)],
-        'offsets': [
-            (<intptr_t>&(pod.allocType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.handleTypes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.location)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.win32SecurityAttributes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.usage)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuDirectRDMACapable)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemPoolProps_v1),
-    })
+    cdef CUmemPoolProps_v1 *pod = <CUmemPoolProps_v1 *>_cyb_calloc(1, sizeof(CUmemPoolProps_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemPoolProps_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['alloc_type', 'handle_types', 'location', 'win32security_attributes', 'max_size', 'usage', 'gpu_direct_rdma_capable', 'reserved'],
+            'formats': [_numpy.int32, _numpy.int32, mem_location_v1_dtype, _numpy.intp, _numpy.uint64, _numpy.uint16, _numpy.uint8, (_numpy.uint8, 53)],
+            'offsets': [
+                (<intptr_t>&(pod.allocType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handleTypes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.location)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.win32SecurityAttributes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.usage)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuDirectRDMACapable)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemPoolProps_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_pool_props_v1_dtype = _get_mem_pool_props_v1_dtype_offsets()
 
@@ -24235,18 +24861,23 @@ cdef class MemPoolProps_v1:
 
 
 cdef _get_mem_cpy_attributes_v1_dtype_offsets():
-    cdef CUmemcpyAttributes_v1 pod
-    return _numpy.dtype({
-        'names': ['src_access_order', 'src_loc_hint', 'dst_loc_hint', 'flags_'],
-        'formats': [_numpy.int32, mem_location_v1_dtype, mem_location_v1_dtype, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.srcAccessOrder)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcLocHint)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dstLocHint)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemcpyAttributes_v1),
-    })
+    cdef CUmemcpyAttributes_v1 *pod = <CUmemcpyAttributes_v1 *>_cyb_calloc(1, sizeof(CUmemcpyAttributes_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemcpyAttributes_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['src_access_order', 'src_loc_hint', 'dst_loc_hint', 'flags_'],
+            'formats': [_numpy.int32, mem_location_v1_dtype, mem_location_v1_dtype, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.srcAccessOrder)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcLocHint)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dstLocHint)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemcpyAttributes_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_cpy_attributes_v1_dtype = _get_mem_cpy_attributes_v1_dtype_offsets()
 
@@ -24406,18 +25037,23 @@ cdef class MemCpyAttributes_v1:
 
 
 cdef _get__py_anon_pod41_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod41 pod
-    return _numpy.dtype({
-        'names': ['ptr_', 'row_length', 'layer_height', 'loc_hint'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, mem_location_v1_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.ptr)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.rowLength)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.layerHeight)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.locHint)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod41),
-    })
+    cdef cuda_bindings_driver__anon_pod41 *pod = <cuda_bindings_driver__anon_pod41 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod41))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod41")
+    try:
+        return _numpy.dtype({
+            'names': ['ptr_', 'row_length', 'layer_height', 'loc_hint'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, mem_location_v1_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.ptr)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.rowLength)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.layerHeight)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.locHint)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod41),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod41_dtype = _get__py_anon_pod41_dtype_offsets()
 
@@ -24584,19 +25220,24 @@ cdef class _py_anon_pod41:
 
 
 cdef _get_mem_alloc_node_params_v1_dtype_offsets():
-    cdef CUDA_MEM_ALLOC_NODE_PARAMS_v1 pod
-    return _numpy.dtype({
-        'names': ['pool_props', 'access_descs', 'access_desc_count', 'bytesize', 'dptr'],
-        'formats': [mem_pool_props_v1_dtype, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.poolProps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.accessDescs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.accessDescCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bytesize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dptr)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEM_ALLOC_NODE_PARAMS_v1),
-    })
+    cdef CUDA_MEM_ALLOC_NODE_PARAMS_v1 *pod = <CUDA_MEM_ALLOC_NODE_PARAMS_v1 *>_cyb_calloc(1, sizeof(CUDA_MEM_ALLOC_NODE_PARAMS_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEM_ALLOC_NODE_PARAMS_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['pool_props', 'access_descs', 'access_desc_count', 'bytesize', 'dptr'],
+            'formats': [mem_pool_props_v1_dtype, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.poolProps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.accessDescs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.accessDescCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bytesize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dptr)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEM_ALLOC_NODE_PARAMS_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_alloc_node_params_v1_dtype = _get_mem_alloc_node_params_v1_dtype_offsets()
 
@@ -24762,19 +25403,24 @@ cdef class MemAllocNodeParams_v1:
 
 
 cdef _get_mem_alloc_node_params_v2_dtype_offsets():
-    cdef CUDA_MEM_ALLOC_NODE_PARAMS_v2 pod
-    return _numpy.dtype({
-        'names': ['pool_props', 'access_descs', 'access_desc_count', 'bytesize', 'dptr'],
-        'formats': [mem_pool_props_v1_dtype, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.poolProps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.accessDescs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.accessDescCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bytesize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dptr)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEM_ALLOC_NODE_PARAMS_v2),
-    })
+    cdef CUDA_MEM_ALLOC_NODE_PARAMS_v2 *pod = <CUDA_MEM_ALLOC_NODE_PARAMS_v2 *>_cyb_calloc(1, sizeof(CUDA_MEM_ALLOC_NODE_PARAMS_v2))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEM_ALLOC_NODE_PARAMS_v2")
+    try:
+        return _numpy.dtype({
+            'names': ['pool_props', 'access_descs', 'access_desc_count', 'bytesize', 'dptr'],
+            'formats': [mem_pool_props_v1_dtype, _numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.poolProps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.accessDescs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.accessDescCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bytesize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dptr)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEM_ALLOC_NODE_PARAMS_v2),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_alloc_node_params_v2_dtype = _get_mem_alloc_node_params_v2_dtype_offsets()
 
@@ -24952,23 +25598,28 @@ cdef class MemAllocNodeParams_v2:
 
 
 cdef _get_memcpy_batch_node_params_v1_dtype_offsets():
-    cdef CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 pod
-    return _numpy.dtype({
-        'names': ['count', 'dsts', 'srcs', 'sizes', 'attrs', 'attrs_idxs', 'num_attrs', 'ctx', 'g_ctx'],
-        'formats': [_numpy.uint64, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dsts)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sizes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attrs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attrsIdxs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numAttrs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ctx)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gCtx)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1),
-    })
+    cdef CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 *pod = <CUDA_MEMCPY_BATCH_NODE_PARAMS_V1 *>_cyb_calloc(1, sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMCPY_BATCH_NODE_PARAMS_V1")
+    try:
+        return _numpy.dtype({
+            'names': ['count', 'dsts', 'srcs', 'sizes', 'attrs', 'attrs_idxs', 'num_attrs', 'ctx', 'g_ctx'],
+            'formats': [_numpy.uint64, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.intp, _numpy.uint64, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dsts)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sizes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attrs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attrsIdxs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numAttrs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ctx)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gCtx)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMCPY_BATCH_NODE_PARAMS_V1),
+        })
+    finally:
+        _cyb_free(pod)
 
 memcpy_batch_node_params_v1_dtype = _get_memcpy_batch_node_params_v1_dtype_offsets()
 
@@ -25185,16 +25836,21 @@ cdef class MemcpyBatchNodeParamsV1:
 
 
 cdef _get__py_anon_pod40_dtype_offsets():
-    cdef cuda_bindings_driver__anon_pod40 pod
-    return _numpy.dtype({
-        'names': ['ptr_', 'array'],
-        'formats': [_py_anon_pod41_dtype, _py_anon_pod42_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.ptr)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.array)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_driver__anon_pod40),
-    })
+    cdef cuda_bindings_driver__anon_pod40 *pod = <cuda_bindings_driver__anon_pod40 *>_cyb_calloc(1, sizeof(cuda_bindings_driver__anon_pod40))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_driver__anon_pod40")
+    try:
+        return _numpy.dtype({
+            'names': ['ptr_', 'array'],
+            'formats': [_py_anon_pod41_dtype, _py_anon_pod42_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.ptr)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.array)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_driver__anon_pod40),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod40_dtype = _get__py_anon_pod40_dtype_offsets()
 
@@ -25344,16 +26000,21 @@ cdef class _py_anon_pod40:
 
 
 cdef _get_mem_cpy3d_operand_v1_dtype_offsets():
-    cdef CUmemcpy3DOperand_v1 pod
-    return _numpy.dtype({
-        'names': ['type', 'op'],
-        'formats': [_numpy.int32, _py_anon_pod40_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.op)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUmemcpy3DOperand_v1),
-    })
+    cdef CUmemcpy3DOperand_v1 *pod = <CUmemcpy3DOperand_v1 *>_cyb_calloc(1, sizeof(CUmemcpy3DOperand_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUmemcpy3DOperand_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'op'],
+            'formats': [_numpy.int32, _py_anon_pod40_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.op)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUmemcpy3DOperand_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_cpy3d_operand_v1_dtype = _get_mem_cpy3d_operand_v1_dtype_offsets()
 
@@ -25486,34 +26147,39 @@ cdef class MemCpy3dOperand_v1:
 
 
 cdef _get_graph_node_params_dtype_offsets():
-    cdef CUgraphNodeParams pod
-    return _numpy.dtype({
-        'names': ['type', 'reserved0', 'reserved1', 'kernel', 'memcpy', 'memset', 'host', 'graph', 'event_wait', 'event_record', 'ext_sem_signal', 'ext_sem_wait', 'alloc', 'free', 'mem_op', 'conditional', 'memcpy_batch', 'fabric_cpy_batch', 'as_bytes', 'reserved2'],
-        'formats': [_numpy.int32, (_numpy.int32, 3), (_numpy.int64, 29), kernel_node_params_v3_dtype, mem_cpy_node_params_dtype, mem_set_node_params_v2_dtype, host_node_params_v2_dtype, child_graph_node_params_dtype, event_wait_node_params_dtype, event_record_node_params_dtype, ext_sem_signal_node_params_v2_dtype, ext_sem_wait_node_params_v2_dtype, mem_alloc_node_params_v2_dtype, mem_free_node_params_dtype, batch_mem_op_node_params_v2_dtype, conditional_node_params_dtype, memcpy_batch_node_params_v1_dtype, fabric_cpy_batch_node_params_v1_dtype, (_numpy.int8, 232), _numpy.int64],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved0)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved1)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.kernel)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memcpy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memset)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.host)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.graph)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.eventWait)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.eventRecord)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extSemSignal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extSemWait)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.alloc)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.free)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memOp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.conditional)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memcpyBatch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fabricCpyBatch)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.asBytes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved2)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUgraphNodeParams),
-    })
+    cdef CUgraphNodeParams *pod = <CUgraphNodeParams *>_cyb_calloc(1, sizeof(CUgraphNodeParams))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUgraphNodeParams")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'reserved0', 'reserved1', 'kernel', 'memcpy', 'memset', 'host', 'graph', 'event_wait', 'event_record', 'ext_sem_signal', 'ext_sem_wait', 'alloc', 'free', 'mem_op', 'conditional', 'memcpy_batch', 'fabric_cpy_batch', 'as_bytes', 'reserved2'],
+            'formats': [_numpy.int32, (_numpy.int32, 3), (_numpy.int64, 29), kernel_node_params_v3_dtype, mem_cpy_node_params_dtype, mem_set_node_params_v2_dtype, host_node_params_v2_dtype, child_graph_node_params_dtype, event_wait_node_params_dtype, event_record_node_params_dtype, ext_sem_signal_node_params_v2_dtype, ext_sem_wait_node_params_v2_dtype, mem_alloc_node_params_v2_dtype, mem_free_node_params_dtype, batch_mem_op_node_params_v2_dtype, conditional_node_params_dtype, memcpy_batch_node_params_v1_dtype, fabric_cpy_batch_node_params_v1_dtype, (_numpy.int8, 232), _numpy.int64],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved0)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved1)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.kernel)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memcpy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memset)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.host)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.graph)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.eventWait)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.eventRecord)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extSemSignal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extSemWait)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.alloc)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.free)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memOp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.conditional)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memcpyBatch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fabricCpyBatch)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.asBytes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved2)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUgraphNodeParams),
+        })
+    finally:
+        _cyb_free(pod)
 
 graph_node_params_dtype = _get_graph_node_params_dtype_offsets()
 
@@ -25887,19 +26553,24 @@ cdef class GraphNodeParams:
 
 
 cdef _get_mem_cpy3d_batch_op_v1_dtype_offsets():
-    cdef CUDA_MEMCPY3D_BATCH_OP_v1 pod
-    return _numpy.dtype({
-        'names': ['src', 'dst', 'extent', 'src_access_order', 'flags_'],
-        'formats': [mem_cpy3d_operand_v1_dtype, mem_cpy3d_operand_v1_dtype, extent3d_v1_dtype, _numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.src)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dst)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extent)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.srcAccessOrder)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CUDA_MEMCPY3D_BATCH_OP_v1),
-    })
+    cdef CUDA_MEMCPY3D_BATCH_OP_v1 *pod = <CUDA_MEMCPY3D_BATCH_OP_v1 *>_cyb_calloc(1, sizeof(CUDA_MEMCPY3D_BATCH_OP_v1))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUDA_MEMCPY3D_BATCH_OP_v1")
+    try:
+        return _numpy.dtype({
+            'names': ['src', 'dst', 'extent', 'src_access_order', 'flags_'],
+            'formats': [mem_cpy3d_operand_v1_dtype, mem_cpy3d_operand_v1_dtype, extent3d_v1_dtype, _numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.src)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dst)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extent)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.srcAccessOrder)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUDA_MEMCPY3D_BATCH_OP_v1),
+        })
+    finally:
+        _cyb_free(pod)
 
 mem_cpy3d_batch_op_v1_dtype = _get_mem_cpy3d_batch_op_v1_dtype_offsets()
 
@@ -27643,8 +28314,8 @@ cpdef flush_gpu_direct_rdma_writes(int target, int scope):
     https://docs.nvidia.com/cuda/gpudirect-rdma for more information), are visible
     to the specified scope.
     If the scope equals or lies within the scope indicated by
-    ``CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING``, the call will be a no-
-    op and can be safely omitted for performance. This can be determined by
+    ``CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WRITES_ORDERING``, the call will be a
+    no-op and can be safely omitted for performance. This can be determined by
     comparing the numerical values between the two enums, with smaller scopes
     having smaller values.
     On platforms that support GPUDirect RDMA writes via more than one path in
@@ -28750,8 +29421,8 @@ cpdef intptr_t module_load_data(image) except? 0:
 
     Takes a pointer ``image`` and loads the corresponding module ``module`` into
     the current context. The ``image`` may be a ``cubin`` or ``fatbin`` as output
-    by nvcc, or a NULL-terminated ``PTX``, either as output by nvcc or hand-
-    written, or ``Tile`` IR data.
+    by nvcc, or a NULL-terminated ``PTX``, either as output by nvcc or
+    hand-written, or ``Tile`` IR data.
 
     Args:
         image (bytes): Module data to load.
@@ -28774,8 +29445,8 @@ cpdef intptr_t module_load_data_ex(image, unsigned int num_options, intptr_t opt
 
     Takes a pointer ``image`` and loads the corresponding module ``module`` into
     the current context. The ``image`` may be a ``cubin`` or ``fatbin`` as output
-    by nvcc, or a NULL-terminated ``PTX``, either as output by nvcc or hand-
-    written, or ``Tile`` IR data.
+    by nvcc, or a NULL-terminated ``PTX``, either as output by nvcc or
+    hand-written, or ``Tile`` IR data.
 
     Args:
         image (bytes): Module data to load.
@@ -29177,9 +29848,9 @@ cpdef intptr_t library_load_data(code, intptr_t jit_options, intptr_t jit_option
 
     These environment variables are described in the CUDA programming guide under
     the "CUDA environment variables" section.
-    The ``code`` may be a ``cubin`` or ``fatbin`` as output by nvcc, or a NULL-
-    terminated ``PTX``, either as output by nvcc or hand-written, or ``Tile`` IR
-    data. A fatbin should also contain relocatable code when doing separate
+    The ``code`` may be a ``cubin`` or ``fatbin`` as output by nvcc, or a
+    NULL-terminated ``PTX``, either as output by nvcc or hand-written, or ``Tile``
+    IR data. A fatbin should also contain relocatable code when doing separate
     compilation.
     Options are passed as an array via ``jit_options`` and any corresponding
     parameters are passed in ``jit_optionsValues``. The number of total JIT options
@@ -29518,9 +30189,10 @@ cpdef int kernel_get_attribute(int attrib, intptr_t kernel, int dev) except? -1:
     - ``CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK``: The maximum number of threads
       per block, beyond which a launch of the kernel would fail. This number
       depends on both the kernel and the requested device.
-    - ``CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES``: The size in bytes of statically-
-      allocated shared memory per block required by this kernel. This does not
-      include dynamically-allocated shared memory requested by the user at runtime.
+    - ``CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES``: The size in bytes of
+      statically-allocated shared memory per block required by this kernel. This
+      does not include dynamically-allocated shared memory requested by the user at
+      runtime.
     - ``CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES``: The size in bytes of user-allocated
       constant memory required by this kernel.
     - ``CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES``: The size in bytes of local memory
@@ -29598,8 +30270,8 @@ cpdef kernel_set_attribute(int attrib, int val, intptr_t kernel, int dev):
     ``kernel`` for the requested device ``dev`` to an integer value specified by
     ``val``. This function returns CUDA_SUCCESS if the new value of the attribute
     could be successfully set. If the set fails, this call will return an error.
-    Not all attributes can have values set. Attempting to set a value on a read-
-    only attribute will result in an error (CUDA_ERROR_INVALID_VALUE).
+    Not all attributes can have values set. Attempting to set a value on a
+    read-only attribute will result in an error (CUDA_ERROR_INVALID_VALUE).
     Note that attributes set using :func:`func_set_attribute` will override the
     attribute set by this API irrespective of whether the call to
     :func:`func_set_attribute` is made before or after this API call. However,
@@ -30554,8 +31226,8 @@ cpdef mem_host_register_v2(p, size_t bytesize, unsigned int flags):
 
     Args:
         p (bytes): Host pointer to memory to page-lock.
-        bytesize (size_t): Size in bytes of the address range to page-
-            lock.
+        bytesize (size_t): Size in bytes of the address range to
+            page-lock.
         flags (unsigned int): flags for allocation request.
 
     .. seealso:: `cuMemHostRegister_v2`
@@ -31954,10 +32626,10 @@ cpdef intptr_t array_3d_create_v2(p_allocate_array) except? 0:
       layered CUDA array, where the six layers represent the six faces of a cube.
       The order of the six layers in memory is the same as that listed in
       ``CUarray_cubemap_face``.
-    - A cubemap layered CUDA array is allocated if all three extents are non-
-      zero, and both, ``CUDA_ARRAY3D_CUBEMAP`` and ``CUDA_ARRAY3D_LAYERED`` flags
-      are set. ``Width`` must be equal to ``Height``, and ``Depth`` must be a
-      multiple of six. A cubemap layered CUDA array is a special type of 2D
+    - A cubemap layered CUDA array is allocated if all three extents are
+      non-zero, and both, ``CUDA_ARRAY3D_CUBEMAP`` and ``CUDA_ARRAY3D_LAYERED``
+      flags are set. ``Width`` must be equal to ``Height``, and ``Depth`` must be
+      a multiple of six. A cubemap layered CUDA array is a special type of 2D
       layered CUDA array that consists of a collection of cubemaps. The first six
       layers represent the first cubemap, the next six layers form the second
       cubemap, and so on.
@@ -32068,11 +32740,11 @@ cpdef intptr_t mipmapped_array_create(p_mipmapped_array_desc, unsigned int num_m
     - A 2D layered CUDA mipmapped array is allocated if all three extents are
       non-zero and the ``CUDA_ARRAY3D_LAYERED`` flag is set. Each layer is a 2D
       array. The number of layers is determined by the depth extent.
-    - A cubemap CUDA mipmapped array is allocated if all three extents are non-
-      zero and the ``CUDA_ARRAY3D_CUBEMAP`` flag is set. ``Width`` must be equal
-      to ``Height``, and ``Depth`` must be six. A cubemap is a special type of 2D
-      layered CUDA array, where the six layers represent the six faces of a cube.
-      The order of the six layers in memory is the same as that listed in
+    - A cubemap CUDA mipmapped array is allocated if all three extents are
+      non-zero and the ``CUDA_ARRAY3D_CUBEMAP`` flag is set. ``Width`` must be
+      equal to ``Height``, and ``Depth`` must be six. A cubemap is a special type
+      of 2D layered CUDA array, where the six layers represent the six faces of a
+      cube. The order of the six layers in memory is the same as that listed in
       ``CUarray_cubemap_face``.
     - A cubemap layered CUDA mipmapped array is allocated if all three extents
       are non-zero, and both, ``CUDA_ARRAY3D_CUBEMAP`` and
@@ -32825,8 +33497,8 @@ cpdef mem_pool_set_attribute(intptr_t pool, int attr, intptr_t value):
       ``cuMemFreeAsync`` (default enabled).
     - ``CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH``: (value type = ``cuuint64_t``) Reset
       the high watermark that tracks the amount of backing memory that was
-      allocated for the memory pool. It is illegal to set this attribute to a non-
-      zero value.
+      allocated for the memory pool. It is illegal to set this attribute to a
+      non-zero value.
     - ``CU_MEMPOOL_ATTR_USED_MEM_HIGH``: (value type = ``cuuint64_t``) Reset the
       high watermark that tracks the amount of used memory that was allocated for
       the memory pool.
@@ -32940,8 +33612,8 @@ cpdef intptr_t mem_pool_create(pool_props) except? 0:
     CU_MEM_LOCATION_TYPE_NONE to indicate no preferred location.
     ``CUmemPoolProps.maxSize`` must be set to zero for managed memory pools.
     ``CUmemPoolProps.usage`` should be zero as decompress for managed memory is not
-    supported. For managed memory pools, all devices on the system must have non-
-    zero ``concurrentManagedAccess``. If not, this call returns
+    supported. For managed memory pools, all devices on the system must have
+    non-zero ``concurrentManagedAccess``. If not, this call returns
     CUDA_ERROR_NOT_SUPPORTED.
 
     Args:
@@ -33450,11 +34122,11 @@ cpdef mem_advise_v2(uint64_t dev_ptr, size_t count, int advice, location):
     and end address of the memory range will be rounded down and rounded up
     respectively to be aligned to CPU page size before the advice is applied. The
     memory range must refer to managed memory allocated via ``cuMemAllocManaged``
-    or declared via managed variables. The memory range could also refer to system-
-    allocated pageable memory provided it represents a valid, host-accessible
-    region of memory and all additional constraints imposed by ``advice`` as
-    outlined below are also satisfied. Specifying an invalid system-allocated
-    pageable memory range results in an error being returned.
+    or declared via managed variables. The memory range could also refer to
+    system-allocated pageable memory provided it represents a valid,
+    host-accessible region of memory and all additional constraints imposed by
+    ``advice`` as outlined below are also satisfied. Specifying an invalid
+    system-allocated pageable memory range results in an error being returned.
     The ``advice`` parameter can take the following values:.
 
     - ``CU_MEM_ADVISE_SET_READ_MOSTLY``: This implies that the data is mostly going
@@ -33486,8 +34158,8 @@ cpdef mem_advise_v2(uint64_t dev_ptr, size_t count, int advice, location):
       accesses this memory region.
     - ``CU_MEM_ADVISE_UNSET_READ_MOSTLY``: Undoes the effect of
       ``CU_MEM_ADVISE_SET_READ_MOSTLY`` and also prevents the Unified Memory driver
-      from attempting heuristic read-duplication on the memory range. Any read-
-      duplicated copies of the data will be collapsed into a single copy. The
+      from attempting heuristic read-duplication on the memory range. Any
+      read-duplicated copies of the data will be collapsed into a single copy. The
       location for the collapsed copy will be the preferred location if the page
       has a preferred location and one of the read-duplicated copies was resident
       at that location. Otherwise, the location chosen is arbitrary. Note: The
@@ -33561,8 +34233,8 @@ cpdef mem_advise_v2(uint64_t dev_ptr, size_t count, int advice, location):
       policies of this advice. Additionally, if the preferred location of this
       memory region or any subset of it is also ``location``, then the policies
       associated with ``CU_MEM_ADVISE_SET_PREFERRED_LOCATION`` will override the
-      policies of this advice. If the memory region refers to valid system-
-      allocated pageable memory, and ``CUmemLocation.type`` is
+      policies of this advice. If the memory region refers to valid
+      system-allocated pageable memory, and ``CUmemLocation.type`` is
       ``CU_MEM_LOCATION_TYPE_DEVICE`` then device in ``CUmemLocation.id`` must have
       a non-zero value for the device attribute
       ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS``. Additionally, if
@@ -34143,9 +34815,9 @@ cpdef tuple stream_get_capture_info_v2(intptr_t h_stream):
                 which modify this set. The array pointer is valid until the
                 next API call which operates on the stream or until the
                 capture is terminated. The node handles may be copied out and
-                are valid until they or the graph is destroyed. The driver-
-                owned array may also be passed directly to APIs that operate
-                on the graph (not the stream) without copying.
+                are valid until they or the graph is destroyed. The
+                driver-owned array may also be passed directly to APIs that
+                operate on the graph (not the stream) without copying.
 
     .. seealso:: `cuStreamGetCaptureInfo_v2`
     """
@@ -34203,9 +34875,9 @@ cpdef tuple stream_get_capture_info_v3(intptr_t h_stream):
                 which modify this set. The array pointer is valid until the
                 next API call which operates on the stream or until the
                 capture is terminated. The node handles may be copied out and
-                are valid until they or the graph is destroyed. The driver-
-                owned array may also be passed directly to APIs that operate
-                on the graph (not the stream) without copying.
+                are valid until they or the graph is destroyed. The
+                driver-owned array may also be passed directly to APIs that
+                operate on the graph (not the stream) without copying.
         - CUgraphEdgeData: Optional location to store a pointer to an array
                 of graph edge data. This array parallels ``dependencies_out``;
                 the next node to be added has an edge to
@@ -34268,9 +34940,9 @@ cpdef stream_attach_mem_async(intptr_t h_stream, uint64_t dptr, size_t length, u
     """Attach memory to a stream asynchronously.
 
     Enqueues an operation in ``h_stream`` to specify stream association of
-    ``length`` bytes of memory starting from ``dptr``. This function is a stream-
-    ordered operation, meaning that it is dependent on, and will only take effect
-    when, previous work in stream has completed. Any previous association is
+    ``length`` bytes of memory starting from ``dptr``. This function is a
+    stream-ordered operation, meaning that it is dependent on, and will only take
+    effect when, previous work in stream has completed. Any previous association is
     automatically replaced.
     ``dptr`` must point to one of the following types of memories:.
 
@@ -34324,8 +34996,8 @@ cpdef stream_attach_mem_async(intptr_t h_stream, uint64_t dptr, size_t length, u
         h_stream (intptr_t): Stream in which to enqueue the attach
             operation.
         dptr (uint64_t): Pointer to memory (must be a pointer to managed
-            memory or to a valid host-accessible region of system-
-            allocated pageable memory).
+            memory or to a valid host-accessible region of
+            system-allocated pageable memory).
         length (size_t): Length of memory.
         flags (unsigned int): Must be one of ``CUmemAttach_flags``.
 
@@ -35317,9 +35989,10 @@ cpdef int func_get_attribute(int attrib, intptr_t hfunc) except? -1:
       per block, beyond which a launch of the function would fail. This number
       depends on both the function and the device on which the function is
       currently loaded.
-    - ``CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES``: The size in bytes of statically-
-      allocated shared memory per block required by this function. This does not
-      include dynamically-allocated shared memory requested by the user at runtime.
+    - ``CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES``: The size in bytes of
+      statically-allocated shared memory per block required by this function. This
+      does not include dynamically-allocated shared memory requested by the user at
+      runtime.
     - ``CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES``: The size in bytes of user-allocated
       constant memory required by this function.
     - ``CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES``: The size in bytes of local memory
@@ -37726,8 +38399,8 @@ cpdef tuple graph_node_get_dependencies_v2(intptr_t h_node):
     the remaining entries in ``dependencies`` will be set to NULL, and the number
     of nodes actually obtained will be returned in ``num_dependencies``.
     Note that if an edge has non-zero (non-default) edge data and ``edge_data`` is
-    NULL, this API will return ``CUDA_ERROR_LOSSY_QUERY``. If ``edge_data`` is non-
-    NULL, then ``dependencies`` must be as well.
+    NULL, this API will return ``CUDA_ERROR_LOSSY_QUERY``. If ``edge_data`` is
+    non-NULL, then ``dependencies`` must be as well.
 
     Args:
         h_node (intptr_t): Node to query.
@@ -37767,8 +38440,8 @@ cpdef tuple graph_node_get_dependent_nodes_v2(intptr_t h_node):
     NULL, and the number of nodes actually obtained will be returned in
     ``num_dependent_nodes``.
     Note that if an edge has non-zero (non-default) edge data and ``edge_data`` is
-    NULL, this API will return ``CUDA_ERROR_LOSSY_QUERY``. If ``edge_data`` is non-
-    NULL, then ``dependent_nodes`` must be as well.
+    NULL, this API will return ``CUDA_ERROR_LOSSY_QUERY``. If ``edge_data`` is
+    non-NULL, then ``dependent_nodes`` must be as well.
 
     Args:
         h_node (intptr_t): Node to query.
@@ -38079,8 +38752,8 @@ cpdef graph_exec_kernel_node_set_params_v2(intptr_t h_graph_exec, intptr_t h_nod
     """Sets the parameters for a kernel node in the given graphExec.
 
     Sets the parameters of a kernel node in an executable graph ``h_graph_exec``.
-    The node is identified by the corresponding node ``h_node`` in the non-
-    executable graph, from which the executable graph was instantiated.
+    The node is identified by the corresponding node ``h_node`` in the
+    non-executable graph, from which the executable graph was instantiated.
     ``h_node`` must not have been removed from the original graph. All
     ``node_params`` fields may change, but the following restrictions apply to
     ``func`` updates:.
@@ -38267,8 +38940,8 @@ cpdef graph_exec_event_record_node_set_event(intptr_t h_graph_exec, intptr_t h_n
     """Sets the event for an event record node in the given graphExec.
 
     Sets the event of an event record node in an executable graph ``h_graph_exec``.
-    The node is identified by the corresponding node ``h_node`` in the non-
-    executable graph, from which the executable graph was instantiated.
+    The node is identified by the corresponding node ``h_node`` in the
+    non-executable graph, from which the executable graph was instantiated.
     The modifications only affect future launches of ``h_graph_exec``. Already
     enqueued or running launches of ``h_graph_exec`` are not affected by this call.
     ``h_node`` is also not modified by this call.
@@ -38294,8 +38967,8 @@ cpdef graph_exec_event_wait_node_set_event(intptr_t h_graph_exec, intptr_t h_nod
     """Sets the event for an event wait node in the given graphExec.
 
     Sets the event of an event wait node in an executable graph ``h_graph_exec``.
-    The node is identified by the corresponding node ``h_node`` in the non-
-    executable graph, from which the executable graph was instantiated.
+    The node is identified by the corresponding node ``h_node`` in the
+    non-executable graph, from which the executable graph was instantiated.
     The modifications only affect future launches of ``h_graph_exec``. Already
     enqueued or running launches of ``h_graph_exec`` are not affected by this call.
     ``h_node`` is also not modified by this call.
@@ -38383,8 +39056,8 @@ cpdef graph_node_set_enabled(intptr_t h_graph_exec, intptr_t h_node, unsigned in
     Sets ``h_node`` to be either enabled or disabled. Disabled nodes are
     functionally equivalent to empty nodes until they are reenabled. Existing node
     parameters are not affected by disabling/enabling the node.
-    The node is identified by the corresponding node ``h_node`` in the non-
-    executable graph, from which the executable graph was instantiated.
+    The node is identified by the corresponding node ``h_node`` in the
+    non-executable graph, from which the executable graph was instantiated.
     ``h_node`` must not have been removed from the original graph.
     The modifications only affect future launches of ``h_graph_exec``. Already
     enqueued or running launches of ``h_graph_exec`` are not affected by this call.
@@ -38413,8 +39086,8 @@ cpdef unsigned int graph_node_get_enabled(intptr_t h_graph_exec, intptr_t h_node
     """Query whether a node in the given graphExec is enabled.
 
     Sets is_enabled to 1 if ``h_node`` is enabled, or 0 if ``h_node`` is disabled.
-    The node is identified by the corresponding node ``h_node`` in the non-
-    executable graph, from which the executable graph was instantiated.
+    The node is identified by the corresponding node ``h_node`` in the
+    non-executable graph, from which the executable graph was instantiated.
     ``h_node`` must not have been removed from the original graph.
 
     Args:
@@ -38528,8 +39201,8 @@ cpdef object graph_exec_update_v2(intptr_t h_graph_exec, intptr_t h_graph):
       cannot be updated to a function which uses CDP.
     - A node whose function originally did not make device-side update calls
       cannot be updated to a function which makes device-side update calls.
-    - A cooperative node cannot be updated to a non-cooperative node, and vice-
-      versa.
+    - A cooperative node cannot be updated to a non-cooperative node, and
+      vice-versa.
     - If the graph was instantiated with
       CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY, the priority attribute
       cannot change. Equality is checked on the originally requested priority
@@ -39180,8 +39853,8 @@ cpdef int occupancy_max_potential_cluster_size(intptr_t func, config) except? -1
     ``cuFuncGetAttribute``),``*cluster_size`` will reflect the required cluster
     size.
     By default this function will always return a value that's portable on future
-    hardware. A higher value may be returned if the kernel function allows non-
-    portable cluster sizes.
+    hardware. A higher value may be returned if the kernel function allows
+    non-portable cluster sizes.
     This function will respect the compile time launch bounds.
     Note that the API can also be used with context-less kernel ``CUkernel`` by
     querying the handle using :func:`library_get_kernel` and then passing it to the
@@ -40828,8 +41501,8 @@ cpdef ctx_enable_peer_access(intptr_t peer_context, unsigned int flags):
     access memory from the current context in ``peer_context``, a separate
     symmetric call to :func:`ctx_enable_peer_access` is required.
     Note that there are both device-wide and system-wide limitations per system
-    configuration, as noted in the CUDA Programming Guide under the section "Peer-
-    to-Peer Memory Access".
+    configuration, as noted in the CUDA Programming Guide under the section
+    "Peer-to-Peer Memory Access".
     Returns ``CUDA_ERROR_PEER_ACCESS_UNSUPPORTED`` if
     :func:`device_can_access_peer` indicates that the ``CUdevice`` of the current
     context cannot directly access memory from the ``CUdevice`` of
@@ -41815,10 +42488,10 @@ cpdef checkpoint_process_checkpoint(int pid, args):
     """Checkpoint a CUDA process's GPU memory contents.
 
     Checkpoints a CUDA process specified by ``pid``. The GPU memory contents will
-    be brought into host memory or mapped onto the calling process's GPUs for user-
-    defined behavior. Underlying GPU references are released when checkpointing
-    completes. The process must be in the ``CU_PROCESS_STATE_LOCKED`` state to
-    checkpoint.
+    be brought into host memory or mapped onto the calling process's GPUs for
+    user-defined behavior. Underlying GPU references are released when
+    checkpointing completes. The process must be in the ``CU_PROCESS_STATE_LOCKED``
+    state to checkpoint.
     When ``CUcheckpointCheckpointArgs.customStorageInfo_out`` is not NULL, all the
     GPU memory allocated by the process with ``pid`` will be mapped onto the
     calling process's GPUs so the application can copy the memory to custom
@@ -42608,8 +43281,8 @@ cpdef memcpy_3d_batch_async_v2(size_t num_ops, op_list, unsigned long long flags
     copy specified in ``CUDA_MEMCPY3D_BATCH_OP``::extent::height. When either of
     these values is zero, that aspect of the operand is considered to be tightly
     packed according to the copy extent. For managed memory pointers on devices
-    where ``CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`` is true or system-
-    allocated pageable memory on devices where
+    where ``CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`` is true or
+    system-allocated pageable memory on devices where
     ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS`` is true, the
     ``CUmemcpy3DOperand.op.ptr.locHint`` field can be used to hint the location of
     the operand.
@@ -42878,8 +43551,8 @@ cpdef mem_discard_and_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_
 
     Performs a batch of memory discards followed by prefetches. The batch as a
     whole executes in stream order but operations within a batch are not guaranteed
-    to execute in any specific order. All devices in the system must have a non-
-    zero value for the device attribute
+    to execute in any specific order. All devices in the system must have a
+    non-zero value for the device attribute
     ``CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`` otherwise the API will return
     an error.
     Calling ``cuMemDiscardAndPrefetchBatchAsync`` is semantically equivalent to
@@ -43515,8 +44188,8 @@ cpdef stream_begin_capture_to_cig(intptr_t h_stream, stream_cig_capture_params):
     accesses them on the stream.
     Resubmission of the same recorded command list/buffer is not allowed. Further
     more, care must be taken for the order of execution of the recorded CUDA work
-    with regards to other CUDA work submitted under the same CIG context. Out-of-
-    order execution can lead to device hangs or exceptions.
+    with regards to other CUDA work submitted under the same CIG context.
+    Out-of-order execution can lead to device hangs or exceptions.
     CIG capture mode operates similarly to ``cuStreamBeginCapture`` with the
     ``CU_STREAM_CAPTURE_MODE_RELAXED`` option. There are additional limitations to
     streams in CIG capture mode. The following functions are not allowed for CIG
@@ -44119,8 +44792,8 @@ cpdef int logical_endpoint_query(uint32_t le_id, uint32_t count) except? -1:
 
     Returns:
         int: Status of the logical endpoints. Returns 0 if any logical
-            endpoint in the given range is not fully constructed, and non-
-            zero if all logical endpoints in the given range are fully
+            endpoint in the given range is not fully constructed, and
+            non-zero if all logical endpoints in the given range are fully
             constructed.
 
     .. seealso:: `cuLogicalEndpointQuery`
@@ -44314,9 +44987,9 @@ cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data
     initialization or memset to ensure all bytes are initialized.
     Note that for some node types, ``node_params`` may contain "out parameters"
     which are modified during the call, such as ``node_params->alloc.dptr``.
-    For kernel nodes, if both the kernel node's ``CUfunction`` and ctx are non-
-    NULL, the underlying device context of ctx must match the device context that
-    the ``CUfunction`` was loaded into; otherwise the call returns
+    For kernel nodes, if both the kernel node's ``CUfunction`` and ctx are
+    non-NULL, the underlying device context of ctx must match the device context
+    that the ``CUfunction`` was loaded into; otherwise the call returns
     ``CUDA_ERROR_INVALID_CONTEXT``.
     A handle to the new node will be returned in ``ph_graph_node``.
 
@@ -44357,9 +45030,9 @@ cpdef graph_node_set_params_v2(intptr_t h_node, node_params):
     padding) zeroed.
     Modifying parameters is not supported for node types
     CU_GRAPH_NODE_TYPE_MEM_ALLOC and CU_GRAPH_NODE_TYPE_MEM_FREE.
-    For kernel nodes, if both the kernel node's ``CUfunction`` and ctx are non-
-    NULL, the underlying device context of ctx must match the device context that
-    the ``CUfunction`` was loaded into; otherwise the call returns
+    For kernel nodes, if both the kernel node's ``CUfunction`` and ctx are
+    non-NULL, the underlying device context of ctx must match the device context
+    that the ``CUfunction`` was loaded into; otherwise the call returns
     ``CUDA_ERROR_INVALID_CONTEXT``.
 
     Args:
@@ -44421,8 +45094,8 @@ cpdef fabric_cpy_batch_async(size_t num_ops, intptr_t op_list, unsigned long lon
     is specified in ``num_ops``. Each entry describes a copy operation including
     source and destination operands (``CUDA_FABRIC_COPY_BATCH_OP.src`` and
     ``CUDA_FABRIC_COPY_BATCH_OP.dst``) and the size in bytes
-    (``CUDA_FABRIC_COPY_BATCH_OP.size``). A size of zero makes that operation a no-
-    op while preserving its position in the batch. Its operands are still
+    (``CUDA_FABRIC_COPY_BATCH_OP.size``). A size of zero makes that operation a
+    no-op while preserving its position in the batch. Its operands are still
     validated.
     The following operand type combinations are supported:.
 
