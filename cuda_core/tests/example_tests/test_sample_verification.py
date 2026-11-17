@@ -199,8 +199,10 @@ def test_green_context_auto_split_without_equal_two_way_split() -> None:
 
 
 @pytest.mark.agent_authored(model="deepseek/deepseek-v4.1-flash-1017")
-def test_green_context_device_without_usable_split_waives() -> None:
+def test_green_context_device_without_usable_split_waives(monkeypatch) -> None:
     """A device without a usable two-partition split is a waiver, not a failure."""
+    # Non-default code, so a hard-coded exit value cannot pass this test.
+    monkeypatch.setenv("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "77")
     sample = _load_green_context_sample()
     sm = _CountApiSM(sm_count=2, min_partition_size=2)
     device = types.SimpleNamespace(resources=types.SimpleNamespace(sm=sm))
@@ -210,7 +212,22 @@ def test_green_context_device_without_usable_split_waives() -> None:
 
     with pytest.raises(SystemExit) as exc_info:
         sample.parse_split(None, device)
-    assert exc_info.value.code == sample.EXIT_WAIVED
+    assert sample.EXIT_WAIVED == 77
+    assert exc_info.value.code == 77
+
+
+@pytest.mark.agent_authored(model="deepseek/deepseek-v4.1-flash-1017")
+def test_green_context_probe_propagates_allocation_failure() -> None:
+    """A failed allocation is a broken environment, not a refused partition."""
+
+    class _OutOfMemorySM(_CountApiSM):
+        def split(self, options, *, dry_run: bool = False):
+            raise MemoryError
+
+    sample = _load_green_context_sample()
+
+    with pytest.raises(MemoryError):
+        sample._find_working_split(_OutOfMemorySM(14, 2))
 
 
 @pytest.mark.agent_authored(model="deepseek/deepseek-v4.1-flash-1017")

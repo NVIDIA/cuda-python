@@ -144,6 +144,10 @@ def _probe_split(sm, critical_count: int) -> tuple[int | None, str | None]:
     """
     try:
         groups, remainder = sm.split(SMResourceOptions(count=critical_count), dry_run=True)
+    except MemoryError:
+        # An allocation failure means the process is in trouble, not that the
+        # driver refused this partition.
+        raise
     except Exception as e:
         # Any rejection removes this candidate only; the catch is broad because
         # cuda.core >= 1.0 does not export the rejection type.
