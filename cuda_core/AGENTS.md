@@ -74,8 +74,10 @@ Nothing else moves a floor. A new `cuda-bindings` release does not, and a
 `cuda.core` release does not. Do not raise a floor to the newest release. To
 bump:
 
-1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
-   `pyproject.toml`. That is the only version to type.
+1. Edit the `cuda-bindings` pin in the `minimal-sysctk12` or
+   `minimal-sysctk13` extra in `pyproject.toml`. That is the only version to
+   type. The `cu12` and `cu13` extras include these extras and carry no
+   version of their own.
 2. Check each `cuda.bindings.package_roots.<root>.toolkit_version` in
    `ci/versions.yml`. Neither toolkit pin may sit below the corresponding
    floor's major.minor, or CI builds a configuration that the build rejects.
@@ -120,8 +122,9 @@ the literal floor, until the floor is bumped. The order is:
    is normally its first release.
 
 A `cuda.core` release must not ship while the window is open. In the window,
-the `cu<major>` extra can resolve to a `cuda-bindings` that fails the header
-check at import, and CI does not test the literal floor.
+the `minimal-sysctk<major>` and `cu<major>` extras can resolve to a
+`cuda-bindings` that fails the header check at import, and CI does not test
+the literal floor.
 
 ## Testing expectations
 
