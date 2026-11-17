@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2314,8 +2314,8 @@
 <code class="docutils literal notranslate"><span class="pre">kernel</span></code> for the requested device <code class="docutils literal notranslate"><span class="pre">dev</span></code> to an integer value specified by
 <code class="docutils literal notranslate"><span class="pre">val</span></code>. This function returns CUDA_SUCCESS if the new value of the attribute
 could be successfully set. If the set fails, this call will return an error.
-Not all attributes can have values set. Attempting to set a value on a read-
-only attribute will result in an error (CUDA_ERROR_INVALID_VALUE).
+Not all attributes can have values set. Attempting to set a value on a
+read-only attribute will result in an error (CUDA_ERROR_INVALID_VALUE).
 Note that attributes set using <a class="reference internal" href="cuda.bindings._v2.driver.func_set_attribute.html#cuda.bindings._v2.driver.func_set_attribute" title="cuda.bindings._v2.driver.func_set_attribute"><code class="xref py py-func docutils literal notranslate"><span class="pre">func_set_attribute()</span></code></a> will override the
 attribute set by this API irrespective of whether the call to
 <a class="reference internal" href="cuda.bindings._v2.driver.func_set_attribute.html#cuda.bindings._v2.driver.func_set_attribute" title="cuda.bindings._v2.driver.func_set_attribute"><code class="xref py py-func docutils literal notranslate"><span class="pre">func_set_attribute()</span></code></a> is made before or after this API call. However,

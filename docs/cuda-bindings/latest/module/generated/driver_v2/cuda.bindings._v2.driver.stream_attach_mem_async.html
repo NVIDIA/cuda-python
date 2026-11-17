@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2320,9 +2320,9 @@
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings._v2.driver.stream_attach_mem_async" title="Link to this definition">#</a></dt>
 <dd><p>Attach memory to a stream asynchronously.</p>
 <p>Enqueues an operation in <code class="docutils literal notranslate"><span class="pre">h_stream</span></code> to specify stream association of
-<code class="docutils literal notranslate"><span class="pre">length</span></code> bytes of memory starting from <code class="docutils literal notranslate"><span class="pre">dptr</span></code>. This function is a stream-
-ordered operation, meaning that it is dependent on, and will only take effect
-when, previous work in stream has completed. Any previous association is
+<code class="docutils literal notranslate"><span class="pre">length</span></code> bytes of memory starting from <code class="docutils literal notranslate"><span class="pre">dptr</span></code>. This function is a
+stream-ordered operation, meaning that it is dependent on, and will only take
+effect when, previous work in stream has completed. Any previous association is
 automatically replaced.
 <code class="docutils literal notranslate"><span class="pre">dptr</span></code> must point to one of the following types of memories:.</p>
 <ul class="simple">
@@ -2377,8 +2377,8 @@ association won’t happen until all work in the stream has completed.</p>
 <li><p><strong>h_stream</strong> (<em>intptr_t</em>) – Stream in which to enqueue the attach
 operation.</p></li>
 <li><p><strong>dptr</strong> (<em>uint64_t</em>) – Pointer to memory (must be a pointer to managed
-memory or to a valid host-accessible region of system-
-allocated pageable memory).</p></li>
+memory or to a valid host-accessible region of
+system-allocated pageable memory).</p></li>
 <li><p><strong>length</strong> (<em>size_t</em>) – Length of memory.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Must be one of <code class="docutils literal notranslate"><span class="pre">CUmemAttach_flags</span></code>.</p></li>
 </ul>

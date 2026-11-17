@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2334,10 +2334,10 @@ number of layers is determined by the depth extent.</p></li>
 layered CUDA array, where the six layers represent the six faces of a cube.
 The order of the six layers in memory is the same as that listed in
 <code class="docutils literal notranslate"><span class="pre">CUarray_cubemap_face</span></code>.</p></li>
-<li><p>A cubemap layered CUDA array is allocated if all three extents are non-
-zero, and both, <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY3D_CUBEMAP</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY3D_LAYERED</span></code> flags
-are set. <code class="docutils literal notranslate"><span class="pre">Width</span></code> must be equal to <code class="docutils literal notranslate"><span class="pre">Height</span></code>, and <code class="docutils literal notranslate"><span class="pre">Depth</span></code> must be a
-multiple of six. A cubemap layered CUDA array is a special type of 2D
+<li><p>A cubemap layered CUDA array is allocated if all three extents are
+non-zero, and both, <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY3D_CUBEMAP</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY3D_LAYERED</span></code>
+flags are set. <code class="docutils literal notranslate"><span class="pre">Width</span></code> must be equal to <code class="docutils literal notranslate"><span class="pre">Height</span></code>, and <code class="docutils literal notranslate"><span class="pre">Depth</span></code> must be
+a multiple of six. A cubemap layered CUDA array is a special type of 2D
 layered CUDA array that consists of a collection of cubemaps. The first six
 layers represent the first cubemap, the next six layers form the second
 cubemap, and so on.</p></li>

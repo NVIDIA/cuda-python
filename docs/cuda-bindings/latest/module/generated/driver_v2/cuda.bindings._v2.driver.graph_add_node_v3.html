@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2331,9 +2331,9 @@ utilized union member - must be set to zero. It is recommended to use brace
 initialization or memset to ensure all bytes are initialized.
 Note that for some node types, <code class="docutils literal notranslate"><span class="pre">node_params</span></code> may contain “out parameters”
 which are modified during the call, such as <code class="docutils literal notranslate"><span class="pre">node_params-&gt;alloc.dptr</span></code>.
-For kernel nodes, if both the kernel node’s <code class="docutils literal notranslate"><span class="pre">CUfunction</span></code> and ctx are non-
-NULL, the underlying device context of ctx must match the device context that
-the <code class="docutils literal notranslate"><span class="pre">CUfunction</span></code> was loaded into; otherwise the call returns
+For kernel nodes, if both the kernel node’s <code class="docutils literal notranslate"><span class="pre">CUfunction</span></code> and ctx are
+non-NULL, the underlying device context of ctx must match the device context
+that the <code class="docutils literal notranslate"><span class="pre">CUfunction</span></code> was loaded into; otherwise the call returns
 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_CONTEXT</span></code>.
 A handle to the new node will be returned in <code class="docutils literal notranslate"><span class="pre">ph_graph_node</span></code>.</p>
 <dl class="field-list simple">

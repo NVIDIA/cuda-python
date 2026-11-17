@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2311,10 +2311,10 @@
 <span class="sig-prename descclassname"><span class="pre">cuda.bindings._v2.driver.</span></span><span class="sig-name descname"><span class="pre">checkpoint_process_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">pid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings._v2.driver.checkpoint_process_checkpoint" title="Link to this definition">#</a></dt>
 <dd><p>Checkpoint a CUDA process’s GPU memory contents.</p>
 <p>Checkpoints a CUDA process specified by <code class="docutils literal notranslate"><span class="pre">pid</span></code>. The GPU memory contents will
-be brought into host memory or mapped onto the calling process’s GPUs for user-
-defined behavior. Underlying GPU references are released when checkpointing
-completes. The process must be in the <code class="docutils literal notranslate"><span class="pre">CU_PROCESS_STATE_LOCKED</span></code> state to
-checkpoint.
+be brought into host memory or mapped onto the calling process’s GPUs for
+user-defined behavior. Underlying GPU references are released when
+checkpointing completes. The process must be in the <code class="docutils literal notranslate"><span class="pre">CU_PROCESS_STATE_LOCKED</span></code>
+state to checkpoint.
 When <code class="docutils literal notranslate"><span class="pre">CUcheckpointCheckpointArgs.customStorageInfo_out</span></code> is not NULL, all the
 GPU memory allocated by the process with <code class="docutils literal notranslate"><span class="pre">pid</span></code> will be mapped onto the
 calling process’s GPUs so the application can copy the memory to custom

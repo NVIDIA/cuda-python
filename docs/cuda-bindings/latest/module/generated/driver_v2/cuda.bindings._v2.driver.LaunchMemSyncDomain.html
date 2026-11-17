@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2320,10 +2320,11 @@ User may also alter the domain ID with <cite>CUlaunchMemSyncDomainMap</cite> for
 specific stream / graph node / kernel launch. See
 <cite>CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN</cite>, <cite>cuStreamSetAttribute</cite>,
 <cite>cuLaunchKernelEx</cite>, <cite>cuGraphKernelNodeSetAttribute</cite>.  Memory operations
-done in kernels launched in different domains are considered system-
-scope distanced. In other words, a GPU scoped memory synchronization is
-not sufficient for memory order to be observed by kernels in another
-memory synchronization domain even if they are on the same GPU.</p>
+done in kernels launched in different domains are considered
+system-scope distanced. In other words, a GPU scoped memory
+synchronization is not sufficient for memory order to be observed by
+kernels in another memory synchronization domain even if they are on
+the same GPU.</p>
 <p>See <cite>CUlaunchMemSyncDomain</cite>.</p>
 <dl class="simple">
 <dt><strong>DEFAULT</strong>: 0</dt><dd><p>Launch kernels in the default domain</p>

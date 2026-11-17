@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2335,9 +2335,9 @@ needed for that context, such as a kernel launch.</p></li>
 </ul>
 <p>These environment variables are described in the CUDA programming guide under
 the “CUDA environment variables” section.
-The <code class="docutils literal notranslate"><span class="pre">code</span></code> may be a <code class="docutils literal notranslate"><span class="pre">cubin</span></code> or <code class="docutils literal notranslate"><span class="pre">fatbin</span></code> as output by nvcc, or a NULL-
-terminated <code class="docutils literal notranslate"><span class="pre">PTX</span></code>, either as output by nvcc or hand-written, or <code class="docutils literal notranslate"><span class="pre">Tile</span></code> IR
-data. A fatbin should also contain relocatable code when doing separate
+The <code class="docutils literal notranslate"><span class="pre">code</span></code> may be a <code class="docutils literal notranslate"><span class="pre">cubin</span></code> or <code class="docutils literal notranslate"><span class="pre">fatbin</span></code> as output by nvcc, or a
+NULL-terminated <code class="docutils literal notranslate"><span class="pre">PTX</span></code>, either as output by nvcc or hand-written, or <code class="docutils literal notranslate"><span class="pre">Tile</span></code>
+IR data. A fatbin should also contain relocatable code when doing separate
 compilation.
 Options are passed as an array via <code class="docutils literal notranslate"><span class="pre">jit_options</span></code> and any corresponding
 parameters are passed in <code class="docutils literal notranslate"><span class="pre">jit_optionsValues</span></code>. The number of total JIT options

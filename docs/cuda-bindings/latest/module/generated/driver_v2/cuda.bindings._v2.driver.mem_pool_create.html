@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2364,8 +2364,8 @@ all allocations created from the pool. An application can also set
 CU_MEM_LOCATION_TYPE_NONE to indicate no preferred location.
 <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.maxSize</span></code> must be set to zero for managed memory pools.
 <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.usage</span></code> should be zero as decompress for managed memory is not
-supported. For managed memory pools, all devices on the system must have non-
-zero <code class="docutils literal notranslate"><span class="pre">concurrentManagedAccess</span></code>. If not, this call returns
+supported. For managed memory pools, all devices on the system must have
+non-zero <code class="docutils literal notranslate"><span class="pre">concurrentManagedAccess</span></code>. If not, this call returns
 CUDA_ERROR_NOT_SUPPORTED.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

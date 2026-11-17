@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2321,8 +2321,8 @@
 <p>Sets <code class="docutils literal notranslate"><span class="pre">h_node</span></code> to be either enabled or disabled. Disabled nodes are
 functionally equivalent to empty nodes until they are reenabled. Existing node
 parameters are not affected by disabling/enabling the node.
-The node is identified by the corresponding node <code class="docutils literal notranslate"><span class="pre">h_node</span></code> in the non-
-executable graph, from which the executable graph was instantiated.
+The node is identified by the corresponding node <code class="docutils literal notranslate"><span class="pre">h_node</span></code> in the
+non-executable graph, from which the executable graph was instantiated.
 <code class="docutils literal notranslate"><span class="pre">h_node</span></code> must not have been removed from the original graph.
 The modifications only affect future launches of <code class="docutils literal notranslate"><span class="pre">h_graph_exec</span></code>. Already
 enqueued or running launches of <code class="docutils literal notranslate"><span class="pre">h_graph_exec</span></code> are not affected by this call.

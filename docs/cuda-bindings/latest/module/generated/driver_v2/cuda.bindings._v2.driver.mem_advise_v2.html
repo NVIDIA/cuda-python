@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2315,11 +2315,11 @@ range starting at <code class="docutils literal notranslate"><span class="pre">d
 and end address of the memory range will be rounded down and rounded up
 respectively to be aligned to CPU page size before the advice is applied. The
 memory range must refer to managed memory allocated via <code class="docutils literal notranslate"><span class="pre">cuMemAllocManaged</span></code>
-or declared via managed variables. The memory range could also refer to system-
-allocated pageable memory provided it represents a valid, host-accessible
-region of memory and all additional constraints imposed by <code class="docutils literal notranslate"><span class="pre">advice</span></code> as
-outlined below are also satisfied. Specifying an invalid system-allocated
-pageable memory range results in an error being returned.
+or declared via managed variables. The memory range could also refer to
+system-allocated pageable memory provided it represents a valid,
+host-accessible region of memory and all additional constraints imposed by
+<code class="docutils literal notranslate"><span class="pre">advice</span></code> as outlined below are also satisfied. Specifying an invalid
+system-allocated pageable memory range results in an error being returned.
 The <code class="docutils literal notranslate"><span class="pre">advice</span></code> parameter can take the following values:.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">CU_MEM_ADVISE_SET_READ_MOSTLY</span></code>: This implies that the data is mostly going
@@ -2351,8 +2351,8 @@ setting this advice will not create a read-only copy when that device
 accesses this memory region.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CU_MEM_ADVISE_UNSET_READ_MOSTLY</span></code>: Undoes the effect of
 <code class="docutils literal notranslate"><span class="pre">CU_MEM_ADVISE_SET_READ_MOSTLY</span></code> and also prevents the Unified Memory driver
-from attempting heuristic read-duplication on the memory range. Any read-
-duplicated copies of the data will be collapsed into a single copy. The
+from attempting heuristic read-duplication on the memory range. Any
+read-duplicated copies of the data will be collapsed into a single copy. The
 location for the collapsed copy will be the preferred location if the page
 has a preferred location and one of the read-duplicated copies was resident
 at that location. Otherwise, the location chosen is arbitrary. Note: The
@@ -2426,8 +2426,8 @@ subset of it, then the policies associated with that advice will override the
 policies of this advice. Additionally, if the preferred location of this
 memory region or any subset of it is also <code class="docutils literal notranslate"><span class="pre">location</span></code>, then the policies
 associated with <code class="docutils literal notranslate"><span class="pre">CU_MEM_ADVISE_SET_PREFERRED_LOCATION</span></code> will override the
-policies of this advice. If the memory region refers to valid system-
-allocated pageable memory, and <code class="docutils literal notranslate"><span class="pre">CUmemLocation.type</span></code> is
+policies of this advice. If the memory region refers to valid
+system-allocated pageable memory, and <code class="docutils literal notranslate"><span class="pre">CUmemLocation.type</span></code> is
 <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_DEVICE</span></code> then device in <code class="docutils literal notranslate"><span class="pre">CUmemLocation.id</span></code> must have
 a non-zero value for the device attribute
 <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS</span></code>. Additionally, if

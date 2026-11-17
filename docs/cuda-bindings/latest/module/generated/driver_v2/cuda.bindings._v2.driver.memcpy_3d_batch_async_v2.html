@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=f0adfd12"></script>
+    <script src="../../../_static/documentation_options.js?v=da163ac8"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev59';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev60';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2347,8 +2347,8 @@ layer and must either be zero or be greater than or equal to the height of the
 copy specified in <code class="docutils literal notranslate"><span class="pre">CUDA_MEMCPY3D_BATCH_OP</span></code>::extent::height. When either of
 these values is zero, that aspect of the operand is considered to be tightly
 packed according to the copy extent. For managed memory pointers on devices
-where <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS</span></code> is true or system-
-allocated pageable memory on devices where
+where <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS</span></code> is true or
+system-allocated pageable memory on devices where
 <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS</span></code> is true, the
 <code class="docutils literal notranslate"><span class="pre">CUmemcpy3DOperand.op.ptr.locHint</span></code> field can be used to hint the location of
 the operand.
