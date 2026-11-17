@@ -1,0 +1,6 @@
+﻿cuda.core.system.typing.SystemEventType
+=======================================
+
+.. currentmodule:: cuda.core.system.typing
+
+.. autoenum:: SystemEventType
