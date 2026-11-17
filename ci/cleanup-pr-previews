@@ -122,7 +122,7 @@ update_preview_comment() {
     printf -v comment_body 'Doc Preview CI\n:---:\n%s\n<!-- Sticky Pull Request Commentpr-preview -->' "$status_message"
     if ! comment_id=$(gh api --paginate repos/"${REPOSITORY}"/issues/"${pr_number}"/comments \
         --header "Accept: application/vnd.github+json" \
-        --jq '.[] | select(.body | contains("<!-- Sticky Pull Request Commentpr-preview -->")) | .id' \
+        --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- Sticky Pull Request Commentpr-preview -->"))) | .id' \
         | tail -n 1); then
         return 1
     fi
