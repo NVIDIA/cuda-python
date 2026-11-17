@@ -1,6 +1,0 @@
-﻿cuda.core.system.ResetTypeNotSupportedError
-===========================================
-
-.. currentmodule:: cuda.core.system
-
-.. autoexception:: ResetTypeNotSupportedError
