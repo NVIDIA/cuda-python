@@ -1,0 +1,6 @@
+﻿cuda.core.typing.IsStreamType
+=============================
+
+.. currentmodule:: cuda.core.typing
+
+.. autoprotocol:: IsStreamType
