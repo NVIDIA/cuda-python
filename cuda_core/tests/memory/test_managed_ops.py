@@ -392,6 +392,7 @@ class TestManagedBuffer:
         buf.preferred_location = None
         assert buf.preferred_location is None
 
+    # This test is not currently run in any CI job
     @pytest.mark.thread_unsafe(reason="external_managed_buffer is shared between threads")
     def test_preferred_location_roundtrip_host_numa(self, location_ops_device):
         """Host(numa_id=N) round-trips correctly on CUDA 13 builds."""

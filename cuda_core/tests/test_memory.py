@@ -2822,6 +2822,8 @@ def test_pinned_mr_numa_id_negative_error(init_cuda):
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-42))
 
 
+# For ManagedMR with ipc_enabled=True (all property names):
+# This test is not currently run in any CI job
 @pytest.mark.parametrize("ipc_enabled", [True, False])
 @pytest.mark.parametrize(
     "property_name,expected_type",

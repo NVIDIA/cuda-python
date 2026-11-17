@@ -908,6 +908,9 @@ def test_usable_in_weak_set(sample_object):
 # =============================================================================
 
 
+# For sample_alloc_node, sample_empty_node, sample_free_node, sample_memcpy_node, sample_memset_node,
+# sample_object_code_ptx, and sample_program_ptx:
+# This test is not currently run in any CI job
 @pytest.mark.parametrize("sample_object,pattern", REPR_PATTERNS, indirect=["sample_object"])
 def test_repr_format(sample_object, pattern):
     """repr() returns a properly formatted string."""
