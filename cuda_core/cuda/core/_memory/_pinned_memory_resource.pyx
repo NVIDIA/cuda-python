@@ -12,11 +12,11 @@ from cuda.core._memory._memory_pool cimport (
     MP_check_open,
     MP_init_create_pool,
     MP_init_current_pool,
+    MP_set_access,
 )
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
 from cuda.core._memory._location cimport cumemlocation_from_id
-from cuda.core._rt cimport as_cu
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
@@ -105,7 +105,8 @@ cdef class PinnedMemoryResource(_MemPool):
     default, so the resource grants the device that is current when it is
     created read and write access to the pool. Kernels on other devices cannot
     access its buffers. Without options, the grant applies to the driver's
-    current pool, which the whole process shares.
+    current pool, which the whole process shares. Construction without options
+    does not affect a CUDA graph capture in progress on any thread.
 
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
@@ -328,8 +329,7 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
         access.location = cumemlocation_from_id(
             cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)
         access.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), &access, 1))
+        MP_set_access(self, &access, 1)
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:
