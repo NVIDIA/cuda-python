@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=36c14d50"></script>
+    <script src="../_static/documentation_options.js?v=92b9c949"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev30';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev31';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -794,6 +794,16 @@
 memory pool buffer when another thread releases the same descriptor at the
 same time. The import now waits for the pending release to finish.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3450">#3450</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> construction without options no longer
+invalidates a CUDA graph capture in progress on another thread. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
+1.3.0 introduced a <code class="docutils literal notranslate"><span class="pre">cuMemPoolSetAccess</span></code> call in the constructor (#3405);
+the driver refuses that call, and invalidates any concurrent global-mode
+capture, unless it runs in relaxed capture mode. The fix applies the same
+relaxed-mode wrapper already used for pool attribute reads and writes and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">trim()</span></code>. Captures started with the
+default <code class="docutils literal notranslate"><span class="pre">begin_building()</span></code> mode are unaffected; global mode is the default
+in several external libraries (for example <code class="docutils literal notranslate"><span class="pre">torch.cuda.graph</span></code>).
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3451">#3451</a>)</p></li>
 </ul>
 </section>
 </section>
