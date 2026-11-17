@@ -71,6 +71,10 @@ from cuda.core import (
     launch,
 )
 
+# Samples report "cannot run here" with this code; the sample runner treats it as
+# a waiver rather than a failure.
+EXIT_WAIVED = int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2"))
+
 # Two CUDA kernels:
 # 1. The delay kernel spins until `cycles` SM clock ticks have elapsed.
 # 2. The critical kernel does a small amount of useful work.
@@ -127,41 +131,55 @@ def _align_down(n: int, k: int) -> int:
     return (n // k) * k
 
 
-def _driver_accepts_split(sm, long_count: int, critical_count: int) -> bool:
-    if long_count <= 0 or critical_count <= 0:
-        return False
+def _probe_split(sm, critical_count: int) -> tuple[int | None, str | None]:
+    """
+    Dry-run probe: reserve `critical_count` SMs and leave the rest of the device
+    to the long kernel.
+
+    One group plus the remainder is the only request shape every driver split
+    API accepts: `cuDevSmResourceSplitByCount`, used on drivers older than
+    13.1, sizes all groups from a single `min_count` and rejects unequal counts.
+
+    Returns `(long_count, None)`, or `(None, reason)` if the driver says no.
+    """
     try:
-        groups, _ = sm.split(
-            SMResourceOptions(count=(long_count, critical_count)),
-            dry_run=True,
-        )
-    except Exception:
-        return False
-    actual = tuple(g.sm_count for g in groups)
-    return actual == (long_count, critical_count)
+        groups, remainder = sm.split(SMResourceOptions(count=critical_count), dry_run=True)
+    except Exception as e:
+        # Any rejection removes this candidate only; the catch is broad because
+        # cuda.core >= 1.0 does not export the rejection type.
+        return None, f"{type(e).__name__}: {e}"
+
+    if len(groups) != 1:
+        return None, f"driver created {len(groups)} groups, expected 1"
+    reserved = groups[0].sm_count
+    if reserved != critical_count:
+        return None, f"driver reserved {reserved} SMs, not {critical_count}"
+    # Prefer the SMs the driver actually left: run_green_context requires the
+    # long partition to match that remainder.
+    return remainder.sm_count or (sm.sm_count - reserved), None
 
 
-def _find_working_split(sm, prefer_critical: int | None = None) -> tuple[int, int, int] | None:
+def _find_working_split(sm, prefer_critical: int | None = None) -> tuple[tuple[int, int, int] | None, str | None]:
     """
     Probe the driver for a (long, critical) split it actually accepts.
 
     Escalates the alignment granularity from `min_partition_size` upward in
-    powers of two, requiring BOTH sides to be multiples of the current
+    powers of two, probing partition sizes that are multiples of the current
     granularity. This handles architectures where the driver's true
     allocation granularity is larger than the reported
     `min_partition_size` (e.g. TPC/GPC-pair alignment on Blackwell: on a
     188-SM part `min_partition_size` is 8 but the driver actually requires
-    each side to be a multiple of 16).
+    the reserved partition to be a multiple of 16).
 
-    Returns (long_count, critical_count, granularity) or None. The
-    granularity is the smallest power-of-two multiple of
-    `min_partition_size` at which both sides are aligned and the driver
-    accepts the pair.
+    Returns ((long_count, critical_count, granularity), None), or
+    (None, last driver reason) if no candidate is accepted. The granularity
+    is the smallest power-of-two multiple of `min_partition_size` at which
+    the driver accepts a partition.
     """
     total = sm.sm_count
     min_part = sm.min_partition_size
     if min_part <= 0:
-        return None
+        return None, "device reports no minimum SM partition size"
 
     if prefer_critical is None or prefer_critical <= 0:
         prefer_critical = max(min_part, min(16, total // 8))
@@ -169,6 +187,7 @@ def _find_working_split(sm, prefer_critical: int | None = None) -> tuple[int, in
     # Escalate granularity in powers of two. The upper bound is half of
     # `total` because below that we cannot fit two partitions of size
     # >= granularity.
+    last_reason = None
     granularity = min_part
     while granularity * 2 <= total:
         base = max(granularity, _align_down(prefer_critical, granularity))
@@ -194,15 +213,14 @@ def _find_working_split(sm, prefer_critical: int | None = None) -> tuple[int, in
             push(base - step * granularity)
 
         for critical in candidates:
-            long_count = _align_down(total - critical, granularity)
-            if long_count < granularity:
-                continue
-            if _driver_accepts_split(sm, long_count, critical):
-                return long_count, critical, granularity
+            long_count, reason = _probe_split(sm, critical)
+            if long_count is not None:
+                return (long_count, critical, granularity), None
+            last_reason = reason
 
         granularity *= 2
 
-    return None
+    return None, last_reason
 
 
 def _format_suggestion(sm, prefer_critical: int | None) -> str | None:
@@ -210,7 +228,7 @@ def _format_suggestion(sm, prefer_critical: int | None) -> str | None:
     Return a '--split A,B' string the driver is known to accept, or None
     if we couldn't find one.
     """
-    found = _find_working_split(sm, prefer_critical=prefer_critical)
+    found, _reason = _find_working_split(sm, prefer_critical=prefer_critical)
     if found is None:
         return None
     long_count, critical_count, _granularity = found
@@ -221,7 +239,8 @@ def parse_split(arg: str | None, device: Device) -> tuple[int, int]:
     """
     Parse the --split "A,B" CLI argument and validate it against the device.
 
-    Returns (long_count, critical_count).
+    B SMs are reserved for the critical kernel; the long kernel gets every
+    remaining SM on the device. Returns (long_count, critical_count).
     """
     sm = device.resources.sm
     total = sm.sm_count
@@ -229,25 +248,22 @@ def parse_split(arg: str | None, device: Device) -> tuple[int, int]:
 
     if arg is None:
         # Auto: reserve a small aligned slice for the critical kernel and
-        # hand the rest (also aligned) to the long-running kernel. We
-        # can't trust `min_partition_size` alone: on some GPUs (e.g.
-        # 188-SM Blackwell) the driver requires stricter alignment than
-        # it reports. Escalate the granularity until the driver accepts
-        # a pair.
+        # hand every remaining SM to the long-running kernel. We can't trust
+        # `min_partition_size` alone: on some GPUs (e.g. 188-SM Blackwell)
+        # the driver requires stricter alignment than it reports. Escalate
+        # the granularity until the driver accepts a partition.
         prefer_critical = max(min_part, min(16, total // 8))
-        found = _find_working_split(sm, prefer_critical=prefer_critical)
+        found, reason = _find_working_split(sm, prefer_critical=prefer_critical)
         if found is None:
             print(
-                "Error: could not find an SM split that the driver accepts "
+                "Error: could not reserve an SM partition that the driver accepts "
                 f"on this device (total SMs={total}, "
                 f"min_partition_size={min_part})."
             )
-            print(
-                "       The driver enforces architecture-specific alignment "
-                "rules beyond min_partition_size; try passing an explicit "
-                "--split."
-            )
-            sys.exit(1)
+            if reason is not None:
+                print(f"       Last driver response: {reason}")
+            print("       The device cannot host two SM partitions; skipping the sample.")
+            sys.exit(EXIT_WAIVED)
         long_count, critical_count, granularity = found
         if granularity > min_part:
             print(
@@ -271,10 +287,10 @@ def parse_split(arg: str | None, device: Device) -> tuple[int, int]:
     errors = []
     if long_count <= 0 or critical_count <= 0:
         errors.append("both partition sizes must be positive")
-    if long_count % min_part != 0 or critical_count % min_part != 0:
-        errors.append(f"each size must be a multiple of min_partition_size={min_part}")
+    if critical_count % min_part != 0:
+        errors.append(f"the critical partition must be a multiple of min_partition_size={min_part}")
     if long_count + critical_count > total:
-        errors.append(f"sum {long_count + critical_count} exceeds device total of {total} SMs")
+        errors.append(f"LONG + CRITICAL cannot exceed the device total of {total} SMs")
 
     if errors:
         print("Error: invalid --split value:")
@@ -287,34 +303,22 @@ def parse_split(arg: str | None, device: Device) -> tuple[int, int]:
 
     # Confirm the driver itself accepts the split. The well-known alignment
     # checks above are necessary but not sufficient on every architecture.
-    try:
-        groups, _ = sm.split(
-            SMResourceOptions(count=(long_count, critical_count)),
-            dry_run=True,
-        )
-    except Exception as e:
-        print(f"Error: driver rejected the requested split: {e}")
+    driver_long, reason = _probe_split(sm, critical_count)
+    if driver_long is None:
+        print(f"Error: driver rejected the requested split: {reason}")
         print(
-            "       The sample's own alignment checks are not exhaustive on "
-            "every architecture; the driver enforces additional hardware "
-            "constraints (for example TPC/partition-grid alignment)."
+            "       The driver applies hardware constraints the sample cannot "
+            "predict (for example TPC/partition-grid alignment)."
         )
-        suggestion = _format_suggestion(sm, prefer_critical=critical_count)
-        if suggestion is not None:
-            print(f"Tip: a driver-accepted split on this device is {suggestion}")
-        sys.exit(1)
+    elif driver_long != long_count:
+        print(f"Error: the driver left {driver_long} SMs for the long partition, not {long_count}.")
+    else:
+        return long_count, critical_count
 
-    actual = tuple(g.sm_count for g in groups)
-    if actual != (long_count, critical_count):
-        print(f"Error: driver adjusted the requested split to {actual}.")
-        suggestion = _format_suggestion(sm, prefer_critical=critical_count)
-        if suggestion is not None:
-            print(f"Tip: a driver-accepted split on this device is {suggestion}")
-        else:
-            print("       Pick a different --split, or omit it for the auto default.")
-        sys.exit(1)
-
-    return long_count, critical_count
+    suggestion = _format_suggestion(sm, prefer_critical=critical_count)
+    if suggestion is not None:
+        print(f"Tip: a driver-accepted split on this device is {suggestion}")
+    sys.exit(1)
 
 
 def compile_kernels(device: Device):
@@ -498,9 +502,14 @@ def run_green_context(
     """Each kernel on its own green context, with disjoint SM partitions."""
     long_count, critical_count = split
     sm = device.resources.sm
-    groups, _remainder = sm.split(SMResourceOptions(count=(long_count, critical_count)))
-    assert len(groups) == 2
-    long_group, critical_group = groups
+    groups, remainder = sm.split(SMResourceOptions(count=critical_count))
+    assert len(groups) == 1
+    critical_group, long_group = groups[0], remainder
+    if long_group.sm_count != long_count or critical_group.sm_count != critical_count:
+        raise RuntimeError(
+            f"driver provided a {long_group.sm_count}+{critical_group.sm_count} SM split, "
+            f"expected {long_count}+{critical_count}"
+        )
 
     # Create the large ctx last so it's closed first: order matters only for
     # ensuring we never try to close a ctx that's currently the thread's
@@ -590,7 +599,7 @@ def main():
     from cuda.bindings import driver as _d
 
     if _d.cuDriverGetVersion()[1] >= 13010:
-        sys.exit(int(os.environ.get("CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE", "2")))
+        sys.exit(EXIT_WAIVED)
 
     parser = argparse.ArgumentParser(
         description="Green Context sample using CUDA Core API",

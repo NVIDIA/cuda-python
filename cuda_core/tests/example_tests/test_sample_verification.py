@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import ast
+import importlib.util
+import types
 from pathlib import Path
 
 import numpy as np
@@ -17,6 +19,7 @@ WAIVER_SAMPLE_NAMES = (
     "glInteropFluid",
     "glInteropMipmapLod",
     "glInteropPlasma",
+    "greenContext",
     "ipcMemoryPool",
     "launchConfigTuning",
     "memoryResources",
@@ -141,3 +144,83 @@ def test_verification_exception_is_reported_as_sample_failure(tmp_path: Path) ->
 
     assert result.status == "FAIL"
     assert result.return_code != 0
+
+
+def _load_green_context_sample():
+    sample_path = REPO_ROOT / "samples" / "cuda_core" / "greenContext" / "greenContext.py"
+    spec = importlib.util.spec_from_file_location("greenContext_sample", sample_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class _Partition:
+    def __init__(self, sm_count: int) -> None:
+        self.sm_count = sm_count
+
+
+class _CountApiSM:
+    """Stand-in for ``SMResource`` behind ``cuDevSmResourceSplitByCount``.
+
+    Mirrors the two rules that matter here: equal-sized groups from one
+    ``min_count``, and sizes that are multiples of the device's minimum SM
+    partition size. The greenContext sample cannot ask for two different group
+    sizes, so a probe of it must never reach the unequal-count branch.
+    """
+
+    def __init__(self, sm_count: int, min_partition_size: int) -> None:
+        self.sm_count = sm_count
+        self.min_partition_size = min_partition_size
+
+    def split(self, options, *, dry_run: bool = False):
+        counts = options.count if isinstance(options.count, tuple) else (options.count,)
+        if len(set(counts)) > 1:
+            raise RuntimeError("CUDA 12 SM splitting only supports homogeneous count values")
+        if any(count % self.min_partition_size for count in counts):
+            raise RuntimeError("CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION")
+        if sum(counts) > self.sm_count:
+            raise RuntimeError("CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION")
+        return [_Partition(count) for count in counts], _Partition(self.sm_count - sum(counts))
+
+
+@pytest.mark.agent_authored(model="deepseek/deepseek-v4.1-flash-1017")
+def test_green_context_auto_split_without_equal_two_way_split() -> None:
+    """Regression: NVBug 7106432 - 14 SMs cannot form an equal two-way split."""
+    sm = _CountApiSM(sm_count=14, min_partition_size=2)
+
+    found, reason = _load_green_context_sample()._find_working_split(sm)
+
+    assert reason is None
+    assert found is not None
+    long_count, critical_count, _granularity = found
+    assert long_count + critical_count == sm.sm_count
+    assert long_count > 0
+    assert critical_count % sm.min_partition_size == 0
+
+
+@pytest.mark.agent_authored(model="deepseek/deepseek-v4.1-flash-1017")
+def test_green_context_device_without_usable_split_waives() -> None:
+    """A device without a usable two-partition split is a waiver, not a failure."""
+    sample = _load_green_context_sample()
+    sm = _CountApiSM(sm_count=2, min_partition_size=2)
+    device = types.SimpleNamespace(resources=types.SimpleNamespace(sm=sm))
+
+    found, _reason = sample._find_working_split(sm)
+    assert found is None
+
+    with pytest.raises(SystemExit) as exc_info:
+        sample.parse_split(None, device)
+    assert exc_info.value.code == sample.EXIT_WAIVED
+
+
+@pytest.mark.agent_authored(model="deepseek/deepseek-v4.1-flash-1017")
+def test_green_context_explicit_split_must_take_the_remainder() -> None:
+    """``--split A,B`` is accepted only when A is what B leaves on the device."""
+    sample = _load_green_context_sample()
+    device = types.SimpleNamespace(resources=types.SimpleNamespace(sm=_CountApiSM(14, 2)))
+
+    assert sample.parse_split("12,2", device) == (12, 2)
+
+    with pytest.raises(SystemExit) as exc_info:
+        sample.parse_split("10,2", device)
+    assert exc_info.value.code == 1

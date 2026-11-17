@@ -41,8 +41,9 @@ partition. The reference row lets you separate those two effects:
 
 - Querying a device's SM resources via `Device.resources.sm` and
   reading `sm_count`, `min_partition_size`, `coscheduled_alignment`
-- Splitting an `SMResource` into disjoint partitions with
-  `sm.split(SMResourceOptions(count=(A, B)))`
+- Splitting an `SMResource` into disjoint partitions: reserve one with
+  `sm.split(SMResourceOptions(count=B))` and use the returned remainder
+  for the other
 - Creating a green context from an SM partition via
   `Device.create_context(ContextOptions(resources=[group]))`
 - Creating a non-blocking stream on a green context with
@@ -61,8 +62,8 @@ partition. The reference row lets you separate those two effects:
 ### From `cuda.core`
 
 - `Device.resources.sm` - the device's SM-type device resource
-- `SMResource.split(SMResourceOptions(count=(A, B)))` - partition SMs
-  into disjoint groups (plus an optional remainder)
+- `SMResource.split(SMResourceOptions(count=B))` - partition SMs by
+  reserving `B` SMs and keeping the returned remainder
 - `Device.create_context(ContextOptions(resources=[sm_group]))` -
   create a green context provisioned with a specific SM partition
 - `Context.is_green` / `Context.resources` - introspect a green
@@ -111,12 +112,16 @@ pip install -r requirements.txt
 
 The auto-default split reserves a small partition (~16 SMs) for the
 critical kernel and gives the rest to the long-running kernel. The
-exact sizes are chosen by probing the driver with a dry-run `sm.split`,
+exact size is chosen by probing the driver with a dry-run `sm.split`,
 escalating the alignment granularity in powers of two until the driver
-accepts the pair. This handles architectures where the driver enforces
+accepts it. This handles architectures where the driver enforces
 stricter alignment (e.g. TPC/GPC-pair alignment on Blackwell) than the
 reported `min_partition_size`. When that happens the sample prints a
 `Note:` line with the granularity it landed on.
+
+If the driver accepts no partition at all, the sample reports that the
+device cannot host two SM partitions and exits with the sample-waiver
+code instead of failing.
 
 ```bash
 cd samples/cuda_core/greenContext
@@ -151,11 +156,13 @@ python greenContext.py --device 1
 ```
 --device           CUDA device ID (default: 0)
 --split            SM split as 'LONG,CRITICAL', e.g. '112,16'.
-                   Each side must be a multiple of the device's
-                   min_partition_size, and the driver may enforce additional
-                   architecture-specific alignment (e.g. TPC/partition-grid
-                   alignment on Blackwell). Omit --split to auto-select a
-                   driver-accepted split.
+                   CRITICAL SMs are reserved for the critical kernel and must
+                   be a multiple of the device's min_partition_size; the driver
+                   may enforce additional architecture-specific alignment
+                   (e.g. TPC/partition-grid alignment on Blackwell). The
+                   long-running kernel gets every SM the critical partition
+                   leaves behind, so LONG must equal that remainder.
+                   Omit --split to auto-select a driver-accepted split.
 --delay-us         Per-block busy-wait of the delay kernel, in us (default: 2000)
 --delay-waves      Number of waves of the delay kernel on the long
                    partition. Drives the default --delay-blocks (default: 16)
