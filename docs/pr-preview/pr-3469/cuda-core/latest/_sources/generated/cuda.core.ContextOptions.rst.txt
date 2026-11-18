@@ -1,6 +1,0 @@
-﻿cuda.core.ContextOptions
-========================
-
-.. currentmodule:: cuda.core
-
-.. autoclass:: ContextOptions
