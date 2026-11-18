@@ -200,6 +200,10 @@ def main():
         print("PinnedMemoryResource requires CUDA memory pools, which are not supported on this device. Waiving.")
         sys.exit(EXIT_WAIVED)
 
+    if not dev.properties.host_memory_pools_supported:
+        print("PinnedMemoryResource requires host memory pools, which are not supported on this device. Waiving.")
+        sys.exit(EXIT_WAIVED)
+
     stream = dev.create_stream()  # Create stream for async operations
 
     print(f"Device: {dev.name}")

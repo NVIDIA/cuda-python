@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import ast
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -14,6 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 UTILITIES_DIR = REPO_ROOT / "samples" / "cuda_core" / "Utilities"
 WAIVER_SAMPLE_NAMES = (
     "blurImageUnifiedMemory",
+    "copyImageArraytoGPU",
     "glInteropFluid",
     "glInteropMipmapLod",
     "glInteropPlasma",
@@ -28,6 +31,38 @@ WAIVER_SAMPLE_NAMES = (
     "threadBlockCluster",
     "tmaTensorMap",
 )
+
+
+def _load_sample_function(sample_name: str, function_name: str, **namespace):
+    """Exercise sample functions without importing their optional GPU packages."""
+    sample_path = REPO_ROOT / "samples" / "cuda_core" / sample_name / f"{sample_name}.py"
+    tree = ast.parse(sample_path.read_text(encoding="utf-8"), filename=str(sample_path))
+    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == function_name)
+    module = ast.Module(body=[function], type_ignores=[])
+    exec(compile(module, str(sample_path), "exec"), namespace)  # noqa: S102 - trusted sample source
+    return namespace[function_name]
+
+
+@pytest.mark.parametrize("host_pools_supported", [False, True])
+@pytest.mark.agent_authored(model="GPT-6")
+def test_image_sample_requires_host_memory_pools(host_pools_supported: bool) -> None:
+    def create_stream():
+        raise RuntimeError("stream setup failed")
+
+    device = SimpleNamespace(
+        properties=SimpleNamespace(memory_pools_supported=True, host_memory_pools_supported=host_pools_supported),
+        set_current=lambda: None,
+        create_stream=create_stream,
+    )
+    main = _load_sample_function("copyImageArraytoGPU", "main", Device=lambda: device, np=np, sys=sys, EXIT_WAIVED=77)
+
+    if host_pools_supported:
+        with pytest.raises(RuntimeError, match="stream setup failed"):
+            main()
+    else:
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        assert exc_info.value.code == 77
 
 
 @pytest.mark.parametrize("sample_name", WAIVER_SAMPLE_NAMES)
