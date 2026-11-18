@@ -560,8 +560,10 @@
 <li><p>Find cuDNN installed from the <code class="docutils literal notranslate"><span class="pre">nvidia-cudnn-cu13</span></code> Windows Arm64 wheel.
 The wheel places <code class="docutils literal notranslate"><span class="pre">cudnn64_9.dll</span></code> in <code class="docutils literal notranslate"><span class="pre">nvidia/cudnn/bin</span></code>, the same
 directory as the x64 wheel, which <code class="docutils literal notranslate"><span class="pre">load_nvidia_dynamic_lib(&quot;cudnn&quot;)</span></code>
-previously searched on x64 only. Conda, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>, and Program Files
-installs remain x64-only on Windows Arm64.
+previously searched on x64 only. Windows cuDNN discovery checks the DLL’s
+architecture so that an incompatible wheel does not prevent searching
+later installation roots. Conda, <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>, and Program Files installs
+remain x64-only on Windows Arm64.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3489">PR #3489</a>)</p></li>
 </ul>
 </section>
