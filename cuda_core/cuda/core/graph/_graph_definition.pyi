@@ -226,10 +226,18 @@ class GraphDefinition:
         GraphNode
             The corresponding node, with its operation-specific subclass.
 
+        Raises
+        ------
+        ValueError
+            If ``original`` is the synthetic entry node.
+        RuntimeError
+            If either graph definition is invalid or ``original`` was destroyed.
+        CUDAError
+            If CUDA cannot find a counterpart for a valid source node.
+
         Notes
         -----
         Lookup is local to this graph.
-        Raises :class:`~cuda.core.CUDAError` for nodes without a counterpart.
         """
     def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None=None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.

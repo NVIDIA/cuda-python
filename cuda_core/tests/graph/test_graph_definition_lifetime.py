@@ -1899,6 +1899,51 @@ def test_memcpy_buffer_and_src_owner_rejected(init_cuda):
         g.memcpy(buf, buf, 4, src_owner=object())
 
 
+def test_public_clone_preserves_edges_and_can_change_them_independently(init_cuda):
+    called = []
+    source = GraphDefinition()
+    first = source.callback(lambda: called.append("first"))
+    second = source.callback(lambda: called.append("second"))
+    first.succ.add(second)
+
+    clone = source.clone()
+    cloned_first = clone.find_node(first)
+    cloned_second = clone.find_node(second)
+    assert clone.edges() == {(cloned_first, cloned_second)}
+
+    cloned_first.succ.remove(cloned_second)
+    cloned_second.succ.add(cloned_first)
+    assert clone.edges() == {(cloned_second, cloned_first)}
+    assert source.edges() == {(first, second)}
+
+    stream = init_cuda.create_stream()
+    for definition, expected in [(source, ["first", "second"]), (clone, ["second", "first"])]:
+        called.clear()
+        executable = definition.instantiate()
+        try:
+            executable.launch(stream)
+            stream.sync()
+            assert called == expected
+        finally:
+            executable.close()
+
+
+def test_public_clone_find_node_rejects_invalid_sources(init_cuda):
+    source = GraphDefinition()
+    original = source.empty()
+    clone = source.clone()
+    late_node = source.empty()
+
+    with pytest.raises(ValueError):
+        clone.find_node(source._entry)
+    with pytest.raises(CUDAError):
+        clone.find_node(late_node)
+
+    original.destroy()
+    with pytest.raises(RuntimeError):
+        clone.find_node(original)
+
+
 @pytest.mark.parametrize("depth", [0, 2])
 @pytest.mark.parametrize("source_first", [False, True])
 def test_public_clone_retains_attachment_until_last_executable(init_cuda, depth, source_first):
