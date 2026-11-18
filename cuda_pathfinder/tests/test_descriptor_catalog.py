@@ -164,7 +164,10 @@ def test_cudnn_metadata_matches_supported_layouts():
     assert spec.windows_dlls == ("cudnn64_9.dll",)
     assert spec.supported_windows_arch == ("x64", "arm64")
     assert spec.site_packages_linux == ("nvidia/cudnn/lib",)
-    assert spec.site_packages_windows == WindowsSearchDirs.x64_only("nvidia/cudnn/bin")
+    assert spec.site_packages_windows == WindowsSearchDirs(
+        x64=("nvidia/cudnn/bin",),
+        arm64=("nvidia/cudnn/bin",),
+    )
     assert spec.anchor_rel_dirs_windows == WindowsSearchDirs.x64_only("bin/x64", "bin")
     assert spec.dependencies == ("cublasLt",)
     assert spec.optional_dependencies == ("nvrtc",)

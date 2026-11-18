@@ -471,6 +471,22 @@ class TestFindInSitePackages:
 
         assert result is None
 
+    @pytest.mark.agent_authored(model="claude-opus-5.5")
+    def test_found_windows_arm64_cudnn_wheel(self, mocker, tmp_path):
+        wheel_dir = tmp_path / "nvidia" / "cudnn" / "bin"
+        wheel_dir.mkdir(parents=True)
+        cudnn_dll = wheel_dir / "cudnn64_9.dll"
+        cudnn_dll.touch()
+
+        _patch_site_packages_search(mocker, tmp_path)
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        desc = LIB_DESCRIPTORS["cudnn"]
+        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="arm64")))
+        assert result is not None
+        assert result.abs_path == str(cudnn_dll)
+        assert result.found_via == "site-packages"
+
     def test_not_found_appends_error(self, mocker, tmp_path):
         empty_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
         empty_dir.mkdir(parents=True)
@@ -899,7 +915,7 @@ class TestWindowsInstallRoots:
         assert find_in_conda(ctx) is None
         assert find_in_cuda_path(ctx) is None
         assert find_in_program_files_roots(ctx) is None
-        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ()
+        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ("nvidia/cudnn/bin",)
 
 
 # ---------------------------------------------------------------------------
