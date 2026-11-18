@@ -124,6 +124,46 @@ def test_floors_from_extras_ignores_lookalike_names():
     assert floors_from_extras(extras) == {13: (13, 4, 1)}
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_floors_from_extras_follows_self_references():
+    extras = {
+        "minimal-sysctk12": ["cuda-bindings>=12.9.8,<13"],
+        "minimal-sysctk13": ["cuda-bindings>=13.5.0,<14"],
+        "cu12": ["cuda-core[minimal-sysctk12]", "cuda-bindings[all]", "cuda-toolkit==12.*"],
+        "cu13": ["cuda-core[minimal-sysctk13]", "cuda-bindings[all]", "cuda-toolkit==13.*"],
+    }
+    assert floors_from_extras(extras) == {12: (12, 9, 8), 13: (13, 5, 0)}
+    # A cycle of self-references ends.
+    cyclic = {"a": ["cuda-core[b]"], "b": ["cuda-core[a,cu13]"], "cu13": ["cuda-core[a]", "cuda-bindings>=13.5.0,<14"]}
+    assert floors_from_extras(cyclic) == {13: (13, 5, 0)}
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    ("extras", "message"),
+    [
+        (
+            {"minimal-sysctk13": ["cuda-bindings>=13.5,<14"], "cu13": ["cuda-core[minimal-sysctk13]"]},
+            "the 'cu13' extra must pin cuda-bindings as",
+        ),
+        (
+            {
+                "minimal-sysctk13": ["cuda-bindings>=13.5.0,<14"],
+                "cu13": ["cuda-core[minimal-sysctk13]", "cuda-bindings[all]>=13.5.0,<14"],
+            },
+            "exactly one cuda-bindings requirement, found 2",
+        ),
+        (
+            {"cu13": ["cuda-core[minimal-sysctk13]", "cuda-bindings[all]"]},
+            "exactly one cuda-bindings requirement, found 0",
+        ),
+    ],
+)
+def test_floors_from_extras_rejects_bad_self_references(extras, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        floors_from_extras(extras)
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 @pytest.mark.parametrize(
     ("version", "expected"),
@@ -358,6 +398,31 @@ class TestConsistencyHook:
         )
         assert hook.main(["--repo-root", str(tmp_path)]) == 1
         assert "pyproject.toml: the 'cu13' extra must pin cuda-bindings" in capsys.readouterr().err
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    @pytest.mark.parametrize(
+        "cu13",
+        [
+            '["cuda-bindings[all]>=13.4.1,<14", "cuda-toolkit==13.*"]',
+            '["cuda-core[minimal-sysctk12]", "cuda-bindings[all]", "cuda-toolkit==13.*"]',
+            None,
+        ],
+    )
+    def test_a_cu_extra_without_its_minimal_sysctk_extra_fails_the_hook(self, hook, tmp_path, cu13):
+        pyproject = tmp_path / "cuda_core" / "pyproject.toml"
+        pyproject.parent.mkdir()
+        text = '[project.optional-dependencies]\nminimal-sysctk13 = ["cuda-bindings>=13.4.1,<14"]\n'
+        if cu13 is not None:
+            text += f"cu13 = {cu13}\n"
+        pyproject.write_text(text, encoding="utf-8")
+        assert hook.cu_extra_problems(tmp_path, {13: (13, 4, 1)}) == [
+            f"{hook.PYPROJECT}: the 'cu13' extra must list 'cuda-core[minimal-sysctk13]', so that it carries the floor"
+        ]
+        pyproject.write_text(
+            text.split("cu13 =")[0] + 'cu13 = ["cuda-core[minimal-sysctk13]", "cuda-bindings[all]"]\n',
+            encoding="utf-8",
+        )
+        assert hook.cu_extra_problems(tmp_path, {13: (13, 4, 1)}) == []
 
     @pytest.mark.agent_authored(model="claude-fable-5-1")
     def test_docs_must_use_the_substitutions(self, hook, tmp_path):

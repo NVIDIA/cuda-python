@@ -263,6 +263,10 @@ setuptools-scm's default tag parser. Each root's `git_describe_command`
 selects its CUDA ABI major for source builds (`v12.*` or `v13.*`),
 independently of the toolkit minor used to build it.
 
+Release workflows on `main` require `schema_version: 2` in the tagged source
+too. For older layouts, use an appropriate historical workflow ref and its
+own inputs; see [older release layouts](../.github/RELEASE-bindings.md#older-release-layouts).
+
 The repository-private `cuda-python-ci-tools` package provides the shared
 configuration readers and their dependencies. Workflows use these helpers
 from their control revision when inspecting another source revision. Install
@@ -316,16 +320,15 @@ Follow the
 ## Nightly Artifact Sources
 
 `ci-nightly.yml` downloads wheels from the latest successful main CI run and
-reads configuration from that run's source commit. Sources with the package
-registry supply toolkit-qualified artifacts for both bindings directories.
-For older sources, the temporary fallback uses their original configuration
-and artifact names, including CUDA 12 wheels from the configured historical
-branch. Its removal is tracked in [#3432](https://github.com/NVIDIA/cuda-python/issues/3432).
+reads the bindings registry and test matrix from that run's source commit.
+The source must use the bindings registry in `ci/versions.yml` and supply
+toolkit-qualified artifacts for both bindings directories. Pre-migration
+snapshots are unsupported.
 
 Custom-driver rows require `DRIVER_SHA256` in the selected source matrix.
 
 An explicit `run-id` selects both the wheel artifacts and their source
-revision; those artifacts must still be available.
+revision with the same requirements; those artifacts must still be available.
 
 ## Reading CI Jobs and Summaries
 
@@ -363,9 +366,9 @@ cover both majors; a bindings tag deliberately selects one bindings/metapackage
 line and published Pathfinder. Windows ARM64 omits CUDA 12 because that toolkit
 has no Windows ARM64 build.
 
-For registry-backed runs, `ci/tools/select_test_matrix.py` applies the shared
-selection and local-wheel coverage rules after each platform reads its source
-matrix and applies an optional jq filter. Matrix data comes from the artifact
+`ci/tools/select_test_matrix.py` applies shared selection and local-wheel
+coverage rules after each platform reads its source matrix and applies an
+optional jq filter. Matrix data comes from the artifact
 source revision; the helper comes from the workflow control revision.
 
 ## Maintaining Both Bindings Roots
@@ -374,8 +377,10 @@ source revision; the helper comes from the workflow control revision.
 directories on `main`. The registry identifies CUDA 12 as the maintenance
 line. Routine CUDA 12 fixes, tests, and documentation belong in
 `cuda_bindings_12/`. The old `12.9.x` branch stays frozen except for emergency
-fixes using compatible historical tooling; reconcile any such fix into the
-CUDA 12 directory on `main` and assess the CUDA 13 directory too.
+fixes using compatible historical tooling. Release old-layout tags from a
+validated workflow on the appropriate maintenance branch or historical tag,
+rather than from `main`. Reconcile any emergency fix into the CUDA 12 directory
+on `main` and assess the CUDA 13 directory too.
 
 For independent releases from a shared source commit, see
 [two tags at one commit](../.github/RELEASE-bindings.md#two-tags-at-one-commit).

@@ -461,6 +461,24 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
     return 0
 
 
+cdef int MP_set_access(
+        _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count) except? -1:
+    """Set device access to the pool.
+
+    Runs in relaxed capture mode, like every pool attribute access (see
+    ``_enter_relaxed_capture_mode``): the driver refuses cuMemPoolSetAccess,
+    and invalidates the capture, while a global-mode capture is active on
+    any thread or a thread-local one on the calling thread.
+    """
+    cdef cydriver.CUstreamCaptureMode mode
+    cdef cydriver.CUresult err
+    with nogil:
+        _enter_relaxed_capture_mode(&mode)
+        err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
+        _exit_relaxed_capture_mode(err, &mode)
+    return 0
+
+
 # Raise an exception if the given stream is capturing.
 # A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.
 cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
