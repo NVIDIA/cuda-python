@@ -16,6 +16,44 @@ Breaking Changes
   the valid-entry count; the separate ``num_valid_entries`` member has been
   removed. Use ``len(info.firmware_version)`` to query the count.
   (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* Reserved members of ``runtime`` struct wrappers are no longer exposed as
+  Python attributes. Accessing these members now raises ``AttributeError``:
+
+  * ``cudaArraySparseProperties.reserved``,
+    ``cudaArrayMemoryRequirements.reserved``, ``cudaMemcpyNodeParams.reserved``,
+    ``cudaFuncAttributes.reserved``, ``cudaMemPoolProps.reserved``,
+    ``cudaMemPoolPtrExportData.reserved``, ``cudaDeviceProp.reserved``,
+    ``cudaEglPlaneDesc_st.reserved``
+  * ``cudaIpcEventHandle_st.reserved``, ``cudaIpcMemHandle_st.reserved``,
+    ``cudaMemFabricHandle_st.reserved`` (also removed from their ``_t`` aliases)
+  * ``cudaExternalSemaphoreSignalParams.params.nvSciSync.reserved``,
+    ``cudaExternalSemaphoreSignalParams.params.reserved``,
+    ``cudaExternalSemaphoreSignalParams.reserved``,
+    ``cudaExternalSemaphoreWaitParams.params.nvSciSync.reserved``,
+    ``cudaExternalSemaphoreWaitParams.params.reserved``,
+    ``cudaExternalSemaphoreWaitParams.reserved``
+  * ``cudaGraphNodeParams.reserved0``, ``cudaGraphNodeParams.reserved1``,
+    ``cudaGraphNodeParams.reserved2``, ``cudaGraphEdgeData_st.reserved``
+
+  Storage allocated by these wrappers is zero-initialized, including reserved
+  fields, so callers do not need to zero these fields explicitly.
+
+  To serialize IPC handles previously accessed through ``handle.reserved``,
+  copy their raw bytes using ``getPtr()`` and ``ctypes`` instead:
+
+  .. code-block:: python
+
+      import ctypes
+
+      from cuda.bindings import runtime
+
+      # handle was returned by runtime.cudaIpcGetMemHandle().
+      payload = ctypes.string_at(handle.getPtr(), runtime.CUDA_IPC_HANDLE_SIZE)
+      restored = runtime.cudaIpcMemHandle_t()
+      ctypes.memmove(restored.getPtr(), payload, runtime.CUDA_IPC_HANDLE_SIZE)
+
+  When restoring a payload received from another process, ensure it contains
+  exactly ``runtime.CUDA_IPC_HANDLE_SIZE`` bytes before copying it.
 
 Enhancements
 ------------
