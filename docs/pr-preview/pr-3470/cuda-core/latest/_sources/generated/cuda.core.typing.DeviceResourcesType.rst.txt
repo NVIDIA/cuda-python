@@ -1,0 +1,6 @@
+﻿cuda.core.typing.DeviceResourcesType
+====================================
+
+.. currentmodule:: cuda.core.typing
+
+.. autodata:: DeviceResourcesType
