@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import io
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -63,6 +64,29 @@ def test_image_sample_requires_host_memory_pools(host_pools_supported: bool) -> 
         with pytest.raises(SystemExit) as exc_info:
             main()
         assert exc_info.value.code == 77
+
+
+@pytest.mark.parametrize(("handle_types", "supported"), [(2, False), (3, True)])
+@pytest.mark.agent_authored(model="GPT-6")
+def test_ipc_sample_checks_memory_pool_handle_support(handle_types: int, supported: bool) -> None:
+    from cuda.bindings import driver
+
+    check_ipc_support = _load_sample_function(
+        "ipcMemoryPool",
+        "check_ipc_support",
+        platform=SimpleNamespace(system=lambda: "Linux"),
+        open=lambda _path: io.StringIO("6.1.0"),
+        driver=driver,
+    )
+    device = SimpleNamespace(
+        properties=SimpleNamespace(
+            memory_pools_supported=True,
+            handle_type_posix_file_descriptor_supported=True,
+            mempool_supported_handle_types=handle_types,
+        )
+    )
+
+    assert check_ipc_support(device) is supported
 
 
 @pytest.mark.parametrize("sample_name", WAIVER_SAMPLE_NAMES)
