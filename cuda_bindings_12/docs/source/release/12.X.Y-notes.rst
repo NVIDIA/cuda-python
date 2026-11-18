@@ -13,31 +13,20 @@ Unreleased
 Breaking Changes
 ----------------
 
-* CUDA 12 bindings require Python 3.11 or newer. Python versions older than
-  3.11 are no longer supported; the supported range is Python 3.11-3.15.
+Enhancements
+------------
 
 Bug Fixes
 ---------
 
-* Nested resource pointer conversion accepts both ``str`` and ``bytes``
-  options, matching the CUDA 13 bindings behavior.
-* Coredump settings retain borrowed string buffers for the duration of the
-  call and free the buffers allocated for getters.
-* ``get_cuda_native_handle`` preserves a ``KeyError`` raised inside a
-  registered getter instead of reporting an unknown type.
+Deprecations
+------------
 
-Packaging
----------
+Packaging and Source Builds
+---------------------------
 
-* Wheels omit ``.pyx`` implementation sources and ``.in`` generation templates,
-  following the CUDA 13 packaging policy. Cython declarations and includes
-  (``.pxd`` and ``.pxi``), and required headers, remain available for downstream
-  Cython builds. Source distributions retain the inputs needed to build the package.
+Documentation and Maintenance
+-----------------------------
 
-Documentation
--------------
-
-* Corrected the CUDA 12 driver guidance to its existing minor-version
-  compatibility baseline: Linux 525.60.13 and Windows 528.33. This is a
-  documentation correction, not a new runtime version check. Newer features
-  and PTX compilation can still require a newer driver.
+Known Issues
+------------
