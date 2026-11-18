@@ -310,7 +310,7 @@ jobs:
       matrix:
         host-platform:
           - linux-64
-    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ') }})
+    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config || '{}').package_roots.*.toolkit_version, ' / ') }})
     if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     permissions:
       actions: read
@@ -331,7 +331,7 @@ jobs:
       matrix:
         host-platform:
           - linux-aarch64
-    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ') }})
+    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config || '{}').package_roots.*.toolkit_version, ' / ') }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -355,7 +355,7 @@ jobs:
       matrix:
         host-platform:
           - win-64
-    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ') }})
+    name: Build (${{ matrix.host-platform }}, CUDA ${{ join(fromJSON(needs.detect-changes.outputs.bindings-config || '{}').package_roots.*.toolkit_version, ' / ') }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&
@@ -375,7 +375,7 @@ jobs:
     needs:
       - should-skip
       - detect-changes
-    name: Build (win-arm64, ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' && 'current CUDA only' || format('CUDA {0}', join(fromJSON(needs.detect-changes.outputs.bindings-config).package_roots.*.toolkit_version, ' / ')) }})
+    name: Build (win-arm64, ${{ needs.detect-changes.outputs.windows-arm64-single-cuda-major == 'true' && 'current CUDA only' || format('CUDA {0}', join(fromJSON(needs.detect-changes.outputs.bindings-config || '{}').package_roots.*.toolkit_version, ' / ')) }})
     if: ${{ github.repository_owner == 'nvidia' &&
             !fromJSON(needs.should-skip.outputs.skip) &&
             !fromJSON(needs.should-skip.outputs.doc-only) &&

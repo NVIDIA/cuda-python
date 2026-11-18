@@ -77,7 +77,8 @@ class PinnedMemoryResource(_MemPool):
     default, so the resource grants the device that is current when it is
     created read and write access to the pool. Kernels on other devices cannot
     access its buffers. Without options, the grant applies to the driver's
-    current pool, which the whole process shares.
+    current pool, which the whole process shares. Construction without options
+    does not affect a CUDA graph capture in progress on any thread.
 
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
