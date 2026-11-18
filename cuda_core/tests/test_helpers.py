@@ -34,7 +34,7 @@ NBYTES = 64
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 @pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
-def test_latchkernel(init_cuda):
+def test_latchkernel(init_cuda, pinned_alloc):
     """Test LatchKernel."""
     log = TimestampedLogger(enabled=ENABLE_LOGGING)
     log("begin")
@@ -43,7 +43,7 @@ def test_latchkernel(init_cuda):
     target = make_scratch_buffer(device, 0, NBYTES)
     zeros = make_scratch_buffer(device, 0, NBYTES)
     ones = make_scratch_buffer(device, 1, NBYTES)
-    latch = LatchKernel(device)
+    latch = LatchKernel(device, pinned_alloc=pinned_alloc)
     log("launching latch kernel")
     latch.launch(stream)
     log("launching copy (0->1) kernel")

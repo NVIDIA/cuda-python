@@ -39,7 +39,7 @@ class YRig:
     graph has exactly the topology we expect by checking the final value.
     """
 
-    def __init__(self):
+    def __init__(self, pinned_alloc):
         self.A_OPS = [(2, 1), (3, 2), (5, 3)]
         self.B_OPS = [(2, 7), (3, 1)]
 
@@ -48,8 +48,7 @@ class YRig:
         self.combine = mod.get_kernel("combine")
         self.config = LaunchConfig(grid=1, block=1)
 
-        self._mr = LegacyPinnedMemoryResource()
-        self._buf = self._mr.allocate(3 * 4)
+        self._buf = pinned_alloc(3 * 4)
         self._arr = np.from_dlpack(self._buf).view(np.int32)
 
         self.ptr_a = self._arr[0:].ctypes.data
@@ -146,19 +145,19 @@ class YRig:
 class TestMutateYRig:
     """Tests that mutate the Y-shaped graph built by YRig."""
 
-    def test_baseline(self, init_cuda):
+    def test_baseline(self, init_cuda, pinned_alloc):
         """Unmodified graph produces the expected results."""
-        rig = YRig()
+        rig = YRig(pinned_alloc)
         rig.run()
         assert rig.output == rig.expected_output
         assert rig.edges == rig.initial_edges
         assert rig.nodes == rig.initial_nodes
         rig.close()
 
-    def test_destroy_a1(self, init_cuda):
+    def test_destroy_a1(self, init_cuda, pinned_alloc):
         """Destroy a1 (creates a race on arm a). Arm b yields the expected
         value, and the final step is correctly ordered after b completes."""
-        rig = YRig()
+        rig = YRig(pinned_alloc)
         rig.a[1].destroy()
         rig.run()
         _, b_exp, _ = rig.expected_output
@@ -169,9 +168,9 @@ class TestMutateYRig:
         assert rig.nodes == rig.initial_nodes - {a1}
         rig.close()
 
-    def test_destroy_a2(self, init_cuda):
+    def test_destroy_a2(self, init_cuda, pinned_alloc):
         """Destroy a2, connect a1--r"""
-        rig = YRig()
+        rig = YRig(pinned_alloc)
         rig.a[2].destroy()
         rig.a[1].succ.add(rig.r)
         rig.A_OPS.pop()
@@ -182,9 +181,9 @@ class TestMutateYRig:
         assert rig.nodes == rig.initial_nodes - {a2}
         rig.close()
 
-    def test_destroy_joint(self, init_cuda):
+    def test_destroy_joint(self, init_cuda, pinned_alloc):
         """Remove the joining node and instead add edges directly to r."""
-        rig = YRig()
+        rig = YRig(pinned_alloc)
         _, _, a2, _, b1, j, r = rig.a + rig.b + [rig.j, rig.r]
         j.destroy()
         r.pred = {a2, b1}
@@ -194,9 +193,9 @@ class TestMutateYRig:
         assert rig.nodes == rig.initial_nodes - {j}
         rig.close()
 
-    def test_insert_b(self, init_cuda):
+    def test_insert_b(self, init_cuda, pinned_alloc):
         """Insert a node into arm b."""
-        rig = YRig()
+        rig = YRig(pinned_alloc)
         coeffs = 5, 3
         b_new = rig.graph_def.launch(rig.config, rig.affine, rig.ptr_b, *coeffs)
         b0, b1 = rig.b
@@ -441,7 +440,7 @@ def test_self_edge(init_cuda):
 
 
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_convert_linear_to_fan_in(init_cuda):
+def test_convert_linear_to_fan_in(init_cuda, pinned_alloc):
     """Chain four computations sequentially, then rewire so all pairs run in
     parallel feeding into a reduce node.
 
@@ -461,8 +460,7 @@ def test_convert_linear_to_fan_in(init_cuda):
     reduce_kern = mod.get_kernel("reduce")
     config = LaunchConfig(grid=1, block=1)
 
-    mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(5 * 4)
+    buf = pinned_alloc(5 * 4)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[:] = 0
 

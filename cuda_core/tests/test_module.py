@@ -502,7 +502,7 @@ def test_object_code_load_rdc_from_file(kind, from_fn, suffix, tmp_path):
         ("library", ObjectCode.from_library),
     ],
 )
-def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
+def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda, pinned_alloc):
     arch = f"sm_{init_cuda.arch}"
     kernel_code = Program(
         r"""
@@ -522,24 +522,21 @@ def test_object_code_load_rdc_with_linker(kind, from_fn, init_cuda):
     kernel = linked.get_kernel("linked_kernel")
 
     stream = init_cuda.create_stream()
-    host_buf = cuda.core.LegacyPinnedMemoryResource().allocate(4)
-    result = np.from_dlpack(host_buf).view(np.float32)
-    result[:] = 0.0
-    dev_buf = init_cuda.memory_resource.allocate(4, stream=stream)
+    with pinned_alloc(ctypes.sizeof(ctypes.c_float)) as host_buf:
+        result = ctypes.c_float.from_address(int(host_buf.handle))
+        result.value = 0.0
 
-    cuda.core.launch(
-        stream,
-        cuda.core.LaunchConfig(grid=1, block=1),
-        kernel,
-        np.float32(2.0),
-        np.float32(3.0),
-        np.float32(4.0),
-        dev_buf,
-    )
-    dev_buf.copy_to(host_buf, stream=stream)
-    stream.sync()
-
-    assert result[0] == 10.0
+        cuda.core.launch(
+            stream,
+            cuda.core.LaunchConfig(grid=1, block=1),
+            kernel,
+            np.float32(2.0),
+            np.float32(3.0),
+            np.float32(4.0),
+            host_buf,
+        )
+        stream.sync()
+        assert result.value == 10.0
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
@@ -870,11 +867,9 @@ def test_kernel_from_handle_foreign_kernel(init_cuda):
     assert k.attributes.max_threads_per_block > 0
 
 
-def test_kernel_keeps_library_alive(init_cuda):
+def test_kernel_keeps_library_alive(init_cuda, pinned_alloc):
     """Test that a Kernel keeps its underlying library alive after ObjectCode goes out of scope."""
     import gc
-
-    import numpy as np
 
     def get_kernel_only():
         """Return a kernel, letting ObjectCode go out of scope."""
@@ -904,23 +899,14 @@ def test_kernel_keeps_library_alive(init_cuda):
     device = Device()
     stream = device.create_stream()
 
-    # Allocate pinned host buffer and device buffer
-    pinned_mr = cuda.core.LegacyPinnedMemoryResource()
-    host_buf = pinned_mr.allocate(4)  # sizeof(int)
-    result = np.from_dlpack(host_buf).view(np.int32)
-    result[:] = 0
+    with pinned_alloc(ctypes.sizeof(ctypes.c_int)) as host_buf:
+        result = ctypes.c_int.from_address(int(host_buf.handle))
+        result.value = 0
 
-    dev_buf = device.memory_resource.allocate(4, stream=stream)
-
-    # Launch kernel
-    config = cuda.core.LaunchConfig(grid=1, block=1)
-    cuda.core.launch(stream, config, kernel, dev_buf)
-
-    # Copy result back to host
-    dev_buf.copy_to(host_buf, stream=stream)
-    stream.sync()
-
-    assert result[0] == 42, f"Expected 42, got {result[0]}"
+        config = cuda.core.LaunchConfig(grid=1, block=1)
+        cuda.core.launch(stream, config, kernel, host_buf)
+        stream.sync()
+        assert result.value == 42
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")

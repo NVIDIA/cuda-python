@@ -5,6 +5,7 @@ import ctypes
 
 import helpers
 from cuda_python_test_helpers.marks import requires_module, skipif_need_cuda_headers
+from helpers.memory import make_pinned_allocator
 from helpers.misc import StreamWrapper
 
 try:
@@ -19,6 +20,7 @@ from cuda.core import (
     DeviceMemoryResource,
     LaunchConfig,
     LegacyPinnedMemoryResource,
+    PinnedMemoryResource,
     Program,
     ProgramOptions,
     StreamOptions,
@@ -244,7 +246,7 @@ def test_to_native_launch_config_priority(init_cuda, priority, expected_num_attr
 
 
 @skipif_need_cuda_headers
-def test_pdl_primary_secondary_overlap_same_stream(init_cuda):
+def test_pdl_primary_secondary_overlap_same_stream(init_cuda, pinned_alloc):
     """Primary + secondary PDL launch on one stream can overlap on Hopper+.
 
     Secondary is launched with ``programmatic_stream_serialization=True``. After
@@ -294,9 +296,8 @@ def test_pdl_primary_secondary_overlap_same_stream(init_cuda):
     primary = mod.get_kernel("primary_kernel")
     secondary = mod.get_kernel("secondary_kernel")
 
-    mr = LegacyPinnedMemoryResource()
-    secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
-    overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    secondary_started = np.from_dlpack(pinned_alloc(4)).view(np.int32)
+    overlapped = np.from_dlpack(pinned_alloc(4)).view(np.int32)
 
     primary_cfg = LaunchConfig(grid=1, block=1)
     secondary_cfg = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
@@ -605,12 +606,11 @@ def write_scalar_module():
 
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_launch_scalar_argument(init_cuda, write_scalar_module, python_type, cpp_type, init_value):
+def test_launch_scalar_argument(init_cuda, pinned_alloc, write_scalar_module, python_type, cpp_type, init_value):
     dev = init_cuda
 
     # Prepare pinned host array
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(python_type).itemsize)
+    b = pinned_alloc(np.dtype(python_type).itemsize)
     arr = np.from_dlpack(b).view(python_type)
     arr[:] = 0
 
@@ -674,14 +674,17 @@ def test_cooperative_launch():
     s.sync()
 
 
-@pytest.mark.skipif(cp is None, reason="cupy not installed")
 @pytest.mark.parametrize(
     "memory_resource_class",
     [
-        "device_memory_resource",  # kludgy, but can go away after #726 is resolved
-        pytest.param(
-            LegacyPinnedMemoryResource,
-            marks=requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)"),
+        pytest.param("device_memory_resource", marks=pytest.mark.skipif(cp is None, reason="cupy not installed")),
+        *(
+            pytest.param(
+                resource_type,
+                marks=requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)"),
+                id=resource_type.__name__,
+            )
+            for resource_type in (LegacyPinnedMemoryResource, PinnedMemoryResource)
         ),
     ],
 )
@@ -689,9 +692,12 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     """Test that kernels can access memory allocated by memory resources."""
     dev = Device()
     dev.set_current()
+    is_host = memory_resource_class != "device_memory_resource"
+    if is_host:
+        pinned_alloc = make_pinned_allocator(memory_resource_class)
     stream = dev.create_stream()
-    # tell CuPy to use our stream as the current stream:
-    cp.cuda.ExternalStream(int(stream.handle)).use()
+    if not is_host:
+        cp.cuda.ExternalStream(int(stream.handle)).use()
 
     # Kernel that operates on memory
     code = """
@@ -712,39 +718,27 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     mod = prog.compile("cubin")
     kernel = mod.get_kernel("memory_ops")
 
-    # Create memory resource
-    if memory_resource_class == "device_memory_resource":
-        if dev.properties.memory_pools_supported:
-            mr = DeviceMemoryResource(dev.device_id)
-        else:
-            mr = _SynchronousMemoryResource(dev.device_id)
-        name = memory_resource_class
-    else:
-        mr = memory_resource_class()
-        name = str(mr)
-
     # Allocate memory
     size = 1024
     dtype = np.float32
     element_size = dtype().itemsize
     total_size = size * element_size
 
-    buffer = mr.allocate(total_size, stream=stream)
-
-    # Create array view based on memory type
-    if mr.is_host_accessible:
-        # For pinned memory, use numpy
-        array = np.from_dlpack(buffer).view(dtype=dtype)
+    if is_host:
+        buffer = pinned_alloc(total_size)
+        name = memory_resource_class.__name__
     else:
-        array = cp.from_dlpack(buffer).view(dtype=dtype)
+        if dev.properties.memory_pools_supported:
+            mr = DeviceMemoryResource(dev.device_id)
+        else:
+            mr = _SynchronousMemoryResource(dev.device_id)
+        buffer = mr.allocate(total_size, stream=stream)
+        name = memory_resource_class
 
-    # Initialize data with random values
-    if mr.is_host_accessible:
-        rng = np.random.default_rng()
-        array[:] = rng.random(size, dtype=dtype)
-    else:
-        rng = cp.random.default_rng()
-        array[:] = rng.random(size, dtype=dtype)
+    xp = np if is_host else cp
+    array = xp.from_dlpack(buffer).view(dtype=dtype)
+    rng = xp.random.default_rng()
+    array[:] = rng.random(size, dtype=dtype)
 
     # Store original values for verification
     original = array.copy()
@@ -761,13 +755,14 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     stream.sync()
 
     # Verify kernel operations
-    assert cp.allclose(array, original * 3.0), f"{name} operation failed"
+    assert xp.allclose(array, original * 3.0), f"{name} operation failed"
 
     # Clean up
     buffer.close(stream)
     stream.close()
 
-    cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
+    if not is_host:
+        cp.cuda.Stream.null.use()
 
     # Verify buffer is properly closed
     assert buffer.handle == 0, f"{name} buffer should be closed"
@@ -837,7 +832,7 @@ def test_kernel_arg_ctypes_subclass_isinstance_fallback():
         "numpy_float32",
     ],
 )
-def test_launch_scalar_argument_subclass_fallback(init_cuda, base_type, np_dtype, cpp_type, raw_value):
+def test_launch_scalar_argument_subclass_fallback(init_cuda, pinned_alloc, base_type, np_dtype, cpp_type, raw_value):
     """Subclassed scalar arguments survive fallback handling and reach the kernel
     with the correct width/sign. The readback value (not just ptr != 0) guards each
     fallback branch against marshalling the wrong C type, e.g. uint64 -> uint32_t."""
@@ -850,8 +845,7 @@ def test_launch_scalar_argument_subclass_fallback(init_cuda, base_type, np_dtype
 
     dev = init_cuda
 
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np_dtype).itemsize)
+    b = pinned_alloc(np.dtype(np_dtype).itemsize)
     arr = np.from_dlpack(b).view(np_dtype)
     arr[:] = 0
 
@@ -951,7 +945,7 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
 )
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_launch_numpy_scalar_subclass_fallback(
-    init_cuda, write_scalar_module, base_type, np_dtype, cpp_type, raw_value
+    init_cuda, pinned_alloc, write_scalar_module, base_type, np_dtype, cpp_type, raw_value
 ):
     """Subclassed numpy scalars take prepare_numpy_arg's isinstance fallback and reach the kernel (readback)."""
 
@@ -963,8 +957,7 @@ def test_launch_numpy_scalar_subclass_fallback(
 
     dev = init_cuda
 
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(np.dtype(np_dtype).itemsize)
+    b = pinned_alloc(np.dtype(np_dtype).itemsize)
     arr = np.from_dlpack(b).view(np_dtype)
     arr[:] = 0
 
@@ -994,9 +987,8 @@ def _compile_write_ull_kernel(dev):
     return prog.compile("cubin", name_expressions=("write_ull",)).get_kernel("write_ull")
 
 
-def _assert_kernel_sees_ull(dev, kernel_arg, expected):
-    mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(np.dtype(np.uint64).itemsize)
+def _assert_kernel_sees_ull(dev, pinned_alloc, kernel_arg, expected):
+    buf = pinned_alloc(np.dtype(np.uint64).itemsize)
     try:
         arr = np.from_dlpack(buf).view(np.uint64)
         arr[:] = 0
@@ -1011,7 +1003,7 @@ def _assert_kernel_sees_ull(dev, kernel_arg, expected):
 
 @pytest.mark.parametrize("use_subclass", [False, True], ids=["exact_type", "subclass_fallback"])
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
-def test_launch_graph_conditional_handle_as_kernel_arg(init_cuda, use_subclass):
+def test_launch_graph_conditional_handle_as_kernel_arg(init_cuda, pinned_alloc, use_subclass):
     """CUgraphConditionalHandle is packed as its uint64 value (readback)."""
     from cuda.bindings import driver
 
@@ -1023,7 +1015,7 @@ def test_launch_graph_conditional_handle_as_kernel_arg(init_cuda, use_subclass):
 
     dev = Device()
     dev.set_current()
-    _assert_kernel_sees_ull(dev, handle, _UINT64_HANDLE_VALUE)
+    _assert_kernel_sees_ull(dev, pinned_alloc, handle, _UINT64_HANDLE_VALUE)
 
 
 @pytest.mark.parametrize("allocation", ["managed", "virtual"])

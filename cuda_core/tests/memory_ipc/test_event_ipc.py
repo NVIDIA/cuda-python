@@ -26,7 +26,7 @@ class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, ipc_device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource, pinned_alloc):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
         mr = ipc_memory_resource
@@ -36,7 +36,7 @@ class TestEventIpc:
         # in which case the call to buffer.copy_from(...) below is a synchronous
         # operation that blocks the host. But calling the latch kernel here does not
         # make any sense. We should refactor this test.
-        latch = LatchKernel(device, timeout_sec=5)
+        latch = LatchKernel(device, pinned_alloc=pinned_alloc, timeout_sec=5)
 
         # Start the child process.
         q_out, q_in = [mp.Queue() for _ in range(2)]

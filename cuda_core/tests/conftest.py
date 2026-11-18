@@ -38,6 +38,7 @@ from helpers.constants import POOL_SIZE
 from helpers.memory import (
     BaselineMemoryResourceReleasedWarning,
     UnreleasedMemoryResourceWarning,
+    make_pinned_allocator,
     skip_if_pinned_memory_unsupported,
 )
 
@@ -47,6 +48,7 @@ from cuda.core import (
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    LegacyPinnedMemoryResource,
     ManagedMemoryResource,
     ManagedMemoryResourceOptions,
     PinnedMemoryResource,
@@ -584,6 +586,15 @@ def mempool_device(init_cuda):
         pytest.skip("Device does not support mempool operations")
 
     return device
+
+
+@pytest.fixture(
+    params=(LegacyPinnedMemoryResource, PinnedMemoryResource),
+    ids=lambda resource_type: resource_type.__name__,
+)
+def pinned_alloc(request, init_cuda):
+    """Allocate host-ready buffers from either pinned memory resource."""
+    return make_pinned_allocator(request.param)
 
 
 def _mempool_device_impl(num):

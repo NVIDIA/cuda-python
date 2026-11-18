@@ -12,7 +12,7 @@ import pytest
 from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_common_kernels, compile_conditional_kernels
 
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core import Device, LaunchConfig, launch
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.graph import GraphDefinition
 
@@ -28,14 +28,13 @@ def _wait_until(predicate, timeout=5.0):
 
 @pytest.mark.parametrize("builder", ["GraphBuilder", "GraphDefinition"])
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_update_kernel_args(init_cuda, builder):
+def test_graph_update_kernel_args(init_cuda, pinned_alloc, builder):
     """Update redirects a kernel to write to a different pointer."""
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
 
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(8)
+    b = pinned_alloc(8)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -74,14 +73,13 @@ def test_graph_update_kernel_args(init_cuda, builder):
 
 
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_update_conditional(init_cuda):
+def test_graph_update_conditional(init_cuda, pinned_alloc):
     """Update swaps conditional switch graphs with matching topology."""
     mod = compile_conditional_kernels(int)
     add_one = mod.get_kernel("add_one")
 
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(12)
+    b = pinned_alloc(12)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
