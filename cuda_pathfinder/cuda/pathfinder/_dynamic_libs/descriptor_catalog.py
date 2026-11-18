@@ -429,6 +429,9 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcudnn.so.9",),
         windows_dlls=("cudnn64_9.dll",),
         supported_windows_arch=("x64", "arm64"),
+        # Skip DLLs that do not match the running Python interpreter's architecture,
+        # allowing the search to continue to a compatible installation.
+        requires_windows_binary_arch_check=True,
         site_packages_linux=("nvidia/cudnn/lib",),
         site_packages_windows=WindowsSearchDirs(
             x64=("nvidia/cudnn/bin",),

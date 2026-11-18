@@ -61,6 +61,7 @@ def test_cudnn_arm64_archive_layout_reaches_loader(tmp_path, mocker, monkeypatch
     dll.touch()
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.setenv("CUDNN_PATH", str(tmp_path))
+    mocker.patch("cuda.pathfinder._dynamic_libs.search_platform.windows_pe_matches_arch", return_value=True)
 
     desc = load_mod.LIB_DESCRIPTORS["cudnn"]
     ctx = SearchContext(desc, platform=WindowsSearchPlatform(target_arch="arm64"))

@@ -206,7 +206,7 @@ def test_only_ctk_libs_define_ctk_root_canary_anchors(spec: DescriptorSpec):
 
 
 @pytest.mark.agent_authored(model="gpt-5")
-def test_only_nvvm_requires_windows_binary_arch_check():
+def test_windows_binary_arch_checks_cover_architecture_neutral_layouts():
     checked_libs = {spec.name for spec in DESCRIPTOR_CATALOG if spec.requires_windows_binary_arch_check}
 
-    assert checked_libs == {"nvvm"}
+    assert checked_libs == {"nvvm", "cudnn"}
