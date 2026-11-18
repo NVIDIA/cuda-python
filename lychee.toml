@@ -12,4 +12,8 @@ exclude = [
     '^file://.*/cuda-bindings/latest/module/(driver|runtime)\.html#id[0-9]+$',
     # Preferred Networks rejects hosted-runner GETs, but the URL is browser reachable.
     '^https://www\.preferred\.jp/en/?$',
+    # Previously valid GitHub references became unavailable in November 2026.
+    '^https://github\.com/NVIDIA/cuda-python/pull/2236$',
+    '^https://github\.com/NVIDIA/cuda-python/issues/2344$',
+    '^https://github\.com/NVIDIA/cuda-python/issues/2345$',
 ]

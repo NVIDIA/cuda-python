@@ -244,6 +244,7 @@ def init_cuda(request):
     # live_at_setup stays None until the setup snapshot is recorded.
     device.set_current()
     live_at_setup = None
+    primary_error = None
     try:
         # Set option to avoid spin-waiting on synchronization.
         if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
@@ -275,6 +276,9 @@ def init_cuda(request):
         # not counted, so no cached-default bookkeeping is needed.
         live_at_setup = _live_resource_counts()
         yield device
+    except BaseException as exc:
+        primary_error = exc
+        raise
     finally:
         # pytest holds fixture values in item.funcargs (a pytest-internal dict)
         # until all teardown has run; we deliberately drop them so already
@@ -298,8 +302,23 @@ def init_cuda(request):
         # With pytest-run-parallel this runs after worker join. This also runs
         # when setup raises, so an escalated leftover warning cannot leave the
         # context current.
-        driver.cuCtxSynchronize()
-        _ = _device_unset_current()
+        # The test wrapper may already have popped the calling thread's
+        # context; synchronize the fixture device's bound context explicitly.
+        # Keep the first failure primary; cleanup still runs for interrupts.
+        try:
+            device.sync()
+        except BaseException as exc:
+            if primary_error is None:
+                primary_error = exc
+                raise
+            primary_error.add_note(f"CUDA fixture synchronization failed: {type(exc).__name__}: {exc}")
+        finally:
+            try:
+                _ = _device_unset_current()
+            except BaseException as exc:
+                if primary_error is None:
+                    raise
+                primary_error.add_note(f"CUDA fixture context pop failed: {type(exc).__name__}: {exc}")
         # After the cleanup, so an escalated warning cannot skip it.
         if live_after is not None and any(now < snap for now, snap in zip(live_after, live_at_setup)):
             released = tuple(s - n for s, n in zip(live_at_setup, live_after))

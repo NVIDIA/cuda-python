@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from pathlib import Path
+
 import pytest
 
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_mod
@@ -163,8 +165,67 @@ def test_cupti_not_found_raises_error(mocker):
 
 
 # ---------------------------------------------------------------------------
-# Search order tests (Conda-specific, since Conda is not covered by real CI)
+# Search order tests
 # ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("preferred_source", ("site-packages", "conda", "system-search"))
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mocker, monkeypatch, preferred_source):
+    desc = load_mod.LIB_DESCRIPTORS["cublasLt"]
+    platform = steps_mod.PLATFORM
+    filename = desc.windows_dlls[0] if IS_WINDOWS else desc.linux_sonames[0]
+
+    def create_library(root, relative_dir):
+        path = root / relative_dir / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+        return path
+
+    cuda_root = tmp_path / "toolkit"
+    create_library(cuda_root, platform.anchor_rel_dirs(desc)[0])
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=str(cuda_root))
+
+    conda_root = tmp_path / "conda"
+    conda_anchor = Path(platform.conda_anchor_point(str(conda_root)))
+    conda_path = create_library(conda_anchor, platform.anchor_rel_dirs(desc)[0])
+    if preferred_source == "system-search":
+        monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    else:
+        monkeypatch.setenv("CONDA_PREFIX", str(conda_root))
+
+    wheel_root = tmp_path / "wheels"
+    wheel_path = create_library(wheel_root, platform.site_packages_rel_dirs(desc)[0])
+
+    def find_wheel_dirs(sub_dirs):
+        directory = wheel_root.joinpath(*sub_dirs)
+        return [str(directory)] if preferred_source == "site-packages" and directory.is_dir() else []
+
+    mocker.patch(
+        "cuda.pathfinder._dynamic_libs.search_platform.find_sub_dirs_all_sitepackages",
+        side_effect=find_wheel_dirs,
+    )
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
+    mocker.patch(f"{_MODULE}.load_dependencies")
+    native_path = tmp_path / "native" / filename
+    native_search = mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_system_search",
+        return_value=_make_loaded_dl(str(native_path), "system-search"),
+    )
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_abs_path",
+        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
+    )
+
+    loaded = _load_lib_no_cache("cublasLt")
+
+    expected_path = {"site-packages": wheel_path, "conda": conda_path, "system-search": native_path}[preferred_source]
+    assert loaded.found_via == preferred_source
+    assert loaded.abs_path == str(expected_path)
+    if preferred_source != "system-search":
+        native_search.assert_not_called()
 
 
 def test_cupti_search_order_conda_before_cuda_home(tmp_path, mocker, monkeypatch):

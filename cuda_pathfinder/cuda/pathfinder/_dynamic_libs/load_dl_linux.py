@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-import contextlib
 import ctypes
 import ctypes.util
 import os
 import sys
+import warnings
 from typing import TYPE_CHECKING, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
@@ -182,23 +182,40 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     return None
 
 
-def _work_around_known_bugs(libname: str, found_path: str) -> None:
-    if libname == "nvrtc":
-        # Work around bug/oversight in
-        #   nvidia_cuda_nvrtc-13.0.48-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl
-        # Issue: libnvrtc.so.13 RUNPATH is not set.
-        # This workaround is highly specific
-        #   - for simplicity.
-        #   - to not mask bugs in future nvidia-cuda-nvrtc releases.
-        #   - because a more general workaround is complicated.
-        dirname, basename = os.path.split(found_path)
-        if basename == "libnvrtc.so.13":
-            dep_basename = "libnvrtc-builtins.so.13.0"
-            dep_path = os.path.join(dirname, dep_basename)
-            if os.path.isfile(dep_path):
-                # In case of failure, defer to primary load, which is almost certain to fail, too.
-                with contextlib.suppress(OSError):
-                    ctypes.CDLL(dep_path, CDLL_MODE)
+def _preload_nvrtc_builtins(found_path: str, found_via: str | None) -> None:
+    # Let Conda packaging provide sibling lookup through RPATH.
+    if found_via == "conda":
+        return
+    real_path = os.path.realpath(found_path)
+    version = os.path.basename(real_path).removeprefix("libnvrtc.so.").split(".")
+    if found_via == "site-packages":
+        # Retain only the historical 13.0 wheel workaround.
+        if version[0] != "13":
+            return
+        major, minor = 13, 0
+    else:
+        if len(version) < 2 or not (version[0].isdigit() and version[1].isdigit()):
+            warnings.warn(
+                f"Cannot determine the NVRTC version from {real_path}; not preloading its builtins",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return
+        major, minor = version[0], version[1]
+    sibling = os.path.join(os.path.dirname(real_path), f"libnvrtc-builtins.so.{major}.{minor}")
+    if not os.path.isfile(sibling):
+        if found_via != "site-packages":
+            warnings.warn(f"NVRTC builtins sibling not found: {sibling}", RuntimeWarning, stacklevel=2)
+        return
+    # If preloading fails, NVRTC's own builtins lookup may still succeed.
+    try:
+        ctypes.CDLL(sibling, CDLL_MODE)
+    except OSError as e:
+        warnings.warn(
+            f"Failed to preload {sibling} for {found_path}: {e}; NVRTC may fail when it loads its builtins itself",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
 
 def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL:
@@ -215,9 +232,10 @@ def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | No
     Raises:
         RuntimeError: If the library cannot be loaded.
     """
-    _work_around_known_bugs(desc.name, found_path)
     try:
         handle = _load_lib(desc, found_path)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
+    if desc.name == "nvrtc":
+        _preload_nvrtc_builtins(found_path, found_via)
     return LoadedDL(found_path, False, handle._handle, found_via)

@@ -1,7 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import json
+import os
+import shutil
+import subprocess
 import sys
+import uuid
+from pathlib import Path
 
 import pytest
 
@@ -10,6 +16,51 @@ if sys.platform != "win32":
 
 from cuda.pathfinder._dynamic_libs import load_dl_windows
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
+
+
+@pytest.mark.agent_authored(model="gpt-6.1-sol")
+def test_system_search_finds_dll_exposed_only_through_path(tmp_path, info_summary_append):
+    dll_name = f"cuda_pathfinder_probe_{uuid.uuid4().hex}.dll"
+    dll_dir = tmp_path / "path_only"
+    dll_dir.mkdir()
+    dll_path = dll_dir / dll_name
+    shutil.copyfile(Path(os.environ["SYSTEMROOT"], "System32", "version.dll"), dll_path)
+    probe = """\
+import json
+import sys
+from dataclasses import replace
+
+from cuda.pathfinder._dynamic_libs import load_dl_windows
+from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
+
+desc = replace(LIB_DESCRIPTORS["cublasLt"], windows_dlls=(sys.argv[1],))
+loaded = load_dl_windows.load_with_system_search(desc)
+print(json.dumps(None if loaded is None else {
+    "abs_path": loaded.abs_path,
+    "found_via": loaded.found_via,
+}))
+"""
+
+    def run_probe(env):
+        result = subprocess.run(  # noqa: S603 - trusted interpreter, test-owned script and DLL filename
+            [sys.executable, "-c", probe, dll_name],
+            check=True,
+            capture_output=True,
+            text=True,
+            env=env,
+            cwd=tmp_path,
+            timeout=30,
+        )
+        return json.loads(result.stdout)
+
+    env = os.environ.copy()
+    assert run_probe(env) is None
+    env["PATH"] = os.pathsep.join((str(dll_dir), env.get("PATH", "")))
+    loaded = run_probe(env)
+
+    assert loaded["found_via"] == "system-search"
+    assert os.path.samefile(loaded["abs_path"], dll_path)
+    info_summary_append(f"PATH-only DLL: abs_path={loaded['abs_path']!r}")
 
 
 @pytest.mark.agent_authored(model="gpt-5.6-sol")

@@ -19,16 +19,32 @@ jobs:
   coverage-vars:
     if: ${{ github.repository_owner == 'nvidia' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
+      BINDINGS_ROOT: ${{ steps.get-vars.outputs.bindings_root }}
       CUDA_VER: ${{ steps.get-vars.outputs.cuda_ver }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - name: Get CUDA version
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+        with:
+          python-version: "3.11"
+
+      - name: Install CI tool dependencies
+        run: python3 -m pip install -e ./ci
+
+      - name: Resolve current CUDA bindings package
         id: get-vars
         run: |
-          cuda_ver=$(yq '.cuda.build.version' ci/versions.yml)
-          echo "cuda_ver=$cuda_ver" >> $GITHUB_OUTPUT
+          current=$(python3 -m ci.tools.bindings_config --release-status current)
+          {
+            echo "bindings_root=$(jq -r '.package_root' <<< "$current")"
+            echo "cuda_ver=$(jq -r '.toolkit_version' <<< "$current")"
+          } >> "$GITHUB_OUTPUT"
 
   coverage-linux:
     name: Coverage (Linux)
@@ -43,6 +59,7 @@ jobs:
     env:
       HOST_PLATFORM: "linux-64"
       ARCH: "x86_64"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     # Our self-hosted runners require a container
     # TODO: use a different (nvidia?) container
@@ -87,30 +104,23 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
-          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1 yq"
+          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
+          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
-
-      - name: Set environment variables
-        env:
-          BUILD_CUDA_VER: ${{ env.CUDA_VER }}
-          CUDA_VER: ${{ env.CUDA_VER }}
-          HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
-          LOCAL_CTK: ${{ env.LOCAL_CTK }}
-          PY_VER: ${{ env.PY_VER }}
-          SHA: ${{ github.sha }}
-        run: |
-          ./ci/tools/env-vars test
-          echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up Python
         uses: ./.github/actions/setup-hardened-python
         with:
           python-version: ${{ env.PY_VER }}
           venv: .venv
+
+      - name: Set environment variables
+        run: |
+          echo "CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+          echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up mini CTK
         if: ${{ env.LOCAL_CTK == '1' }}
@@ -138,8 +148,8 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(pwd)/wheel-constraints/cuda-bindings.txt"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          .venv/bin/pip wheel -v --no-deps ./cuda_bindings_13 -w ./wheels/
-          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./cuda_bindings_13/pyproject.toml:test
+          .venv/bin/pip wheel -v --no-deps ./${BINDINGS_ROOT} -w ./wheels/
+          .venv/bin/pip install -v ./wheels/cuda_bindings*.whl --group ./${BINDINGS_ROOT}/pyproject.toml:test
 
       - name: Constrain cuda-core to the local cuda-bindings wheel
         run: |
@@ -184,7 +194,7 @@ jobs:
         continue-on-error: true
         run: |
           cd $INSTALL_ROOT
-          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings_13/tests
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-context=test --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/${BINDINGS_ROOT}/tests
 
       - name: Trace cuda.core imports
         continue-on-error: true
@@ -237,6 +247,7 @@ jobs:
     env:
       HOST_PLATFORM: "win-64"
       CUDA_PYTHON_COVERAGE: "1"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     steps:
       - name: Harden OS certificate trust (eMudhra/emSign CA stopgap)
@@ -295,8 +306,7 @@ jobs:
         run: |
           export PIP_BUILD_CONSTRAINT="$(cygpath -w "$(pwd)/wheel-constraints/cuda-bindings.txt")"
           export PIP_CONSTRAINT="${PIP_BUILD_CONSTRAINT}"
-          cd cuda_bindings_13
-          ../.venv/Scripts/pip wheel -v --no-deps . -w ../wheels/
+          .venv/Scripts/pip wheel -v --no-deps "./${BINDINGS_ROOT}" -w ./wheels/
 
       - name: Constrain cuda.core to the local cuda.bindings wheel
         run: |
@@ -361,6 +371,7 @@ jobs:
       HOST_PLATFORM: "win-64"
       ARCH: "amd64"
       CUDA_PYTHON_COVERAGE: "1"
+      BINDINGS_ROOT: ${{ needs.coverage-vars.outputs.BINDINGS_ROOT }}
       CUDA_VER: ${{ needs.coverage-vars.outputs.CUDA_VER }}
     defaults:
       run:
@@ -432,7 +443,7 @@ jobs:
         run: |
           .venv/Scripts/pip install coverage pytest-cov Cython
           .venv/Scripts/pip install --group ./cuda_pathfinder/pyproject.toml:test
-          .venv/Scripts/pip install --group ./cuda_bindings_13/pyproject.toml:test
+          .venv/Scripts/pip install --group ./${BINDINGS_ROOT}/pyproject.toml:test
           .venv/Scripts/pip install --group ./cuda_core/pyproject.toml:test
 
       - name: Get install root
@@ -457,7 +468,7 @@ jobs:
           "$GITHUB_WORKSPACE/.venv/Scripts/python" -m pytest \
             -v --cov=./cuda --cov-append --cov-context=test \
             --cov-config="$GITHUB_WORKSPACE/.coveragerc" \
-            "$GITHUB_WORKSPACE/cuda_bindings_13/tests"
+            "$GITHUB_WORKSPACE/${BINDINGS_ROOT}/tests"
 
       - name: Trace cuda.core imports
         continue-on-error: true
@@ -599,7 +610,7 @@ jobs:
     # GitHub discards prerequisite artifacts on a new run attempt. If only this
     # job fails, use "Re-run all jobs" so coverage recreates its payload.
     needs: combine-and-deploy
-    if: ${{ needs.combine-and-deploy.result == 'success' && github.repository_owner == 'nvidia' }}
+    if: ${{ needs.combine-and-deploy.result == 'success' && github.repository_owner == 'nvidia' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
