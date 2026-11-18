@@ -120,8 +120,10 @@ Documentation and Maintenance
 
 * CUDA 12.9 maintenance sources now live in ``cuda_bindings_12`` on ``main``.
   The historical ``12.9.x`` branch is frozen except for emergency fixes, which
-  must also be reconciled into ``main``. CUDA 12 releases are built and tested
-  from the main-tree source alongside CUDA 13.
+  must also be reconciled into ``main``. Main-tree CUDA 12 releases are built
+  and tested alongside CUDA 13. Old-layout CUDA 12 tags are released from a
+  validated workflow on the appropriate maintenance branch or historical tag,
+  not from ``main``.
 * Corrected the CUDA 12 driver guidance to its existing minor-version
   compatibility baseline: Linux 525.60.13 and Windows 528.33. This is a
   documentation correction, not a new runtime version check. Newer features
