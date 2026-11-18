@@ -3,20 +3,24 @@
 
 """Check that everything that depends on the cuda-bindings floor agrees with it.
 
-The floor of each CUDA major is declared once, by the `cu12`/`cu13` extras in
-cuda_core/pyproject.toml (see cuda_core/cuda/core/_bindings_floor.py). Most
-consumers read it from there. These constraints cannot be derived from it, so
-this script checks them, as a pre-commit hook and from
+The floor of each CUDA major is declared once, by the
+`minimal-sysctk12`/`minimal-sysctk13` extras in cuda_core/pyproject.toml, which
+the `cu12`/`cu13` extras include (see cuda_core/cuda/core/_bindings_floor.py).
+Most consumers read it from there. These constraints cannot be derived from it,
+so this script checks them, as a pre-commit hook and from
 cuda_core/tests/test_bindings_floor.py:
 
 1. The extras parse: each `cu<N>` extra pins exactly
-   `cuda-bindings[...]>=<N>.<minor>.<patch>,<<N+1>`.
-2. ci/versions.yml builds each major against a CUDA Toolkit of at least the
+   `cuda-bindings[...]>=<N>.<minor>.<patch>,<<N+1>`, itself or through the
+   extra that it includes.
+2. Each `cu<N>` extra lists `cuda-core[minimal-sysctk<N>]`, so that it carries
+   the floor to pip and uv.
+3. ci/versions.yml builds each major against a CUDA Toolkit of at least the
    floor's major.minor. A toolkit below the floor's minor cannot build the
    floor's cuda-bindings, because the build requires the header that
    cuda-bindings was generated from. A toolkit ahead of the floor is the
    toolkit-bump window described in cuda_core/AGENTS.md.
-3. No documentation page spells a floor out by hand. docs/source/conf.py
+4. No documentation page spells a floor out by hand. docs/source/conf.py
    provides |cuda-bindings-floor-cu12| and |cuda-bindings-floor-cu13|.
    Release notes are history and are exempt.
 
@@ -51,11 +55,25 @@ def load_floor_module(repo_root: Path):
     return module
 
 
+def read_extras(repo_root: Path) -> dict[str, list[str]]:
+    with open(repo_root / PYPROJECT, "rb") as f:
+        return tomllib.load(f)["project"]["optional-dependencies"]
+
+
 def read_floors(repo_root: Path) -> dict[int, tuple[int, int, int]]:
     """The floors declared by the pyproject extras. Raises ValueError if they do not parse."""
-    with open(repo_root / PYPROJECT, "rb") as f:
-        extras = tomllib.load(f)["project"]["optional-dependencies"]
-    return load_floor_module(repo_root).floors_from_extras(extras)
+    return load_floor_module(repo_root).floors_from_extras(read_extras(repo_root))
+
+
+def cu_extra_problems(repo_root: Path, floors: dict[int, tuple[int, int, int]]) -> list[str]:
+    """`cu<N>` extras that do not include `minimal-sysctk<N>`. pip and uv would not see the floor through them."""
+    extras = read_extras(repo_root)
+    problems = []
+    for major in floors:
+        wanted = f"cuda-core[minimal-sysctk{major}]"
+        if wanted not in (r.replace(" ", "") for r in extras.get(f"cu{major}", [])):
+            problems.append(f"{PYPROJECT}: the 'cu{major}' extra must list {wanted!r}, so that it carries the floor")
+    return problems
 
 
 def ci_pin_problems(floors: dict[int, tuple[int, int, int]], versions_yml: str) -> list[str]:
@@ -99,7 +117,8 @@ def check(repo_root: Path) -> list[str]:
         floors = read_floors(repo_root)
     except ValueError as exc:
         return [f"{PYPROJECT}: {exc}"]
-    problems = ci_pin_problems(floors, (repo_root / CI_VERSIONS).read_text(encoding="utf-8"))
+    problems = cu_extra_problems(repo_root, floors)
+    problems += ci_pin_problems(floors, (repo_root / CI_VERSIONS).read_text(encoding="utf-8"))
     problems += docs_problems(repo_root)
     return problems
 

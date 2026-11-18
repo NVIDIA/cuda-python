@@ -1263,6 +1263,7 @@ def test_nvrtc_debug_keeps_file_the_caller_named(init_cuda, tmp_path, debug):
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
+@pytest.mark.thread_unsafe(reason="concurrent cuda-gdb sessions on one GPU hang with CUDA_ERROR_INVALID_CONTEXT")
 def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
     import pathlib
 

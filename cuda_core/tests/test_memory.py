@@ -81,7 +81,7 @@ from cuda.core.typing import (
     VirtualMemoryLocationType,
 )
 from cuda.core.utils import StridedMemoryView
-from cuda_python_test_helpers import IS_WINDOWS
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 
@@ -1246,6 +1246,7 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@thread_unsafe_on_windows
 @pytest.mark.human_reviewed
 @pytest.mark.parametrize("pool", ["current", "new", "new_numa"])
 def test_pinned_memory_resource_kernel_access(init_cuda, pool):
@@ -1463,6 +1464,9 @@ def test_vmm_allocator_basic_allocation(init_cuda, use_device_object, handle_typ
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.skipif(
+    IS_WSL, reason="GPUDirect RDMA is not supported on WSL, but some drivers report the capability there"
+)
 def test_vmm_allocator_policy_configuration(init_cuda):
     """Test VMM allocator with different policy configurations.
 
@@ -2972,6 +2976,7 @@ def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, 
         mr.close()
 
 
+@pytest.mark.thread_unsafe(reason="CUDA legacy-default-stream mempool teardown/sync race (gh-3350)")
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 @pytest.mark.parametrize("kind", ["reserved", "used"])
 def test_mempool_watermark_reset(memory_resource_factory, kind):
@@ -3061,6 +3066,84 @@ def test_mempool_calls_during_capture_keep_capture_valid(memory_resource_factory
         gb.end_building()
         gb.close()
         mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize(
+    ("mode", "caller"),
+    # A thread-local capture does not restrict other threads, so pairing it
+    # with other_thread would pass without relaxed mode.
+    [("global", "same_thread"), ("global", "other_thread"), ("thread_local", "same_thread")],
+)
+def test_pmr_construction_during_capture_keeps_capture_valid(init_cuda, mode, caller):
+    """PinnedMemoryResource() without options does not invalidate a capture on another thread.
+
+    Since #3405 construction calls cuMemPoolSetAccess, which the driver refuses
+    while a global-mode capture is active on any thread or a thread-local one on
+    the calling thread. The fix runs that call in relaxed capture mode (#3451).
+    """
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+    device.set_current()
+
+    mr = None
+
+    def construct():
+        device.set_current()
+        nonlocal mr
+        mr = PinnedMemoryResource()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    try:
+        if caller == "same_thread":
+            construct()
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(construct).result()
+    finally:
+        # Raises if construction invalidated the capture.
+        gb.end_building()
+        gb.close()
+        if mr is not None:
+            mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize("mode", ["global", "thread_local"])
+def test_pmr_construction_restores_capture_mode(init_cuda, mode):
+    """After construction the calling thread is back in its previous capture mode.
+
+    PinnedMemoryResource() switches the thread to relaxed mode around its
+    cuMemPoolSetAccess call (#3451) and must not leave it there.
+    """
+
+    def thread_capture_mode():
+        # Exchange the mode with relaxed twice to read without changing it.
+        relaxed = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_RELAXED
+        err, current = driver.cuThreadExchangeStreamCaptureMode(relaxed)
+        assert err == driver.CUresult.CUDA_SUCCESS
+        err, _ = driver.cuThreadExchangeStreamCaptureMode(current)
+        assert err == driver.CUresult.CUDA_SUCCESS
+        return current
+
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+    device.set_current()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    mr = None
+    try:
+        before = thread_capture_mode()
+        mr = PinnedMemoryResource()
+        assert thread_capture_mode() == before
+    finally:
+        # Raises if construction invalidated the capture.
+        gb.end_building()
+        gb.close()
+        if mr is not None:
+            mr.close()
 
 
 def test_mempool_attributes_repr(memory_resource_factory):

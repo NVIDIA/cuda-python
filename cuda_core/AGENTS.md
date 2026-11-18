@@ -74,18 +74,21 @@ Nothing else moves a floor. A new `cuda-bindings` release does not, and a
 `cuda.core` release does not. Do not raise a floor to the newest release. To
 bump:
 
-1. Edit the `cuda-bindings` pin in the `cu12` or `cu13` extra in
-   `pyproject.toml`. That is the only version to type.
+1. Edit the `cuda-bindings` pin in the `minimal-sysctk12` or
+   `minimal-sysctk13` extra in `pyproject.toml`. That is the only version to
+   type. The `cu12` and `cu13` extras include these extras and carry no
+   version of their own.
 2. Check `ci/versions.yml`. The `build` pin is the current major and the
    `prev_build` pin is the prior major. Neither toolkit pin may sit below its
    floor's major.minor, or CI builds a configuration that the build rejects. A
    toolkit ahead of the floor is the bump window described below. The
    pre-commit hook `check-cuda-core-bindings-floor`
    (`toolshed/check_cuda_core_bindings_floor.py`) checks the pins. It also
-   checks that no documentation page spells a floor out by hand.
-3. Add to the release notes a "Breaking Changes" entry that names the new
-   floors. The support-policy table in `docs/source/support.rst` reads the
-   floors and the release version at docs-build time. It needs no edit.
+   validates the extras and checks that no documentation page spells a floor
+   out by hand.
+3. Add to the release notes an entry that names the new floors. The
+   support-policy table in `docs/source/support.rst` reads the floors and the
+   release version at docs-build time. It needs no edit.
 4. If the pins moved past what the pixi lock files resolve, refresh the lock
    files.
 5. Pin `cuda-bindings` to match in the conda-forge `cuda-core` feedstock. The
@@ -119,8 +122,9 @@ the literal floor, until the floor is bumped. The order is:
    is normally its first release.
 
 A `cuda.core` release must not ship while the window is open. In the window,
-the `cu<major>` extra can resolve to a `cuda-bindings` that fails the header
-check at import, and CI does not test the literal floor.
+the `minimal-sysctk<major>` and `cu<major>` extras can resolve to a
+`cuda-bindings` that fails the header check at import, and CI does not test
+the literal floor.
 
 ## Testing expectations
 

@@ -73,6 +73,30 @@ def test_dlpack_export_roundtrip_dtypes(dtype):
     _assert_dlpack_export_roundtrip(np.zeros((2, 3), dtype=dtype))
 
 
+@pytest.mark.agent_authored(model="glm-5.3")
+def test_dlpack_export_bfloat16_roundtrip(init_cuda):
+    """bfloat16 views export as kDLBfloat and re-import as bfloat16 (#3337).
+
+    This test becomes unnecessary when `_assert_dlpack_export_roundtrip`
+    starts testing bfloat16, which should be `ml_dtypes>0.6.0`.
+    """
+    if ml_dtypes is None:
+        pytest.skip("ml_dtypes is not installed")
+    src = np.zeros((2, 3), dtype=np.uint16)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1).view(dtype=np.dtype(ml_dtypes.bfloat16))
+    imported = StridedMemoryView.from_dlpack(view, stream_ptr=-1)
+    assert imported.dtype == np.dtype(ml_dtypes.bfloat16)
+    assert imported.shape == (2, 3)
+    assert imported.ptr == view.ptr
+    # Pin the exported type code and bit width directly: the importer maps
+    # kDLBfloat to bfloat16 without checking bits (kDLBfloat = 4 in dlpack.h).
+    capsule = view.__dlpack__()
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, b"dltensor"), ctypes.POINTER(_DLManagedTensor))
+    exported_dtype = dlm.contents.dl_tensor.dtype
+    assert exported_dtype.code == 4
+    assert exported_dtype.bits == 16
+
+
 @pytest.mark.parametrize(
     "shape",
     [pytest.param((), id="scalar"), pytest.param((0, 3), id="empty")],
