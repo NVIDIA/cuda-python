@@ -73,8 +73,8 @@
   "#": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options2]|setup",
   "$": "tests/test_program.py::test_bitcode_format[bitcode_static]|setup",
   "%": "tests/test_program.py::test_bitcode_format[txt]|setup",
-  "'": "tests/test_program.py::test_nvvm_program_options[options1-ltoir]|setup",
-  "(": "tests/test_program.py::test_nvvm_program_options[options5-ltoir]|setup",
+  "'": "tests/test_program.py::test_nvvm_program_options[options1-ptx]|setup",
+  "(": "tests/test_program.py::test_nvvm_program_options[options3-ltoir]|setup",
   ")": "tests/test_program.py::test_nvvm_program_with_multiple_extra_sources|run",
   "*": "tests/test_program.py::test_nvvm_program_with_single_extra_source|run",
   "+": "tests/test_program.py::test_nvvm_compile_invalid_ir|run",
@@ -141,7 +141,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-17 01:12 +0000
+            created at 2026-11-18 01:28 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -161,7 +161,7 @@
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt">#</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># This code was automatically generated across versions from 12.0.1 to 13.5.0. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt"># CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=737e7153c4954ec8a2b0dedd50729ee160589ccef13b0e3f512b6c7645d83f62</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt"># CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=404e6696c1e11fe6b1854c8b341bfba192fb90689ae0a69b3110c86d7c51ac5f</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="txt"># &lt;&lt;&lt;&lt; PREAMBLE CONTENT &gt;&gt;&gt;&gt;</span>&nbsp;</span><span class="r"></span></p>
@@ -461,13 +461,13 @@
     <p class="pln"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">    - -prec-sqrt=.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">    - 0 (use a faster approximation for single-precision floating-point square</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">      root).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    - 1 (default, use IEEE round-to-nearest mode for single-precision floating-</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">      point square root).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    - 1 (default, use IEEE round-to-nearest mode for single-precision</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">      floating-point square root).</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">    - -prec-div=.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    - 0 (use a faster approximation for single-precision floating-point division</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">      and reciprocals).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">    - 1 (default, use IEEE round-to-nearest mode for single-precision floating-</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">      point division and reciprocals).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">    - 1 (default, use IEEE round-to-nearest mode for single-precision</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">      floating-point division and reciprocals).</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">    - -fma=.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">    - 0 (disable FMA contraction).</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">    - 1 (default, enable FMA contraction).</span>&nbsp;</span><span class="r"></span></p>
@@ -637,7 +637,7 @@
             <a class="nav" href="z_bb8e88d71740c463_runtime_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-17 01:12 +0000
+            created at 2026-11-18 01:28 +0000
         </p>
     </div>
 </footer>

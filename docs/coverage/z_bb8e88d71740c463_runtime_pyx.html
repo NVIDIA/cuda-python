@@ -185,7 +185,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__build_info_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-17 01:12 +0000
+            created at 2026-11-18 01:28 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -204,7 +204,7 @@
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="txt"># SPDX-License-Identifier: Apache-2.0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="txt"># This code was automatically generated with version 13.5.0. Do not modify it directly.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fd56bdd31c4c12f8618529544aa12f69d7cb782da716c7e2eb06d3f3fdd1fecd</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="txt"># CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b2610805a773c0962631e67e0bd215f5b5a613e533637c379ba70c29d1143947</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="txt">from typing import Any, Optional</span>&nbsp;</span><span class="r"><label for="ctxs6" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="txt">import cython</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="txt">import ctypes</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
@@ -20421,7 +20421,7 @@
     <p class="pln"><span class="n"><a id="t20219" href="#t20219">20219</a></span><span class="t"><span class="txt">    def pArray(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20220" href="#t20220">20220</a></span><span class="t"><span class="txt">        return [cudaArray_t(init_value=&lt;void_ptr&gt;_pArray) for _pArray in self._pvt_ptr[0].frame.pArray]</span>&nbsp;</span><input type="checkbox" id="ctxs20220"><span class="r"><label for="ctxs20220" class="ctx">1 ctx</label></span><span class="ctxs">1U</span></p>
     <p class="pln"><span class="n"><a id="t20221" href="#t20221">20221</a></span><span class="t"><span class="txt">    @pArray.setter</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t20222" href="#t20222">20222</a></span><span class="t"><span class="txt">    def pArray(self, pArray : list[cudaArray_t]):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t20222" href="#t20222">20222</a></span><span class="t"><span class="txt">    def pArray(self, pArray : list[cudaArray_t | int]):</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20223" href="#t20223">20223</a></span><span class="t"><span class="txt">        if len(pArray) != 3:</span>&nbsp;</span><input type="checkbox" id="ctxs20223"><span class="r"><label for="ctxs20223" class="ctx">1 ctx</label></span><span class="ctxs">1U</span></p>
     <p class="mis show_mis"><span class="n"><a id="t20224" href="#t20224">20224</a></span><span class="t"><span class="txt">            raise IndexError(&#x27;not enough values found during array assignment, expected 3, got&#x27;, len(pArray))</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20225" href="#t20225">20225</a></span><span class="t"><span class="txt">        pArray = [int(_pArray) for _pArray in pArray]</span>&nbsp;</span><input type="checkbox" id="ctxs20225"><span class="r"><label for="ctxs20225" class="ctx">1 ctx</label></span><span class="ctxs">1U</span></p>
@@ -41477,7 +41477,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__build_info_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-17 01:12 +0000
+            created at 2026-11-18 01:28 +0000
         </p>
     </div>
 </footer>

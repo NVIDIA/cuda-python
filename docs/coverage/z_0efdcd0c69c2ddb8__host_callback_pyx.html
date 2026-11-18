@@ -92,61 +92,53 @@
   "^": "tests/graph/test_graph_definition_lifetime.py::test_callback_survives_source_node_deletion_after_clone|run",
   "_": "tests/graph/test_graph_definition_lifetime.py::test_callback_survives_source_node_deletion|run",
   "`": "tests/graph/test_graph_definition_lifetime.py::test_destroying_child_node_recursively_releases_subgraph_attachments|run",
-  "{": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_invalidates_branch_handles[if]|run",
-  "|": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_invalidates_branch_handles[if_else]|run",
-  "}": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_invalidates_branch_handles[switch]|run",
-  "~": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_invalidates_branch_handles[while]|run",
-  "ab": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_releases_branch_attachments[if]|run",
-  "bb": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_releases_branch_attachments[if_else]|run",
-  "cb": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_releases_branch_attachments[switch]|run",
-  "db": "tests/graph/test_graph_definition_lifetime.py::test_destroying_conditional_node_releases_branch_attachments[while]|run",
-  "eb": "tests/graph/test_graph_definition_lifetime.py::test_inflight_launch_retains_attachments_until_completion[device_mr]|run",
-  "fb": "tests/graph/test_graph_definition_lifetime.py::test_inflight_launch_retains_attachments_until_completion[vmm]|run",
-  "gb": "tests/graph/test_graph_definition_lifetime.py::test_new_node_attachment_does_not_replace_deleted_node_exec_attachment|run",
-  "hb": "tests/graph/test_graph_definition_lifetime.py::test_python_callable_callback_survives_del|run",
-  "ib": "tests/graph/test_graph_definition_lifetime.py::test_user_object_cleanup_is_coalesced_on_python_thread|run",
-  "jb": "tests/graph/test_graph_definition_mutation.py::test_failed_destroy_preserves_node_and_attachments|run",
-  "kb": "tests/graph/test_graph_node_update.py::test_child_graph_update_transfers_source_owners_to_executable|run",
-  "lb": "tests/graph/test_graph_node_update.py::test_closing_executable_during_launch_defers_owner_release|run",
-  "mb": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[child-graph]|run",
-  "nb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[child-graph]|run",
-  "ob": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[host-callback-python]|run",
-  "pb": "tests/graph/test_graph_node_update.py::test_executable_attachment_accumulators_are_independent|run",
-  "qb": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[host-callback-python]|run",
-  "rb": "tests/graph/test_graph_node_update.py::test_executable_node_view_retains_source_only_while_live|run",
-  "sb": "tests/graph/test_graph_node_update.py::test_failed_whole_update_preserves_executable_accumulator|run",
-  "tb": "tests/graph/test_graph_node_update.py::test_inflight_launch_defers_replaced_executable_owners|run",
-  "ub": "tests/graph/test_graph_node_update.py::test_sequential_executable_updates_accumulate_owners|run",
-  "vb": "tests/graph/test_graph_node_update.py::test_whole_update_replaces_executable_attachment_accumulator|run",
-  "wb": "tests/graph/test_graph_update.py::test_failed_graph_update_does_not_adopt_attachments|run",
-  "xb": "tests/graph/test_graph_update.py::test_failed_graph_update_preserves_active_attachment_ownership|run",
-  "yb": "tests/graph/test_graph_update.py::test_graph_update_replaces_attachment_user_objects|run",
-  "zb": "tests/graph/test_host_callback_contracts.py::test_python_callback_exception_is_reported_as_unraisable|run",
-  "Ab": "tests/test_host_launch.py::test_host_launch_accepts_stream_protocol_with_deprecation|run",
-  "Bb": "tests/test_host_launch.py::test_host_launch_forwards_graph_builder|run",
-  "Cb": "tests/test_host_launch.py::test_host_launch_orders_between_prior_and_later_work|run",
-  "Db": "tests/test_host_launch.py::test_host_launch_python_exception_is_reported_as_unraisable|run",
-  "Eb": "tests/test_host_launch.py::test_host_launch_releases_callable_after_it_ran|run",
-  "Fb": "tests/test_host_launch.py::test_host_launch_two_streams_keep_their_own_data|run",
-  "Gb": "tests/test_object_protocols.py::test_equality_basic[sample_host_callback_node]|setup",
-  "Hb": "tests/test_object_protocols.py::test_hash_consistency[sample_host_callback_node]|setup",
-  "Ib": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_host_callback_node-sample_host_callback_node_alt]|setup",
-  "Jb": "tests/test_object_protocols.py::test_no_cross_type_equality|setup",
-  "Kb": "tests/test_object_protocols.py::test_repr_format[sample_host_callback_node-\u003cHostCallbackNode handle=0x[0-9a-f]+ callback=\\\\w+\u003e]|setup",
-  "Lb": "tests/test_object_protocols.py::test_same_type_inequality[sample_host_callback_node-sample_host_callback_node_alt]|setup",
-  "Mb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_host_callback_node]|setup",
-  "Nb": "tests/test_object_protocols.py::test_usable_in_set[sample_host_callback_node]|setup",
-  "Ob": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_host_callback_node]|setup",
-  "Pb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_host_callback_node]|setup",
-  "Qb": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_host_callback_node]|setup",
-  "Rb": "tests/test_object_protocols.py::test_weakref_supported[sample_host_callback_node]|setup",
-  "Sb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[18446744073709551616-1]|run",
-  "Tb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[-1-1]|run",
-  "Ub": "tests/graph/test_graph_definition.py::test_host_callback_user_data_rejected_for_python_callable|run",
-  "Vb": "tests/test_host_launch.py::test_host_launch_rejects_non_callable|run",
-  "Wb": "tests/test_host_launch.py::test_host_launch_rejects_user_data_for_python_callable|run",
-  "Xb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[4096-18446744073709551616]|run",
-  "Yb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[4096--1]|run"
+  "{": "tests/graph/test_graph_definition_lifetime.py::test_inflight_launch_retains_attachments_until_completion[device_mr]|run",
+  "|": "tests/graph/test_graph_definition_lifetime.py::test_inflight_launch_retains_attachments_until_completion[vmm]|run",
+  "}": "tests/graph/test_graph_definition_lifetime.py::test_new_node_attachment_does_not_replace_deleted_node_exec_attachment|run",
+  "~": "tests/graph/test_graph_definition_lifetime.py::test_python_callable_callback_survives_del|run",
+  "ab": "tests/graph/test_graph_definition_lifetime.py::test_user_object_cleanup_is_coalesced_on_python_thread|run",
+  "bb": "tests/graph/test_graph_definition_mutation.py::test_failed_destroy_preserves_node_and_attachments|run",
+  "cb": "tests/graph/test_graph_node_update.py::test_child_graph_update_transfers_source_owners_to_executable|run",
+  "db": "tests/graph/test_graph_node_update.py::test_closing_executable_during_launch_defers_owner_release|run",
+  "eb": "tests/graph/test_graph_node_update.py::test_definition_node_update_rejects_wrong_type[child-graph]|run",
+  "fb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[child-graph]|run",
+  "gb": "tests/graph/test_graph_node_update.py::test_destroyed_definition_node_rejects_update[host-callback-python]|run",
+  "hb": "tests/graph/test_graph_node_update.py::test_executable_attachment_accumulators_are_independent|run",
+  "ib": "tests/graph/test_graph_node_update.py::test_executable_node_update_changes_existing_exec[host-callback-python]|run",
+  "jb": "tests/graph/test_graph_node_update.py::test_executable_node_view_retains_source_only_while_live|run",
+  "kb": "tests/graph/test_graph_node_update.py::test_failed_whole_update_preserves_executable_accumulator|run",
+  "lb": "tests/graph/test_graph_node_update.py::test_inflight_launch_defers_replaced_executable_owners|run",
+  "mb": "tests/graph/test_graph_node_update.py::test_sequential_executable_updates_accumulate_owners|run",
+  "nb": "tests/graph/test_graph_node_update.py::test_whole_update_replaces_executable_attachment_accumulator|run",
+  "ob": "tests/graph/test_graph_update.py::test_failed_graph_update_does_not_adopt_attachments|run",
+  "pb": "tests/graph/test_graph_update.py::test_failed_graph_update_preserves_active_attachment_ownership|run",
+  "qb": "tests/graph/test_graph_update.py::test_graph_update_replaces_attachment_user_objects|run",
+  "rb": "tests/graph/test_host_callback_contracts.py::test_python_callback_exception_is_reported_as_unraisable|run",
+  "sb": "tests/test_host_launch.py::test_host_launch_accepts_stream_protocol_with_deprecation|run",
+  "tb": "tests/test_host_launch.py::test_host_launch_forwards_graph_builder|run",
+  "ub": "tests/test_host_launch.py::test_host_launch_orders_between_prior_and_later_work|run",
+  "vb": "tests/test_host_launch.py::test_host_launch_python_exception_is_reported_as_unraisable|run",
+  "wb": "tests/test_host_launch.py::test_host_launch_releases_callable_after_it_ran|run",
+  "xb": "tests/test_host_launch.py::test_host_launch_two_streams_keep_their_own_data|run",
+  "yb": "tests/test_object_protocols.py::test_equality_basic[sample_host_callback_node]|setup",
+  "zb": "tests/test_object_protocols.py::test_hash_consistency[sample_host_callback_node]|setup",
+  "Ab": "tests/test_object_protocols.py::test_hash_distinct_same_type[sample_host_callback_node-sample_host_callback_node_alt]|setup",
+  "Bb": "tests/test_object_protocols.py::test_no_cross_type_equality|setup",
+  "Cb": "tests/test_object_protocols.py::test_repr_format[sample_host_callback_node-\u003cHostCallbackNode handle=0x[0-9a-f]+ callback=\\\\w+\u003e]|setup",
+  "Db": "tests/test_object_protocols.py::test_same_type_inequality[sample_host_callback_node-sample_host_callback_node_alt]|setup",
+  "Eb": "tests/test_object_protocols.py::test_usable_as_dict_key[sample_host_callback_node]|setup",
+  "Fb": "tests/test_object_protocols.py::test_usable_in_set[sample_host_callback_node]|setup",
+  "Gb": "tests/test_object_protocols.py::test_usable_in_weak_key_dict[sample_host_callback_node]|setup",
+  "Hb": "tests/test_object_protocols.py::test_usable_in_weak_set[sample_host_callback_node]|setup",
+  "Ib": "tests/test_object_protocols.py::test_usable_in_weak_value_dict[sample_host_callback_node]|setup",
+  "Jb": "tests/test_object_protocols.py::test_weakref_supported[sample_host_callback_node]|setup",
+  "Kb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[18446744073709551616-1]|run",
+  "Lb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[-1-1]|run",
+  "Mb": "tests/graph/test_graph_definition.py::test_host_callback_user_data_rejected_for_python_callable|run",
+  "Nb": "tests/test_host_launch.py::test_host_launch_rejects_non_callable|run",
+  "Ob": "tests/test_host_launch.py::test_host_launch_rejects_user_data_for_python_callable|run",
+  "Pb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[4096-18446744073709551616]|run",
+  "Qb": "tests/test_host_copy.py::test_pack_host_copy_args_rejects_out_of_range_int[4096--1]|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -209,7 +201,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__kernel_arg_handler_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-17 01:12 +0000
+            created at 2026-11-18 01:28 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -329,10 +321,10 @@
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">    cdef Py_buffer view</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">    # These export the buffer protocol over their own storage, so a value</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">    # meant as an address would otherwise pack the address of that storage.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    if isinstance(obj, (bool, numpy.integer, ct._SimpleCData)):</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">18 ctx</label></span><span class="ctxs">2a b c f q T x u t SbTbr ( C D E 1 g </span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">    if isinstance(obj, (bool, numpy.integer, ct._SimpleCData)):</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">18 ctx</label></span><span class="ctxs">2a b c f q T x u t KbLbr ( C D E 1 g </span></p>
     <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        raise TypeError(f&quot;{name} must not be a {type(obj).__name__}; pass int(addr) for an address&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">3 ctx</label></span><span class="ctxs">1CDE</span></p>
-    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    if isinstance(obj, int):</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">18 ctx</label></span><span class="ctxs">2a b c f q T x u t SbTbr ( C D E 1 g </span></p>
-    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        return &lt;uintptr_t&gt;obj</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">5 ctx</label></span><span class="ctxs">2c T t SbTb</span></p>
+    <p class="run"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">    if isinstance(obj, int):</span>&nbsp;</span><input type="checkbox" id="ctxs108"><span class="r"><label for="ctxs108" class="ctx">18 ctx</label></span><span class="ctxs">2a b c f q T x u t KbLbr ( C D E 1 g </span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">        return &lt;uintptr_t&gt;obj</span>&nbsp;</span><input type="checkbox" id="ctxs109"><span class="r"><label for="ctxs109" class="ctx">5 ctx</label></span><span class="ctxs">2c T t KbLb</span></p>
     <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">    if isinstance(obj, Buffer):</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">14 ctx</label></span><span class="ctxs">1abfqxutr(CDE1g</span></p>
     <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">        buf = &lt;Buffer&gt;obj</span>&nbsp;</span><input type="checkbox" id="ctxs111"><span class="r"><label for="ctxs111" class="ctx">6 ctx</label></span><span class="ctxs">1afqxug</span></p>
     <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">        Buffer_check_open(buf)</span>&nbsp;</span><input type="checkbox" id="ctxs112"><span class="r"><label for="ctxs112" class="ctx">6 ctx</label></span><span class="ctxs">1afqxug</span></p>
@@ -412,9 +404,9 @@
     <p class="pln"><span class="n"><a id="t186" href="#t186">186</a></span><span class="t"><span class="txt">    :class:`Buffer` with a memory resource. For an ``int`` or a :class:`Buffer`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t187" href="#t187">187</a></span><span class="t"><span class="txt">    without one, the caller must ensure that the memory is host-accessible.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t188" href="#t188">188</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    cdef size_t n = nbytes</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">20 ctx</label></span><span class="ctxs">2a b c f q T x u t XbYbSbTbr ( C D E 1 g </span></p>
+    <p class="run"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t"><span class="txt">    cdef size_t n = nbytes</span>&nbsp;</span><input type="checkbox" id="ctxs189"><span class="r"><label for="ctxs189" class="ctx">20 ctx</label></span><span class="ctxs">2a b c f q T x u t PbQbKbLbr ( C D E 1 g </span></p>
     <p class="pln"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t"><span class="txt">    cdef _HostCopyArgs args</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    args.dst = _host_copy_address(dst, n, True, &quot;dst&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs191"><span class="r"><label for="ctxs191" class="ctx">18 ctx</label></span><span class="ctxs">2a b c f q T x u t SbTbr ( C D E 1 g </span></p>
+    <p class="run"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t"><span class="txt">    args.dst = _host_copy_address(dst, n, True, &quot;dst&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs191"><span class="r"><label for="ctxs191" class="ctx">18 ctx</label></span><span class="ctxs">2a b c f q T x u t KbLbr ( C D E 1 g </span></p>
     <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t"><span class="txt">    args.src = _host_copy_address(src, n, False, &quot;src&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs192"><span class="r"><label for="ctxs192" class="ctx">14 ctx</label></span><span class="ctxs">1abcfqTxutrCDEg</span></p>
     <p class="run"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t"><span class="txt">    args.nbytes = n</span>&nbsp;</span><input type="checkbox" id="ctxs193"><span class="r"><label for="ctxs193" class="ctx">8 ctx</label></span><span class="ctxs">1abcfTtrg</span></p>
     <p class="run"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">    if n:</span>&nbsp;</span><input type="checkbox" id="ctxs194"><span class="r"><label for="ctxs194" class="ctx">8 ctx</label></span><span class="ctxs">1abcfTtrg</span></p>
@@ -441,7 +433,7 @@
     <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="txt">    address is passed to CUDA.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">    cdef bint is_host_copy</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">    if isinstance(fn, ct._CFuncPtr):</span>&nbsp;</span><input type="checkbox" id="ctxs218"><span class="r"><label for="ctxs218" class="ctx">122 ctx</label></span><span class="ctxs">2+ U j k , ) l F G H I V W X Y s 3 UbJ - . K / L : M ; N = O ? P @ [ ] 4 ^ _ m Q 5 6 ` { | } ~ abbbcbdbebfb7 gb8 hb9 ! ibjbkblbR # i $ mbn 2 nbo obpb% p qbrb' e * sbtbubvbwbxbyby zbz a b c A S v w Abd B BbCbDbVbWbZ 0 EbFbGbHbIbJbKbLbMbNbObPbQbRb</span></p>
+    <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">    if isinstance(fn, ct._CFuncPtr):</span>&nbsp;</span><input type="checkbox" id="ctxs218"><span class="r"><label for="ctxs218" class="ctx">114 ctx</label></span><span class="ctxs">2+ U j k , ) l F G H I V W X Y s 3 MbJ - . K / L : M ; N = O ? P @ [ ] 4 ^ _ m Q 5 6 ` { | 7 } 8 ~ 9 ! abbbcbdbR # i $ ebn 2 fbo gbhb% p ibjb' e * kblbmbnbobpbqby rbz a b c A S v w sbd B tbubvbNbObZ 0 wbxbybzbAbBbCbDbEbFbGbHbIbJb</span></p>
     <p class="run"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">        _validate_ctypes_host_callback(fn)</span>&nbsp;</span><input type="checkbox" id="ctxs219"><span class="r"><label for="ctxs219" class="ctx">41 ctx</label></span><span class="ctxs">1UjklFGHIVWXYsJKLMNOPmQRinopeyzabcASvwdBZ0</span></p>
     <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        out_fn[0] = &lt;cydriver.CUhostFn&gt;&lt;uintptr_t&gt;ct.cast(fn, ct.c_void_p).value</span>&nbsp;</span><input type="checkbox" id="ctxs220"><span class="r"><label for="ctxs220" class="ctx">34 ctx</label></span><span class="ctxs">1jklFGHIsJKLMNOPmQRinopeyzabcASvwdB</span></p>
     <p class="run"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        is_host_copy = out_fn[0] == &lt;cydriver.CUhostFn&gt;_host_copy</span>&nbsp;</span><input type="checkbox" id="ctxs221"><span class="r"><label for="ctxs221" class="ctx">34 ctx</label></span><span class="ctxs">1jklFGHIsJKLMNOPmQRinopeyzabcASvwdB</span></p>
@@ -466,16 +458,16 @@
     <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">        if is_host_copy and out_user_data[0] == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs240"><span class="r"><label for="ctxs240" class="ctx">32 ctx</label></span><span class="ctxs">1jklFGHIsJKLMNOPmQRinopeyzabcASdB</span></p>
     <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">            raise ValueError(&quot;HOST_COPY_FN requires user_data from pack_host_copy_args or a nonzero address&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">2 ctx</label></span><span class="ctxs">1AS</span></p>
     <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">        if not callable(fn):</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">83 ctx</label></span><span class="ctxs">2+ , ) 3 Ub- . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | } ~ abbbcbdbebfb7 gb8 hb9 ! ibjbkblb# $ mb2 nbobpb% qbrb' e * sbtbubvbwbxbybzbAbd BbCbDbVbWbEbFbGbHbIbJbKbLbMbNbObPbQbRb</span></p>
-    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">            raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">2 ctx</label></span><span class="ctxs">22 Vb</span></p>
-    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">                f&quot;callback must be callable, got {type(fn).__name__}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">2 ctx</label></span><span class="ctxs">22 Vb</span></p>
-    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        if user_data is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">82 ctx</label></span><span class="ctxs">2+ , ) 3 Ub- . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | } ~ abbbcbdbebfb7 gb8 hb9 ! ibjbkblb# $ mb2 nbobpb% qbrb' e * sbtbubvbwbxbybzbAbd BbCbDbWbEbFbGbHbIbJbKbLbMbNbObPbQbRb</span></p>
-    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs247"><span class="r"><label for="ctxs247" class="ctx">5 ctx</label></span><span class="ctxs">2) Ube * Wb</span></p>
+    <p class="run"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">        if not callable(fn):</span>&nbsp;</span><input type="checkbox" id="ctxs243"><span class="r"><label for="ctxs243" class="ctx">75 ctx</label></span><span class="ctxs">2+ , ) 3 Mb- . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | 7 } 8 ~ 9 ! abbbcbdb# $ eb2 fbgbhb% ibjb' e * kblbmbnbobpbqbrbsbd tbubvbNbObwbxbybzbAbBbCbDbEbFbGbHbIbJb</span></p>
+    <p class="run"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">            raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs244"><span class="r"><label for="ctxs244" class="ctx">2 ctx</label></span><span class="ctxs">22 Nb</span></p>
+    <p class="run"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">                f&quot;callback must be callable, got {type(fn).__name__}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs245"><span class="r"><label for="ctxs245" class="ctx">2 ctx</label></span><span class="ctxs">22 Nb</span></p>
+    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        if user_data is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">74 ctx</label></span><span class="ctxs">2+ , ) 3 Mb- . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | 7 } 8 ~ 9 ! abbbcbdb# $ eb2 fbgbhb% ibjb' e * kblbmbnbobpbqbrbsbd tbubvbObwbxbybzbAbBbCbDbEbFbGbHbIbJb</span></p>
+    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs247"><span class="r"><label for="ctxs247" class="ctx">5 ctx</label></span><span class="ctxs">2) Mbe * Ob</span></p>
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">                &quot;user_data is only supported with ctypes function pointers&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">        out_fn[0] = &lt;cydriver.CUhostFn&gt;_py_host_trampoline</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">79 ctx</label></span><span class="ctxs">2+ , ) 3 - . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | } ~ abbbcbdbebfb7 gb8 hb9 ! ibjbkblb# $ mb2 nbobpb% qbrb' * sbtbubvbwbxbybzbAbd BbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRb</span></p>
-    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        out_user_data[0] = &lt;void*&gt;fn</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">79 ctx</label></span><span class="ctxs">2+ , ) 3 - . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | } ~ abbbcbdbebfb7 gb8 hb9 ! ibjbkblb# $ mb2 nbobpb% qbrb' * sbtbubvbwbxbybzbAbd BbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRb</span></p>
+    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">        out_fn[0] = &lt;cydriver.CUhostFn&gt;_py_host_trampoline</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">71 ctx</label></span><span class="ctxs">2+ , ) 3 - . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | 7 } 8 ~ 9 ! abbbcbdb# $ eb2 fbgbhb% ibjb' * kblbmbnbobpbqbrbsbd tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJb</span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        out_user_data[0] = &lt;void*&gt;fn</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">71 ctx</label></span><span class="ctxs">2+ , ) 3 - . / : ; = ? @ [ ] 4 ^ _ 5 6 ` { | 7 } 8 ~ 9 ! abbbcbdb# $ eb2 fbgbhb% ibjb' * kblbmbnbobpbqbrbsbd tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJb</span></p>
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">    out_fn_owner[0] = make_opaque_py(fn)</span>&nbsp;</span><input type="checkbox" id="ctxs252"><span class="r"><label for="ctxs252" class="ctx">108 ctx</label></span><span class="ctxs">2+ j k , ) l F G H I s 3 J - . K / L : M ; N = O ? P @ [ ] 4 ^ _ m Q 5 6 ` { | } ~ abbbcbdbebfb7 gb8 hb9 ! ibjbkblbR # i $ mbn 2 nbo obpb% p qbrb' e * sbtbubvbwbxbyby zbz a b c Abd B BbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRb</span></p>
+    <p class="run"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">    out_fn_owner[0] = make_opaque_py(fn)</span>&nbsp;</span><input type="checkbox" id="ctxs252"><span class="r"><label for="ctxs252" class="ctx">100 ctx</label></span><span class="ctxs">2+ j k , ) l F G H I s 3 J - . K / L : M ; N = O ? P @ [ ] 4 ^ _ m Q 5 6 ` { | 7 } 8 ~ 9 ! abbbcbdbR # i $ ebn 2 fbo gbhb% p ibjb' e * kblbmbnbobpbqby rbz a b c sbd B tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJb</span></p>
 </main>
 <footer>
     <div class="content">
@@ -485,7 +477,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__kernel_arg_handler_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-17 01:12 +0000
+            created at 2026-11-18 01:28 +0000
         </p>
     </div>
 </footer>
