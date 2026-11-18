@@ -11,8 +11,6 @@ Unreleased
 Breaking Changes
 ----------------
 
-* CUDA 12 bindings require Python 3.11 or newer. Python versions older than
-  3.11 are no longer supported; the supported range is Python 3.11-3.15.
 * ``nvml.NvlinkFirmwareInfo.firmware_version`` now exposes only valid entries,
   rather than all 100 slots in the underlying buffer. Set this member to update
   the valid-entry count; the separate ``num_valid_entries`` member has been
@@ -92,6 +90,12 @@ Deprecations
   to avoid shadowing Python builtins. The old names remain available as
   compatibility aliases. Both classes still derive from ``nvml.NvmlError``.
   (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+
+End of Life
+-----------
+
+* Python 3.10 support dropped (end of life); the supported range is
+  Python 3.11-3.15.
 
 Packaging and Source Builds
 ---------------------------
