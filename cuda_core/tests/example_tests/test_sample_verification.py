@@ -19,6 +19,7 @@ WAIVER_SAMPLE_NAMES = (
     "blurImageUnifiedMemory",
     "copyImageArraytoGPU",
     "glInteropFluid",
+    "glInteropFluidNumbaCudaMlir",
     "glInteropMipmapLod",
     "glInteropPlasma",
     "ipcMemoryPool",
@@ -87,6 +88,30 @@ def test_ipc_sample_checks_memory_pool_handle_support(handle_types: int, support
     )
 
     assert check_ipc_support(device) is supported
+
+
+@pytest.mark.parametrize("display", [None, ":0"])
+@pytest.mark.agent_authored(model="GPT-6")
+def test_mlir_sample_waives_missing_display_before_cuda_setup(display: str | None) -> None:
+    def is_available():
+        raise RuntimeError("CUDA query failed")
+
+    main = _load_sample_function(
+        "glInteropFluidNumbaCudaMlir",
+        "main",
+        os=SimpleNamespace(environ={} if display is None else {"DISPLAY": display}),
+        sys=SimpleNamespace(platform="linux", stderr=sys.stderr, exit=sys.exit),
+        cuda=SimpleNamespace(is_available=is_available),
+        EXIT_WAIVED=77,
+    )
+
+    if display is None:
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        assert exc_info.value.code == 77
+    else:
+        with pytest.raises(RuntimeError, match="CUDA query failed"):
+            main()
 
 
 @pytest.mark.parametrize("sample_name", WAIVER_SAMPLE_NAMES)
