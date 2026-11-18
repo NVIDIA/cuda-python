@@ -9,6 +9,7 @@ import textwrap
 import threading
 import time
 import weakref
+from contextlib import closing
 
 import pytest
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
@@ -1948,6 +1949,7 @@ def test_public_clone_find_node_rejects_invalid_sources(init_cuda):
 
 @pytest.mark.parametrize("depth", [0, 2])
 @pytest.mark.parametrize("source_first", [False, True])
+@pytest.mark.thread_unsafe(reason="waits for deferred cleanup on the main thread")
 def test_public_clone_retains_attachment_until_last_executable(init_cuda, depth, source_first):
     """Cloned metadata releases each node's retain, including in nested graphs."""
     called = []
@@ -1974,28 +1976,32 @@ def test_public_clone_retains_attachment_until_last_executable(init_cuda, depth,
     clone_node = clone_view.find_node(source_node)
     assert clone_node.callback is callback
     executable = clone.instantiate()
-    del callback
+    try:
+        del callback
 
-    first, second = (source_node, clone_node) if source_first else (clone_node, source_node)
-    first.destroy()
-    assert callback_weak() is not None
-    assert second.callback is callback_weak()
-    second.destroy()
-    del first, second, source_node, clone_node
-    # Both definitions have removed the node, but the executable retains it.
-    assert callback_weak() is not None
-    stream = init_cuda.create_stream()
-    # callback has not fired yet
-    assert called == []
-    executable.launch(stream)
-    stream.sync()
-    # callback fired finally
-    assert called == [True]
-    executable.close()
+        first, second = (source_node, clone_node) if source_first else (clone_node, source_node)
+        first.destroy()
+        assert callback_weak() is not None
+        assert second.callback is callback_weak()
+        second.destroy()
+        del first, second, source_node, clone_node
+        # Both definitions have removed the node, but the executable retains it.
+        assert callback_weak() is not None
+        stream = init_cuda.create_stream()
+        assert called == []
+        executable.launch(stream)
+        stream.sync()
+        assert called == [True]
+    finally:
+        executable.close()
     _wait_until(lambda: callback_weak() is None)
 
 
+@pytest.mark.thread_unsafe(reason="waits for deferred cleanup on the main thread")
 def test_public_clone_callback_update_has_independent_owners(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
     def original():
         pass
 
@@ -2024,13 +2030,14 @@ def test_public_clone_callback_update_has_independent_owners(init_cuda):
     _wait_until(lambda: replacement_weak() is None)
 
 
+@pytest.mark.thread_unsafe(reason="waits for deferred cleanup on the main thread")
 def test_public_clone_kernel_and_arguments_outlive_source(init_cuda):
     """An executable retains the clone's kernel and arguments after both definitions die."""
     from cuda.core._utils.cuda_utils import driver, handle_return
 
     device = init_cuda
     stream = device.create_stream()
-    with _device_memory_resource(device) as mr:
+    with closing(_device_memory_resource(device)) as mr:
         buffer = mr.allocate(ctypes.sizeof(ctypes.c_int), stream=stream)
         buffer.fill(0, stream=stream)
         stream.sync()
@@ -2042,15 +2049,16 @@ def test_public_clone_kernel_and_arguments_outlive_source(init_cuda):
         source.launch(LaunchConfig(grid=1, block=1), kernel, buffer)
         clone = source.clone()
         executable = clone.instantiate()
-        del buffer, module, kernel, source, clone
-        gc.collect()
+        try:
+            del buffer, module, kernel, source, clone
+            gc.collect()
 
-        assert buffer_weak() is not None  # buffer is still referenced
-        executable.launch(stream)
-        stream.sync()
-        result = (ctypes.c_int * 1)(0)
-        # can still access
-        handle_return(driver.cuMemcpyDtoH(result, ptr, ctypes.sizeof(result)))
-        assert result[0] == 1
-        executable.close()
+            assert buffer_weak() is not None
+            executable.launch(stream)
+            stream.sync()
+            result = (ctypes.c_int * 1)(0)
+            handle_return(driver.cuMemcpyDtoH(result, ptr, ctypes.sizeof(result)))
+            assert result[0] == 1
+        finally:
+            executable.close()
         _wait_until(lambda: buffer_weak() is None)

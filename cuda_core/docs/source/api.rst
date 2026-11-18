@@ -146,6 +146,8 @@ avoid recompiling identical source + options + target without writing the
 CUDA graphs
 -----------
 
+.. currentmodule:: cuda.core
+
 A CUDA graph captures a set of GPU operations and their dependencies,
 allowing them to be defined once and launched repeatedly with minimal
 CPU overhead. Graphs can be constructed in two ways:
@@ -173,7 +175,8 @@ Lookup is local to each graph and requires a valid source node that existed at
 cloning time, and a corresponding node still present in the clone. The clone
 does not retain its source hierarchy for lookup. CUDA does not support cloning
 graphs containing allocation, free, or conditional nodes; driver errors
-propagate. Synchronize cloning with mutations of the source hierarchy.
+propagate. See :ref:`cuda-core-graph-thread-safety` for the synchronization
+requirements of cloning and node lookup.
 
 With CUDA >= 13.1, graph definitions and
 executable graphs expose a read-only integer, ``id``. Nodes expose ``local_id``
@@ -183,8 +186,6 @@ shares ownership of the underlying graph. IDs are ephemeral, driver-assigned.
 
 ``kernel.attributes.device_node_update_supported`` reports whether a kernel
 supports device-side node updates. It requires CUDA >= 13.3.
-
-.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/

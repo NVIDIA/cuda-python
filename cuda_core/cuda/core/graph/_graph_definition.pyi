@@ -208,9 +208,13 @@ class GraphDefinition:
 
         Notes
         -----
+        CUDA rejects graphs containing memory allocation, memory free, or
+        conditional nodes.
         Attached resources remain alive independently for each graph and are released
         at the appropriate lifetime boundary.
         Driver errors propagate as :class:`~cuda.core.CUDAError`.
+        Serialize this call with all CUDA access to the underlying graph.
+        See :ref:`cuda-core-graph-thread-safety`.
         """
     def find_node(self, original: GraphNode) -> GraphNode:
         """Find a source node's counterpart in this cloned graph.
@@ -237,7 +241,8 @@ class GraphDefinition:
 
         Notes
         -----
-        Lookup is local to this graph.
+        Lookup is local to this graph. Serialize this call with all CUDA
+        access to either hierarchy. See :ref:`cuda-core-graph-thread-safety`.
         """
     def debug_dot_print(self, path: str, options: GraphDebugPrintOptions | None=None) -> None:
         """Write a GraphViz DOT representation of the graph to a file.
