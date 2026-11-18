@@ -6,8 +6,9 @@
 Concurrency and Thread Safety
 =============================
 
-``cuda.core`` allows concurrent reads of its objects from multiple host
-threads, but concurrent *mutation* of the same object is **not supported** --
+Subject to the CUDA driver limitations below, ``cuda.core`` allows concurrent
+reads of its objects from multiple host threads. Concurrent *mutation* of the
+same object is **not supported** --
 for example, adding nodes to the same graph, or closing a resource while
 another thread is using it. Whenever an object is shared across threads and at
 least one of them may mutate it, the application is responsible for providing
@@ -26,3 +27,19 @@ safe. For example, modifying peer device access from one thread while another
 thread accesses device memory affected by that change is unsafe, even though the
 two threads use different objects. The application is responsible for
 synchronizing operations that concurrently read and modify shared driver state.
+
+.. _cuda-core-graph-thread-safety:
+
+CUDA graph access
+-----------------
+
+Applications must serialize CUDA access to a shared graph hierarchy across host
+threads, including read-only calls and calls through different views of that
+hierarchy. :meth:`graph.GraphDefinition.clone` accesses the source hierarchy.
+:meth:`graph.GraphDefinition.find_node` accesses both the source and the clone.
+Hold the relevant lock or locks for the entire call. Independent graph
+hierarchies can use separate locks.
+
+See the CUDA Driver API's `Graph object thread safety
+<https://docs.nvidia.com/cuda/cuda-driver-api/graphs-thread-safety.html>`_
+documentation.

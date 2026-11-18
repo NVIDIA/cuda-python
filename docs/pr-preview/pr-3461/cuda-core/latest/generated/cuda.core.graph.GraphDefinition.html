@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=fd48dd9d"></script>
+    <script src="../_static/documentation_options.js?v=15527e5f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev37';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev38';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -858,9 +858,13 @@ the clone to obtain the counterparts of source nodes.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Attached resources remain alive independently for each graph and are released
+<p>CUDA rejects graphs containing memory allocation, memory free, or
+conditional nodes.
+Attached resources remain alive independently for each graph and are released
 at the appropriate lifetime boundary.
-Driver errors propagate as <a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a>.</p>
+Driver errors propagate as <a class="reference internal" href="cuda.core.CUDAError.html#cuda.core.CUDAError" title="cuda.core.CUDAError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAError</span></code></a>.
+Serialize this call with all CUDA access to the underlying graph.
+See <a class="reference internal" href="../concurrency.html#cuda-core-graph-thread-safety"><span class="std std-ref">CUDA graph access</span></a>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -994,7 +998,8 @@ was cloned. The corresponding cloned node must still exist.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Lookup is local to this graph.</p>
+<p>Lookup is local to this graph. Serialize this call with all CUDA
+access to either hierarchy. See <a class="reference internal" href="../concurrency.html#cuda-core-graph-thread-safety"><span class="std std-ref">CUDA graph access</span></a>.</p>
 </dd></dl>
 
 <dl class="py method">

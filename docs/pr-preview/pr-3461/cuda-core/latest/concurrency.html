@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=fd48dd9d"></script>
+    <script src="_static/documentation_options.js?v=15527e5f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev37';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev38';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -353,6 +353,10 @@
     </div>
   
 
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
   
 </div>
 
@@ -781,8 +785,9 @@
                   
   <section id="concurrency-and-thread-safety">
 <h1>Concurrency and Thread Safety<a class="headerlink" href="#concurrency-and-thread-safety" title="Link to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> allows concurrent reads of its objects from multiple host
-threads, but concurrent <em>mutation</em> of the same object is <strong>not supported</strong> –
+<p>Subject to the CUDA driver limitations below, <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> allows concurrent
+reads of its objects from multiple host threads. Concurrent <em>mutation</em> of the
+same object is <strong>not supported</strong> –
 for example, adding nodes to the same graph, or closing a resource while
 another thread is using it. Whenever an object is shared across threads and at
 least one of them may mutate it, the application is responsible for providing
@@ -799,6 +804,17 @@ safe. For example, modifying peer device access from one thread while another
 thread accesses device memory affected by that change is unsafe, even though the
 two threads use different objects. The application is responsible for
 synchronizing operations that concurrently read and modify shared driver state.</p>
+<section id="cuda-graph-access">
+<span id="cuda-core-graph-thread-safety"></span><h2>CUDA graph access<a class="headerlink" href="#cuda-graph-access" title="Link to this heading">#</a></h2>
+<p>Applications must serialize CUDA access to a shared graph hierarchy across host
+threads, including read-only calls and calls through different views of that
+hierarchy. <a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.clone" title="cuda.core.graph.GraphDefinition.clone"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.clone()</span></code></a> accesses the source hierarchy.
+<a class="reference internal" href="generated/cuda.core.graph.GraphDefinition.html#cuda.core.graph.GraphDefinition.find_node" title="cuda.core.graph.GraphDefinition.find_node"><code class="xref py py-meth docutils literal notranslate"><span class="pre">graph.GraphDefinition.find_node()</span></code></a> accesses both the source and the clone.
+Hold the relevant lock or locks for the entire call. Independent graph
+hierarchies can use separate locks.</p>
+<p>See the CUDA Driver API’s <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/graphs-thread-safety.html">Graph object thread safety</a>
+documentation.</p>
+</section>
 </section>
 
 
@@ -836,9 +852,25 @@ synchronizing operations that concurrently read and modify shared driver state.<
             
             
 
-<div class="bd-sidebar-secondary"></div>
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-graph-access">CUDA graph access</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
 
