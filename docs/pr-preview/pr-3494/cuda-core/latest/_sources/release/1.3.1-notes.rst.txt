@@ -1,0 +1,41 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core
+
+``cuda.core`` 1.3.1 Release Notes
+=================================
+
+Highlights
+----------
+
+- New ``minimal-sysctk12`` and ``minimal-sysctk13`` extras install only ``cuda-bindings`` at or
+  above this release's floor for that CUDA major, without the CUDA Toolkit wheels that ``cu12``
+  and ``cu13`` add. The ``cu12`` and ``cu13`` extras include them. Packages that depend on
+  ``cuda-core`` should request one of these extras, so that pip and uv see the floor; with a
+  plain ``cuda-core`` requirement, an older ``cuda-bindings`` is installed and fails at import.
+  See :ref:`cuda-core-bindings-floor`.
+  (`#3459 <https://github.com/NVIDIA/cuda-python/issues/3459>`__)
+
+- ``cuda-core`` 1.3.0 is yanked from PyPI. It declared its floors only in the ``cu12`` and
+  ``cu13`` extras, so a resolver that cannot use 1.3.1 could fall back to it next to an older
+  ``cuda-bindings``.
+
+Fixes and enhancements
+----------------------
+
+- :meth:`Buffer.from_ipc_descriptor` no longer unmaps a newly imported
+  memory pool buffer when another thread releases the same descriptor at the
+  same time. The import now waits for the pending release to finish.
+  (`#3450 <https://github.com/NVIDIA/cuda-python/pull/3450>`__)
+
+- :class:`PinnedMemoryResource` construction without options no longer
+  invalidates a CUDA graph capture in progress on another thread. ``cuda.core``
+  1.3.0 introduced a ``cuMemPoolSetAccess`` call in the constructor (#3405);
+  the driver refuses that call, and invalidates any concurrent global-mode
+  capture, unless it runs in relaxed capture mode. The fix applies the same
+  relaxed-mode wrapper already used for pool attribute reads and writes and
+  :meth:`~_memory._memory_pool._MemPool.trim`. Captures started with the
+  default ``begin_building()`` mode are unaffected; global mode is the default
+  in several external libraries (for example ``torch.cuda.graph``).
+  (`#3451 <https://github.com/NVIDIA/cuda-python/issues/3451>`__)

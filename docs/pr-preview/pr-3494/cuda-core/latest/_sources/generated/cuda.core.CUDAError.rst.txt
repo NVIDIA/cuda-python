@@ -1,0 +1,6 @@
+﻿cuda.core.CUDAError
+===================
+
+.. currentmodule:: cuda.core
+
+.. autoexception:: CUDAError
