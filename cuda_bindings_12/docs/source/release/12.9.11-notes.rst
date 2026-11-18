@@ -93,9 +93,12 @@ Bug Fixes
 * Fixed crashes when registering or unregistering ``cuLogs*`` and asynchronous
   notification callbacks concurrently under free-threaded Python.
   (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
-* Nested driver struct and union views now retain their owning wrapper, and
-  driver struct-array getters return independent copies, avoiding access to
-  freed backing storage. ``cufile`` and ``nvml`` struct wrappers also retain
+* Nested ``driver`` and ``runtime`` struct and union views now retain their
+  owning wrapper, and struct-array getters in these modules return independent
+  copies, avoiding access to freed backing storage. Mutating a returned element
+  no longer updates the parent struct: read the array, modify its elements, then
+  assign it back (for example, ``attrs = cfg.attrs``, update ``attrs[0]``, then
+  ``cfg.attrs = attrs``). ``cufile`` and ``nvml`` struct wrappers also retain
   owners correctly when indexing and slicing arrays.
   (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
 * ``cufile`` and ``nvml`` struct arrays are now zero-initialized, and assigning
