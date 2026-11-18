@@ -213,29 +213,31 @@ def test_reconstructed_body_survives_parent_deletion(init_cuda):
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_destroying_conditional_node_releases_branch_attachments(init_cuda, builder, expected_count):
     """Destroying a conditional owner releases every branch attachment."""
-    graph_def = GraphDefinition()
-    condition = try_create_condition(graph_def)
-    branches = builder(graph_def, condition)
-    callback_refs = []
+    dev = Device()
+    with dev.allocate(4, stream=dev.default_stream) as buf:
+        dev.default_stream.sync()
+        dptr = int(buf.handle)
+        graph_def = GraphDefinition()
+        condition = try_create_condition(graph_def)
+        branches = builder(graph_def, condition)
+        owner_refs = []
 
-    for branch in branches:
+        # Conditional bodies do not permit host callbacks; memset can retain an owner.
+        for branch in branches:
+            attachment_owner = _Sentinel()
+            owner_refs.append(weakref.ref(attachment_owner))
+            branch.memset(dptr, 0, 4, dst_owner=attachment_owner)
 
-        def callback():
-            pass
+        del attachment_owner, branches
+        gc.collect()
+        assert len(owner_refs) == expected_count
+        assert all(ref() is not None for ref in owner_refs)
 
-        callback_refs.append(weakref.ref(callback))
-        branch.callback(callback)
+        owner = next(node for node in graph_def.nodes() if isinstance(node, ConditionalNode))
+        owner.destroy()
+        del owner
 
-    del callback, branches
-    gc.collect()
-    assert len(callback_refs) == expected_count
-    assert all(ref() is not None for ref in callback_refs)
-
-    owner = next(node for node in graph_def.nodes() if isinstance(node, ConditionalNode))
-    owner.destroy()
-    del owner
-
-    _wait_until(lambda: all(ref() is None for ref in callback_refs))
+        _wait_until(lambda: all(ref() is None for ref in owner_refs))
 
 
 @pytest.mark.parametrize("builder, expected_count", _COND_BUILDERS)
@@ -245,7 +247,7 @@ def test_destroying_conditional_node_invalidates_branch_handles(init_cuda, build
     graph_def = GraphDefinition()
     condition = try_create_condition(graph_def)
     branches = builder(graph_def, condition)
-    branch_nodes = [branch.callback(lambda: None) for branch in branches]
+    branch_nodes = [branch.empty() for branch in branches]
 
     owner = next(node for node in graph_def.nodes() if isinstance(node, ConditionalNode))
     owner.destroy()

@@ -69,6 +69,41 @@ def test_ignores_lookalike_names_and_other_extras():
     assert tool.floor_from_metadata(metadata, 13) == "13.4.1"
 
 
+# The layout in which cu<N> includes minimal-sysctk<N>, which pins the floor.
+SELF_REFERENCING_METADATA = """\
+Metadata-Version: 2.4
+Name: cuda-core
+Version: 1.3.1
+Requires-Dist: cuda-pathfinder>=1.4.2
+Requires-Dist: numpy
+Provides-Extra: minimal-sysctk12
+Requires-Dist: cuda-bindings<13,>=12.9.8; extra == "minimal-sysctk12"
+Provides-Extra: minimal-sysctk13
+Requires-Dist: cuda-bindings<14,>=13.5.0; extra == "minimal-sysctk13"
+Provides-Extra: cu12
+Requires-Dist: cuda-core[minimal-sysctk12]; extra == "cu12"
+Requires-Dist: cuda-bindings[all]; extra == "cu12"
+Requires-Dist: cuda-toolkit==12.*; extra == "cu12"
+Provides-Extra: cu13
+Requires-Dist: cuda-core[minimal-sysctk13]; extra == "cu13"
+Requires-Dist: cuda-bindings[all]; extra == "cu13"
+Requires-Dist: cuda-toolkit==13.*; extra == "cu13"
+"""
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(("major", "floor"), [(12, "12.9.8"), (13, "13.5.0")])
+def test_follows_the_self_reference_of_a_cu_extra(tmp_path, major, floor):
+    assert tool.floor_from_wheel(_wheel(tmp_path, SELF_REFERENCING_METADATA), major) == floor
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_rejects_a_self_reference_to_an_extra_without_cuda_bindings():
+    metadata = 'Requires-Dist: cuda-core[minimal-sysctk13]; extra == "cu13"\nRequires-Dist: cuda-bindings[all]; extra == "cu13"\n'
+    with pytest.raises(SystemExit, match="no cuda-bindings requirement for the cu13 extra"):
+        tool.floor_from_metadata(metadata, 13)
+
+
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_rejects_a_missing_extra(tmp_path):
     with pytest.raises(SystemExit, match="no cuda-bindings requirement for the cu11 extra"):
