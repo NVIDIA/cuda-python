@@ -11,7 +11,6 @@ import cuda.pathfinder as pathfinder
 from cuda.core import (
     Device,
     LaunchConfig,
-    LegacyPinnedMemoryResource,
     Linker,
     LinkerOptions,
     ObjectCode,
@@ -77,7 +76,7 @@ def _compile_device_launcher_kernel():
     reason="Device-side graph launch requires Hopper (sm_90+) architecture",
 )
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_device_launch_basic(init_cuda):
+def test_device_launch_basic(init_cuda, pinned_alloc):
     """Test basic device-side graph launch functionality.
 
     This test verifies that a graph can be launched from device code by:
@@ -94,8 +93,7 @@ def test_device_launch_basic(init_cuda):
     launcher_kernel = _compile_device_launcher_kernel()
 
     # Allocate and initialize memory
-    mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(4)
+    buf = pinned_alloc(4)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[0] = 0
     stream.sync()
@@ -129,7 +127,7 @@ def test_device_launch_basic(init_cuda):
     reason="Device-side graph launch requires Hopper (sm_90+) architecture",
 )
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_device_launch_multiple(init_cuda):
+def test_device_launch_multiple(init_cuda, pinned_alloc):
     """Test that device-side graph launch can be executed multiple times.
 
     This test verifies that both the outer and inner graphs can be reused
@@ -144,8 +142,7 @@ def test_device_launch_multiple(init_cuda):
     launcher_kernel = _compile_device_launcher_kernel()
 
     # Allocate and initialize memory
-    mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(4)
+    buf = pinned_alloc(4)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[0] = 0
     stream.sync()

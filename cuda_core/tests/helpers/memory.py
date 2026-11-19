@@ -3,9 +3,18 @@
 
 """Memory-related test helpers (skip guards and resource factories)."""
 
+from contextlib import closing
+
 import pytest
 
-from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
+from cuda.core import (
+    Device,
+    DeviceMemoryResource,
+    LegacyPinnedMemoryResource,
+    ManagedMemoryResource,
+    PinnedMemoryResource,
+    StreamOptions,
+)
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda_python_test_helpers import IS_WINDOWS
 
@@ -54,6 +63,24 @@ def skip_if_pinned_memory_unsupported(device):
             pytest.skip("Device does not support host mempool operations")
     except AttributeError:
         pytest.skip("PinnedMemoryResource requires CUDA 13.0 or later")
+
+
+def make_pinned_allocator(resource_type):
+    """Return an allocator whose buffers are ready for immediate host access."""
+    if resource_type is LegacyPinnedMemoryResource:
+        return resource_type().allocate
+
+    skip_if_pinned_memory_unsupported(Device())
+    resource = resource_type()
+
+    def allocate(size):
+        # Use a nonblocking stream so setup can run alongside independent captures.
+        with closing(Device().create_stream(options=StreamOptions(nonblocking=True))) as stream:
+            buffer = resource.allocate(size, stream=stream)
+            stream.sync()
+            return buffer
+
+    return allocate
 
 
 def skip_if_managed_memory_unsupported(device):

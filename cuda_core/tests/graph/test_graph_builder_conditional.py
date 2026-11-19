@@ -10,7 +10,7 @@ import pytest
 from cuda_python_test_helpers.marks import requires_module
 from helpers.graph_kernels import compile_conditional_kernels
 
-from cuda.core import Device, LaunchConfig, LegacyPinnedMemoryResource, launch
+from cuda.core import Device, LaunchConfig, launch
 from cuda.core.graph import GraphBuilder
 
 
@@ -18,15 +18,14 @@ from cuda.core.graph import GraphBuilder
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_conditional_if(init_cuda, condition_value):
+def test_graph_conditional_if(init_cuda, pinned_alloc, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(8)
+    b = pinned_alloc(8)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -82,15 +81,14 @@ def test_graph_conditional_if(init_cuda, condition_value):
     "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
 )
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_conditional_if_else(init_cuda, condition_value):
+def test_graph_conditional_if_else(init_cuda, pinned_alloc, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(8)
+    b = pinned_alloc(8)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -154,15 +152,14 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_conditional_switch(init_cuda, condition_value):
+def test_graph_conditional_switch(init_cuda, pinned_alloc, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(12)
+    b = pinned_alloc(12)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -245,7 +242,7 @@ def test_graph_conditional_switch(init_cuda, condition_value):
 
 @pytest.mark.parametrize("condition_value", [True, False, 1, 0])
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_conditional_while(init_cuda, condition_value):
+def test_graph_conditional_while(init_cuda, pinned_alloc, condition_value):
     mod = compile_conditional_kernels(type(condition_value))
     add_one = mod.get_kernel("add_one")
     loop_kernel = mod.get_kernel("loop_kernel")
@@ -253,8 +250,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = pinned_alloc(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 
@@ -293,7 +289,7 @@ def test_graph_conditional_while(init_cuda, condition_value):
 
 
 @requires_module(np, "2.1")
-def test_graph_conditional_on_forked_builder(init_cuda):
+def test_graph_conditional_on_forked_builder(init_cuda, pinned_alloc):
     """A conditional created on a forked builder keeps its body graph's parent
     handle pinned to the owning primary graph."""
     mod = compile_conditional_kernels(int)
@@ -301,8 +297,7 @@ def test_graph_conditional_on_forked_builder(init_cuda):
     set_handle = mod.get_kernel("set_handle")
 
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = pinned_alloc(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 
@@ -338,7 +333,7 @@ def test_graph_conditional_on_forked_builder(init_cuda):
 
 
 @requires_module(np, "2.1")
-def test_graph_conditional_nested(init_cuda):
+def test_graph_conditional_nested(init_cuda, pinned_alloc):
     """A conditional nested inside another conditional body exercises the
     multi-level body -> outer-body -> primary keep-alive chain."""
     mod = compile_conditional_kernels(int)
@@ -346,8 +341,7 @@ def test_graph_conditional_nested(init_cuda):
     set_handle = mod.get_kernel("set_handle")
 
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = pinned_alloc(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 

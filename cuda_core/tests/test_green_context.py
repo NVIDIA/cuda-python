@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
+from contextlib import closing
+
 import numpy as np
 import pytest
 from helpers.contexts import assert_device_operations_use_bound_context, current_context_handle, use_context
@@ -745,6 +748,17 @@ class TestGreenContextKernelLaunch:
         """Launch kernel via ctx.create_stream (explicit model, no set_current)."""
         stream = green_ctx.create_stream()
         _launch_fill_and_verify(init_cuda, stream, fill_kernel, n=64, value=42)
+
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_launch_with_pinned_output(self, init_cuda, green_ctx, fill_kernel, pinned_alloc):
+        """A kernel launched in a green context can write to pinned host memory."""
+        n = 64
+        with closing(green_ctx.create_stream()) as stream, pinned_alloc(n * ctypes.sizeof(ctypes.c_int)) as buffer:
+            result = (ctypes.c_int * n).from_address(int(buffer.handle))
+            result[:] = [0] * n
+            launch(stream, LaunchConfig(grid=2, block=32), fill_kernel, buffer, np.int32(42), np.int32(n))
+            stream.sync()
+            assert result[:] == [42] * n
 
     def test_two_green_contexts_independent(self, init_cuda, sm_resource, fill_kernel):
         """Two SM groups -> two green contexts -> two independent kernels."""
