@@ -14,13 +14,16 @@ on:
 jobs:
   request:
     if: >
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' &&
-        github.event.issue.pull_request &&
-        startsWith(github.event.comment.body, '/nvskills-ci')) ||
-      (github.event_name == 'push' &&
-        github.actor == (vars.NVSKILLS_SIGNATURE_PUSH_ACTOR || 'nv-skills-ci[bot]') &&
-        startsWith(github.event.head_commit.message, vars.NVSKILLS_SIGNATURE_COMMIT_TITLE || 'Attach NVSkills validation signatures'))
+      github.repository == 'NVIDIA/cuda-python' &&
+      (
+        github.event_name == 'pull_request' ||
+        (github.event_name == 'issue_comment' &&
+          github.event.issue.pull_request &&
+          startsWith(github.event.comment.body, '/nvskills-ci')) ||
+        (github.event_name == 'push' &&
+          github.actor == (vars.NVSKILLS_SIGNATURE_PUSH_ACTOR || 'nv-skills-ci[bot]') &&
+          startsWith(github.event.head_commit.message, vars.NVSKILLS_SIGNATURE_COMMIT_TITLE || 'Attach NVSkills validation signatures'))
+      )
     permissions:
       contents: read
       pull-requests: read
