@@ -52,26 +52,50 @@ def _load_sample_function(sample_name: str, function_name: str, **namespace):
     return namespace[function_name]
 
 
-@pytest.mark.parametrize("host_pools_supported", [False, True])
+@pytest.mark.parametrize(
+    ("memory_pools_supported", "host_memory_pools_supported"), [(False, True), (True, False)]
+)
 @pytest.mark.agent_authored(model="GPT-6")
-def test_image_sample_requires_host_memory_pools(host_pools_supported: bool) -> None:
+def test_image_sample_waives_without_required_memory_pools(
+    memory_pools_supported: bool, host_memory_pools_supported: bool
+) -> None:
     def create_stream():
-        raise RuntimeError("stream setup failed")
+        pytest.fail("Unsupported memory pools must waive before stream setup")
 
     device = SimpleNamespace(
-        properties=SimpleNamespace(memory_pools_supported=True, host_memory_pools_supported=host_pools_supported),
+        properties=SimpleNamespace(
+            memory_pools_supported=memory_pools_supported,
+            host_memory_pools_supported=host_memory_pools_supported,
+        ),
+        name="Fake GPU",
         set_current=lambda: None,
         create_stream=create_stream,
     )
     main = _load_sample_function("copyImageArraytoGPU", "main", Device=lambda: device, np=np, sys=sys, EXIT_WAIVED=77)
 
-    if host_pools_supported:
-        with pytest.raises(RuntimeError, match="stream setup failed"):
-            main()
-    else:
-        with pytest.raises(SystemExit) as exc_info:
-            main()
-        assert exc_info.value.code == 77
+    with pytest.raises(SystemExit) as exc_info:
+        main()
+    assert exc_info.value.code == 77
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_image_sample_propagates_stream_setup_error() -> None:
+    expected = RuntimeError("stream setup failed")
+
+    def create_stream():
+        raise expected
+
+    device = SimpleNamespace(
+        properties=SimpleNamespace(memory_pools_supported=True, host_memory_pools_supported=True),
+        name="Fake GPU",
+        set_current=lambda: None,
+        create_stream=create_stream,
+    )
+    main = _load_sample_function("copyImageArraytoGPU", "main", Device=lambda: device, np=np, sys=sys, EXIT_WAIVED=77)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        main()
+    assert exc_info.value is expected
 
 
 @pytest.mark.parametrize(
@@ -104,29 +128,46 @@ def test_ipc_sample_checks_memory_pool_handle_support(handle_types: int, support
     assert check_ipc_support(device) is supported
 
 
-@pytest.mark.parametrize("display", [None, ":0"])
 @pytest.mark.agent_authored(model="GPT-6")
-def test_mlir_sample_waives_missing_display_before_cuda_setup(display: str | None) -> None:
+def test_mlir_sample_waives_missing_display_before_cuda_setup() -> None:
     def is_available():
-        raise RuntimeError("CUDA query failed")
+        pytest.fail("A missing display must waive before querying CUDA")
 
     main = _load_sample_function(
         "glInteropFluidNumbaCudaMlir",
         "main",
-        os=SimpleNamespace(environ={} if display is None else {"DISPLAY": display}),
+        os=SimpleNamespace(environ={}),
         platform=SimpleNamespace(system=lambda: "Linux"),
         sys=sys,
         cuda=SimpleNamespace(is_available=is_available),
         EXIT_WAIVED=77,
     )
 
-    if display is None:
-        with pytest.raises(SystemExit) as exc_info:
-            main()
-        assert exc_info.value.code == 77
-    else:
-        with pytest.raises(RuntimeError, match="CUDA query failed"):
-            main()
+    with pytest.raises(SystemExit) as exc_info:
+        main()
+    assert exc_info.value.code == 77
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_mlir_sample_propagates_cuda_query_error() -> None:
+    expected = RuntimeError("CUDA query failed")
+
+    def is_available():
+        raise expected
+
+    main = _load_sample_function(
+        "glInteropFluidNumbaCudaMlir",
+        "main",
+        os=SimpleNamespace(environ={"DISPLAY": ":0"}),
+        platform=SimpleNamespace(system=lambda: "Linux"),
+        sys=sys,
+        cuda=SimpleNamespace(is_available=is_available),
+        EXIT_WAIVED=77,
+    )
+
+    with pytest.raises(RuntimeError) as exc_info:
+        main()
+    assert exc_info.value is expected
 
 
 @pytest.mark.parametrize("sample_name", WAIVER_SAMPLE_NAMES)
