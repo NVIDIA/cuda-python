@@ -480,22 +480,22 @@ def test_cuda_adapter_uses_real_device_storage(init_cuda, entry, module, torch_m
     """Torch-looking CAI adapters import real device storage through their protocol."""
     source = np.arange(4, dtype=np.int32)
     buffer = init_cuda.allocate(source.nbytes, stream=init_cuda.default_stream)
-    init_cuda.sync()
-    ptr = int(buffer.handle)
-    (status,) = driver.cuMemcpyHtoD(ptr, source.ctypes.data, source.nbytes)
-    assert int(status) == 0
-    calls = []
-
-    def interface(self):
-        calls.append(True)
-        return {"shape": (4,), "strides": None, "typestr": source.dtype.str, "data": (ptr, False), "version": 3}
-
-    adapter_type = type(
-        "CudaAdapter",
-        (),
-        {"__module__": module, "data_ptr": lambda _self: ptr, "__cuda_array_interface__": property(interface)},
-    )
     try:
+        init_cuda.sync()
+        ptr = int(buffer.handle)
+        (status,) = driver.cuMemcpyHtoD(ptr, source.ctypes.data, source.nbytes)
+        assert int(status) == 0
+        calls = []
+
+        def interface(self):
+            calls.append(True)
+            return {"shape": (4,), "strides": None, "typestr": source.dtype.str, "data": (ptr, False), "version": 3}
+
+        adapter_type = type(
+            "CudaAdapter",
+            (),
+            {"__module__": module, "data_ptr": lambda _self: ptr, "__cuda_array_interface__": property(interface)},
+        )
         for _ in range(2):
             view = getattr(StridedMemoryView, entry)(adapter_type(), stream_ptr=-1)
             assert view.ptr == ptr
@@ -584,6 +584,64 @@ else:
 assert view.ptr == adapter.array.ctypes.data
 np.testing.assert_array_equal(np.from_dlpack(view), adapter.array)
 assert loader.calls == 0
+"""
+    run_python_snippet(code, timeout=child_timeout_sec(), extra_env={"PYTHONFAULTHANDLER": "1"})
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_torch_tensor_type_lookup_is_cached(torch_module):
+    """Distinct candidate types reuse Torch metadata after a protocol-only import."""
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+    from helpers.child_processes import child_timeout_sec
+
+    code = """import sys
+import types
+import numpy as np
+from cuda.core.utils import StridedMemoryView
+
+class Adapter:
+    def __init__(self):
+        self.array = np.arange(4, dtype=np.int32)
+    def data_ptr(self):
+        return self.array.ctypes.data
+    def __dlpack_device__(self):
+        return self.array.__dlpack_device__()
+    def __dlpack__(self, **kwargs):
+        return self.array.__dlpack__(**kwargs)
+
+def import_adapter():
+    adapter = type("Adapter", (Adapter,), {"__module__": "torch_adapter"})()
+    view = StridedMemoryView.from_dlpack(adapter, stream_ptr=-1)
+    np.testing.assert_array_equal(np.from_dlpack(view), adapter.array)
+
+assert "torch" not in sys.modules
+import_adapter()
+assert "torch" not in sys.modules
+import torch
+
+lookups = {"Tensor": 0, "__version__": 0}
+class TrackedTorch(types.ModuleType):
+    def __getattribute__(self, name):
+        if name in lookups:
+            lookups[name] += 1
+        return super().__getattribute__(name)
+
+original_type = type(torch)
+torch.__class__ = TrackedTorch
+try:
+    import_adapter()
+    assert lookups["Tensor"] == 1
+    first_lookups = lookups.copy()
+    for _ in range(2):
+        import_adapter()
+        assert lookups == first_lookups, lookups
+finally:
+    torch.__class__ = original_type
+
+array = torch.arange(4, dtype=torch.int32)
+view = StridedMemoryView.from_dlpack(array, stream_ptr=-1)
+assert view.ptr == array.data_ptr()
+np.testing.assert_array_equal(np.from_dlpack(view), np.arange(4, dtype=np.int32))
 """
     run_python_snippet(code, timeout=child_timeout_sec(), extra_env={"PYTHONFAULTHANDLER": "1"})
 
