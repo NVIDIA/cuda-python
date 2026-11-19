@@ -101,7 +101,8 @@ def test_mlir_sample_waives_missing_display_before_cuda_setup(display: str | Non
         "glInteropFluidNumbaCudaMlir",
         "main",
         os=SimpleNamespace(environ={} if display is None else {"DISPLAY": display}),
-        sys=SimpleNamespace(platform="linux", stderr=sys.stderr, exit=sys.exit),
+        platform=SimpleNamespace(system=lambda: "Linux"),
+        sys=sys,
         cuda=SimpleNamespace(is_available=is_available),
         EXIT_WAIVED=77,
     )
