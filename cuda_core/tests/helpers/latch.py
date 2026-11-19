@@ -83,6 +83,10 @@ class LatchKernel:
         """Release the latch, allowing stream progress."""
         self.busy_wait_flag[0] = 1
 
+    def close(self):
+        """Free the flag buffer; the stream that ran the latch must have synchronized."""
+        self.buffer.close()
+
     @property
     def timed_out(self):
         """Whether the last launch ended by timeout rather than release; valid after the stream syncs."""

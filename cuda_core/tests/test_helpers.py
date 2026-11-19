@@ -6,6 +6,7 @@ import ctypes
 import sys
 import time
 import types
+from contextlib import closing
 from unittest.mock import Mock
 
 import pytest
@@ -70,16 +71,15 @@ def test_latchkernel(init_cuda):
 def test_latchkernel_reports_timeout(init_cuda):
     """A latch that is never released ends by timeout and reports it; relaunching clears the report."""
     device = init_cuda
-    stream = device.create_stream()
-    latch = LatchKernel(device, timeout_sec=0.1)
-    latch.launch(stream)
-    stream.sync()
-    assert latch.timed_out
+    with closing(device.create_stream()) as stream, closing(LatchKernel(device, timeout_sec=0.1)) as latch:
+        latch.launch(stream)
+        stream.sync()
+        assert latch.timed_out
 
-    latch.launch(stream)
-    latch.release()
-    stream.sync()
-    assert not latch.timed_out
+        latch.launch(stream)
+        latch.release()
+        stream.sync()
+        assert not latch.timed_out
 
 
 @pytest.mark.skipif(
