@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
+from contextlib import ExitStack
 
 import pytest
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer, prefix_view
@@ -9,7 +10,7 @@ from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
-from cuda.core import Device, EventOptions
+from cuda.core import Device, EventOptions, PinnedMemoryResource
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 CHILD_TIMEOUT_SEC = child_timeout_sec()
@@ -26,10 +27,18 @@ class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, ipc_device, ipc_memory_resource):
+    def test_main(self, request, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
         mr = ipc_memory_resource
+        if isinstance(mr, PinnedMemoryResource):
+            request.applymarker(
+                pytest.mark.xfail(
+                    strict=True,
+                    reason="#3501: the child's copy into the imported pinned buffer blocks until the latch "
+                    "times out, so the release protocol never drives the test",
+                )
+            )
         stream1 = device.create_stream()
         # TODO: We pick a timeout here to ensure forward progress (it needs to be
         # less than CHILD_TIMEOUT_SEC) when a pinned memory resource is in use,
@@ -38,60 +47,74 @@ class TestEventIpc:
         # make any sense. We should refactor this test.
         latch = LatchKernel(device, timeout_sec=5)
 
-        # Start the child process.
-        q_out, q_in = [mp.Queue() for _ in range(2)]
-        process = mp.Process(target=self.child_main, args=(log, q_out, q_in))
-        process.start()
-
         # Prepare scratch buffers.
         target = make_scratch_buffer(device, 0, NBYTES)
         ones = make_scratch_buffer(device, 1, NBYTES)
         twos = make_scratch_buffer(device, 2, NBYTES)
 
-        # Allocate the buffer and send it to the child.
-        buffer = mr.allocate(NBYTES, stream=stream1)
-        log("sending buffer")
-        q_out.put(buffer)
+        with ExitStack() as stack:
+            # Start the child process.
+            q_out, q_in = [mp.Queue() for _ in range(2)]
+            for queue in (q_out, q_in):
+                stack.callback(queue.join_thread)
+                stack.callback(queue.close)
+            process = mp.Process(target=self.child_main, args=(log, q_out, q_in))
+            process.start()
 
-        # Stream 1:
-        log("enqueuing latch kernel on stream1")
-        latch.launch(stream1)
-        log("enqueuing copy on stream1")
-        prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
+            # Allocate the buffer and send it to the child.
+            buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream1))
+            # The child must be gone before the buffer closes; it may still write to the allocation.
+            stack.callback(kill_subprocesses, process)
+            log("sending buffer")
+            q_out.put(buffer)
 
-        ipc_event_options = EventOptions(ipc_enabled=True)
-        e = stream1.record(options=ipc_event_options)
-        log(f"recorded event ({hex(e.handle)})")
-        q_out.put(e)
-        log("sent event")
+            # The latch timeout must cover only the child's event wait and copy, not
+            # its startup and buffer import, which can be slow.
+            log("waiting for child to be ready")
+            ready = q_in.get(timeout=CHILD_TIMEOUT_SEC)
+            assert ready == "ready"
 
-        # Wait on the child.
-        log("waiting for child")
-        none = q_in.get(timeout=CHILD_TIMEOUT_SEC)
-        assert none is None
+            # Stream 1:
+            log("enqueuing latch kernel on stream1")
+            latch.launch(stream1)
+            log("enqueuing copy on stream1")
+            prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
 
-        log("releasing stream1")
-        latch.release()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0
-        log("done")
+            ipc_event_options = EventOptions(ipc_enabled=True)
+            e = stream1.record(options=ipc_event_options)
+            log(f"recorded event ({hex(e.handle)})")
+            q_out.put(e)
+            log("sent event")
 
-        # Finish up.
-        target.copy_from(prefix_view(buffer, NBYTES), stream=stream1)
-        stream1.sync()
-        assert compare_equal_buffers(target, twos)
+            # Wait on the child.
+            log("waiting for child")
+            none = q_in.get(timeout=CHILD_TIMEOUT_SEC)
+            assert none is None
+
+            log("releasing stream1")
+            latch.release()
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0
+            log("done")
+
+            # Finish up.
+            target.copy_from(prefix_view(buffer, NBYTES), stream=stream1)
+            stream1.sync()
+            assert compare_equal_buffers(target, twos)
+            assert not latch.timed_out, "the latch timed out instead of being released after the child replied"
 
     def child_main(self, log, q_in, q_out):
         log.prefix = " child: "
-        log("ready")
         device = Device()
         device.set_current()
         stream2 = device.create_stream()
         twos = make_scratch_buffer(device, 2, NBYTES)
         buffer = q_in.get(timeout=CHILD_TIMEOUT_SEC)
         log("got buffer")
+        log("ready")
+        q_out.put("ready")
         e = q_in.get(timeout=CHILD_TIMEOUT_SEC)
         log(f"got event ({hex(e.handle)})")
         stream2.wait(e)

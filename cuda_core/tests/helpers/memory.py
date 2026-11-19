@@ -50,6 +50,19 @@ def is_pool_resource(mr):
     return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
 
 
+def import_pool_resource(cls, device, alloc_handle):
+    """Import the pool shared by ``alloc_handle`` as ``cls``, the class of the exporting resource.
+
+    The class must match the exporter: importing a pinned pool as a
+    ``DeviceMemoryResource`` (or the reverse) currently succeeds and yields a
+    mislabeled resource (#3502).
+    """
+    if cls is PinnedMemoryResource:
+        return PinnedMemoryResource.from_allocation_handle(alloc_handle)
+    assert cls is DeviceMemoryResource, cls
+    return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+
+
 def skip_if_pinned_memory_unsupported(device):
     try:
         if not device.properties.host_memory_pools_supported:

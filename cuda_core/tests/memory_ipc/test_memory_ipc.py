@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
+from contextlib import ExitStack
 
 import pytest
-from helpers.buffers import PatternGen
+from helpers.buffers import PatternGen, prefix_view
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
-from helpers.memory import is_pool_resource
+from helpers.memory import import_pool_resource, is_pool_resource
 
-from cuda.core import Buffer, DeviceMemoryResource, VirtualMemoryResource
+from cuda.core import Buffer, PinnedMemoryResource, VirtualMemoryResource
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -21,15 +22,16 @@ pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
 def _share_token(mr):
-    """What a child needs to rebuild ``mr``: a pool's allocation handle, or the VMM resource itself."""
-    return mr.allocation_handle if is_pool_resource(mr) else mr
+    """What a child needs to rebuild ``mr``: a pool's class and allocation handle, or the VMM resource itself."""
+    return (type(mr), mr.allocation_handle) if is_pool_resource(mr) else mr
 
 
 def _import_token(device, token):
     """Rebuild a memory resource in a child from :func:`_share_token`'s result."""
     if isinstance(token, VirtualMemoryResource):
         return token
-    return DeviceMemoryResource.from_allocation_handle(device, token)
+    cls, alloc_handle = token
+    return import_pool_resource(cls, device, alloc_handle)
 
 
 class TestIpcMempool:
@@ -254,5 +256,56 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         stream = device.default_stream
         pgen = PatternGen(device, NBYTES, stream=stream)
         pgen.fill_buffer(buffer, seed=seed)
+        buffer.close()
+        stream.sync()
+
+
+class TestIpcImportedBufferDeviceAccess:
+    """
+    Check that the importing process's device can access an imported buffer.
+
+    The other tests in this module fill and verify buffers with copies, which
+    succeed even when the device cannot access the memory. A memset is executed
+    by the device and fails in that case.
+    """
+
+    FILL_VALUE = 7
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    @pytest.mark.flaky(reruns=2)
+    def test_main(self, request, ipc_device, ipc_memory_resource):
+        device = ipc_device
+        mr = ipc_memory_resource
+        if isinstance(mr, PinnedMemoryResource):
+            request.applymarker(
+                pytest.mark.xfail(strict=True, reason="#3501: an imported pinned pool grants no device access")
+            )
+        stream = device.default_stream
+        with ExitStack() as stack:
+            buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream))
+            stream.sync()
+
+            queue = mp.Queue()
+            stack.callback(queue.join_thread)
+            stack.callback(queue.close)
+            process = mp.Process(target=self.child_main, args=(device, mr, queue))
+            process.start()
+            # The child must be gone before the buffer closes; it may still write to the allocation.
+            stack.callback(kill_subprocesses, process)
+            queue.put(buffer)
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0
+
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.verify_buffer(buffer, value=self.FILL_VALUE)
+        stream.sync()
+
+    def child_main(self, device, mr, queue):
+        device.set_current()
+        buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        stream = device.default_stream
+        prefix_view(buffer, NBYTES).fill(self.FILL_VALUE, stream=stream)
         buffer.close()
         stream.sync()
