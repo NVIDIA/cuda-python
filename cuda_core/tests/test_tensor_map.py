@@ -3,6 +3,7 @@
 
 import gc
 import weakref
+from contextlib import closing
 
 import numpy as np
 import pytest
@@ -531,10 +532,13 @@ class TestTensorMapReplaceAddress:
             data_type=TensorMapDataType.FLOAT32,
         )
 
-        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
+        options = ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        with closing(create_managed_memory_resource_or_skip(options)) as mr:
+            managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
 
-        desc.replace_address(managed_buf)
+            desc.replace_address(managed_buf)
+            managed_buf.close()
+            dev1.sync()
 
 
 class TestTensorMapMultiDeviceValidation:
@@ -619,14 +623,17 @@ class TestTensorMapMultiDeviceValidation:
         skip_if_managed_memory_unsupported(dev1)
 
         dev1.set_current()
-        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
+        options = ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        with closing(create_managed_memory_resource_or_skip(options)) as mr:
+            managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
 
-        desc = _as_view(managed_buf).as_tensor_map(
-            box_dim=(64,),
-            data_type=TensorMapDataType.FLOAT32,
-        )
-        assert desc is not None
+            desc = _as_view(managed_buf).as_tensor_map(
+                box_dim=(64,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+            assert desc is not None
+            managed_buf.close()
+            dev1.sync()
 
 
 class TestTensorMapIm2col:
