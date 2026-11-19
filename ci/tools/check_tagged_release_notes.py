@@ -4,7 +4,7 @@
 """Check that versioned release-notes files exist before releasing.
 
 Usage:
-    python -m ci.tools.check_release_notes --git-tag <tag> --component <component>
+    python -m ci.tools.check_tagged_release_notes --git-tag <tag> --component <component>
 
 Each normal release requires nonempty notes for its exact version and component
 in the tagged source checkout. Post releases do not require new notes, except

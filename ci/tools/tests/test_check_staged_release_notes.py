@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from ci.tools.check_release_note_pairs import missing_release_note_pairs
+from ci.tools.check_staged_release_notes import missing_release_note_pairs
 
 
 def git(repo: Path, *args: str) -> None:

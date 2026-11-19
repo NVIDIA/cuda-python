@@ -1,19 +1,28 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Require numeric bindings and metapackage release notes to be paired."""
+"""Check release-note pairing and documentation version selectors."""
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-BINDINGS_NOTE = re.compile(r"cuda_bindings_[^/]+/docs/source/release/([0-9]+\.[0-9]+\.[0-9]+)-notes\.rst")
 METAPACKAGE_NOTES = "cuda_python/docs/source/release"
-METAPACKAGE_NOTE = re.compile(rf"{METAPACKAGE_NOTES}/([0-9]+\.[0-9]+\.[0-9]+)-notes\.rst")
+RELEASE_NOTE = re.compile(
+    r"(cuda_bindings_[^/]+|cuda_python|cuda_core|cuda_pathfinder)"
+    r"/docs/source/release/([0-9]+\.[0-9]+\.[0-9]+)-notes\.rst"
+)
+SELECTOR_URLS = {
+    "cuda_python": "https://nvidia.github.io/cuda-python/",
+    "cuda_core": "https://nvidia.github.io/cuda-python/cuda-core/",
+    "cuda_pathfinder": "https://nvidia.github.io/cuda-python/cuda-pathfinder/",
+    "cuda_bindings_13": "https://nvidia.github.io/cuda-python/cuda-bindings/",
+}
 
 
 def _requires_pairing(version: str) -> bool:
@@ -22,8 +31,8 @@ def _requires_pairing(version: str) -> bool:
     return (major == 12 and (minor, patch) >= (9, 11)) or (major == 13 and (minor, patch) >= (5, 1)) or major >= 14
 
 
-def missing_release_note_pairs(repo_root: Path) -> list[str]:
-    """Return missing release-note counterparts in the Git index."""
+def _indexed_release_notes(repo_root: Path) -> dict[str, tuple[str, str]]:
+    """Collect the package and version of each release note covered by the checks."""
     listing = subprocess.run(  # noqa: S603
         [  # noqa: S607
             "git",
@@ -32,28 +41,42 @@ def missing_release_note_pairs(repo_root: Path) -> list[str]:
             "--",
             "cuda_bindings_*/docs/source/release/*-notes.rst",
             f"{METAPACKAGE_NOTES}/*-notes.rst",
+            "cuda_core/docs/source/release/*-notes.rst",
+            "cuda_pathfinder/docs/source/release/*-notes.rst",
         ],
         cwd=repo_root,
         stdout=subprocess.PIPE,
         check=True,
         encoding="utf-8",
     ).stdout
-    indexed: set[str] = set()
+    indexed: dict[str, tuple[str, str]] = {}
     for path in listing.split("\0"):
-        match = BINDINGS_NOTE.fullmatch(path) or METAPACKAGE_NOTE.fullmatch(path)
-        if match and _requires_pairing(match[1]):
-            indexed.add(path)
+        if match := RELEASE_NOTE.fullmatch(path):
+            package, version = match.groups()
+            if package == "cuda_core":
+                required = tuple(map(int, version.split("."))) >= (1, 3, 2)
+            elif package == "cuda_pathfinder":
+                required = tuple(map(int, version.split("."))) >= (1, 9, 2)
+            else:
+                required = _requires_pairing(version)
+            if required:
+                indexed[path] = package, version
+    return indexed
+
+
+def missing_release_note_pairs(repo_root: Path) -> list[str]:
+    """Return missing release-note counterparts in the Git index."""
+    indexed = _indexed_release_notes(repo_root)
 
     missing: set[str] = set()
-    for path in indexed:
-        if match := BINDINGS_NOTE.fullmatch(path):
-            counterpart = f"{METAPACKAGE_NOTES}/{match[1]}-notes.rst"
+    for package, version in indexed.values():
+        if package.startswith("cuda_bindings_"):
+            counterpart = f"{METAPACKAGE_NOTES}/{version}-notes.rst"
             if counterpart not in indexed:
                 missing.add(counterpart)
 
-    for path in indexed:
-        if match := METAPACKAGE_NOTE.fullmatch(path):
-            version = match[1]
+    for package, version in indexed.values():
+        if package == "cuda_python":
             major = int(version.split(".", 1)[0])
             counterpart = f"cuda_bindings_{major}/docs/source/release/{version}-notes.rst"
             if counterpart not in indexed:
@@ -61,16 +84,43 @@ def missing_release_note_pairs(repo_root: Path) -> list[str]:
     return sorted(missing)
 
 
+def version_selector_errors(repo_root: Path) -> list[str]:
+    """Require matching versions and documentation URLs in the staged selectors."""
+    selectors: dict[str, dict[str, str]] = {}
+    for package in SELECTOR_URLS:
+        path = f"{package}/docs/nv-versions.json"
+        contents = subprocess.run(  # noqa: S603
+            ["git", "show", f":{path}"],  # noqa: S607
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            check=True,
+            encoding="utf-8",
+        ).stdout
+        selectors[package] = {entry["version"]: entry["url"] for entry in json.loads(contents)}
+
+    errors = []
+    for note, (package, version) in sorted(_indexed_release_notes(repo_root).items()):
+        selector_package = "cuda_bindings_13" if package.startswith("cuda_bindings_") else package
+        path = f"{selector_package}/docs/nv-versions.json"
+        entries = selectors[selector_package]
+        expected_url = f"{SELECTOR_URLS[selector_package]}{version}/"
+        if version not in entries:
+            errors.append(f"{path}: missing version {version} (required by {note})")
+        elif entries[version] != expected_url:
+            errors.append(f"{path}: version {version} URL is {entries[version]!r}; expected {expected_url!r} ({note})")
+    return errors
+
+
 def main() -> int:
-    """Report release notes that would be missing from the committed tree."""
-    missing = missing_release_note_pairs(ROOT)
-    if not missing:
+    """Report missing release-note pairs and incorrect staged version selectors."""
+    errors = missing_release_note_pairs(ROOT) + version_selector_errors(ROOT)
+    if not errors:
         return 0
 
-    print("Missing release-note counterparts in the Git index:", file=sys.stderr)
-    for path in missing:
-        print(f"  - {path}", file=sys.stderr)
-    print("Add and stage matching cuda-python and cuda-bindings notes for each numeric release.", file=sys.stderr)
+    print("Release-note checks failed in the Git index:", file=sys.stderr)
+    for error in errors:
+        print(f"  - {error}", file=sys.stderr)
+    print("Add and stage matching release notes and documentation version entries.", file=sys.stderr)
     return 1
 
 

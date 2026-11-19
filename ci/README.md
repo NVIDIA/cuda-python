@@ -319,7 +319,8 @@ Follow the
 
 ## Paired Release Notes
 
-The `check-release-note-pairs` pre-commit hook requires paired notes starting at:
+The `check-staged-release-notes` pre-commit hook runs
+`ci/tools/check_staged_release_notes.py` and requires paired notes starting at:
 
 - CUDA 12: **12.9.11** and later.
 - CUDA 13: **13.5.1** and later.
@@ -340,6 +341,32 @@ exception list. The hook runs on every commit, including counterpart deletions,
 and during `pre-commit run --all-files`.
 The tagged-source checks in the release workflow remain the final validation
 before publication.
+
+The same hook checks documentation version selectors for these bindings and
+metapackage releases, Core releases starting at **1.3.2**, and Pathfinder
+releases starting at **1.9.2**. Each checked numeric release note must have its
+version listed in the package's `docs/nv-versions.json`, with the exact
+versioned documentation URL, including the trailing slash. All bindings roots
+share `cuda_bindings_13/docs/nv-versions.json`; metapackage URLs use
+`https://nvidia.github.io/cuda-python/<version>/`, while the other components
+use their `cuda-bindings`, `cuda-core`, or `cuda-pathfinder` subdirectory.
+
+All four selectors must exist in Git's index and parse as JSON. The hook reads
+their staged contents, so unstaged edits cannot satisfy the check.
+
+Tag-triggered CI checks one exact release-note filename at the start of its
+`should-skip` job, before Python setup or builds. Bare `v` tags select the
+matching bindings major; `cuda-core-v` and `cuda-pathfinder-v` tags select
+their own component. Public beta, release-candidate, and final tags require
+their full version in the filename. Internal alpha and development tags skip
+this check. Post releases require a new note only for Pathfinder. This early
+check tests file existence; pairing and selectors belong to the staged check.
+
+`ci/tools/check_tagged_release_notes.py` is the publication preflight used by
+the release workflow. It checks the requested component in the tagged source,
+retains the existing nonempty-note and post-release policies, and exports the
+version for downstream release jobs. Its scope is separate from the staged
+consistency checks and the early CI presence check.
 
 ## Nightly Artifact Sources
 
