@@ -14,6 +14,8 @@ import numpy as np
 import pytest
 from run_samples import RunPlan, run_sample
 
+from cuda.bindings import driver
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 UTILITIES_DIR = REPO_ROOT / "samples" / "cuda_core" / "Utilities"
 WAIVER_SAMPLE_NAMES = (
@@ -68,11 +70,19 @@ def test_image_sample_requires_host_memory_pools(host_pools_supported: bool) -> 
         assert exc_info.value.code == 77
 
 
-@pytest.mark.parametrize(("handle_types", "supported"), [(2, False), (3, True)])
+@pytest.mark.parametrize(
+    ("handle_types", "supported"),
+    [
+        (int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32), False),
+        (
+            int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32)
+            | int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR),
+            True,
+        ),
+    ],
+)
 @pytest.mark.agent_authored(model="GPT-6")
 def test_ipc_sample_checks_memory_pool_handle_support(handle_types: int, supported: bool) -> None:
-    from cuda.bindings import driver
-
     check_ipc_support = _load_sample_function(
         "ipcMemoryPool",
         "check_ipc_support",
