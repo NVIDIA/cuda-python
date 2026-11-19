@@ -290,6 +290,8 @@ class TestIpcImportedBufferDeviceAccess:
             stack.callback(queue.close)
             process = mp.Process(target=self.child_main, args=(device, mr, queue))
             process.start()
+            # The child must be gone before the buffer closes; it may still write to the allocation.
+            stack.callback(kill_subprocesses, process)
             queue.put(buffer)
             process.join(timeout=CHILD_TIMEOUT_SEC)
             survivors = kill_subprocesses(process)
