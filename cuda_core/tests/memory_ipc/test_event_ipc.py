@@ -57,46 +57,46 @@ class TestEventIpc:
         twos = make_scratch_buffer(device, 2, NBYTES)
 
         # Allocate the buffer and send it to the child.
-        buffer = mr.allocate(NBYTES, stream=stream1)
-        log("sending buffer")
-        q_out.put(buffer)
+        with mr.allocate(NBYTES, stream=stream1) as buffer:
+            log("sending buffer")
+            q_out.put(buffer)
 
-        # The latch timeout must cover only the child's event wait and copy, not
-        # its startup and buffer import, which can be slow.
-        log("waiting for child to be ready")
-        ready = q_in.get(timeout=CHILD_TIMEOUT_SEC)
-        assert ready == "ready"
+            # The latch timeout must cover only the child's event wait and copy, not
+            # its startup and buffer import, which can be slow.
+            log("waiting for child to be ready")
+            ready = q_in.get(timeout=CHILD_TIMEOUT_SEC)
+            assert ready == "ready"
 
-        # Stream 1:
-        log("enqueuing latch kernel on stream1")
-        latch.launch(stream1)
-        log("enqueuing copy on stream1")
-        prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
+            # Stream 1:
+            log("enqueuing latch kernel on stream1")
+            latch.launch(stream1)
+            log("enqueuing copy on stream1")
+            prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
 
-        ipc_event_options = EventOptions(ipc_enabled=True)
-        e = stream1.record(options=ipc_event_options)
-        log(f"recorded event ({hex(e.handle)})")
-        q_out.put(e)
-        log("sent event")
+            ipc_event_options = EventOptions(ipc_enabled=True)
+            e = stream1.record(options=ipc_event_options)
+            log(f"recorded event ({hex(e.handle)})")
+            q_out.put(e)
+            log("sent event")
 
-        # Wait on the child.
-        log("waiting for child")
-        none = q_in.get(timeout=CHILD_TIMEOUT_SEC)
-        assert none is None
+            # Wait on the child.
+            log("waiting for child")
+            none = q_in.get(timeout=CHILD_TIMEOUT_SEC)
+            assert none is None
 
-        log("releasing stream1")
-        latch.release()
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0
-        log("done")
+            log("releasing stream1")
+            latch.release()
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0
+            log("done")
 
-        # Finish up.
-        target.copy_from(prefix_view(buffer, NBYTES), stream=stream1)
-        stream1.sync()
-        assert compare_equal_buffers(target, twos)
-        assert not latch.timed_out, "the latch timed out instead of being released after the child replied"
+            # Finish up.
+            target.copy_from(prefix_view(buffer, NBYTES), stream=stream1)
+            stream1.sync()
+            assert compare_equal_buffers(target, twos)
+            assert not latch.timed_out, "the latch timed out instead of being released after the child replied"
 
     def child_main(self, log, q_in, q_out):
         log.prefix = " child: "

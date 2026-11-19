@@ -280,21 +280,20 @@ class TestIpcImportedBufferDeviceAccess:
                 pytest.mark.xfail(strict=True, reason="#3501: an imported pinned pool grants no device access")
             )
         stream = device.default_stream
-        buffer = mr.allocate(NBYTES, stream=stream)
-        stream.sync()
+        with mr.allocate(NBYTES, stream=stream) as buffer:
+            stream.sync()
 
-        queue = mp.Queue()
-        process = mp.Process(target=self.child_main, args=(device, mr, queue))
-        process.start()
-        queue.put(buffer)
-        process.join(timeout=CHILD_TIMEOUT_SEC)
-        survivors = kill_subprocesses(process)
-        assert not survivors, "child did not exit within timeout"
-        assert process.exitcode == 0
+            queue = mp.Queue()
+            process = mp.Process(target=self.child_main, args=(device, mr, queue))
+            process.start()
+            queue.put(buffer)
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0
 
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        pgen.verify_buffer(buffer, value=self.FILL_VALUE)
-        buffer.close()
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.verify_buffer(buffer, value=self.FILL_VALUE)
         stream.sync()
 
     def child_main(self, device, mr, queue):
