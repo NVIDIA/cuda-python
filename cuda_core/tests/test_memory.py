@@ -40,6 +40,7 @@ from helpers.memory import (
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
     skip_if_managed_memory_unsupported,
+    skip_if_managed_mempool_unsupported,
     skip_if_pinned_memory_unsupported,
 )
 from helpers.nanosleep_kernel import NanosleepKernel
@@ -1146,7 +1147,7 @@ def test_managed_memory_resource_buffer_dlpack_device_type(init_cuda):
     make_tma_descriptor) accept the buffer.
     """
     device = init_cuda
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     options = ManagedMemoryResourceOptions(preferred_location=device.device_id)
     with closing(create_managed_memory_resource_or_skip(options)) as mr:
         buf = mr.allocate(1024, stream=device.default_stream)
@@ -2455,7 +2456,7 @@ def test_pinned_memory_resource_with_options(init_cuda):
 
 def test_managed_memory_resource_with_options(init_cuda):
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
@@ -2513,7 +2514,7 @@ def test_managed_memory_resource_preferred_location_default(init_cuda):
 def test_managed_memory_resource_preferred_location_device(init_cuda):
     """preferred_location returns ("device", ordinal) for device preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     # Legacy style
@@ -2533,7 +2534,7 @@ def test_managed_memory_resource_preferred_location_device(init_cuda):
 def test_managed_memory_resource_preferred_location_host(init_cuda):
     """preferred_location returns ("host", None) for host preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     # Legacy style
@@ -2550,7 +2551,7 @@ def test_managed_memory_resource_preferred_location_host(init_cuda):
 def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
     """preferred_location returns ("host_numa", id) for NUMA preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     numa_id = device.properties.host_numa_id
@@ -2850,7 +2851,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     # ManagedMemoryResource does not support IPC
     if MR is ManagedMemoryResource and ipc_enabled:
@@ -3162,7 +3163,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
@@ -3280,7 +3281,7 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         skip_if_pinned_memory_unsupported(device)
         mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
         mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))
     else:
         assert MR is DeviceMemoryResource
