@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Require numeric bindings release notes to have matching metapackage notes."""
+"""Require numeric bindings and metapackage release notes to be paired."""
 
 from __future__ import annotations
 
@@ -13,8 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 BINDINGS_NOTE = re.compile(r"cuda_bindings_[^/]+/docs/source/release/([0-9]+\.[0-9]+\.[0-9]+)-notes\.rst")
 METAPACKAGE_NOTES = "cuda_python/docs/source/release"
+METAPACKAGE_NOTE = re.compile(rf"{METAPACKAGE_NOTES}/([0-9]+\.[0-9]+\.[0-9]+)-notes\.rst")
 
-# These historical releases predate the pairing check. Do not add new releases.
+# These bindings releases predate metapackage pairing. Do not add new releases.
 LEGACY_UNPAIRED_VERSIONS = frozenset(
     {
         "11.4.0",
@@ -47,7 +48,7 @@ LEGACY_UNPAIRED_VERSIONS = frozenset(
 
 
 def missing_release_note_pairs(repo_root: Path) -> list[str]:
-    """Return missing or empty metapackage notes in the Git index."""
+    """Return missing or empty release-note counterparts in the Git index."""
     listing = subprocess.run(  # noqa: S603
         [  # noqa: S607
             "git",
@@ -69,12 +70,17 @@ def missing_release_note_pairs(repo_root: Path) -> list[str]:
             metadata, path = entry.split("\t", 1)
             indexed[path] = metadata.split()[1]
 
+    bindings_notes: dict[str, list[str]] = {}
+    for path in indexed:
+        if match := BINDINGS_NOTE.fullmatch(path):
+            bindings_notes.setdefault(match[1], []).append(path)
+
     required = {
-        f"{METAPACKAGE_NOTES}/{match[1]}-notes.rst"
-        for path in indexed
-        if (match := BINDINGS_NOTE.fullmatch(path)) and match[1] not in LEGACY_UNPAIRED_VERSIONS
+        f"{METAPACKAGE_NOTES}/{version}-notes.rst"
+        for version in bindings_notes
+        if version not in LEGACY_UNPAIRED_VERSIONS
     }
-    object_ids = {indexed[path] for path in required if path in indexed}
+    object_ids = set(indexed.values())
     sizes: dict[str, int] = {}
     if object_ids:
         objects = subprocess.run(
@@ -89,7 +95,13 @@ def missing_release_note_pairs(repo_root: Path) -> list[str]:
             object_id, size = line.split()
             sizes[object_id] = int(size)
 
-    return sorted(path for path in required if path not in indexed or sizes[indexed[path]] == 0)
+    missing = {path for path in required if path not in indexed or sizes[indexed[path]] == 0}
+    for path in indexed:
+        if (match := METAPACKAGE_NOTE.fullmatch(path)) and not any(
+            sizes[indexed[note]] for note in bindings_notes.get(match[1], [])
+        ):
+            missing.add(f"cuda_bindings_*/docs/source/release/{match[1]}-notes.rst")
+    return sorted(missing)
 
 
 def main() -> int:
@@ -98,10 +110,10 @@ def main() -> int:
     if not missing:
         return 0
 
-    print("Missing or empty cuda-python release notes in the Git index:", file=sys.stderr)
+    print("Missing or empty release-note counterparts in the Git index:", file=sys.stderr)
     for path in missing:
         print(f"  - {path}", file=sys.stderr)
-    print("Add and stage matching metapackage notes for each numeric bindings release.", file=sys.stderr)
+    print("Add and stage matching cuda-python and cuda-bindings notes for each numeric release.", file=sys.stderr)
     return 1
 
 

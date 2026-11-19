@@ -49,15 +49,54 @@ def test_numeric_notes_require_a_tracked_metapackage_counterpart(repo, package, 
     assert missing_release_note_pairs(repo) == []
 
 
+@pytest.mark.parametrize(
+    "package,version",
+    [("cuda_bindings_12", "12.9.10"), ("cuda_bindings_12", "12.9.11"), ("cuda_bindings_13", "13.5.1")],
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_metapackage_notes_require_a_tracked_bindings_counterpart(repo, package, version):
+    git(repo, "add", write_note(repo, "cuda_python", version))
+    expected = f"cuda_bindings_*/docs/source/release/{version}-notes.rst"
+
+    assert missing_release_note_pairs(repo) == [expected]
+
+    counterpart = write_note(repo, package, version)
+    assert missing_release_note_pairs(repo) == [expected]
+
+    git(repo, "add", counterpart)
+    assert missing_release_note_pairs(repo) == []
+
+
 @pytest.mark.agent_authored(model="gpt-6")
 def test_templates_and_prerelease_notes_do_not_require_counterparts(repo):
     for package, version in [
         ("cuda_bindings_12", "12.X.Y"),
         ("cuda_bindings_13", "13.X.Y"),
         ("cuda_bindings_13", "13.5.1rc1"),
+        ("cuda_python", "12.X.Y"),
+        ("cuda_python", "13.5.1rc1"),
     ]:
         git(repo, "add", write_note(repo, package, version))
 
+    assert missing_release_note_pairs(repo) == []
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_any_nonempty_bindings_root_satisfies_the_metapackage_counterpart(repo):
+    git(repo, "add", write_note(repo, "cuda_python", "12.6.1"))
+    git(repo, "add", write_note(repo, "cuda_bindings_12", "12.6.1", contents=""))
+    counterpart = write_note(repo, "cuda_bindings_13", "12.6.1")
+    git(repo, "add", counterpart)
+
+    assert missing_release_note_pairs(repo) == []
+
+    git(repo, "rm", "--cached", counterpart)
+    assert missing_release_note_pairs(repo) == ["cuda_bindings_*/docs/source/release/12.6.1-notes.rst"]
+
+    write_note(repo, "cuda_bindings_12", "12.6.1")
+    assert missing_release_note_pairs(repo) == ["cuda_bindings_*/docs/source/release/12.6.1-notes.rst"]
+
+    git(repo, "add", "cuda_bindings_12")
     assert missing_release_note_pairs(repo) == []
 
 

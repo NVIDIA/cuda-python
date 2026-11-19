@@ -57,7 +57,7 @@ repos:
         pass_filenames: false
 
       - id: check-release-note-pairs
-        name: Check bindings release notes have matching cuda-python notes
+        name: Check cuda-bindings and cuda-python release notes are paired
         entry: python -m ci.tools.check_release_note_pairs
         language: python
         always_run: true
