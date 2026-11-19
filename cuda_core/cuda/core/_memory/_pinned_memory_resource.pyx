@@ -225,15 +225,8 @@ cdef class PinnedMemoryResource(_MemPool):
         # not device-specific it is unlikelt the case.
         HANDLE_RETURN(cydriver.cuInit(0))
 
-        # A registry hit returns a resource that already has its grant. Holding
-        # the registered resource keeps it alive until the import has returned it.
-        registered = _ipc.registry.get(getattr(alloc_handle, 'uuid', None))
-        cdef PinnedMemoryResource mr = <PinnedMemoryResource>(
-            _ipc.MP_from_allocation_handle(cls, alloc_handle))
-        if mr is not registered:
-            # IPC-enabled pinned pools are always placed on a host NUMA node.
-            _PMR_grant_device_access(mr, True)
-        return mr
+        return <PinnedMemoryResource>(
+            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported))
 
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
@@ -354,6 +347,11 @@ cdef inline int _PMR_grant_device_access(PinnedMemoryResource self, bint host_nu
     if not access.empty():
         MP_set_access(self, access.data(), access.size())
     return 0
+
+
+cdef int _PMR_init_imported(_MemPool mr) except? -1:
+    # IPC-enabled pinned pools are always placed on a host NUMA node.
+    return _PMR_grant_device_access(<PinnedMemoryResource>mr, True)
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:

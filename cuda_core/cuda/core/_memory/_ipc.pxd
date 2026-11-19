@@ -79,7 +79,10 @@ cdef Buffer Buffer_from_ipc_descriptor(cls, object, IPCBufferDescriptor, stream)
 
 # _MemPool IPC Implementation
 # ---------------------------
-cdef _MemPool MP_from_allocation_handle(cls, alloc_handle)
+# Initializes a newly imported pool before MP_from_allocation_handle registers it.
+ctypedef int (*MP_import_init_t)(_MemPool) except? -1
+
+cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=*)
 cdef _MemPool MP_from_registry(uuid)
 cdef _MemPool MP_register(_MemPool, uuid)
 cdef IPCAllocationHandle MP_export_mempool(_MemPool)
