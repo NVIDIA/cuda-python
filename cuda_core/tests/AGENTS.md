@@ -121,7 +121,8 @@ Follow these rules when adding or moving shared test code:
   fixture cleanup so a stuck child cannot block IPC resource teardown.
 - Use the skip guards in `helpers/memory.py` instead of per-module copies:
   `skip_if_mempool_unsupported`, `skip_if_managed_mempool_unsupported` (a
-  property check only; it never constructs a managed resource), and
+  property check only; it never constructs a managed resource),
+  `skip_if_managed_allocation_unsupported` for raw managed allocations, and
   `is_pool_resource` to tell pool-backed resources from VMM ones.
 - Search `tests/helpers/` and `cuda_python_test_helpers/` for prior art
   before adding a new helper; consolidate duplicates across
