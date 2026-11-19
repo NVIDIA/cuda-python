@@ -9,6 +9,7 @@ import sys
 import textwrap
 import threading
 import warnings
+from contextlib import closing
 
 from cuda.bindings import driver
 
@@ -39,6 +40,7 @@ from helpers.memory import (
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
     skip_if_managed_memory_unsupported,
+    skip_if_managed_mempool_unsupported,
     skip_if_pinned_memory_unsupported,
 )
 from helpers.nanosleep_kernel import NanosleepKernel
@@ -1145,16 +1147,19 @@ def test_managed_memory_resource_buffer_dlpack_device_type(init_cuda):
     make_tma_descriptor) accept the buffer.
     """
     device = init_cuda
-    skip_if_managed_memory_unsupported(device)
-    mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
-    buf = mr.allocate(1024, stream=device.default_stream)
+    skip_if_managed_mempool_unsupported(device)
+    options = ManagedMemoryResourceOptions(preferred_location=device.device_id)
+    with closing(create_managed_memory_resource_or_skip(options)) as mr:
+        buf = mr.allocate(1024, stream=device.default_stream)
 
-    assert mr.is_managed
-    assert buf.is_managed
-    assert buf.__dlpack_device__() == (DLDeviceType.kDLCUDAManaged, 0)
+        assert mr.is_managed
+        assert buf.is_managed
+        assert buf.__dlpack_device__() == (DLDeviceType.kDLCUDAManaged, 0)
 
-    view = StridedMemoryView.from_any_interface(buf, stream_ptr=-1)
-    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
+        view = StridedMemoryView.from_any_interface(buf, stream_ptr=-1)
+        assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
+        buf.close()
+        device.sync()
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
@@ -2451,49 +2456,49 @@ def test_pinned_memory_resource_with_options(init_cuda):
 
 def test_managed_memory_resource_with_options(init_cuda):
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
     # Test basic pool creation
     options = ManagedMemoryResourceOptions()
-    mr = create_managed_memory_resource_or_skip(options)
-    assert mr.is_device_accessible
-    assert mr.is_host_accessible
-    assert not mr.is_ipc_enabled
+    with closing(create_managed_memory_resource_or_skip(options)) as mr:
+        assert mr.is_device_accessible
+        assert mr.is_host_accessible
+        assert not mr.is_ipc_enabled
 
-    # Test allocation and deallocation
-    buffer1 = mr.allocate(1024, stream=device.default_stream)
-    assert buffer1.handle != 0
-    assert buffer1.size == 1024
-    assert buffer1.memory_resource == mr
-    buffer1.close()
+        # Test allocation and deallocation
+        buffer1 = mr.allocate(1024, stream=device.default_stream)
+        assert buffer1.handle != 0
+        assert buffer1.size == 1024
+        assert buffer1.memory_resource == mr
+        buffer1.close()
 
-    # Test multiple allocations
-    buffer1 = mr.allocate(1024, stream=device.default_stream)
-    buffer2 = mr.allocate(2048, stream=device.default_stream)
-    assert buffer1.handle != buffer2.handle
-    assert buffer1.size == 1024
-    assert buffer2.size == 2048
-    buffer1.close()
-    buffer2.close()
+        # Test multiple allocations
+        buffer1 = mr.allocate(1024, stream=device.default_stream)
+        buffer2 = mr.allocate(2048, stream=device.default_stream)
+        assert buffer1.handle != buffer2.handle
+        assert buffer1.size == 1024
+        assert buffer2.size == 2048
+        buffer1.close()
+        buffer2.close()
 
-    # Test stream-based allocation
-    stream = device.create_stream()
-    buffer = mr.allocate(1024, stream=stream)
-    assert buffer.handle != 0
-    buffer.close(stream)
+        # Test stream-based allocation
+        stream = device.create_stream()
+        buffer = mr.allocate(1024, stream=stream)
+        assert buffer.handle != 0
+        buffer.close(stream)
 
-    # Test memory copying between buffers from same pool
-    stream = device.create_stream()
-    src_buffer = mr.allocate(64, stream=stream)
-    dst_buffer = mr.allocate(64, stream=stream)
-    src_buffer.copy_to(dst_buffer, stream=stream)
-    device.sync()
-    dst_buffer.close()
-    src_buffer.close()
-    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
-    device.sync()
+        # Test memory copying between buffers from same pool
+        stream = device.create_stream()
+        src_buffer = mr.allocate(64, stream=stream)
+        dst_buffer = mr.allocate(64, stream=stream)
+        src_buffer.copy_to(dst_buffer, stream=stream)
+        device.sync()
+        dst_buffer.close()
+        src_buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        device.sync()
 
 
 def test_managed_memory_resource_preferred_location_default(init_cuda):
@@ -2509,44 +2514,44 @@ def test_managed_memory_resource_preferred_location_default(init_cuda):
 def test_managed_memory_resource_preferred_location_device(init_cuda):
     """preferred_location returns ("device", ordinal) for device preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     # Legacy style
     opts = ManagedMemoryResourceOptions(preferred_location=device.device_id)
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("device", device.device_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("device", device.device_id)
 
     # Explicit style
     opts = ManagedMemoryResourceOptions(
         preferred_location=device.device_id,
         preferred_location_type=ManagedMemoryLocationType.DEVICE,
     )
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("device", device.device_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("device", device.device_id)
 
 
 def test_managed_memory_resource_preferred_location_host(init_cuda):
     """preferred_location returns ("host", None) for host preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     # Legacy style
     opts = ManagedMemoryResourceOptions(preferred_location=-1)
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host", None)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host", None)
 
     # Explicit style
     opts = ManagedMemoryResourceOptions(preferred_location_type="host")
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host", None)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host", None)
 
 
 def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
     """preferred_location returns ("host_numa", id) for NUMA preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     numa_id = device.properties.host_numa_id
@@ -2555,16 +2560,16 @@ def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
 
     # Auto-resolved from current device
     opts = ManagedMemoryResourceOptions(preferred_location_type="host_numa")
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host_numa", numa_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host_numa", numa_id)
 
     # Explicit NUMA node ID
     opts = ManagedMemoryResourceOptions(
         preferred_location=numa_id,
         preferred_location_type="host_numa",
     )
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host_numa", numa_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host_numa", numa_id)
 
 
 def test_managed_memory_resource_preferred_location_validation(init_cuda):
@@ -2846,7 +2851,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     # ManagedMemoryResource does not support IPC
     if MR is ManagedMemoryResource and ipc_enabled:
@@ -2873,35 +2878,37 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         mr = create_managed_memory_resource_or_skip(options)
         assert not mr.is_ipc_enabled
 
-    # Get the property value
-    value = getattr(mr.attributes, property_name)
+    with closing(mr):
+        # Get the property value
+        value = getattr(mr.attributes, property_name)
 
-    # Test type
-    assert isinstance(value, expected_type), f"{property_name} should return {expected_type}, got {type(value)}"
+        # Test type
+        assert isinstance(value, expected_type), f"{property_name} should return {expected_type}, got {type(value)}"
 
-    # Test value constraints
-    if expected_type is int:
-        assert value >= 0, f"{property_name} should be non-negative"
+        # Test value constraints
+        if expected_type is int:
+            assert value >= 0, f"{property_name} should be non-negative"
 
-    # Test memory usage properties with actual allocations
-    if property_name in ["reserved_mem_current", "used_mem_current"]:
-        # Allocate some memory and check if values increase
-        initial_value = value
-        buffer = None
-        try:
-            buffer = mr.allocate(1024, stream=device.default_stream)
-            new_value = getattr(mr.attributes, property_name)
-            assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
-        finally:
-            if buffer is not None:
-                buffer.close()
+        # Test memory usage properties with actual allocations
+        if property_name in ["reserved_mem_current", "used_mem_current"]:
+            # Allocate some memory and check if values increase
+            initial_value = value
+            buffer = None
+            try:
+                buffer = mr.allocate(1024, stream=device.default_stream)
+                new_value = getattr(mr.attributes, property_name)
+                assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
+            finally:
+                if buffer is not None:
+                    buffer.close()
 
-    # Test high watermark properties
-    if property_name in ["reserved_mem_high", "used_mem_high"]:
-        # High watermark should never be less than current
-        current_prop = property_name.replace("_high", "_current")
-        current_value = getattr(mr.attributes, current_prop)
-        assert value >= current_value, f"{property_name} should be >= {current_prop}"
+        # Test high watermark properties
+        if property_name in ["reserved_mem_high", "used_mem_high"]:
+            # High watermark should never be less than current
+            current_prop = property_name.replace("_high", "_current")
+            current_value = getattr(mr.attributes, current_prop)
+            assert value >= current_value, f"{property_name} should be >= {current_prop}"
+        device.sync()
 
 
 def _create_owned_pool_or_skip(memory_resource_factory, device):
@@ -3156,7 +3163,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
@@ -3167,16 +3174,18 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is ManagedMemoryResource:
         mr = create_managed_memory_resource_or_skip(options=ManagedMemoryResourceOptions())
 
-    buffer1 = mr.allocate(64, stream=device.default_stream)
-    buffer2 = mr.allocate(64, stream=device.default_stream)
-    buffer1.close()
-    assert re.match(
-        r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
-        r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
-        r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
-        str(mr.attributes),
-    )
-    buffer2.close()
+    with closing(mr):
+        buffer1 = mr.allocate(64, stream=device.default_stream)
+        buffer2 = mr.allocate(64, stream=device.default_stream)
+        buffer1.close()
+        assert re.match(
+            r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
+            r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
+            r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
+            str(mr.attributes),
+        )
+        buffer2.close()
+        device.sync()
 
 
 def test_mempool_attributes_ownership(memory_resource_factory):
@@ -3272,17 +3281,20 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         skip_if_pinned_memory_unsupported(device)
         mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
         mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))
     else:
         assert MR is DeviceMemoryResource
         mr = MR(device)
 
-    buffer = mr.allocate(0, stream=device.default_stream)
-    device.sync()
-    assert buffer.handle >= 0
-    assert buffer.size == 0
-    assert buffer.device_id == mr.device_id
+    with closing(mr):
+        buffer = mr.allocate(0, stream=device.default_stream)
+        device.sync()
+        assert buffer.handle >= 0
+        assert buffer.size == 0
+        assert buffer.device_id == mr.device_id
+        buffer.close()
+        device.sync()
 
 
 def test_strided_memory_view_not_in_top_level_namespace():

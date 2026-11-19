@@ -3,11 +3,12 @@
 
 import gc
 import weakref
+from contextlib import closing
 
 import numpy as np
 import pytest
 from helpers.contexts import no_current_context, use_context
-from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
+from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_mempool_unsupported
 
 from cuda.core import (
     ContextOptions,
@@ -523,18 +524,23 @@ class TestTensorMapReplaceAddress:
         dev1 = Device(1)
         if not dev1.properties.tensor_map_access_supported:
             pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
-        skip_if_managed_memory_unsupported(dev1)
+        skip_if_managed_mempool_unsupported(dev1)
 
         dev1.set_current()
-        desc = _as_view(dev1.allocate(1024 * 4, stream=dev1.default_stream)).as_tensor_map(
-            box_dim=(64,),
-            data_type=TensorMapDataType.FLOAT32,
-        )
+        options = ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        with (
+            dev1.allocate(1024 * 4, stream=dev1.default_stream) as buf,
+            closing(create_managed_memory_resource_or_skip(options)) as mr,
+        ):
+            desc = _as_view(buf).as_tensor_map(
+                box_dim=(64,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+            managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
 
-        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
-
-        desc.replace_address(managed_buf)
+            desc.replace_address(managed_buf)
+            managed_buf.close()
+            dev1.sync()
 
 
 class TestTensorMapMultiDeviceValidation:
@@ -616,17 +622,20 @@ class TestTensorMapMultiDeviceValidation:
         dev1 = Device(1)
         if not dev1.properties.tensor_map_access_supported:
             pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
-        skip_if_managed_memory_unsupported(dev1)
+        skip_if_managed_mempool_unsupported(dev1)
 
         dev1.set_current()
-        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
+        options = ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        with closing(create_managed_memory_resource_or_skip(options)) as mr:
+            managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
 
-        desc = _as_view(managed_buf).as_tensor_map(
-            box_dim=(64,),
-            data_type=TensorMapDataType.FLOAT32,
-        )
-        assert desc is not None
+            desc = _as_view(managed_buf).as_tensor_map(
+                box_dim=(64,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+            assert desc is not None
+            managed_buf.close()
+            dev1.sync()
 
 
 class TestTensorMapIm2col:
