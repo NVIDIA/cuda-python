@@ -1,0 +1,311 @@
+{
+  "skill_name": "cuda-python",
+  "evals": [
+    {
+      "id": "cuda-python-saxpy-numpy",
+      "prompt": "Write saxpy.py: compile a SAXPY kernel (y = a*x + y) at runtime with cuda-python and run it on the GPU for two NumPy float32 arrays of 1<<20 elements, x = arange(n), y = ones(n), a = 2.5. Only cuda-python and NumPy are allowed, no CuPy, Numba or PyTorch. Run it and print y[:4] and the float64 sum of y.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "A script built on cuda.core: Device().set_current(), Program(code, code_type=\"c++\").compile(\"cubin\").get_kernel(...), LaunchConfig and launch on a stream. Device memory comes from cuda.core (Device.allocate or a memory resource, with the required stream= keyword) and the NumPy data moves through cuda.core Buffers: a host buffer (LegacyPinnedMemoryResource or PinnedMemoryResource, viewed with np.from_dlpack(buf).view(np.float32), or Buffer.from_handle over the NumPy memory) and Buffer.copy_to / copy_from on the stream, followed by stream.sync() before reading. It does not drop to cuda.bindings (no nvrtcCreateProgram, cuLaunchKernel, cuMemAlloc, cuMemcpyHtoD/DtoH) and does not use CuPy, Numba or PyTorch. The scalar a is passed as np.float32 (or ctypes.c_float), not a Python float, and n as a sized integer that matches the kernel signature. The program runs and prints y[:4] = [1.0, 3.5, 6.0, 8.5] and sum 1374389272576.",
+      "assertions": [
+        "Compiles and launches with cuda.core (Program, LaunchConfig, launch), not with cuda.bindings nvrtc / cuLaunchKernel calls",
+        "Moves the NumPy data to and from the GPU through cuda.core Buffers (host or pinned Buffer plus Buffer.copy_to / copy_from) instead of cuda.bindings memcpy calls such as cuMemcpyHtoD / cuMemcpyDtoH",
+        "Passes the float scalar as np.float32 or ctypes.c_float (not a Python float) and the element count as a sized integer matching the kernel parameter",
+        "Does not use CuPy, Numba or PyTorch",
+        "Runs the script and reports y[:4] = [1.0, 3.5, 6.0, 8.5] and sum 1374389272576"
+      ]
+    },
+    {
+      "id": "cuda-python-gpu-report",
+      "prompt": "Write gpu_report.py that prints, for every GPU in this machine: index, name, UUID, compute capability, total and free memory in MiB, temperature in C and GPU utilization in percent, plus the NVIDIA driver version once at the top. Use cuda-python only (no pynvml, no parsing nvidia-smi). Run it.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "A script that uses the cuda.core.system module, which wraps NVML: system.Device.get_all_devices() (or system.get_num_devices() with system.Device(index=i)), and per device .index, .name, .uuid, .cuda_compute_capability (or cuda.core.Device(i).compute_capability), .memory_info.total / .free, .temperature.get_sensor(), .utilization.gpu, and system.get_kernel_mode_driver_version() (a tuple such as (615, 78, 8)) for the driver version. It does not import pynvml, shell out to nvidia-smi, or hand-roll raw cuda.bindings.nvml handle calls (nvml.init_v2, device_get_handle_by_index_v2, ...). The script runs without errors and prints one block per GPU with plausible values (on the reference machine: two NVIDIA GeForce RTX 4090, compute capability 8.9, about 24564 MiB total each, driver 615.78.08).",
+      "assertions": [
+        "Uses cuda.core.system (system.Device / system.get_num_devices and related properties) for the queries",
+        "Does not use pynvml, nvidia-smi, or raw cuda.bindings.nvml handle-based calls",
+        "Reports the NVIDIA driver version (kernel-mode driver version such as 615.78.08), not only the CUDA version supported by the driver",
+        "Runs the script and shows per-GPU name, UUID, compute capability, total and free memory, temperature and utilization"
+      ]
+    },
+    {
+      "id": "cuda-python-any-array",
+      "prompt": "Write gpu_ops.py with a function clamp_inplace(arr, lo, hi, stream=None) that clamps a float32 GPU array in place with a custom CUDA kernel compiled through cuda-python. It must accept CuPy arrays, PyTorch CUDA tensors and Numba device arrays without copying the data, and it must raise a clear error instead of corrupting memory when it is given something it cannot handle: a dtype other than float32, a non-contiguous view (for example a column of a 2-D array), or a host (NumPy) array. Add a small self-test at the bottom that exercises all three libraries and the three error cases, and run it.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "gpu_ops.py reads the array metadata through cuda.core.utils.StridedMemoryView (StridedMemoryView.from_any_interface(arr, stream_ptr=...) or the args_viewable_as_strided_memory decorator with arg.view(stream_ptr)), which covers DLPack and __cuda_array_interface__ for all three libraries, instead of one branch per library (isinstance checks, arr.data.ptr, tensor.data_ptr(), parsing __cuda_array_interface__ by hand). It validates view.dtype == float32, view.is_device_accessible, and C-contiguity. The contiguity check must be correct for a contiguous 2-D CuPy array: StridedMemoryView.strides is in element counts and is a tuple such as (4, 1) for a contiguous (3, 4) CuPy array (None for Numba), so `strides is None` alone is not a valid test. The kernel is compiled once with cuda.core Program, launched with launch() on a cuda.core Stream (the caller's stream wrapped with Device.create_stream(obj) or a module-level stream), with view.ptr as the pointer and sized scalars (np.float32 for lo and hi). The self-test passes for CuPy, PyTorch and Numba inputs, including a contiguous 2-D array, and the three invalid inputs raise TypeError/ValueError.",
+      "assertions": [
+        "Uses cuda.core.utils.StridedMemoryView or args_viewable_as_strided_memory to get pointer, shape and dtype, rather than separate per-library code paths",
+        "Rejects non-float32 input, non-contiguous views and host arrays with an exception, using the view's dtype, strides/shape and is_device_accessible",
+        "The contiguity check accepts contiguous multi-dimensional CuPy arrays (does not rely only on `strides is None`)",
+        "Passes lo and hi as np.float32 or ctypes.c_float and synchronizes or orders the stream before results are read",
+        "Runs the self-test and shows it passing for CuPy, PyTorch and Numba plus the three error cases"
+      ]
+    },
+    {
+      "id": "cuda-python-kernel-timing",
+      "prompt": "Write bench_blocks.py with cuda-python: compile a kernel that computes out[i] = sqrtf(x[i]) * 0.5f + 1.0f for 1<<24 float32 elements, and for block sizes 64, 128, 256, 512 and 1024 measure the GPU time of one launch with CUDA events (not host timers), after a warm-up launch. For each block size print the time in ms. Also print the kernel's register count and max threads per block, and the block size the occupancy API suggests. Run it.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "A cuda.core script. Events are created with EventOptions(timing_enabled=True) (the pre-1.0 keyword enable_timing no longer exists) via stream.record(options=...), the end event or the stream is synchronized before subtracting, and `end - start` gives milliseconds. Kernel attributes are read as properties: kernel.attributes.num_regs and kernel.attributes.max_threads_per_block (they were methods before cuda.core 1.0). The suggested block size comes from kernel.occupancy.max_potential_block_size(...). The grid for each block size is ceil(n / block). Scalars are passed with sized types. The script runs and prints a time for each of the five block sizes (well under 1 ms each on an RTX 4090), the register count, max threads per block 1024, and the suggested block size.",
+      "assertions": [
+        "Times the launches with cuda.core events created with EventOptions(timing_enabled=True) and subtracts them after synchronizing",
+        "Reads kernel.attributes.num_regs and max_threads_per_block as properties and uses kernel.occupancy for the suggested block size",
+        "Does a warm-up launch before timing and sizes the grid as ceil(n / block) for every block size",
+        "Runs the script and reports a time in ms for all five block sizes plus register count, max threads per block and suggested block size"
+      ]
+    },
+    {
+      "id": "cuda-python-port-legacy-bindings",
+      "prompt": "code/saxpy_legacy.py was written against cuda-python 11.8 and no longer runs. Port it to the cuda-python installed here, using the API NVIDIA recommends for new code today, keep the printed result the same, run it, and tell me what changed between the old API and the new one.",
+      "files": [
+        "files/cuda-python-port-legacy-bindings/code/saxpy_legacy.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Explains that the flat modules cuda.cuda, cuda.cudart and cuda.nvrtc were deprecated in 12.x and removed in cuda-python 13 (they live on as cuda.bindings.driver, cuda.bindings.runtime and cuda.bindings.nvrtc), and that the recommended API for new code is cuda.core, which replaces the manual init / context / NVRTC / module / cuLaunchKernel sequence and raises exceptions instead of returning error codes. Ports the script to cuda.core: Device().set_current(), Program(...).compile(\"cubin\") (or ptx), get_kernel, a Stream, device memory through Device.allocate or a memory resource (with stream=), host data through cuda.core Buffers (pinned buffers with np.from_dlpack, or equivalent), launch() with LaunchConfig(grid=32768, block=512), a as np.float32 and n as np.uint64 (size_t), and stream.sync(). The assert_drv helper and the hand-packed argument array are gone. A port that only renames the imports to cuda.bindings.driver / nvrtc and keeps the driver-call sequence is not the expected answer. The program runs and prints saxpy ok: n=16777216 out[:4]=[0.0, 3.0, 6.0, 9.0] sum=16810601085.0.",
+      "assertions": [
+        "Ports the script to cuda.core (Device, Program, launch, LaunchConfig, Stream) instead of only renaming imports to cuda.bindings.driver / cuda.bindings.nvrtc",
+        "Removes the manual error-code checking (assert_drv) and the hand-packed kernel argument array",
+        "Passes a as a float32 scalar and n as a 64-bit integer to match the kernel's float and size_t parameters",
+        "Explains that the old cuda.cuda / cuda.nvrtc modules were removed and that cuda.core is the recommended high-level API",
+        "Runs the port and reports n=16777216, out[:4]=[0.0, 3.0, 6.0, 9.0] and sum=16810601085.0"
+      ]
+    },
+    {
+      "id": "cuda-python-port-core-experimental",
+      "prompt": "code/pipeline.py was written for cuda-core 0.3 and fails on import with the version installed here. Port it to the installed cuda.core without changing what it computes or prints, run it, and list every API change you had to make.",
+      "files": [
+        "files/cuda-python-port-core-experimental/code/pipeline.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Ports the script with these changes: imports from cuda.core and cuda.core.utils (the cuda.core.experimental namespace was removed in 1.0); system.num_devices becomes system.get_num_devices(); the linker.backend property becomes the classmethod Linker.which_backend(); kernel.attributes.max_threads_per_block() becomes the property kernel.attributes.max_threads_per_block; allocate() calls take the required keyword stream= (Device.allocate and the memory resource; passing it to LegacyPinnedMemoryResource is optional but fine); StridedMemoryView(obj, stream_ptr=-1) is deprecated in favor of StridedMemoryView.from_any_interface / from_array_interface / from_dlpack; LaunchConfig(cooperative_launch=...) becomes is_cooperative=...; EventOptions(enable_timing=True) becomes timing_enabled=True; Event.is_timing_disabled becomes is_timing_enabled (negated to keep the printed line). It stays on cuda.core and does not rewrite the script with cuda.bindings. The program runs and prints devices: 2 (the GPU count of the machine), linker backend: nvJitLink, kernel arguments: 5, max threads per block: 1024, host view: shape=(4, 262144) dtype=float32 on_gpu=False, timing disabled: False, kernel time measured: True, sum=524288.000 y[N//2]=0.500002.",
+      "assertions": [
+        "Replaces the cuda.core.experimental imports with cuda.core / cuda.core.utils",
+        "Updates the renamed APIs: system.get_num_devices(), Linker.which_backend(), attributes.max_threads_per_block as a property, LaunchConfig(is_cooperative=...), EventOptions(timing_enabled=True), Event.is_timing_enabled",
+        "Passes stream= to Device.allocate",
+        "Replaces the deprecated StridedMemoryView(obj, stream_ptr) constructor with a from_* classmethod, or explicitly notes that it is deprecated",
+        "Runs the port and reports linker backend nvJitLink, max threads per block 1024, timing disabled False, sum=524288.000 and y[N//2]=0.500002"
+      ]
+    },
+    {
+      "id": "cuda-python-port-pycuda",
+      "prompt": "We are dropping PyCUDA. Port code/threshold_pycuda.py to cuda-python (PyCUDA is not installed here and must not be added), keep the same printed lines, and run it. No CuPy or other GPU libraries.",
+      "files": [
+        "files/cuda-python-port-pycuda/code/threshold_pycuda.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "A cuda.core port: pycuda.autoinit becomes Device().set_current(); SourceModule becomes Program(code, code_type=\"c++\").compile(\"cubin\").get_kernel(\"soft_threshold\") with extern \"C\" added to the kernel (NVRTC compiles C++ and mangles names, which PyCUDA hid); drv.pagelocked_empty becomes a pinned cuda.core buffer (LegacyPinnedMemoryResource or PinnedMemoryResource) viewed with np.from_dlpack(buf).view(np.float32); drv.mem_alloc becomes Device.allocate(nbytes, stream=stream); memcpy_htod_async / memcpy_dtoh_async become Buffer.copy_to / copy_from on the stream; drv.Stream becomes dev.create_stream(); drv.Event and time_since become stream.record(options=EventOptions(timing_enabled=True)) and `end - start`; block=/grid= become LaunchConfig(grid=(n + 255) // 256, block=256). It does not fall back to cuda.bindings driver calls (cuMemAlloc, cuMemcpyHtoDAsync, cuLaunchKernel, cuEventCreate) or to ctypes pointer tricks for the host views, and it does not use CuPy. The program runs and prints kernel time measured: True, nonzero: 3501793 of 4194304, sum of |out|: 1767896.509, out[1000:1004]: [0.81938, 0.87504, 0.8924, 0.86916].",
+      "assertions": [
+        "Ports to cuda.core (Device, Program, launch, LaunchConfig) with extern \"C\" on the kernel, and does not install or import PyCUDA",
+        "Uses cuda.core pinned host buffers and Buffer.copy_to / copy_from for the transfers instead of cuda.bindings memcpy calls",
+        "Times the kernel with cuda.core events (EventOptions(timing_enabled=True), end - start) instead of cuda.bindings event calls or host timers",
+        "Does not use cuda.bindings driver/runtime calls or other GPU libraries such as CuPy",
+        "Runs the port and reports nonzero 3501793, sum of |out| 1767896.509 and out[1000:1004] = [0.81938, 0.87504, 0.8924, 0.86916]"
+      ]
+    },
+    {
+      "id": "cuda-python-fix-scalar-args",
+      "prompt": "code/normalize.py should print min=-0.3125 mean=0.3125 max=0.9375 but prints zeros, with no error or warning. Find out why, fix it, run it, and explain what went wrong.",
+      "files": [
+        "files/cuda-python-fix-scalar-args/code/normalize.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Explains that launch() does not look at the kernel signature: each scalar is copied with the size of the Python object that was passed, and the kernel then reads its own parameter size. Three arguments are wrong. (1) offset is a Python float, which is passed as an 8-byte double, so the float parameter reads the low 4 bytes (0.0). (2) gain is passed as np.float32 but the parameter is double, so the kernel reads 8 bytes from a 4-byte value (garbage or 0). (3) n is passed as np.int32 but the parameter is size_t, so the upper 4 bytes are undefined; it only appears to work. The fix passes np.float32(OFFSET), np.float64(GAIN) (or a Python float, which is a double) and np.uint64(N) (or a Python int / np.int64 / ctypes.c_size_t). The kernel signature can stay as it is. After the fix the program prints min=-0.3125 mean=0.3125 max=0.9375.",
+      "assertions": [
+        "Explains that launch() passes scalars by the size of the Python/NumPy object, without checking the kernel signature",
+        "Passes offset as a 32-bit float (np.float32 or ctypes.c_float) instead of a Python float",
+        "Passes gain as a 64-bit float (np.float64, ctypes.c_double or a Python float) to match the double parameter",
+        "Passes n as a 64-bit integer (np.uint64, np.int64, ctypes.c_size_t or a Python int) to match size_t, or changes the kernel parameter to int",
+        "Runs the fixed script and reports min=-0.3125 mean=0.3125 max=0.9375"
+      ]
+    },
+    {
+      "id": "cuda-python-fix-ignored-errors",
+      "prompt": "code/hot_cells.py prints 'hot cells: 0 of 1048576' but about a third of the cells are above the threshold. It reports no error at all. Find the cause, fix it so that this kind of failure cannot go unnoticed again, run it, and tell me what was wrong.",
+      "files": [
+        "files/cuda-python-fix-ignored-errors/code/hot_cells.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Explains that cuda.bindings.driver and cuda.bindings.nvrtc functions never raise: they return a tuple whose first element is the error code, and the script discards it everywhere. The first failing call is cuModuleGetFunction, which returns CUDA_ERROR_NOT_FOUND because NVRTC compiles the source as C++ and the kernel has no extern \"C\", so its symbol is mangled and \"count_hot\" does not exist; cuLaunchKernel then fails with CUDA_ERROR_INVALID_HANDLE and the count stays 0. Fixes the root cause with extern \"C\" (or by looking up the mangled name) and removes the silent-failure class, preferably by porting the script to cuda.core (Device, Program, get_kernel, launch), which raises CUDAError / NVRTCError on every failure, or at least by checking the returned code of every cuda.bindings call. The program then prints hot cells: 327156 of 1048576.",
+      "assertions": [
+        "Identifies that cuModuleGetFunction fails with CUDA_ERROR_NOT_FOUND because the kernel name is C++-mangled (missing extern \"C\")",
+        "Explains that cuda.bindings driver/nvrtc calls return error codes in a tuple instead of raising, and that the script ignored them",
+        "Makes failures loud: ports to cuda.core (which raises exceptions) or checks the error code of every cuda.bindings call",
+        "Runs the fixed script and reports hot cells: 327156 of 1048576"
+      ]
+    },
+    {
+      "id": "cuda-python-review-calibrate",
+      "prompt": "Please review code/calibrate.py for correctness bugs before we ship it. It should multiply the temperature column by a per-sensor gain and add a bias, in place, and leave the other columns alone. Fix everything you find, run it, and tell me what was wrong.",
+      "files": [
+        "files/cuda-python-review-calibrate/code/calibrate.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Finds and fixes five bugs. (1) gain = cp.linspace(...) is float64 but the kernel reads const float*; create it as float32. (2) temps = readings[:, 1] is a non-contiguous view (stride of 3 elements); passing temps.data.ptr makes the kernel walk the first rows of the whole table, corrupting pressure and humidity. Fix by working on a contiguous copy and writing it back, or by passing the stride to the kernel. (3) BIAS is a Python float, which launch() passes as a double, so the float parameter receives 0.0; pass np.float32(BIAS). (4) grid = N_SENSORS // block drops the last 160 of 100000 sensors; use ceil division. (5) The stream from dev.create_stream() is non-blocking and CuPy reads the results on its own stream without waiting; call stream.sync() (or launch on CuPy's stream) before reading. After the fixes the program prints temperature mean: 25.2506, temperature last: 72.7500, pressure mean: 24.5000, humidity mean: 24.5000.",
+      "assertions": [
+        "Fixes the float64 gain array passed to a const float* kernel parameter",
+        "Fixes the non-contiguous column view passed through .data.ptr (contiguous copy written back, or a strided kernel)",
+        "Passes bias as np.float32 or ctypes.c_float instead of a Python float",
+        "Fixes the grid size so the last partial block of sensors is processed (ceil division)",
+        "Synchronizes the cuda.core stream, or orders it with CuPy's stream, before the results are read",
+        "Runs the fixed script and reports temperature mean 25.2506, temperature last 72.7500, pressure mean 24.5000 and humidity mean 24.5000"
+      ]
+    },
+    {
+      "id": "cuda-python-fix-hardcoded-paths",
+      "prompt": "code/half_roundtrip.py worked on the machine it was written on (CUDA 12.4 under /usr/local/cuda-12.4). Here it fails to compile, and my colleagues get the same failure in pip-wheel and conda environments. Make the header lookup work in all of those setups without hard-coded paths and without asking people to set environment variables, then run it.",
+      "files": [
+        "files/cuda-python-fix-hardcoded-paths/code/half_roundtrip.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Replaces the hard-coded include directory with cuda.pathfinder, which searches pip wheels (site-packages), conda environments and CUDA_HOME / CUDA_PATH in a fixed order: find_nvidia_header_directory(\"cudart\") for cuda_fp16.h and find_nvidia_header_directory(\"cccl\") for <cuda/std/array> (or locate_nvidia_header_directory, which also reports where it was found). Explains that the second directory is needed because CUDA 13 moved the CCCL headers (Thrust, CUB, libcu++) into their own include/cccl directory, so one include path is no longer enough. Handles a missing directory (None) with a clear error. It does not hand-roll a search over /usr/local/cuda*, CONDA_PREFIX, site-packages or nvcc on PATH, and does not hard-code another path. The program runs and prints layer 0: max half-precision error = 0.000244, layer 1: 0.001953, layer 2: 0.015625, layer 3: 0.125000.",
+      "assertions": [
+        "Locates the headers with cuda.pathfinder (find_nvidia_header_directory or locate_nvidia_header_directory) instead of a hard-coded path or a hand-written search",
+        "Adds the CCCL header directory as a second include path (pathfinder \"cccl\"), needed for <cuda/std/array> on CUDA 13",
+        "Does not require CUDA_HOME / CUDA_PATH or another environment variable to be set by the user",
+        "Runs the script and reports the four errors 0.000244, 0.001953, 0.015625 and 0.125000"
+      ]
+    },
+    {
+      "id": "cuda-python-fix-stream-order",
+      "prompt": "code/denoise.py clamps every frame to [-1.5, 1.5] with a custom kernel between two CuPy steps, so every printed sum should be about 37.62 million. Most frames print about 42.72 million instead, as if the kernel had not run. Fix it, but keep the pipeline asynchronous: no host-side synchronization inside the frame loop. Run it and explain the cause.",
+      "files": [
+        "files/cuda-python-fix-stream-order/code/denoise.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Explains that the CuPy work runs on cupy_stream and the kernel on a second, unrelated non-blocking stream from dev.create_stream(). Nothing orders the two streams, so the kernel starts before cp.sort has produced x (and the CuPy sum can run before the kernel finishes); the launch is asynchronous and silently clamps stale data. The fix puts the kernel on the same stream as the CuPy work: kernel_stream = dev.create_stream(cupy_stream), which wraps the CuPy stream through the __cuda_stream__ protocol (CuPy, PyTorch and Numba streams implement it), so everything is stream-ordered with no host synchronization. An acceptable alternative keeps two streams and orders them on the device with events or Stream.wait in both directions. Adding stream.sync() / cupy_stream.synchronize() inside the loop is not accepted because it blocks the host every frame. After the fix the program prints frame sums 37622520.4, 37622223.1, 37622177.8, 37622353.0, 37622281.2, 37622222.8, 37622293.2 and 37622299.0 (within 1.0).",
+      "assertions": [
+        "Explains that the kernel stream and the CuPy stream are independent non-blocking streams with no ordering between them",
+        "Launches the kernel on the CuPy stream (Device.create_stream(cupy_stream) or an equivalent wrapper), or orders the two streams on the device with events / Stream.wait",
+        "Does not add host-side synchronization (stream.sync, synchronize, .get) inside the frame loop",
+        "Runs the fixed script and reports that every frame sum is now about 37.62 million"
+      ]
+    },
+    {
+      "id": "cuda-python-perf-launch-loop",
+      "prompt": "code/diffuse.py takes about 2 seconds for 200,000 steps on a 4096-cell rod and nvidia-smi shows the GPU almost idle. Make it as fast as you can without changing the printed checksum and peak. The kernel source is shared with another team and has to stay exactly as it is: one launch is one time step. Report before and after times and explain where the time was going.",
+      "files": [
+        "files/cuda-python-perf-launch-loop/code/diffuse.py"
+      ],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Explains that the problem is launch-bound: each step is a tiny kernel, so the time goes to per-launch host overhead (Python, building a LaunchConfig, the driver launch call) and above all to stream.sync() after every step, which blocks the host for a round trip each time. Removing the per-step sync and hoisting the LaunchConfig and scalar arguments roughly halves the time. The larger win is to capture a batch of steps in a CUDA graph and replay it: gb = stream.create_graph_builder().begin_building() (or dev.create_graph_builder()), launch(gb, config, kernel, ...) for an even number of steps alternating the two buffers, graph = gb.end_building().complete(), then graph.launch(stream) STEPS / batch times and a single stream.sync() at the end. Graph types live in cuda.core.graph. The kernel source (CODE) is not modified. The result is unchanged (checksum: 102409.619 peak: 92.9314) and the measured time drops from about 1.8 s to about 0.2 s on an RTX 4090 (5x or more).",
+      "assertions": [
+        "Explains that the loop is launch-bound and that the per-step stream.sync() and launch overhead dominate, not GPU work",
+        "Removes the host synchronization from the step loop",
+        "Captures the steps in a CUDA graph with cuda.core (create_graph_builder / begin_building / end_building / complete) and replays it with graph.launch",
+        "Leaves the kernel source unchanged (one launch per time step)",
+        "Keeps checksum 102409.619 and peak 92.9314",
+        "Reports measured before and after times with a speedup of at least 4x"
+      ]
+    },
+    {
+      "id": "cuda-python-struct-arg-question",
+      "prompt": "My kernel takes a struct by value: `struct Params { float gain; int mode; double eps; }; __global__ void apply(Params p, float* data, int n)`. With cuda.core, what do I pass to launch() for `p`? Can I pass a ctypes.Structure or a NumPy structured scalar? Give me the shortest working way.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Says that launch() cannot pass a struct by value: a ctypes.Structure or a NumPy structured scalar (np.void) raises TypeError (the argument is of unsupported type). launch() accepts only cuda.core Buffer objects, Python bool / int / float / complex (int is passed as a 64-bit pointer-sized integer and float as a double), NumPy scalars, ctypes scalar types, and a few cuda.core handle types. The working options are to change the kernel signature to take the fields as separate sized scalars (np.float32, np.int32, np.float64), or to take a `const Params*`: put the struct bytes in device memory (for example a NumPy structured array copied into a cuda.core Buffer or a CuPy array) and pass the Buffer or pointer. It does not claim that ctypes.Structure works with cuda.core launch().",
+      "assertions": [
+        "States that launch() does not accept a ctypes.Structure or NumPy structured scalar (TypeError: unsupported type)",
+        "Recommends passing the fields as separate scalars or passing a pointer to the struct in device memory (const Params*)",
+        "Uses sized scalars for the fields (np.float32 for gain, np.int32 for mode, np.float64 or a Python float for eps), not a bare Python float for gain"
+      ]
+    },
+    {
+      "id": "cuda-python-install-question",
+      "prompt": "Our servers have NVIDIA driver 535, so CUDA 12 only, and no CUDA Toolkit installed. I ran `pip install \"cuda-python==12.9.*\"` and `from cuda.core import Device` fails with ModuleNotFoundError. What exactly do I install to get cuda.core working with runtime kernel compilation, with pip and with conda? Keep it short.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Explains that cuda-python is a metapackage and that only the 13.x metapackage depends on cuda-core; the 12.9.x metapackage pulls in just cuda-bindings, so cuda.core is missing. cuda-core is its own package and one release supports both CUDA 12 and CUDA 13. With pip: pip install \"cuda-core[cu12]\". The cu12 extra installs cuda-bindings[all] 12.x, and the [all] extra brings the NVRTC, nvJitLink and NVVM wheels, so runtime compilation works with only the driver installed; nothing else needs to be added by hand. With conda: conda install -c conda-forge cuda-core cuda-version=12. It does not invent package names such as cuda-python-cu12 or cuda-core-cu12, and does not tell the user to install the CUDA 13 packages on a CUDA 12 driver.",
+      "assertions": [
+        "Explains that the CUDA 12 cuda-python metapackage does not include cuda-core (only the 13.x metapackage depends on it)",
+        "Gives pip install \"cuda-core[cu12]\" and says the extra brings cuda-bindings with NVRTC / nvJitLink, so no CUDA Toolkit is needed",
+        "Gives conda install -c conda-forge cuda-core cuda-version=12 (cuda-python may be added)",
+        "Does not invent package names or recommend CUDA 13 packages for this driver"
+      ]
+    },
+    {
+      "id": "cuda-python-core-coverage-question",
+      "prompt": "We are starting a new visualization and simulation tool in Python and my team wants to hand-roll everything on cuda.bindings (driver + nvrtc + nvjitlink + nvml) because 'cuda.core does not cover enough'. We need: runtime compilation with LTO linking of a device-function library, CUDA graphs for a launch-heavy loop, OpenGL interop to draw a buffer the kernels write to, pinned memory with async copies, and GPU temperature / memory monitoring. For each of these, tell me whether cuda.core has an API and name it, or whether we really need cuda.bindings.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Says that cuda.core covers all five and names the APIs: (1) Program(...).compile(\"ltoir\") with ProgramOptions(link_time_optimization=True) and Linker(...).link(\"cubin\") with LinkerOptions(link_time_optimization=True); (2) cuda.core.graph: GraphBuilder from Stream.create_graph_builder() or Device.create_graph_builder(), begin_building / end_building / complete, graph.launch(stream) (or the explicit GraphDefinition API); (3) cuda.core.GraphicsResource.from_gl_buffer / from_gl_image with map(stream=...) for OpenGL interop; (4) PinnedMemoryResource or LegacyPinnedMemoryResource with Buffer.copy_to / copy_from on a Stream; (5) cuda.core.system (system.Device with memory_info, temperature, utilization), which wraps NVML. Recommends cuda.core for the project and reserving cuda.bindings for driver or library calls that cuda.core does not wrap; notes that cuda.core objects expose .handle for mixing the two. It does not claim that OpenGL interop or NVML monitoring require cuda.bindings.",
+      "assertions": [
+        "Names Program with link_time_optimization / compile(\"ltoir\") and Linker for LTO linking",
+        "Names the cuda.core.graph GraphBuilder API (create_graph_builder, begin_building, complete, graph.launch)",
+        "Says cuda.core has OpenGL interop through GraphicsResource (from_gl_buffer / from_gl_image)",
+        "Names PinnedMemoryResource or LegacyPinnedMemoryResource with Buffer.copy_to / copy_from, and cuda.core.system for monitoring",
+        "Recommends cuda.core over hand-rolled cuda.bindings for this project"
+      ]
+    },
+    {
+      "id": "cuda-python-migration-question",
+      "prompt": "After upgrading cuda-core from 0.3 to the current release these lines all fail. Give me the replacement for each, nothing else:\n1. from cuda.core.experimental import Device, Program, launch\n2. from cuda.core import GraphBuilder\n3. buf = dev.allocate(1024)\n4. opts = EventOptions(enable_timing=True)\n5. cfg = LaunchConfig(grid=8, block=128, cooperative_launch=True)\n6. regs = kernel.attributes.num_regs()\n7. backend = linker.backend\n8. desc = buf.get_ipc_descriptor()\n9. cond = gb.create_conditional_handle()",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "1. from cuda.core import Device, Program, launch (cuda.core.experimental was removed in 1.0). 2. from cuda.core.graph import GraphBuilder (graph types are no longer re-exported at the top level), or obtain one with stream.create_graph_builder() / dev.create_graph_builder(). 3. buf = dev.allocate(1024, stream=stream), for example stream=dev.default_stream: stream is now a required keyword argument. 4. EventOptions(timing_enabled=True). 5. LaunchConfig(grid=8, block=128, is_cooperative=True). 6. kernel.attributes.num_regs (a property; kernel.attributes[device].num_regs for a specific device). 7. Linker.which_backend() (a classmethod). 8. buf.ipc_descriptor (a property). 9. gb.create_condition(), which returns a GraphCondition.",
+      "assertions": [
+        "Lines 1 and 2: imports from cuda.core, and GraphBuilder from cuda.core.graph (or via create_graph_builder)",
+        "Line 3: allocate takes a required stream= keyword argument",
+        "Lines 4 and 5: EventOptions(timing_enabled=True) and LaunchConfig(is_cooperative=True)",
+        "Lines 6, 7 and 8: attributes.num_regs as a property, Linker.which_backend(), and buf.ipc_descriptor as a property",
+        "Line 9: gb.create_condition()"
+      ]
+    },
+    {
+      "id": "cuda-python-strided-view-question",
+      "prompt": "I am writing a library function with cuda.core that receives a GPU array from the caller (CuPy, PyTorch or Numba) and passes its pointer to a kernel that assumes densely packed float32. I use @args_viewable_as_strided_memory. How do I get the view from the argument, and what is the correct check that the array is C-contiguous float32 on the GPU? A colleague wrote `if view.strides is not None: raise` and it rejects ordinary 2-D CuPy arrays.",
+      "files": [],
+      "expected_skill": "cuda-python",
+      "expected_script": null,
+      "expected_output": "Inside the decorated function the argument is a proxy; call arg.view(stream_ptr) with the consumer stream handle (stream.handle), or -1 to skip stream ordering, to get a StridedMemoryView (there is no to_strided_memory_view method; StridedMemoryView.from_any_interface(obj, stream_ptr=...) is the direct form, and stream_ptr is required). Check view.is_device_accessible and view.dtype == np.float32. For contiguity, view.strides is expressed in element counts, not bytes, and is None only when the producer omits strides (Numba does for contiguous arrays); CuPy and PyTorch report explicit strides even for contiguous arrays, for example (4, 1) for a (3, 4) float32 array, which is why the colleague's check fails. The correct check accepts None or strides equal to the C-order strides computed from the shape in elements (the running product of the trailing dimensions), not NumPy-style byte strides. Then pass view.ptr with view.size (or the shape) to the kernel.",
+      "assertions": [
+        "Gets the view with arg.view(stream_ptr) on the decorated argument (or StridedMemoryView.from_any_interface with a stream_ptr)",
+        "Explains that strides are in element counts and that CuPy/PyTorch report a strides tuple even for C-contiguous arrays, while None is only one of the contiguous cases",
+        "Gives a contiguity check that compares strides with the C-order strides derived from the shape (in elements), accepting None",
+        "Checks view.dtype is float32 and view.is_device_accessible"
+      ]
+    },
+    {
+      "id": "negative-cupy-arrays",
+      "prompt": "I have two CuPy arrays a and b with 50 million float32 values each. What is the fastest way to compute the mean of (a - b)**2 without creating large temporaries? Just show the CuPy code.",
+      "files": [],
+      "expected_skill": null,
+      "expected_script": null,
+      "expected_output": "A plain CuPy answer, for example a cp.ReductionKernel or cp.ElementwiseKernel / cp.fuse based reduction, or an in-place sequence such as d = a - b; d *= d; d.mean(). It does not need cuda.core, cuda.bindings or hand-written kernel launching through cuda-python.",
+      "assertions": [
+        "Answers with CuPy code (ReductionKernel, fuse, or in-place array operations)",
+        "Does not use cuda.core or cuda.bindings"
+      ]
+    },
+    {
+      "id": "negative-pytorch-install",
+      "prompt": "Which pip command installs PyTorch with CUDA 12 support on Linux, and how do I check from Python that it sees the GPU?",
+      "files": [],
+      "expected_skill": null,
+      "expected_script": null,
+      "expected_output": "Gives the PyTorch install command with a CUDA 12 wheel index (for example pip install torch --index-url https://download.pytorch.org/whl/cu126 or another cu12x index) and checks with torch.cuda.is_available() (optionally torch.version.cuda and torch.cuda.get_device_name(0)). It is about PyTorch packaging, not cuda-python.",
+      "assertions": [
+        "Gives a pip install command for PyTorch with a CUDA 12 wheel index",
+        "Checks GPU visibility with torch.cuda.is_available()",
+        "Does not recommend installing cuda-python or cuda-core for this"
+      ]
+    }
+  ]
+}
