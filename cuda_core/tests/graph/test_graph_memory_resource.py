@@ -4,6 +4,7 @@
 
 """Tests for GraphMemoryResource allocation and attributes during graph capture."""
 
+import gc
 import threading
 from contextlib import closing
 
@@ -388,10 +389,16 @@ def test_device_memory_resource_first_touch_under_capture(mempool_device, mode):
         try:
             device = Device(device_id)
             device.set_current()
-            gb = device.create_stream().create_graph_builder().begin_building(mode=mode)
-            device.memory_resource  # noqa: B018 - first touch on this thread constructs the resource
-            result["building"] = gb.is_building
-            gb.end_building().complete()
+            # Unrelated buffer finalizers must run before capture, not during it.
+            gc.collect()
+            gb = device.create_stream().create_graph_builder()
+            try:
+                gb.begin_building(mode=mode)
+                device.memory_resource  # noqa: B018 - first touch on this thread constructs the resource
+                result["building"] = gb.is_building
+                gb.end_building().complete()
+            finally:
+                gb.close()
         except BaseException as exc:
             result["error"] = exc
 

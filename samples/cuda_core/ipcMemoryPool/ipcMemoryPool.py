@@ -69,6 +69,7 @@ try:
     import numpy as np
     from cuda_samples_utils import print_gpu_info
 
+    from cuda.bindings import driver
     from cuda.core import (
         Device,
         DeviceMemoryResource,
@@ -100,8 +101,9 @@ def check_ipc_support(device) -> bool:
     if not device.properties.memory_pools_supported:
         print("Device does not support CUDA memory pools.")
         return False
-    if not device.properties.handle_type_posix_file_descriptor_supported:
-        print("Device/platform does not support POSIX-fd IPC handles.")
+    posix_fd = int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR)
+    if not device.properties.mempool_supported_handle_types & posix_fd:
+        print("Device/platform does not support POSIX-fd IPC memory pools.")
         return False
     return True
 

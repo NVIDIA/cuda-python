@@ -39,6 +39,7 @@ import colorsys
 import ctypes
 import math
 import os
+import platform
 import random
 import sys
 import time
@@ -471,6 +472,10 @@ def upload_and_draw(gl, shader_prog, vao_id, tex_id, host_rgba):
 
 
 def main():
+    if platform.system() == "Linux" and not os.environ.get("DISPLAY"):
+        print("No DISPLAY available; waiving glInteropFluidNumbaCudaMlir.", file=sys.stderr)
+        sys.exit(EXIT_WAIVED)
+
     if not cuda.is_available():
         print("No CUDA GPU available to numba.", file=sys.stderr)
         sys.exit(1)
