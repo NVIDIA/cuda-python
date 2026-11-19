@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ba26837dbd547d2e915dc2f5073385fd2f6b2d4f32fdeb60a93e4338e5a3a03c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fff85c453c84fc538b768c24c857213e2dbe1ffb80a2a2e2838019d7e7d1630d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -18,6 +18,10 @@ from cpython.buffer cimport (
 )
 from cython cimport view as _cyb_view
 from libc.stdint cimport intptr_t
+from libc.stdlib cimport (
+    calloc as _cyb_calloc,
+    free as _cyb_free,
+)
 from libc.string cimport (
     memcmp as _cyb_memcmp,
     memcpy as _cyb_memcpy,
@@ -232,20 +236,25 @@ cdef int check_status(int status) except 1 nogil:
 ###############################################################################
 
 cdef _get_bundled_headers_info_dtype_offsets():
-    cdef nvrtcBundledHeadersInfo pod
-    return _numpy.dtype({
-        'names': ['available', 'compressed_size', 'uncompressed_size', 'cuda_version_major', 'cuda_version_minor', 'num_files'],
-        'formats': [_numpy.int32, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.available)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.compressedSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.uncompressedSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cudaVersionMajor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cudaVersionMinor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numFiles)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvrtcBundledHeadersInfo),
-    })
+    cdef nvrtcBundledHeadersInfo *pod = <nvrtcBundledHeadersInfo *>_cyb_calloc(1, sizeof(nvrtcBundledHeadersInfo))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvrtcBundledHeadersInfo")
+    try:
+        return _numpy.dtype({
+            'names': ['available', 'compressed_size', 'uncompressed_size', 'cuda_version_major', 'cuda_version_minor', 'num_files'],
+            'formats': [_numpy.int32, _numpy.uint64, _numpy.uint64, _numpy.int32, _numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.available)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.compressedSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.uncompressedSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cudaVersionMajor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cudaVersionMinor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numFiles)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvrtcBundledHeadersInfo),
+        })
+    finally:
+        _cyb_free(pod)
 
 bundled_headers_info_dtype = _get_bundled_headers_info_dtype_offsets()
 

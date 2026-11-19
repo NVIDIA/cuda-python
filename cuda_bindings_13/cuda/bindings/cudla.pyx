@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4fb80303cf58308e310478def045302e182c8c4a8b169efd0b22cd322629190e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2ddc08b7839e06f87dbb946eab7b3db85897fa051767efd3b966d681dbde4550
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -22,6 +22,10 @@ from libc.stdint cimport (
     uint32_t,
     uint64_t,
     uint8_t,
+)
+from libc.stdlib cimport (
+    calloc as _cyb_calloc,
+    free as _cyb_free,
 )
 from libc.string cimport (
     memcmp as _cyb_memcmp,
@@ -117,16 +121,21 @@ from libc.stdlib cimport malloc, free
 ###############################################################################
 
 cdef _get_external_memory_handle_desc_dtype_offsets():
-    cdef cudlaExternalMemoryHandleDesc_t pod
-    return _numpy.dtype({
-        'names': ['ext_buf_object', 'size_'],
-        'formats': [_numpy.intp, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.extBufObject)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaExternalMemoryHandleDesc_t),
-    })
+    cdef cudlaExternalMemoryHandleDesc_t *pod = <cudlaExternalMemoryHandleDesc_t *>_cyb_calloc(1, sizeof(cudlaExternalMemoryHandleDesc_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaExternalMemoryHandleDesc_t")
+    try:
+        return _numpy.dtype({
+            'names': ['ext_buf_object', 'size_'],
+            'formats': [_numpy.intp, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.extBufObject)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaExternalMemoryHandleDesc_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_memory_handle_desc_dtype = _get_external_memory_handle_desc_dtype_offsets()
 
@@ -254,15 +263,20 @@ cdef class ExternalMemoryHandleDesc:
 
 
 cdef _get_external_semaphore_handle_desc_dtype_offsets():
-    cdef cudlaExternalSemaphoreHandleDesc_t pod
-    return _numpy.dtype({
-        'names': ['ext_sync_object'],
-        'formats': [_numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.extSyncObject)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaExternalSemaphoreHandleDesc_t),
-    })
+    cdef cudlaExternalSemaphoreHandleDesc_t *pod = <cudlaExternalSemaphoreHandleDesc_t *>_cyb_calloc(1, sizeof(cudlaExternalSemaphoreHandleDesc_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaExternalSemaphoreHandleDesc_t")
+    try:
+        return _numpy.dtype({
+            'names': ['ext_sync_object'],
+            'formats': [_numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.extSyncObject)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaExternalSemaphoreHandleDesc_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 external_semaphore_handle_desc_dtype = _get_external_semaphore_handle_desc_dtype_offsets()
 
@@ -379,26 +393,31 @@ cdef class ExternalSemaphoreHandleDesc:
 
 
 cdef _get_module_tensor_descriptor_dtype_offsets():
-    cdef cudlaModuleTensorDescriptor pod
-    return _numpy.dtype({
-        'names': ['name', 'size_', 'n', 'c', 'h', 'w', 'data_format', 'data_type', 'data_category', 'pixel_format', 'pixel_mapping', 'stride'],
-        'formats': [(_numpy.int8, 81), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, (_numpy.uint32, 8)],
-        'offsets': [
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.n)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.c)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.h)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.w)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataFormat)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataCategory)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pixelFormat)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pixelMapping)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.stride)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaModuleTensorDescriptor),
-    })
+    cdef cudlaModuleTensorDescriptor *pod = <cudlaModuleTensorDescriptor *>_cyb_calloc(1, sizeof(cudlaModuleTensorDescriptor))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaModuleTensorDescriptor")
+    try:
+        return _numpy.dtype({
+            'names': ['name', 'size_', 'n', 'c', 'h', 'w', 'data_format', 'data_type', 'data_category', 'pixel_format', 'pixel_mapping', 'stride'],
+            'formats': [(_numpy.int8, 81), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, (_numpy.uint32, 8)],
+            'offsets': [
+                (<intptr_t>&(pod.name)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.n)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.c)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.h)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.w)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataFormat)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataCategory)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pixelFormat)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pixelMapping)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.stride)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaModuleTensorDescriptor),
+        })
+    finally:
+        _cyb_free(pod)
 
 module_tensor_descriptor_dtype = _get_module_tensor_descriptor_dtype_offsets()
 
@@ -646,16 +665,21 @@ cdef class ModuleTensorDescriptor:
 
 
 cdef _get_fence_dtype_offsets():
-    cdef CudlaFence pod
-    return _numpy.dtype({
-        'names': ['fence', 'type'],
-        'formats': [_numpy.intp, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.fence)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(CudlaFence),
-    })
+    cdef CudlaFence *pod = <CudlaFence *>_cyb_calloc(1, sizeof(CudlaFence))
+    if pod == NULL:
+        raise MemoryError("Error allocating CudlaFence")
+    try:
+        return _numpy.dtype({
+            'names': ['fence', 'type'],
+            'formats': [_numpy.intp, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.fence)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CudlaFence),
+        })
+    finally:
+        _cyb_free(pod)
 
 fence_dtype = _get_fence_dtype_offsets()
 
@@ -783,16 +807,21 @@ cdef class Fence:
 
 
 cdef _get_dev_attribute_dtype_offsets():
-    cdef cudlaDevAttribute pod
-    return _numpy.dtype({
-        'names': ['unified_addressing_supported', 'device_version'],
-        'formats': [_numpy.uint8, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.unifiedAddressingSupported)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.deviceVersion)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaDevAttribute),
-    })
+    cdef cudlaDevAttribute *pod = <cudlaDevAttribute *>_cyb_calloc(1, sizeof(cudlaDevAttribute))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaDevAttribute")
+    try:
+        return _numpy.dtype({
+            'names': ['unified_addressing_supported', 'device_version'],
+            'formats': [_numpy.uint8, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.unifiedAddressingSupported)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.deviceVersion)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaDevAttribute),
+        })
+    finally:
+        _cyb_free(pod)
 
 dev_attribute_dtype = _get_dev_attribute_dtype_offsets()
 
@@ -920,18 +949,23 @@ cdef class DevAttribute:
 
 
 cdef _get_module_attribute_dtype_offsets():
-    cdef cudlaModuleAttribute pod
-    return _numpy.dtype({
-        'names': ['num_input_tensors', 'num_output_tensors', 'input_tensor_desc', 'output_tensor_desc'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.numInputTensors)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numOutputTensors)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.inputTensorDesc)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.outputTensorDesc)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaModuleAttribute),
-    })
+    cdef cudlaModuleAttribute *pod = <cudlaModuleAttribute *>_cyb_calloc(1, sizeof(cudlaModuleAttribute))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaModuleAttribute")
+    try:
+        return _numpy.dtype({
+            'names': ['num_input_tensors', 'num_output_tensors', 'input_tensor_desc', 'output_tensor_desc'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.numInputTensors)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numOutputTensors)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.inputTensorDesc)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.outputTensorDesc)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaModuleAttribute),
+        })
+    finally:
+        _cyb_free(pod)
 
 module_attribute_dtype = _get_module_attribute_dtype_offsets()
 
@@ -1081,16 +1115,21 @@ cdef class ModuleAttribute:
 
 
 cdef _get_wait_events_dtype_offsets():
-    cdef cudlaWaitEvents pod
-    return _numpy.dtype({
-        'names': ['pre_fences', 'num_events'],
-        'formats': [_numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.preFences)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numEvents)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaWaitEvents),
-    })
+    cdef cudlaWaitEvents *pod = <cudlaWaitEvents *>_cyb_calloc(1, sizeof(cudlaWaitEvents))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaWaitEvents")
+    try:
+        return _numpy.dtype({
+            'names': ['pre_fences', 'num_events'],
+            'formats': [_numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.preFences)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numEvents)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaWaitEvents),
+        })
+    finally:
+        _cyb_free(pod)
 
 wait_events_dtype = _get_wait_events_dtype_offsets()
 
@@ -1220,17 +1259,22 @@ cdef class WaitEvents:
 
 
 cdef _get_signal_events_dtype_offsets():
-    cdef cudlaSignalEvents pod
-    return _numpy.dtype({
-        'names': ['dev_ptrs', 'eof_fences', 'num_events'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.devPtrs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.eofFences)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numEvents)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaSignalEvents),
-    })
+    cdef cudlaSignalEvents *pod = <cudlaSignalEvents *>_cyb_calloc(1, sizeof(cudlaSignalEvents))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaSignalEvents")
+    try:
+        return _numpy.dtype({
+            'names': ['dev_ptrs', 'eof_fences', 'num_events'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.devPtrs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.eofFences)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numEvents)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaSignalEvents),
+        })
+    finally:
+        _cyb_free(pod)
 
 signal_events_dtype = _get_signal_events_dtype_offsets()
 
@@ -1386,21 +1430,26 @@ cdef class SignalEvents:
 
 
 cdef _get_task_dtype_offsets():
-    cdef cudlaTask pod
-    return _numpy.dtype({
-        'names': ['module_handle', 'output_tensor', 'num_output_tensors', 'num_input_tensors', 'input_tensor', 'wait_events', 'signal_events'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.moduleHandle)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.outputTensor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numOutputTensors)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numInputTensors)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.inputTensor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.waitEvents)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.signalEvents)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cudlaTask),
-    })
+    cdef cudlaTask *pod = <cudlaTask *>_cyb_calloc(1, sizeof(cudlaTask))
+    if pod == NULL:
+        raise MemoryError("Error allocating cudlaTask")
+    try:
+        return _numpy.dtype({
+            'names': ['module_handle', 'output_tensor', 'num_output_tensors', 'num_input_tensors', 'input_tensor', 'wait_events', 'signal_events'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.intp, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.moduleHandle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.outputTensor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numOutputTensors)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numInputTensors)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.inputTensor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.waitEvents)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.signalEvents)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cudlaTask),
+        })
+    finally:
+        _cyb_free(pod)
 
 task_dtype = _get_task_dtype_offsets()
 

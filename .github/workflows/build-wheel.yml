@@ -116,30 +116,6 @@ jobs:
         with:
           arch: ${{ (inputs.host-platform == 'win-arm64' && 'arm64') || 'x64' }}
 
-      - name: Set up yq
-        # GitHub made an unprofessional decision to not provide it in their Windows VMs,
-        # see https://github.com/actions/runner-images/issues/7443.
-        if: ${{ startsWith(inputs.host-platform, 'win') && env.BUILD_CORE == 'true' }}
-        env:
-          YQ_VERSION: v4.52.5
-          YQ_ARCH: ${{ (inputs.host-platform == 'win-arm64' && 'arm64') || 'amd64' }}
-          YQ_SHA256: ${{ (inputs.host-platform == 'win-arm64' && '236867affa7f18701d4c763cf16b6df962cf4f7e89a8570a5954cf94a38f41c7') || '47594981f3848a4b4447494adeca9555f908f7cf0a89c4da3fd0243a4631da1c' }}
-          YQ_DIR: yq
-        shell: pwsh -command ". '{0}'"
-        run: |
-          $yqUrl = "https://github.com/mikefarah/yq/releases/download/${env:YQ_VERSION}/yq_windows_${env:YQ_ARCH}.exe"
-          mkdir -Force -ErrorAction SilentlyContinue "${env:YQ_DIR}" | Out-Null
-          Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$yqUrl"
-          $hash = (Get-FileHash -Algorithm SHA256 "${env:YQ_DIR}/yq.exe").Hash.ToLower()
-          if ($hash -ne $env:YQ_SHA256) {
-            Write-Error "SHA256 mismatch for yq: expected $env:YQ_SHA256, got $hash"
-            exit 1
-          }
-          ls -l $env:YQ_DIR
-          echo "$((Get-Location).Path)\\$env:YQ_DIR" >> $env:GITHUB_PATH
-          $env:Path += ";$((Get-Location).Path)\\$env:YQ_DIR"
-          yq --version
-
       - name: Dump environment
         run: |
           env

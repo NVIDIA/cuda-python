@@ -71,10 +71,8 @@ selectors or shared `latest` pages.
 The workflow revision used for a release is its **control revision**; the
 tagged commit is its **source revision**. Record both and the artifact CI run
 ID. Release routing uses the package layout and toolkit settings in
-`ci/versions.yml` at the release tag. When retrying an interrupted CUDA 13
-release, retained tags can use their original configuration, source layout,
-build matrix, and artifact names while those artifacts remain available.
-New CUDA 12 releases require the local `cuda_bindings_12` directory and
+the release tag's `ci/versions.yml`, which must contain the
+`schema_version: 2` package-root registry. Both bindings lines require
 toolkit-qualified artifacts. The workflow control revision never supplies
 missing tagged toolkit settings or replaces tagged release notes.
 
@@ -87,6 +85,15 @@ new notes.
 Local synthetic tags used in publication-incapable rehearsals must remain local;
 they do not authorize publishing a package, creating a remote tag, or moving
 an existing tag.
+
+### Older release layouts
+
+For tags without the package-root registry, run the release workflow from an
+appropriate historical tag or maintenance branch, using that ref's own inputs.
+Select a branch in Actions' **Run workflow** menu, or select a branch or tag
+with the GitHub CLI's `--ref` option. Verify its release flow and artifact
+availability before use. Older-tag docs rebuilds also need a caller on a
+compatible ref: `build-docs.yml` is reusable and cannot be dispatched directly.
 
 ### Two tags at one commit
 

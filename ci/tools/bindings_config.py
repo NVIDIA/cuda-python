@@ -9,7 +9,6 @@ import argparse
 import importlib.util
 import json
 import re
-import subprocess
 import sys
 import tomllib
 from collections.abc import Mapping, Sequence
@@ -77,12 +76,6 @@ class BindingsConfig:
     package_roots: tuple[BindingsPackage, ...]
     python_supported: tuple[str, ...]
 
-    def get_package(self, package_root: str) -> BindingsPackage:
-        for package in self.package_roots:
-            if package.package_root == package_root:
-                return package
-        raise ValueError(f"unknown CUDA bindings package root: {package_root!r}")
-
     def package_for_release_status(self, release_status: str) -> BindingsPackage:
         return next(package for package in self.package_roots if package.release_status == release_status)
 
@@ -104,18 +97,13 @@ class BindingsConfig:
 
 
 def parse_config(raw: Mapping[str, Any]) -> BindingsConfig:
-    """Normalize legacy toolkit pins or the explicit package-root registry."""
+    """Read the explicit package-root registry."""
+    if raw.get("schema_version") != SCHEMA_VERSION:
+        raise ValueError(f"schema_version must be {SCHEMA_VERSION}")
     packages = []
-    if "schema_version" in raw:
-        if raw["schema_version"] != SCHEMA_VERSION:
-            raise ValueError(f"schema_version must be {SCHEMA_VERSION}")
-        for package_root, data in raw["cuda"]["bindings"]["package_roots"].items():
-            major, minor, patch = map(int, data["toolkit_version"].split("."))
-            packages.append(BindingsPackage(package_root, (major, minor, patch), data["release_status"]))
-    else:
-        for field, release_status in (("build", "current"), ("prev_build", "maintenance")):
-            major, minor, patch = map(int, raw["cuda"][field]["version"].split("."))
-            packages.append(BindingsPackage(f"cuda_bindings_{major}", (major, minor, patch), release_status))
+    for package_root, data in raw["cuda"]["bindings"]["package_roots"].items():
+        major, minor, patch = map(int, data["toolkit_version"].split("."))
+        packages.append(BindingsPackage(package_root, (major, minor, patch), data["release_status"]))
     if len(packages) != 2 or {package.release_status for package in packages} != RELEASE_STATUSES:
         raise ValueError("bindings configuration must contain one current and one maintenance package")
     if len({package.toolkit[0] for package in packages}) != len(packages):
@@ -127,36 +115,12 @@ def load_config(path: Path = DEFAULT_CONFIG) -> BindingsConfig:
     return parse_config(yaml.safe_load(path.read_text(encoding="utf-8")))
 
 
-def write_nightly_source_outputs(config_path: Path, output_path: Path) -> None:
-    """Append nightly configuration read from the wheel artifact's source."""
-    raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    if "schema_version" not in raw:
-        # Preserve the artifact source's original test and artifact contract.
-        toolkit = raw["cuda"]["build"]["version"]
-        branch = raw["backport_branch"]
-        subprocess.run(["git", "check-ref-format", f"refs/heads/{branch}"], check=True)  # noqa: S603, S607
-        config_json = "LEGACY_CONFIG"
-    else:
-        if raw["schema_version"] != SCHEMA_VERSION:
-            raise ValueError(f"unsupported nightly source schema: {raw['schema_version']!r}")
-        config = parse_config(raw)
-        toolkit = config.package_for_release_status("current").toolkit_version
-        branch = ""
-        config_json = config.to_json()
-    if _TOOLKIT_VERSION_PATTERN.fullmatch(toolkit) is None:
-        raise ValueError(f"invalid nightly source build toolkit: {toolkit!r}")
-    with output_path.open("a", encoding="utf-8") as output:
-        output.write(f"bindings_config={config_json}\n")
-        output.write(f"cuda_build_ver={toolkit}\n")
-        output.write(f"legacy_backport_branch={branch}\n")
-
-
 def wheel_python_versions(toolkit_version: str, platform: str, versions: Sequence[str]) -> list[str]:
     """Select wheel interpreters, including Windows ARM64's toolkit/Python limits."""
     if platform == "win-arm64":
         if Version(toolkit_version).release[:2] < (13, 4):
             return []
-        # Retained release tags can include Python 3.10, which has no WoA wheels.
+        # Python 3.10 has no Windows ARM64 wheels.
         return [version for version in versions if version != "3.10"]
     return list(versions)
 
@@ -243,7 +207,7 @@ def resolve_release_bindings_package(
     release_tag: str,
     release_source_root: Path,
 ) -> dict[str, object]:
-    """Resolve a release from its tagged source, including retained CUDA 13 tags."""
+    """Resolve a release from the package registry in its tagged source."""
     if not release_source_root.is_dir():
         raise ValueError(f"release source root is not a directory: {release_source_root}")
 
@@ -256,38 +220,16 @@ def resolve_release_bindings_package(
         raise ValueError(f"unsupported release tag: {release_tag!r}")
 
     try:
-        raw = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-        legacy_config = "schema_version" not in raw
-        if legacy_config:
-            current_toolkit = raw["cuda"]["build"]["version"]
-            if _TOOLKIT_VERSION_PATTERN.fullmatch(current_toolkit) is None or not current_toolkit.startswith("13."):
-                raise ValueError("legacy release compatibility requires a CUDA 13 build toolkit")
-            current_root = (
-                "cuda_bindings_13" if (release_source_root / "cuda_bindings_13").is_dir() else "cuda_bindings"
-            )
-            package = BindingsPackage(current_root, tuple(map(int, current_toolkit.split("."))), "current")
-            if bindings_version is not None and bindings_version.release[0] == 12:
-                maintenance_toolkit = raw["cuda"]["prev_build"]["version"]
-                if _TOOLKIT_VERSION_PATTERN.fullmatch(maintenance_toolkit) is None:
-                    raise ValueError("legacy prev_build toolkit must have major.minor.patch format")
-                package = BindingsPackage(
-                    "cuda_bindings_12", tuple(map(int, maintenance_toolkit.split("."))), "maintenance"
-                )
-        else:
-            config = parse_config(raw)
-            package = (
-                config.package_for_release_status("current") if is_dependent_release else config.match_tag(release_tag)
-            )
+        config = load_config(config_path)
+        package = (
+            config.package_for_release_status("current") if is_dependent_release else config.match_tag(release_tag)
+        )
     except (OSError, yaml.YAMLError, KeyError, TypeError, ValueError) as error:
         raise ValueError(f"could not resolve release source config {config_path}: {error}") from error
     if package is None:
         raise ValueError(
             f"no CUDA bindings package root in tagged config {config_path} matches release tag: {release_tag!r}"
         )
-    if bindings_version is not None and not package.matches_tag(release_tag):
-        raise ValueError(f"release tag {release_tag!r} does not match tagged toolkit {package.toolkit_version}")
-    if legacy_config and not (release_source_root / package.package_root).is_dir():
-        raise ValueError(f"tagged source has no bindings root {package.package_root!r}")
 
     record: dict[str, object] = {
         "package_root": package.package_root,
@@ -295,8 +237,6 @@ def resolve_release_bindings_package(
     }
     if bindings_version is not None:
         record["release_version"] = str(bindings_version)
-    if legacy_config and package.release_status == "current":
-        record["allow_legacy_python_artifact"] = True
     return record
 
 
@@ -320,7 +260,6 @@ def main(argv: list[str] | None = None) -> int:
     output.add_argument("--check-package-metadata", action="store_true")
     output.add_argument("--release-status", choices=sorted(RELEASE_STATUSES))
     output.add_argument("--release-tag", help="resolve a release tag against its source tree")
-    output.add_argument("--nightly-source-output", type=Path, metavar="GITHUB_OUTPUT")
     parser.add_argument("--release-source-root", type=Path)
     commands = parser.add_subparsers(dest="command")
     write_env = commands.add_parser("write-github-env", help="append package JSON from stdin to GITHUB_ENV")
@@ -334,7 +273,6 @@ def main(argv: list[str] | None = None) -> int:
                 or args.check_package_metadata
                 or args.release_status
                 or args.release_tag
-                or args.nightly_source_output is not None
                 or args.release_source_root is not None
             ):
                 parser.error("write-github-env does not accept registry selectors")
@@ -342,11 +280,6 @@ def main(argv: list[str] | None = None) -> int:
             if not isinstance(value, dict):
                 raise ValueError("stdin for write-github-env must contain a JSON object")
             write_github_env(value, args.github_env)
-            return 0
-        if args.nightly_source_output is not None:
-            if args.release_source_root is not None:
-                parser.error("--release-source-root requires --release-tag")
-            write_nightly_source_outputs(args.config, args.nightly_source_output)
             return 0
         if args.release_tag:
             if args.release_source_root is None:
@@ -362,14 +295,8 @@ def main(argv: list[str] | None = None) -> int:
             if args.release_status:
                 result = config.package_for_release_status(args.release_status).to_dict()
             else:
-                packages = [package.to_dict() for package in config.package_roots]
                 result = (
-                    packages
-                    if args.package_roots
-                    else {
-                        "python": {"supported": list(config.python_supported)},
-                        "package_roots": packages,
-                    }
+                    [package.to_dict() for package in config.package_roots] if args.package_roots else config.to_dict()
                 )
         print(json.dumps(result, separators=(",", ":"), sort_keys=True))
         return 0

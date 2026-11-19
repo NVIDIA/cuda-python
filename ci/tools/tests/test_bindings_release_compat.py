@@ -9,55 +9,42 @@ import yaml
 from ci.tools.bindings_config import main, parse_config, resolve_release_bindings_package, write_github_env
 
 
-def _source(root, *, old=False, schema2=False):
-    current_root = "cuda_bindings" if old else "cuda_bindings_13"
+def _source(root):
     packages = {
         "cuda_bindings_12": {"toolkit_version": "12.9.1", "release_status": "maintenance"},
-        current_root: {"toolkit_version": "13.4.2", "release_status": "current"},
+        "cuda_bindings_13": {"toolkit_version": "13.4.2", "release_status": "current"},
     }
-    raw = {"cuda": {"build": {"version": "13.4.2"}, "prev_build": {"version": "12.9.1"}}}
-    if not old:
-        raw["python"] = {"supported": ["3.11", "3.14t"]}
-    if schema2:
-        raw["schema_version"] = 2
-        raw["cuda"] = {"bindings": {"package_roots": packages}}
+    raw = {
+        "schema_version": 2,
+        "python": {"supported": ["3.11", "3.14t"]},
+        "cuda": {"bindings": {"package_roots": packages}},
+    }
     config = root / "ci" / "versions.yml"
     config.parent.mkdir(parents=True)
     config.write_text(yaml.safe_dump(raw))
-    (root / current_root).mkdir()
-    if not old:
-        (root / "cuda_bindings_12").mkdir()
+    for package_root in packages:
+        (root / package_root).mkdir()
     return root, raw
 
 
 @pytest.mark.parametrize(
-    ("old", "schema2", "tag", "expected_root", "legacy_artifact"),
+    ("tag", "expected_root"),
     [
-        (True, False, "v13.4.4", "cuda_bindings", True),
-        (False, False, "v12.9.11", "cuda_bindings_12", False),
-        (False, True, "v12.9.11", "cuda_bindings_12", False),
-        (False, True, "v13.4.9", "cuda_bindings_13", False),
+        ("v12.9.11", "cuda_bindings_12"),
+        ("v13.4.9", "cuda_bindings_13"),
     ],
 )
 @pytest.mark.agent_authored(model="gpt-6")
-def test_tagged_source_compatibility(tmp_path, old, schema2, tag, expected_root, legacy_artifact):
-    source, _ = _source(tmp_path, old=old, schema2=schema2)
+def test_tagged_source_routes_both_bindings_majors(tmp_path, tag, expected_root):
+    source, _ = _source(tmp_path)
     record = resolve_release_bindings_package(tag, source)
     assert record["package_root"] == expected_root
     assert record["release_version"] == tag.removeprefix("v")
-    assert record.get("allow_legacy_python_artifact", False) is legacy_artifact
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_old_cuda13_source_cannot_resolve_cuda12(tmp_path):
-    source, _ = _source(tmp_path, old=True)
-    with pytest.raises(ValueError, match="no bindings root"):
-        resolve_release_bindings_package("v12.9.11", source)
 
 
 @pytest.mark.agent_authored(model="gpt-6")
 def test_release_cli_uses_tagged_source_without_control_fallback(tmp_path, capsys):
-    source, _ = _source(tmp_path / "tagged", old=True)
+    source, _ = _source(tmp_path / "tagged")
     assert (
         main(
             [
@@ -72,10 +59,9 @@ def test_release_cli_uses_tagged_source_without_control_fallback(tmp_path, capsy
         == 0
     )
     assert json.loads(capsys.readouterr().out) == {
-        "package_root": "cuda_bindings",
+        "package_root": "cuda_bindings_13",
         "toolkit_version": "13.4.2",
         "release_version": "13.4.4",
-        "allow_legacy_python_artifact": True,
     }
     empty = tmp_path / "absent-source"
     empty.mkdir()
@@ -94,7 +80,7 @@ def test_release_cli_uses_tagged_source_without_control_fallback(tmp_path, capsy
 
 @pytest.mark.agent_authored(model="gpt-6")
 def test_dependent_release_uses_current_tagged_bindings(tmp_path):
-    source, _ = _source(tmp_path, schema2=True)
+    source, _ = _source(tmp_path)
     assert resolve_release_bindings_package("cuda-core-v1.2.0", source) == {
         "package_root": "cuda_bindings_13",
         "toolkit_version": "13.4.2",
@@ -104,7 +90,7 @@ def test_dependent_release_uses_current_tagged_bindings(tmp_path):
 @pytest.mark.parametrize("conflict", ["roles", "majors"])
 @pytest.mark.agent_authored(model="gpt-6")
 def test_schema2_rejects_ambiguous_release_routing(tmp_path, conflict):
-    _, raw = _source(tmp_path, schema2=True)
+    _, raw = _source(tmp_path)
     maintenance = raw["cuda"]["bindings"]["package_roots"]["cuda_bindings_12"]
     maintenance["release_status" if conflict == "roles" else "toolkit_version"] = (
         "current" if conflict == "roles" else "13.4.1"

@@ -21,8 +21,8 @@ def core_artifact(python_version: str, host_platform: str, sha: str = "") -> str
     return f"{name}-{sha}" if sha else name
 
 
-def python_artifact(toolkit_version: str | None = None) -> str:
-    return "cuda-python-wheel" if toolkit_version is None else f"cuda-python-wheel-cuda{toolkit_version}"
+def python_artifact(toolkit_version: str) -> str:
+    return f"cuda-python-wheel-cuda{toolkit_version}"
 
 
 def expected_baseline_artifacts(config: BindingsConfig, platforms: list[str], sha: str) -> list[str]:
