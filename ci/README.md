@@ -317,6 +317,20 @@ No version override or local preview-tag preparation is needed.
 Follow the
 [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
+## Paired Release Notes
+
+The `check-release-note-pairs` pre-commit hook requires every tracked numeric
+`cuda_bindings_*/docs/source/release/X.Y.Z-notes.rst` to have a matching,
+nonempty `cuda_python/docs/source/release/X.Y.Z-notes.rst`. It checks Git's
+index, so new notes must be staged. The files do not need identical contents.
+Templates with literal `X` and `Y`, and prerelease filenames, are excluded.
+
+The hook runs on every commit, including counterpart deletions, and during
+`pre-commit run --all-files`. A fixed list of historical gaps predating this
+check is grandfathered in `ci/tools/check_release_note_pairs.py`; new releases
+must not be added to that list. The tagged-source checks in the release
+workflow remain the final validation before publication.
+
 ## Nightly Artifact Sources
 
 `ci-nightly.yml` downloads wheels from the latest successful main CI run and
