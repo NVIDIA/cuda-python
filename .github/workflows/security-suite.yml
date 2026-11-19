@@ -33,6 +33,8 @@ jobs:
   # On main the vulnerability scan inspects installed wheels: Detect cannot resolve
   # cuda_core's CUDA-dependent build or cuda_python's dynamic setup.py from source.
   # Wheel mode is refused on pull-request/* mirrors. Python 3.12 matches the scanner image.
+  # The same path-based detection as ci.yml decides what to build: a push that changes no
+  # package skips the wheel scan, and unchanged packages reuse wheels from the latest main CI run.
   wheel-plan:
     name: Plan wheels for the vulnerability scan
     if: >-
@@ -41,41 +43,91 @@ jobs:
        vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true')
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       contents: read
     outputs:
+      scan: ${{ steps.plan.outputs.scan }}
       workplan: ${{ steps.plan.outputs.workplan }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           filter: blob:none
       - uses: ./.github/actions/setup-hardened-python
         with:
           python-version: "3.11"
       - name: Install CI tools
         run: python3 -m pip install -e ./ci
+      - name: Resolve the previous commit and reusable wheels
+        id: baseline
+        env:
+          BEFORE: ${{ github.event_name == 'push' && github.event.before || '' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          # A manual run, a new branch or a rewritten history has no previous commit to diff.
+          if [[ "$BEFORE" =~ ^[0-9a-f]{40}$ && ! "$BEFORE" =~ ^0+$ ]] \
+            && git merge-base --is-ancestor "$BEFORE" HEAD 2>/dev/null; then
+            echo "previous=${BEFORE}" >> "$GITHUB_OUTPUT"
+          fi
+          # main CI runs are often cancelled by newer pushes, so reuse the latest successful one
+          # this commit descends from, with the complete artifact set ci.yml itself requires.
+          runs=$(gh run list --repo "$GITHUB_REPOSITORY" --branch main --event push --workflow ci.yml \
+            --status success --limit 10 --json databaseId,headSha --jq '.[] | "\(.databaseId) \(.headSha)"') || exit 0
+          while read -r run_id sha; do
+            [[ -n "$run_id" ]] && git merge-base --is-ancestor "$sha" HEAD 2>/dev/null || continue
+            names=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts?per_page=100" \
+              --paginate --jq '.artifacts[] | select(.expired == false) | .name') || continue
+            expected=$(python3 -m ci.tools.ci_artifacts --baseline-sha "$sha") || continue
+            complete=true
+            while IFS= read -r name; do
+              grep -Fxq "$name" <<< "$names" || { complete=false; break; }
+            done <<< "$expected"
+            if [[ "$complete" == true ]]; then
+              printf 'baseline_sha=%s\nrun_id=%s\n' "$sha" "$run_id" >> "$GITHUB_OUTPUT"
+              break
+            fi
+          done <<< "$runs"
       - name: Compute the linux-64 Python 3.12 workplan
         id: plan
+        env:
+          PREVIOUS: ${{ steps.baseline.outputs.previous }}
+          BASELINE_SHA: ${{ steps.baseline.outputs.baseline_sha }}
+          BASELINE_RUN: ${{ steps.baseline.outputs.run_id }}
         run: |
           set -euo pipefail
-          plan_output="$(mktemp)"
-          GITHUB_OUTPUT="$plan_output" MERGE_BASE= BASELINE_RUN_ID= RELEASE_TAG= \
-            python3 -m ci.tools.compute_ci_plan
-          PLAN_OUTPUT="$plan_output" python3 - <<'PY'
+          plan() {
+            local output
+            output="$(mktemp)"
+            GITHUB_OUTPUT="$output" MERGE_BASE="$1" BASELINE_RUN_ID="$2" RELEASE_TAG= \
+              python3 -m ci.tools.compute_ci_plan >/dev/null
+            sed -n 's/^workplan=//p' "$output"
+          }
+          # Without a baseline the planner builds everything, so ask what changed separately.
+          changed='{}'
+          if [[ -n "$PREVIOUS" ]]; then
+            changed="$(plan "$PREVIOUS" path-detection)"
+          fi
+          # Build what changed since the reusable wheels; with none, build everything.
+          workplan="$(plan "$BASELINE_SHA" "$BASELINE_RUN")"
+          CHANGED="$changed" WORKPLAN="$workplan" python3 - <<'PY'
           import json
           import os
-          from pathlib import Path
 
-          lines = Path(os.environ["PLAN_OUTPUT"]).read_text(encoding="utf-8").splitlines()
-          plan = json.loads(next(line for line in lines if line.startswith("workplan="))[len("workplan="):])
+          changed = json.loads(os.environ["CHANGED"])
+          plan = json.loads(os.environ["WORKPLAN"])
+          # A push that changes no package has no new dependencies to scan.
+          scan = not changed or any(module["needs_build"] for module in changed["modules"].values())
           plan["jobs"]["wheel_python_versions"] = {"linux-64": ["3.12"]}
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"scan={'true' if scan else 'false'}\n")
               output.write(f"workplan={json.dumps(plan, separators=(',', ':'))}\n")
           PY
 
   build-wheels:
     name: Build wheels for the vulnerability scan
     needs: wheel-plan
+    if: needs.wheel-plan.outputs.scan == 'true'
     permissions:
       actions: read
       contents: read
@@ -120,16 +172,19 @@ jobs:
     needs: python-wheels
     # Repository-specific workflow opt-ins use CI_CUSTOMIZATIONS_* Actions variables.
     # Enable this only after the security-suite prerequisites exist.
+    # Runs whether or not wheels were built, so secret, malware and SAST cover every push.
     if: >-
       !cancelled() &&
-      (needs.python-wheels.result == 'success' || github.ref != 'refs/heads/main') &&
       (github.repository == 'NVIDIA/cuda-python' ||
        vars.CI_CUSTOMIZATIONS_SECURITY_SUITE_ENABLED == 'true')
     uses: NVIDIA/security-workflows/.github/workflows/security-suite.yml@d8189f3176942de7ffe2c48bcd7bb5fbdee2dd15  # v0.6.0
     with:
       enable-secret-scan: true
       # The vulnerability and malware scans use a Charon tenant that authorizes only these refs.
-      enable-vuln-scan: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/pull-request/') }}
+      # On main the vulnerability scan runs only when this push built wheels to inspect.
+      enable-vuln-scan: >-
+        ${{ startsWith(github.ref, 'refs/heads/pull-request/') ||
+            (github.ref == 'refs/heads/main' && needs.python-wheels.result == 'success') }}
       enable-malware-scan: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/pull-request/') }}
       enable-sast-scan: true
       secret-runs-on: linux-amd64-cpu4
@@ -144,8 +199,8 @@ jobs:
       # Empty fails the suite preflight rather than reporting to the wrong nSpect program.
       nspect-id: ${{ vars.NSPECT_ID }}
       vuln-runs-on: linux-amd64-cpu4
-      vuln-python-wheels-artifact: ${{ github.ref == 'refs/heads/main' && 'python-wheels' || '' }}
-      vuln-python-project: ${{ github.ref == 'refs/heads/main' && 'cuda-python' || '' }}
+      vuln-python-wheels-artifact: ${{ needs.python-wheels.result == 'success' && 'python-wheels' || '' }}
+      vuln-python-project: ${{ needs.python-wheels.result == 'success' && 'cuda-python' || '' }}
       # Mirrors have no wheels, and Detect cannot resolve these two packages from source, so
       # it skips them there. Their dependencies are covered by the wheel scan on main.
       vuln-detect-properties: >-
