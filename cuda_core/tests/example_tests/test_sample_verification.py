@@ -93,7 +93,6 @@ def test_ipc_sample_checks_memory_pool_handle_support(handle_types: int, support
     device = SimpleNamespace(
         properties=SimpleNamespace(
             memory_pools_supported=True,
-            handle_type_posix_file_descriptor_supported=True,
             mempool_supported_handle_types=handle_types,
         )
     )
