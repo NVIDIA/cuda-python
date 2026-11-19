@@ -43,6 +43,18 @@ DeviceMemoryResource(dev, {"ipc_enabled": True})  # NEW uncapped pool, expensive
 Do not add `max_size` to a call that currently passes no options: that
 converts a free default-pool wrapper into a new pool and makes things worse.
 
+### Exception: tests that also use the graph memory pool
+
+The device default pool and the graph memory pool (used by `GraphMemoryResource`
+and graph allocation nodes) each reserve about twice the device memory of
+virtual address space for the lifetime of the process, and neither can be
+capped. A single test that touches both needs both reservations at once, which
+can exceed a small address space on a large-memory GPU. In such a test, prefer
+a capped owned pool (`max_size=POOL_SIZE`) over the default-pool wrapper, and
+release it at the end of the test. The capped pool's reservation is small and
+returned on `close()`. Examples: `test_graph_alloc` and the `sample_buffer`
+fixtures in `test_object_protocols.py`.
+
 ### Managed pools are exempt
 
 `cuMemPoolCreate` requires `CUmemPoolProps.maxSize` to be zero for managed
