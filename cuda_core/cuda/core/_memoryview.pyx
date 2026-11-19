@@ -88,8 +88,14 @@ cdef inline bint _is_torch_tensor(object obj):
     if cached is not None:
         return <bint>cached
     cdef str mod = tp.__module__ or ""
-    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
-        and _torch_version_check()
+    cdef object torch, tensor_type
+    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr")
+    if result:
+        torch = sys.modules.get("torch")
+        tensor_type = getattr(torch, "Tensor", None)
+        # The bridge requires a real Tensor, not just Tensor-like attributes.
+        result = tensor_type is not None and issubclass(tp, tensor_type) \
+            and _torch_version_check()
     _torch_type_cache[tp] = result  # setdefault not needed for bools
     return result
 

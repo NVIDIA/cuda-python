@@ -24,6 +24,11 @@ Highlights
 Fixes and enhancements
 ----------------------
 
+- ``StridedMemoryView`` now verifies the actual Tensor type before using the
+  PyTorch native bridge. Protocol adapters with a ``torch``-prefixed module
+  name and a ``data_ptr`` attribute now use their declared data exchange
+  protocol instead of failing or being passed to the native Tensor interface.
+
 - :meth:`Buffer.from_ipc_descriptor` no longer unmaps a newly imported
   memory pool buffer when another thread releases the same descriptor at the
   same time. The import now waits for the pending release to finish.
