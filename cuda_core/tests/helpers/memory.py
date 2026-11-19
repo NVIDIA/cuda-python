@@ -79,6 +79,20 @@ def skip_if_pinned_memory_unsupported(device):
         pytest.skip("PinnedMemoryResource requires CUDA 13.0 or later")
 
 
+def skip_if_host_numa_pinned_memory_unsupported(device):
+    """Skip unless ``device`` supports pinned pools on its host NUMA node, as IPC-enabled pinned pools are.
+
+    Unlike ``skip_if_pinned_memory_unsupported``, this does not need the CUDA 13
+    ``host_memory_pools_supported`` attribute, so it runs on CUDA 12 builds. It
+    checks what ``PinnedMemoryResource`` checks for such a pool
+    (``_host_pool_supported``); keep the two in sync.
+    """
+    if device.properties.host_numa_id < 0:
+        pytest.skip("System does not support NUMA")
+    if not device.properties.host_numa_memory_pools_supported:
+        pytest.skip("Device does not support host NUMA memory pools")
+
+
 def skip_if_managed_allocation_unsupported(device):
     """Skip unless ``device`` supports raw managed allocations (``cuMemAllocManaged``).
 

@@ -12,7 +12,7 @@ from helpers.memory import (
     import_pool_resource,
     is_pool_resource,
     pool_access_flags,
-    skip_if_pinned_memory_unsupported,
+    skip_if_host_numa_pinned_memory_unsupported,
 )
 
 from cuda.core import (
@@ -348,7 +348,7 @@ class TestIpcPinnedPoolAccess:
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("import_from", ["resource", "raw_handle"])
     def test_main(self, ipc_device, import_from):
-        skip_if_pinned_memory_unsupported(ipc_device)
+        skip_if_host_numa_pinned_memory_unsupported(ipc_device)
         expected = _expected_pinned_pool_access()
         with ExitStack() as stack:
             mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
@@ -395,9 +395,7 @@ class TestIpcImportedPinnedBufferOnSecondDevice:
     def test_main(self, ipc_mempool_device_x2):
         dev0, dev1 = ipc_mempool_device_x2
         for device in (dev0, dev1):
-            skip_if_pinned_memory_unsupported(device)
-            if not device.properties.host_numa_memory_pools_supported:
-                pytest.skip("Device does not support host NUMA memory pools")
+            skip_if_host_numa_pinned_memory_unsupported(device)
         stream = dev1.default_stream
         with ExitStack() as stack:
             stack.callback(dev0.set_current)
