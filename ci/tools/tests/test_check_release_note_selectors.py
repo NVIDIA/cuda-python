@@ -142,3 +142,63 @@ def test_staged_selector_deletion_fails_even_without_release_notes(repo):
 
     with pytest.raises(subprocess.CalledProcessError):
         version_selector_errors(repo)
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_template_only_newer_bindings_root_owns_the_selector_for_maintenance_notes(repo):
+    entries = [{"version": "13.5.1", "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.5.1/"}]
+    stage_file(repo, "cuda_bindings_13/docs/source/release/13.5.1-notes.rst", "Release notes.\n")
+    stage_file(repo, "cuda_bindings_13/docs/nv-versions.json", json.dumps(entries))
+    stage_file(repo, "cuda_bindings_14/docs/source/release/14.X.Y-notes.rst", "Future release template.\n")
+
+    with pytest.raises(subprocess.CalledProcessError):
+        version_selector_errors(repo)
+
+    selector = "cuda_bindings_14/docs/nv-versions.json"
+    stage_file(repo, selector, json.dumps(entries))
+    assert version_selector_errors(repo) == []
+
+    note = stage_file(repo, "cuda_bindings_12/docs/source/release/12.9.11-notes.rst", "Release notes.\n")
+    errors = version_selector_errors(repo)
+    assert len(errors) == 1
+    assert all(value in errors[0] for value in (note, "12.9.11", selector))
+
+    entries.append({"version": "12.9.11", "url": "https://nvidia.github.io/cuda-python/cuda-bindings/12.9.11/"})
+    stage_file(repo, selector, json.dumps(entries))
+    assert version_selector_errors(repo) == []
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_untracked_bindings_root_does_not_take_selector_ownership_until_staged(repo):
+    entries = [{"version": "13.5.1", "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.5.1/"}]
+    stage_file(repo, "cuda_bindings_13/docs/source/release/13.5.1-notes.rst", "Release notes.\n")
+    stage_file(repo, "cuda_bindings_13/docs/nv-versions.json", json.dumps(entries))
+    selector = "cuda_bindings_15/docs/nv-versions.json"
+    (repo / selector).parent.mkdir(parents=True)
+    (repo / selector).write_text(json.dumps(entries), encoding="utf-8")
+    readme = "cuda_bindings_15/README.md"
+    (repo / readme).write_text("Future bindings root.\n", encoding="utf-8")
+
+    assert version_selector_errors(repo) == []
+
+    git(repo, "add", readme)
+    with pytest.raises(subprocess.CalledProcessError):
+        version_selector_errors(repo)
+
+    git(repo, "add", selector)
+    assert version_selector_errors(repo) == []
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_canonical_bindings_root_uses_numeric_major_order(repo):
+    entries = [{"version": "13.5.1", "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.5.1/"}]
+    stage_file(repo, "cuda_bindings_9/docs/nv-versions.json", json.dumps(entries))
+    note = stage_file(repo, "cuda_bindings_13/docs/source/release/13.5.1-notes.rst", "Release notes.\n")
+    selector = "cuda_bindings_13/docs/nv-versions.json"
+
+    errors = version_selector_errors(repo)
+    assert len(errors) == 1
+    assert all(value in errors[0] for value in (note, "13.5.1", selector))
+
+    stage_file(repo, selector, json.dumps(entries))
+    assert version_selector_errors(repo) == []

@@ -347,12 +347,18 @@ metapackage releases, Core releases starting at **1.3.2**, and Pathfinder
 releases starting at **1.9.2**. Each checked numeric release note must have its
 version listed in the package's `docs/nv-versions.json`, with the exact
 versioned documentation URL, including the trailing slash. All bindings roots
-share `cuda_bindings_13/docs/nv-versions.json`; metapackage URLs use
+share the selector in the highest numeric `cuda_bindings_<major>` root in
+Git's index (currently `cuda_bindings_13/docs/nv-versions.json`). Discovery
+uses all indexed files, including templates, before applying note cutoffs.
+Staging a root with a higher major immediately makes its JSON mandatory;
+the hook does not fall back to an older root. Build and release routing
+must be migrated separately. Metapackage URLs use
 `https://nvidia.github.io/cuda-python/<version>/`, while the other components
 use their `cuda-bindings`, `cuda-core`, or `cuda-pathfinder` subdirectory.
 
-All four selectors must exist in Git's index and parse as JSON. The hook reads
-their staged contents, so unstaged edits cannot satisfy the check.
+The hook uses only the standard library. All four selectors must exist in
+Git's index and parse as JSON. The hook reads their staged contents, so
+unstaged edits cannot satisfy the check.
 
 Tag-push CI runs the `--tag-ci` mode of
 `ci/tools/check_tagged_release_notes.py` at the start of its `should-skip` job,

@@ -21,7 +21,7 @@ SELECTOR_URLS = {
     "cuda_python": "https://nvidia.github.io/cuda-python/",
     "cuda_core": "https://nvidia.github.io/cuda-python/cuda-core/",
     "cuda_pathfinder": "https://nvidia.github.io/cuda-python/cuda-pathfinder/",
-    "cuda_bindings_13": "https://nvidia.github.io/cuda-python/cuda-bindings/",
+    "cuda_bindings": "https://nvidia.github.io/cuda-python/cuda-bindings/",
 }
 
 
@@ -84,10 +84,29 @@ def missing_release_note_pairs(repo_root: Path) -> list[str]:
     return sorted(missing)
 
 
+def _bindings_selector_package(repo_root: Path) -> str:
+    listing = subprocess.run(
+        ["git", "ls-files", "-z", "--", "cuda_bindings_*/*"],  # noqa: S607
+        cwd=repo_root,
+        stdout=subprocess.PIPE,
+        check=True,
+        encoding="utf-8",
+    ).stdout
+    packages = {path.split("/", 1)[0] for path in listing.split("\0") if path}
+    # The highest bindings major in the Git index owns the shared selector.
+    # Require its JSON file so introducing a new major cannot silently keep
+    # validating an older selector.
+    return max(packages, key=lambda package: int(package.removeprefix("cuda_bindings_")))
+
+
 def version_selector_errors(repo_root: Path) -> list[str]:
     """Require matching versions and documentation URLs in the staged selectors."""
+    bindings_selector = _bindings_selector_package(repo_root)
+    selector_urls = {
+        bindings_selector if package == "cuda_bindings" else package: url for package, url in SELECTOR_URLS.items()
+    }
     selectors: dict[str, dict[str, str]] = {}
-    for package in SELECTOR_URLS:
+    for package in selector_urls:
         path = f"{package}/docs/nv-versions.json"
         contents = subprocess.run(  # noqa: S603
             ["git", "show", f":{path}"],  # noqa: S607
@@ -100,10 +119,10 @@ def version_selector_errors(repo_root: Path) -> list[str]:
 
     errors = []
     for note, (package, version) in sorted(_indexed_release_notes(repo_root).items()):
-        selector_package = "cuda_bindings_13" if package.startswith("cuda_bindings_") else package
+        selector_package = bindings_selector if package.startswith("cuda_bindings_") else package
         path = f"{selector_package}/docs/nv-versions.json"
         entries = selectors[selector_package]
-        expected_url = f"{SELECTOR_URLS[selector_package]}{version}/"
+        expected_url = f"{selector_urls[selector_package]}{version}/"
         if version not in entries:
             errors.append(f"{path}: missing version {version} (required by {note})")
         elif entries[version] != expected_url:
