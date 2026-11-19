@@ -39,7 +39,11 @@ WAIVER_SAMPLE_NAMES = (
 
 
 def _load_sample_function(sample_name: str, function_name: str, **namespace):
-    """Exercise sample functions without importing their optional GPU packages."""
+    """Exercise sample functions without importing their optional GPU packages.
+
+    Callers supply the globals needed by the exercised paths through ``namespace``;
+    changes to those dependencies may require updating the test doubles.
+    """
     sample_path = REPO_ROOT / "samples" / "cuda_core" / sample_name / f"{sample_name}.py"
     tree = ast.parse(sample_path.read_text(encoding="utf-8"), filename=str(sample_path))
     function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == function_name)
