@@ -9,7 +9,7 @@ from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
-from cuda.core import Device, EventOptions
+from cuda.core import Device, EventOptions, PinnedMemoryResource
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 CHILD_TIMEOUT_SEC = child_timeout_sec()
@@ -26,10 +26,18 @@ class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, ipc_device, ipc_memory_resource):
+    def test_main(self, request, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
         mr = ipc_memory_resource
+        if isinstance(mr, PinnedMemoryResource):
+            request.applymarker(
+                pytest.mark.xfail(
+                    strict=True,
+                    reason="#3501: the child's copy into the imported pinned buffer blocks until the latch "
+                    "times out, so the release protocol never drives the test",
+                )
+            )
         stream1 = device.create_stream()
         # TODO: We pick a timeout here to ensure forward progress (it needs to be
         # less than CHILD_TIMEOUT_SEC) when a pinned memory resource is in use,
@@ -82,6 +90,7 @@ class TestEventIpc:
         target.copy_from(prefix_view(buffer, NBYTES), stream=stream1)
         stream1.sync()
         assert compare_equal_buffers(target, twos)
+        assert not latch.timed_out, "the latch timed out instead of being released after the child replied"
 
     def child_main(self, log, q_in, q_out):
         log.prefix = " child: "
