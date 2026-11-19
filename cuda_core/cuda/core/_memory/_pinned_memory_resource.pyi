@@ -78,7 +78,10 @@ class PinnedMemoryResource(_MemPool):
     created read and write access to the pool. Kernels on other devices cannot
     access its buffers. Without options, the grant applies to the driver's
     current pool, which the whole process shares. Construction without options
-    does not affect a CUDA graph capture in progress on any thread.
+    does not affect a CUDA graph capture in progress on any thread. Access is
+    per process: a resource imported with :meth:`from_allocation_handle`,
+    including by unpickling, grants the device that is current in the
+    importing process at that time, or device 0 if no device is current.
 
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
@@ -146,7 +149,9 @@ class PinnedMemoryResource(_MemPool):
         """Create a host-pinned memory resource from an allocation handle.
 
         Construct a new `PinnedMemoryResource` instance that imports a memory
-        pool from a shareable handle. The memory pool is marked as owned.
+        pool from a shareable handle. The memory pool is marked as owned. The
+        device that is current in this process, or device 0 if no device is
+        current, is granted read and write access to the imported pool.
 
         Parameters
         ----------
@@ -174,7 +179,7 @@ class PinnedMemoryResource(_MemPool):
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement."""
     @property
     def is_device_accessible(self) -> bool:
-        """Return True. The device that is current when the resource is created can read and write its buffers."""
+        """Return True. The device that is current when the resource is created or imported can read and write its buffers."""
     @property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""

@@ -106,7 +106,10 @@ cdef class PinnedMemoryResource(_MemPool):
     created read and write access to the pool. Kernels on other devices cannot
     access its buffers. Without options, the grant applies to the driver's
     current pool, which the whole process shares. Construction without options
-    does not affect a CUDA graph capture in progress on any thread.
+    does not affect a CUDA graph capture in progress on any thread. Access is
+    per process: a resource imported with :meth:`from_allocation_handle`,
+    including by unpickling, grants the device that is current in the
+    importing process at that time, or device 0 if no device is current.
 
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
@@ -150,7 +153,7 @@ cdef class PinnedMemoryResource(_MemPool):
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
         device = s.device
-        if not _host_pool_supported(device, self._numa_id):
+        if not _host_pool_supported(device, self._numa_id >= 0):
             raise RuntimeError(
                 f"CUDA device {device.device_id} does not support the requested "
                 "host memory pool for PinnedMemoryResource. Use "
@@ -199,7 +202,9 @@ cdef class PinnedMemoryResource(_MemPool):
         """Create a host-pinned memory resource from an allocation handle.
 
         Construct a new `PinnedMemoryResource` instance that imports a memory
-        pool from a shareable handle. The memory pool is marked as owned.
+        pool from a shareable handle. The memory pool is marked as owned. The
+        device that is current in this process, or device 0 if no device is
+        current, is granted read and write access to the imported pool.
 
         Parameters
         ----------
@@ -219,8 +224,14 @@ cdef class PinnedMemoryResource(_MemPool):
         # not device-specific it is unlikelt the case.
         HANDLE_RETURN(cydriver.cuInit(0))
 
+        # A registry hit returns a resource that already has its grant.
+        uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
+        cdef bint imported = uuid is None or _ipc.registry.get(uuid) is None
         cdef PinnedMemoryResource mr = <PinnedMemoryResource>(
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
+        if imported:
+            # IPC-enabled pinned pools are always placed on a host NUMA node.
+            _PMR_grant_device_access(mr, True)
         return mr
 
     @property
@@ -247,7 +258,7 @@ cdef class PinnedMemoryResource(_MemPool):
 
     @property
     def is_device_accessible(self) -> bool:
-        """Return True. The device that is current when the resource is created can read and write its buffers."""
+        """Return True. The device that is current when the resource is created or imported can read and write its buffers."""
         return True
 
     @property
@@ -256,10 +267,10 @@ cdef class PinnedMemoryResource(_MemPool):
         return True
 
 
-cdef inline bint _host_pool_supported(device, int numa_id):
+cdef inline bint _host_pool_supported(device, bint host_numa):
     return (
         device.properties.host_numa_memory_pools_supported
-        if numa_id >= 0
+        if host_numa
         else device.properties.host_memory_pools_supported
     )
 
@@ -275,7 +286,6 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
     cdef size_t max_size = 0
     cdef cydriver.CUmemLocationType loc_type
     cdef int numa_id = -1
-    cdef cydriver.CUmemAccessDesc access
 
     if opts is not None:
         ipc_enabled = opts.ipc_enabled
@@ -321,15 +331,24 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
             max_size,
         )
 
+    _PMR_grant_device_access(self, numa_id >= 0)
+
+
+cdef inline int _PMR_grant_device_access(PinnedMemoryResource self, bint host_numa) except? -1:
     # A pool on a host location is accessible only from the host by default
-    # (see cuMemPoolCreate), so grant the current device read/write access. A
-    # device without host pool support cannot allocate from it anyway.
+    # (see cuMemPoolCreate), and access is per process, so both the creating
+    # and the importing process grant the current device read/write access. A
+    # device without host pool support cannot use the pool anyway.
+    from .._device import Device
+
+    cdef cydriver.CUmemAccessDesc access
     dev = Device()
-    if _host_pool_supported(dev, numa_id):
+    if _host_pool_supported(dev, host_numa):
         access.location = cumemlocation_from_id(
             cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)
         access.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
         MP_set_access(self, &access, 1)
+    return 0
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:

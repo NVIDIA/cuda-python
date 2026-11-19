@@ -9,7 +9,7 @@ from helpers.buffers import PatternGen, prefix_view
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.memory import import_pool_resource, is_pool_resource
 
-from cuda.core import Buffer, PinnedMemoryResource, VirtualMemoryResource
+from cuda.core import Buffer, VirtualMemoryResource
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -273,13 +273,9 @@ class TestIpcImportedBufferDeviceAccess:
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, request, ipc_device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         device = ipc_device
         mr = ipc_memory_resource
-        if isinstance(mr, PinnedMemoryResource):
-            request.applymarker(
-                pytest.mark.xfail(strict=True, reason="#3501: an imported pinned pool grants no device access")
-            )
         stream = device.default_stream
         with ExitStack() as stack:
             buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream))
