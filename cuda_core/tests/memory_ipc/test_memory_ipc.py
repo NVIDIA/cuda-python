@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
+from contextlib import ExitStack
 
 import pytest
 from helpers.buffers import PatternGen, prefix_view
@@ -280,10 +281,13 @@ class TestIpcImportedBufferDeviceAccess:
                 pytest.mark.xfail(strict=True, reason="#3501: an imported pinned pool grants no device access")
             )
         stream = device.default_stream
-        with mr.allocate(NBYTES, stream=stream) as buffer:
+        with ExitStack() as stack:
+            buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream))
             stream.sync()
 
             queue = mp.Queue()
+            stack.callback(queue.join_thread)
+            stack.callback(queue.close)
             process = mp.Process(target=self.child_main, args=(device, mr, queue))
             process.start()
             queue.put(buffer)

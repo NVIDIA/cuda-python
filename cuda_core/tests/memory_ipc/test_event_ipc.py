@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
+from contextlib import ExitStack
 
 import pytest
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer, prefix_view
@@ -46,18 +47,22 @@ class TestEventIpc:
         # make any sense. We should refactor this test.
         latch = LatchKernel(device, timeout_sec=5)
 
-        # Start the child process.
-        q_out, q_in = [mp.Queue() for _ in range(2)]
-        process = mp.Process(target=self.child_main, args=(log, q_out, q_in))
-        process.start()
-
         # Prepare scratch buffers.
         target = make_scratch_buffer(device, 0, NBYTES)
         ones = make_scratch_buffer(device, 1, NBYTES)
         twos = make_scratch_buffer(device, 2, NBYTES)
 
-        # Allocate the buffer and send it to the child.
-        with mr.allocate(NBYTES, stream=stream1) as buffer:
+        with ExitStack() as stack:
+            # Start the child process.
+            q_out, q_in = [mp.Queue() for _ in range(2)]
+            for queue in (q_out, q_in):
+                stack.callback(queue.join_thread)
+                stack.callback(queue.close)
+            process = mp.Process(target=self.child_main, args=(log, q_out, q_in))
+            process.start()
+
+            # Allocate the buffer and send it to the child.
+            buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream1))
             log("sending buffer")
             q_out.put(buffer)
 
