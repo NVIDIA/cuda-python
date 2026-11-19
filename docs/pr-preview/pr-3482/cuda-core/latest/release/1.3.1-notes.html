@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=a5414323"></script>
+    <script src="../_static/documentation_options.js?v=77a7fed4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev32';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev41';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -787,6 +787,21 @@
                   
   <section id="cuda-core-1-3-1-release-notes">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 1.3.1 Release Notes<a class="headerlink" href="#cuda-core-1-3-1-release-notes" title="Link to this heading">#</a></h1>
+<section id="highlights">
+<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>New <code class="docutils literal notranslate"><span class="pre">minimal-sysctk12</span></code> and <code class="docutils literal notranslate"><span class="pre">minimal-sysctk13</span></code> extras install only <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> at or
+above this release’s floor for that CUDA major, without the CUDA Toolkit wheels that <code class="docutils literal notranslate"><span class="pre">cu12</span></code>
+and <code class="docutils literal notranslate"><span class="pre">cu13</span></code> add. The <code class="docutils literal notranslate"><span class="pre">cu12</span></code> and <code class="docutils literal notranslate"><span class="pre">cu13</span></code> extras include them. Packages that depend on
+<code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> should request one of these extras, so that pip and uv see the floor; with a
+plain <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> requirement, an older <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> is installed and fails at import.
+See <a class="reference internal" href="../support.html#cuda-core-bindings-floor"><span class="std std-ref">cuda-bindings Version Requirements</span></a>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3459">#3459</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda-core</span></code> 1.3.0 is yanked from PyPI. It declared its floors only in the <code class="docutils literal notranslate"><span class="pre">cu12</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cu13</span></code> extras, so a resolver that cannot use 1.3.1 could fall back to it next to an older
+<code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>.</p></li>
+</ul>
+</section>
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -794,6 +809,16 @@
 memory pool buffer when another thread releases the same descriptor at the
 same time. The import now waits for the pending release to finish.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3450">#3450</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> construction without options no longer
+invalidates a CUDA graph capture in progress on another thread. <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>
+1.3.0 introduced a <code class="docutils literal notranslate"><span class="pre">cuMemPoolSetAccess</span></code> call in the constructor (#3405);
+the driver refuses that call, and invalidates any concurrent global-mode
+capture, unless it runs in relaxed capture mode. The fix applies the same
+relaxed-mode wrapper already used for pool attribute reads and writes and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">trim()</span></code>. Captures started with the
+default <code class="docutils literal notranslate"><span class="pre">begin_building()</span></code> mode are unaffected; global mode is the default
+in several external libraries (for example <code class="docutils literal notranslate"><span class="pre">torch.cuda.graph</span></code>).
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3451">#3451</a>)</p></li>
 </ul>
 </section>
 </section>
@@ -838,6 +863,7 @@ same time. The import now waits for the pending release to finish.
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 </ul>
   </nav></div>
