@@ -6,7 +6,7 @@
 import pytest
 
 from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda_python_test_helpers import IS_WINDOWS
 
 # Shareable handle type for VirtualMemoryResource allocations on this platform.
@@ -61,6 +61,14 @@ def import_pool_resource(cls, device, alloc_handle):
         return PinnedMemoryResource.from_allocation_handle(alloc_handle)
     assert cls is DeviceMemoryResource, cls
     return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+
+
+def pool_access_flags(mr, device):
+    """The ``CUmemAccess_flags`` that ``device`` has on the memory pool of ``mr`` in this process."""
+    location = driver.CUmemLocation()
+    location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location.id = device.device_id
+    return handle_return(driver.cuMemPoolGetAccess(driver.CUmemoryPool(int(mr.handle)), location))
 
 
 def skip_if_pinned_memory_unsupported(device):
