@@ -1,0 +1,185 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 12.9.11 Release notes
+=======================================
+
+Unreleased
+
+Breaking Changes
+----------------
+
+* ``nvml.NvlinkFirmwareInfo.firmware_version`` now exposes only valid entries,
+  rather than all 100 slots in the underlying buffer. Set this member to update
+  the valid-entry count; the separate ``num_valid_entries`` member has been
+  removed. Use ``len(info.firmware_version)`` to query the count.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* Reserved members of ``runtime`` struct wrappers are no longer exposed as
+  Python attributes. Accessing these members now raises ``AttributeError``:
+
+  * ``cudaArraySparseProperties.reserved``,
+    ``cudaArrayMemoryRequirements.reserved``, ``cudaMemcpyNodeParams.reserved``,
+    ``cudaFuncAttributes.reserved``, ``cudaMemPoolProps.reserved``,
+    ``cudaMemPoolPtrExportData.reserved``, ``cudaDeviceProp.reserved``,
+    ``cudaEglPlaneDesc_st.reserved``
+  * ``cudaIpcEventHandle_st.reserved``, ``cudaIpcMemHandle_st.reserved``,
+    ``cudaMemFabricHandle_st.reserved`` (also removed from their ``_t`` aliases)
+  * ``cudaExternalSemaphoreSignalParams.params.nvSciSync.reserved``,
+    ``cudaExternalSemaphoreSignalParams.params.reserved``,
+    ``cudaExternalSemaphoreSignalParams.reserved``,
+    ``cudaExternalSemaphoreWaitParams.params.nvSciSync.reserved``,
+    ``cudaExternalSemaphoreWaitParams.params.reserved``,
+    ``cudaExternalSemaphoreWaitParams.reserved``
+  * ``cudaGraphNodeParams.reserved0``, ``cudaGraphNodeParams.reserved1``,
+    ``cudaGraphNodeParams.reserved2``, ``cudaGraphEdgeData_st.reserved``
+
+  Storage allocated by these wrappers is zero-initialized, including reserved
+  fields, so callers do not need to zero these fields explicitly.
+
+  To serialize IPC handles previously accessed through ``handle.reserved``,
+  copy their raw bytes using ``getPtr()`` and ``ctypes`` instead:
+
+  .. code-block:: python
+
+      import ctypes
+
+      from cuda.bindings import runtime
+
+      # handle was returned by runtime.cudaIpcGetMemHandle().
+      payload = ctypes.string_at(handle.getPtr(), runtime.CUDA_IPC_HANDLE_SIZE)
+      restored = runtime.cudaIpcMemHandle_t()
+      ctypes.memmove(restored.getPtr(), payload, runtime.CUDA_IPC_HANDLE_SIZE)
+
+  When restoring a payload received from another process, ensure it contains
+  exactly ``runtime.CUDA_IPC_HANDLE_SIZE`` bytes before copying it.
+
+Enhancements
+------------
+
+* Expanded NVML coverage with ``device_get_gpu_uptime_v1``,
+  ``system_get_conf_compute_settings_v2``, ``device_get_nvlink_info_v3``,
+  ``device_get_nvlink_remap_table_info_v1``, ``device_set_nvlink_nvle_ready_v1``,
+  ``device_lock_nvlink_remap_table_v1``,
+  ``device_setup_nvlink_nvle_encryption_key_v1``, and
+  ``device_get_nvlink_nvle_private_info_v1``, together with their struct wrappers.
+  These APIs require an NVML library that provides the corresponding functions.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* Buffer-like pointer arguments in ``nvfatbin``, ``nvjitlink``, and ``nvvm`` now
+  accept contiguous buffers of any dimensionality, including ctypes objects
+  and multidimensional NumPy arrays. Previously these buffers had to be 1D.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* Pointer arguments in ``cufile`` and ``nvml``, such as ``descr`` in
+  ``cufile.handle_register`` and ``info`` in ``nvml.device_set_clock_offsets``,
+  now accept ``None`` as ``NULL``.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+
+Bug Fixes
+---------
+
+* ``driver.cuLaunchHostFunc`` and ``runtime.cudaLaunchHostFunc`` now pass the
+  host function and its user data to CUDA unchanged. The previous internal
+  trampoline freed its state after the first invocation, causing a captured
+  host function to crash on the second launch of a CUDA graph. Callers must
+  retain the callback object and user data storage until all uses have completed,
+  including the lifetime of graphs and their executables; see
+  :ref:`host-function-lifetime`.
+  (`PR #3107 <https://github.com/NVIDIA/cuda-python/pull/3107>`_)
+* Corrected the driver-version lookup for ``cuLogs*`` functions to CUDA 12.9,
+  preventing spurious ``FunctionNotFoundError`` failures on supported drivers.
+  (`PR #3377 <https://github.com/NVIDIA/cuda-python/pull/3377>`_,
+  `PR #3395 <https://github.com/NVIDIA/cuda-python/pull/3395>`_)
+* Fixed crashes when registering or unregistering ``cuLogs*`` and asynchronous
+  notification callbacks concurrently under free-threaded Python.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* Nested ``driver`` and ``runtime`` struct and union views now retain their
+  owning wrapper, and struct-array getters in these modules return independent
+  copies, avoiding access to freed backing storage. Mutating a returned element
+  no longer updates the parent struct: read the array, modify its elements, then
+  assign it back (for example, ``attrs = cfg.attrs``, update ``attrs[0]``, then
+  ``cfg.attrs = attrs``). ``cufile`` and ``nvml`` struct wrappers also retain
+  owners correctly when indexing and slicing arrays.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* ``cufile`` and ``nvml`` struct arrays are now zero-initialized, and assigning
+  to a member of a read-only array wrapper raises ``ValueError``.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* ``nvml.device_get_field_values`` initializes per-query status to
+  ``ERROR_UNKNOWN`` so entries left unpopulated by NVML do not appear successful.
+  Integer field IDs now explicitly use scope ID zero.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* ``nvml.PwrModelMetricsPfpp1x`` and ``nvml.PwrModelMetricsDlppm1x`` now populate
+  their nested ``estimated_metrics`` arrays using each element's
+  ``num_vf_points`` and ``num_estimated_metrics``, respectively.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+* Moved cuFile and NVML dtype layout calculations to heap storage to avoid
+  placing large temporary structs on the stack during module initialization.
+  (`PR #3473 <https://github.com/NVIDIA/cuda-python/pull/3473>`_)
+* Nested resource pointer conversion accepts both ``str`` and ``bytes``
+  options, matching the CUDA 13 bindings behavior.
+* Coredump settings retain borrowed string buffers for the duration of the
+  call and free the buffers allocated for getters.
+* ``get_cuda_native_handle`` preserves a ``KeyError`` raised inside a
+  registered getter instead of reporting an unknown type.
+  (`PR #3315 <https://github.com/NVIDIA/cuda-python/pull/3315>`_)
+
+Deprecations
+------------
+
+* The NVML exception classes ``nvml.TimeoutError`` and ``nvml.MemoryError``
+  have been renamed to ``nvml.NvmlTimeoutError`` and ``nvml.NvmlMemoryError``
+  to avoid shadowing Python builtins. The old names remain available as
+  compatibility aliases. Both classes still derive from ``nvml.NvmlError``.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_)
+
+End of Life
+-----------
+
+* Python 3.10 support dropped (end of life); the supported range is
+  Python 3.11-3.15.
+
+Packaging and Source Builds
+---------------------------
+
+* Wheels omit ``.pyx`` implementation sources and ``.in`` generation templates,
+  following the CUDA 13 packaging policy. Cython declarations and includes
+  (``.pxd`` and ``.pxi``), and required headers, remain available for downstream
+  Cython builds. Source distributions retain the inputs needed to build the package.
+* All binding sources, including the runtime's internal and Cython layers, are
+  now pre-generated. Source builds no longer parse CUDA headers or expand
+  templates, removing the ``pyclibrary`` build dependency and the
+  ``CUDA_PYTHON_PARSER_CACHING`` setting.
+  (`PR #3429 <https://github.com/NVIDIA/cuda-python/pull/3429>`_,
+  `PR #3437 <https://github.com/NVIDIA/cuda-python/pull/3437>`_)
+* Source builds use the monorepo's shared compiler and Cython-cache tooling and
+  check for CUDA 12.9 headers before Cythonization, reporting a clear error when
+  the selected toolkit's major.minor version does not match the generated sources.
+  (`PR #3173 <https://github.com/NVIDIA/cuda-python/pull/3173>`_)
+* Development and test dependencies are now provided through dependency groups;
+  use ``python -m pip install -v -e . --group test`` from ``cuda_bindings_12``
+  for an editable installation with test dependencies.
+  (`PR #3315 <https://github.com/NVIDIA/cuda-python/pull/3315>`_)
+
+Documentation and Maintenance
+-----------------------------
+
+* CUDA 12.9 maintenance sources now live in ``cuda_bindings_12`` on ``main``.
+  The historical ``12.9.x`` branch is frozen except for emergency fixes, which
+  must also be reconciled into ``main``. Main-tree CUDA 12 releases are built
+  and tested alongside CUDA 13. Old-layout CUDA 12 tags are released from a
+  validated workflow on the appropriate maintenance branch or historical tag,
+  not from ``main``.
+* Corrected the CUDA 12 driver guidance to its existing minor-version
+  compatibility baseline: Linux 525.60.13 and Windows 528.33. This is a
+  documentation correction, not a new runtime version check. Newer features
+  and PTX compilation can still require a newer driver.
+
+Known Issues
+------------
+
+* Updating from v12.6.2.post1 and older via ``pip install -U cuda-python`` might
+  not work. Uninstall with ``pip uninstall -y cuda-python``, then install the
+  CUDA 12 line with ``pip install "cuda-python~=12.9.0"``.
+* ``nvml.system_get_process_name`` on WSL can return incorrect values. Set the
+  locale to ``"C"`` before calling ``nvml.device_get_compute_running_processes_v3``
+  (which sets the process names) and ``nvml.system_get_process_name``.

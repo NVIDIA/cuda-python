@@ -1,0 +1,32 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+:orphan:
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 12.X.Y Release notes
+======================================
+
+Unreleased
+
+Breaking Changes
+----------------
+
+Enhancements
+------------
+
+Bug Fixes
+---------
+
+Deprecations
+------------
+
+Packaging and Source Builds
+---------------------------
+
+Documentation and Maintenance
+-----------------------------
+
+Known Issues
+------------
