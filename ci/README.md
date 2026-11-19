@@ -317,6 +317,67 @@ No version override or local preview-tag preparation is needed.
 Follow the
 [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
+## Paired Release Notes
+
+The `check-staged-release-notes` pre-commit hook runs
+`ci/tools/check_staged_release_notes.py` and requires paired notes starting at:
+
+- CUDA 12: **12.9.11** and later.
+- CUDA 13: **13.5.1** and later.
+- CUDA major **14 and later**: every release.
+
+For these releases, every tracked numeric
+`cuda_bindings_*/docs/source/release/X.Y.Z-notes.rst` must have a matching
+`cuda_python/docs/source/release/X.Y.Z-notes.rst`. It checks Git's
+index, so new notes must be staged. Conversely, each numeric `cuda_python`
+release note requires a matching note in `cuda_bindings_<major>`,
+where `<major>` comes from the release version. For example, `12.9.11` requires
+`cuda_bindings_12/docs/source/release/12.9.11-notes.rst`; a note in another
+bindings root does not satisfy this check. The files do not need identical contents.
+Templates with literal `X` and `Y`, and prerelease filenames, are excluded.
+
+Earlier releases are ignored in both directions; there is no historical
+exception list. The hook runs on every commit, including counterpart deletions,
+and during `pre-commit run --all-files`.
+The tagged-source checks in the release workflow remain the final validation
+before publication.
+
+The same hook checks documentation version selectors for these bindings and
+metapackage releases, Core releases starting at **1.3.2**, and Pathfinder
+releases starting at **1.9.2**. Each checked numeric release note must have its
+version listed in the package's `docs/nv-versions.json`, with the exact
+versioned documentation URL, including the trailing slash. All bindings roots
+share the selector in the second root after sorting indexed
+`cuda_bindings_<major>` roots in ascending numeric order. Exactly two or three
+roots are expected: maintenance, current, and optionally a newer unreleased
+major. Both `[12, 13]` and `[12, 13, 14]` therefore use
+`cuda_bindings_13/docs/nv-versions.json`. Retiring root 12 leaves `[13, 14]`
+and moves ownership to `cuda_bindings_14/docs/nv-versions.json`; stage that
+selector and coordinate the build and release routing migration. Discovery
+uses all indexed files, including templates, before applying note cutoffs.
+The hook does not fall back to another root. Metapackage URLs use
+`https://nvidia.github.io/cuda-python/<version>/`, while the other components
+use their `cuda-bindings`, `cuda-core`, or `cuda-pathfinder` subdirectory.
+
+The hook uses only the standard library. All four selectors must exist in
+Git's index and parse as JSON. The hook reads their staged contents, so
+unstaged edits cannot satisfy the check.
+
+Tag-push CI runs the `--tag-ci` mode of
+`ci/tools/check_tagged_release_notes.py` at the start of its `should-skip` job,
+before Python setup or builds. This mode uses only the standard library and
+checks one exact release-note filename. Bare `v` tags select the matching
+bindings major; `cuda-core-v` and `cuda-pathfinder-v` tags select their own
+component. Public beta, release-candidate, and final tags require their full
+version in the filename. Internal alpha and development tags skip this check.
+Post releases require a new note only for Pathfinder. This early check tests
+file existence; pairing and selectors belong to the separate staged check.
+
+The same module provides the publication preflight used by the release
+workflow. Publication mode checks the requested component in the tagged
+source, retains the existing nonempty-note and post-release policies, and
+exports the version for downstream release jobs.
+
 ## Nightly Artifact Sources
 
 `ci-nightly.yml` downloads wheels from the latest successful main CI run and

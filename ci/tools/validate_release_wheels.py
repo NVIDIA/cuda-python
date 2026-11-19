@@ -20,7 +20,7 @@ from packaging.tags import Tag
 from packaging.utils import InvalidWheelFilename, parse_wheel_filename
 
 from .bindings_config import wheel_python_versions
-from .check_release_notes import COMPONENTS, parse_version_from_tag
+from .check_tagged_release_notes import COMPONENTS, parse_version_from_tag
 
 _BINARY_DISTRIBUTIONS = frozenset({"cuda_bindings", "cuda_core"})
 _VERSIONS_CONFIG = Path("ci/versions.yml")

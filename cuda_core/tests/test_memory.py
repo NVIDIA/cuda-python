@@ -39,7 +39,7 @@ from helpers.memory import (
     VMM_HANDLE_TYPE,
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
-    skip_if_managed_memory_unsupported,
+    skip_if_managed_allocation_unsupported,
     skip_if_managed_mempool_unsupported,
     skip_if_pinned_memory_unsupported,
 )
@@ -73,7 +73,7 @@ from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._stream import default_stream
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
-from cuda.core._utils.version import driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.typing import (
     ManagedMemoryLocationType,
     VirtualMemoryAccessType,
@@ -1124,7 +1124,7 @@ def test_buffer_dlpack_failure_clean_up(init_cuda):
 def test_managed_buffer_dlpack_roundtrip_device_type(init_cuda):
     """Verify that a managed Buffer round-trips through DLPack with kDLCUDAManaged."""
     device = init_cuda
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_allocation_unsupported(device)
     mr = DummyUnifiedMemoryResource(device)
     buf = mr.allocate(size=1024)
 
@@ -1165,7 +1165,7 @@ def test_managed_memory_resource_buffer_dlpack_device_type(init_cuda):
 @pytest.mark.agent_authored(model="claude-opus-5-5")
 def test_managed_memory_resource_allocate_rejects_graph_builder(init_cuda):
     device = init_cuda
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     mr = None
     gb = None
     try:
@@ -1318,7 +1318,7 @@ def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
 
 def test_managed_memory_resource_initialization(init_cuda):
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
@@ -2504,7 +2504,7 @@ def test_managed_memory_resource_with_options(init_cuda):
 def test_managed_memory_resource_preferred_location_default(init_cuda):
     """preferred_location property returns None when no preference is set."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     mr = create_managed_memory_resource_or_skip()
@@ -2572,10 +2572,10 @@ def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
         assert mr.preferred_location == ("host_numa", numa_id)
 
 
+@pytest.mark.skipif(BUILD_CUDA_MAJOR < 13, reason="ManagedMemoryResource requires CUDA 13.0 or later")
 def test_managed_memory_resource_preferred_location_validation(init_cuda):
     """Invalid preferred_location combinations raise errors."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
     device.set_current()
 
     # Invalid preferred_location_type
@@ -2629,12 +2629,12 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
 
 
 @pytest.mark.thread_unsafe(reason="Uses mock.")
+@pytest.mark.skipif(BUILD_CUDA_MAJOR < 13, reason="ManagedMemoryResource requires CUDA 13.0 or later")
 def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
     """host_numa with None raises RuntimeError when NUMA ID cannot be determined."""
     from unittest.mock import MagicMock, patch
 
     device = Device()
-    skip_if_managed_memory_unsupported(device)
     device.set_current()
 
     mock_dev = MagicMock()
@@ -2920,7 +2920,7 @@ def _create_owned_pool_or_skip(memory_resource_factory, device):
     if MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
         return MR(options=MRops(max_size=POOL_SIZE))
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     return create_managed_memory_resource_or_skip(options=MRops())
 
 
@@ -3198,7 +3198,7 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     # Skip if IPC mempool is not supported on this platform/device (only relevant for DeviceMemoryResource)
     if MR is DeviceMemoryResource and not supports_ipc_mempool(device):

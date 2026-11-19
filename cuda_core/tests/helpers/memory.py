@@ -5,7 +5,7 @@
 
 import pytest
 
-from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource, _build_info
+from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError
 from cuda_python_test_helpers import IS_WINDOWS
 
@@ -32,11 +32,11 @@ def skip_if_mempool_unsupported(device=None):
 def skip_if_managed_mempool_unsupported(device=None):
     """Skip unless ``device`` (default: device 0) supports managed memory pools.
 
-    This is a property check only; it never constructs a ``ManagedMemoryResource``.
-    It does not check the CUDA major version of the ``cuda.core`` build, so it is
-    also usable by tests that allocate managed memory through graph nodes. Use
-    ``skip_if_managed_memory_unsupported`` for tests that construct a
-    ``ManagedMemoryResource``.
+    This is a property check only; it never constructs a ``ManagedMemoryResource``,
+    because looking up the device's default managed pool reserves virtual address
+    space for the lifetime of the process. It does not check the CUDA major version
+    of the ``cuda.core`` build: ``create_managed_memory_resource_or_skip`` skips
+    builds without ``ManagedMemoryResource``.
     """
     if device is None:
         device = Device(0)
@@ -58,16 +58,14 @@ def skip_if_pinned_memory_unsupported(device):
         pytest.skip("PinnedMemoryResource requires CUDA 13.0 or later")
 
 
-def skip_if_managed_memory_unsupported(device):
-    """Skip unless ``device`` supports managed memory pools and this build provides ``ManagedMemoryResource``.
+def skip_if_managed_allocation_unsupported(device):
+    """Skip unless ``device`` supports raw managed allocations (``cuMemAllocManaged``).
 
-    This never constructs a ``ManagedMemoryResource``: looking up the device's
-    default managed pool reserves virtual address space for the lifetime of the
-    process.
+    Unlike ``skip_if_managed_mempool_unsupported``, this does not require managed
+    memory pools.
     """
-    skip_if_managed_mempool_unsupported(device)
-    if _build_info.CUDA_MAJOR < 13:
-        pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+    if not device.properties.managed_memory:
+        pytest.skip("Device does not support managed memory operations")
 
 
 def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):
