@@ -354,19 +354,20 @@ use their `cuda-bindings`, `cuda-core`, or `cuda-pathfinder` subdirectory.
 All four selectors must exist in Git's index and parse as JSON. The hook reads
 their staged contents, so unstaged edits cannot satisfy the check.
 
-Tag-triggered CI checks one exact release-note filename at the start of its
-`should-skip` job, before Python setup or builds. Bare `v` tags select the
-matching bindings major; `cuda-core-v` and `cuda-pathfinder-v` tags select
-their own component. Public beta, release-candidate, and final tags require
-their full version in the filename. Internal alpha and development tags skip
-this check. Post releases require a new note only for Pathfinder. This early
-check tests file existence; pairing and selectors belong to the staged check.
+Tag-push CI runs the `--tag-ci` mode of
+`ci/tools/check_tagged_release_notes.py` at the start of its `should-skip` job,
+before Python setup or builds. This mode uses only the standard library and
+checks one exact release-note filename. Bare `v` tags select the matching
+bindings major; `cuda-core-v` and `cuda-pathfinder-v` tags select their own
+component. Public beta, release-candidate, and final tags require their full
+version in the filename. Internal alpha and development tags skip this check.
+Post releases require a new note only for Pathfinder. This early check tests
+file existence; pairing and selectors belong to the separate staged check.
 
-`ci/tools/check_tagged_release_notes.py` is the publication preflight used by
-the release workflow. It checks the requested component in the tagged source,
-retains the existing nonempty-note and post-release policies, and exports the
-version for downstream release jobs. Its scope is separate from the staged
-consistency checks and the early CI presence check.
+The same module provides the publication preflight used by the release
+workflow. Publication mode checks the requested component in the tagged
+source, retains the existing nonempty-note and post-release policies, and
+exports the version for downstream release jobs.
 
 ## Nightly Artifact Sources
 

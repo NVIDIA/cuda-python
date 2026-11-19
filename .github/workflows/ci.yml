@@ -38,7 +38,7 @@ jobs:
       base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
     steps:
       - name: Checkout tag source for release notes
-        if: ${{ github.ref_type == 'tag' }}
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 1
@@ -46,50 +46,14 @@ jobs:
           persist-credentials: false
 
       - name: Check tagged component release notes exist
-        if: ${{ github.ref_type == 'tag' }}
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
         id: tag-release-notes
         shell: bash
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          set -euo pipefail
-          case "$RELEASE_TAG" in
-            cuda-core-v*)
-              component=cuda_core
-              version=${RELEASE_TAG#cuda-core-v}
-              ;;
-            cuda-pathfinder-v*)
-              component=cuda_pathfinder
-              version=${RELEASE_TAG#cuda-pathfinder-v}
-              ;;
-            v*)
-              version=${RELEASE_TAG#v}
-              component="cuda_bindings_${version%%.*}"
-              ;;
-            *)
-              printf '::error::Unsupported release tag namespace: %s\n' "$RELEASE_TAG" >&2
-              exit 1
-              ;;
-          esac
-
-          case "$version" in
-            *a[0-9]*|*.dev[0-9]*)
-              echo "Internal alpha/development tag ${RELEASE_TAG}; no release note required."
-              exit 0
-              ;;
-          esac
-          if [[ "$component" != cuda_pathfinder && "$version" == *.post[0-9]* ]]; then
-            echo "Post-release rebuild ${RELEASE_TAG}; no new release note required."
-            exit 0
-          fi
-
-          notes="${component}/docs/source/release/${version}-notes.rst"
-          if [[ ! -f "$notes" ]]; then
-            printf '::error::Missing release notes for tag %s: %s. Add this file before creating the tag.\n' \
-              "$RELEASE_TAG" "$notes" >&2
-            exit 1
-          fi
-          echo "Found release notes for ${RELEASE_TAG}: ${notes}"
+          python3 -m ci.tools.check_tagged_release_notes \
+            --tag-ci --git-tag "$RELEASE_TAG"
 
       - name: Compute whether to skip builds and tests
         id: get-should-skip

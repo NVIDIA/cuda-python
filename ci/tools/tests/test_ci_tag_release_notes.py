@@ -2,25 +2,28 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
-import yaml
 
-WORKFLOW = Path(__file__).resolve().parents[3] / ".github/workflows/ci.yml"
-
-
-@pytest.fixture
-def tag_release_notes_script():
-    steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["should-skip"]["steps"]
-    return next(step["run"] for step in steps if step.get("id") == "tag-release-notes")
+ROOT = Path(__file__).resolve().parents[3]
 
 
-def run_check(script, root, tag):
-    return subprocess.run(  # noqa: S603 - execute the checked-in workflow script in a disposable fixture.
-        ["/bin/bash", "--noprofile", "--norc", "-euo", "pipefail", "-c", script],
-        cwd=root,
-        env={"PATH": "/usr/bin:/bin", "RELEASE_TAG": tag},
+def run_check(root, tag):
+    return subprocess.run(  # noqa: S603 - execute the checked-in CLI against a disposable fixture.
+        [
+            sys.executable,
+            "-S",
+            "-m",
+            "ci.tools.check_tagged_release_notes",
+            "--tag-ci",
+            "--git-tag",
+            tag,
+            "--repo-root",
+            str(root),
+        ],
+        cwd=ROOT,
         capture_output=True,
         text=True,
         timeout=10,
@@ -44,28 +47,28 @@ def create_note(root, package, version):
     ],
 )
 @pytest.mark.agent_authored(model="GPT-6")
-def test_public_tag_requires_only_its_own_release_note(tag_release_notes_script, tmp_path, tag, package, version):
-    result = run_check(tag_release_notes_script, tmp_path, tag)
+def test_public_tag_requires_only_its_own_release_note(tmp_path, tag, package, version):
+    result = run_check(tmp_path, tag)
     assert result.returncode != 0
 
     create_note(tmp_path, package, version)
-    result = run_check(tag_release_notes_script, tmp_path, tag)
+    result = run_check(tmp_path, tag)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
 @pytest.mark.agent_authored(model="GPT-6")
-def test_release_note_under_the_wrong_bindings_root_does_not_satisfy_the_tag(tag_release_notes_script, tmp_path):
+def test_release_note_under_the_wrong_bindings_root_does_not_satisfy_the_tag(tmp_path):
     create_note(tmp_path, "cuda_bindings_13", "12.9.11")
 
-    result = run_check(tag_release_notes_script, tmp_path, "v12.9.11")
+    result = run_check(tmp_path, "v12.9.11")
 
     assert result.returncode != 0
 
 
 @pytest.mark.parametrize("tag", ["v12.9.11a0", "v13.5.1a1.dev2", "cuda-pathfinder-v1.9.2.dev3"])
 @pytest.mark.agent_authored(model="GPT-6")
-def test_internal_alpha_and_development_tags_do_not_require_notes(tag_release_notes_script, tmp_path, tag):
-    result = run_check(tag_release_notes_script, tmp_path, tag)
+def test_internal_alpha_and_development_tags_do_not_require_notes(tmp_path, tag):
+    result = run_check(tmp_path, tag)
 
     assert result.returncode == 0, result.stdout + result.stderr
 
@@ -79,21 +82,19 @@ def test_internal_alpha_and_development_tags_do_not_require_notes(tag_release_no
     ],
 )
 @pytest.mark.agent_authored(model="GPT-6")
-def test_public_suffix_tags_require_an_exact_note(
-    tag_release_notes_script, tmp_path, tag, package, base_version, exact_version
-):
+def test_public_suffix_tags_require_an_exact_note(tmp_path, tag, package, base_version, exact_version):
     create_note(tmp_path, package, base_version)
-    result = run_check(tag_release_notes_script, tmp_path, tag)
+    result = run_check(tmp_path, tag)
     assert result.returncode != 0
 
     create_note(tmp_path, package, exact_version)
-    result = run_check(tag_release_notes_script, tmp_path, tag)
+    result = run_check(tmp_path, tag)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
 @pytest.mark.parametrize("tag", ["v12.9.11.post1", "cuda-core-v1.3.2.post1"])
 @pytest.mark.agent_authored(model="GPT-6")
-def test_non_pathfinder_post_tags_do_not_require_notes(tag_release_notes_script, tmp_path, tag):
-    result = run_check(tag_release_notes_script, tmp_path, tag)
+def test_non_pathfinder_post_tags_do_not_require_notes(tmp_path, tag):
+    result = run_check(tmp_path, tag)
 
     assert result.returncode == 0, result.stdout + result.stderr

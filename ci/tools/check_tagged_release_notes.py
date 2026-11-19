@@ -5,12 +5,17 @@
 
 Usage:
     python -m ci.tools.check_tagged_release_notes --git-tag <tag> --component <component>
+    python -m ci.tools.check_tagged_release_notes --tag-ci --git-tag <tag>
 
 Each normal release requires nonempty notes for its exact version and component
 in the tagged source checkout. Post releases do not require new notes, except
 Pathfinder requires a notes file for every release and permits empty files.
 
-Successful checks append the parsed version to GITHUB_OUTPUT when it is set.
+The dependency-free --tag-ci mode checks only that the exact component notes file
+exists. It skips internal alpha/development tags and, except for Pathfinder,
+post releases. It runs before CI sets up Python dependencies.
+
+Successful publication checks append the parsed version to GITHUB_OUTPUT when it is set.
 
 Exit codes:
     0 — release-notes policy satisfied
@@ -23,13 +28,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from collections.abc import Mapping
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from packaging.version import Version
-
-from . import bindings_config
+if TYPE_CHECKING:
+    from packaging.version import Version
 
 COMPONENTS: dict[str, tuple[str, str]] = {
     "cuda-core": ("cuda_core", "cuda-core-v"),
@@ -41,6 +47,10 @@ COMPONENTS: dict[str, tuple[str, str]] = {
 
 def _resolved_bindings_target(data: Mapping[str, object], git_tag: str) -> tuple[str, Version]:
     """Read the release resolver fields consumed by this script."""
+    from packaging.version import Version
+
+    from . import bindings_config
+
     package_root = bindings_config.parse_package_root(data.get("package_root"), "resolved package_root")
     raw_version = data.get("release_version")
     if not isinstance(raw_version, str):
@@ -58,6 +68,8 @@ def _release_target_from_tag(
     bindings_package: Mapping[str, object] | None = None,
 ) -> tuple[str, str] | None:
     """Return the release version and source tree selected by a component tag."""
+    from . import bindings_config
+
     metadata = COMPONENTS.get(component)
     if metadata is None:
         return None
@@ -94,11 +106,41 @@ def parse_version_from_tag(
 
 
 def is_post_release(version: str) -> bool:
+    from packaging.version import Version
+
     return Version(version).post is not None
 
 
 def notes_path(package: str, version: str) -> Path:
     return Path(package, "docs", "source", "release", f"{version}-notes.rst")
+
+
+def _check_tag_ci(git_tag: str, repo_root: Path) -> int:
+    """Check one notes file for the tag namespaces selected by ci.yml."""
+    for package, prefix in (COMPONENTS["cuda-core"], COMPONENTS["cuda-pathfinder"]):
+        if git_tag.startswith(prefix):
+            version = git_tag.removeprefix(prefix)
+            break
+    else:
+        version = git_tag.removeprefix("v")
+        package = f"cuda_bindings_{version.partition('.')[0]}"
+
+    if re.search(r"(?:a|\.dev)\d", version):
+        print(f"Internal alpha/development tag {git_tag}; no release note required.")
+        return 0
+    if package != "cuda_pathfinder" and re.search(r"\.post\d", version):
+        print(f"Post-release rebuild {git_tag}; no new release note required.")
+        return 0
+
+    path = notes_path(package, version)
+    if not (repo_root / path).is_file():
+        print(
+            f"::error::Missing release notes for tag {git_tag}: {path}. Add this file before creating the tag.",
+            file=sys.stderr,
+        )
+        return 1
+    print(f"Found release notes for {git_tag}: {path}")
+    return 0
 
 
 def _check_release_target(version: str, package: str, component: str, repo_root: Path) -> list[tuple[str | Path, str]]:
@@ -148,7 +190,8 @@ def check_release_notes(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--git-tag", required=True)
-    parser.add_argument("--component", required=True, choices=list(COMPONENTS))
+    parser.add_argument("--component", choices=list(COMPONENTS), help="required unless --tag-ci is used")
+    parser.add_argument("--tag-ci", action="store_true", help="check only file existence for a CI tag push")
     parser.add_argument(
         "--repo-root",
         default=Path("."),
@@ -161,6 +204,11 @@ def main(argv: list[str] | None = None) -> int:
         help="normalized CUDA bindings package JSON from the release resolver",
     )
     args = parser.parse_args(argv)
+
+    if args.tag_ci:
+        return _check_tag_ci(args.git_tag, args.repo_root)
+    if args.component is None:
+        parser.error("--component is required unless --tag-ci is used")
 
     try:
         bindings_package = json.loads(args.bindings_package) if args.bindings_package else None
