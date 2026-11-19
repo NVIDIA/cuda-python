@@ -52,9 +52,7 @@ def _load_sample_function(sample_name: str, function_name: str, **namespace):
     return namespace[function_name]
 
 
-@pytest.mark.parametrize(
-    ("memory_pools_supported", "host_memory_pools_supported"), [(False, True), (True, False)]
-)
+@pytest.mark.parametrize(("memory_pools_supported", "host_memory_pools_supported"), [(False, True), (True, False)])
 @pytest.mark.agent_authored(model="GPT-6")
 def test_image_sample_waives_without_required_memory_pools(
     memory_pools_supported: bool, host_memory_pools_supported: bool
