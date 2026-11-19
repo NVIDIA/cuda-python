@@ -64,6 +64,8 @@ class TestEventIpc:
             # Stream 1:
             log("enqueuing latch kernel on stream1")
             latch.launch(stream1)
+            # A failed run must not leave the latch spinning into teardown and later tests.
+            stack.callback(latch.release)
             log("enqueuing copy on stream1")
             prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
 
