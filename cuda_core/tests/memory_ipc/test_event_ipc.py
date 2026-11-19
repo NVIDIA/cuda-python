@@ -61,6 +61,12 @@ class TestEventIpc:
         log("sending buffer")
         q_out.put(buffer)
 
+        # The latch timeout must cover only the child's event wait and copy, not
+        # its startup and buffer import, which can be slow.
+        log("waiting for child to be ready")
+        ready = q_in.get(timeout=CHILD_TIMEOUT_SEC)
+        assert ready == "ready"
+
         # Stream 1:
         log("enqueuing latch kernel on stream1")
         latch.launch(stream1)
@@ -94,13 +100,14 @@ class TestEventIpc:
 
     def child_main(self, log, q_in, q_out):
         log.prefix = " child: "
-        log("ready")
         device = Device()
         device.set_current()
         stream2 = device.create_stream()
         twos = make_scratch_buffer(device, 2, NBYTES)
         buffer = q_in.get(timeout=CHILD_TIMEOUT_SEC)
         log("got buffer")
+        log("ready")
+        q_out.put("ready")
         e = q_in.get(timeout=CHILD_TIMEOUT_SEC)
         log(f"got event ({hex(e.handle)})")
         stream2.wait(e)
