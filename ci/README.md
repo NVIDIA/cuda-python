@@ -347,12 +347,15 @@ metapackage releases, Core releases starting at **1.3.2**, and Pathfinder
 releases starting at **1.9.2**. Each checked numeric release note must have its
 version listed in the package's `docs/nv-versions.json`, with the exact
 versioned documentation URL, including the trailing slash. All bindings roots
-share the selector in the highest numeric `cuda_bindings_<major>` root in
-Git's index (currently `cuda_bindings_13/docs/nv-versions.json`). Discovery
+share the selector in the second root after sorting indexed
+`cuda_bindings_<major>` roots in ascending numeric order. Exactly two or three
+roots are expected: maintenance, current, and optionally a newer unreleased
+major. Both `[12, 13]` and `[12, 13, 14]` therefore use
+`cuda_bindings_13/docs/nv-versions.json`. Retiring root 12 leaves `[13, 14]`
+and moves ownership to `cuda_bindings_14/docs/nv-versions.json`; stage that
+selector and coordinate the build and release routing migration. Discovery
 uses all indexed files, including templates, before applying note cutoffs.
-Staging a root with a higher major immediately makes its JSON mandatory;
-the hook does not fall back to an older root. Build and release routing
-must be migrated separately. Metapackage URLs use
+The hook does not fall back to another root. Metapackage URLs use
 `https://nvidia.github.io/cuda-python/<version>/`, while the other components
 use their `cuda-bindings`, `cuda-core`, or `cuda-pathfinder` subdirectory.
 

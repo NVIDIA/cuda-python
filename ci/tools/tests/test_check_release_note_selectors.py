@@ -41,6 +41,7 @@ def stage_file(repo: Path, relative: str, contents: str) -> str:
 @pytest.fixture
 def repo(tmp_path):
     git(tmp_path, "init", "-q")
+    stage_file(tmp_path, "cuda_bindings_12/README.md", "Maintenance bindings root.\n")
     for selector in SELECTORS:
         stage_file(tmp_path, selector, "[]\n")
     return tmp_path
@@ -148,19 +149,15 @@ def test_staged_selector_deletion_fails_even_without_release_notes(repo):
 
 
 @pytest.mark.agent_authored(model="GPT-6")
-def test_template_only_newer_bindings_root_owns_the_selector_for_maintenance_notes(repo):
+def test_unreleased_bindings_root_keeps_the_current_selector_for_maintenance_notes(repo):
     entries = [{"version": "13.5.1", "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.5.1/"}]
     stage_file(repo, "cuda_bindings_13/docs/source/release/13.5.1-notes.rst", "Release notes.\n")
     stage_file(repo, "cuda_bindings_13/docs/nv-versions.json", json.dumps(entries))
     stage_file(repo, "cuda_bindings_14/docs/source/release/14.X.Y-notes.rst", "Future release template.\n")
 
-    with pytest.raises(subprocess.CalledProcessError):
-        version_selector_errors(repo, _build_indexed_release_notes(repo))
-
-    selector = "cuda_bindings_14/docs/nv-versions.json"
-    stage_file(repo, selector, json.dumps(entries))
     assert version_selector_errors(repo, _build_indexed_release_notes(repo)) == []
 
+    selector = "cuda_bindings_13/docs/nv-versions.json"
     note = stage_file(repo, "cuda_bindings_12/docs/source/release/12.9.11-notes.rst", "Release notes.\n")
     errors = version_selector_errors(repo, _build_indexed_release_notes(repo))
     assert len(errors) == 1
@@ -172,32 +169,36 @@ def test_template_only_newer_bindings_root_owns_the_selector_for_maintenance_not
 
 
 @pytest.mark.agent_authored(model="GPT-6")
-def test_untracked_bindings_root_does_not_take_selector_ownership_until_staged(repo):
+def test_retiring_the_oldest_staged_bindings_root_advances_selector_ownership(repo):
     entries = [{"version": "13.5.1", "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.5.1/"}]
-    stage_file(repo, "cuda_bindings_13/docs/source/release/13.5.1-notes.rst", "Release notes.\n")
+    note = stage_file(repo, "cuda_bindings_13/docs/source/release/13.5.1-notes.rst", "Release notes.\n")
     stage_file(repo, "cuda_bindings_13/docs/nv-versions.json", json.dumps(entries))
-    selector = "cuda_bindings_15/docs/nv-versions.json"
-    (repo / selector).parent.mkdir(parents=True)
-    (repo / selector).write_text(json.dumps(entries), encoding="utf-8")
-    readme = "cuda_bindings_15/README.md"
-    (repo / readme).write_text("Future bindings root.\n", encoding="utf-8")
-
+    stage_file(repo, "cuda_bindings_14/docs/source/release/14.X.Y-notes.rst", "Future release template.\n")
     assert version_selector_errors(repo, _build_indexed_release_notes(repo)) == []
 
-    git(repo, "add", readme)
+    git(repo, "rm", "--cached", "-r", "cuda_bindings_12")
+    assert (repo / "cuda_bindings_12/README.md").is_file()
     with pytest.raises(subprocess.CalledProcessError):
         version_selector_errors(repo, _build_indexed_release_notes(repo))
 
-    git(repo, "add", selector)
+    selector = "cuda_bindings_14/docs/nv-versions.json"
+    stage_file(repo, selector, "[]\n")
+    errors = version_selector_errors(repo, _build_indexed_release_notes(repo))
+    assert len(errors) == 1
+    assert all(value in errors[0] for value in (note, "13.5.1", selector))
+
+    stage_file(repo, selector, json.dumps(entries))
     assert version_selector_errors(repo, _build_indexed_release_notes(repo)) == []
 
 
 @pytest.mark.agent_authored(model="GPT-6")
 def test_canonical_bindings_root_uses_numeric_major_order(repo):
     entries = [{"version": "13.5.1", "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.5.1/"}]
-    stage_file(repo, "cuda_bindings_9/docs/nv-versions.json", json.dumps(entries))
+    stage_file(repo, "cuda_bindings_9/README.md", "Older bindings root.\n")
     note = stage_file(repo, "cuda_bindings_13/docs/source/release/13.5.1-notes.rst", "Release notes.\n")
-    selector = "cuda_bindings_13/docs/nv-versions.json"
+    stage_file(repo, "cuda_bindings_13/docs/nv-versions.json", json.dumps(entries))
+    selector = "cuda_bindings_12/docs/nv-versions.json"
+    stage_file(repo, selector, "[]\n")
 
     errors = version_selector_errors(repo, _build_indexed_release_notes(repo))
     assert len(errors) == 1

@@ -91,10 +91,11 @@ def _bindings_selector_package(repo_root: Path) -> str:
         encoding="utf-8",
     ).stdout
     packages = {path.split("/", 1)[0] for path in listing.split("\0") if path}
-    # The highest bindings major in the Git index owns the shared selector.
-    # Require its JSON file so introducing a new major cannot silently keep
-    # validating an older selector.
-    return max(packages, key=lambda package: int(package.removeprefix("cuda_bindings_")))
+    ordered_packages = sorted(packages, key=lambda package: int(package.removeprefix("cuda_bindings_")))
+    # Expect roots for maintenance, current, and optionally a newer unreleased major.
+    # Fail on an unexpected count to avoid silently choosing the wrong selector.
+    assert len(ordered_packages) in (2, 3), f"Expected two or three bindings roots, found {ordered_packages}"
+    return ordered_packages[1]
 
 
 def version_selector_errors(repo_root: Path, indexed_release_notes: dict[str, tuple[str, str]]) -> list[str]:
