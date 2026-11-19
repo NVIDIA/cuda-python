@@ -56,6 +56,10 @@
         "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.0.0/"
     },
     {
+        "version": "12.9.11",
+        "url": "https://nvidia.github.io/cuda-python/cuda-bindings/12.9.11/"
+    },
+    {
         "version": "12.9.7",
         "url": "https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/"
     },
