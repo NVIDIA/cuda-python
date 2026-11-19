@@ -60,6 +60,10 @@ class TestEventIpc:
                 stack.callback(queue.close)
             process = mp.Process(target=self.child_main, args=(log, q_out, q_in))
             process.start()
+            # Kill the child before the buffer closes on any failure path, so the
+            # child cannot write into freed memory. ExitStack unwinds in LIFO order,
+            # so this callback fires before buffer.__exit__ below.
+            stack.callback(kill_subprocesses, process)
 
             # Allocate the buffer and send it to the child.
             buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream1))
