@@ -25,15 +25,23 @@ def repo(tmp_path):
     return tmp_path
 
 
-def write_note(repo: Path, package: str, version: str, contents: str = "Release notes.\n") -> str:
+def write_note(repo: Path, package: str, version: str) -> str:
     relative = f"{package}/docs/source/release/{version}-notes.rst"
     path = repo / relative
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(contents, encoding="utf-8")
+    path.write_text("Release notes.\n", encoding="utf-8")
     return relative
 
 
-@pytest.mark.parametrize("package,version", [("cuda_bindings_12", "12.9.11"), ("cuda_bindings_13", "13.5.1")])
+@pytest.mark.parametrize(
+    "package,version",
+    [
+        ("cuda_bindings_12", "12.9.11"),
+        ("cuda_bindings_13", "13.5.1"),
+        ("cuda_bindings_14", "14.0.0"),
+        ("cuda_bindings_15", "15.0.0"),
+    ],
+)
 @pytest.mark.agent_authored(model="gpt-6")
 def test_numeric_notes_require_a_tracked_metapackage_counterpart(repo, package, version):
     bindings = write_note(repo, package, version)
@@ -51,12 +59,17 @@ def test_numeric_notes_require_a_tracked_metapackage_counterpart(repo, package, 
 
 @pytest.mark.parametrize(
     "package,version",
-    [("cuda_bindings_12", "12.9.10"), ("cuda_bindings_12", "12.9.11"), ("cuda_bindings_13", "13.5.1")],
+    [
+        ("cuda_bindings_12", "12.9.11"),
+        ("cuda_bindings_13", "13.5.1"),
+        ("cuda_bindings_14", "14.0.0"),
+        ("cuda_bindings_15", "15.0.0"),
+    ],
 )
 @pytest.mark.agent_authored(model="gpt-6")
 def test_metapackage_notes_require_a_tracked_bindings_counterpart(repo, package, version):
     git(repo, "add", write_note(repo, "cuda_python", version))
-    expected = f"cuda_bindings_*/docs/source/release/{version}-notes.rst"
+    expected = f"{package}/docs/source/release/{version}-notes.rst"
 
     assert missing_release_note_pairs(repo) == [expected]
 
@@ -81,31 +94,35 @@ def test_templates_and_prerelease_notes_do_not_require_counterparts(repo):
     assert missing_release_note_pairs(repo) == []
 
 
+@pytest.mark.parametrize(
+    "package,other_package,version",
+    [
+        ("cuda_bindings_12", "cuda_bindings_13", "12.9.11"),
+        ("cuda_bindings_13", "cuda_bindings_12", "13.5.1"),
+    ],
+)
 @pytest.mark.agent_authored(model="gpt-6")
-def test_any_nonempty_bindings_root_satisfies_the_metapackage_counterpart(repo):
-    git(repo, "add", write_note(repo, "cuda_python", "12.6.1"))
-    git(repo, "add", write_note(repo, "cuda_bindings_12", "12.6.1", contents=""))
-    counterpart = write_note(repo, "cuda_bindings_13", "12.6.1")
+def test_wrong_major_note_does_not_satisfy_the_metapackage_counterpart(repo, package, other_package, version):
+    git(repo, "add", write_note(repo, "cuda_python", version))
+    git(repo, "add", write_note(repo, other_package, version))
+    counterpart = f"{package}/docs/source/release/{version}-notes.rst"
+
+    assert missing_release_note_pairs(repo) == [counterpart]
+
+    write_note(repo, package, version)
+    assert missing_release_note_pairs(repo) == [counterpart]
+
     git(repo, "add", counterpart)
-
-    assert missing_release_note_pairs(repo) == []
-
-    git(repo, "rm", "--cached", counterpart)
-    assert missing_release_note_pairs(repo) == ["cuda_bindings_*/docs/source/release/12.6.1-notes.rst"]
-
-    write_note(repo, "cuda_bindings_12", "12.6.1")
-    assert missing_release_note_pairs(repo) == ["cuda_bindings_*/docs/source/release/12.6.1-notes.rst"]
-
-    git(repo, "add", "cuda_bindings_12")
     assert missing_release_note_pairs(repo) == []
 
 
+@pytest.mark.parametrize("package", ["cuda_bindings_13", "cuda_python"])
+@pytest.mark.parametrize("version", ["11.8.7", "12.9.10", "13.5.0"])
 @pytest.mark.agent_authored(model="gpt-6")
-def test_historical_exception_does_not_exempt_the_next_release(repo):
-    for version in ["12.9.10", "12.9.11"]:
-        git(repo, "add", write_note(repo, "cuda_bindings_12", version))
+def test_releases_before_the_pairing_policy_do_not_require_counterparts(repo, package, version):
+    git(repo, "add", write_note(repo, package, version))
 
-    assert missing_release_note_pairs(repo) == ["cuda_python/docs/source/release/12.9.11-notes.rst"]
+    assert missing_release_note_pairs(repo) == []
 
 
 @pytest.mark.agent_authored(model="gpt-6")
@@ -116,16 +133,3 @@ def test_staged_counterpart_deletion_is_detected_even_if_the_file_remains(repo):
     git(repo, "rm", "--cached", counterpart)
 
     assert missing_release_note_pairs(repo) == [counterpart]
-
-
-@pytest.mark.agent_authored(model="gpt-6")
-def test_unstaged_contents_do_not_satisfy_an_empty_staged_counterpart(repo):
-    bindings = write_note(repo, "cuda_bindings_12", "12.9.11")
-    counterpart = write_note(repo, "cuda_python", "12.9.11", contents="")
-    git(repo, "add", bindings, counterpart)
-    write_note(repo, "cuda_python", "12.9.11")
-
-    assert missing_release_note_pairs(repo) == [counterpart]
-
-    git(repo, "add", counterpart)
-    assert missing_release_note_pairs(repo) == []

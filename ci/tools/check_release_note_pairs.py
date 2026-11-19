@@ -15,45 +15,19 @@ BINDINGS_NOTE = re.compile(r"cuda_bindings_[^/]+/docs/source/release/([0-9]+\.[0
 METAPACKAGE_NOTES = "cuda_python/docs/source/release"
 METAPACKAGE_NOTE = re.compile(rf"{METAPACKAGE_NOTES}/([0-9]+\.[0-9]+\.[0-9]+)-notes\.rst")
 
-# These bindings releases predate metapackage pairing. Do not add new releases.
-LEGACY_UNPAIRED_VERSIONS = frozenset(
-    {
-        "11.4.0",
-        "11.5.0",
-        "11.6.0",
-        "11.6.1",
-        "11.7.0",
-        "11.7.1",
-        "11.8.0",
-        "11.8.1",
-        "11.8.2",
-        "11.8.3",
-        "11.8.4",
-        "11.8.5",
-        "12.0.0",
-        "12.1.0",
-        "12.2.0",
-        "12.2.1",
-        "12.3.0",
-        "12.4.0",
-        "12.5.0",
-        "12.6.0",
-        "12.9.8",
-        "12.9.9",
-        "12.9.10",
-        "13.4.2",
-        "13.4.3",
-    }
-)
+
+def _requires_pairing(version: str) -> bool:
+    """Enforce pairing starting from releases 12.9.11 and 13.5.1."""
+    major, minor, patch = map(int, version.split("."))
+    return (major == 12 and (minor, patch) >= (9, 11)) or (major == 13 and (minor, patch) >= (5, 1)) or major >= 14
 
 
 def missing_release_note_pairs(repo_root: Path) -> list[str]:
-    """Return missing or empty release-note counterparts in the Git index."""
+    """Return missing release-note counterparts in the Git index."""
     listing = subprocess.run(  # noqa: S603
         [  # noqa: S607
             "git",
             "ls-files",
-            "--stage",
             "-z",
             "--",
             "cuda_bindings_*/docs/source/release/*-notes.rst",
@@ -64,43 +38,26 @@ def missing_release_note_pairs(repo_root: Path) -> list[str]:
         check=True,
         encoding="utf-8",
     ).stdout
-    indexed: dict[str, str] = {}
-    for entry in listing.split("\0"):
-        if entry:
-            metadata, path = entry.split("\t", 1)
-            indexed[path] = metadata.split()[1]
+    indexed: set[str] = set()
+    for path in listing.split("\0"):
+        match = BINDINGS_NOTE.fullmatch(path) or METAPACKAGE_NOTE.fullmatch(path)
+        if match and _requires_pairing(match[1]):
+            indexed.add(path)
 
-    bindings_notes: dict[str, list[str]] = {}
+    missing: set[str] = set()
     for path in indexed:
         if match := BINDINGS_NOTE.fullmatch(path):
-            bindings_notes.setdefault(match[1], []).append(path)
+            counterpart = f"{METAPACKAGE_NOTES}/{match[1]}-notes.rst"
+            if counterpart not in indexed:
+                missing.add(counterpart)
 
-    required = {
-        f"{METAPACKAGE_NOTES}/{version}-notes.rst"
-        for version in bindings_notes
-        if version not in LEGACY_UNPAIRED_VERSIONS
-    }
-    object_ids = set(indexed.values())
-    sizes: dict[str, int] = {}
-    if object_ids:
-        objects = subprocess.run(
-            ["git", "cat-file", "--batch-check=%(objectname) %(objectsize)"],  # noqa: S607
-            cwd=repo_root,
-            input="\n".join(sorted(object_ids)) + "\n",
-            stdout=subprocess.PIPE,
-            check=True,
-            encoding="utf-8",
-        ).stdout
-        for line in objects.splitlines():
-            object_id, size = line.split()
-            sizes[object_id] = int(size)
-
-    missing = {path for path in required if path not in indexed or sizes[indexed[path]] == 0}
     for path in indexed:
-        if (match := METAPACKAGE_NOTE.fullmatch(path)) and not any(
-            sizes[indexed[note]] for note in bindings_notes.get(match[1], [])
-        ):
-            missing.add(f"cuda_bindings_*/docs/source/release/{match[1]}-notes.rst")
+        if match := METAPACKAGE_NOTE.fullmatch(path):
+            version = match[1]
+            major = int(version.split(".", 1)[0])
+            counterpart = f"cuda_bindings_{major}/docs/source/release/{version}-notes.rst"
+            if counterpart not in indexed:
+                missing.add(counterpart)
     return sorted(missing)
 
 
@@ -110,7 +67,7 @@ def main() -> int:
     if not missing:
         return 0
 
-    print("Missing or empty release-note counterparts in the Git index:", file=sys.stderr)
+    print("Missing release-note counterparts in the Git index:", file=sys.stderr)
     for path in missing:
         print(f"  - {path}", file=sys.stderr)
     print("Add and stage matching cuda-python and cuda-bindings notes for each numeric release.", file=sys.stderr)

@@ -319,18 +319,25 @@ Follow the
 
 ## Paired Release Notes
 
-The `check-release-note-pairs` pre-commit hook requires every tracked numeric
-`cuda_bindings_*/docs/source/release/X.Y.Z-notes.rst` to have a matching,
-nonempty `cuda_python/docs/source/release/X.Y.Z-notes.rst`. It checks Git's
+The `check-release-note-pairs` pre-commit hook requires paired notes starting at:
+
+- CUDA 12: **12.9.11** and later.
+- CUDA 13: **13.5.1** and later.
+- CUDA major **14 and later**: every release.
+
+For these releases, every tracked numeric
+`cuda_bindings_*/docs/source/release/X.Y.Z-notes.rst` must have a matching
+`cuda_python/docs/source/release/X.Y.Z-notes.rst`. It checks Git's
 index, so new notes must be staged. Conversely, each numeric `cuda_python`
-release note requires a matching nonempty note in at least one `cuda_bindings_*`
-root. The files do not need identical contents.
+release note requires a matching note in `cuda_bindings_<major>`,
+where `<major>` comes from the release version. For example, `12.9.11` requires
+`cuda_bindings_12/docs/source/release/12.9.11-notes.rst`; a note in another
+bindings root does not satisfy this check. The files do not need identical contents.
 Templates with literal `X` and `Y`, and prerelease filenames, are excluded.
 
-The hook runs on every commit, including counterpart deletions, and during
-`pre-commit run --all-files`. A fixed list of historical gaps predating this
-check is grandfathered in `ci/tools/check_release_note_pairs.py` only for
-missing metapackage counterparts; new releases must not be added to that list.
+Earlier releases are ignored in both directions; there is no historical
+exception list. The hook runs on every commit, including counterpart deletions,
+and during `pre-commit run --all-files`.
 The tagged-source checks in the release workflow remain the final validation
 before publication.
 
