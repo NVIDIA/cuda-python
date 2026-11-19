@@ -31,7 +31,7 @@ def _requires_pairing(version: str) -> bool:
     return (major == 12 and (minor, patch) >= (9, 11)) or (major == 13 and (minor, patch) >= (5, 1)) or major >= 14
 
 
-def _indexed_release_notes(repo_root: Path) -> dict[str, tuple[str, str]]:
+def _build_indexed_release_notes(repo_root: Path) -> dict[str, tuple[str, str]]:
     """Collect the package and version of each release note covered by the checks."""
     listing = subprocess.run(  # noqa: S603
         [  # noqa: S607
@@ -49,7 +49,7 @@ def _indexed_release_notes(repo_root: Path) -> dict[str, tuple[str, str]]:
         check=True,
         encoding="utf-8",
     ).stdout
-    indexed: dict[str, tuple[str, str]] = {}
+    indexed_release_notes: dict[str, tuple[str, str]] = {}
     for path in listing.split("\0"):
         if match := RELEASE_NOTE.fullmatch(path):
             package, version = match.groups()
@@ -60,26 +60,24 @@ def _indexed_release_notes(repo_root: Path) -> dict[str, tuple[str, str]]:
             else:
                 required = _requires_pairing(version)
             if required:
-                indexed[path] = package, version
-    return indexed
+                indexed_release_notes[path] = package, version
+    return indexed_release_notes
 
 
-def missing_release_note_pairs(repo_root: Path) -> list[str]:
+def missing_release_note_pairs(indexed_release_notes: dict[str, tuple[str, str]]) -> list[str]:
     """Return missing release-note counterparts in the Git index."""
-    indexed = _indexed_release_notes(repo_root)
-
     missing: set[str] = set()
-    for package, version in indexed.values():
+    for package, version in indexed_release_notes.values():
         if package.startswith("cuda_bindings_"):
             counterpart = f"{METAPACKAGE_NOTES}/{version}-notes.rst"
-            if counterpart not in indexed:
+            if counterpart not in indexed_release_notes:
                 missing.add(counterpart)
 
-    for package, version in indexed.values():
+    for package, version in indexed_release_notes.values():
         if package == "cuda_python":
             major = int(version.split(".", 1)[0])
             counterpart = f"cuda_bindings_{major}/docs/source/release/{version}-notes.rst"
-            if counterpart not in indexed:
+            if counterpart not in indexed_release_notes:
                 missing.add(counterpart)
     return sorted(missing)
 
@@ -99,7 +97,7 @@ def _bindings_selector_package(repo_root: Path) -> str:
     return max(packages, key=lambda package: int(package.removeprefix("cuda_bindings_")))
 
 
-def version_selector_errors(repo_root: Path) -> list[str]:
+def version_selector_errors(repo_root: Path, indexed_release_notes: dict[str, tuple[str, str]]) -> list[str]:
     """Require matching versions and documentation URLs in the staged selectors."""
     bindings_selector = _bindings_selector_package(repo_root)
     selector_urls = {
@@ -118,7 +116,7 @@ def version_selector_errors(repo_root: Path) -> list[str]:
         selectors[package] = {entry["version"]: entry["url"] for entry in json.loads(contents)}
 
     errors = []
-    for note, (package, version) in sorted(_indexed_release_notes(repo_root).items()):
+    for note, (package, version) in sorted(indexed_release_notes.items()):
         selector_package = bindings_selector if package.startswith("cuda_bindings_") else package
         path = f"{selector_package}/docs/nv-versions.json"
         entries = selectors[selector_package]
@@ -132,7 +130,8 @@ def version_selector_errors(repo_root: Path) -> list[str]:
 
 def main() -> int:
     """Report missing release-note pairs and incorrect staged version selectors."""
-    errors = missing_release_note_pairs(ROOT) + version_selector_errors(ROOT)
+    indexed_release_notes = _build_indexed_release_notes(ROOT)
+    errors = missing_release_note_pairs(indexed_release_notes) + version_selector_errors(ROOT, indexed_release_notes)
     if not errors:
         return 0
 

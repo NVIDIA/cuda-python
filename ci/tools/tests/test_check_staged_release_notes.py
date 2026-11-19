@@ -8,7 +8,10 @@ from pathlib import Path
 
 import pytest
 
-from ci.tools.check_staged_release_notes import missing_release_note_pairs
+from ci.tools.check_staged_release_notes import (
+    _build_indexed_release_notes,
+    missing_release_note_pairs,
+)
 
 
 def git(repo: Path, *args: str) -> None:
@@ -48,13 +51,13 @@ def test_numeric_notes_require_a_tracked_metapackage_counterpart(repo, package, 
     git(repo, "add", bindings)
     counterpart = f"cuda_python/docs/source/release/{version}-notes.rst"
 
-    assert missing_release_note_pairs(repo) == [counterpart]
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == [counterpart]
 
     write_note(repo, "cuda_python", version)
-    assert missing_release_note_pairs(repo) == [counterpart]
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == [counterpart]
 
     git(repo, "add", counterpart)
-    assert missing_release_note_pairs(repo) == []
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == []
 
 
 @pytest.mark.parametrize(
@@ -71,13 +74,13 @@ def test_metapackage_notes_require_a_tracked_bindings_counterpart(repo, package,
     git(repo, "add", write_note(repo, "cuda_python", version))
     expected = f"{package}/docs/source/release/{version}-notes.rst"
 
-    assert missing_release_note_pairs(repo) == [expected]
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == [expected]
 
     counterpart = write_note(repo, package, version)
-    assert missing_release_note_pairs(repo) == [expected]
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == [expected]
 
     git(repo, "add", counterpart)
-    assert missing_release_note_pairs(repo) == []
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == []
 
 
 @pytest.mark.agent_authored(model="gpt-6")
@@ -91,7 +94,7 @@ def test_templates_and_prerelease_notes_do_not_require_counterparts(repo):
     ]:
         git(repo, "add", write_note(repo, package, version))
 
-    assert missing_release_note_pairs(repo) == []
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == []
 
 
 @pytest.mark.parametrize(
@@ -107,13 +110,13 @@ def test_wrong_major_note_does_not_satisfy_the_metapackage_counterpart(repo, pac
     git(repo, "add", write_note(repo, other_package, version))
     counterpart = f"{package}/docs/source/release/{version}-notes.rst"
 
-    assert missing_release_note_pairs(repo) == [counterpart]
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == [counterpart]
 
     write_note(repo, package, version)
-    assert missing_release_note_pairs(repo) == [counterpart]
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == [counterpart]
 
     git(repo, "add", counterpart)
-    assert missing_release_note_pairs(repo) == []
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == []
 
 
 @pytest.mark.parametrize("package", ["cuda_bindings_13", "cuda_python"])
@@ -122,7 +125,7 @@ def test_wrong_major_note_does_not_satisfy_the_metapackage_counterpart(repo, pac
 def test_releases_before_the_pairing_policy_do_not_require_counterparts(repo, package, version):
     git(repo, "add", write_note(repo, package, version))
 
-    assert missing_release_note_pairs(repo) == []
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == []
 
 
 @pytest.mark.agent_authored(model="gpt-6")
@@ -132,4 +135,4 @@ def test_staged_counterpart_deletion_is_detected_even_if_the_file_remains(repo):
     git(repo, "add", bindings, counterpart)
     git(repo, "rm", "--cached", counterpart)
 
-    assert missing_release_note_pairs(repo) == [counterpart]
+    assert missing_release_note_pairs(_build_indexed_release_notes(repo)) == [counterpart]
