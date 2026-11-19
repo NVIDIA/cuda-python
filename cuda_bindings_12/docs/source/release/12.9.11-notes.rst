@@ -6,8 +6,6 @@
 ``cuda-bindings`` 12.9.11 Release notes
 =======================================
 
-Unreleased
-
 Breaking Changes
 ----------------
 
