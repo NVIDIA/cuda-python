@@ -117,21 +117,22 @@
   "sb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-34404-True]|run",
   "tb": "tests/test_search_steps.py::TestFindInCudaHome::test_nvvm_windows_checks_binary_arch[x64-43620-False]|run",
   "ub": "tests/test_search_steps.py::TestFindInCudaHome::test_symlink_parent_root_selects_correct_library|run",
-  "vb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_nccl_home_prefers_canonical_installed_layout|run",
-  "wb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib64-libcudnn.so.9]|run",
-  "xb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib-libcudnn.so.9]|run",
-  "yb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-build/lib-libnccl.so.2]|run",
-  "zb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib64-libnccl.so.2]|run",
-  "Ab": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib-libnccl.so.2]|run",
-  "Bb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_does_not_cross_architectures[x64-bin/arm64]|run",
-  "Cb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[arm64-bin/arm64]|run",
-  "Db": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
-  "Eb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
-  "Fb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
-  "Gb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
-  "Hb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_another_drive_current_directory|run",
-  "Ib": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_relative_parts|run",
-  "Jb": "tests/test_utils_resolve_path.py::test_resolve_path_follows_symlink_before_parent|run"
+  "vb": "tests/test_search_steps.py::TestFindInSitePackages::test_cudnn_wheel_architecture_and_archive_fallback[arm64-x64-CUDNN_PATH]|run",
+  "wb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_nccl_home_prefers_canonical_installed_layout|run",
+  "xb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib64-libcudnn.so.9]|run",
+  "yb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[cudnn-CUDNN_PATH-lib-libcudnn.so.9]|run",
+  "zb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-build/lib-libnccl.so.2]|run",
+  "Ab": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib64-libnccl.so.2]|run",
+  "Bb": "tests/test_search_steps.py::TestLinuxInstallRoots::test_product_root_finds_supported_layouts[nccl-NCCL_HOME-lib-libnccl.so.2]|run",
+  "Cb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_does_not_cross_architectures[x64-bin/arm64]|run",
+  "Db": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[arm64-bin/arm64]|run",
+  "Eb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin/x64]|run",
+  "Fb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_cudnn_path_finds_supported_archive_layouts[x64-bin]|run",
+  "Gb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_finds_versioned_cudnn_install|run",
+  "Hb": "tests/test_search_steps.py::TestWindowsInstallRoots::test_program_files_prefers_newest_numeric_cudnn_version_across_layouts|run",
+  "Ib": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_another_drive_current_directory|run",
+  "Jb": "tests/test_utils_resolve_path.py::test_resolve_path_anchors_relative_parts|run",
+  "Kb": "tests/test_utils_resolve_path.py::test_resolve_path_follows_symlink_before_parent|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -194,7 +195,7 @@
             <a id="nextFileLink" class="nav" href="z_d6709abc2f7034d5_windows_arch_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-18 01:28 +0000
+            created at 2026-11-19 01:38 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -218,7 +219,7 @@
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">def</span> <span class="nam">resolve_path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="nam">os</span><span class="op">.</span><span class="nam">PathLike</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">Path</span><span class="op">:</span>&nbsp;</span><span class="r"><label for="ctxs8" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Build a canonical absolute path, resolving symlinks and parent components.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">return</span> <span class="nam">Path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">125 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJb</span></p>
+    <p class="run"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="key">return</span> <span class="nam">Path</span><span class="op">(</span><span class="op">*</span><span class="nam">parts</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><input type="checkbox" id="ctxs10"><span class="r"><label for="ctxs10" class="ctx">126 ctx</label></span><span class="ctxs">2a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 0 1 2 3 4 5 6 7 8 9 ! # $ % ' ( ) * + , - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibjbkblbmbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKb</span></p>
 </main>
 <footer>
     <div class="content">
@@ -228,7 +229,7 @@
             <a class="nav" href="z_d6709abc2f7034d5_windows_arch_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-18 01:28 +0000
+            created at 2026-11-19 01:38 +0000
         </p>
     </div>
 </footer>
