@@ -39,14 +39,25 @@ intended toolkit inputs. Follow the
    Tag-triggered CI selects that line's bindings and metapackage, validates them
    with the published Pathfinder dependency, and builds release artifacts.
    The tag does not have to be on `main`. Wait for this exact tag's CI to pass.
-4. Run **CI: Release** with `release-action=dry-run`, the tag, and
-   `component=cuda-bindings`; repeat for `cuda-python`. Leave `run-id` blank
-   to exercise automatic lookup, and leave `dry-run-docs-branch` blank to avoid
+4. Release `cuda-bindings` before `cuda-python`. For each component, run
+   **CI: Release** with `release-action=dry-run`, the tag, and the chosen
+   `component`. Leave `run-id` blank to exercise automatic lookup, and leave
+   `dry-run-docs-branch` blank to avoid
    deploying docs. The workflow verifies a successful tag-triggered CI run
    with the exact source SHA, validates artifacts, and builds docs.
-5. Review the dry runs, then separately approve and run `full-release` for
-   each component under the team's release procedure. A successful candidate
-   rehearsal or ordinary branch CI is not a substitute for exact-tag CI.
+   The `cuda-python` dry run also installs the candidate metapackage with
+   dependencies from PyPI in clean environments across the tag's supported
+   Python versions, including free-threaded builds, on Linux x86-64, Linux
+   ARM64, and Windows x86-64. It tests both the default install and `[all]`
+   using only binary wheels and runs `pip check`. Publish the matching
+   bindings and any required Core or Pathfinder versions to PyPI first;
+   unpublished CI dependency artifacts cannot satisfy this check.
+5. Review that component's dry run, then separately approve and run
+   `full-release` for the same component under the team's release procedure.
+   A successful candidate rehearsal or ordinary branch CI is not a substitute
+   for exact-tag CI.
+   The metapackage dependency check runs again for `full-release` and must
+   pass before GitHub asset uploads or TestPyPI/PyPI publication.
 6. After both component releases succeed, review and publish the shared
    `vX.Y.Z` GitHub Release draft. Check its release notes, versioned
    documentation links, source archive, checksum, and wheels. These component
