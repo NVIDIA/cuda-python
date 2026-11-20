@@ -83,6 +83,9 @@ cdef Buffer Buffer_from_ipc_descriptor(cls, object, IPCBufferDescriptor, stream)
 # it. The second argument is the init_arg passed to MP_from_allocation_handle.
 ctypedef int (*MP_import_init_t)(_MemPool, object) except? -1
 
+# Stores the location of an imported pool in loc, raising TypeError unless the
+# pool is on the host (host=True) or on a device (host=False). Requires CUDA 13+.
+cdef int MP_check_import_location(_MemPool, bint host, cydriver.CUmemLocation* loc) except? -1
 cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=*, object init_arg=*)
 cdef _MemPool MP_from_registry(uuid)
 cdef _MemPool MP_register(_MemPool, uuid)

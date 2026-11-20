@@ -169,6 +169,14 @@ class DeviceMemoryResource(_MemPool):
             A new device memory resource instance with the imported handle. If
             the handle's memory resource is already registered in this process,
             that resource is returned with its original device.
+
+        Raises
+        ------
+        TypeError
+            If the handle refers to a host memory pool, which must be imported
+            with :meth:`PinnedMemoryResource.from_allocation_handle`. With a
+            CUDA 12 build, the pool's kind is checked only when the handle's
+            memory resource is already registered in this process.
         """
     @property
     def allocation_handle(self) -> IPCAllocationHandle:

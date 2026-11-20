@@ -1,0 +1,153 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+"""Importing a memory pool with the class of the other pool kind raises (#3502).
+
+``DeviceMemoryResource.from_allocation_handle`` used to accept the handle of a
+pinned (host) pool, and ``PinnedMemoryResource.from_allocation_handle`` the
+handle of a device pool, unless the resource was already registered in the
+importing process. The import now checks the pool's location before the
+resource is registered. The check needs the CUDA 13 driver API.
+"""
+
+import contextlib
+import multiprocessing as mp
+
+import pytest
+from helpers.child_processes import run_child
+from helpers.constants import POOL_SIZE
+from helpers.memory import (
+    import_pool_resource,
+    is_pool_resource,
+    pool_access_flags,
+    skip_if_host_numa_pinned_memory_unsupported,
+)
+
+from cuda.bindings import driver
+from cuda.core import (
+    Buffer,
+    Device,
+    DeviceMemoryResource,
+    PinnedMemoryResource,
+    PinnedMemoryResourceOptions,
+)
+from cuda.core._memory._buffer import _live_owned_mempool_count
+from cuda.core._utils.version import binding_version
+
+NBYTES = 64
+
+# these tests spawn new processes and files which fails for very many threads;
+# child processes and IPC fixtures are shared across workers (#2784); cap at two threads
+pytestmark = [
+    pytest.mark.parallel_threads_limit(2),
+    pytest.mark.skipif(binding_version()[0] < 13, reason="checking a pool's location requires CUDA 13.0 or later"),
+]
+
+
+def _other_class(mr_type):
+    return DeviceMemoryResource if mr_type is PinnedMemoryResource else PinnedMemoryResource
+
+
+def _assert_import_raises(mr_type, device, alloc_handle):
+    with pytest.raises(TypeError, match=f"but {_other_class(mr_type).__name__} was requested"):
+        import_pool_resource(_other_class(mr_type), device, alloc_handle)
+
+
+def child_mismatched_import_raises(mr_type, alloc_handle, descriptor):
+    device = Device()
+    device.set_current()
+    stream = device.default_stream
+    baseline = _live_owned_mempool_count()
+
+    # Neither handle has a registered resource in this process: a raw file
+    # descriptor carries no UUID, and nothing has imported the UUID yet.
+    _assert_import_raises(mr_type, device, int(alloc_handle))
+    _assert_import_raises(mr_type, device, alloc_handle)
+    assert _live_owned_mempool_count() == baseline
+
+    # The rejected imports did not register the UUID, so the matching class imports it.
+    mr = import_pool_resource(mr_type, device, alloc_handle)
+    buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
+    buffer.fill(7, stream=stream)
+    stream.sync()
+    buffer.close()
+    mr.close()
+    assert _live_owned_mempool_count() == baseline
+
+
+def child_rejected_import_keeps_existing_import(mr_type, alloc_handle, descriptor):
+    device = Device()
+    device.set_current()
+    stream = device.default_stream
+
+    # The driver returns the same pool for every import in a process, so the
+    # rejected import must not destroy the pool or revoke access to it.
+    mr = import_pool_resource(mr_type, device, int(alloc_handle))
+    _assert_import_raises(mr_type, device, int(alloc_handle))
+    assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+
+    buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
+    buffer.fill(7, stream=stream)
+    stream.sync()
+    buffer.close()
+    mr.close()
+
+
+def child_imported_numa_id(alloc_handle, numa_id):
+    Device().set_current()
+    mr = PinnedMemoryResource.from_allocation_handle(alloc_handle)
+    assert mr.numa_id == numa_id
+    mr.close()
+
+
+class TestIpcPoolKind:
+    """An import checks that the pool's kind matches the requested class."""
+
+    @pytest.fixture(autouse=True)
+    def _set_start_method(self):
+        # Ensure spawn is used for multiprocessing
+        with contextlib.suppress(RuntimeError):
+            mp.set_start_method("spawn", force=True)
+
+    @pytest.fixture
+    def pool_resource(self, ipc_memory_resource):
+        if not is_pool_resource(ipc_memory_resource):
+            pytest.skip("a VirtualMemoryResource has no memory pool to import")
+        return ipc_memory_resource
+
+    @pytest.fixture
+    def exported_buffer(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        stream = ipc_device.default_stream
+        buffer = pool_resource.allocate(NBYTES, stream=stream)
+        stream.sync()
+        yield buffer
+        buffer.close(stream)
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_mismatched_import_raises(self, pool_resource, exported_buffer):
+        run_child(
+            child_mismatched_import_raises,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            exported_buffer.ipc_descriptor,
+        )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_rejected_import_keeps_existing_import(self, pool_resource, exported_buffer):
+        run_child(
+            child_rejected_import_keeps_existing_import,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            exported_buffer.ipc_descriptor,
+        )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_imported_pinned_resource_reports_numa_id(self, ipc_device):
+        skip_if_host_numa_pinned_memory_unsupported(ipc_device)
+        ipc_device.set_current()
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+        try:
+            run_child(child_imported_numa_id, mr.allocation_handle, mr.numa_id)
+        finally:
+            mr.close()

@@ -40,6 +40,8 @@ cdef int MP_set_access(
     _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count,
     bint retry_already_mapped=*) except? -1
 
+cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1
+
 
 cdef inline int MP_check_open(_MemPool self) except -1:
     if not self._h_pool:

@@ -150,8 +150,8 @@ class PinnedMemoryResource(_MemPool):
 
         Construct a new `PinnedMemoryResource` instance that imports a memory
         pool from a shareable handle. The memory pool is marked as owned. Every
-        device in this process that supports host NUMA memory pools is granted
-        read and write access to the imported pool.
+        device in this process that supports the pool's kind of host memory
+        pool is granted read and write access to the imported pool.
 
         Parameters
         ----------
@@ -163,6 +163,14 @@ class PinnedMemoryResource(_MemPool):
         Returns
         -------
             A new host-pinned memory resource instance with the imported handle.
+
+        Raises
+        ------
+        TypeError
+            If the handle refers to a device memory pool, which must be
+            imported with :meth:`DeviceMemoryResource.from_allocation_handle`.
+            With a CUDA 12 build, the pool's kind is checked only when the
+            handle's memory resource is already registered in this process.
         """
     @property
     def allocation_handle(self) -> IPCAllocationHandle:

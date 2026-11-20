@@ -54,8 +54,7 @@ def import_pool_resource(cls, device, alloc_handle):
     """Import the pool shared by ``alloc_handle`` as ``cls``, the class of the exporting resource.
 
     The class must match the exporter: importing a pinned pool as a
-    ``DeviceMemoryResource`` (or the reverse) currently succeeds and yields a
-    mislabeled resource (#3502).
+    ``DeviceMemoryResource`` (or the reverse) raises ``TypeError`` (#3502).
     """
     if cls is PinnedMemoryResource:
         return PinnedMemoryResource.from_allocation_handle(alloc_handle)

@@ -11,7 +11,7 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_from_deviceptr_handle
-from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open
+from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open, MP_get_location
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._rt cimport (
     DevicePtrHandle,
@@ -548,6 +548,25 @@ cdef inline _check_registered_type(mr, cls, uuid):
         raise TypeError(
             f"Registry contains a {type(mr).__name__} for uuid "
             f"{uuid}, but {cls.__name__} was requested")
+
+
+cdef int MP_check_import_location(
+        _MemPool self, bint host, cydriver.CUmemLocation* loc) except? -1:
+    MP_get_location(self, loc)
+    cdef bint on_host = (
+        loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+        or loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+    )
+    if on_host != host:
+        if on_host:
+            kind, owner = "a host", "PinnedMemoryResource"
+        else:
+            kind, owner = "a device", "DeviceMemoryResource"
+        raise TypeError(
+            f"The allocation handle refers to {kind} memory pool, but "
+            f"{type(self).__name__} was requested; import it with "
+            f"{owner}.from_allocation_handle")
+    return 0
 
 
 cdef _MemPool MP_from_allocation_handle(

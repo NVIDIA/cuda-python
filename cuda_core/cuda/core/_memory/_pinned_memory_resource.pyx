@@ -204,8 +204,8 @@ cdef class PinnedMemoryResource(_MemPool):
 
         Construct a new `PinnedMemoryResource` instance that imports a memory
         pool from a shareable handle. The memory pool is marked as owned. Every
-        device in this process that supports host NUMA memory pools is granted
-        read and write access to the imported pool.
+        device in this process that supports the pool's kind of host memory
+        pool is granted read and write access to the imported pool.
 
         Parameters
         ----------
@@ -217,6 +217,14 @@ cdef class PinnedMemoryResource(_MemPool):
         Returns
         -------
             A new host-pinned memory resource instance with the imported handle.
+
+        Raises
+        ------
+        TypeError
+            If the handle refers to a device memory pool, which must be
+            imported with :meth:`DeviceMemoryResource.from_allocation_handle`.
+            With a CUDA 12 build, the pool's kind is checked only when the
+            handle's memory resource is already registered in this process.
         """
         # cuMemPoolImportFromShareableHandle requires CUDA to be initialized, but in
         # a child process CUDA may not be initialized yet. For DeviceMemoryResource,
@@ -351,8 +359,20 @@ cdef inline int _PMR_grant_device_access(
 
 
 cdef int _PMR_init_imported(_MemPool mr, object unused) except? -1:
-    # IPC-enabled pinned pools are always placed on a host NUMA node.
-    return _PMR_grant_device_access(<PinnedMemoryResource>mr, True, True)
+    cdef PinnedMemoryResource self = <PinnedMemoryResource>mr
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef cydriver.CUmemLocation loc
+        _ipc.MP_check_import_location(self, True, &loc)
+        if loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA:
+            self._numa_id = loc.id
+        else:
+            self._numa_id = -1
+        return _PMR_grant_device_access(self, self._numa_id >= 0, True)
+    ELSE:
+        # The CUDA 12 driver cannot report a pool's location, so the pool kind
+        # is not checked and numa_id is not known. IPC-enabled pinned pools
+        # created by cuda.core are always placed on a host NUMA node.
+        return _PMR_grant_device_access(self, True, True)
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:

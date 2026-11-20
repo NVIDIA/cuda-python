@@ -499,6 +499,40 @@ cdef int MP_set_access(
     return 0
 
 
+cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1:
+    """Store the pool's location type and ID in ``loc``.
+
+    Runs in relaxed capture mode, like every pool attribute access (see
+    ``_enter_relaxed_capture_mode``). Requires CUDA 13+.
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef int loc_type = 0
+        cdef int loc_id = 0
+        cdef cydriver.CUstreamCaptureMode mode
+        cdef cydriver.CUresult err
+        with nogil:
+            _enter_relaxed_capture_mode(&mode)
+            err = cydriver.cuMemPoolGetAttribute(
+                as_cu(self._h_pool),
+                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE,
+                &loc_type
+            )
+            if err == cydriver.CUDA_SUCCESS:
+                err = cydriver.cuMemPoolGetAttribute(
+                    as_cu(self._h_pool),
+                    cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID,
+                    &loc_id
+                )
+            _exit_relaxed_capture_mode(err, &mode)
+        loc.type = <cydriver.CUmemLocationType>loc_type
+        loc.id = loc_id
+        return 0
+    ELSE:
+        raise RuntimeError(
+            "Querying the location of a memory pool requires CUDA 13.0 or later"
+        )
+
+
 # Raise an exception if the given stream is capturing.
 # A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.
 cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
