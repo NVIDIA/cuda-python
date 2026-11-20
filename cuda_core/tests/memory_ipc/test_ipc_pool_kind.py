@@ -42,6 +42,21 @@ NBYTES = 64
 pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
+def _nonzero_numa_node_with_memory():
+    """The first host NUMA node other than 0 that has memory, or None."""
+    try:
+        with open("/sys/devices/system/node/has_memory") as f:
+            node_list = f.read().strip()
+    except FileNotFoundError:
+        return None
+    for node_range in node_list.split(","):
+        first, _, last = node_range.partition("-")
+        for node in range(int(first), int(last or first) + 1):
+            if node > 0:
+                return node
+    return None
+
+
 def _other_class(mr_type):
     return DeviceMemoryResource if mr_type is PinnedMemoryResource else PinnedMemoryResource
 
@@ -181,9 +196,14 @@ class TestIpcPoolKind(_IpcPoolFixtures):
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_imported_pinned_resource_reports_numa_id(self, ipc_device):
         skip_if_host_numa_pinned_memory_unsupported(ipc_device)
+        # An imported resource used to report 0, so node 0 cannot tell the two apart.
+        numa_id = _nonzero_numa_node_with_memory()
+        if numa_id is None:
+            pytest.skip("needs a host NUMA node other than 0 with memory")
         ipc_device.set_current()
-        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True, numa_id=numa_id))
         try:
-            run_child(child_imported_numa_id, mr.allocation_handle, mr.numa_id)
+            assert mr.numa_id == numa_id
+            run_child(child_imported_numa_id, mr.allocation_handle, numa_id)
         finally:
             mr.close()

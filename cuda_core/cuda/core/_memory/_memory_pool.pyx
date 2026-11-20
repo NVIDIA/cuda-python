@@ -31,6 +31,7 @@ from cuda.core._rt cimport create_mempool_handle_ref  # no-cython-lint
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
+from cuda.core._utils.version import driver_version  # no-cython-lint
 
 import uuid
 from typing import TYPE_CHECKING
@@ -497,6 +498,21 @@ cdef int MP_set_access(
                     break
         _exit_relaxed_capture_mode(err, &mode)
     return 0
+
+
+cdef bint MP_location_query_available() except? -1:
+    """Whether ``MP_get_location`` can query a pool's location.
+
+    ``CU_MEMPOOL_ATTR_LOCATION_TYPE`` and ``_ID`` are 13.2 driver attributes.
+    Every cuda-bindings at or above the CUDA 13 floor defines them, so only the
+    driver can lack them; an older driver rejects them as invalid.
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        # Not cy_driver_version(): imports run concurrently on free-threaded
+        # builds, and its cache is filled without synchronization.
+        return driver_version() >= (13, 2, 0)
+    ELSE:
+        return False
 
 
 cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1:

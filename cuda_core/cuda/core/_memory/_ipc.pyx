@@ -572,10 +572,12 @@ cdef int MP_check_import_location(
             or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
         )
         # An imported device pool is INVISIBLE when its device is not visible to
-        # this process (for example under a restricted CUDA_VISIBLE_DEVICES).
+        # this process (for example under a restricted CUDA_VISIBLE_DEVICES). A
+        # DEVICE_LOCALITY_DOMAIN pool lives in part of a device's memory.
         on_device = (
             loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
             or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVISIBLE
+            or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN
         )
         if (host and on_host) or (not host and on_device):
             return 1

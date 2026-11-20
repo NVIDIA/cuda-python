@@ -7,7 +7,6 @@ from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._memory._ipc cimport IPCDataForMR
 from cuda.core._rt cimport MemoryPoolHandle
 from cuda.core._stream cimport Stream
-from cuda.core._utils.version cimport cy_driver_version  # no-cython-lint
 
 
 cdef class _MemPool(MemoryResource):
@@ -41,15 +40,7 @@ cdef int MP_set_access(
     _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count,
     bint retry_already_mapped=*) except? -1
 
-IF CUDA_CORE_BUILD_MAJOR >= 13:
-    cdef inline bint MP_location_query_available():
-        # CU_MEMPOOL_ATTR_LOCATION_TYPE and _ID are 13.2 driver attributes. Every
-        # cuda-bindings at or above the CUDA 13 floor defines them, so only the
-        # driver can lack them; an older driver rejects them as invalid.
-        return cy_driver_version() >= (13, 2, 0)
-ELSE:
-    cdef inline bint MP_location_query_available():
-        return False
+cdef bint MP_location_query_available() except? -1
 
 # Requires MP_location_query_available().
 cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1
