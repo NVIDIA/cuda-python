@@ -186,7 +186,8 @@ MemoryPoolHandle get_device_mempool(int device_id);
 // The file descriptor is NOT owned by this handle (caller manages FD separately).
 // Repeat imports of one pool share one handle, because access settings belong to
 // the pool rather than to an import (#3510). When the last reference is released,
-// access is revoked and cuMemPoolDestroy is called once for every import.
+// access is revoked and cuMemPoolDestroy is called once for every import. An
+// import that races that release waits until it is done.
 // Returns empty handle on error (caller must check).
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type);
 

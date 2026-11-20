@@ -9,13 +9,10 @@
 #include "error.hpp"
 #include "internal.hpp"
 #include <atomic>
-#include <condition_variable>
 #include <cstddef>
 #include <cstring>
 #include <memory>
-#include <mutex>
 #include <stdexcept>
-#include <unordered_map>
 #include <utility>
 #ifndef _WIN32
 #include <unistd.h>
@@ -144,7 +141,11 @@ get_device_mempool(int device_id)
 // (nvbug 5698116) would remove access that another import relies on (#3510).
 // All imports of a pool therefore share one owner, found through
 // ipc_pool_registry. It counts the imports and, when its last reference is
-// released, revokes access once and then destroys every import.
+// released, revokes access once and then destroys every import. An import that
+// finds the owner's release in flight waits for it, even when the last
+// reference was dropped by a buffer and not by a resource the importer could
+// synchronize with: the revocation would remove access granted by a new owner,
+// and a destroy fails once the new owner has imported a buffer.
 namespace {
 struct IpcMemoryPoolBox {
     CUmemoryPool resource;
@@ -164,11 +165,12 @@ get_ipc_box(const MemoryPoolHandle &h)
 }  // namespace
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static HandleRegistry<CUmemoryPool, MemoryPoolHandle> ipc_pool_registry;
+static ReleasingHandleRegistry<CUmemoryPool, MemoryPoolHandle> ipc_pool_registry;
 
 MemoryPoolHandle
 create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
 {
+    // Released before the registry can wait: the owner's deleter may need it.
     GILReleaseGuard gil;
     // Allocate before importing: a failed allocation then has nothing to undo.
     // clang-format off
@@ -179,12 +181,22 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
             std::size_t imports = b->imports.load(std::memory_order_relaxed);
             if (imports > 0) {
                 GILReleaseGuard gil;
-                ipc_pool_registry.unregister_expired(b->resource);
                 clear_mempool_peer_access(b->resource, -1);
+                CUresult status = CUDA_SUCCESS;
                 for (; imports > 0; --imports) {
-                    pw_cuMemPoolDestroy(b->resource);
+                    if (CUresult s = DRIVER_CALL(cuMemPoolDestroy, b->resource); s != CUDA_SUCCESS) {
+                        status = s;
+                    }
                 }
                 g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
+                // Wake waiting importers before reporting: a report can run
+                // user code, which could import this pool again.
+                ipc_pool_registry.release(b->resource, &b->resource);
+                if (status != CUDA_SUCCESS) {
+                    char operation[kOperationNameSize];
+                    format_operation(operation, sizeof(operation), "cuMemPoolDestroy", handle_bits(b->resource));
+                    report_cuda_error(operation, status);
+                }
             }
             delete b;
         }
@@ -199,19 +211,23 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
     MemoryPoolHandle h(box, &box->resource);
     MemoryPoolHandle owner;
     try {
-        // Should an import wait here while the previous owner's release is in flight, as deviceptr_import_ipc does?
-        owner = ipc_pool_registry.get_or_create(box->resource, [&h]() noexcept { return h; });
+        owner = ipc_pool_registry.get_or_create(box->resource, [&]() noexcept {
+            box->imports.store(1, std::memory_order_relaxed);
+            return h;
+        });
     }
     catch (...) {
         // The box owns no import yet, so its deleter would not drop this one.
         pw_cuMemPoolDestroy(box->resource);
         throw;
     }
-    // Whether this box became the owner or an earlier import's box was found,
-    // the owner now holds this import's driver reference.
-    get_ipc_box(owner)->imports.fetch_add(1, std::memory_order_relaxed);
     if (owner == h) {
         g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
+    }
+    else {
+        // An earlier import's box owns the pool; it now holds this import's
+        // driver reference too.
+        get_ipc_box(owner)->imports.fetch_add(1, std::memory_order_relaxed);
     }
     return owner;
 }
@@ -589,21 +605,13 @@ struct ExportDataKeyHash {
     }
 };
 
-// The handle imported for one descriptor, and the box it aliases.
-struct IpcCacheEntry {
-    std::weak_ptr<const CUdeviceptr> handle;
-    const DevicePtrBox *box;
-};
-
 }  // namespace
 
-// Guarded by ipc_import_mutex. An entry outlives its handle's last reference:
-// only that handle's deleter erases it, under the mutex, together with the
-// free. An importer that finds an expired entry therefore knows a release of
-// the same mapping is in flight and waits on ipc_release_cv until it is done.
-static std::unordered_map<ExportDataKey, IpcCacheEntry, ExportDataKeyHash> ipc_ptr_cache;
-static std::mutex ipc_import_mutex;
-static std::condition_variable ipc_release_cv;
+// An importer that finds an expired entry waits until the previous handle's
+// deleter has freed the mapping: a re-import before then would share that
+// mapping, and the deleter's cuMemFreeAsync would unmap it under the new
+// handle (nvbug 5570902).
+static ReleasingHandleRegistry<ExportDataKey, DevicePtrHandle, ExportDataKeyHash> ipc_ptr_cache;
 
 DevicePtrHandle
 deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream)
@@ -611,7 +619,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
     auto *data = const_cast<CUmemPoolPtrExportData *>(reinterpret_cast<const CUmemPoolPtrExportData *>(export_data));
 
     // Resolve the table before you take any lock: a fill acquires the GIL, and
-    // nothing under ipc_import_mutex may acquire it (#2840). The raw p_ calls
+    // nothing under the cache's mutex may acquire it (#2840). The raw p_ calls
     // below rely on this.
     if (!ensure_fn_table(FnTable::driver)) {
         report_unavailable_fn(FnTable::driver, "cuMemPoolImportPointer");
@@ -623,80 +631,59 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         ExportDataKey key;
         std::memcpy(&key.data, data, sizeof(key.data));
 
-        // The mutex makes lookup, import and registration one step, so two
-        // threads cannot import the same descriptor twice. Release the GIL
-        // before taking it: a thread blocked on the mutex while holding the
-        // GIL would deadlock with a holder that needs the GIL back (#2840).
-        // Nothing under the mutex may acquire the GIL, so a failed discard is
-        // reported only after the lock is released (see DESIGN.md).
+        // Release the GIL before the cache's mutex is taken: a thread blocked
+        // on it while holding the GIL would deadlock with a holder that needs
+        // the GIL back (#2840).
         GILReleaseGuard gil;
+        // Allocate before taking the mutex: a failed allocation then cannot run
+        // a deleter under it. The box owns nothing until it holds an import.
+        // clang-format off
+        auto box = std::shared_ptr<DevicePtrBox>(
+            new DevicePtrBox{0, DeallocationStream{}},
+            [h_pool, key](DevicePtrBox *b) {
+                if (b->resource != 0) {
+                    GILReleaseGuard gil;
+                    const DeallocationStream& stream = b->deallocation;
+                    // Release the entry once the mapping is freed, and before
+                    // reporting: a report can run user code.
+                    cleanup_in_context(
+                        deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
+                        [&]() noexcept {
+                            return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream));
+                        },
+                        [&]() noexcept { ipc_ptr_cache.release(key, &b->resource); });
+                }
+                delete b;
+            }
+        );
+        // clang-format on
+        DevicePtrHandle h(box, &box->resource);
+
+        // The factory runs under the cache's mutex, which makes lookup, import
+        // and registration one step: two threads cannot import the same
+        // descriptor twice. Nothing under the mutex may acquire the GIL, so a
+        // failed discard is reported only after the lock is released (see
+        // DESIGN.md).
         CUresult discard_status = CUDA_SUCCESS;
         CUdeviceptr discarded = 0;
-        {
-            std::unique_lock lock(ipc_import_mutex);
-
-            for (auto it = ipc_ptr_cache.find(key); it != ipc_ptr_cache.end(); it = ipc_ptr_cache.find(key)) {
-                if (DevicePtrHandle h = it->second.handle.lock()) {
-                    return h;
-                }
-                // Expired but not erased: the last reference is gone and its
-                // deleter has not freed the mapping yet. A re-import now would
-                // share that mapping, and the deleter's cuMemFreeAsync would
-                // unmap it under us (nvbug 5570902). Wait for the release.
-                ipc_release_cv.wait(lock);
-            }
-
+        DevicePtrHandle imported = ipc_ptr_cache.get_or_create(key, [&]() noexcept -> DevicePtrHandle {
             CUdeviceptr ptr;
-            if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {  // raw: under ipc_import_mutex
+            if (CUDA_SUCCESS !=
+                (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {  // raw: under the cache's mutex
                 return {};
             }
-
-            DeallocationStream ds;
-            if (make_deallocation_stream(h_stream, ds)) {
-                // clang-format off
-                auto box = std::shared_ptr<DevicePtrBox>(
-                    new DevicePtrBox{ptr, std::move(ds)},
-                    [h_pool, key](DevicePtrBox *b) {
-                        // Release the GIL first (the GIL is the outermost lock), then hold the
-                        // mutex across unregister + free: a concurrent import that finds this
-                        // entry expired must wait until the mapping is gone, or it re-imports
-                        // the same allocation and the first cuMemFreeAsync unmaps it for both
-                        // (nvbug 5570902). Nothing under the mutex may acquire the GIL, so the
-                        // deallocation context is resolved before the lock (it may report) and
-                        // the lock is released as soon as the cleanup is done.
-                        GILReleaseGuard gil;
-                        const DeallocationStream& stream = b->deallocation;
-                        ContextHandle h_dealloc = deallocation_context(stream);
-                        // Explicit template argument: MSVC cannot deduce it here (C2955).
-                        std::unique_lock<std::mutex> lock(ipc_import_mutex);
-                        // Erase only this box's entry (importers wait while it
-                        // exists, so no other box can own the key yet).
-                        auto entry = ipc_ptr_cache.find(key);
-                        if (entry != ipc_ptr_cache.end() && entry->second.box == b) {
-                            ipc_ptr_cache.erase(entry);
-                        }
-                        cleanup_in_context(
-                            h_dealloc, "cuMemFreeAsync", handle_bits(b->resource),
-                            [&]() noexcept {
-                                return p_cuMemFreeAsync(b->resource, as_cu(stream.h_stream));  // raw: under ipc_import_mutex
-                            },
-                            [&]() noexcept {
-                                ipc_release_cv.notify_all();
-                                lock.release()->unlock();
-                            });
-                        delete b;
-                    }
-                );
-                // clang-format on
-                DevicePtrHandle h(box, &box->resource);
-                ipc_ptr_cache[key] = IpcCacheEntry{h, box.get()};
-                return h;
+            if (!make_deallocation_stream(h_stream, box->deallocation)) {
+                // No deallocation stream could be recorded: discard the import
+                // with the raw call (a pw_ report would acquire the GIL).
+                discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
+                discarded = ptr;
+                return {};
             }
-
-            // No deallocation stream could be recorded: discard the import with
-            // the raw call (a pw_ report would acquire the GIL under the mutex).
-            discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under ipc_import_mutex
-            discarded = ptr;
+            box->resource = ptr;
+            return h;
+        });
+        if (imported) {
+            return imported;
         }
         if (discard_status != CUDA_SUCCESS) {
             char operation[kOperationNameSize];

@@ -547,7 +547,8 @@ cdef inline _check_registered_type(mr, cls, uuid):
             f"{uuid}, but {cls.__name__} was requested")
 
 
-cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=NULL):
+cdef _MemPool MP_from_allocation_handle(
+        cls, alloc_handle, MP_import_init_t init=NULL, object init_arg=None):
     if isinstance(alloc_handle, IPCAllocationHandle):
         IPCAllocationHandle_check_open(<IPCAllocationHandle>alloc_handle)
 
@@ -585,9 +586,10 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
     # Initialize before registering: a registry hit in another thread must not
-    # return a pool whose initialization is in progress or has failed.
+    # return a pool whose initialization is in progress or has failed. A
+    # resource returned from the registry is never initialized again.
     if init != NULL:
-        init(self)
+        init(self, init_arg)
 
     # Register it.
     if uuid is not None:

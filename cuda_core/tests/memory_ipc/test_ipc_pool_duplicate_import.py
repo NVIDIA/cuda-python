@@ -22,7 +22,7 @@ from helpers.contexts import assert_no_cuda_warning
 from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
 
 from cuda.bindings import driver
-from cuda.core import Buffer, Device
+from cuda.core import Buffer, Device, DeviceMemoryResource
 from cuda.core._memory._buffer import _live_owned_mempool_count
 
 NBYTES = 64
@@ -90,6 +90,62 @@ def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, desc
     assert _live_owned_mempool_count() == baseline
 
 
+def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
+    stream = device.default_stream
+    # The buffer holds the last reference to the pool once its resource is
+    # closed, so closing the buffer releases the pool.
+    mr = import_pool_resource(mr_type, device, int(alloc_handle))
+    outstanding = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
+    mr.close()
+    del mr
+
+    barrier = threading.Barrier(2)
+    errors = []
+
+    def release():
+        try:
+            barrier.wait()
+            outstanding.close()
+        except Exception as e:
+            errors.append(e)
+
+    def reimport():
+        try:
+            Device().set_current()
+            barrier.wait()
+            # A raw file descriptor carries no UUID, so this is a real import,
+            # through an object the releasing thread never sees.
+            mr = import_pool_resource(mr_type, device, int(alloc_handle))
+            assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+            buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
+            buffer.fill(7, stream=stream)
+            stream.sync()
+            buffer.close()
+            mr.close()
+        except Exception as e:
+            errors.append(e)
+
+    threads = [threading.Thread(target=release), threading.Thread(target=reimport)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    stream.sync()
+    if errors:
+        raise errors[0]
+
+
+def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
+    device = Device()
+    device.set_current()
+    baseline = _live_owned_mempool_count()
+
+    with assert_no_cuda_warning():
+        for _ in range(ITERATIONS):
+            _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
+    assert _live_owned_mempool_count() == baseline
+
+
 def _import_concurrently(mr_type, device, alloc_handle):
     barrier = threading.Barrier(THREADS)
     results = [None] * THREADS
@@ -122,8 +178,10 @@ def child_concurrent_uuid_imports(mr_type, alloc_handle):
     for _ in range(ITERATIONS):
         results = _import_concurrently(mr_type, device, alloc_handle)
         # Every import of the UUID returns the registered resource, whichever
-        # thread registered it.
+        # thread registered it, with its device set before it was registered.
         assert all(mr is results[0] for mr in results)
+        if mr_type is DeviceMemoryResource:
+            assert results[0].device_id == device.device_id
         assert _live_owned_mempool_count() == baseline + 1
         # Dropping the losing imports must not revoke the winner's access.
         assert pool_access_flags(results[0], device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
@@ -166,6 +224,15 @@ class TestIpcPoolDuplicateImport:
     def test_closing_both_imports_with_an_outstanding_buffer(self, pool_resource, exported_buffer):
         run_child(
             child_close_both_imports_with_outstanding_buffer,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            exported_buffer.ipc_descriptor,
+        )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_reimport_racing_the_last_release_keeps_access(self, pool_resource, exported_buffer):
+        run_child(
+            child_reimport_races_last_release,
             type(pool_resource),
             pool_resource.allocation_handle,
             exported_buffer.ipc_descriptor,
