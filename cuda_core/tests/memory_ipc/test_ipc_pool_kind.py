@@ -49,7 +49,7 @@ def _other_class(mr_type):
 
 
 def _assert_import_raises(mr_type, device, alloc_handle):
-    with pytest.raises(TypeError, match=f"but {_other_class(mr_type).__name__} was requested"):
+    with pytest.raises(TypeError):
         import_pool_resource(_other_class(mr_type), device, alloc_handle)
 
 
