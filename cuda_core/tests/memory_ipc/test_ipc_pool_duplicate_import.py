@@ -15,6 +15,7 @@ last of them is released.
 import contextlib
 import multiprocessing as mp
 import threading
+import time
 
 import pytest
 from helpers.child_processes import run_child
@@ -24,10 +25,14 @@ from helpers.memory import import_pool_resource, is_pool_resource, pool_access_f
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
 from cuda.core._memory._buffer import _live_owned_mempool_count
+from cuda.core._rt import _set_ipc_pool_release_delay_for_testing
 
 NBYTES = 64
 THREADS = 4
 ITERATIONS = 20
+# The owner's release sleeps this long in the race test, so the re-import overlaps it.
+RELEASE_DELAY_US = 50_000
+RACE_ITERATIONS = 3
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -100,6 +105,7 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
     del mr
 
     barrier = threading.Barrier(2)
+    reimported = []
     errors = []
 
     def release():
@@ -113,15 +119,12 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
         try:
             Device().set_current()
             barrier.wait()
+            # Start once the release is under way, inside its delay.
+            time.sleep(RELEASE_DELAY_US / 4 / 1e6)
             # A raw file descriptor carries no UUID, so this is a real import,
             # through an object the releasing thread never sees.
             mr = import_pool_resource(mr_type, device, int(alloc_handle))
-            assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-            buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
-            buffer.fill(7, stream=stream)
-            stream.sync()
-            buffer.close()
-            mr.close()
+            reimported.append((mr, Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)))
         except Exception as e:
             errors.append(e)
 
@@ -130,9 +133,16 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
         thread.start()
     for thread in threads:
         thread.join()
-    stream.sync()
     if errors:
         raise errors[0]
+
+    # The release has finished: its cleanup must have left the new import alone.
+    ((mr, buffer),) = reimported
+    assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    buffer.fill(7, stream=stream)
+    stream.sync()
+    buffer.close()
+    mr.close()
 
 
 def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
@@ -140,9 +150,13 @@ def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
     device.set_current()
     baseline = _live_owned_mempool_count()
 
-    with assert_no_cuda_warning():
-        for _ in range(ITERATIONS):
-            _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
+    _set_ipc_pool_release_delay_for_testing(RELEASE_DELAY_US)
+    try:
+        with assert_no_cuda_warning():
+            for _ in range(RACE_ITERATIONS):
+                _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
+    finally:
+        _set_ipc_pool_release_delay_for_testing(0)
     assert _live_owned_mempool_count() == baseline
 
 
