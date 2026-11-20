@@ -1,0 +1,6 @@
+﻿cuda.core.system.NvmlTimeoutError
+=================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoexception:: NvmlTimeoutError
