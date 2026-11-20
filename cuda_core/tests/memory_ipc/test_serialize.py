@@ -8,7 +8,7 @@ import os
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
-from helpers.memory import is_pool_resource
+from helpers.memory import import_pool_resource, is_pool_resource
 
 from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource, VirtualMemoryResource
 
@@ -42,7 +42,7 @@ class TestObjectSerializationDirect:
         # Send a memory resource: a pool by its allocation handle over the raw
         # fd channel, a VirtualMemoryResource as the object itself (it holds no
         # driver object; a VMM descriptor carries its fds per allocation).
-        parent_conn.send(is_pool_resource(mr))
+        parent_conn.send(type(mr) if is_pool_resource(mr) else None)
         if is_pool_resource(mr):
             alloc_handle = mr.allocation_handle
             mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
@@ -77,9 +77,10 @@ class TestObjectSerializationDirect:
         device.set_current()
 
         # Receive the memory resource.
-        if conn.recv():  # pool
+        pool_cls = conn.recv()
+        if pool_cls is not None:
             handle = mp.reduction.recv_handle(conn)
-            mr = DeviceMemoryResource.from_allocation_handle(device, handle)
+            mr = import_pool_resource(pool_cls, device, handle)
             os.close(handle)
         else:
             mr = conn.recv()
@@ -215,15 +216,19 @@ class TestObjectPassing:
         stream = device.default_stream
         pgen = PatternGen(device, NBYTES, stream=stream)
 
+        # Import the allocation again, from the descriptor through the resource
+        # rebuilt from the allocation handle. Both buffers alias the same memory.
+        buffer2 = Buffer.from_ipc_descriptor(mr2, buffer_desc, stream=stream)
+
         # Verify initial content
         pgen.verify_buffer(buffer, seed=False)
+        pgen.verify_buffer(buffer2, seed=False)
 
-        # Modify the buffer
+        # Modify the buffer and verify through both imports
         pgen.fill_buffer(buffer, seed=True)
-
-        # Verify modified content
         pgen.verify_buffer(buffer, seed=True)
+        pgen.verify_buffer(buffer2, seed=True)
 
-        # Clean up - only ONE free
+        buffer2.close()
         buffer.close()
         stream.sync()

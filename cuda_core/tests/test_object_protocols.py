@@ -62,9 +62,27 @@ def sample_context(sample_device):
 
 
 @pytest.fixture
-def sample_buffer(sample_device):
+def sample_memory_resource(sample_device):
+    """A capped device pool, or the device's resource where pools are unsupported.
+
+    The device default pool is avoided so that samples combining a Buffer with
+    an AllocNode do not reserve both the default and the graph memory pool,
+    which together can exceed a small virtual address space.
+    """
+    if not sample_device.properties.memory_pools_supported:
+        yield sample_device.memory_resource
+        return
+    mr = DeviceMemoryResource(sample_device, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
+    yield mr
+    mr.close()
+    sample_device.sync()
+
+
+@pytest.fixture
+def sample_buffer(sample_device, sample_memory_resource):
     """A sample Buffer object."""
-    return sample_device.allocate(64, stream=sample_device.default_stream)
+    with sample_memory_resource.allocate(64, stream=sample_device.default_stream) as buffer:
+        yield buffer
 
 
 @pytest.fixture
@@ -191,9 +209,10 @@ def sample_context_alt(sample_device_alt):
 
 
 @pytest.fixture
-def sample_buffer_alt(sample_device):
+def sample_buffer_alt(sample_device, sample_memory_resource):
     """An alternate Buffer object."""
-    return sample_device.allocate(1024, stream=sample_device.default_stream)
+    with sample_memory_resource.allocate(1024, stream=sample_device.default_stream) as buffer:
+        yield buffer
 
 
 @pytest.fixture
