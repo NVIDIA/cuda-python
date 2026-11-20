@@ -193,6 +193,18 @@ class HandleRegistry {
         map_.erase(key);
     }
 
+    // Erase the entry only if its handle has expired, so that a deleter never
+    // erases the entry of a newer handle registered under the same key.
+    void
+    unregister_expired(const Key &key) noexcept
+    {
+        std::scoped_lock lock(mutex_);
+        auto it = map_.find(key);
+        if (it != map_.end() && it->second.expired()) {
+            map_.erase(it);
+        }
+    }
+
     Handle
     lookup(const Key &key)
     {

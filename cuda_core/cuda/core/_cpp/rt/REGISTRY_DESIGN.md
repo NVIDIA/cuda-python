@@ -30,8 +30,10 @@ Without this level, a round-tripped handle would produce a new Box
 with default metadata, losing information that was set at creation.
 
 Instances: `context_registry`, `stream_registry`, `event_registry`,
-`kernel_registry`, and, per `GraphBox`, one registry for its direct child
-graphs and one for its nodes.
+`kernel_registry`, `ipc_pool_registry`, and, per `GraphBox`, one registry for
+its direct child graphs and one for its nodes. `ipc_pool_registry` maps an
+imported `CUmemoryPool` to its owner, because every import of a pool in a
+process returns the same `CUmemoryPool` (#3510).
 
 ### Reused graph handles
 
