@@ -71,9 +71,11 @@ def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, desc
 
     with assert_no_cuda_warning():
         first, second = _import_twice(mr_type, device, alloc_handle)
+        assert _live_owned_mempool_count() == baseline + 1
         # The buffer keeps the pool alive after both resources are closed.
         outstanding = Buffer.from_ipc_descriptor(first, descriptor, stream=stream)
         first.close()
+        assert pool_access_flags(second, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
         buffer = Buffer.from_ipc_descriptor(second, descriptor, stream=stream)
         buffer.fill(7, stream=stream)
         stream.sync()
@@ -123,6 +125,8 @@ def child_concurrent_uuid_imports(mr_type, alloc_handle):
         # thread registered it.
         assert all(mr is results[0] for mr in results)
         assert _live_owned_mempool_count() == baseline + 1
+        # Dropping the losing imports must not revoke the winner's access.
+        assert pool_access_flags(results[0], device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
         results[0].close()
         del results
         assert _live_owned_mempool_count() == baseline
