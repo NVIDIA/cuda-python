@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=4b61b02e"></script>
+    <script src="../_static/documentation_options.js?v=ef193437"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev54';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev55';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -805,18 +805,6 @@ and the importing process now both grant read and write access to every
 supporting device.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3415">#3415</a>,
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3501">#3501</a>)</p></li>
-<li><p>Importing the same memory pool more than once in one process, for example
-by passing a raw file descriptor to
-<a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.from_allocation_handle" title="cuda.core.PinnedMemoryResource.from_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PinnedMemoryResource.from_allocation_handle()</span></code></a> twice, no longer breaks
-the other imports when one of them is closed. The driver returns the same
-pool for every import, and closing one import used to revoke device access
-to the pool for all of them, so device access to a pinned pool failed with
-<code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>. All imports of a pool now share one owner,
-which revokes access and destroys the pool when the last of them is
-released. Concurrent imports of the same allocation handle from several
-threads now return the same memory resource instead of raising an internal
-error.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3510">#3510</a>)</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.from_allocation_handle" title="cuda.core.DeviceMemoryResource.from_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.from_allocation_handle()</span></code></a> now raises
 <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> for the allocation handle of a host memory pool, and
 <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.from_allocation_handle" title="cuda.core.PinnedMemoryResource.from_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PinnedMemoryResource.from_allocation_handle()</span></code></a> for the handle of a

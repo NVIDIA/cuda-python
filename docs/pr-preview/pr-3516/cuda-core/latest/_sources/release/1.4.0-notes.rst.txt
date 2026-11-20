@@ -24,19 +24,6 @@ Fixes and enhancements
   (`#3415 <https://github.com/NVIDIA/cuda-python/issues/3415>`__,
   `#3501 <https://github.com/NVIDIA/cuda-python/issues/3501>`__)
 
-- Importing the same memory pool more than once in one process, for example
-  by passing a raw file descriptor to
-  :meth:`PinnedMemoryResource.from_allocation_handle` twice, no longer breaks
-  the other imports when one of them is closed. The driver returns the same
-  pool for every import, and closing one import used to revoke device access
-  to the pool for all of them, so device access to a pinned pool failed with
-  ``CUDA_ERROR_INVALID_VALUE``. All imports of a pool now share one owner,
-  which revokes access and destroys the pool when the last of them is
-  released. Concurrent imports of the same allocation handle from several
-  threads now return the same memory resource instead of raising an internal
-  error.
-  (`#3510 <https://github.com/NVIDIA/cuda-python/issues/3510>`__)
-
 - :meth:`DeviceMemoryResource.from_allocation_handle` now raises
   ``TypeError`` for the allocation handle of a host memory pool, and
   :meth:`PinnedMemoryResource.from_allocation_handle` for the handle of a
