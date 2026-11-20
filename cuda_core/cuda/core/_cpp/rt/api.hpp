@@ -184,7 +184,10 @@ MemoryPoolHandle get_device_mempool(int device_id);
 
 // Create an owning memory pool handle from an IPC import.
 // The file descriptor is NOT owned by this handle (caller manages FD separately).
-// When the last reference is released, cuMemPoolDestroy is called automatically.
+// Repeat imports of one pool share one handle, because access settings belong to
+// the pool rather than to an import (#3510). When the last reference is released,
+// access is revoked and cuMemPoolDestroy is called once for every import. An
+// import that races the release of the last handle waits until access is revoked.
 // Returns empty handle on error (caller must check).
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type);
 

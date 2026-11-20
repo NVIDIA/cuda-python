@@ -136,16 +136,94 @@ get_device_mempool(int device_id)
     return create_mempool_handle_ref(pool);
 }
 
+// Importing a pool that is already imported in this process returns the same
+// CUmemoryPool and adds a driver reference: each import needs its own
+// cuMemPoolDestroy, and one made while allocations imported from the pool are
+// outstanding fails without dropping its reference. Access settings belong to
+// the pool, not to an import, so revoking them on behalf of one import
+// (nvbug 5698116) would remove access that another import relies on (#3510).
+// All imports of a pool therefore share one owner. It counts the imports and,
+// when its last reference is released, revokes access once and then destroys
+// every import.
+namespace {
+struct IpcMemoryPoolBox : MemoryPoolBox {
+    // Set once the box is registered in ipc_pool_cache; an unregistered box
+    // owns nothing.
+    bool owner = false;
+    IpcMemoryPoolBox() : MemoryPoolBox{} {}
+    IpcMemoryPoolBox(const IpcMemoryPoolBox &) = delete;
+    IpcMemoryPoolBox &operator=(const IpcMemoryPoolBox &) = delete;
+    IpcMemoryPoolBox(IpcMemoryPoolBox &&) = delete;
+    IpcMemoryPoolBox &operator=(IpcMemoryPoolBox &&) = delete;
+    ~IpcMemoryPoolBox();
+};
+
+struct IpcPoolEntry {
+    std::weak_ptr<const CUmemoryPool> handle;
+    const IpcMemoryPoolBox *box;
+    std::size_t imports;
+};
+}  // namespace
+
+// Guarded by ipc_pool_mutex. An entry outlives its handle's last reference:
+// only the owner's destructor erases it, after revoking access. An importer
+// that finds an expired entry waits on ipc_pool_release_cv, so the revocation
+// cannot remove access granted through a newer owner. No driver call runs
+// under the mutex.
+static std::unordered_map<CUmemoryPool, IpcPoolEntry> ipc_pool_cache;
+static std::mutex ipc_pool_mutex;
+static std::condition_variable ipc_pool_release_cv;
+
+IpcMemoryPoolBox::~IpcMemoryPoolBox()
+{
+    if (!owner) {
+        return;
+    }
+    GILReleaseGuard gil;
+    clear_mempool_peer_access(resource, -1);
+    std::size_t imports = 1;
+    {
+        std::scoped_lock lock(ipc_pool_mutex);
+        auto entry = ipc_pool_cache.find(resource);
+        if (entry != ipc_pool_cache.end() && entry->second.box == this) {
+            imports = entry->second.imports;
+            ipc_pool_cache.erase(entry);
+        }
+    }
+    ipc_pool_release_cv.notify_all();
+    for (; imports > 0; --imports) {
+        pw_cuMemPoolDestroy(resource);
+    }
+    g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
+}
+
 MemoryPoolHandle
 create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
 {
     GILReleaseGuard gil;
-    CUmemoryPool pool;
+    // Allocate before importing and before locking: a failed allocation then
+    // has nothing to undo and cannot run a destructor under the mutex.
+    auto box = std::make_shared<IpcMemoryPoolBox>();
     auto *handle_ptr = reinterpret_cast<void *>(static_cast<uintptr_t>(fd));
-    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemPoolImportFromShareableHandle, &pool, handle_ptr, handle_type, 0))) {
+    if (CUDA_SUCCESS !=
+        (err = DRIVER_CALL(cuMemPoolImportFromShareableHandle, &box->resource, handle_ptr, handle_type, 0))) {
         return {};
     }
-    return wrap_mempool_owned(pool, -1);
+
+    std::unique_lock lock(ipc_pool_mutex);
+    for (auto it = ipc_pool_cache.find(box->resource); it != ipc_pool_cache.end();
+         it = ipc_pool_cache.find(box->resource)) {
+        if (MemoryPoolHandle h = it->second.handle.lock()) {
+            ++it->second.imports;
+            return h;
+        }
+        ipc_pool_release_cv.wait(lock);
+    }
+    MemoryPoolHandle h(box, &box->resource);
+    ipc_pool_cache.emplace(box->resource, IpcPoolEntry{h, box.get(), 1});
+    box->owner = true;
+    g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
+    return h;
 }
 
 // ============================================================================

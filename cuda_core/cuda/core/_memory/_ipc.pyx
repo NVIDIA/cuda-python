@@ -538,6 +538,13 @@ cdef Buffer Buffer_from_ipc_descriptor(
 # _MemPool IPC Implementation
 # ---------------------------
 
+cdef inline _check_registered_type(mr, cls, uuid):
+    if not isinstance(mr, cls):
+        raise TypeError(
+            f"Registry contains a {type(mr).__name__} for uuid "
+            f"{uuid}, but {cls.__name__} was requested")
+
+
 cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=NULL):
     if isinstance(alloc_handle, IPCAllocationHandle):
         IPCAllocationHandle_check_open(<IPCAllocationHandle>alloc_handle)
@@ -546,10 +553,7 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
     mr = registry.get(uuid)
     if mr is not None:
-        if not isinstance(mr, cls):
-            raise TypeError(
-                f"Registry contains a {type(mr).__name__} for uuid "
-                f"{uuid}, but {cls.__name__} was requested")
+        _check_registered_type(mr, cls, uuid)
         MP_check_open(<_MemPool>mr)
         return mr
 
@@ -587,10 +591,11 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init
     if uuid is not None:
         registered = self.register(uuid)
         if registered is not self:
-            raise RuntimeError(
-                "internal cuda.core error, please report: register() returned a "
-                "different memory resource than the one being registered"
-            )
+            # A concurrent import of the same UUID registered first. Both
+            # imports share one pool handle, so dropping this one only drops a
+            # reference.
+            _check_registered_type(registered, cls, uuid)
+            return registered
 
     return self
 
