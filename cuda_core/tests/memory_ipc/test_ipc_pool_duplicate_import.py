@@ -19,11 +19,11 @@ import threading
 import pytest
 from helpers.child_processes import run_child
 from helpers.contexts import assert_no_cuda_warning
+from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
 
 from cuda.bindings import driver
-from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource, VirtualMemoryResource
+from cuda.core import Buffer, Device
 from cuda.core._memory._buffer import _live_owned_mempool_count
-from cuda.core._utils.cuda_utils import handle_return
 
 NBYTES = 64
 THREADS = 4
@@ -34,38 +34,10 @@ ITERATIONS = 20
 pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
-def _import(mr_type, device, alloc_handle):
-    if mr_type is DeviceMemoryResource:
-        return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-    return PinnedMemoryResource.from_allocation_handle(alloc_handle)
-
-
-def _location(device):
-    location = driver.CUmemLocation()
-    location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    location.id = device.device_id
-    return location
-
-
-def _grant_device_access(mr, device):
-    # An imported pinned pool is not device accessible until access is granted;
-    # an imported device pool is always accessible from its own device, which
-    # the driver reports as CUDA_ERROR_INVALID_DEVICE.
-    desc = driver.CUmemAccessDesc()
-    desc.location = _location(device)
-    desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-    (err,) = driver.cuMemPoolSetAccess(driver.CUmemoryPool(int(mr.handle)), [desc], 1)
-    assert err in (driver.CUresult.CUDA_SUCCESS, driver.CUresult.CUDA_ERROR_INVALID_DEVICE), err
-
-
-def _device_access(mr, device):
-    return handle_return(driver.cuMemPoolGetAccess(driver.CUmemoryPool(int(mr.handle)), _location(device)))
-
-
 def _import_twice(mr_type, device, alloc_handle):
     # A raw file descriptor carries no UUID, so the registry cannot dedupe.
-    first = _import(mr_type, device, int(alloc_handle))
-    second = _import(mr_type, device, int(alloc_handle))
+    first = import_pool_resource(mr_type, device, int(alloc_handle))
+    second = import_pool_resource(mr_type, device, int(alloc_handle))
     assert first is not second
     assert int(first.handle) == int(second.handle)
     return first, second
@@ -80,9 +52,8 @@ def child_close_one_import(mr_type, alloc_handle, descriptor):
     first, second = _import_twice(mr_type, device, alloc_handle)
     assert _live_owned_mempool_count() == baseline + 1
 
-    _grant_device_access(second, device)
     first.close()
-    assert _device_access(second, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    assert pool_access_flags(second, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
     buffer = Buffer.from_ipc_descriptor(second, descriptor, stream=stream)
     buffer.fill(7, stream=stream)
@@ -100,7 +71,6 @@ def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, desc
 
     with assert_no_cuda_warning():
         first, second = _import_twice(mr_type, device, alloc_handle)
-        _grant_device_access(second, device)
         # The buffer keeps the pool alive after both resources are closed.
         outstanding = Buffer.from_ipc_descriptor(first, descriptor, stream=stream)
         first.close()
@@ -127,7 +97,7 @@ def _import_concurrently(mr_type, device, alloc_handle):
         try:
             Device().set_current()
             barrier.wait()
-            results[index] = _import(mr_type, device, alloc_handle)
+            results[index] = import_pool_resource(mr_type, device, alloc_handle)
         except Exception as e:
             errors.append(e)
 
@@ -169,7 +139,7 @@ class TestIpcPoolDuplicateImport:
 
     @pytest.fixture
     def pool_resource(self, ipc_memory_resource):
-        if isinstance(ipc_memory_resource, VirtualMemoryResource):
+        if not is_pool_resource(ipc_memory_resource):
             pytest.skip("a VirtualMemoryResource has no memory pool to import")
         return ipc_memory_resource
 
