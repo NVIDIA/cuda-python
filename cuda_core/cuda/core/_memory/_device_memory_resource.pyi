@@ -174,9 +174,11 @@ class DeviceMemoryResource(_MemPool):
         ------
         TypeError
             If the handle refers to a host memory pool, which must be imported
-            with :meth:`PinnedMemoryResource.from_allocation_handle`. With a
-            CUDA 12 build, the pool's kind is checked only when the handle's
-            memory resource is already registered in this process.
+            with :meth:`PinnedMemoryResource.from_allocation_handle`. The
+            pool's kind is checked with a CUDA 13 build of ``cuda.core`` and a
+            13.2 or later driver. Otherwise it is checked only when the
+            handle's memory resource is already registered in this process.
+            The pool's device is not checked against ``device_id``.
         """
     @property
     def allocation_handle(self) -> IPCAllocationHandle:

@@ -503,7 +503,8 @@ cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1:
     """Store the pool's location type and ID in ``loc``.
 
     Runs in relaxed capture mode, like every pool attribute access (see
-    ``_enter_relaxed_capture_mode``). Requires CUDA 13+.
+    ``_enter_relaxed_capture_mode``). Requires a CUDA 13 build and a 13.2 or
+    later driver (``MP_location_query_available``).
     """
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         cdef int loc_type = 0
@@ -529,7 +530,7 @@ cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1:
         return 0
     ELSE:
         raise RuntimeError(
-            "Querying the location of a memory pool requires CUDA 13.0 or later"
+            "Querying the location of a memory pool requires a CUDA 13 build of cuda.core"
         )
 
 

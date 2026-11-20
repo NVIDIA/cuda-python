@@ -49,6 +49,8 @@ Fixes and enhancements
   ``is_host_accessible`` and ``is_device_accessible``. Code that imported a
   pool with the class of the other pool kind must now use the exporting
   resource's class. An imported :class:`PinnedMemoryResource` now also
-  reports the pool's NUMA node as ``numa_id`` instead of 0. Both checks
-  require a CUDA 13 build; a CUDA 12 build keeps the previous behavior.
+  reports the pool's NUMA node as ``numa_id`` instead of 0. The check and
+  the ``numa_id`` lookup need a CUDA 13 build of ``cuda.core`` and a 13.2 or
+  later driver; with a CUDA 12 build or an older driver, imports behave as
+  before.
   (`#3502 <https://github.com/NVIDIA/cuda-python/issues/3502>`__)
