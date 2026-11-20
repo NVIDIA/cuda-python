@@ -30,6 +30,7 @@ import multiprocessing
 import operator
 import os
 import platform
+import threading
 import uuid
 import weakref
 from typing import TYPE_CHECKING, Iterable
@@ -41,6 +42,7 @@ __all__ = []
 
 
 cdef object registry = weakref.WeakValueDictionary()
+cdef object _registry_lock = threading.Lock()  # serializes MP_register
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
@@ -612,18 +614,21 @@ cdef _MemPool MP_from_registry(uuid):
 
 cdef _MemPool MP_register(_MemPool self, uuid):
     MP_check_open(self)
-    existing = registry.get(uuid)
-    if existing is not None:
-        MP_check_open(<_MemPool>existing)
-        return existing
-    if not self.is_ipc_enabled:
-        raise RuntimeError("Memory resource is not IPC-enabled")
-    if self.uuid is not None and self.uuid != uuid:
-        raise ValueError(
-            f"Cannot register memory resource with UUID {uuid}: "
-            f"the resource already has UUID {self.uuid}"
-        )
-    registry[uuid] = self
+    # The lookup and the insertion must be one step: without the GIL, two
+    # threads can both miss and register different resources for one UUID.
+    with _registry_lock:
+        existing = registry.get(uuid)
+        if existing is not None:
+            MP_check_open(<_MemPool>existing)
+            return existing
+        if not self.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        if self.uuid is not None and self.uuid != uuid:
+            raise ValueError(
+                f"Cannot register memory resource with UUID {uuid}: "
+                f"the resource already has UUID {self.uuid}"
+            )
+        registry[uuid] = self
     self._ipc_data._alloc_handle._uuid = uuid
     return self
 
