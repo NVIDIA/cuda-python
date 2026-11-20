@@ -345,9 +345,11 @@ before publication.
 The hook uses only the standard library and checks note pairing independently
 of documentation version selectors. Numeric release notes can describe work
 for an upcoming release without advertising unpublished documentation. Update
-the package's `docs/nv-versions.json` on `main` only after that component is
-published and its versioned documentation is deployed. Deployments from `main`
-own these shared selectors; release deployments leave them unchanged. A missing
+selectors on `main` only after the component is published and its versioned
+documentation is deployed. Both bindings majors use
+`cuda_bindings_13/docs/nv-versions.json`; the metapackage, Core, and Pathfinder
+use their own package's `docs/nv-versions.json`. Deployments from `main` own
+these shared selectors; release deployments leave them unchanged. A missing
 selector entry can be corrected on `main` without changing the release tag.
 
 Tag-push CI runs the `--tag-ci` mode of
