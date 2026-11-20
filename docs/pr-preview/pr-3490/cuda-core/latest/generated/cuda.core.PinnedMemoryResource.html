@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=6ec8d3ee"></script>
+    <script src="../_static/documentation_options.js?v=1856ea00"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev35';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev47';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -708,6 +708,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.4.0-notes.html">1.4.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.3.1-notes.html">1.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.3.0-notes.html">1.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.2-notes.html">1.2.2</a></li>
@@ -822,11 +823,14 @@ You can query these capabilities through
 is unsupported and stream-ordered allocation is not needed, use
 <a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html#cuda.core.LegacyPinnedMemoryResource" title="cuda.core.LegacyPinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a>.</p>
 <p>The driver makes a host memory pool accessible only from the host by
-default, so the resource grants the device that is current when it is
-created read and write access to the pool. Kernels on other devices cannot
-access its buffers. Without options, the grant applies to the driver’s
-current pool, which the whole process shares. Construction without options
-does not affect a CUDA graph capture in progress on any thread.</p>
+default, so the resource grants read and write access to the pool to every
+device that supports this kind of host memory pool (host NUMA memory pools
+if the pool is placed on a NUMA node), as <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> does. Access
+is per process, so a resource imported with <a class="reference internal" href="#cuda.core.PinnedMemoryResource.from_allocation_handle" title="cuda.core.PinnedMemoryResource.from_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_allocation_handle()</span></code></a>,
+including by unpickling, makes the same grant in the importing process.
+Without options, the grant applies to the driver’s current pool, which the
+whole process shares. Construction without options does not affect a CUDA
+graph capture in progress on any thread.</p>
 <p>To create an IPC-Enabled memory resource (MR) that is capable of sharing
 allocations between processes, specify <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> in the initializer
 option. When IPC is enabled and <code class="docutils literal notranslate"><span class="pre">numa_id</span></code> is not specified, the NUMA node
@@ -926,7 +930,9 @@ asynchronously. Must be passed explicitly; pass
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.from_allocation_handle" title="Link to this definition">#</a></dt>
 <dd><p>Create a host-pinned memory resource from an allocation handle.</p>
 <p>Construct a new <cite>PinnedMemoryResource</cite> instance that imports a memory
-pool from a shareable handle. The memory pool is marked as owned.</p>
+pool from a shareable handle. The memory pool is marked as owned. Every
+device in this process that supports host NUMA memory pools is granted
+read and write access to the imported pool.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the host-pinned memory resource to import. If an
@@ -1055,7 +1061,7 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.is_device_accessible">
 <span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>Return True. The device that is current when the resource is created can read and write its buffers.</p>
+<dd><p>Return True. Every device that supports this kind of host memory pool can read and write its buffers.</p>
 </dd></dl>
 
 <dl class="py attribute">
