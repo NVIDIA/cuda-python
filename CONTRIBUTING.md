@@ -440,6 +440,8 @@ By making a contribution to this project, I certify that:
 
 ## CI infrastructure overview
 
+For the principles behind the CI, see [CI design principles](ci/DESIGN.md).
+
 The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
 
 ### CI Pipeline Flow
