@@ -243,6 +243,78 @@ def test_to_native_launch_config_priority(init_cuda, priority, expected_num_attr
     assert attr.value.priority == priority
 
 
+@pytest.mark.parametrize("bound", ["below", "above"])
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_launch_config_rejects_priority_outside_device_range(init_cuda, bound):
+    """Priorities outside either device limit are rejected without changing context."""
+    from helpers.contexts import current_context_handle
+
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    least, greatest = handle_return(driver.cuCtxGetStreamPriorityRange())
+    priority = greatest - 1 if bound == "below" else least + 1
+    previous = current_context_handle()
+    with pytest.raises(ValueError):
+        LaunchConfig(grid=1, block=1, priority=priority)
+    assert current_context_handle() == previous
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_launch_config_priority_requires_current_context(init_cuda):
+    """Priority validation fails clearly when no CUDA context is current."""
+    from helpers.contexts import current_context_handle, no_current_context
+
+    previous = current_context_handle()
+    with no_current_context():
+        with pytest.raises(RuntimeError):
+            LaunchConfig(grid=1, block=1, priority=-1)
+        assert current_context_handle() == 0
+    assert current_context_handle() == previous
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_launch_priority_is_preserved_in_captured_kernel(init_cuda):
+    """A nonzero launch priority reaches the captured kernel node and the graph executes."""
+    from contextlib import closing
+
+    from cuda.core._utils.cuda_utils import driver, handle_return
+    from cuda.core.graph import GraphCompleteOptions, KernelNode
+
+    least, greatest = handle_return(driver.cuCtxGetStreamPriorityRange())
+    priority = greatest if greatest else least
+    stream_priority = least if priority != least else greatest
+    if not priority or priority == stream_priority:
+        pytest.skip("device lacks a nonzero priority distinct from the stream priority")
+    arch = "sm_" + "".join(str(part) for part in init_cuda.compute_capability)
+    code = 'extern "C" __global__ void write_priority(int* out) { *out = 37; }'
+    with (
+        closing(init_cuda.create_stream(options=StreamOptions(priority=stream_priority))) as stream,
+        LegacyPinnedMemoryResource().allocate(4) as buffer,
+        closing(Program(code, "c++", ProgramOptions(arch=arch))) as program,
+        closing(stream.create_graph_builder()) as builder,
+    ):
+        result = np.from_dlpack(buffer).view(np.int32)
+        result[0] = 0
+        kernel = program.compile("cubin").get_kernel("write_priority")
+        builder.begin_building()
+        try:
+            launch(builder, LaunchConfig(grid=1, block=1, priority=priority), kernel, buffer)
+        finally:
+            builder.end_building()
+        nodes = [node for node in builder.graph_definition.nodes() if isinstance(node, KernelNode)]
+        assert len(nodes) == 1
+        attrs = handle_return(
+            driver.cuGraphKernelNodeGetAttribute(
+                nodes[0].handle, driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PRIORITY
+            )
+        )
+        assert attrs.priority == priority
+        with closing(builder.complete(GraphCompleteOptions(use_node_priority=True))) as graph:
+            graph.launch(stream)
+            stream.sync()
+            assert result[0] == 37
+
+
 @skipif_need_cuda_headers
 def test_pdl_primary_secondary_overlap_same_stream(init_cuda):
     """Primary + secondary PDL launch on one stream can overlap on Hopper+.

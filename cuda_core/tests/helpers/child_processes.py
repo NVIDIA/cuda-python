@@ -82,6 +82,32 @@ def run_child(target, *args):
         assert process.exitcode == 0, f"child exited with {process.exitcode}"
 
 
+def receive_with_timeout(connection, *, raw=False):
+    """Receive a pipe message or fail when its timeout expires."""
+    assert connection.poll(child_timeout_sec()), "IPC exporter did not respond before the timeout"
+    return connection.recv_bytes() if raw else connection.recv()
+
+
+@contextlib.contextmanager
+def child_exporter(target, *args):
+    """Manage an IPC exporter and its pipe, killing the child on timeout or failure."""
+    parent, child = mp.Pipe()
+    process = mp.Process(target=target, args=(child, *args))
+    try:
+        process.start()
+        child.close()
+        yield parent
+        process.join(timeout=child_timeout_sec())
+    finally:
+        survivors = kill_subprocesses(process)
+        exitcode = process.exitcode
+        parent.close()
+        child.close()
+        process.close()
+    assert not survivors, "IPC exporter did not exit before the timeout"
+    assert exitcode == 0, f"IPC exporter exited with code {exitcode}"
+
+
 def noop(*args):
     """A picklable child target that accepts and discards any arguments."""
 

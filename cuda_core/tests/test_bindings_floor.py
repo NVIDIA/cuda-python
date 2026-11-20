@@ -439,3 +439,109 @@ class TestConsistencyHook:
             "cuda_core/docs/source/install.rst",
         ]
         assert problems[1].startswith("cuda_core/docs/source/install.rst:1:")
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("layout", ["unbuilt", "other-major"])
+def test_import_incomplete_package_reports_available_builds(layout):
+    """Import identifies missing build metadata and the available CUDA major."""
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+
+    from cuda import bindings
+
+    major = int(bindings.__version__.split(".")[0])
+    other = 12 if major != 12 else 13
+    available = [] if layout == "unbuilt" else [f"cu{other}"]
+    expected = "has not been built" if layout == "unbuilt" else f"has builds for CUDA {other}, not for CUDA {major}"
+    result = run_python_snippet(
+        f"""
+import importlib
+import os
+from unittest.mock import patch
+
+root = os.path.normcase(os.path.realpath({str(Path(floor_mod.__file__).parent)!r}))
+available = {available!r}
+probes, scans, directory_checks = [], [], []
+real_import, real_listdir, real_isdir = importlib.import_module, os.listdir, os.path.isdir
+
+def import_without_build(name, package=None):
+    if package == "cuda.core" and name in (".cu{major}._build_info", "._build_info"):
+        probes.append(name)
+        missing = "cuda.core.cu{major}" if name.startswith(".cu") else "cuda.core._build_info"
+        raise ModuleNotFoundError("No module named " + missing, name=missing)
+    return real_import(name, package)
+
+def package_entries(path):
+    entries = real_listdir(path)
+    if os.path.normcase(os.path.realpath(path)) == root:
+        scans.append(path)
+        return [name for name in entries if not (name.startswith("cu") and name[2:].isdigit())] + available
+    return entries
+
+def build_directory(path):
+    if os.path.normcase(os.path.realpath(os.path.dirname(path))) == root and os.path.basename(path) in available:
+        directory_checks.append(path)
+        return True
+    return real_isdir(path)
+
+with patch("importlib.import_module", import_without_build), patch("os.listdir", package_entries), patch("os.path.isdir", build_directory):
+    try:
+        import cuda.core
+    except ImportError as exc:
+        assert {expected!r} in str(exc), str(exc)
+        assert isinstance(exc.__cause__, ModuleNotFoundError)
+        assert exc.__cause__.name == "cuda.core._build_info", repr(exc.__cause__)
+    else:
+        raise AssertionError("import succeeded without compiled build metadata")
+assert probes == [".cu{major}._build_info", "._build_info"], probes
+assert scans, "available-build scan was not exercised"
+assert not available or directory_checks, "available build directory was not checked"
+print("incomplete package rejected")
+""",
+        cwd=Path(floor_mod.__file__).parents[2],
+        unset_env=("PYTHONPATH",),
+    )
+    assert result.stdout.strip() == "incomplete package rejected"
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("dependency", ["cuda.bindings", "missing_cuda_bindings_dependency_for_test"])
+def test_import_reports_missing_bindings_without_masking_nested_dependency(dependency):
+    """Import classifies ModuleNotFoundError without masking nested dependency failures."""
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+
+    result = run_python_snippet(
+        f"""
+import builtins
+from unittest.mock import patch
+
+original_import = builtins.__import__
+attempts = []
+
+def unavailable_bindings(name, globals=None, locals=None, fromlist=(), level=0):
+    if name == "cuda" and fromlist and "bindings" in fromlist:
+        attempts.append(name)
+        raise ModuleNotFoundError("No module named " + {dependency!r}, name={dependency!r})
+    return original_import(name, globals, locals, fromlist, level)
+
+with patch("builtins.__import__", unavailable_bindings):
+    try:
+        import cuda.core
+    except ImportError as exc:
+        if {dependency!r} == "cuda.bindings":
+            assert type(exc) is ImportError
+            assert "requires cuda-bindings" in str(exc), str(exc)
+            assert "Install cuda-core[cu12] or cuda-core[cu13]" in str(exc), str(exc)
+            assert exc.__suppress_context__
+        else:
+            assert isinstance(exc, ModuleNotFoundError)
+            assert exc.name == {dependency!r}, repr(exc)
+    else:
+        raise AssertionError("missing bindings dependency was not reported")
+assert attempts == ["cuda"], attempts
+print("dependency failure reported")
+""",
+        cwd=Path(floor_mod.__file__).parents[2],
+        unset_env=("PYTHONPATH",),
+    )
+    assert result.stdout.strip() == "dependency failure reported"

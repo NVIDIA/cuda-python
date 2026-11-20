@@ -1126,3 +1126,33 @@ def test_strided_memory_view_repr_with_none_dtype(init_cuda):
     r = repr(view)
     assert r.startswith("StridedMemoryView(ptr=")
     assert "dtype=NoneType" in r
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("protocol", ["array-interface", "dlpack"])
+def test_strided_memory_view_class_exporter_preserves_storage_and_repr(protocol):
+    """A class-based exporter shares array storage and appears by name in repr."""
+    data = np.arange(6, dtype=np.int32)
+
+    class ClassExporter:
+        storage = data
+        __array_interface__ = data.__array_interface__
+
+        @classmethod
+        def __dlpack_device__(cls):
+            return cls.storage.__dlpack_device__()
+
+        @classmethod
+        def __dlpack__(cls, **kwargs):
+            return cls.storage.__dlpack__(**kwargs)
+
+    if protocol == "array-interface":
+        view = StridedMemoryView.from_array_interface(ClassExporter)
+    else:
+        view = StridedMemoryView.from_dlpack(ClassExporter, stream_ptr=-1)
+    actual = np.from_dlpack(view)
+    assert view.exporting_obj is ClassExporter
+    assert view.ptr == data.ctypes.data
+    np.testing.assert_array_equal(actual, data)
+    assert np.shares_memory(actual, data)
+    assert f"exporting_obj={ClassExporter.__module__}.{ClassExporter.__name__}" in repr(view)

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+from contextlib import closing
 
 import pytest
 from helpers.contexts import current_context_handle, no_current_context
@@ -63,10 +64,16 @@ def test_stream_sync(init_cuda):
     stream.sync()  # Should not raise any exceptions
 
 
+@pytest.mark.agent_authored(model="gpt-6-sol")
 def test_stream_record(init_cuda):
-    stream = Device().create_stream(options=StreamOptions())
-    event = stream.record()
-    assert isinstance(event, Event)
+    """Rejecting an invalid event leaves the stream able to record and synchronize an event."""
+    with closing(init_cuda.create_stream()) as stream:
+        with pytest.raises(TypeError, match="Event expected, got object"):
+            stream.record(object())
+        with closing(stream.record()) as event:
+            assert isinstance(event, Event)
+            event.sync()
+            assert event.is_done is True
 
 
 def test_stream_wait_event(init_cuda):

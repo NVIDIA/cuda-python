@@ -667,18 +667,22 @@ class TestTensorMapIm2col:
                 data_type=TensorMapDataType.FLOAT32,
             )
 
-    def test_from_im2col_corner_rank_mismatch(self, dev, skip_if_no_tma):
-        buf = dev.allocate(1 * 32 * 64 * 4, stream=dev.default_stream)
-        tensor = _DeviceArray(buf, (1, 32, 64))  # 3D: n_spatial = 1
-        with pytest.raises(ValueError, match="pixel_box_lower_corner must have 1 elements"):
-            TensorMapDescriptor._from_im2col(
-                _as_view(tensor),
-                pixel_box_lower_corner=(0, 0),
-                pixel_box_upper_corner=(4,),
-                channels_per_pixel=64,
-                pixels_per_column=4,
-                data_type=TensorMapDataType.FLOAT32,
-            )
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    @pytest.mark.parametrize("corner", ["lower", "upper"])
+    def test_from_im2col_corner_rank_mismatch(self, dev, corner):
+        """Im2col validates each corner's spatial rank before encoding a descriptor."""
+        with dev.allocate(32 * 64 * 4, stream=dev.default_stream) as buf:
+            tensor = _DeviceArray(buf, (1, 32, 64))
+            corners = {"pixel_box_lower_corner": (0,), "pixel_box_upper_corner": (4,)}
+            corners[f"pixel_box_{corner}_corner"] = (0, 0)
+            with pytest.raises(ValueError, match=f"pixel_box_{corner}_corner must have 1 elements"):
+                TensorMapDescriptor._from_im2col(
+                    _as_view(tensor),
+                    **corners,
+                    channels_per_pixel=64,
+                    pixels_per_column=4,
+                    data_type=TensorMapDataType.FLOAT32,
+                )
 
     def test_from_im2col_4d(self, dev, skip_if_no_tma):
         # NHWC layout: N=1, H=8, W=8, C=64 — 2 spatial dims
@@ -791,17 +795,26 @@ class TestTensorMapIm2colWide:
         )
         assert desc is not None
 
-    def test_from_im2col_wide_rank_validation(self, dev, skip_if_no_im2col_wide):
-        buf = dev.allocate(1024 * 4, stream=dev.default_stream)
-        with pytest.raises(ValueError, match="Im2col-wide tensor rank must be between 3 and 5"):
-            TensorMapDescriptor._from_im2col_wide(
-                _as_view(buf),
-                pixel_box_lower_corner_width=0,
-                pixel_box_upper_corner_width=4,
-                channels_per_pixel=64,
-                pixels_per_column=4,
-                data_type=TensorMapDataType.FLOAT32,
-            )
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    @pytest.mark.parametrize("rank", [2, 6])
+    def test_from_im2col_wide_rank_validation(self, dev, rank):
+        """Im2col-wide rejects ranks just outside its bounds before descriptor encoding."""
+        from cuda.core._utils.version import BUILD_CUDA_MAJOR
+
+        if BUILD_CUDA_MAJOR < 13:
+            pytest.skip("Im2col-wide requires a CUDA 13+ build")
+        # Rank validation precedes encoding, so no im2col-wide hardware probe is needed.
+        with dev.allocate(4, stream=dev.default_stream) as buf:
+            tensor = _DeviceArray(buf, (1,) * rank)
+            with pytest.raises(ValueError, match="Im2col-wide tensor rank must be between 3 and 5"):
+                TensorMapDescriptor._from_im2col_wide(
+                    _as_view(tensor),
+                    pixel_box_lower_corner_width=0,
+                    pixel_box_upper_corner_width=4,
+                    channels_per_pixel=64,
+                    pixels_per_column=4,
+                    data_type=TensorMapDataType.FLOAT32,
+                )
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
