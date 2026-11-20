@@ -71,13 +71,20 @@ release dry run. Tag CI does not publish documentation. This focused tag-CI
 check is specific to the shared bindings/metapackage tags; Core and Pathfinder
 release behavior is unchanged.
 
-For either bindings line, add the released version to
+Release notes can land on `main` before publication without entries in the
+documentation version selectors. For either bindings line, wait for successful
+publication and deployment of each component's versioned documentation, then
+open a PR on `main` adding the released bindings version to
 [`cuda_bindings_13/docs/nv-versions.json`](../cuda_bindings_13/docs/nv-versions.json)
 and its matching metapackage version to
-[`cuda_python/docs/nv-versions.json`](../cuda_python/docs/nv-versions.json)
-on `main`. Documentation deployments from `main` own these shared version
-selectors. Release deployments publish versioned pages without replacing the
-selectors or shared `latest` pages.
+[`cuda_python/docs/nv-versions.json`](../cuda_python/docs/nv-versions.json).
+Confirm that each versioned documentation URL works before merging its entry.
+
+Documentation deployments from `main` own these shared version selectors.
+Release deployments publish versioned pages without replacing the selectors or
+shared `latest` pages. An entry in the tagged source alone does not update the
+live switcher. If an entry is missing after release, correct it on `main`
+without changing the release tag.
 
 The workflow revision used for a release is its **control revision**; the
 tagged commit is its **source revision**. Record both and the artifact CI run

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from ci.tools import check_staged_release_notes
 from ci.tools.check_staged_release_notes import (
     _build_indexed_release_notes,
     missing_release_note_pairs,
@@ -34,6 +35,20 @@ def write_note(repo: Path, package: str, version: str) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("Release notes.\n", encoding="utf-8")
     return relative
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_upcoming_release_notes_do_not_require_advertising_versions(repo, monkeypatch):
+    for package, version in [
+        ("cuda_core", "1.4.0"),
+        ("cuda_pathfinder", "1.9.2"),
+        ("cuda_bindings_13", "13.5.1"),
+        ("cuda_python", "13.5.1"),
+    ]:
+        git(repo, "add", write_note(repo, package, version))
+    monkeypatch.setattr(check_staged_release_notes, "ROOT", repo)
+
+    assert check_staged_release_notes.main() == 0
 
 
 @pytest.mark.parametrize(

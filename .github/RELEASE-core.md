@@ -145,15 +145,9 @@ entries for length, specificity, tone, and consistency. Highlight a few
 notable items in the highlights section, keeping their full entries in the
 appropriate sections below.
 
----
-
-## Update the docs for the new version
-
-Add the new version to
-`cuda_core/docs/nv-versions.json`. This file drives the version
-switcher on the documentation site. Add an entry for the new version
-after `"latest"`, following the existing pattern. The docs themselves are
-built and deployed automatically by the release workflow.
+Numeric release notes can land on `main` before publication. They do not require
+an entry in the documentation version switcher: adding an unreleased version
+would advertise documentation that is not deployed yet.
 
 ---
 
@@ -176,8 +170,8 @@ For a patch release (`X.Y.Z`), use the existing branch. Changes reach it
 through pull requests that cherry-pick the fixes from `main`, with
 `(cherry picked from commit ...)` trailers. The release notes for the patch
 release must be on the release branch before the tag: the release workflow
-checks for them in the tagged tree. Add them to `main` as well, so the docs
-switcher and the `latest` docs list them.
+checks for them in the tagged tree. Add them to `main` as well, so the `latest`
+docs include them.
 
 The repository ruleset protects `release/**`: a push to an existing release
 branch needs a pull request and passing checks.
@@ -244,6 +238,21 @@ PyPI.
 ```bash
 pip install cuda-core==0.6.0
 ```
+
+---
+
+## Update the docs for the new version
+
+After publication succeeds and the versioned documentation is deployed, open a
+PR on `main` adding the new version to `cuda_core/docs/nv-versions.json` after
+`"latest"`, following the existing pattern. Confirm that the versioned
+documentation URL works before merging the entry.
+
+This file drives the shared version switcher used by existing documentation
+pages. Deployments from `main` publish it; release deployments publish versioned
+pages without replacing the selector or shared `latest` pages. An entry in the
+tagged source alone does not update the live switcher. If an entry is missing
+after release, correct it on `main` without changing the release tag.
 
 ---
 
