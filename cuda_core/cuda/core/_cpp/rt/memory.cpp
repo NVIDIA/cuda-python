@@ -220,7 +220,17 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
         ipc_pool_release_cv.wait(lock);
     }
     MemoryPoolHandle h(box, &box->resource);
-    ipc_pool_cache.emplace(box->resource, IpcPoolEntry{h, box.get(), 1});
+    try {
+        ipc_pool_cache.emplace(box->resource, IpcPoolEntry{h, box.get(), 1});
+    }
+    catch (...) {
+        // The unregistered box does not destroy its import, and the pool's
+        // access settings may belong to an import registered meanwhile, so
+        // only this import's driver reference is dropped.
+        lock.unlock();
+        pw_cuMemPoolDestroy(box->resource);
+        throw;
+    }
     box->owner = true;
     g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
     return h;

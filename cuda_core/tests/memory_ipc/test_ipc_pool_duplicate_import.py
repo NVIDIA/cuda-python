@@ -17,14 +17,14 @@ import multiprocessing as mp
 import threading
 
 import pytest
-from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.child_processes import run_child
+from helpers.contexts import assert_no_cuda_warning
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource, VirtualMemoryResource
 from cuda.core._memory._buffer import _live_owned_mempool_count
 from cuda.core._utils.cuda_utils import handle_return
 
-CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
 THREADS = 4
 ITERATIONS = 20
@@ -62,18 +62,22 @@ def _device_access(mr, device):
     return handle_return(driver.cuMemPoolGetAccess(driver.CUmemoryPool(int(mr.handle)), _location(device)))
 
 
-def child_close_one_import(queue):
-    device = Device()
-    device.set_current()
-    stream = device.default_stream
-    mr_type, alloc_handle, descriptor = queue.get()
-    baseline = _live_owned_mempool_count()
-
+def _import_twice(mr_type, device, alloc_handle):
     # A raw file descriptor carries no UUID, so the registry cannot dedupe.
     first = _import(mr_type, device, int(alloc_handle))
     second = _import(mr_type, device, int(alloc_handle))
     assert first is not second
     assert int(first.handle) == int(second.handle)
+    return first, second
+
+
+def child_close_one_import(mr_type, alloc_handle, descriptor):
+    device = Device()
+    device.set_current()
+    stream = device.default_stream
+    baseline = _live_owned_mempool_count()
+
+    first, second = _import_twice(mr_type, device, alloc_handle)
     assert _live_owned_mempool_count() == baseline + 1
 
     _grant_device_access(second, device)
@@ -85,6 +89,32 @@ def child_close_one_import(queue):
     stream.sync()
     buffer.close()
     second.close()
+    assert _live_owned_mempool_count() == baseline
+
+
+def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, descriptor):
+    device = Device()
+    device.set_current()
+    stream = device.default_stream
+    baseline = _live_owned_mempool_count()
+
+    with assert_no_cuda_warning():
+        first, second = _import_twice(mr_type, device, alloc_handle)
+        _grant_device_access(second, device)
+        # The buffer keeps the pool alive after both resources are closed.
+        outstanding = Buffer.from_ipc_descriptor(first, descriptor, stream=stream)
+        first.close()
+        buffer = Buffer.from_ipc_descriptor(second, descriptor, stream=stream)
+        buffer.fill(7, stream=stream)
+        stream.sync()
+        buffer.close()
+        second.close()
+        assert _live_owned_mempool_count() == baseline + 1
+
+        outstanding.fill(9, stream=stream)
+        stream.sync()
+        outstanding.close()
+        stream.sync()
     assert _live_owned_mempool_count() == baseline
 
 
@@ -111,10 +141,9 @@ def _import_concurrently(mr_type, device, alloc_handle):
     return results
 
 
-def child_concurrent_uuid_imports(queue):
+def child_concurrent_uuid_imports(mr_type, alloc_handle):
     device = Device()
     device.set_current()
-    mr_type, alloc_handle = queue.get()
     assert alloc_handle.uuid is not None
     baseline = _live_owned_mempool_count()
 
@@ -127,17 +156,6 @@ def child_concurrent_uuid_imports(queue):
         results[0].close()
         del results
         assert _live_owned_mempool_count() == baseline
-
-
-def _run_child(target, *items):
-    queue = mp.Queue()
-    process = mp.Process(target=target, args=(queue,))
-    process.start()
-    queue.put(items)
-    process.join(timeout=CHILD_TIMEOUT_SEC)
-    survivors = kill_subprocesses(process)
-    assert not survivors, "child did not exit within timeout"
-    assert process.exitcode == 0, f"child process failed with exit code {process.exitcode}"
 
 
 class TestIpcPoolDuplicateImport:
@@ -155,20 +173,31 @@ class TestIpcPoolDuplicateImport:
             pytest.skip("a VirtualMemoryResource has no memory pool to import")
         return ipc_memory_resource
 
-    @pytest.mark.agent_authored(model="claude-opus-5-5")
-    def test_closing_one_import_keeps_the_other_usable(self, ipc_device, pool_resource):
+    @pytest.fixture
+    def exported_buffer(self, ipc_device, pool_resource):
         ipc_device.set_current()
         stream = ipc_device.default_stream
         buffer = pool_resource.allocate(NBYTES, stream=stream)
         stream.sync()
-        try:
-            _run_child(
-                child_close_one_import, type(pool_resource), pool_resource.allocation_handle, buffer.ipc_descriptor
-            )
-        finally:
-            buffer.close(stream)
+        yield buffer
+        buffer.close(stream)
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_closing_one_import_keeps_the_other_usable(self, pool_resource, exported_buffer):
+        run_child(
+            child_close_one_import, type(pool_resource), pool_resource.allocation_handle, exported_buffer.ipc_descriptor
+        )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_closing_both_imports_with_an_outstanding_buffer(self, pool_resource, exported_buffer):
+        run_child(
+            child_close_both_imports_with_outstanding_buffer,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            exported_buffer.ipc_descriptor,
+        )
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):
         ipc_device.set_current()
-        _run_child(child_concurrent_uuid_imports, type(pool_resource), pool_resource.allocation_handle)
+        run_child(child_concurrent_uuid_imports, type(pool_resource), pool_resource.allocation_handle)
