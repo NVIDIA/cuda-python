@@ -512,7 +512,7 @@ jobs:
           path: ${{ env.CURRENT_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
           if-no-files-found: error
 
-      - name: Build cuda.core ${{ env.CURRENT_CUDA_VARIANT }} Cython tests
+      - name: Prepare cuda.core ${{ env.CURRENT_CUDA_VARIANT }} Cython tests
         if: ${{ env.TEST_CORE_CURRENT == 'true' }}
         run: |
           pip install ${{ env.CURRENT_BINDINGS_ARTIFACTS_DIR }}/*.whl
@@ -526,9 +526,17 @@ jobs:
             exit 1
           fi
           pip install "${core_wheel}" --group ./cuda_core/pyproject.toml:test
-          pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+
+      - name: Build cuda.core ${{ env.CURRENT_CUDA_VARIANT }} Cython tests (Linux)
+        if: ${{ env.TEST_CORE_CURRENT == 'true' && runner.os == 'Linux' }}
+        working-directory: cuda_core/tests/cython
+        run: bash build_tests.sh
+
+      - name: Build cuda.core ${{ env.CURRENT_CUDA_VARIANT }} Cython tests (Windows)
+        if: ${{ env.TEST_CORE_CURRENT == 'true' && runner.os == 'Windows' }}
+        working-directory: cuda_core/tests/cython
+        shell: cmd
+        run: call .\build_tests.bat
 
       - name: Upload current cuda.core Cython tests
         if: ${{ env.TEST_CORE_CURRENT == 'true' }}
@@ -733,7 +741,7 @@ jobs:
 
           ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
-      - name: Build cuda.core ${{ env.MAINTENANCE_CUDA_VARIANT }} Cython tests
+      - name: Prepare cuda.core ${{ env.MAINTENANCE_CUDA_VARIANT }} Cython tests
         if: ${{ !inputs.single-cuda-major && env.TEST_CORE_MAINTENANCE == 'true' }}
         run: |
           # The current package's test extensions were built in this same source tree.
@@ -755,9 +763,17 @@ jobs:
             exit 1
           fi
           pip install "${core_wheel}" --group ./cuda_core/pyproject.toml:test
-          pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+
+      - name: Build cuda.core ${{ env.MAINTENANCE_CUDA_VARIANT }} Cython tests (Linux)
+        if: ${{ !inputs.single-cuda-major && env.TEST_CORE_MAINTENANCE == 'true' && runner.os == 'Linux' }}
+        working-directory: cuda_core/tests/cython
+        run: bash build_tests.sh
+
+      - name: Build cuda.core ${{ env.MAINTENANCE_CUDA_VARIANT }} Cython tests (Windows)
+        if: ${{ !inputs.single-cuda-major && env.TEST_CORE_MAINTENANCE == 'true' && runner.os == 'Windows' }}
+        working-directory: cuda_core/tests/cython
+        shell: cmd
+        run: call .\build_tests.bat
 
       - name: Upload maintenance cuda.core Cython tests
         if: ${{ !inputs.single-cuda-major && env.TEST_CORE_MAINTENANCE == 'true' }}
