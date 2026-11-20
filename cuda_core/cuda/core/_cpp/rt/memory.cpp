@@ -11,6 +11,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
@@ -196,20 +197,26 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
                     std::this_thread::sleep_for(std::chrono::microseconds(delay));
                 }
                 clear_mempool_peer_access(b->resource, -1);
-                CUresult status = CUDA_SUCCESS;
+                const std::size_t total = imports;
+                std::size_t failed = 0;
+                CUresult first_failure = CUDA_SUCCESS;
                 for (; imports > 0; --imports) {
                     if (CUresult s = DRIVER_CALL(cuMemPoolDestroy, b->resource); s != CUDA_SUCCESS) {
-                        status = s;
+                        if (failed++ == 0) {
+                            first_failure = s;
+                        }
                     }
                 }
                 g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
                 // Wake waiting importers before reporting: a report can run
                 // user code, which could import this pool again.
                 ipc_pool_registry.release(b->resource, &b->resource);
-                if (status != CUDA_SUCCESS) {
+                if (failed > 0) {
                     char operation[kOperationNameSize];
                     format_operation(operation, sizeof(operation), "cuMemPoolDestroy", handle_bits(b->resource));
-                    report_cuda_error(operation, status);
+                    char detail[kErrorMessageSize];
+                    std::snprintf(detail, sizeof(detail), "failed %zu of %zu times, first with", failed, total);
+                    report_cuda_error(operation, first_failure, total > 1 ? detail : nullptr);
                 }
             }
             delete b;
@@ -680,35 +687,56 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         // DESIGN.md).
         CUresult discard_status = CUDA_SUCCESS;
         CUdeviceptr discarded = 0;
-        DevicePtrHandle imported = ipc_ptr_cache.get_or_create(key, [&]() noexcept -> DevicePtrHandle {
-            CUdeviceptr ptr;
-            if (CUDA_SUCCESS !=
-                (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {  // raw: under the cache's mutex
-                return {};
+        auto report_failed_discard = [&]() noexcept {
+            if (discard_status != CUDA_SUCCESS) {
+                char operation[kOperationNameSize];
+                format_operation(operation, sizeof(operation), "cuMemFreeAsync", discarded);
+                report_cuda_error(
+                    operation,
+                    discard_status,
+                    "failed while discarding an IPC import that could not record a "
+                    "deallocation stream; the mapping leaked"
+                );
             }
-            if (!make_deallocation_stream(h_stream, box->deallocation)) {
+        };
+        DevicePtrHandle imported;
+        try {
+            imported = ipc_ptr_cache.get_or_create(key, [&]() -> DevicePtrHandle {
+                CUdeviceptr ptr;
+                if (CUDA_SUCCESS !=
+                    (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {  // raw: under the cache's mutex
+                    return {};
+                }
                 // No deallocation stream could be recorded: discard the import
-                // with the raw call (a pw_ report would acquire the GIL).
-                discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
-                discarded = ptr;
-                return {};
-            }
-            box->resource = ptr;
-            return h;
-        });
+                // with the raw call (a pw_ report would acquire the GIL) before
+                // the mutex is released, or a concurrent import would share the
+                // mapping this free unmaps.
+                bool recorded;
+                try {
+                    recorded = make_deallocation_stream(h_stream, box->deallocation);
+                }
+                catch (...) {
+                    discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
+                    discarded = ptr;
+                    throw;
+                }
+                if (!recorded) {
+                    discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
+                    discarded = ptr;
+                    return {};
+                }
+                box->resource = ptr;
+                return h;
+            });
+        }
+        catch (...) {
+            report_failed_discard();
+            throw;
+        }
         if (imported) {
             return imported;
         }
-        if (discard_status != CUDA_SUCCESS) {
-            char operation[kOperationNameSize];
-            format_operation(operation, sizeof(operation), "cuMemFreeAsync", discarded);
-            report_cuda_error(
-                operation,
-                discard_status,
-                "failed while discarding an IPC import that could not record a "
-                "deallocation stream; the mapping leaked"
-            );
-        }
+        report_failed_discard();
         return {};
     }
     GILReleaseGuard gil;

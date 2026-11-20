@@ -96,7 +96,9 @@ def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, desc
 
 
 def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
-    stream = device.default_stream
+    # The buffer is freed on another thread, which a per-thread default stream
+    # would report as a cross-thread free.
+    stream = device.create_stream()
     # The buffer holds the last reference to the pool once its resource is
     # closed, so closing the buffer releases the pool.
     mr = import_pool_resource(mr_type, device, int(alloc_handle))
@@ -114,6 +116,7 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
             outstanding.close()
         except Exception as e:
             errors.append(e)
+            barrier.abort()
 
     def reimport():
         try:
@@ -127,6 +130,7 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
             reimported.append((mr, Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)))
         except Exception as e:
             errors.append(e)
+            barrier.abort()
 
     threads = [threading.Thread(target=release), threading.Thread(target=reimport)]
     for thread in threads:
@@ -143,6 +147,8 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
     stream.sync()
     buffer.close()
     mr.close()
+    stream.sync()
+    stream.close()
 
 
 def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
@@ -172,6 +178,7 @@ def _import_concurrently(mr_type, device, alloc_handle):
             results[index] = import_pool_resource(mr_type, device, alloc_handle)
         except Exception as e:
             errors.append(e)
+            barrier.abort()
 
     threads = [threading.Thread(target=importer, args=(i,)) for i in range(THREADS)]
     for thread in threads:
