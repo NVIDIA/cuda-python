@@ -1,0 +1,41 @@
+﻿cuda.bindings.cufile.BatchMode
+==============================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: BatchMode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BatchMode.__init__
+      ~BatchMode.as_integer_ratio
+      ~BatchMode.bit_count
+      ~BatchMode.bit_length
+      ~BatchMode.conjugate
+      ~BatchMode.from_bytes
+      ~BatchMode.is_integer
+      ~BatchMode.to_bytes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BatchMode.BATCH
+      ~BatchMode.denominator
+      ~BatchMode.imag
+      ~BatchMode.name
+      ~BatchMode.numerator
+      ~BatchMode.real
+      ~BatchMode.value
+   
+   
