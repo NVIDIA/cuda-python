@@ -7,9 +7,21 @@ from contextlib import ExitStack
 import pytest
 from helpers.buffers import PatternGen, prefix_view
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
-from helpers.memory import import_pool_resource, is_pool_resource
+from helpers.constants import POOL_SIZE
+from helpers.memory import (
+    import_pool_resource,
+    is_pool_resource,
+    pool_access_flags,
+    skip_if_host_numa_pinned_memory_unsupported,
+)
 
-from cuda.core import Buffer, PinnedMemoryResource, VirtualMemoryResource
+from cuda.core import (
+    Buffer,
+    Device,
+    PinnedMemoryResource,
+    PinnedMemoryResourceOptions,
+    VirtualMemoryResource,
+)
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -273,13 +285,9 @@ class TestIpcImportedBufferDeviceAccess:
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     @pytest.mark.flaky(reruns=2)
-    def test_main(self, request, ipc_device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         device = ipc_device
         mr = ipc_memory_resource
-        if isinstance(mr, PinnedMemoryResource):
-            request.applymarker(
-                pytest.mark.xfail(strict=True, reason="#3501: an imported pinned pool grants no device access")
-            )
         stream = device.default_stream
         with ExitStack() as stack:
             buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream))
@@ -309,3 +317,110 @@ class TestIpcImportedBufferDeviceAccess:
         prefix_view(buffer, NBYTES).fill(self.FILL_VALUE, stream=stream)
         buffer.close()
         stream.sync()
+
+
+def _pinned_pool_access(mr):
+    """Map each device ID to the name of its access flags on the pinned pool of ``mr``."""
+    return {device.device_id: pool_access_flags(mr, device).name for device in Device.get_all_devices()}
+
+
+def _expected_pinned_pool_access():
+    """The access that an IPC-enabled pinned pool, which is always NUMA-placed, grants each device."""
+    return {
+        device.device_id: (
+            "CU_MEM_ACCESS_FLAGS_PROT_READWRITE"
+            if device.properties.host_numa_memory_pools_supported
+            else "CU_MEM_ACCESS_FLAGS_PROT_NONE"
+        )
+        for device in Device.get_all_devices()
+    }
+
+
+class TestIpcPinnedPoolAccess:
+    """
+    Check that the creating and the importing process grant pinned pool access to every supporting device.
+
+    Pool access is per process (#3501). The child imports the pool while no
+    device is current, as unpickling in a spawned child does.
+    """
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    @pytest.mark.flaky(reruns=2)
+    @pytest.mark.parametrize("import_from", ["resource", "raw_handle"])
+    def test_main(self, ipc_device, import_from):
+        skip_if_host_numa_pinned_memory_unsupported(ipc_device)
+        expected = _expected_pinned_pool_access()
+        with ExitStack() as stack:
+            mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+            stack.callback(mr.close)
+            assert _pinned_pool_access(mr) == expected
+
+            queue = mp.Queue()
+            stack.callback(queue.join_thread)
+            stack.callback(queue.close)
+            # A raw handle carries no UUID, so its import cannot hit the registry.
+            source = mr if import_from == "resource" else mr.allocation_handle
+            process = mp.Process(target=self.child_main, args=(source, queue))
+            process.start()
+            stack.callback(kill_subprocesses, process)
+            child_access = queue.get(timeout=CHILD_TIMEOUT_SEC)
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0
+        assert child_access == expected
+
+    def child_main(self, source, queue):
+        if isinstance(source, PinnedMemoryResource):
+            mr = source
+        else:
+            mr = PinnedMemoryResource.from_allocation_handle(int(source))
+        queue.put(_pinned_pool_access(mr))
+        mr.close()
+
+
+class TestIpcImportedPinnedBufferOnSecondDevice:
+    """
+    Check that device 1 can access an imported pinned buffer.
+
+    A spawned child unpickles its arguments before its code makes a device
+    current, so an import that granted only the current device covered
+    device 0 but not device 1.
+    """
+
+    FILL_VALUE = 7
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    @pytest.mark.flaky(reruns=2)
+    def test_main(self, ipc_mempool_device_x2):
+        dev0, dev1 = ipc_mempool_device_x2
+        for device in (dev0, dev1):
+            skip_if_host_numa_pinned_memory_unsupported(device)
+        stream = dev1.default_stream
+        with ExitStack() as stack:
+            stack.callback(dev0.set_current)
+            dev1.set_current()
+            mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+            stack.callback(mr.close)
+            stack.callback(stream.sync)
+            buffer = stack.enter_context(mr.allocate(NBYTES, stream=stream))
+            stream.sync()
+
+            process = mp.Process(target=self.child_main, args=(buffer,))
+            process.start()
+            # The child must be gone before the buffer closes; it may still write to the allocation.
+            stack.callback(kill_subprocesses, process)
+            process.join(timeout=CHILD_TIMEOUT_SEC)
+            survivors = kill_subprocesses(process)
+            assert not survivors, "child did not exit within timeout"
+            assert process.exitcode == 0
+
+            PatternGen(dev1, NBYTES, stream=stream).verify_buffer(buffer, value=self.FILL_VALUE)
+
+    def child_main(self, buffer):
+        device = Device(1)
+        device.set_current()
+        stream = device.default_stream
+        prefix_view(buffer, NBYTES).fill(self.FILL_VALUE, stream=stream)
+        stream.sync()
+        buffer.close()

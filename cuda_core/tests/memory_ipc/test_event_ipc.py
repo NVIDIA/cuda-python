@@ -10,7 +10,7 @@ from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
-from cuda.core import Device, EventOptions, PinnedMemoryResource
+from cuda.core import Device, EventOptions
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 CHILD_TIMEOUT_SEC = child_timeout_sec()
@@ -26,26 +26,14 @@ pytestmark = pytest.mark.parallel_threads_limit(2)
 class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
-    @pytest.mark.flaky(reruns=2)
-    def test_main(self, request, ipc_device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
         mr = ipc_memory_resource
-        if isinstance(mr, PinnedMemoryResource):
-            request.applymarker(
-                pytest.mark.xfail(
-                    strict=True,
-                    reason="#3501: the child's copy into the imported pinned buffer blocks until the latch "
-                    "times out, so the release protocol never drives the test",
-                )
-            )
         stream1 = device.create_stream()
-        # TODO: We pick a timeout here to ensure forward progress (it needs to be
-        # less than CHILD_TIMEOUT_SEC) when a pinned memory resource is in use,
-        # in which case the call to buffer.copy_from(...) below is a synchronous
-        # operation that blocks the host. But calling the latch kernel here does not
-        # make any sense. We should refactor this test.
-        latch = LatchKernel(device, timeout_sec=5)
+        # The child's reply releases the latch. The timeout must outlast the parent's
+        # waits below, so that it can only expire after the parent has given up.
+        latch = LatchKernel(device, timeout_sec=4 * CHILD_TIMEOUT_SEC)
 
         # Prepare scratch buffers.
         target = make_scratch_buffer(device, 0, NBYTES)
@@ -77,6 +65,8 @@ class TestEventIpc:
             # Stream 1:
             log("enqueuing latch kernel on stream1")
             latch.launch(stream1)
+            # A failed run must not leave the latch spinning into teardown and later tests.
+            stack.callback(latch.release)
             log("enqueuing copy on stream1")
             prefix_view(buffer, NBYTES).copy_from(ones, stream=stream1)
 

@@ -39,6 +39,7 @@ from helpers.memory import (
     VMM_HANDLE_TYPE,
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
+    skip_if_host_numa_pinned_memory_unsupported,
     skip_if_managed_allocation_unsupported,
     skip_if_managed_mempool_unsupported,
     skip_if_pinned_memory_unsupported,
@@ -2678,7 +2679,7 @@ def test_pinned_mempool_ipc_basic(init_cuda):
     """Test basic IPC functionality for PinnedMemoryResource."""
     device = init_cuda
 
-    skip_if_pinned_memory_unsupported(device)
+    skip_if_host_numa_pinned_memory_unsupported(device)
 
     if platform.system() == "Windows":
         pytest.skip("IPC not implemented for Windows")
@@ -2767,7 +2768,7 @@ def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
 def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
     """numa_id is derived from the current device when IPC is enabled."""
     device = Device()
-    skip_if_pinned_memory_unsupported(device)
+    skip_if_host_numa_pinned_memory_unsupported(device)
 
     if platform.system() == "Windows":
         pytest.skip("IPC not implemented for Windows")
@@ -2775,8 +2776,6 @@ def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     expected_numa_id = device.properties.host_numa_id
-    if expected_numa_id < 0:
-        pytest.skip("System does not support NUMA")
 
     mr = create_pinned_memory_resource_or_xfail(
         PinnedMemoryResourceOptions(ipc_enabled=True, max_size=POOL_SIZE), xfail_device=device
@@ -2788,11 +2787,9 @@ def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
 def test_pinned_mr_numa_id_explicit(init_cuda):
     """Explicit numa_id is used regardless of ipc_enabled."""
     device = Device()
-    skip_if_pinned_memory_unsupported(device)
+    skip_if_host_numa_pinned_memory_unsupported(device)
 
     host_numa_id = device.properties.host_numa_id
-    if host_numa_id < 0:
-        pytest.skip("System does not support NUMA")
 
     mr = create_pinned_memory_resource_or_xfail(
         PinnedMemoryResourceOptions(numa_id=host_numa_id, max_size=POOL_SIZE), xfail_device=device
