@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from ci.tools import bindings_config
-from ci.tools.check_release_notes import check_release_notes, main, notes_path, parse_version_from_tag
+from ci.tools.check_tagged_release_notes import check_release_notes, main, notes_path, parse_version_from_tag
 
 # Bindings tags select a package root through the live registry, so derive the
 # current CUDA 13 release line from it instead of pinning a toolkit minor.

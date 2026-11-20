@@ -6,7 +6,7 @@
 import pytest
 
 from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda_python_test_helpers import IS_WINDOWS
 
 # Shareable handle type for VirtualMemoryResource allocations on this platform.
@@ -32,9 +32,11 @@ def skip_if_mempool_unsupported(device=None):
 def skip_if_managed_mempool_unsupported(device=None):
     """Skip unless ``device`` (default: device 0) supports managed memory pools.
 
-    This is a property check only. Unlike ``skip_if_managed_memory_unsupported``
-    it never constructs a ``ManagedMemoryResource``, so it is also usable by
-    tests that allocate managed memory through graph nodes.
+    This is a property check only; it never constructs a ``ManagedMemoryResource``,
+    because looking up the device's default managed pool reserves virtual address
+    space for the lifetime of the process. It does not check the CUDA major version
+    of the ``cuda.core`` build: ``create_managed_memory_resource_or_skip`` skips
+    builds without ``ManagedMemoryResource``.
     """
     if device is None:
         device = Device(0)
@@ -48,6 +50,27 @@ def is_pool_resource(mr):
     return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
 
 
+def import_pool_resource(cls, device, alloc_handle):
+    """Import the pool shared by ``alloc_handle`` as ``cls``, the class of the exporting resource.
+
+    The class must match the exporter: importing a pinned pool as a
+    ``DeviceMemoryResource`` (or the reverse) currently succeeds and yields a
+    mislabeled resource (#3502).
+    """
+    if cls is PinnedMemoryResource:
+        return PinnedMemoryResource.from_allocation_handle(alloc_handle)
+    assert cls is DeviceMemoryResource, cls
+    return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+
+
+def pool_access_flags(mr, device):
+    """The ``CUmemAccess_flags`` that ``device`` has on the memory pool of ``mr`` in this process."""
+    location = driver.CUmemLocation()
+    location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location.id = device.device_id
+    return handle_return(driver.cuMemPoolGetAccess(driver.CUmemoryPool(int(mr.handle)), location))
+
+
 def skip_if_pinned_memory_unsupported(device):
     try:
         if not device.properties.host_memory_pools_supported:
@@ -56,18 +79,28 @@ def skip_if_pinned_memory_unsupported(device):
         pytest.skip("PinnedMemoryResource requires CUDA 13.0 or later")
 
 
-def skip_if_managed_memory_unsupported(device):
-    try:
-        if not device.properties.memory_pools_supported or not device.properties.concurrent_managed_access:
-            pytest.skip("Device does not support managed memory pool operations")
-    except AttributeError:
-        pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
-    try:
-        ManagedMemoryResource()
-    except RuntimeError as e:
-        if "requires CUDA 13.0" in str(e):
-            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
-        raise
+def skip_if_host_numa_pinned_memory_unsupported(device):
+    """Skip unless ``device`` supports pinned pools on its host NUMA node, as IPC-enabled pinned pools are.
+
+    Unlike ``skip_if_pinned_memory_unsupported``, this does not need the CUDA 13
+    ``host_memory_pools_supported`` attribute, so it runs on CUDA 12 builds. It
+    checks what ``PinnedMemoryResource`` checks for such a pool
+    (``_host_pool_supported``); keep the two in sync.
+    """
+    if device.properties.host_numa_id < 0:
+        pytest.skip("System does not support NUMA")
+    if not device.properties.host_numa_memory_pools_supported:
+        pytest.skip("Device does not support host NUMA memory pools")
+
+
+def skip_if_managed_allocation_unsupported(device):
+    """Skip unless ``device`` supports raw managed allocations (``cuMemAllocManaged``).
+
+    Unlike ``skip_if_managed_mempool_unsupported``, this does not require managed
+    memory pools.
+    """
+    if not device.properties.managed_memory:
+        pytest.skip("Device does not support managed memory operations")
 
 
 def create_managed_memory_resource_or_skip(*args, xfail_device=None, **kwargs):

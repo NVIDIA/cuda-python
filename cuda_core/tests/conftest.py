@@ -38,7 +38,7 @@ from helpers.constants import POOL_SIZE
 from helpers.memory import (
     BaselineMemoryResourceReleasedWarning,
     UnreleasedMemoryResourceWarning,
-    skip_if_pinned_memory_unsupported,
+    skip_if_host_numa_pinned_memory_unsupported,
 )
 
 import cuda.core
@@ -514,7 +514,7 @@ def _make_ipc_memory_resource(kind, device):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         return DeviceMemoryResource(device, options=options)
     if kind == "pinned":
-        skip_if_pinned_memory_unsupported(device)
+        skip_if_host_numa_pinned_memory_unsupported(device)
         options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         return PinnedMemoryResource(options=options)
     assert kind == "vmm", kind

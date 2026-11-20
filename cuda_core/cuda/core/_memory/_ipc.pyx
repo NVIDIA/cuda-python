@@ -538,7 +538,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
 # _MemPool IPC Implementation
 # ---------------------------
 
-cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
+cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=NULL):
     if isinstance(alloc_handle, IPCAllocationHandle):
         IPCAllocationHandle_check_open(<IPCAllocationHandle>alloc_handle)
 
@@ -577,6 +577,11 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
             "CUDA Toolkit, and cuda-python versions."
         )
     self._ipc_data = IPCDataForMR(alloc_handle, True)
+
+    # Initialize before registering: a registry hit in another thread must not
+    # return a pool whose initialization is in progress or has failed.
+    if init != NULL:
+        init(self)
 
     # Register it.
     if uuid is not None:

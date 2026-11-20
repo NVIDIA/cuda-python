@@ -8,7 +8,7 @@ from helpers.constants import POOL_SIZE
 from helpers.memory import (
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
-    skip_if_managed_memory_unsupported,
+    skip_if_managed_mempool_unsupported,
     skip_if_pinned_memory_unsupported,
 )
 
@@ -41,7 +41,7 @@ def test_pinned_mr_accepts_dict_keyword(init_cuda):
 @pytest.mark.agent_authored(model="gpt-5.3-codex")
 def test_managed_mr_accepts_dict_keyword(init_cuda):
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
     mr = create_managed_memory_resource_or_skip(options={})
     buf = mr.allocate(64, stream=device.default_stream)

@@ -37,6 +37,24 @@ jobs:
       doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
       base-ref: ${{ steps.get-should-skip.outputs.base_ref }}
     steps:
+      - name: Checkout tag source for release notes
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Check tagged component release notes exist
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        id: tag-release-notes
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 -m ci.tools.check_tagged_release_notes \
+            --tag-ci --git-tag "$RELEASE_TAG"
+
       - name: Compute whether to skip builds and tests
         id: get-should-skip
         env:

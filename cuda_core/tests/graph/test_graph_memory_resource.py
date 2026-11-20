@@ -4,15 +4,19 @@
 
 """Tests for GraphMemoryResource allocation and attributes during graph capture."""
 
+import gc
 import threading
+from contextlib import closing
 
 import pytest
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer, thread_unsafe_on_windows
+from helpers.constants import POOL_SIZE
 
 from cuda.bindings import driver
 from cuda.core import (
     Device,
     DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
     GraphMemoryResource,
     LaunchConfig,
     Program,
@@ -101,60 +105,60 @@ def test_graph_alloc(mempool_device, mode, action):
     NBYTES = 64
     device = mempool_device
     stream = device.create_stream()
-    dmr = DeviceMemoryResource(device)
+    # A capped pool rather than the device default pool: together with the
+    # graph memory pool, the two permanent reservations of about twice the
+    # device memory each can exceed a small virtual address space.
+    dmr = DeviceMemoryResource(device, DeviceMemoryResourceOptions(max_size=POOL_SIZE))
     gmr = GraphMemoryResource(device)
-    out = dmr.allocate(NBYTES, stream=stream)
+    with closing(dmr), dmr.allocate(NBYTES, stream=stream) as out:
+        # Get kernels and define the calling sequence.
+        mod = _common_kernels_alloc()
+        set_zero = mod.get_kernel("set_zero")
+        add_one = mod.get_kernel("add_one")
 
-    # Get kernels and define the calling sequence.
-    mod = _common_kernels_alloc()
-    set_zero = mod.get_kernel("set_zero")
-    add_one = mod.get_kernel("add_one")
+        # Initialize out to zero.
+        config = LaunchConfig(grid=1, block=1)
+        launch(stream, config, set_zero, out, NBYTES)
 
-    # Initialize out to zero.
-    config = LaunchConfig(grid=1, block=1)
-    launch(stream, config, set_zero, out, NBYTES)
-
-    if action == "incr":
-        # Increments out by 3
-        def apply_kernels(mr, stream, out):
-            buffer = mr.allocate(NBYTES, stream=stream)
-            buffer.copy_from(out, stream=stream)
-            for kernel in [add_one, add_one, add_one]:
-                launch(stream, config, kernel, buffer, NBYTES)
-            out.copy_from(buffer, stream=stream)
-            buffer.close()
-    elif action == "fill":
-        # Fills out with 3
-        def apply_kernels(mr, stream, out):
-            buffer = mr.allocate(NBYTES, stream=stream)
-            buffer.fill(3, stream=stream)
-            out.copy_from(buffer, stream=stream)
-            buffer.close()
-
-    # Apply kernels, with or without graph capture.
-    if mode == "no_graph":
-        # Do work without graph capture.
-        apply_kernels(mr=dmr, stream=stream, out=out)
-        stream.sync()
-        assert compare_buffer_to_constant(out, 3)
-    else:
-        # Capture work, then upload and launch.
-        gb = stream.create_graph_builder().begin_building(mode)
-        apply_kernels(mr=gmr, stream=gb, out=out)
-        graph = gb.end_building().complete()
-
-        # First launch.
-        graph.upload(stream)
-        graph.launch(stream)
-        stream.sync()
-        assert compare_buffer_to_constant(out, 3)
-
-        # Second launch.
         if action == "incr":
+            # Increments out by 3
+            def apply_kernels(mr, stream, out):
+                with mr.allocate(NBYTES, stream=stream) as buffer:
+                    buffer.copy_from(out, stream=stream)
+                    for kernel in [add_one, add_one, add_one]:
+                        launch(stream, config, kernel, buffer, NBYTES)
+                    out.copy_from(buffer, stream=stream)
+        elif action == "fill":
+            # Fills out with 3
+            def apply_kernels(mr, stream, out):
+                with mr.allocate(NBYTES, stream=stream) as buffer:
+                    buffer.fill(3, stream=stream)
+                    out.copy_from(buffer, stream=stream)
+
+        # Apply kernels, with or without graph capture.
+        if mode == "no_graph":
+            # Do work without graph capture.
+            apply_kernels(mr=dmr, stream=stream, out=out)
+            stream.sync()
+            assert compare_buffer_to_constant(out, 3)
+        else:
+            # Capture work, then upload and launch.
+            gb = stream.create_graph_builder().begin_building(mode)
+            apply_kernels(mr=gmr, stream=gb, out=out)
+            graph = gb.end_building().complete()
+
+            # First launch.
             graph.upload(stream)
             graph.launch(stream)
             stream.sync()
-            assert compare_buffer_to_constant(out, 6)
+            assert compare_buffer_to_constant(out, 3)
+
+            # Second launch.
+            if action == "incr":
+                graph.upload(stream)
+                graph.launch(stream)
+                stream.sync()
+                assert compare_buffer_to_constant(out, 6)
 
 
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
@@ -385,10 +389,16 @@ def test_device_memory_resource_first_touch_under_capture(mempool_device, mode):
         try:
             device = Device(device_id)
             device.set_current()
-            gb = device.create_stream().create_graph_builder().begin_building(mode=mode)
-            device.memory_resource  # noqa: B018 - first touch on this thread constructs the resource
-            result["building"] = gb.is_building
-            gb.end_building().complete()
+            # Unrelated buffer finalizers must run before capture, not during it.
+            gc.collect()
+            gb = device.create_stream().create_graph_builder()
+            try:
+                gb.begin_building(mode=mode)
+                device.memory_resource  # noqa: B018 - first touch on this thread constructs the resource
+                result["building"] = gb.is_building
+                gb.end_building().complete()
+            finally:
+                gb.close()
         except BaseException as exc:
             result["error"] = exc
 

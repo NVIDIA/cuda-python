@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import io
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,11 +14,15 @@ import numpy as np
 import pytest
 from run_samples import RunPlan, run_sample
 
+from cuda.bindings import driver
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 UTILITIES_DIR = REPO_ROOT / "samples" / "cuda_core" / "Utilities"
 WAIVER_SAMPLE_NAMES = (
     "blurImageUnifiedMemory",
+    "copyImageArraytoGPU",
     "glInteropFluid",
+    "glInteropFluidNumbaCudaMlir",
     "glInteropMipmapLod",
     "glInteropPlasma",
     "ipcMemoryPool",
@@ -31,6 +36,136 @@ WAIVER_SAMPLE_NAMES = (
     "threadBlockCluster",
     "tmaTensorMap",
 )
+
+
+def _load_sample_function(sample_name: str, function_name: str, **namespace):
+    """Exercise sample functions without importing their optional GPU packages.
+
+    Callers supply the globals needed by the exercised paths through ``namespace``;
+    changes to those dependencies may require updating the test doubles.
+    """
+    sample_path = REPO_ROOT / "samples" / "cuda_core" / sample_name / f"{sample_name}.py"
+    tree = ast.parse(sample_path.read_text(encoding="utf-8"), filename=str(sample_path))
+    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == function_name)
+    module = ast.Module(body=[function], type_ignores=[])
+    exec(compile(module, str(sample_path), "exec"), namespace)  # noqa: S102 - trusted sample source
+    return namespace[function_name]
+
+
+@pytest.mark.parametrize(("memory_pools_supported", "host_memory_pools_supported"), [(False, True), (True, False)])
+@pytest.mark.agent_authored(model="GPT-6")
+def test_image_sample_waives_without_required_memory_pools(
+    memory_pools_supported: bool, host_memory_pools_supported: bool
+) -> None:
+    def create_stream():
+        pytest.fail("Unsupported memory pools must waive before stream setup")
+
+    device = SimpleNamespace(
+        properties=SimpleNamespace(
+            memory_pools_supported=memory_pools_supported,
+            host_memory_pools_supported=host_memory_pools_supported,
+        ),
+        name="Fake GPU",
+        set_current=lambda: None,
+        create_stream=create_stream,
+    )
+    main = _load_sample_function("copyImageArraytoGPU", "main", Device=lambda: device, np=np, sys=sys, EXIT_WAIVED=77)
+
+    with pytest.raises(SystemExit) as exc_info:
+        main()
+    assert exc_info.value.code == 77
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_image_sample_propagates_stream_setup_error() -> None:
+    expected = RuntimeError("stream setup failed")
+
+    def create_stream():
+        raise expected
+
+    device = SimpleNamespace(
+        properties=SimpleNamespace(memory_pools_supported=True, host_memory_pools_supported=True),
+        name="Fake GPU",
+        set_current=lambda: None,
+        create_stream=create_stream,
+    )
+    main = _load_sample_function("copyImageArraytoGPU", "main", Device=lambda: device, np=np, sys=sys, EXIT_WAIVED=77)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        main()
+    assert exc_info.value is expected
+
+
+@pytest.mark.parametrize(
+    ("handle_types", "supported"),
+    [
+        (int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32), False),
+        (
+            int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32)
+            | int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR),
+            True,
+        ),
+    ],
+)
+@pytest.mark.agent_authored(model="GPT-6")
+def test_ipc_sample_checks_memory_pool_handle_support(handle_types: int, supported: bool) -> None:
+    check_ipc_support = _load_sample_function(
+        "ipcMemoryPool",
+        "check_ipc_support",
+        platform=SimpleNamespace(system=lambda: "Linux"),
+        open=lambda _path: io.StringIO("6.1.0"),
+        driver=driver,
+    )
+    device = SimpleNamespace(
+        properties=SimpleNamespace(
+            memory_pools_supported=True,
+            mempool_supported_handle_types=handle_types,
+        )
+    )
+
+    assert check_ipc_support(device) is supported
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_mlir_sample_waives_missing_display_before_cuda_setup() -> None:
+    def is_available():
+        pytest.fail("A missing display must waive before querying CUDA")
+
+    main = _load_sample_function(
+        "glInteropFluidNumbaCudaMlir",
+        "main",
+        os=SimpleNamespace(environ={}),
+        platform=SimpleNamespace(system=lambda: "Linux"),
+        sys=sys,
+        cuda=SimpleNamespace(is_available=is_available),
+        EXIT_WAIVED=77,
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        main()
+    assert exc_info.value.code == 77
+
+
+@pytest.mark.agent_authored(model="GPT-6")
+def test_mlir_sample_propagates_cuda_query_error() -> None:
+    expected = RuntimeError("CUDA query failed")
+
+    def is_available():
+        raise expected
+
+    main = _load_sample_function(
+        "glInteropFluidNumbaCudaMlir",
+        "main",
+        os=SimpleNamespace(environ={"DISPLAY": ":0"}),
+        platform=SimpleNamespace(system=lambda: "Linux"),
+        sys=sys,
+        cuda=SimpleNamespace(is_available=is_available),
+        EXIT_WAIVED=77,
+    )
+
+    with pytest.raises(RuntimeError) as exc_info:
+        main()
+    assert exc_info.value is expected
 
 
 @pytest.mark.parametrize("sample_name", WAIVER_SAMPLE_NAMES)

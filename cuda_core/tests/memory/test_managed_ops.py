@@ -5,7 +5,7 @@ import mmap
 
 import pytest
 from helpers.buffers import DummyDeviceMemoryResource, DummyUnifiedMemoryResource
-from helpers.memory import create_managed_memory_resource_or_skip
+from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_allocation_unsupported
 
 from cuda.core import Device, Host, ManagedBuffer
 from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
@@ -28,20 +28,8 @@ def _page_base(buf):
     return int(buf.handle) & ~(_PAGE_SIZE - 1)
 
 
-def _skip_if_raw_managed_alloc_unsupported(device):
-    # Raw `cuMemAllocManaged` capability — distinct from
-    # `helpers.memory.skip_if_managed_memory_unsupported`, which gates
-    # `ManagedMemoryResource` pool creation. Used by tests that exercise
-    # `DummyUnifiedMemoryResource`.
-    try:
-        if not device.properties.managed_memory:
-            pytest.skip("Device does not support managed memory operations")
-    except AttributeError:
-        pytest.skip("Managed-memory buffer operations require CUDA support")
-
-
 def _skip_if_managed_location_ops_unsupported(device):
-    _skip_if_raw_managed_alloc_unsupported(device)
+    skip_if_managed_allocation_unsupported(device)
     try:
         if not device.properties.concurrent_managed_access:
             pytest.skip("Device does not support concurrent managed memory access")
@@ -339,7 +327,7 @@ class TestManagedBuffer:
         from cuda.core import Buffer
 
         device = Device()
-        _skip_if_raw_managed_alloc_unsupported(device)
+        skip_if_managed_allocation_unsupported(device)
         device.set_current()
         # Allocate an external managed pointer through the dummy MR, then
         # adopt it as a ManagedBuffer via from_handle.
