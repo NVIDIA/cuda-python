@@ -509,7 +509,8 @@ cdef bint MP_location_query_available() except? -1:
     """
     IF CUDA_CORE_BUILD_MAJOR >= 13:
         # Not cy_driver_version(): imports run concurrently on free-threaded
-        # builds, and its cache is filled without synchronization.
+        # builds, and its cache is filled without synchronization. Tests replace
+        # this module's driver_version to exercise the pre-13.2 fallback.
         return driver_version() >= (13, 2, 0)
     ELSE:
         return False

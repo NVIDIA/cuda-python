@@ -34,6 +34,7 @@ from cuda.core import (
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
 )
+from cuda.core._memory import _memory_pool
 from cuda.core._memory._buffer import _live_owned_mempool_count
 
 NBYTES = 64
@@ -147,6 +148,33 @@ def child_matching_import(mr_type, alloc_handle, descriptor):
     from_handle.close()
 
 
+def child_import_without_location_query(mr_type, alloc_handle, descriptor):
+    # Stand in for a 13.0 or 13.1 driver, as test_program_compile_cache.py does
+    # for _program: MP_location_query_available reads driver_version from the
+    # _memory_pool module on every import. The monkeypatch fixture cannot reach a
+    # spawned child, and this process exits after the test.
+    _memory_pool.driver_version = lambda: (13, 1, 0)
+    device = Device()
+    device.set_current()
+    stream = device.default_stream
+
+    # The pool's kind is not checked, so the other class's import succeeds, as
+    # it did before #3502 was fixed.
+    with assert_no_cuda_warning():
+        other = import_pool_resource(_other_class(mr_type), device, int(alloc_handle))
+        other.close()
+
+    mr = import_pool_resource(mr_type, device, int(alloc_handle))
+    if mr_type is PinnedMemoryResource:
+        # Without the location query the pool's node is unknown (see numa_id).
+        assert mr.numa_id == 0
+    buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
+    buffer.fill(7, stream=stream)
+    stream.sync()
+    buffer.close()
+    mr.close()
+
+
 class _IpcPoolFixtures:
     @pytest.fixture(autouse=True)
     def _set_start_method(self):
@@ -177,6 +205,19 @@ class TestIpcPoolMatchingImport(_IpcPoolFixtures):
     def test_matching_import_works(self, pool_resource, exported_buffer):
         run_child(
             child_matching_import,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            exported_buffer.ipc_descriptor,
+        )
+
+
+class TestIpcPoolImportWithoutLocationQuery(_IpcPoolFixtures):
+    """With a driver before 13.2, imports skip the pool kind check and behave as before."""
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_import_without_location_query(self, pool_resource, exported_buffer):
+        run_child(
+            child_import_without_location_query,
             type(pool_resource),
             pool_resource.allocation_handle,
             exported_buffer.ipc_descriptor,
