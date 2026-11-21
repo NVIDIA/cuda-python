@@ -38,6 +38,7 @@ from cuda.core import (
 )
 from cuda.core._memory import _memory_pool
 from cuda.core._memory._buffer import _live_owned_mempool_count
+from cuda.core._memory._pinned_memory_resource import _deep_reduce_pinned_memory_resource
 
 NBYTES = 64
 
@@ -131,6 +132,93 @@ def child_imported_numa_id(alloc_handle, numa_id):
     mr.close()
 
 
+def child_unpickled_numa_id(mr, numa_id):
+    # The resource was unpickled while the child's arguments were loaded.
+    assert mr.numa_id == numa_id
+    mr.close()
+
+
+def _without_location_query():
+    # Stand in for a 13.0 or 13.1 driver (see child_import_without_location_query).
+    _memory_pool.driver_version = lambda: (13, 1, 0)
+
+
+# A node that the tests cannot confuse with the default of 0. Without a location
+# query nothing checks it against the pool.
+CLAIMED_NUMA_ID = 7
+
+
+def child_import_with_numa_id_without_location_query(alloc_handle):
+    _without_location_query()
+    Device().set_current()
+
+    # A raw file descriptor carries no UUID, so each import is a separate resource.
+    omitted = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
+    assert omitted.numa_id == 0
+    given = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=CLAIMED_NUMA_ID)
+    assert given.numa_id == CLAIMED_NUMA_ID
+    given.close()
+    omitted.close()
+
+
+def child_import_reduced_args_without_location_query(reduced_args):
+    _without_location_query()
+    Device().set_current()
+    mr = PinnedMemoryResource.from_allocation_handle(*reduced_args)
+    assert mr.numa_id == reduced_args[1]
+    mr.close()
+
+
+def child_reduce_imported_resource(alloc_handle):
+    _without_location_query()
+    Device().set_current()
+
+    # The node of this import is unknown, so a third process must not be told 0.
+    unknown = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
+    assert unknown.numa_id == 0
+    assert _deep_reduce_pinned_memory_resource(unknown)[1][1] is None
+
+    known = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=CLAIMED_NUMA_ID)
+    assert _deep_reduce_pinned_memory_resource(known)[1][1] == CLAIMED_NUMA_ID
+    known.close()
+    unknown.close()
+
+
+def child_registered_import_rejects_conflicting_numa_id(alloc_handle):
+    _without_location_query()
+    Device().set_current()
+    baseline = _live_owned_mempool_count()
+
+    mr = PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID)
+    # The handle's UUID is now registered, so the resource is returned as is.
+    assert PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID) is mr
+    with pytest.raises(ValueError, match="numa_id"):
+        PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID + 1)
+    assert PinnedMemoryResource.from_allocation_handle(alloc_handle) is mr
+    assert mr.numa_id == CLAIMED_NUMA_ID
+
+    mr.close()
+    assert _live_owned_mempool_count() == baseline
+
+
+def child_numa_id_is_checked_against_driver(alloc_handle):
+    Device().set_current()
+    baseline = _live_owned_mempool_count()
+
+    mr = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
+    node = mr.numa_id
+    # Releasing the rejected import cannot raise; a failed cuMemPoolDestroy
+    # surfaces only as a CUDAWarning.
+    with assert_no_cuda_warning(), pytest.raises(ValueError, match="numa_id"):
+        PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=node + 1)
+
+    matching = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=node)
+    assert matching.numa_id == node
+    matching.close()
+    mr.close()
+    assert _live_owned_mempool_count() == baseline
+
+
 def child_matching_import(mr_type, alloc_handle, descriptor):
     device = Device()
     device.set_current()
@@ -179,6 +267,15 @@ class _IpcPoolFixtures:
         # Ensure spawn is used for multiprocessing
         with contextlib.suppress(RuntimeError):
             mp.set_start_method("spawn", force=True)
+
+    @pytest.fixture
+    def pinned_ipc_resource(self, ipc_device):
+        skip_if_host_numa_pinned_memory_unsupported(ipc_device)
+        ipc_device.set_current()
+        mr = PinnedMemoryResource(PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True))
+        yield mr
+        mr.close()
+        ipc_device.sync()
 
     @pytest.fixture
     def pool_resource(self, ipc_memory_resource):
@@ -259,5 +356,41 @@ class TestIpcPoolKind(_IpcPoolFixtures):
         try:
             assert mr.numa_id == numa_id
             run_child(child_imported_numa_id, mr.allocation_handle, numa_id)
+            # Unpickling the resource is the other import path.
+            run_child(child_unpickled_numa_id, mr, numa_id)
         finally:
             mr.close()
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_numa_id_is_checked_against_driver(self, pinned_ipc_resource):
+        run_child(child_numa_id_is_checked_against_driver, pinned_ipc_resource.allocation_handle)
+
+
+class TestPinnedImportNumaId(_IpcPoolFixtures):
+    """Without a location query, an imported pinned pool's node comes from the caller or the pickle (#3508)."""
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_import_uses_given_numa_id(self, pinned_ipc_resource):
+        run_child(child_import_with_numa_id_without_location_query, pinned_ipc_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_pickle_carries_numa_id(self, pinned_ipc_resource):
+        _, reduced_args = _deep_reduce_pinned_memory_resource(pinned_ipc_resource)
+        assert reduced_args[0] is pinned_ipc_resource.allocation_handle
+        assert reduced_args[1] == pinned_ipc_resource.numa_id
+        run_child(child_import_reduced_args_without_location_query, reduced_args)
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_pickle_omits_unknown_numa_id(self, pinned_ipc_resource):
+        run_child(child_reduce_imported_resource, pinned_ipc_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_registered_import_rejects_conflicting_numa_id(self, pinned_ipc_resource):
+        run_child(child_registered_import_rejects_conflicting_numa_id, pinned_ipc_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    @pytest.mark.parametrize("numa_id", [-1, -5])
+    def test_negative_numa_id_raises(self, numa_id):
+        # Rejected before the handle is used or CUDA is initialized.
+        with pytest.raises(ValueError, match="numa_id"):
+            PinnedMemoryResource.from_allocation_handle(0, numa_id=numa_id)

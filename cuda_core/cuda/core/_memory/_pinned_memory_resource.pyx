@@ -198,7 +198,7 @@ cdef class PinnedMemoryResource(_MemPool):
 
     @classmethod
     def from_allocation_handle(
-        cls, alloc_handle: int | IPCAllocationHandle
+        cls, alloc_handle: int | IPCAllocationHandle, numa_id: int | None = None
     ) -> PinnedMemoryResource:
         """Create a host-pinned memory resource from an allocation handle.
 
@@ -213,6 +213,14 @@ cdef class PinnedMemoryResource(_MemPool):
             The shareable handle of the host-pinned memory resource to import. If an
             integer is supplied, it must represent a valid platform-specific
             handle. It is the caller's responsibility to close that handle.
+        numa_id : int | None, optional
+            The host NUMA node the exporting process placed the pool on, that
+            is, the exporting resource's :attr:`numa_id`. Node IDs are the same
+            in every process on the host. The pool's node is read from the
+            driver when possible (a CUDA 13 build of ``cuda.core`` and a 13.2
+            or later driver); otherwise this value is the imported resource's
+            :attr:`numa_id`. Unpickling a resource passes the exporter's node
+            automatically. Must be >= 0 if given.
 
         Returns
         -------
@@ -226,7 +234,14 @@ cdef class PinnedMemoryResource(_MemPool):
             The pool's kind is checked with a CUDA 13 build of ``cuda.core``
             and a 13.2 or later driver. Otherwise it is checked only when the
             handle's memory resource is already registered in this process.
+        ValueError
+            If ``numa_id`` is negative, or differs from the node of the pool,
+            as reported by the driver or by the resource already registered in
+            this process for the handle.
         """
+        if numa_id is not None and numa_id < 0:
+            raise ValueError(f"numa_id must be >= 0, got {numa_id}")
+
         # cuMemPoolImportFromShareableHandle requires CUDA to be initialized, but in
         # a child process CUDA may not be initialized yet. For DeviceMemoryResource,
         # this is not a concern because most likely when retrieving the device_id the
@@ -234,8 +249,12 @@ cdef class PinnedMemoryResource(_MemPool):
         # not device-specific it is unlikelt the case.
         HANDLE_RETURN(cydriver.cuInit(0))
 
-        return <PinnedMemoryResource>(
-            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported))
+        cdef PinnedMemoryResource mr = <PinnedMemoryResource>(
+            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported, numa_id))
+        # The import hook does not run for a resource that is already registered,
+        # whether found at the start or registered by a concurrent import.
+        _PMR_check_numa_id(mr, numa_id)
+        return mr
 
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
@@ -259,9 +278,11 @@ cdef class PinnedMemoryResource(_MemPool):
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
 
         For a resource imported with :meth:`from_allocation_handle`, this is the
-        pool's node only if the pool's location can be queried (a CUDA 13 build
-        of ``cuda.core`` and a 13.2 or later driver). Otherwise it is 0, which is
-        not known to be the pool's node.
+        pool's node if the pool's location can be queried (a CUDA 13 build of
+        ``cuda.core`` and a 13.2 or later driver), if the caller passed
+        ``numa_id`` to :meth:`from_allocation_handle`, or if the resource was
+        unpickled from a resource whose node was known. Otherwise it is 0, which
+        is not known to be the pool's node.
         """
         return self._numa_id
 
@@ -322,6 +343,7 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
         loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
 
     self._numa_id = numa_id
+    self._numa_id_known = True
 
     if opts is None:
         MP_init_current_pool(
@@ -365,23 +387,42 @@ cdef inline int _PMR_grant_device_access(
     return 0
 
 
-cdef int _PMR_init_imported(_MemPool mr, object unused) except? -1:
+cdef inline int _PMR_check_numa_id(PinnedMemoryResource self, object numa_id) except? -1:
+    # A node the caller passed must agree with a node that is known.
+    if numa_id is not None and self._numa_id_known and self._numa_id != numa_id:
+        raise ValueError(
+            f"numa_id {numa_id} does not match the NUMA node of the memory pool, "
+            f"which is {self._numa_id}")
+    return 0
+
+
+cdef int _PMR_init_imported(_MemPool mr, object numa_id) except? -1:
     cdef PinnedMemoryResource self = <PinnedMemoryResource>mr
     cdef cydriver.CUmemLocation loc
     # IPC-enabled pinned pools created by cuda.core are always placed on a host
     # NUMA node. Without a location query (a CUDA 12 build or a driver before
-    # 13.2), the pool's kind is not checked and numa_id keeps its default.
+    # 13.2), the pool's kind is not checked and the node is the one the caller
+    # passed, if any. Otherwise it is unknown and numa_id keeps its default.
     cdef bint host_numa = True
     if _ipc.MP_check_import_location(self, True, &loc):
         host_numa = loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
         self._numa_id = loc.id if host_numa else -1
+        self._numa_id_known = True
+        _PMR_check_numa_id(self, numa_id)
+    elif numa_id is not None:
+        self._numa_id = numa_id
+        self._numa_id_known = True
     return _PMR_grant_device_access(self, host_numa, True)
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:
     check_multiprocessing_start_method()
-    alloc_handle = mr.allocation_handle
-    return mr.from_allocation_handle, (alloc_handle,)
+    cdef PinnedMemoryResource pmr = <PinnedMemoryResource>mr
+    alloc_handle = pmr.allocation_handle
+    # NUMA node IDs are the same in every process on the host, so the node needs
+    # no translation as a device ordinal does. An unknown node is not sent, so
+    # that the importer does not mistake the default 0 for the pool's node.
+    return pmr.from_allocation_handle, (alloc_handle, pmr._numa_id if pmr._numa_id_known else None)
 
 
 multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)
