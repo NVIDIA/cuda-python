@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_memory/_ipc.pyx: 89.25%</title>
+    <title>Coverage for cuda/core/_memory/_ipc.pyx: 88.97%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
@@ -77,164 +77,166 @@
   "(": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[DeviceMR]|run",
   ")": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|run",
   "*": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[VirtualMR]|run",
-  "+": "tests/test_multiprocessing_warning.py::test_warn_on_fork_method_allocation_handle|run",
-  ",": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[VirtualMR]|run",
-  "-": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[VirtualMR]|run",
-  ".": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[VirtualMR]|run",
-  "/": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[VirtualMR]|run",
-  ":": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[VirtualMR]|run",
-  ";": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[VirtualMR]|run",
-  "=": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_launch_failure-buffer]|run",
-  "?": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_launch_failure-buffer_desc]|run",
-  "@": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_reduce_failure-buffer]|run",
-  "[": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_reduce_failure-buffer_desc]|run",
-  "]": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_success-buffer]|run",
-  "^": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_success-buffer_desc]|run",
-  "_": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[VirtualMR]|run",
-  "`": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[VirtualMR]|run",
-  "{": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[VirtualMR]|run",
-  "|": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[VirtualMR]|run",
-  "}": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[VirtualMR]|run",
-  "~": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[VirtualMR-1]|run",
-  "ab": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[VirtualMR-3]|run",
-  "bb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[VirtualMR]|run",
-  "cb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[VirtualMR]|run",
-  "db": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[VirtualMR]|run",
-  "eb": "tests/memory_ipc/test_vmm_ipc.py::TestDLPackConsumer::test_imported_buffer_feeds_a_consumer|run",
-  "fb": "tests/memory_ipc/test_vmm_ipc.py::TestFileDescriptorLifetime::test_importer_holds_none_after_the_import|run",
-  "gb": "tests/memory_ipc/test_vmm_ipc.py::TestFileDescriptorLifetime::test_process_argument_releases_with_the_process_object|run",
-  "hb": "tests/memory_ipc/test_vmm_ipc.py::TestForkserver::test_process_argument|run",
-  "ib": "tests/memory_ipc/test_vmm_ipc.py::TestForkserver::test_queue_round_trip|run",
-  "jb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[VirtualMR-1]|run",
-  "kb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[VirtualMR-3]|run",
-  "lb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[VirtualMR-1]|run",
-  "mb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[VirtualMR-3]|run",
-  "nb": "tests/memory_ipc/test_vmm_ipc.py::TestEmptyBuffer::test_round_trip|run",
-  "ob": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|run",
-  "pb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|run",
-  "qb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|run",
-  "rb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|run",
-  "sb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|run",
-  "tb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|run",
-  "ub": "tests/memory_ipc/test_vmm_ipc.py::TestRawFileDescriptorTransport::test_round_trip_through_a_unix_socket|run",
-  "vb": "tests/memory_ipc/test_vmm_ipc.py::TestSameProcess::test_descriptor_owns_its_file_descriptors|run",
-  "wb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|run",
-  "xb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|run",
-  "yb": "tests/memory_ipc/test_vmm_ipc.py::TestFileDescriptorLifetime::test_exporter_holds_none_without_a_descriptor|run",
-  "zb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|setup",
-  "Ab": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|setup",
-  "Bb": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|setup",
-  "Cb": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|setup",
-  "Db": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|setup",
-  "Eb": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|setup",
-  "Fb": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|setup",
-  "Gb": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|setup",
-  "Hb": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|setup",
-  "Ib": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|setup",
-  "Jb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[DeviceMR]|setup",
-  "Kb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|setup",
-  "Lb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|setup",
-  "Mb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|setup",
-  "Nb": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[DeviceMR]|setup",
-  "Ob": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|setup",
-  "Pb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|setup",
-  "Qb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|setup",
-  "Rb": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[DeviceMR]|setup",
-  "Sb": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[PinnedMR]|setup",
-  "Tb": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|setup",
-  "Ub": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|setup",
-  "Vb": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[DeviceMR]|setup",
-  "Wb": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[PinnedMR]|setup",
-  "Xb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|setup",
-  "Yb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|setup",
-  "Zb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|setup",
-  "0b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|setup",
-  "1b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|setup",
-  "2b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|setup",
-  "3b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|setup",
-  "4b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|setup",
-  "5b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|setup",
-  "6b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|setup",
-  "7b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|setup",
-  "8b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|setup",
-  "9b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|setup",
-  "!b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|setup",
-  "#b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|setup",
-  "$b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|setup",
-  "%b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|setup",
-  "'b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|setup",
-  "(b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|setup",
-  ")b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|setup",
-  "*b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|setup",
-  "+b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|setup",
-  ",b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|setup",
-  "-b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|setup",
-  ".b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|setup",
-  "/b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|setup",
-  ":b": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|setup",
-  ";b": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|setup",
-  "=b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|setup",
-  "?b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|setup",
-  "@b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|setup",
-  "[b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|setup",
-  "]b": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[DeviceMR]|setup",
-  "^b": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[PinnedMR]|setup",
-  "_b": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|setup",
-  "`b": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|setup",
-  "{b": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|setup",
-  "|b": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|setup",
-  "}b": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|setup",
-  "~b": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
-  "ac": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|setup",
-  "bc": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
-  "cc": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|setup",
-  "dc": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
-  "ec": "tests/test_memory.py::test_mempool_attributes[DeviceMR-release_threshold-int-True]|run",
-  "fc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reserved_mem_current-int-True]|run",
-  "gc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reserved_mem_high-int-True]|run",
-  "hc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reuse_allow_internal_dependencies-bool-True]|run",
-  "ic": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reuse_allow_opportunistic-bool-True]|run",
-  "jc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reuse_follow_event_dependencies-bool-True]|run",
-  "kc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-used_mem_current-int-True]|run",
-  "lc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-used_mem_high-int-True]|run",
-  "mc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-release_threshold-int-True]|run",
-  "nc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_current-int-True]|run",
-  "oc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_high-int-True]|run",
-  "pc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_internal_dependencies-bool-True]|run",
-  "qc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_opportunistic-bool-True]|run",
-  "rc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_follow_event_dependencies-bool-True]|run",
-  "sc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_current-int-True]|run",
-  "tc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_high-int-True]|run",
-  "uc": "tests/test_memory.py::test_pinned_mr_numa_id_default_with_ipc|run",
-  "vc": "tests/test_memory.py::test_pinned_mr_numa_id_explicit|run",
-  "wc": "tests/test_multiprocessing_warning.py::test_no_warning_with_spawn_method|run",
-  "xc": "tests/test_multiprocessing_warning.py::test_warn_on_fork_method_device_memory_resource|run",
-  "yc": "tests/test_multiprocessing_warning.py::test_warning_emitted_only_once|run",
-  "zc": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[DeviceMR]|run",
-  "Ac": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|run",
-  "Bc": "tests/test_memory.py::test_mempool_ipc_errors|run",
-  "Cc": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
-  "Dc": "tests/memory_ipc/test_errors.py::test_ipc_allocation_handle_state_tracks_close|run",
-  "Ec": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[VirtualMR]|run",
-  "Fc": "tests/memory_ipc/test_errors.py::test_register_rejects_non_ipc_memory_resource|run",
-  "Gc": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
-  "Hc": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
-  "Ic": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|run",
-  "Jc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|run",
-  "Kc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
-  "Lc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|run",
-  "Mc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|run",
-  "Nc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
-  "Oc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
-  "Pc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
-  "Qc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
-  "Rc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
-  "Sc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
-  "Tc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run",
-  "Uc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-cloudpickle]|run",
-  "Vc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-pickle]|run",
-  "Wc": "tests/memory_ipc/test_errors.py::test_ipc_allocation_handle_rejects_negative_fd|run",
-  "Xc": "tests/memory_ipc/test_errors.py::test_ipc_types_cannot_be_constructed_directly|run"
+  "+": "tests/memory_ipc/test_memory_ipc.py::TestIpcPinnedPoolAccess::test_main[raw_handle]|run",
+  ",": "tests/memory_ipc/test_memory_ipc.py::TestIpcPinnedPoolAccess::test_main[resource]|run",
+  "-": "tests/test_multiprocessing_warning.py::test_warn_on_fork_method_allocation_handle|run",
+  ".": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[VirtualMR]|run",
+  "/": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[VirtualMR]|run",
+  ":": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[VirtualMR]|run",
+  ";": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[VirtualMR]|run",
+  "=": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[VirtualMR]|run",
+  "?": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[VirtualMR]|run",
+  "@": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_launch_failure-buffer]|run",
+  "[": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_launch_failure-buffer_desc]|run",
+  "]": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_reduce_failure-buffer]|run",
+  "^": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_reduce_failure-buffer_desc]|run",
+  "_": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_success-buffer]|run",
+  "`": "tests/memory_ipc/test_leaks.py::test_pass_object[VirtualMR-exec_success-buffer_desc]|run",
+  "{": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[VirtualMR]|run",
+  "|": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[VirtualMR]|run",
+  "}": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[VirtualMR]|run",
+  "~": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[VirtualMR]|run",
+  "ab": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[VirtualMR]|run",
+  "bb": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[VirtualMR-1]|run",
+  "cb": "tests/memory_ipc/test_send_buffers.py::TestIpcSendBuffers::test_main[VirtualMR-3]|run",
+  "db": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[VirtualMR]|run",
+  "eb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[VirtualMR]|run",
+  "fb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[VirtualMR]|run",
+  "gb": "tests/memory_ipc/test_vmm_ipc.py::TestDLPackConsumer::test_imported_buffer_feeds_a_consumer|run",
+  "hb": "tests/memory_ipc/test_vmm_ipc.py::TestFileDescriptorLifetime::test_importer_holds_none_after_the_import|run",
+  "ib": "tests/memory_ipc/test_vmm_ipc.py::TestFileDescriptorLifetime::test_process_argument_releases_with_the_process_object|run",
+  "jb": "tests/memory_ipc/test_vmm_ipc.py::TestForkserver::test_process_argument|run",
+  "kb": "tests/memory_ipc/test_vmm_ipc.py::TestForkserver::test_queue_round_trip|run",
+  "lb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[VirtualMR-1]|run",
+  "mb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPool::test_main[VirtualMR-3]|run",
+  "nb": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[VirtualMR-1]|run",
+  "ob": "tests/memory_ipc/test_workerpool.py::TestIpcWorkerPoolUsingIPCDescriptors::test_main[VirtualMR-3]|run",
+  "pb": "tests/memory_ipc/test_vmm_ipc.py::TestEmptyBuffer::test_round_trip|run",
+  "qb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|run",
+  "rb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|run",
+  "sb": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|run",
+  "tb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|run",
+  "ub": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|run",
+  "vb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|run",
+  "wb": "tests/memory_ipc/test_vmm_ipc.py::TestRawFileDescriptorTransport::test_round_trip_through_a_unix_socket|run",
+  "xb": "tests/memory_ipc/test_vmm_ipc.py::TestSameProcess::test_descriptor_owns_its_file_descriptors|run",
+  "yb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|run",
+  "zb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|run",
+  "Ab": "tests/memory_ipc/test_vmm_ipc.py::TestFileDescriptorLifetime::test_exporter_holds_none_without_a_descriptor|run",
+  "Bb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|setup",
+  "Cb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|setup",
+  "Db": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[DeviceMR]|setup",
+  "Eb": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|setup",
+  "Fb": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[DeviceMR]|setup",
+  "Gb": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|setup",
+  "Hb": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[DeviceMR]|setup",
+  "Ib": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|setup",
+  "Jb": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[DeviceMR]|setup",
+  "Kb": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|setup",
+  "Lb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[DeviceMR]|setup",
+  "Mb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|setup",
+  "Nb": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[DeviceMR]|setup",
+  "Ob": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|setup",
+  "Pb": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[DeviceMR]|setup",
+  "Qb": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|setup",
+  "Rb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[DeviceMR]|setup",
+  "Sb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|setup",
+  "Tb": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[DeviceMR]|setup",
+  "Ub": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[PinnedMR]|setup",
+  "Vb": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[DeviceMR]|setup",
+  "Wb": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|setup",
+  "Xb": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[DeviceMR]|setup",
+  "Yb": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[PinnedMR]|setup",
+  "Zb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[DeviceMR]|setup",
+  "0b": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|setup",
+  "1b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|setup",
+  "2b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer]|setup",
+  "3b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-buffer_desc]|setup",
+  "4b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|setup",
+  "5b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|setup",
+  "6b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer]|setup",
+  "7b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-buffer_desc]|setup",
+  "8b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|setup",
+  "9b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|setup",
+  "!b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer]|setup",
+  "#b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-buffer_desc]|setup",
+  "$b": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|setup",
+  "%b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|setup",
+  "'b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|setup",
+  "(b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|setup",
+  ")b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|setup",
+  "*b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|setup",
+  "+b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|setup",
+  ",b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|setup",
+  "-b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|setup",
+  ".b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|setup",
+  "/b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|setup",
+  ":b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|setup",
+  ";b": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|setup",
+  "=b": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[DeviceMR]|setup",
+  "?b": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|setup",
+  "@b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[DeviceMR]|setup",
+  "[b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|setup",
+  "]b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[DeviceMR]|setup",
+  "^b": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|setup",
+  "_b": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[DeviceMR]|setup",
+  "`b": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[PinnedMR]|setup",
+  "{b": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[DeviceMR]|setup",
+  "|b": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|setup",
+  "}b": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[DeviceMR]|setup",
+  "~b": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|setup",
+  "ac": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[DeviceMR]|setup",
+  "bc": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
+  "cc": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[DeviceMR]|setup",
+  "dc": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
+  "ec": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[DeviceMR]|setup",
+  "fc": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
+  "gc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-release_threshold-int-True]|run",
+  "hc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reserved_mem_current-int-True]|run",
+  "ic": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reserved_mem_high-int-True]|run",
+  "jc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reuse_allow_internal_dependencies-bool-True]|run",
+  "kc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reuse_allow_opportunistic-bool-True]|run",
+  "lc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-reuse_follow_event_dependencies-bool-True]|run",
+  "mc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-used_mem_current-int-True]|run",
+  "nc": "tests/test_memory.py::test_mempool_attributes[DeviceMR-used_mem_high-int-True]|run",
+  "oc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-release_threshold-int-True]|run",
+  "pc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_current-int-True]|run",
+  "qc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_high-int-True]|run",
+  "rc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_internal_dependencies-bool-True]|run",
+  "sc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_opportunistic-bool-True]|run",
+  "tc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_follow_event_dependencies-bool-True]|run",
+  "uc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_current-int-True]|run",
+  "vc": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_high-int-True]|run",
+  "wc": "tests/test_memory.py::test_pinned_mr_numa_id_default_with_ipc|run",
+  "xc": "tests/test_memory.py::test_pinned_mr_numa_id_explicit|run",
+  "yc": "tests/test_multiprocessing_warning.py::test_no_warning_with_spawn_method|run",
+  "zc": "tests/test_multiprocessing_warning.py::test_warn_on_fork_method_device_memory_resource|run",
+  "Ac": "tests/test_multiprocessing_warning.py::test_warning_emitted_only_once|run",
+  "Bc": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[DeviceMR]|run",
+  "Cc": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|run",
+  "Dc": "tests/test_memory.py::test_mempool_ipc_errors|run",
+  "Ec": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
+  "Fc": "tests/memory_ipc/test_errors.py::test_ipc_allocation_handle_state_tracks_close|run",
+  "Gc": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[VirtualMR]|run",
+  "Hc": "tests/memory_ipc/test_errors.py::test_register_rejects_non_ipc_memory_resource|run",
+  "Ic": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[DeviceMR]|run",
+  "Jc": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
+  "Kc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-alloc_handle]|run",
+  "Lc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_launch_failure-mr]|run",
+  "Mc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-alloc_handle]|run",
+  "Nc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_reduce_failure-mr]|run",
+  "Oc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-alloc_handle]|run",
+  "Pc": "tests/memory_ipc/test_leaks.py::test_pass_object[DeviceMR-exec_success-mr]|run",
+  "Qc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
+  "Rc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
+  "Sc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
+  "Tc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
+  "Uc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
+  "Vc": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run",
+  "Wc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-cloudpickle]|run",
+  "Xc": "tests/test_object_protocols.py::test_pickle_roundtrip[sample_ipc_buffer_descriptor-pickle]|run",
+  "Yc": "tests/memory_ipc/test_errors.py::test_ipc_allocation_handle_rejects_negative_fd|run",
+  "Zc": "tests/memory_ipc/test_errors.py::test_ipc_types_cannot_be_constructed_directly|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -244,7 +246,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_memory<span class="sep">/</span>_ipc.pyx</b>:
-            <span class="pc_cov">89.25%</span>
+            <span class="pc_cov">88.97%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -286,9 +288,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">279 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">249<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">30<span class="text"> missing</span></button>
+            <span class="text">281 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">250<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">31<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">1<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -296,8 +298,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__managed_memory_ops_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-20 01:17 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.4">coverage.py v7.17.4</a>,
+            created at 2026-11-21 01:40 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -363,29 +365,29 @@
     <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t"><span class="txt">    cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE</span>&nbsp;</span><span class="r"><label for="ctxs49" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="txt">cdef is_supported():</span>&nbsp;</span><span class="r"><label for="ctxs51" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">    return IPC_HANDLE_TYPE != cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">109 ctx</label></span><span class="ctxs">2d zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
+    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="txt">    return IPC_HANDLE_TYPE != cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE</span>&nbsp;</span><input type="checkbox" id="ctxs52"><span class="r"><label for="ctxs52" class="ctx">111 ctx</label></span><span class="ctxs">2d BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="txt">cdef class IPCDataForBuffer:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Data members related to sharing memory buffers via IPC.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="txt">    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">        self._ipc_descriptor = ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs58"><span class="r"><label for="ctxs58" class="ctx">67 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z e 8 nb9 b f ! ' # p q r s j k v w x </span></p>
-    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">        self._is_mapped = is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">67 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z e 8 nb9 b f ! ' # p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="txt">        self._ipc_descriptor = ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs58"><span class="r"><label for="ctxs58" class="ctx">67 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z e 8 pb9 b f ! ' # p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t"><span class="txt">        self._is_mapped = is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs59"><span class="r"><label for="ctxs59" class="ctx">67 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z e 8 pb9 b f ! ' # p q r s j k v w x </span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="txt">    def ipc_descriptor(self) -&gt; IPCBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        return self._ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t"><span class="txt">        return self._ipc_descriptor</span>&nbsp;</span><input type="checkbox" id="ctxs63"><span class="r"><label for="ctxs63" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t"><span class="txt">    def is_mapped(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">        return self._is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">3 ctx</label></span><span class="ctxs">2nb! # </span></p>
+    <p class="run"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t"><span class="txt">        return self._is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs67"><span class="r"><label for="ctxs67" class="ctx">3 ctx</label></span><span class="ctxs">2pb! # </span></p>
     <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t"><span class="txt">cdef class IPCDataForMR:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Data members related to sharing memory resources via IPC.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t"><span class="txt">    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        self._alloc_handle = alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">108 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        self._is_mapped = is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">108 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
+    <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t"><span class="txt">        self._alloc_handle = alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs73"><span class="r"><label for="ctxs73" class="ctx">110 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t"><span class="txt">        self._is_mapped = is_mapped</span>&nbsp;</span><input type="checkbox" id="ctxs74"><span class="r"><label for="ctxs74" class="ctx">110 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t"><span class="txt">    def alloc_handle(self) -&gt; IPCAllocationHandle:</span>&nbsp;</span><span class="r"></span></p>
@@ -397,7 +399,7 @@
     <p class="pln"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t85" href="#t85">85</a></span><span class="t"><span class="txt">    def uuid(self) -&gt; uuid.UUID | None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        return getattr(self._alloc_handle, &#x27;uuid&#x27;, None)</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">12 ctx</label></span><span class="ctxs">2h i ( ) a c zcAcy z j k </span></p>
+    <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t"><span class="txt">        return getattr(self._alloc_handle, &#x27;uuid&#x27;, None)</span>&nbsp;</span><input type="checkbox" id="ctxs86"><span class="r"><label for="ctxs86" class="ctx">12 ctx</label></span><span class="ctxs">2h i ( ) a c BcCcy z j k </span></p>
     <p class="pln"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t"><span class="txt">cdef class IPCBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
@@ -411,21 +413,21 @@
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t"><span class="txt">    def __init__(self, *arg, **kwargs) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">2 ctx</label></span><span class="ctxs">2Xcg </span></p>
+    <p class="run"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs100"><span class="r"><label for="ctxs100" class="ctx">2 ctx</label></span><span class="ctxs">2Zcg </span></p>
     <p class="pln"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t"><span class="txt">    @staticmethod</span>&nbsp;</span><span class="r"><label for="ctxs102" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t"><span class="txt">    def _init(reserved: bytes, size: int) -&gt; IPCBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">        cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(IPCBufferDescriptor)</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">67 ctx</label></span><span class="ctxs">2d h i A B C D l m a wbxbEcE F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Bcv CcUcw Vcx </span></p>
-    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">        self._payload = reserved</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">66 ctx</label></span><span class="ctxs">2h i A B C D l m a wbxbEcE F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Bcv CcUcw Vcx </span></p>
-    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">        self._size = size</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">66 ctx</label></span><span class="ctxs">2h i A B C D l m a wbxbEcE F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Bcv CcUcw Vcx </span></p>
-    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">66 ctx</label></span><span class="ctxs">2h i A B C D l m a wbxbEcE F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Bcv CcUcw Vcx </span></p>
+    <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t"><span class="txt">        cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(IPCBufferDescriptor)</span>&nbsp;</span><input type="checkbox" id="ctxs104"><span class="r"><label for="ctxs104" class="ctx">67 ctx</label></span><span class="ctxs">2d h i A B C D l m a ybzbGcE F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Dcv EcWcw Xcx </span></p>
+    <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t"><span class="txt">        self._payload = reserved</span>&nbsp;</span><input type="checkbox" id="ctxs105"><span class="r"><label for="ctxs105" class="ctx">66 ctx</label></span><span class="ctxs">2h i A B C D l m a ybzbGcE F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Dcv EcWcw Xcx </span></p>
+    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t"><span class="txt">        self._size = size</span>&nbsp;</span><input type="checkbox" id="ctxs106"><span class="r"><label for="ctxs106" class="ctx">66 ctx</label></span><span class="ctxs">2h i A B C D l m a ybzbGcE F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Dcv EcWcw Xcx </span></p>
+    <p class="run"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs107"><span class="r"><label for="ctxs107" class="ctx">66 ctx</label></span><span class="ctxs">2h i A B C D l m a ybzbGcE F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Dcv EcWcw Xcx </span></p>
     <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t"><span class="txt">    def __reduce__(self) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs109" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        return IPCBufferDescriptor._init, (self._payload, self._size)</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">56 ctx</label></span><span class="ctxs">2h i A B C D l m E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k UcVc</span></p>
+    <p class="run"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t"><span class="txt">        return IPCBufferDescriptor._init, (self._payload, self._size)</span>&nbsp;</span><input type="checkbox" id="ctxs110"><span class="r"><label for="ctxs110" class="ctx">56 ctx</label></span><span class="ctxs">2h i A B C D l m E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k WcXc</span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t"><span class="txt">    def size(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">        return self._size</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">11 ctx</label></span><span class="ctxs">2* a g e 8 nb$ b ubf v </span></p>
+    <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t"><span class="txt">        return self._size</span>&nbsp;</span><input type="checkbox" id="ctxs114"><span class="r"><label for="ctxs114" class="ctx">11 ctx</label></span><span class="ctxs">2* a g e 8 pb$ b wbf v </span></p>
     <p class="pln"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t"><span class="txt">    cdef const void* payload_ptr(self) noexcept:</span>&nbsp;</span><span class="r"><label for="ctxs116" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t117" href="#t117">117</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return the payload as a const void* for C API calls.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
@@ -433,9 +435,9 @@
     <p class="pln"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t"><span class="txt">cdef inline int IPCAllocationHandle_check_open(IPCAllocationHandle self) except -1:</span>&nbsp;</span><span class="r"><label for="ctxs121" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    if self._h_fd.get() == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">101 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % ( ) c E F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ b p q jbkbr s lbmbj k + </span></p>
+    <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t"><span class="txt">    if self._h_fd.get() == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs122"><span class="r"><label for="ctxs122" class="ctx">103 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % ( ) c E F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ b p q lbmbr s nbobj k - </span></p>
     <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;IPCAllocationHandle has been closed&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs123"><span class="r"><label for="ctxs123" class="ctx">3 ctx</label></span><span class="ctxs">1()b</span></p>
-    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">99 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % c E F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ b p q jbkbr s lbmbj k + </span></p>
+    <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs124"><span class="r"><label for="ctxs124" class="ctx">101 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % c E F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ b p q lbmbr s nbobj k - </span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">cdef class IPCAllocationHandle:</span>&nbsp;</span><span class="r"></span></p>
@@ -443,47 +445,47 @@
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">    of a :class:`VirtualMemoryResource` buffer.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t"><span class="txt">    def __init__(self, *arg, **kwargs) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">1 ctx</label></span><span class="ctxs">2Xc</span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs132"><span class="r"><label for="ctxs132" class="ctx">1 ctx</label></span><span class="ctxs">2Zc</span></p>
     <p class="pln"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs134" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t"><span class="txt">    def _init(cls, handle: int, uuid: uuid.UUID | None) -&gt; IPCAllocationHandle:  # no-cython-lint</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">157 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEb, FbGb* l Hbm Ib- % ( Jb) Kba LbMbWcDcc NbObPbQb. RbSb/ TbUb: VbWb; XbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b= ? @ [ ] ^ :b;b_ =b?b` @b[b{ ]b^b| _b`b} {b|bn o ~ ab}b~bbbacbccbccdcdbebe 8 ybfbgb9 hbib$ b ubf ! ' vbt # p q jbkbr s lbmbj k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        if handle &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">157 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEb, FbGb* l Hbm Ib- % ( Jb) Kba LbMbWcDcc NbObPbQb. RbSb/ TbUb: VbWb; XbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b= ? @ [ ] ^ :b;b_ =b?b` @b[b{ ]b^b| _b`b} {b|bn o ~ ab}b~bbbacbccbccdcdbebe 8 ybfbgb9 hbib$ b ubf ! ' vbt # p q jbkbr s lbmbj k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;Invalid allocation handle (fd) {handle}: must be non-negative&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">1 ctx</label></span><span class="ctxs">2Wc</span></p>
-    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">        self._h_fd = create_fd_handle(handle)</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">156 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEb, FbGb* l Hbm Ib- % ( Jb) Kba LbMbDcc NbObPbQb. RbSb/ TbUb: VbWb; XbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b= ? @ [ ] ^ :b;b_ =b?b` @b[b{ ]b^b| _b`b} {b|bn o ~ ab}b~bbbacbccbccdcdbebe 8 ybfbgb9 hbib$ b ubf ! ' vbt # p q jbkbr s lbmbj k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        self._uuid = uuid</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">156 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEb, FbGb* l Hbm Ib- % ( Jb) Kba LbMbDcc NbObPbQb. RbSb/ TbUb: VbWb; XbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b= ? @ [ ] ^ :b;b_ =b?b` @b[b{ ]b^b| _b`b} {b|bn o ~ ab}b~bbbacbccbccdcdbebe 8 ybfbgb9 hbib$ b ubf ! ' vbt # p q jbkbr s lbmbj k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">156 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEb, FbGb* l Hbm Ib- % ( Jb) Kba LbMbDcc NbObPbQb. RbSb/ TbUb: VbWb; XbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b= ? @ [ ] ^ :b;b_ =b?b` @b[b{ ]b^b| _b`b} {b|bn o ~ ab}b~bbbacbccbccdcdbebe 8 ybfbgb9 hbib$ b ubf ! ' vbt # p q jbkbr s lbmbj k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t"><span class="txt">        cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)</span>&nbsp;</span><input type="checkbox" id="ctxs136"><span class="r"><label for="ctxs136" class="ctx">159 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGb. HbIb* l Jbm Kb/ % ( Lb) Mba NbObYcFcc PbQbRbSb: TbUb; VbWb= XbYb? Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b@ [ ] ^ _ ` =b?b{ @b[b| ]b^b} _b`b~ {b|bab+ , }b~bn o bbcbacbcdbccdcebecfcfbgbe 8 Abhbib9 jbkb$ b wbf ! ' xbt # p q lbmbr s nbobj k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t"><span class="txt">        if handle &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs137"><span class="r"><label for="ctxs137" class="ctx">159 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGb. HbIb* l Jbm Kb/ % ( Lb) Mba NbObYcFcc PbQbRbSb: TbUb; VbWb= XbYb? Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b@ [ ] ^ _ ` =b?b{ @b[b| ]b^b} _b`b~ {b|bab+ , }b~bn o bbcbacbcdbccdcebecfcfbgbe 8 Abhbib9 jbkb$ b wbf ! ' xbt # p q lbmbr s nbobj k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;Invalid allocation handle (fd) {handle}: must be non-negative&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs138"><span class="r"><label for="ctxs138" class="ctx">1 ctx</label></span><span class="ctxs">2Yc</span></p>
+    <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t"><span class="txt">        self._h_fd = create_fd_handle(handle)</span>&nbsp;</span><input type="checkbox" id="ctxs139"><span class="r"><label for="ctxs139" class="ctx">158 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGb. HbIb* l Jbm Kb/ % ( Lb) Mba NbObFcc PbQbRbSb: TbUb; VbWb= XbYb? Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b@ [ ] ^ _ ` =b?b{ @b[b| ]b^b} _b`b~ {b|bab+ , }b~bn o bbcbacbcdbccdcebecfcfbgbe 8 Abhbib9 jbkb$ b wbf ! ' xbt # p q lbmbr s nbobj k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t"><span class="txt">        self._uuid = uuid</span>&nbsp;</span><input type="checkbox" id="ctxs140"><span class="r"><label for="ctxs140" class="ctx">158 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGb. HbIb* l Jbm Kb/ % ( Lb) Mba NbObFcc PbQbRbSb: TbUb; VbWb= XbYb? Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b@ [ ] ^ _ ` =b?b{ @b[b| ]b^b} _b`b~ {b|bab+ , }b~bn o bbcbacbcdbccdcebecfcfbgbe 8 Abhbib9 jbkb$ b wbf ! ' xbt # p q lbmbr s nbobj k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="run"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs141"><span class="r"><label for="ctxs141" class="ctx">158 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGb. HbIb* l Jbm Kb/ % ( Lb) Mba NbObFcc PbQbRbSb: TbUb; VbWb= XbYb? Zb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b@ [ ] ^ _ ` =b?b{ @b[b| ]b^b} _b`b~ {b|bab+ , }b~bn o bbcbacbcdbccdcebecfcfbgbe 8 Abhbib9 jbkb$ b wbf ! ' xbt # p q lbmbr s nbobj k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="txt">    cpdef close(self):</span>&nbsp;</span><span class="r"><label for="ctxs143" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Close the handle.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        self._h_fd.reset()</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">6 ctx</label></span><span class="ctxs">2% ( ) Dce b </span></p>
+    <p class="run"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t"><span class="txt">        self._h_fd.reset()</span>&nbsp;</span><input type="checkbox" id="ctxs145"><span class="r"><label for="ctxs145" class="ctx">6 ctx</label></span><span class="ctxs">2% ( ) Fce b </span></p>
     <p class="pln"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t"><span class="txt">    def is_closed(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Whether this allocation handle has been closed.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return self._h_fd.get() == NULL</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">1 ctx</label></span><span class="ctxs">2Dc</span></p>
+    <p class="run"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">        return self._h_fd.get() == NULL</span>&nbsp;</span><input type="checkbox" id="ctxs150"><span class="r"><label for="ctxs150" class="ctx">1 ctx</label></span><span class="ctxs">2Fc</span></p>
     <p class="pln"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">    def __int__(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        if self._h_fd.get() == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">17 ctx</label></span><span class="ctxs">2( ) a Dcc e 8 yb9 $ b ubf ! ' vb# </span></p>
-    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">2 ctx</label></span><span class="ctxs">2Dce </span></p>
-    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">                f&quot;Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed.&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">2 ctx</label></span><span class="ctxs">2Dce </span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        if self._h_fd.get() == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">17 ctx</label></span><span class="ctxs">2( ) a Fcc e 8 Ab9 $ b wbf ! ' xb# </span></p>
+    <p class="run"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">            raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs154"><span class="r"><label for="ctxs154" class="ctx">2 ctx</label></span><span class="ctxs">2Fce </span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">                f&quot;Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed.&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">2 ctx</label></span><span class="ctxs">2Fce </span></p>
     <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        return as_py(self._h_fd)</span>&nbsp;</span><input type="checkbox" id="ctxs157"><span class="r"><label for="ctxs157" class="ctx">16 ctx</label></span><span class="ctxs">2( ) a c e 8 yb9 $ b ubf ! ' vb# </span></p>
+    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        return as_py(self._h_fd)</span>&nbsp;</span><input type="checkbox" id="ctxs157"><span class="r"><label for="ctxs157" class="ctx">16 ctx</label></span><span class="ctxs">2( ) a c e 8 Ab9 $ b wbf ! ' xb# </span></p>
     <p class="pln"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">    def handle(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        return as_py(self._h_fd)</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">98 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % a E F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ p q jbkbr s lbmbj k + </span></p>
+    <p class="run"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">        return as_py(self._h_fd)</span>&nbsp;</span><input type="checkbox" id="ctxs161"><span class="r"><label for="ctxs161" class="ctx">100 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % a E F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ p q lbmbr s nbobj k - </span></p>
     <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">    def uuid(self) -&gt; uuid.UUID:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs165"><span class="r"><label for="ctxs165" class="ctx">103 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % ( ) a c zcAcE F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ p q jbkbr s lbmbj k + </span></p>
+    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">        return self._uuid</span>&nbsp;</span><input type="checkbox" id="ctxs165"><span class="r"><label for="ctxs165" class="ctx">105 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % ( ) a c BcCcE F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ p q lbmbr s nbobj k - </span></p>
     <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t"><span class="txt">def _reduce_allocation_handle(IPCAllocationHandle alloc_handle not None: IPCAllocationHandle) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs168" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">    IPCAllocationHandle_check_open(alloc_handle)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">97 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % E F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ p q jbkbr s lbmbj k + </span></p>
-    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs170"><span class="r"><label for="ctxs170" class="ctx">97 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % E F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ p q jbkbr s lbmbj k + </span></p>
-    <p class="run"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs171"><span class="r"><label for="ctxs171" class="ctx">97 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % E F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ p q jbkbr s lbmbj k + </span></p>
-    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">97 ctx</label></span><span class="ctxs">2GcHch i A B , C D * l m - % E F . G H / I J : K L ; IcM JcKcN LcMcO NcOcP PcQcQ RcScR Tc= ? @ [ ] ^ S T _ U V ` W X { Y Z | 0 1 } 2 3 n o ~ ab4 5 bb6 7 cby z dbebfbgbhbib$ p q jbkbr s lbmbj k + </span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t"><span class="txt">    IPCAllocationHandle_check_open(alloc_handle)</span>&nbsp;</span><input type="checkbox" id="ctxs169"><span class="r"><label for="ctxs169" class="ctx">99 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % E F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ p q lbmbr s nbobj k - </span></p>
+    <p class="run"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs170"><span class="r"><label for="ctxs170" class="ctx">99 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % E F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ p q lbmbr s nbobj k - </span></p>
+    <p class="run"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="txt">    df = multiprocessing.reduction.DupFd(alloc_handle.handle)</span>&nbsp;</span><input type="checkbox" id="ctxs171"><span class="r"><label for="ctxs171" class="ctx">99 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % E F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ p q lbmbr s nbobj k - </span></p>
+    <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="txt">    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs172"><span class="r"><label for="ctxs172" class="ctx">99 ctx</label></span><span class="ctxs">2IcJch i A B . C D * l m / % E F : G H ; I J = K L ? KcM LcMcN NcOcO PcQcP RcScQ TcUcR Vc@ [ ] ^ _ ` S T { U V | W X } Y Z ~ 0 1 ab+ , 2 3 n o bbcb4 5 db6 7 eby z fbgbhbibjbkb$ p q lbmbr s nbobj k - </span></p>
     <p class="pln"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t"><span class="txt">def _reconstruct_allocation_handle(cls: type, df: object, uuid: uuid.UUID | None) -&gt; IPCAllocationHandle:  # no-cython-lint</span>&nbsp;</span><span class="r"><label for="ctxs175" class="ctx">(empty)</label></span></p>
@@ -510,7 +512,7 @@
     <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">    def sizes(self) -&gt; tuple[int, ...]:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Size of each physical allocation, in address order; the sum is at least ``size``.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">        return self._chunk_sizes</span>&nbsp;</span><input type="checkbox" id="ctxs199"><span class="r"><label for="ctxs199" class="ctx">6 ctx</label></span><span class="ctxs">2g nbybb ubf </span></p>
+    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">        return self._chunk_sizes</span>&nbsp;</span><input type="checkbox" id="ctxs199"><span class="r"><label for="ctxs199" class="ctx">6 ctx</label></span><span class="ctxs">2g pbAbb wbf </span></p>
     <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="txt">    cdef int driver_handle_type(self) except -1:</span>&nbsp;</span><span class="r"><label for="ctxs201" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="txt">        raise NotImplementedError(&quot;a concrete VMM descriptor is required&quot;)</span>&nbsp;</span><span class="r"></span></p>
@@ -557,13 +559,13 @@
     <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    def _from_exports(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">        chunk_sizes: tuple[int, ...], handles: tuple, size: int</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">    ) -&gt; VirtualMemoryFdBufferDescriptor:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        cdef VirtualMemoryFdBufferDescriptor self = VirtualMemoryFdBufferDescriptor.__new__(</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">47 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbu ebe 8 nbybfbgb9 hbib$ b ubf ! ' vbt # jbkblbmb</span></p>
+    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        cdef VirtualMemoryFdBufferDescriptor self = VirtualMemoryFdBufferDescriptor.__new__(</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">47 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbu gbe 8 pbAbhbib9 jbkb$ b wbf ! ' xbt # lbmbnbob</span></p>
     <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">            VirtualMemoryFdBufferDescriptor)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        self._payload = b&quot;&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">47 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbu ebe 8 nbybfbgb9 hbib$ b ubf ! ' vbt # jbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">        self._size = size</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">47 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbu ebe 8 nbybfbgb9 hbib$ b ubf ! ' vbt # jbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        self._chunk_sizes = tuple(chunk_sizes)</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">47 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbu ebe 8 nbybfbgb9 hbib$ b ubf ! ' vbt # jbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        self._handles = tuple(handles)</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">47 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbu ebe 8 nbybfbgb9 hbib$ b ubf ! ' vbt # jbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs252"><span class="r"><label for="ctxs252" class="ctx">47 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbu ebe 8 nbybfbgb9 hbib$ b ubf ! ' vbt # jbkblbmb</span></p>
+    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        self._payload = b&quot;&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">47 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbu gbe 8 pbAbhbib9 jbkb$ b wbf ! ' xbt # lbmbnbob</span></p>
+    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">        self._size = size</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">47 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbu gbe 8 pbAbhbib9 jbkb$ b wbf ! ' xbt # lbmbnbob</span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        self._chunk_sizes = tuple(chunk_sizes)</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">47 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbu gbe 8 pbAbhbib9 jbkb$ b wbf ! ' xbt # lbmbnbob</span></p>
+    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        self._handles = tuple(handles)</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">47 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbu gbe 8 pbAbhbib9 jbkb$ b wbf ! ' xbt # lbmbnbob</span></p>
+    <p class="run"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">        return self</span>&nbsp;</span><input type="checkbox" id="ctxs252"><span class="r"><label for="ctxs252" class="ctx">47 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbu gbe 8 pbAbhbib9 jbkb$ b wbf ! ' xbt # lbmbnbob</span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs254" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">    def from_fds(</span>&nbsp;</span><span class="r"></span></p>
@@ -634,7 +636,7 @@
     <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">        return VirtualMemoryFdBufferDescriptor._from_exports(sizes_t, tuple(handles), size)</span>&nbsp;</span><input type="checkbox" id="ctxs320"><span class="r"><label for="ctxs320" class="ctx">2 ctx</label></span><span class="ctxs">1bf</span></p>
     <p class="pln"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">    cdef int driver_handle_type(self) except -1:</span>&nbsp;</span><span class="r"><label for="ctxs322" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">        return &lt;int&gt;cydriver.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span>&nbsp;</span><input type="checkbox" id="ctxs323"><span class="r"><label for="ctxs323" class="ctx">10 ctx</label></span><span class="ctxs">2u e 8 nb9 b f ! ' # </span></p>
+    <p class="run"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">        return &lt;int&gt;cydriver.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span>&nbsp;</span><input type="checkbox" id="ctxs323"><span class="r"><label for="ctxs323" class="ctx">10 ctx</label></span><span class="ctxs">2u e 8 pb9 b f ! ' # </span></p>
     <p class="pln"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL:</span>&nbsp;</span><span class="r"><label for="ctxs325" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">        # fd zero is valid, so NULL is a valid result unless an exception is set.</span>&nbsp;</span><span class="r"></span></p>
@@ -647,7 +649,7 @@
     <p class="pln"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">        The descriptor owns them and closes them when it is released.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">        return self._handles</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">9 ctx</label></span><span class="ctxs">2e 8 nb9 b f ! ' # </span></p>
+    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">        return self._handles</span>&nbsp;</span><input type="checkbox" id="ctxs336"><span class="r"><label for="ctxs336" class="ctx">9 ctx</label></span><span class="ctxs">2e 8 pb9 b f ! ' # </span></p>
     <p class="pln"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">    def fds(self) -&gt; tuple[int, ...]:</span>&nbsp;</span><span class="r"></span></p>
@@ -658,12 +660,12 @@
     <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">        Keep the descriptor in a variable while you use them; the numbers</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">        from ``buf.ipc_descriptor.fds`` alone may already be closed.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        return tuple(int(handle) for handle in self._handles)</span>&nbsp;</span><input type="checkbox" id="ctxs347"><span class="r"><label for="ctxs347" class="ctx">7 ctx</label></span><span class="ctxs">2nbyb9 b ubf vb</span></p>
+    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        return tuple(int(handle) for handle in self._handles)</span>&nbsp;</span><input type="checkbox" id="ctxs347"><span class="r"><label for="ctxs347" class="ctx">7 ctx</label></span><span class="ctxs">2pbAb9 b wbf xb</span></p>
     <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">    def __reduce__(self) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs349" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">        # multiprocessing duplicates the IPCAllocationHandle fds into the receiver; plain pickle raises.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">        return VirtualMemoryFdBufferDescriptor._from_exports, (</span>&nbsp;</span><input type="checkbox" id="ctxs351"><span class="r"><label for="ctxs351" class="ctx">35 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebnbfbgbhbib$ vbjbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">            self._chunk_sizes, self._handles, self._size)</span>&nbsp;</span><input type="checkbox" id="ctxs352"><span class="r"><label for="ctxs352" class="ctx">35 ctx</label></span><span class="ctxs">2, * - . / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebnbfbgbhbib$ vbjbkblbmb</span></p>
+    <p class="run"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">        return VirtualMemoryFdBufferDescriptor._from_exports, (</span>&nbsp;</span><input type="checkbox" id="ctxs351"><span class="r"><label for="ctxs351" class="ctx">35 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbpbhbibjbkb$ xblbmbnbob</span></p>
+    <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">            self._chunk_sizes, self._handles, self._size)</span>&nbsp;</span><input type="checkbox" id="ctxs352"><span class="r"><label for="ctxs352" class="ctx">35 ctx</label></span><span class="ctxs">2. * / : ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbpbhbibjbkb$ xblbmbnbob</span></p>
     <p class="pln"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):</span>&nbsp;</span><span class="r"></span></p>
@@ -779,51 +781,51 @@
     <p class="pln"><span class="n"><a id="t465" href="#t465">465</a></span><span class="t"><span class="txt"># Buffer IPC Implementation</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t466" href="#t466">466</a></span><span class="t"><span class="txt"># -------------------------</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t467" href="#t467">467</a></span><span class="t"><span class="txt">cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):</span>&nbsp;</span><span class="r"><label for="ctxs467" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t468" href="#t468">468</a></span><span class="t"><span class="txt">    Buffer_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs468"><span class="r"><label for="ctxs468" class="ctx">61 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Bcv Ccw x </span></p>
-    <p class="run"><span class="n"><a id="t469" href="#t469">469</a></span><span class="t"><span class="txt">    if not self.memory_resource.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs469"><span class="r"><label for="ctxs469" class="ctx">61 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Bcv Ccw x </span></p>
-    <p class="run"><span class="n"><a id="t470" href="#t470">470</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs470"><span class="r"><label for="ctxs470" class="ctx">2 ctx</label></span><span class="ctxs">2BcCc</span></p>
-    <p class="run"><span class="n"><a id="t471" href="#t471">471</a></span><span class="t"><span class="txt">    if not isinstance(self.memory_resource, _MemPool):</span>&nbsp;</span><input type="checkbox" id="ctxs471"><span class="r"><label for="ctxs471" class="ctx">59 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t468" href="#t468">468</a></span><span class="t"><span class="txt">    Buffer_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs468"><span class="r"><label for="ctxs468" class="ctx">61 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Dcv Ecw x </span></p>
+    <p class="run"><span class="n"><a id="t469" href="#t469">469</a></span><span class="t"><span class="txt">    if not self.memory_resource.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs469"><span class="r"><label for="ctxs469" class="ctx">61 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k Dcv Ecw x </span></p>
+    <p class="run"><span class="n"><a id="t470" href="#t470">470</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs470"><span class="r"><label for="ctxs470" class="ctx">2 ctx</label></span><span class="ctxs">2DcEc</span></p>
+    <p class="run"><span class="n"><a id="t471" href="#t471">471</a></span><span class="t"><span class="txt">    if not isinstance(self.memory_resource, _MemPool):</span>&nbsp;</span><input type="checkbox" id="ctxs471"><span class="r"><label for="ctxs471" class="ctx">59 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z t p q r s j k v w x </span></p>
     <p class="pln"><span class="n"><a id="t472" href="#t472">472</a></span><span class="t"><span class="txt">        # VirtualMemoryBuffer overrides ipc_descriptor; a plain Buffer wrapped</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t473" href="#t473">473</a></span><span class="t"><span class="txt">        # with Buffer.from_handle(mr=&lt;VirtualMemoryResource&gt;) lands here.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t474" href="#t474">474</a></span><span class="t"><span class="txt">        raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs474"><span class="r"><label for="ctxs474" class="ctx">1 ctx</label></span><span class="ctxs">1t</span></p>
     <p class="run"><span class="n"><a id="t475" href="#t475">475</a></span><span class="t"><span class="txt">            f&quot;a Buffer that {type(self.memory_resource).__name__} did not allocate cannot be shared&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs475"><span class="r"><label for="ctxs475" class="ctx">1 ctx</label></span><span class="ctxs">1t</span></p>
     <p class="pln"><span class="n"><a id="t476" href="#t476">476</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemPoolPtrExportData data</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t477" href="#t477">477</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs477"><span class="r"><label for="ctxs477" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
-    <p class="run"><span class="n"><a id="t478" href="#t478">478</a></span><span class="t"><span class="txt">        HANDLE_RETURN(</span>&nbsp;</span><input type="checkbox" id="ctxs478"><span class="r"><label for="ctxs478" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
-    <p class="run"><span class="n"><a id="t479" href="#t479">479</a></span><span class="t"><span class="txt">            cydriver.cuMemPoolExportPointer(&amp;data, as_cu(self._h_ptr))</span>&nbsp;</span><input type="checkbox" id="ctxs479"><span class="r"><label for="ctxs479" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t477" href="#t477">477</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs477"><span class="r"><label for="ctxs477" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t478" href="#t478">478</a></span><span class="t"><span class="txt">        HANDLE_RETURN(</span>&nbsp;</span><input type="checkbox" id="ctxs478"><span class="r"><label for="ctxs478" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t479" href="#t479">479</a></span><span class="t"><span class="txt">            cydriver.cuMemPoolExportPointer(&amp;data, as_cu(self._h_ptr))</span>&nbsp;</span><input type="checkbox" id="ctxs479"><span class="r"><label for="ctxs479" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
     <p class="pln"><span class="n"><a id="t480" href="#t480">480</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t481" href="#t481">481</a></span><span class="t"><span class="txt">    cdef bytes data_b = cpython.PyBytes_FromStringAndSize(</span>&nbsp;</span><input type="checkbox" id="ctxs481"><span class="r"><label for="ctxs481" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t481" href="#t481">481</a></span><span class="t"><span class="txt">    cdef bytes data_b = cpython.PyBytes_FromStringAndSize(</span>&nbsp;</span><input type="checkbox" id="ctxs481"><span class="r"><label for="ctxs481" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
     <p class="pln"><span class="n"><a id="t482" href="#t482">482</a></span><span class="t"><span class="txt">        &lt;char*&gt;(data.reserved), sizeof(data.reserved)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t483" href="#t483">483</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t484" href="#t484">484</a></span><span class="t"><span class="txt">    return IPCBufferDescriptor._init(data_b, self.size)</span>&nbsp;</span><input type="checkbox" id="ctxs484"><span class="r"><label for="ctxs484" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M obN pbO qbP rbQ sbR tbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
+    <p class="run"><span class="n"><a id="t484" href="#t484">484</a></span><span class="t"><span class="txt">    return IPCBufferDescriptor._init(data_b, self.size)</span>&nbsp;</span><input type="checkbox" id="ctxs484"><span class="r"><label for="ctxs484" class="ctx">58 ctx</label></span><span class="ctxs">2h i A B C D l m a E F G H I J K L M qbN rbO sbP tbQ ubR vbS T U V W X Y Z 0 1 2 3 n o 4 5 6 7 y z p q r s j k v w x </span></p>
     <p class="pln"><span class="n"><a id="t485" href="#t485">485</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t486" href="#t486">486</a></span><span class="t"><span class="txt">cdef Buffer Buffer_from_ipc_descriptor(</span>&nbsp;</span><span class="r"><label for="ctxs486" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t487" href="#t487">487</a></span><span class="t"><span class="txt">    cls, object mr, IPCBufferDescriptor ipc_descriptor, stream</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t488" href="#t488">488</a></span><span class="t"><span class="txt">):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t489" href="#t489">489</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;Import a buffer that was exported from another process.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t490" href="#t490">490</a></span><span class="t"><span class="txt">    if isinstance(ipc_descriptor, _VirtualMemoryDescriptor):</span>&nbsp;</span><input type="checkbox" id="ctxs490"><span class="r"><label for="ctxs490" class="ctx">17 ctx</label></span><span class="ctxs">2a wbxbEcu e 8 nb9 b f ! ' t # BcCc</span></p>
+    <p class="run"><span class="n"><a id="t490" href="#t490">490</a></span><span class="t"><span class="txt">    if isinstance(ipc_descriptor, _VirtualMemoryDescriptor):</span>&nbsp;</span><input type="checkbox" id="ctxs490"><span class="r"><label for="ctxs490" class="ctx">17 ctx</label></span><span class="ctxs">2a ybzbGcu e 8 pb9 b f ! ' t # DcEc</span></p>
     <p class="pln"><span class="n"><a id="t491" href="#t491">491</a></span><span class="t"><span class="txt">        # Imported here rather than cimported: _virtual_memory_resource</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t492" href="#t492">492</a></span><span class="t"><span class="txt">        # cimports this module.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t493" href="#t493">493</a></span><span class="t"><span class="txt">        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource</span>&nbsp;</span><input type="checkbox" id="ctxs493"><span class="r"><label for="ctxs493" class="ctx">11 ctx</label></span><span class="ctxs">2u e 8 nb9 b f ! ' t # </span></p>
-    <p class="run"><span class="n"><a id="t494" href="#t494">494</a></span><span class="t"><span class="txt">        if not isinstance(mr, VirtualMemoryResource):</span>&nbsp;</span><input type="checkbox" id="ctxs494"><span class="r"><label for="ctxs494" class="ctx">11 ctx</label></span><span class="ctxs">2u e 8 nb9 b f ! ' t # </span></p>
+    <p class="run"><span class="n"><a id="t493" href="#t493">493</a></span><span class="t"><span class="txt">        from cuda.core._memory._virtual_memory_resource import VirtualMemoryResource</span>&nbsp;</span><input type="checkbox" id="ctxs493"><span class="r"><label for="ctxs493" class="ctx">11 ctx</label></span><span class="ctxs">2u e 8 pb9 b f ! ' t # </span></p>
+    <p class="run"><span class="n"><a id="t494" href="#t494">494</a></span><span class="t"><span class="txt">        if not isinstance(mr, VirtualMemoryResource):</span>&nbsp;</span><input type="checkbox" id="ctxs494"><span class="r"><label for="ctxs494" class="ctx">11 ctx</label></span><span class="ctxs">2u e 8 pb9 b f ! ' t # </span></p>
     <p class="run"><span class="n"><a id="t495" href="#t495">495</a></span><span class="t"><span class="txt">            raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs495"><span class="r"><label for="ctxs495" class="ctx">1 ctx</label></span><span class="ctxs">1t</span></p>
     <p class="run"><span class="n"><a id="t496" href="#t496">496</a></span><span class="t"><span class="txt">                &quot;this descriptor was exported from a VirtualMemoryResource buffer and must be &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs496"><span class="r"><label for="ctxs496" class="ctx">1 ctx</label></span><span class="ctxs">1t</span></p>
     <p class="run"><span class="n"><a id="t497" href="#t497">497</a></span><span class="t"><span class="txt">                f&quot;imported with a VirtualMemoryResource, not {type(mr).__name__}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs497"><span class="r"><label for="ctxs497" class="ctx">1 ctx</label></span><span class="ctxs">1t</span></p>
-    <p class="run"><span class="n"><a id="t498" href="#t498">498</a></span><span class="t"><span class="txt">        return mr._import_ipc_buffer(ipc_descriptor, stream)</span>&nbsp;</span><input type="checkbox" id="ctxs498"><span class="r"><label for="ctxs498" class="ctx">11 ctx</label></span><span class="ctxs">2u e 8 nb9 b f ! ' t # </span></p>
-    <p class="run"><span class="n"><a id="t499" href="#t499">499</a></span><span class="t"><span class="txt">    if not isinstance(mr, _MemPool):</span>&nbsp;</span><input type="checkbox" id="ctxs499"><span class="r"><label for="ctxs499" class="ctx">7 ctx</label></span><span class="ctxs">2a wbxbEct BcCc</span></p>
-    <p class="run"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t"><span class="txt">        raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs500"><span class="r"><label for="ctxs500" class="ctx">2 ctx</label></span><span class="ctxs">2Ect </span></p>
-    <p class="run"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t"><span class="txt">            &quot;this descriptor was exported from a memory pool buffer and must be imported with a &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs501"><span class="r"><label for="ctxs501" class="ctx">2 ctx</label></span><span class="ctxs">2Ect </span></p>
-    <p class="run"><span class="n"><a id="t502" href="#t502">502</a></span><span class="t"><span class="txt">            f&quot;DeviceMemoryResource or PinnedMemoryResource, not {type(mr).__name__}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs502"><span class="r"><label for="ctxs502" class="ctx">2 ctx</label></span><span class="ctxs">2Ect </span></p>
-    <p class="run"><span class="n"><a id="t503" href="#t503">503</a></span><span class="t"><span class="txt">    cdef _MemPool pool = &lt;_MemPool&gt;mr</span>&nbsp;</span><input type="checkbox" id="ctxs503"><span class="r"><label for="ctxs503" class="ctx">5 ctx</label></span><span class="ctxs">2a wbxbBcCc</span></p>
-    <p class="run"><span class="n"><a id="t504" href="#t504">504</a></span><span class="t"><span class="txt">    MP_check_open(pool)</span>&nbsp;</span><input type="checkbox" id="ctxs504"><span class="r"><label for="ctxs504" class="ctx">5 ctx</label></span><span class="ctxs">2a wbxbBcCc</span></p>
-    <p class="run"><span class="n"><a id="t505" href="#t505">505</a></span><span class="t"><span class="txt">    if not mr.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs505"><span class="r"><label for="ctxs505" class="ctx">5 ctx</label></span><span class="ctxs">2a wbxbBcCc</span></p>
-    <p class="run"><span class="n"><a id="t506" href="#t506">506</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs506"><span class="r"><label for="ctxs506" class="ctx">2 ctx</label></span><span class="ctxs">2BcCc</span></p>
-    <p class="run"><span class="n"><a id="t507" href="#t507">507</a></span><span class="t"><span class="txt">    cdef size_t payload_size = len(ipc_descriptor._payload)</span>&nbsp;</span><input type="checkbox" id="ctxs507"><span class="r"><label for="ctxs507" class="ctx">3 ctx</label></span><span class="ctxs">2a wbxb</span></p>
-    <p class="run"><span class="n"><a id="t508" href="#t508">508</a></span><span class="t"><span class="txt">    cdef size_t expected_size = sizeof(cydriver.CUmemPoolPtrExportData)</span>&nbsp;</span><input type="checkbox" id="ctxs508"><span class="r"><label for="ctxs508" class="ctx">3 ctx</label></span><span class="ctxs">2a wbxb</span></p>
-    <p class="run"><span class="n"><a id="t509" href="#t509">509</a></span><span class="t"><span class="txt">    if payload_size &lt; expected_size:</span>&nbsp;</span><input type="checkbox" id="ctxs509"><span class="r"><label for="ctxs509" class="ctx">3 ctx</label></span><span class="ctxs">2a wbxb</span></p>
-    <p class="run"><span class="n"><a id="t510" href="#t510">510</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs510"><span class="r"><label for="ctxs510" class="ctx">2 ctx</label></span><span class="ctxs">2wbxb</span></p>
-    <p class="run"><span class="n"><a id="t511" href="#t511">511</a></span><span class="t"><span class="txt">            f&quot;IPC buffer descriptor payload is {payload_size} bytes; &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs511"><span class="r"><label for="ctxs511" class="ctx">2 ctx</label></span><span class="ctxs">2wbxb</span></p>
-    <p class="run"><span class="n"><a id="t512" href="#t512">512</a></span><span class="t"><span class="txt">            f&quot;expected at least {expected_size}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs512"><span class="r"><label for="ctxs512" class="ctx">2 ctx</label></span><span class="ctxs">2wbxb</span></p>
+    <p class="run"><span class="n"><a id="t498" href="#t498">498</a></span><span class="t"><span class="txt">        return mr._import_ipc_buffer(ipc_descriptor, stream)</span>&nbsp;</span><input type="checkbox" id="ctxs498"><span class="r"><label for="ctxs498" class="ctx">11 ctx</label></span><span class="ctxs">2u e 8 pb9 b f ! ' t # </span></p>
+    <p class="run"><span class="n"><a id="t499" href="#t499">499</a></span><span class="t"><span class="txt">    if not isinstance(mr, _MemPool):</span>&nbsp;</span><input type="checkbox" id="ctxs499"><span class="r"><label for="ctxs499" class="ctx">7 ctx</label></span><span class="ctxs">2a ybzbGct DcEc</span></p>
+    <p class="run"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t"><span class="txt">        raise TypeError(</span>&nbsp;</span><input type="checkbox" id="ctxs500"><span class="r"><label for="ctxs500" class="ctx">2 ctx</label></span><span class="ctxs">2Gct </span></p>
+    <p class="run"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t"><span class="txt">            &quot;this descriptor was exported from a memory pool buffer and must be imported with a &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs501"><span class="r"><label for="ctxs501" class="ctx">2 ctx</label></span><span class="ctxs">2Gct </span></p>
+    <p class="run"><span class="n"><a id="t502" href="#t502">502</a></span><span class="t"><span class="txt">            f&quot;DeviceMemoryResource or PinnedMemoryResource, not {type(mr).__name__}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs502"><span class="r"><label for="ctxs502" class="ctx">2 ctx</label></span><span class="ctxs">2Gct </span></p>
+    <p class="run"><span class="n"><a id="t503" href="#t503">503</a></span><span class="t"><span class="txt">    cdef _MemPool pool = &lt;_MemPool&gt;mr</span>&nbsp;</span><input type="checkbox" id="ctxs503"><span class="r"><label for="ctxs503" class="ctx">5 ctx</label></span><span class="ctxs">2a ybzbDcEc</span></p>
+    <p class="run"><span class="n"><a id="t504" href="#t504">504</a></span><span class="t"><span class="txt">    MP_check_open(pool)</span>&nbsp;</span><input type="checkbox" id="ctxs504"><span class="r"><label for="ctxs504" class="ctx">5 ctx</label></span><span class="ctxs">2a ybzbDcEc</span></p>
+    <p class="run"><span class="n"><a id="t505" href="#t505">505</a></span><span class="t"><span class="txt">    if not mr.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs505"><span class="r"><label for="ctxs505" class="ctx">5 ctx</label></span><span class="ctxs">2a ybzbDcEc</span></p>
+    <p class="run"><span class="n"><a id="t506" href="#t506">506</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs506"><span class="r"><label for="ctxs506" class="ctx">2 ctx</label></span><span class="ctxs">2DcEc</span></p>
+    <p class="run"><span class="n"><a id="t507" href="#t507">507</a></span><span class="t"><span class="txt">    cdef size_t payload_size = len(ipc_descriptor._payload)</span>&nbsp;</span><input type="checkbox" id="ctxs507"><span class="r"><label for="ctxs507" class="ctx">3 ctx</label></span><span class="ctxs">2a ybzb</span></p>
+    <p class="run"><span class="n"><a id="t508" href="#t508">508</a></span><span class="t"><span class="txt">    cdef size_t expected_size = sizeof(cydriver.CUmemPoolPtrExportData)</span>&nbsp;</span><input type="checkbox" id="ctxs508"><span class="r"><label for="ctxs508" class="ctx">3 ctx</label></span><span class="ctxs">2a ybzb</span></p>
+    <p class="run"><span class="n"><a id="t509" href="#t509">509</a></span><span class="t"><span class="txt">    if payload_size &lt; expected_size:</span>&nbsp;</span><input type="checkbox" id="ctxs509"><span class="r"><label for="ctxs509" class="ctx">3 ctx</label></span><span class="ctxs">2a ybzb</span></p>
+    <p class="run"><span class="n"><a id="t510" href="#t510">510</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs510"><span class="r"><label for="ctxs510" class="ctx">2 ctx</label></span><span class="ctxs">2ybzb</span></p>
+    <p class="run"><span class="n"><a id="t511" href="#t511">511</a></span><span class="t"><span class="txt">            f&quot;IPC buffer descriptor payload is {payload_size} bytes; &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs511"><span class="r"><label for="ctxs511" class="ctx">2 ctx</label></span><span class="ctxs">2ybzb</span></p>
+    <p class="run"><span class="n"><a id="t512" href="#t512">512</a></span><span class="t"><span class="txt">            f&quot;expected at least {expected_size}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs512"><span class="r"><label for="ctxs512" class="ctx">2 ctx</label></span><span class="ctxs">2ybzb</span></p>
     <p class="pln"><span class="n"><a id="t513" href="#t513">513</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t514" href="#t514">514</a></span><span class="t"><span class="txt">    cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs514"><span class="r"><label for="ctxs514" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
     <p class="run"><span class="n"><a id="t515" href="#t515">515</a></span><span class="t"><span class="txt">    cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(</span>&nbsp;</span><input type="checkbox" id="ctxs515"><span class="r"><label for="ctxs515" class="ctx">1 ctx</label></span><span class="ctxs">1a</span></p>
@@ -852,7 +854,7 @@
     <p class="pln"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t"><span class="txt"># _MemPool IPC Implementation</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t"><span class="txt"># ---------------------------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):</span>&nbsp;</span><span class="r"><label for="ctxs541" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t"><span class="txt">cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=NULL):</span>&nbsp;</span><span class="r"><label for="ctxs541" class="ctx">(empty)</label></span></p>
     <p class="run"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t"><span class="txt">    if isinstance(alloc_handle, IPCAllocationHandle):</span>&nbsp;</span><input type="checkbox" id="ctxs542"><span class="r"><label for="ctxs542" class="ctx">4 ctx</label></span><span class="ctxs">1()ac</span></p>
     <p class="run"><span class="n"><a id="t543" href="#t543">543</a></span><span class="t"><span class="txt">        IPCAllocationHandle_check_open(&lt;IPCAllocationHandle&gt;alloc_handle)</span>&nbsp;</span><input type="checkbox" id="ctxs543"><span class="r"><label for="ctxs543" class="ctx">3 ctx</label></span><span class="ctxs">1()c</span></p>
     <p class="pln"><span class="n"><a id="t544" href="#t544">544</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -892,59 +894,64 @@
     <p class="pln"><span class="n"><a id="t578" href="#t578">578</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t579" href="#t579">579</a></span><span class="t"><span class="txt">    self._ipc_data = IPCDataForMR(alloc_handle, True)</span>&nbsp;</span><input type="checkbox" id="ctxs579"><span class="r"><label for="ctxs579" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
     <p class="pln"><span class="n"><a id="t580" href="#t580">580</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t581" href="#t581">581</a></span><span class="t"><span class="txt">    # Register it.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t582" href="#t582">582</a></span><span class="t"><span class="txt">    if uuid is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs582"><span class="r"><label for="ctxs582" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
-    <p class="run"><span class="n"><a id="t583" href="#t583">583</a></span><span class="t"><span class="txt">        registered = self.register(uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs583"><span class="r"><label for="ctxs583" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
-    <p class="run"><span class="n"><a id="t584" href="#t584">584</a></span><span class="t"><span class="txt">        if registered is not self:</span>&nbsp;</span><input type="checkbox" id="ctxs584"><span class="r"><label for="ctxs584" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t585" href="#t585">585</a></span><span class="t"><span class="txt">            raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t586" href="#t586">586</a></span><span class="t"><span class="txt">                &quot;internal cuda.core error, please report: register() returned a &quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="txt">                &quot;different memory resource than the one being registered&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t588" href="#t588">588</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t589" href="#t589">589</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t590" href="#t590">590</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><input type="checkbox" id="ctxs590"><span class="r"><label for="ctxs590" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
-    <p class="pln"><span class="n"><a id="t591" href="#t591">591</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t592" href="#t592">592</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t593" href="#t593">593</a></span><span class="t"><span class="txt">cdef _MemPool MP_from_registry(uuid):</span>&nbsp;</span><span class="r"><label for="ctxs593" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t594" href="#t594">594</a></span><span class="t"><span class="txt">    cdef _MemPool mr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t595" href="#t595">595</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs595"><span class="r"><label for="ctxs595" class="ctx">2 ctx</label></span><span class="ctxs">2c Fc</span></p>
-    <p class="run"><span class="n"><a id="t596" href="#t596">596</a></span><span class="t"><span class="txt">        mr = registry[uuid]</span>&nbsp;</span><input type="checkbox" id="ctxs596"><span class="r"><label for="ctxs596" class="ctx">2 ctx</label></span><span class="ctxs">2c Fc</span></p>
-    <p class="run"><span class="n"><a id="t597" href="#t597">597</a></span><span class="t"><span class="txt">        MP_check_open(mr)</span>&nbsp;</span><input type="checkbox" id="ctxs597"><span class="r"><label for="ctxs597" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
-    <p class="run"><span class="n"><a id="t598" href="#t598">598</a></span><span class="t"><span class="txt">        return mr</span>&nbsp;</span><input type="checkbox" id="ctxs598"><span class="r"><label for="ctxs598" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
-    <p class="run"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t"><span class="txt">    except KeyError:</span>&nbsp;</span><input type="checkbox" id="ctxs599"><span class="r"><label for="ctxs599" class="ctx">1 ctx</label></span><span class="ctxs">2Fc</span></p>
-    <p class="run"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="txt">        raise RuntimeError(f&quot;Memory resource {uuid} was not found&quot;) from None</span>&nbsp;</span><input type="checkbox" id="ctxs600"><span class="r"><label for="ctxs600" class="ctx">1 ctx</label></span><span class="ctxs">2Fc</span></p>
-    <p class="pln"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t603" href="#t603">603</a></span><span class="t"><span class="txt">cdef _MemPool MP_register(_MemPool self, uuid):</span>&nbsp;</span><span class="r"><label for="ctxs603" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t604" href="#t604">604</a></span><span class="t"><span class="txt">    MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs604"><span class="r"><label for="ctxs604" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c zcAcFc</span></p>
-    <p class="run"><span class="n"><a id="t605" href="#t605">605</a></span><span class="t"><span class="txt">    existing = registry.get(uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs605"><span class="r"><label for="ctxs605" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c zcAcFc</span></p>
-    <p class="run"><span class="n"><a id="t606" href="#t606">606</a></span><span class="t"><span class="txt">    if existing is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs606"><span class="r"><label for="ctxs606" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c zcAcFc</span></p>
-    <p class="run"><span class="n"><a id="t607" href="#t607">607</a></span><span class="t"><span class="txt">        MP_check_open(&lt;_MemPool&gt;existing)</span>&nbsp;</span><input type="checkbox" id="ctxs607"><span class="r"><label for="ctxs607" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
-    <p class="run"><span class="n"><a id="t608" href="#t608">608</a></span><span class="t"><span class="txt">        return existing</span>&nbsp;</span><input type="checkbox" id="ctxs608"><span class="r"><label for="ctxs608" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
-    <p class="run"><span class="n"><a id="t609" href="#t609">609</a></span><span class="t"><span class="txt">    if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs609"><span class="r"><label for="ctxs609" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c zcAcFc</span></p>
-    <p class="run"><span class="n"><a id="t610" href="#t610">610</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs610"><span class="r"><label for="ctxs610" class="ctx">1 ctx</label></span><span class="ctxs">2Fc</span></p>
-    <p class="run"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t"><span class="txt">    if self.uuid is not None and self.uuid != uuid:</span>&nbsp;</span><input type="checkbox" id="ctxs611"><span class="r"><label for="ctxs611" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c zcAc</span></p>
-    <p class="run"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs612"><span class="r"><label for="ctxs612" class="ctx">2 ctx</label></span><span class="ctxs">2zcAc</span></p>
-    <p class="run"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t"><span class="txt">            f&quot;Cannot register memory resource with UUID {uuid}: &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs613"><span class="r"><label for="ctxs613" class="ctx">2 ctx</label></span><span class="ctxs">2zcAc</span></p>
-    <p class="run"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">            f&quot;the resource already has UUID {self.uuid}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs614"><span class="r"><label for="ctxs614" class="ctx">2 ctx</label></span><span class="ctxs">2zcAc</span></p>
-    <p class="pln"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t"><span class="txt">    registry[uuid] = self</span>&nbsp;</span><input type="checkbox" id="ctxs616"><span class="r"><label for="ctxs616" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c zcAc</span></p>
-    <p class="run"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">    self._ipc_data._alloc_handle._uuid = uuid</span>&nbsp;</span><input type="checkbox" id="ctxs617"><span class="r"><label for="ctxs617" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c zcAc</span></p>
-    <p class="run"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><input type="checkbox" id="ctxs618"><span class="r"><label for="ctxs618" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c zcAc</span></p>
-    <p class="pln"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t"><span class="txt">cdef IPCAllocationHandle MP_export_mempool(_MemPool self):</span>&nbsp;</span><span class="r"><label for="ctxs621" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t"><span class="txt">    # Note: This is Linux only (int for file descriptor)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t623" href="#t623">623</a></span><span class="t"><span class="txt">    MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs623"><span class="r"><label for="ctxs623" class="ctx">108 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="pln"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t"><span class="txt">    cdef int fd</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t625" href="#t625">625</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs625"><span class="r"><label for="ctxs625" class="ctx">108 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="run"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(</span>&nbsp;</span><input type="checkbox" id="ctxs626"><span class="r"><label for="ctxs626" class="ctx">108 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="pln"><span class="n"><a id="t627" href="#t627">627</a></span><span class="t"><span class="txt">            &amp;fd, as_cu(self._h_pool), IPC_HANDLE_TYPE, 0)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t628" href="#t628">628</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t629" href="#t629">629</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs629"><span class="r"><label for="ctxs629" class="ctx">108 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="run"><span class="n"><a id="t630" href="#t630">630</a></span><span class="t"><span class="txt">        return IPCAllocationHandle._init(fd, uuid.uuid4())</span>&nbsp;</span><input type="checkbox" id="ctxs630"><span class="r"><label for="ctxs630" class="ctx">108 ctx</label></span><span class="ctxs">2zbAbh Bbi CbDbEbFbGbl Hbm Ib% JbKba LbMbc NbObPbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|bn o }b~bacbcccdcp q r s j k ecfcgchcicjckclcmcncocpcqcrcsctcv ucvcwc+ xcycw x </span></p>
-    <p class="mis show_mis"><span class="n"><a id="t631" href="#t631">631</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t632" href="#t632">632</a></span><span class="t"><span class="txt">        os.close(fd)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t633" href="#t633">633</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t581" href="#t581">581</a></span><span class="t"><span class="txt">    # Initialize before registering: a registry hit in another thread must not</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t582" href="#t582">582</a></span><span class="t"><span class="txt">    # return a pool whose initialization is in progress or has failed.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t583" href="#t583">583</a></span><span class="t"><span class="txt">    if init != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs583"><span class="r"><label for="ctxs583" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t584" href="#t584">584</a></span><span class="t"><span class="txt">        init(self)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t585" href="#t585">585</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t586" href="#t586">586</a></span><span class="t"><span class="txt">    # Register it.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t587" href="#t587">587</a></span><span class="t"><span class="txt">    if uuid is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs587"><span class="r"><label for="ctxs587" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
+    <p class="run"><span class="n"><a id="t588" href="#t588">588</a></span><span class="t"><span class="txt">        registered = self.register(uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs588"><span class="r"><label for="ctxs588" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
+    <p class="run"><span class="n"><a id="t589" href="#t589">589</a></span><span class="t"><span class="txt">        if registered is not self:</span>&nbsp;</span><input type="checkbox" id="ctxs589"><span class="r"><label for="ctxs589" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t590" href="#t590">590</a></span><span class="t"><span class="txt">            raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t591" href="#t591">591</a></span><span class="t"><span class="txt">                &quot;internal cuda.core error, please report: register() returned a &quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t592" href="#t592">592</a></span><span class="t"><span class="txt">                &quot;different memory resource than the one being registered&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t593" href="#t593">593</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t594" href="#t594">594</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t595" href="#t595">595</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><input type="checkbox" id="ctxs595"><span class="r"><label for="ctxs595" class="ctx">2 ctx</label></span><span class="ctxs">1ac</span></p>
+    <p class="pln"><span class="n"><a id="t596" href="#t596">596</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t597" href="#t597">597</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t598" href="#t598">598</a></span><span class="t"><span class="txt">cdef _MemPool MP_from_registry(uuid):</span>&nbsp;</span><span class="r"><label for="ctxs598" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t599" href="#t599">599</a></span><span class="t"><span class="txt">    cdef _MemPool mr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t600" href="#t600">600</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs600"><span class="r"><label for="ctxs600" class="ctx">2 ctx</label></span><span class="ctxs">2c Hc</span></p>
+    <p class="run"><span class="n"><a id="t601" href="#t601">601</a></span><span class="t"><span class="txt">        mr = registry[uuid]</span>&nbsp;</span><input type="checkbox" id="ctxs601"><span class="r"><label for="ctxs601" class="ctx">2 ctx</label></span><span class="ctxs">2c Hc</span></p>
+    <p class="run"><span class="n"><a id="t602" href="#t602">602</a></span><span class="t"><span class="txt">        MP_check_open(mr)</span>&nbsp;</span><input type="checkbox" id="ctxs602"><span class="r"><label for="ctxs602" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
+    <p class="run"><span class="n"><a id="t603" href="#t603">603</a></span><span class="t"><span class="txt">        return mr</span>&nbsp;</span><input type="checkbox" id="ctxs603"><span class="r"><label for="ctxs603" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
+    <p class="run"><span class="n"><a id="t604" href="#t604">604</a></span><span class="t"><span class="txt">    except KeyError:</span>&nbsp;</span><input type="checkbox" id="ctxs604"><span class="r"><label for="ctxs604" class="ctx">1 ctx</label></span><span class="ctxs">2Hc</span></p>
+    <p class="run"><span class="n"><a id="t605" href="#t605">605</a></span><span class="t"><span class="txt">        raise RuntimeError(f&quot;Memory resource {uuid} was not found&quot;) from None</span>&nbsp;</span><input type="checkbox" id="ctxs605"><span class="r"><label for="ctxs605" class="ctx">1 ctx</label></span><span class="ctxs">2Hc</span></p>
+    <p class="pln"><span class="n"><a id="t606" href="#t606">606</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t607" href="#t607">607</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t608" href="#t608">608</a></span><span class="t"><span class="txt">cdef _MemPool MP_register(_MemPool self, uuid):</span>&nbsp;</span><span class="r"><label for="ctxs608" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t609" href="#t609">609</a></span><span class="t"><span class="txt">    MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs609"><span class="r"><label for="ctxs609" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c BcCcHc</span></p>
+    <p class="run"><span class="n"><a id="t610" href="#t610">610</a></span><span class="t"><span class="txt">    existing = registry.get(uuid)</span>&nbsp;</span><input type="checkbox" id="ctxs610"><span class="r"><label for="ctxs610" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c BcCcHc</span></p>
+    <p class="run"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t"><span class="txt">    if existing is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs611"><span class="r"><label for="ctxs611" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c BcCcHc</span></p>
+    <p class="run"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t"><span class="txt">        MP_check_open(&lt;_MemPool&gt;existing)</span>&nbsp;</span><input type="checkbox" id="ctxs612"><span class="r"><label for="ctxs612" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
+    <p class="run"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t"><span class="txt">        return existing</span>&nbsp;</span><input type="checkbox" id="ctxs613"><span class="r"><label for="ctxs613" class="ctx">1 ctx</label></span><span class="ctxs">1c</span></p>
+    <p class="run"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t"><span class="txt">    if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs614"><span class="r"><label for="ctxs614" class="ctx">6 ctx</label></span><span class="ctxs">2( ) c BcCcHc</span></p>
+    <p class="run"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t"><span class="txt">        raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs615"><span class="r"><label for="ctxs615" class="ctx">1 ctx</label></span><span class="ctxs">2Hc</span></p>
+    <p class="run"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t"><span class="txt">    if self.uuid is not None and self.uuid != uuid:</span>&nbsp;</span><input type="checkbox" id="ctxs616"><span class="r"><label for="ctxs616" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c BcCc</span></p>
+    <p class="run"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t"><span class="txt">        raise ValueError(</span>&nbsp;</span><input type="checkbox" id="ctxs617"><span class="r"><label for="ctxs617" class="ctx">2 ctx</label></span><span class="ctxs">2BcCc</span></p>
+    <p class="run"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t"><span class="txt">            f&quot;Cannot register memory resource with UUID {uuid}: &quot;</span>&nbsp;</span><input type="checkbox" id="ctxs618"><span class="r"><label for="ctxs618" class="ctx">2 ctx</label></span><span class="ctxs">2BcCc</span></p>
+    <p class="run"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t"><span class="txt">            f&quot;the resource already has UUID {self.uuid}&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs619"><span class="r"><label for="ctxs619" class="ctx">2 ctx</label></span><span class="ctxs">2BcCc</span></p>
+    <p class="pln"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t"><span class="txt">    registry[uuid] = self</span>&nbsp;</span><input type="checkbox" id="ctxs621"><span class="r"><label for="ctxs621" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c BcCc</span></p>
+    <p class="run"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t"><span class="txt">    self._ipc_data._alloc_handle._uuid = uuid</span>&nbsp;</span><input type="checkbox" id="ctxs622"><span class="r"><label for="ctxs622" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c BcCc</span></p>
+    <p class="run"><span class="n"><a id="t623" href="#t623">623</a></span><span class="t"><span class="txt">    return self</span>&nbsp;</span><input type="checkbox" id="ctxs623"><span class="r"><label for="ctxs623" class="ctx">5 ctx</label></span><span class="ctxs">2( ) c BcCc</span></p>
+    <p class="pln"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t625" href="#t625">625</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t"><span class="txt">cdef IPCAllocationHandle MP_export_mempool(_MemPool self):</span>&nbsp;</span><span class="r"><label for="ctxs626" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t627" href="#t627">627</a></span><span class="t"><span class="txt">    # Note: This is Linux only (int for file descriptor)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t628" href="#t628">628</a></span><span class="t"><span class="txt">    MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs628"><span class="r"><label for="ctxs628" class="ctx">110 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="pln"><span class="n"><a id="t629" href="#t629">629</a></span><span class="t"><span class="txt">    cdef int fd</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t630" href="#t630">630</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs630"><span class="r"><label for="ctxs630" class="ctx">110 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="run"><span class="n"><a id="t631" href="#t631">631</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(</span>&nbsp;</span><input type="checkbox" id="ctxs631"><span class="r"><label for="ctxs631" class="ctx">110 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="pln"><span class="n"><a id="t632" href="#t632">632</a></span><span class="t"><span class="txt">            &amp;fd, as_cu(self._h_pool), IPC_HANDLE_TYPE, 0)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t633" href="#t633">633</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t634" href="#t634">634</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs634"><span class="r"><label for="ctxs634" class="ctx">110 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="run"><span class="n"><a id="t635" href="#t635">635</a></span><span class="t"><span class="txt">        return IPCAllocationHandle._init(fd, uuid.uuid4())</span>&nbsp;</span><input type="checkbox" id="ctxs635"><span class="r"><label for="ctxs635" class="ctx">110 ctx</label></span><span class="ctxs">2BbCbh Dbi EbFbGbHbIbl Jbm Kb% LbMba NbObc PbQbRbSbTbUbVbWbXbYbZb0b1b2b3b4b5b6b7b8b9b!b#b$b%b'b(b)b*b+b,b-b.b/b:b;b=b?b@b[b]b^b_b`b{b|b+ , }b~bn o acbcccdcecfcp q r s j k gchcicjckclcmcncocpcqcrcsctcucvcv wcxcyc- zcAcw x </span></p>
+    <p class="mis show_mis"><span class="n"><a id="t636" href="#t636">636</a></span><span class="t"><span class="txt">    except:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t637" href="#t637">637</a></span><span class="t"><span class="txt">        os.close(fd)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t638" href="#t638">638</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -953,8 +960,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_6928e1fc216e3a2e__managed_memory_ops_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
-            created at 2026-11-20 01:17 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.4">coverage.py v7.17.4</a>,
+            created at 2026-11-21 01:40 +0000
         </p>
     </div>
 </footer>
