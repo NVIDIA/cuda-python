@@ -7,7 +7,7 @@ CUDA Python 12.9.11 Release notes
 Included components
 -------------------
 
-* `cuda.bindings 12.9.11 <https://github.com/NVIDIA/cuda-python/blob/5d81fc030a3679534b4359541926e0106d75b66e/cuda_bindings_12/docs/source/release/12.9.11-notes.rst>`_
+* `cuda.bindings 12.9.11 <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.11/release/12.9.11-notes.html>`_
   includes NVML additions, callback and memory safety fixes, and packaging and
   source-build changes. See its release notes for details.
 

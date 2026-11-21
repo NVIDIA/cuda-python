@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+``cuda-python`` 12.9.10 Release notes
+=========================================
+
+Features
+--------
+
+cuda-python 12.9.10 now ships wheels for Python 3.15.  It is otherwise identical to the 12.9.9 release.
