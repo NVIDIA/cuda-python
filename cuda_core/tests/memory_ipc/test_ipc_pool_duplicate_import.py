@@ -43,24 +43,43 @@ REIMPORT_ROUNDS = 3
 pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
+def _enter_import(stack, mr_type, device, alloc_handle):
+    """Import the pool for ``alloc_handle`` and register it to close on ``stack``."""
+    return stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, alloc_handle)))
+
+
+def _run_threads(threads):
+    """Start every thread, then join every thread."""
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+
+@contextlib.contextmanager
+def _child_device():
+    """Set the child's current device, and assert the owned-pool count returns to its baseline."""
+    device = Device()
+    device.set_current()
+    baseline = _live_owned_mempool_count()
+    yield device, baseline
+    assert _live_owned_mempool_count() == baseline
+
+
 def _import_twice(stack, mr_type, device, alloc_handle):
     # A raw file descriptor carries no UUID, so the registry cannot dedupe.
-    first = stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, int(alloc_handle))))
-    second = stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, int(alloc_handle))))
+    first = _enter_import(stack, mr_type, device, int(alloc_handle))
+    second = _enter_import(stack, mr_type, device, int(alloc_handle))
     assert first is not second
     assert int(first.handle) == int(second.handle)
     return first, second
 
 
 def child_close_one_import(mr_type, alloc_handle, descriptor):
-    device = Device()
-    device.set_current()
-    stream = device.default_stream
-    baseline = _live_owned_mempool_count()
-
     # The stack closes the buffer, then both resources; the first is closed
     # early on purpose, and closing it again is a no-op.
-    with contextlib.ExitStack() as stack:
+    with _child_device() as (device, baseline), contextlib.ExitStack() as stack:
+        stream = device.default_stream
         first, second = _import_twice(stack, mr_type, device, alloc_handle)
         assert _live_owned_mempool_count() == baseline + 1
 
@@ -70,18 +89,13 @@ def child_close_one_import(mr_type, alloc_handle, descriptor):
         buffer = stack.enter_context(Buffer.from_ipc_descriptor(second, descriptor, stream=stream))
         buffer.fill(7, stream=stream)
         stream.sync()
-    assert _live_owned_mempool_count() == baseline
 
 
 def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, descriptor):
-    device = Device()
-    device.set_current()
-    stream = device.default_stream
-    baseline = _live_owned_mempool_count()
-
     # The closes below are the sequence under test; the stack repeats them as
     # no-ops, and releases whatever a failed assertion leaves open.
-    with assert_no_cuda_warning(), contextlib.ExitStack() as stack:
+    with _child_device() as (device, baseline), assert_no_cuda_warning(), contextlib.ExitStack() as stack:
+        stream = device.default_stream
         first, second = _import_twice(stack, mr_type, device, alloc_handle)
         assert _live_owned_mempool_count() == baseline + 1
         # The buffer keeps the pool alive after both resources are closed.
@@ -99,7 +113,6 @@ def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, desc
         stream.sync()
         outstanding.close()
         stream.sync()
-    assert _live_owned_mempool_count() == baseline
 
 
 def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
@@ -146,11 +159,7 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
                 errors.append(e)
                 barrier.abort()
 
-        threads = [threading.Thread(target=release), threading.Thread(target=reimport)]
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
+        _run_threads([threading.Thread(target=release), threading.Thread(target=reimport)])
         # Own whatever the thread made before looking at its errors.
         for mr in reimported:
             stack.enter_context(contextlib.closing(mr))
@@ -168,28 +177,20 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
 
 
 def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
-    device = Device()
-    device.set_current()
-    baseline = _live_owned_mempool_count()
-
-    _set_ipc_pool_release_delay_for_testing(RELEASE_DELAY_US)
-    try:
-        with assert_no_cuda_warning():
-            for _ in range(RACE_ITERATIONS):
-                _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
-    finally:
-        _set_ipc_pool_release_delay_for_testing(0)
-    assert _live_owned_mempool_count() == baseline
+    with _child_device() as (device, _baseline):
+        _set_ipc_pool_release_delay_for_testing(RELEASE_DELAY_US)
+        try:
+            with assert_no_cuda_warning():
+                for _ in range(RACE_ITERATIONS):
+                    _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
+        finally:
+            _set_ipc_pool_release_delay_for_testing(0)
 
 
 def child_register_reentered_by_gc(mr_type, alloc_handle):
-    device = Device()
-    device.set_current()
-    baseline = _live_owned_mempool_count()
-
     # The stack closes the imports, then the nested resource.
-    with contextlib.ExitStack() as stack:
-        nested = stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, int(alloc_handle))))
+    with _child_device() as (device, _baseline), contextlib.ExitStack() as stack:
+        nested = _enter_import(stack, mr_type, device, int(alloc_handle))
         nested_uuid = uuid.uuid4()
         nested.register(nested_uuid)
 
@@ -206,12 +207,11 @@ def child_register_reentered_by_gc(mr_type, alloc_handle):
             gc.set_threshold(1)
             for _ in range(REENTRY_ITERATIONS):
                 # A raw file descriptor carries no UUID, so each import registers a new one.
-                mr = stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, int(alloc_handle))))
+                mr = _enter_import(stack, mr_type, device, int(alloc_handle))
                 assert mr.register(uuid.uuid4()) is mr
         finally:
             gc.set_threshold(*threshold)
             gc.callbacks.remove(register_during_collection)
-    assert _live_owned_mempool_count() == baseline
 
 
 def _import_concurrently(mr_type, device, alloc_handle):
@@ -228,11 +228,7 @@ def _import_concurrently(mr_type, device, alloc_handle):
             errors.append(e)
             barrier.abort()
 
-    threads = [threading.Thread(target=importer, args=(i,)) for i in range(THREADS)]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
+    _run_threads([threading.Thread(target=importer, args=(i,)) for i in range(THREADS)])
     if errors:
         # The imports that succeeded would otherwise stay open.
         for mr in results:
@@ -243,36 +239,32 @@ def _import_concurrently(mr_type, device, alloc_handle):
 
 
 def child_concurrent_uuid_imports(mr_type, alloc_handle):
-    device = Device()
-    device.set_current()
-    assert alloc_handle.uuid is not None
-    baseline = _live_owned_mempool_count()
-
-    for _ in range(ITERATIONS):
-        with contextlib.ExitStack() as stack:
-            results = _import_by_path(stack, "concurrent_uuid", mr_type, device, alloc_handle)
-            # Every import of the UUID returns the registered resource, whichever
-            # thread registered it, with its device set before it was registered.
-            assert all(mr is results[0] for mr in results)
-            if mr_type is DeviceMemoryResource:
-                assert results[0].device_id == device.device_id
-            assert _live_owned_mempool_count() == baseline + 1
-            # Dropping the losing imports must not revoke the winner's access.
-            assert pool_access_flags(results[0], device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        del results
-        assert _live_owned_mempool_count() == baseline
+    with _child_device() as (device, baseline):
+        assert alloc_handle.uuid is not None
+        for _ in range(ITERATIONS):
+            with contextlib.ExitStack() as stack:
+                results = _import_by_path(stack, "concurrent_uuid", mr_type, device, alloc_handle)
+                # Every import of the UUID returns the registered resource, whichever
+                # thread registered it, with its device set before it was registered.
+                assert all(mr is results[0] for mr in results)
+                if mr_type is DeviceMemoryResource:
+                    assert results[0].device_id == device.device_id
+                assert _live_owned_mempool_count() == baseline + 1
+                # Dropping the losing imports must not revoke the winner's access.
+                assert (
+                    pool_access_flags(results[0], device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+                )
+            del results
+            assert _live_owned_mempool_count() == baseline
 
 
 def _import_by_path(stack, import_path, mr_type, device, alloc_handle):
     """Import the pool as ``import_path`` names; ``stack`` closes every resource the import made."""
     if import_path == "single":
-        return [stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, alloc_handle)))]
+        return [_enter_import(stack, mr_type, device, alloc_handle)]
     if import_path == "raw_handle":
         # A raw file descriptor carries no UUID, so each import is a real import.
-        return [
-            stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, int(alloc_handle))))
-            for _ in range(THREADS)
-        ]
+        return [_enter_import(stack, mr_type, device, int(alloc_handle)) for _ in range(THREADS)]
     assert import_path == "concurrent_uuid", import_path
     return [stack.enter_context(contextlib.closing(mr)) for mr in _import_concurrently(mr_type, device, alloc_handle)]
 
@@ -300,20 +292,15 @@ def _reimport_and_use(import_path, mr_type, device, alloc_handle, descriptor, st
 
 
 def child_reimport_after_release_with_pending_free(mr_type, alloc_handle, descriptor, import_path):
-    device = Device()
-    device.set_current()
-    stream = device.default_stream
-    baseline = _live_owned_mempool_count()
-
     # A failed grant is also reported as a warning by the cleanup that follows it.
-    with assert_no_cuda_warning():
+    with _child_device() as (device, _baseline), assert_no_cuda_warning():
+        stream = device.default_stream
         for _ in range(REIMPORT_ROUNDS):
             # The helpers keep no reference to any resource once they return, so
             # the registry entry is gone and the next import is a real one.
             _import_fill_and_release_unsynchronized(import_path, mr_type, device, alloc_handle, descriptor, stream)
             _reimport_and_use(import_path, mr_type, device, alloc_handle, descriptor, stream)
             stream.sync()
-    assert _live_owned_mempool_count() == baseline
 
 
 class TestIpcPoolDuplicateImport:
