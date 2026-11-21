@@ -462,19 +462,30 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
 
 
 cdef int MP_set_access(
-        _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count) except? -1:
+        _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count,
+        bint retry_already_mapped=False) except? -1:
     """Set device access to the pool.
 
     Runs in relaxed capture mode, like every pool attribute access (see
     ``_enter_relaxed_capture_mode``): the driver refuses cuMemPoolSetAccess,
     and invalidates the capture, while a global-mode capture is active on
     any thread or a thread-local one on the calling thread.
+
+    With ``retry_already_mapped``, an identical second call follows a
+    CUDA_ERROR_ALREADY_MAPPED. Importing a pool that is already imported in
+    this process returns the same CUmemoryPool. Once its previous owner has
+    revoked access and destroyed its import, the driver can still hold the
+    pool and fail the first grant over the mapping that an unsynchronized
+    free left behind. The identical retry succeeds (seen on drivers 580 and
+    595). Any other status, and a second failure, raise.
     """
     cdef cydriver.CUstreamCaptureMode mode
     cdef cydriver.CUresult err
     with nogil:
         _enter_relaxed_capture_mode(&mode)
         err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
+        if retry_already_mapped and err == cydriver.CUDA_ERROR_ALREADY_MAPPED:
+            err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
         _exit_relaxed_capture_mode(err, &mode)
     return 0
 
