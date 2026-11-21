@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=7c993a44"></script>
+    <script src="../_static/documentation_options.js?v=be385e5c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev57';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev61';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -976,8 +976,13 @@ integer is supplied, it must represent a valid platform-specific
 handle. It is the caller’s responsibility to close that handle.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A new device memory resource instance with the imported handle.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>A new device memory resource instance with the imported handle. If</em></p></li>
+<li><p><em>the handle’s memory resource is already registered in this process,</em></p></li>
+<li><p><em>that resource is returned with its original device.</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
