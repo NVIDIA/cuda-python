@@ -471,21 +471,30 @@ cdef int MP_set_access(
     and invalidates the capture, while a global-mode capture is active on
     any thread or a thread-local one on the calling thread.
 
-    With ``retry_already_mapped``, an identical second call follows a
-    CUDA_ERROR_ALREADY_MAPPED. Importing a pool that is already imported in
-    this process returns the same CUmemoryPool. Once its previous owner has
-    revoked access and destroyed its import, the driver can still hold the
-    pool and fail the first grant over the mapping that an unsynchronized
-    free left behind. The identical retry succeeds (seen on drivers 580 and
-    595). Any other status, and a second failure, raise.
+    With ``retry_already_mapped``, each entry is set on its own, and an
+    identical second call follows a CUDA_ERROR_ALREADY_MAPPED. Importing a
+    pool that is already imported in this process returns the same
+    CUmemoryPool. Once its previous owner has revoked access and destroyed its
+    import, the driver can still hold the pool and fail a grant over the
+    mapping that an unsynchronized free left behind. The identical retry
+    succeeds (seen on drivers 580 and 595); with several devices, one retry of
+    a combined call is not enough. Any other status, and a second failure for
+    an entry, raise.
     """
     cdef cydriver.CUstreamCaptureMode mode
-    cdef cydriver.CUresult err
+    cdef cydriver.CUresult err = cydriver.CUDA_SUCCESS
+    cdef size_t i
     with nogil:
         _enter_relaxed_capture_mode(&mode)
-        err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
-        if retry_already_mapped and err == cydriver.CUDA_ERROR_ALREADY_MAPPED:
+        if not retry_already_mapped:
             err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
+        else:
+            for i in range(count):
+                err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc + i, 1)
+                if err == cydriver.CUDA_ERROR_ALREADY_MAPPED:
+                    err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc + i, 1)
+                if err != cydriver.CUDA_SUCCESS:
+                    break
         _exit_relaxed_capture_mode(err, &mode)
     return 0
 
