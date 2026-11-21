@@ -129,6 +129,8 @@ class TestIpcWorkerPoolUsingRegistry:
         # Passing mrs implicitly registers them.
         pass
 
+    # For VirtualMR with nmrs=1 or nmrs=3:
+    # This test is not currently run in any CI job
     @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, ipc_memory_resource_factory, nmrs):

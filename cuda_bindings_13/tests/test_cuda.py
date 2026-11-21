@@ -39,6 +39,7 @@ def node_array(nodes):
     return (ctypes.c_void_p * len(nodes))(*nodes)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(True, reason="Always skip!")
 def test_always_skip():
     pass
@@ -88,6 +89,7 @@ def test_cuda_memcpy():
     driver.mem_free_v2(dptr)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 @pytest.mark.skipif(driver_version_less_than(13041), reason="cuGraphAddNode_v3 was added in CUDA 13.4.1")
 def test_graph_add_node_v3_returns_the_node():
