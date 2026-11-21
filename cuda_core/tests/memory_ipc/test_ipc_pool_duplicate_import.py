@@ -215,10 +215,10 @@ def child_register_reentrant_same_uuid(mr_type, alloc_handle):
     baseline = _live_owned_mempool_count()
 
     # Two resources that both claim one UUID: the outer call and a re-entrant
-    # call that the hook injects between the outer call's lookup and insertion,
-    # where a garbage-collection finalizer could. They share one pool handle, so
-    # both are valid owners; registration must pick exactly one winner, and the
-    # outer call must return that winner rather than overwrite it.
+    # call that the hook injects right before the outer call's insertion, where
+    # a garbage-collection finalizer could. They share one pool handle, so both
+    # are valid owners; registration must pick exactly one of them, and both
+    # calls must return it.
     first = import_pool_resource(mr_type, device, int(alloc_handle))
     second = import_pool_resource(mr_type, device, int(alloc_handle))
 
