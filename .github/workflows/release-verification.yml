@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Verify release"
+
+on:
+  workflow_run:
+    workflows: ["CI: Release"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      git-tag:
+        description: "Public release tag to audit, for example v12.9.11"
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  verify:
+    name: Verify public release
+    if: >-
+      github.repository == 'NVIDIA/cuda-python' && (
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event.workflow_run.event == 'workflow_dispatch' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_repository.full_name == github.repository
+        )
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      # workflow_run uses the default branch's verifier, not the producer's head.
+      - name: Checkout verifier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: ./.github/actions/setup-hardened-python
+
+      - name: Install CI tool dependencies
+        run: python -m pip install -e ./ci
+
+      - name: Download release verification metadata
+        id: release-metadata
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: release-verification-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          path: ${{ runner.temp }}/release-verification
+
+      - name: Explain unavailable release metadata
+        if: failure() && steps.release-metadata.outcome == 'failure'
+        run: |
+          echo "::error::Could not download staged wheel metadata for this release attempt."
+          echo "A failed-jobs rerun may reuse preparation from an earlier attempt."
+          echo "Once the GitHub release is public, dispatch this workflow with its tag for a public audit."
+
+      - name: Verify component from completed release
+        if: github.event_name == 'workflow_run'
+        run: python -m ci.tools.verify_release verify --manifest "$RUNNER_TEMP/release-verification/release-verification.json"
+
+      - name: Audit a public release tag
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.git-tag }}
+        run: python -m ci.tools.verify_release verify --tag="$RELEASE_TAG"

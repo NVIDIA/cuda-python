@@ -407,6 +407,28 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+      # A reporting failure belongs to the separate verification workflow.
+      - name: Record release verification metadata
+        id: record-verification
+        continue-on-error: true
+        env:
+          RELEASE_MODE: ${{ inputs.release-action }}
+        run: |
+          python -m ci.tools.verify_release make-manifest \
+            --tag="$RELEASE_GIT_TAG" --component "$RELEASE_COMPONENT" \
+            --mode "$RELEASE_MODE" --wheel-dir release/wheels \
+            > "$RUNNER_TEMP/release-verification.json"
+
+      - name: Upload release verification metadata
+        if: steps.record-verification.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: release-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-verification.json
+          if-no-files-found: error
+          retention-days: 3
+
   test-cuda-python-dependencies:
     name: Test cuda-python${{ matrix.extra }} dependencies (${{ matrix.os }}, Python ${{ matrix.python-version }})
     if: ${{ inputs.component == 'cuda-python' }}
