@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=13682e90"></script>
+    <script src="../_static/documentation_options.js?v=80e820e3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev51';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev53';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -805,6 +805,20 @@ and the importing process now both grant read and write access to every
 supporting device.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3415">#3415</a>,
 <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3501">#3501</a>)</p></li>
+<li><p>Repeat imports of a memory pool in one process, for example passing a raw
+file descriptor to <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.from_allocation_handle" title="cuda.core.PinnedMemoryResource.from_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PinnedMemoryResource.from_allocation_handle()</span></code></a>
+twice, now share one owner, which releases the pool with the last of them.
+Closing one import no longer removes device access to a pinned pool from
+the others, or emits a <code class="docutils literal notranslate"><span class="pre">CUDAWarning</span></code> from <code class="docutils literal notranslate"><span class="pre">cuMemPoolDestroy</span></code> for a
+device pool while a buffer imported through another is alive. An import
+that overlaps the release of the last one waits for it, and concurrent
+imports of one allocation handle return the same resource instead of
+raising an internal error.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3510">#3510</a>)</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.from_allocation_handle" title="cuda.core.DeviceMemoryResource.from_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.from_allocation_handle()</span></code></a> returns a resource
+already registered in the process with its original <code class="docutils literal notranslate"><span class="pre">device_id</span></code>, instead
+of changing it to the requested device.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3510">#3510</a>)</p></li>
 </ul>
 </section>
 </section>
