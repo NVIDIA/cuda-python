@@ -316,12 +316,6 @@ jobs:
             ./build_all_docs.sh latest-only
           else
             ./build_all_docs.sh
-            # At release time, we don't want to update the latest docs
-            rm -rf build/html/latest
-            # Nor the shared version-switcher file at the docs root: the theme
-            # fetches it from one URL for every version, and main deploys own it.
-            # A release built from a branch would overwrite it with a stale list.
-            rm -f build/html/nv-versions.json build/html/versions.json
           fi
           ls -l build
           popd
@@ -346,12 +340,6 @@ jobs:
             ./build_docs.sh latest-only
           else
             ./build_docs.sh
-            # At release time, we don't want to update the latest docs
-            rm -rf build/html/latest
-            # Nor the shared version-switcher file at the docs root: the theme
-            # fetches it from one URL for every version, and main deploys own it.
-            # A release built from a branch would overwrite it with a stale list.
-            rm -f build/html/nv-versions.json build/html/versions.json
           fi
           ls -l build
           popd
@@ -362,6 +350,10 @@ jobs:
             TARGET=""
           fi
           mv "${COMPONENT}"/docs/build/html/* "artifacts/docs/${TARGET}"
+
+      - name: Remove shared files from release docs
+        if: ${{ inputs.is-release }}
+        run: bash .ci-control/ci/tools/remove_shared_release_docs.sh artifacts/docs
 
       # Check links and anchors in the rendered HTML built above.
       # Links in authored Markdown and reST files are checked separately by the
