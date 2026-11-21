@@ -46,6 +46,20 @@ cdef object registry = weakref.WeakValueDictionary()
 # weak reference, which can run a garbage-collection callback or finalizer that
 # registers another resource on the same thread.
 cdef object _registry_lock = threading.RLock()
+# The resource each in-progress MP_register call is inserting, by UUID. Accessed
+# only under _registry_lock, so only the thread inserting it sees an entry.
+cdef dict _registering = {}
+
+# Test-only hook. When set, MP_register calls it right before it inserts into the
+# registry, so a test can register the same UUID re-entrantly at the point where
+# a garbage-collection finalizer could. See
+# test_reentrant_registration_of_one_uuid_picks_one_winner.
+cdef object _register_reentry_hook_for_testing = None
+
+
+def _set_register_reentry_hook_for_testing(hook):
+    global _register_reentry_hook_for_testing
+    _register_reentry_hook_for_testing = hook
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
@@ -623,6 +637,10 @@ cdef _MemPool MP_register(_MemPool self, uuid):
     # threads can both miss and register different resources for one UUID.
     with _registry_lock:
         existing = registry.get(uuid)
+        if existing is None:
+            # A garbage-collection callback re-entered MP_register while this
+            # thread is inserting another resource under this UUID.
+            existing = _registering.get(uuid)
         if existing is not None:
             MP_check_open(<_MemPool>existing)
             return existing
@@ -633,7 +651,23 @@ cdef _MemPool MP_register(_MemPool self, uuid):
                 f"Cannot register memory resource with UUID {uuid}: "
                 f"the resource already has UUID {self.uuid}"
             )
-        registry[uuid] = self
+        # The registry and uuid.UUID run Python code, where a collection can
+        # start and its callbacks can register this UUID on this thread. Once
+        # this resource is marked, such a registration returns it instead of
+        # inserting its own, which the insertion below would overwrite. One
+        # that completed before the mark is found by the second lookup.
+        _registering[uuid] = self
+        try:
+            existing = registry.get(uuid)
+            if existing is None:
+                if _register_reentry_hook_for_testing is not None:
+                    _register_reentry_hook_for_testing(uuid)
+                registry[uuid] = self
+        finally:
+            del _registering[uuid]
+        if existing is not None:
+            MP_check_open(<_MemPool>existing)
+            return existing
     self._ipc_data._alloc_handle._uuid = uuid
     return self
 
