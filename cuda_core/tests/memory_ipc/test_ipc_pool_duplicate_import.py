@@ -13,9 +13,11 @@ last of them is released.
 """
 
 import contextlib
+import gc
 import multiprocessing as mp
 import threading
 import time
+import uuid
 
 import pytest
 from helpers.child_processes import run_child
@@ -33,6 +35,7 @@ ITERATIONS = 20
 # The owner's release sleeps this long in the race test, so the re-import overlaps it.
 RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
+REENTRY_ITERATIONS = 20
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -166,6 +169,42 @@ def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
     assert _live_owned_mempool_count() == baseline
 
 
+def child_register_reentered_by_gc(mr_type, alloc_handle):
+    device = Device()
+    device.set_current()
+    baseline = _live_owned_mempool_count()
+
+    nested = import_pool_resource(mr_type, device, int(alloc_handle))
+    nested_uuid = uuid.uuid4()
+    nested.register(nested_uuid)
+
+    # Registering inserts a weak reference into the registry, and allocating
+    # it can start a collection. A callback that registers again then runs on
+    # the thread that holds the registry lock.
+    def register_during_collection(phase, info):
+        if phase == "start":
+            nested.register(nested_uuid)
+
+    imports = []
+    threshold = gc.get_threshold()
+    gc.callbacks.append(register_during_collection)
+    try:
+        gc.set_threshold(1)
+        for _ in range(REENTRY_ITERATIONS):
+            # A raw file descriptor carries no UUID, so each import registers a new one.
+            mr = import_pool_resource(mr_type, device, int(alloc_handle))
+            imports.append(mr)
+            assert mr.register(uuid.uuid4()) is mr
+    finally:
+        gc.set_threshold(*threshold)
+        gc.callbacks.remove(register_during_collection)
+
+    for mr in imports:
+        mr.close()
+    nested.close()
+    assert _live_owned_mempool_count() == baseline
+
+
 def _import_concurrently(mr_type, device, alloc_handle):
     barrier = threading.Barrier(THREADS)
     results = [None] * THREADS
@@ -258,6 +297,11 @@ class TestIpcPoolDuplicateImport:
             pool_resource.allocation_handle,
             exported_buffer.ipc_descriptor,
         )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_registration_reentered_from_garbage_collection(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_register_reentered_by_gc, type(pool_resource), pool_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):

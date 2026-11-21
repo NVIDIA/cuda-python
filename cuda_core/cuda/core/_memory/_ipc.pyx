@@ -42,7 +42,10 @@ __all__ = []
 
 
 cdef object registry = weakref.WeakValueDictionary()
-cdef object _registry_lock = threading.Lock()  # serializes MP_register
+# Serializes MP_register. Reentrant: inserting into the registry allocates a
+# weak reference, which can run a garbage-collection callback or finalizer that
+# registers another resource on the same thread.
+cdef object _registry_lock = threading.RLock()
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
