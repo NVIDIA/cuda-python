@@ -7,6 +7,7 @@ import pytest
 
 from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda_python_test_helpers import IS_WINDOWS
 
 # Shareable handle type for VirtualMemoryResource allocations on this platform.
@@ -19,6 +20,19 @@ class UnreleasedMemoryResourceWarning(Warning):
 
 class BaselineMemoryResourceReleasedWarning(Warning):
     """An ``init_cuda`` test released an owned memory pool or VA reservation that existed before it started."""
+
+
+def skip_if_pool_location_query_unsupported():
+    """Skip unless an imported pool's location can be queried.
+
+    That needs a CUDA 13 build of ``cuda.core`` and a 13.2 or later driver
+    (``CU_MEMPOOL_ATTR_LOCATION_TYPE``). Without it, imports skip the check of
+    the pool's kind; keep this in sync with ``MP_location_query_available``.
+    """
+    if BUILD_CUDA_MAJOR < 13:
+        pytest.skip("checking a pool's location requires a CUDA 13 build of cuda.core")
+    if driver_version() < (13, 2, 0):
+        pytest.skip("checking a pool's location requires a 13.2 or later driver")
 
 
 def skip_if_mempool_unsupported(device=None):
@@ -54,8 +68,7 @@ def import_pool_resource(cls, device, alloc_handle):
     """Import the pool shared by ``alloc_handle`` as ``cls``, the class of the exporting resource.
 
     The class must match the exporter: importing a pinned pool as a
-    ``DeviceMemoryResource`` (or the reverse) currently succeeds and yields a
-    mislabeled resource (#3502).
+    ``DeviceMemoryResource`` (or the reverse) raises ``TypeError`` (#3502).
     """
     if cls is PinnedMemoryResource:
         return PinnedMemoryResource.from_allocation_handle(alloc_handle)

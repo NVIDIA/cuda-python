@@ -11,7 +11,12 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_from_deviceptr_handle
-from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open
+from cuda.core._memory._memory_pool cimport (
+    _MemPool,
+    MP_check_open,
+    MP_get_location,  # no-cython-lint
+    MP_location_query_available,  # no-cython-lint
+)
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._rt cimport (
     DevicePtrHandle,
@@ -548,6 +553,44 @@ cdef inline _check_registered_type(mr, cls, uuid):
         raise TypeError(
             f"Registry contains a {type(mr).__name__} for uuid "
             f"{uuid}, but {cls.__name__} was requested")
+
+
+cdef int MP_check_import_location(
+        _MemPool self, bint host, cydriver.CUmemLocation* loc) except? -1:
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef cydriver.CUmemLocationType loc_type
+        cdef bint on_host
+        cdef bint on_device
+        cdef int loc_type_value
+        if not MP_location_query_available():
+            return 0
+        MP_get_location(self, loc)
+        loc_type = loc.type
+        loc_type_value = <int>loc_type
+        on_host = (
+            loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+            or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+        )
+        # An imported device pool is INVISIBLE when its device is not visible to
+        # this process (for example under a restricted CUDA_VISIBLE_DEVICES). A
+        # DEVICE_LOCALITY_DOMAIN pool lives in part of a device's memory.
+        on_device = (
+            loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVISIBLE
+            or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN
+        )
+        if (host and on_host) or (not host and on_device):
+            return 1
+        if on_host:
+            problem = "a host memory pool; import it with PinnedMemoryResource.from_allocation_handle"
+        elif on_device:
+            problem = "a device memory pool; import it with DeviceMemoryResource.from_allocation_handle"
+        else:
+            problem = f"a memory pool at location type {loc_type_value}, which neither class can import"
+        raise TypeError(
+            f"The allocation handle refers to {problem}, but {type(self).__name__} was requested")
+    ELSE:
+        return 0
 
 
 cdef _MemPool MP_from_allocation_handle(
