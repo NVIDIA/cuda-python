@@ -145,7 +145,7 @@ class PinnedMemoryResource(_MemPool):
             If the memory resource already has a different UUID.
         """
     @classmethod
-    def from_allocation_handle(cls, alloc_handle: int | IPCAllocationHandle) -> PinnedMemoryResource:
+    def from_allocation_handle(cls, alloc_handle: int | IPCAllocationHandle, numa_id: int | None=None) -> PinnedMemoryResource:
         """Create a host-pinned memory resource from an allocation handle.
 
         Construct a new `PinnedMemoryResource` instance that imports a memory
@@ -159,6 +159,14 @@ class PinnedMemoryResource(_MemPool):
             The shareable handle of the host-pinned memory resource to import. If an
             integer is supplied, it must represent a valid platform-specific
             handle. It is the caller's responsibility to close that handle.
+        numa_id : int | None, optional
+            The host NUMA node the exporting process placed the pool on, that
+            is, the exporting resource's :attr:`numa_id`. Node IDs are the same
+            in every process on the host. The pool's node is read from the
+            driver when possible (a CUDA 13 build of ``cuda.core`` and a 13.2
+            or later driver); otherwise this value is the imported resource's
+            :attr:`numa_id`. Unpickling a resource passes the exporter's node
+            automatically. Must be >= 0 if given.
 
         Returns
         -------
@@ -172,6 +180,10 @@ class PinnedMemoryResource(_MemPool):
             The pool's kind is checked with a CUDA 13 build of ``cuda.core``
             and a 13.2 or later driver. Otherwise it is checked only when the
             handle's memory resource is already registered in this process.
+        ValueError
+            If ``numa_id`` is negative, or differs from the node of the pool,
+            as reported by the driver or by the resource already registered in
+            this process for the handle.
         """
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
@@ -188,9 +200,11 @@ class PinnedMemoryResource(_MemPool):
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
 
         For a resource imported with :meth:`from_allocation_handle`, this is the
-        pool's node only if the pool's location can be queried (a CUDA 13 build
-        of ``cuda.core`` and a 13.2 or later driver). Otherwise it is 0, which is
-        not known to be the pool's node.
+        pool's node if the pool's location can be queried (a CUDA 13 build of
+        ``cuda.core`` and a 13.2 or later driver), if the caller passed
+        ``numa_id`` to :meth:`from_allocation_handle`, or if the resource was
+        unpickled from a resource whose node was known. Otherwise it is 0, which
+        is not known to be the pool's node.
         """
     @property
     def is_device_accessible(self) -> bool:
