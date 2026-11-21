@@ -30,6 +30,7 @@ import multiprocessing
 import operator
 import os
 import platform
+import threading
 import uuid
 import weakref
 from typing import TYPE_CHECKING, Iterable
@@ -41,6 +42,10 @@ __all__ = []
 
 
 cdef object registry = weakref.WeakValueDictionary()
+# Serializes MP_register. Reentrant: inserting into the registry allocates a
+# weak reference, which can run a garbage-collection callback or finalizer that
+# registers another resource on the same thread.
+cdef object _registry_lock = threading.RLock()
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
@@ -538,7 +543,15 @@ cdef Buffer Buffer_from_ipc_descriptor(
 # _MemPool IPC Implementation
 # ---------------------------
 
-cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=NULL):
+cdef inline _check_registered_type(mr, cls, uuid):
+    if not isinstance(mr, cls):
+        raise TypeError(
+            f"Registry contains a {type(mr).__name__} for uuid "
+            f"{uuid}, but {cls.__name__} was requested")
+
+
+cdef _MemPool MP_from_allocation_handle(
+        cls, alloc_handle, MP_import_init_t init=NULL, object init_arg=None):
     if isinstance(alloc_handle, IPCAllocationHandle):
         IPCAllocationHandle_check_open(<IPCAllocationHandle>alloc_handle)
 
@@ -546,10 +559,7 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
     mr = registry.get(uuid)
     if mr is not None:
-        if not isinstance(mr, cls):
-            raise TypeError(
-                f"Registry contains a {type(mr).__name__} for uuid "
-                f"{uuid}, but {cls.__name__} was requested")
+        _check_registered_type(mr, cls, uuid)
         MP_check_open(<_MemPool>mr)
         return mr
 
@@ -579,18 +589,20 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
     # Initialize before registering: a registry hit in another thread must not
-    # return a pool whose initialization is in progress or has failed.
+    # return a pool whose initialization is in progress or has failed. A
+    # resource returned from the registry is never initialized again.
     if init != NULL:
-        init(self)
+        init(self, init_arg)
 
     # Register it.
     if uuid is not None:
         registered = self.register(uuid)
         if registered is not self:
-            raise RuntimeError(
-                "internal cuda.core error, please report: register() returned a "
-                "different memory resource than the one being registered"
-            )
+            # A concurrent import of the same UUID registered first. Both
+            # imports share one pool handle, so dropping this one only drops a
+            # reference.
+            _check_registered_type(registered, cls, uuid)
+            return registered
 
     return self
 
@@ -607,18 +619,21 @@ cdef _MemPool MP_from_registry(uuid):
 
 cdef _MemPool MP_register(_MemPool self, uuid):
     MP_check_open(self)
-    existing = registry.get(uuid)
-    if existing is not None:
-        MP_check_open(<_MemPool>existing)
-        return existing
-    if not self.is_ipc_enabled:
-        raise RuntimeError("Memory resource is not IPC-enabled")
-    if self.uuid is not None and self.uuid != uuid:
-        raise ValueError(
-            f"Cannot register memory resource with UUID {uuid}: "
-            f"the resource already has UUID {self.uuid}"
-        )
-    registry[uuid] = self
+    # The lookup and the insertion must be one step: without the GIL, two
+    # threads can both miss and register different resources for one UUID.
+    with _registry_lock:
+        existing = registry.get(uuid)
+        if existing is not None:
+            MP_check_open(<_MemPool>existing)
+            return existing
+        if not self.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        if self.uuid is not None and self.uuid != uuid:
+            raise ValueError(
+                f"Cannot register memory resource with UUID {uuid}: "
+                f"the resource already has UUID {self.uuid}"
+            )
+        registry[uuid] = self
     self._ipc_data._alloc_handle._uuid = uuid
     return self
 

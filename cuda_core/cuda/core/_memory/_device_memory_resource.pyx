@@ -209,13 +209,14 @@ cdef class DeviceMemoryResource(_MemPool):
 
         Returns
         -------
-            A new device memory resource instance with the imported handle.
+            A new device memory resource instance with the imported handle. If
+            the handle's memory resource is already registered in this process,
+            that resource is returned with its original device.
         """
-        cdef DeviceMemoryResource mr = <DeviceMemoryResource>(
-            _ipc.MP_from_allocation_handle(cls, alloc_handle))
         from .._device import Device
-        mr._dev_id = Device(device_id).device_id
-        return mr
+        dev_id = Device(device_id).device_id
+        return <DeviceMemoryResource>(
+            _ipc.MP_from_allocation_handle(cls, alloc_handle, _DMR_init_imported, dev_id))
 
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
@@ -310,6 +311,13 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
             ipc_enabled,
             max_size,
         )
+
+
+cdef int _DMR_init_imported(_MemPool mr, object dev_id) except? -1:
+    # Runs before the resource is registered: a concurrent import of the same
+    # UUID returns it from the registry and must not write to it.
+    (<DeviceMemoryResource>mr)._dev_id = dev_id
+    return 0
 
 
 # Note: this is referenced in instructions to debug nvbug 5698116.

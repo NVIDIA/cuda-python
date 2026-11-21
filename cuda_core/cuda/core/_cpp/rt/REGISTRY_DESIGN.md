@@ -33,6 +33,22 @@ Instances: `context_registry`, `stream_registry`, `event_registry`,
 `kernel_registry`, and, per `GraphBox`, one registry for its direct child
 graphs and one for its nodes.
 
+### Imports that wait for an in-flight release
+
+IPC imports use `ReleasingHandleRegistry`, a variant whose entry outlives its
+handle's last reference. Only the owner's deleter removes the entry, with
+`release()`, after its last driver call on the resource. `get_or_create()`
+waits while the entry under its key has expired, so a new owner never overlaps
+the previous owner's cleanup, even when the last reference was dropped by a
+dependent handle that the importing thread cannot synchronize with.
+
+Instances: `ipc_pool_registry` maps an imported `CUmemoryPool` to its owner,
+because every import of a pool in a process returns the same `CUmemoryPool`
+(#3510); the owner's cleanup revokes access and destroys the imports.
+`ipc_ptr_cache` maps a `CUmemPoolPtrExportData` descriptor to its imported
+pointer, because a re-import before the previous mapping is freed would share
+that mapping (nvbug 5570902).
+
 ### Reused graph handles
 
 A `GraphHandle` weak reference locks whenever any handle of its hierarchy is

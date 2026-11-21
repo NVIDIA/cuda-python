@@ -325,10 +325,11 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
             max_size,
         )
 
-    _PMR_grant_device_access(self, numa_id >= 0)
+    _PMR_grant_device_access(self, numa_id >= 0, False)
 
 
-cdef inline int _PMR_grant_device_access(PinnedMemoryResource self, bint host_numa) except? -1:
+cdef inline int _PMR_grant_device_access(
+        PinnedMemoryResource self, bint host_numa, bint imported) except? -1:
     # A pool on a host location is accessible only from the host by default
     # (see cuMemPoolCreate), and access is per process, so both the creating
     # and the importing process grant read/write access to every device that
@@ -345,13 +346,13 @@ cdef inline int _PMR_grant_device_access(PinnedMemoryResource self, bint host_nu
                 cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)
             access.push_back(desc)
     if not access.empty():
-        MP_set_access(self, access.data(), access.size())
+        MP_set_access(self, access.data(), access.size(), imported)
     return 0
 
 
-cdef int _PMR_init_imported(_MemPool mr) except? -1:
+cdef int _PMR_init_imported(_MemPool mr, object unused) except? -1:
     # IPC-enabled pinned pools are always placed on a host NUMA node.
-    return _PMR_grant_device_access(<PinnedMemoryResource>mr, True)
+    return _PMR_grant_device_access(<PinnedMemoryResource>mr, True, True)
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:

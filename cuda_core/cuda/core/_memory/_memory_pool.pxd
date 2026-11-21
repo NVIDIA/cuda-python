@@ -37,7 +37,8 @@ cdef int MP_init_current_pool(
 cdef int MP_raise_release_threshold(_MemPool self) except? -1
 
 cdef int MP_set_access(
-    _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count) except? -1
+    _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count,
+    bint retry_already_mapped=*) except? -1
 
 
 cdef inline int MP_check_open(_MemPool self) except -1:

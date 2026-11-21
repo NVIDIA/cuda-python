@@ -166,7 +166,9 @@ class DeviceMemoryResource(_MemPool):
 
         Returns
         -------
-            A new device memory resource instance with the imported handle.
+            A new device memory resource instance with the imported handle. If
+            the handle's memory resource is already registered in this process,
+            that resource is returned with its original device.
         """
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
