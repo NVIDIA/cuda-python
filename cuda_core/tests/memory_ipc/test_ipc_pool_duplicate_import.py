@@ -22,11 +22,12 @@ import uuid
 import pytest
 from helpers.child_processes import run_child
 from helpers.contexts import assert_no_cuda_warning
-from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
+from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags, pool_supported_devices
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
 from cuda.core._memory._buffer import _live_owned_mempool_count
+from cuda.core._memory._ipc import _set_register_reentry_hook_for_testing
 from cuda.core._rt import _set_ipc_pool_release_delay_for_testing
 
 NBYTES = 64
@@ -144,8 +145,11 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
         raise errors[0]
 
     # The release has finished: its cleanup must have left the new import alone.
+    # The final release revokes access one GPU at a time, so check every GPU the
+    # pool grants access to, not only the default one.
     ((mr, buffer),) = reimported
-    assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    for access_device in pool_supported_devices(mr_type, device):
+        assert pool_access_flags(mr, access_device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
     buffer.fill(7, stream=stream)
     stream.sync()
     buffer.close()
@@ -202,6 +206,47 @@ def child_register_reentered_by_gc(mr_type, alloc_handle):
     for mr in imports:
         mr.close()
     nested.close()
+    assert _live_owned_mempool_count() == baseline
+
+
+def child_register_reentrant_same_uuid(mr_type, alloc_handle):
+    device = Device()
+    device.set_current()
+    baseline = _live_owned_mempool_count()
+
+    # Two resources that both claim one UUID: the outer call and a re-entrant
+    # call that the hook injects between the outer call's lookup and insertion,
+    # where a garbage-collection finalizer could. They share one pool handle, so
+    # both are valid owners; registration must pick exactly one winner, and the
+    # outer call must return that winner rather than overwrite it.
+    first = import_pool_resource(mr_type, device, int(alloc_handle))
+    second = import_pool_resource(mr_type, device, int(alloc_handle))
+
+    target_uuid = uuid.uuid4()
+    reentrant = []
+
+    def inject_reentrant_registration(hooked_uuid):
+        # Fire once: disarm before re-entering so the nested registration does
+        # not recurse through the hook.
+        _set_register_reentry_hook_for_testing(None)
+        reentrant.append(second.register(hooked_uuid))
+
+    _set_register_reentry_hook_for_testing(inject_reentrant_registration)
+    try:
+        outer = first.register(target_uuid)
+    finally:
+        _set_register_reentry_hook_for_testing(None)
+
+    assert reentrant, "the reentry hook did not fire"
+    winner = reentrant[0]
+    assert winner is first or winner is second
+    # Both calls agree on the winner, and the registry holds it, so no second
+    # owner of the pool survives under this UUID.
+    assert outer is winner
+    assert mr_type.from_registry(target_uuid) is winner
+
+    first.close()
+    second.close()
     assert _live_owned_mempool_count() == baseline
 
 
@@ -302,6 +347,11 @@ class TestIpcPoolDuplicateImport:
     def test_registration_reentered_from_garbage_collection(self, ipc_device, pool_resource):
         ipc_device.set_current()
         run_child(child_register_reentered_by_gc, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_reentrant_registration_of_one_uuid_picks_one_winner(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_register_reentrant_same_uuid, type(pool_resource), pool_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):

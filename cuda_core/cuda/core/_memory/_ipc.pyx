@@ -26,6 +26,7 @@ from cuda.core._rt cimport (
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
+import functools
 import multiprocessing
 import operator
 import os
@@ -41,11 +42,44 @@ if TYPE_CHECKING:
 __all__ = []
 
 
-cdef object registry = weakref.WeakValueDictionary()
+# Maps an IPC UUID to a weak reference to its registered resource. A plain dict
+# (not a WeakValueDictionary) so MP_register can build the weak reference before
+# the check-and-set below and keep the resulting garbage-collection reentry out
+# of the critical section; see MP_register.
+cdef dict registry = {}
 # Serializes MP_register. Reentrant: inserting into the registry allocates a
 # weak reference, which can run a garbage-collection callback or finalizer that
 # registers another resource on the same thread.
 cdef object _registry_lock = threading.RLock()
+
+# Test-only hook. When set, MP_register calls it once it has decided to insert
+# but before it builds its own weak reference, so a test can inject a re-entrant
+# registration of the same UUID at the point a garbage-collection finalizer
+# could. See test_reentrant_registration_of_one_uuid_picks_one_winner.
+cdef object _register_reentry_hook_for_testing = None
+
+
+def _set_register_reentry_hook_for_testing(hook):
+    global _register_reentry_hook_for_testing
+    _register_reentry_hook_for_testing = hook
+
+
+def _registry_remove(key, ref):
+    # Weak-reference callback: drop a dead resource's entry, but only when a
+    # newer registration has not already replaced it under the same UUID.
+    with _registry_lock:
+        if registry.get(key) is ref:
+            del registry[key]
+
+
+cdef _MemPool _registry_get(uuid):
+    # Resolve a UUID to its live registered resource, or None. Lock-free, like
+    # WeakValueDictionary.get was: callers that must be authoritative (MP_register)
+    # re-check under _registry_lock.
+    ref = registry.get(uuid)
+    if ref is None:
+        return None
+    return ref()
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
@@ -557,7 +591,7 @@ cdef _MemPool MP_from_allocation_handle(
 
     # Quick exit for registry hits.
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
-    mr = registry.get(uuid)
+    mr = _registry_get(uuid)
     if mr is not None:
         _check_registered_type(mr, cls, uuid)
         MP_check_open(<_MemPool>mr)
@@ -608,24 +642,29 @@ cdef _MemPool MP_from_allocation_handle(
 
 
 cdef _MemPool MP_from_registry(uuid):
-    cdef _MemPool mr
-    try:
-        mr = registry[uuid]
-        MP_check_open(mr)
-        return mr
-    except KeyError:
+    cdef _MemPool mr = _registry_get(uuid)
+    if mr is None:
         raise RuntimeError(f"Memory resource {uuid} was not found") from None
+    MP_check_open(mr)
+    return mr
 
 
 cdef _MemPool MP_register(_MemPool self, uuid):
     MP_check_open(self)
+    cdef object existing_ref
+    cdef object winner_ref
+    cdef _MemPool winner
     # The lookup and the insertion must be one step: without the GIL, two
     # threads can both miss and register different resources for one UUID.
     with _registry_lock:
-        existing = registry.get(uuid)
-        if existing is not None:
-            MP_check_open(<_MemPool>existing)
-            return existing
+        existing_ref = registry.get(uuid)
+        if existing_ref is not None:
+            existing = existing_ref()
+            if existing is not None:
+                MP_check_open(<_MemPool>existing)
+                return existing
+            # A dead entry whose removal callback has not run yet.
+            del registry[uuid]
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         if self.uuid is not None and self.uuid != uuid:
@@ -633,7 +672,22 @@ cdef _MemPool MP_register(_MemPool self, uuid):
                 f"Cannot register memory resource with UUID {uuid}: "
                 f"the resource already has UUID {self.uuid}"
             )
-        registry[uuid] = self
+        if _register_reentry_hook_for_testing is not None:
+            _register_reentry_hook_for_testing(uuid)
+        # Allocating the weak reference can start a garbage collection whose
+        # finalizers re-enter MP_register on this thread (the lock is
+        # reentrant). It runs before the insert, so a re-entrant registration
+        # of the same UUID lands in the registry first; setdefault then keeps
+        # it instead of overwriting it, and both calls return that one winner.
+        self_ref = weakref.ref(self, functools.partial(_registry_remove, uuid))
+        winner_ref = registry.setdefault(uuid, self_ref)
+        if winner_ref is not self_ref:
+            winner = winner_ref()
+            if winner is not None:
+                MP_check_open(winner)
+                return winner
+            # The re-entrant winner already died; take over its dead entry.
+            registry[uuid] = self_ref
     self._ipc_data._alloc_handle._uuid = uuid
     return self
 
