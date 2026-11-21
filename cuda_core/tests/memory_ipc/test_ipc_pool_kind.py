@@ -17,6 +17,7 @@ import multiprocessing as mp
 import pytest
 from helpers.child_processes import run_child
 from helpers.constants import POOL_SIZE
+from helpers.contexts import assert_no_cuda_warning
 from helpers.memory import (
     import_pool_resource,
     is_pool_resource,
@@ -62,8 +63,14 @@ def _other_class(mr_type):
 
 
 def _assert_import_raises(mr_type, device, alloc_handle):
-    with pytest.raises(TypeError):
+    # Releasing the rejected import cannot raise; a failed cuMemPoolDestroy
+    # surfaces only as a CUDAWarning.
+    with assert_no_cuda_warning(), pytest.raises(TypeError):
         import_pool_resource(_other_class(mr_type), device, alloc_handle)
+
+
+def _access_by_device(mr):
+    return {dev.device_id: pool_access_flags(mr, dev) for dev in Device.get_all_devices()}
 
 
 def child_mismatched_import_raises(mr_type, alloc_handle, descriptor):
@@ -94,12 +101,20 @@ def child_rejected_import_keeps_existing_import(mr_type, alloc_handle, descripto
     stream = device.default_stream
 
     # The driver returns the same pool for every import in a process, so the
-    # rejected import must not destroy the pool or revoke access to it.
+    # rejected import must not destroy the pool or revoke any device's access
+    # to it, including peer access and while a buffer from it is alive.
     mr = import_pool_resource(mr_type, device, int(alloc_handle))
-    _assert_import_raises(mr_type, device, int(alloc_handle))
-    assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-
+    if mr_type is DeviceMemoryResource:
+        mr.peer_accessible_by = [
+            dev for dev in Device.get_all_devices() if dev.device_id != device.device_id and dev.can_access_peer(device)
+        ]
     buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
+    access = _access_by_device(mr)
+    assert access[device.device_id] == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+
+    _assert_import_raises(mr_type, device, int(alloc_handle))
+    assert _access_by_device(mr) == access
+
     buffer.fill(7, stream=stream)
     stream.sync()
     buffer.close()
