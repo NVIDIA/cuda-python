@@ -383,6 +383,19 @@ jobs:
           # Full CI's pull-request/N mirror supplies the PR number.
           pr-number: ${{ env.PR_NUMBER }}
 
+      - name: Check rendered release notes
+        if: ${{ inputs.is-release }}
+        shell: bash --noprofile --norc -euo pipefail {0}
+        env:
+          RELEASE_TAG: ${{ inputs.git-tag }}
+          DOCS_COMPONENT: ${{ inputs.component }}
+        run: |
+          cd .ci-control
+          python3 -m ci.tools.check_tagged_release_notes \
+            --git-tag "$RELEASE_TAG" --component "$DOCS_COMPONENT" \
+            --repo-root .. --rendered-docs ../artifacts/docs \
+            --bindings-package "$RESOLVED_BINDINGS_PACKAGE"
+
       - name: Upload docs GitHub Pages artifact
         if: ${{ inputs.deploy-docs }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0

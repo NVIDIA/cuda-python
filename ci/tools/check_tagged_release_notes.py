@@ -6,6 +6,7 @@
 Usage:
     python -m ci.tools.check_tagged_release_notes --git-tag <tag> --component <component>
     python -m ci.tools.check_tagged_release_notes --tag-ci --git-tag <tag>
+    python -m ci.tools.check_tagged_release_notes --git-tag <tag> --component <component> --rendered-docs <staging-dir>
 
 Each normal release requires nonempty notes for its exact version and component
 in the tagged source checkout. Post releases do not require new notes, except
@@ -14,6 +15,10 @@ Pathfinder requires a notes file for every release and permits empty files.
 The dependency-free --tag-ci mode checks only that the exact component notes file
 exists. It skips internal alpha/development tags and, except for Pathfinder,
 post releases. It runs before CI sets up Python dependencies.
+
+The --rendered-docs mode also checks that the versioned staging tree contains
+the notes HTML and that its release index links to it. It skips internal tags
+and empty Pathfinder placeholders, which need no rendered notes page.
 
 Successful publication checks append the parsed version to GITHUB_OUTPUT when it is set.
 
@@ -31,6 +36,7 @@ import os
 import re
 import sys
 from collections.abc import Mapping
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -115,17 +121,27 @@ def notes_path(package: str, version: str) -> Path:
     return Path(package, "docs", "source", "release", f"{version}-notes.rst")
 
 
+def _component_for_tag_ci(git_tag: str) -> str:
+    for component in ("cuda-core", "cuda-pathfinder"):
+        _, prefix = COMPONENTS[component]
+        if git_tag.startswith(prefix):
+            return component
+    return "cuda-bindings"
+
+
+def _is_internal_version(version: str) -> bool:
+    return re.search(r"(?:a|\.dev)\d", version) is not None
+
+
 def _check_tag_ci(git_tag: str, repo_root: Path) -> int:
     """Check one notes file for the tag namespaces selected by ci.yml."""
-    for package, prefix in (COMPONENTS["cuda-core"], COMPONENTS["cuda-pathfinder"]):
-        if git_tag.startswith(prefix):
-            version = git_tag.removeprefix(prefix)
-            break
-    else:
-        version = git_tag.removeprefix("v")
+    component = _component_for_tag_ci(git_tag)
+    package, prefix = COMPONENTS[component]
+    version = git_tag.removeprefix(prefix)
+    if component == "cuda-bindings":
         package = f"cuda_bindings_{version.partition('.')[0]}"
 
-    if re.search(r"(?:a|\.dev)\d", version):
+    if _is_internal_version(version):
         print(f"Internal alpha/development tag {git_tag}; no release note required.")
         return 0
     if package != "cuda_pathfinder" and re.search(r"\.post\d", version):
@@ -154,6 +170,45 @@ def _check_release_target(version: str, package: str, component: str, repo_root:
     if full.stat().st_size == 0 and component != "cuda-pathfinder":
         return [(path, "empty")]
     return []
+
+
+class _ReleaseIndexLinks(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.paths: set[str] = set()
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "a":
+            href = dict(attrs).get("href")
+            if href is not None:
+                self.paths.add(href.split("#", 1)[0].split("?", 1)[0].removeprefix("./"))
+
+
+def _check_rendered_target(docs_root: Path, component: str, version: str) -> int:
+    # Pathfinder post releases put their exact notes under the base docs directory.
+    version_dir = version.split(".post", 1)[0]
+    component_root = docs_root if component == "cuda-python" else docs_root / component
+    version_root = component_root / version_dir
+    notes_href = f"release/{version}-notes.html"
+    rendered_notes = version_root / notes_href
+    if not rendered_notes.is_file():
+        print(f"ERROR: missing rendered release notes: {rendered_notes}", file=sys.stderr)
+        return 1
+    if rendered_notes.stat().st_size == 0:
+        print(f"ERROR: empty rendered release notes: {rendered_notes}", file=sys.stderr)
+        return 1
+
+    index = version_root / "release.html"
+    if not index.is_file():
+        print(f"ERROR: missing rendered release index: {index}", file=sys.stderr)
+        return 1
+    links = _ReleaseIndexLinks()
+    links.feed(index.read_text(encoding="utf-8"))
+    if notes_href not in links.paths:
+        print(f"ERROR: missing relative link to {notes_href} in {index}", file=sys.stderr)
+        return 1
+    print(f"Found rendered release notes and release index link: {rendered_notes}")
+    return 0
 
 
 def write_version_output(version: str) -> None:
@@ -190,8 +245,9 @@ def check_release_notes(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--git-tag", required=True)
-    parser.add_argument("--component", choices=list(COMPONENTS), help="required unless --tag-ci is used")
+    parser.add_argument("--component", choices=[*COMPONENTS, "all"], help="required unless --tag-ci is used")
     parser.add_argument("--tag-ci", action="store_true", help="check only file existence for a CI tag push")
+    parser.add_argument("--rendered-docs", type=Path, help="staged docs payload to check after the source")
     parser.add_argument(
         "--repo-root",
         default=Path("."),
@@ -209,32 +265,45 @@ def main(argv: list[str] | None = None) -> int:
         return _check_tag_ci(args.git_tag, args.repo_root)
     if args.component is None:
         parser.error("--component is required unless --tag-ci is used")
+    component = args.component
+    if component == "all" and args.rendered_docs is not None:
+        component = _component_for_tag_ci(args.git_tag)
 
     try:
         bindings_package = json.loads(args.bindings_package) if args.bindings_package else None
         if bindings_package is not None and not isinstance(bindings_package, dict):
             raise ValueError("resolved CUDA bindings package must be a JSON object")
-        target = _release_target_from_tag(args.git_tag, args.component, bindings_package)
+        target = _release_target_from_tag(args.git_tag, component, bindings_package)
     except ValueError as error:
         print(f"ERROR: invalid CUDA bindings configuration: {error}", file=sys.stderr)
         return 2
     if target is None:
         print(
-            f"ERROR: tag {args.git_tag!r} does not match the expected format for component {args.component!r}.",
+            f"ERROR: tag {args.git_tag!r} does not match the expected format for component {component!r}.",
             file=sys.stderr,
         )
         return 2
     version, package = target
 
-    if is_post_release(version) and args.component != "cuda-pathfinder":
+    if args.rendered_docs is not None and _is_internal_version(version):
+        print(f"Internal alpha/development tag {args.git_tag}; no rendered release note required.")
+        return 0
+
+    if is_post_release(version) and component != "cuda-pathfinder":
         print(f"Post-release tag ({args.git_tag}), skipping release-notes check.")
         write_version_output(version)
         return 0
 
-    problems = _check_release_target(version, package, args.component, args.repo_root)
+    problems = _check_release_target(version, package, component, args.repo_root)
 
     if not problems:
-        print(f"Release notes present for tag {args.git_tag}, component {args.component}.")
+        if args.rendered_docs is not None:
+            source = args.repo_root / notes_path(package, version)
+            if component == "cuda-pathfinder" and source.stat().st_size == 0:
+                print(f"Empty Pathfinder release note placeholder {source}; no rendered release note required.")
+                return 0
+            return _check_rendered_target(args.rendered_docs, component, version)
+        print(f"Release notes present for tag {args.git_tag}, component {component}.")
         write_version_output(version)
         return 0
 
