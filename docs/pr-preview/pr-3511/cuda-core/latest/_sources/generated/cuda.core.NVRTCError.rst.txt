@@ -1,6 +1,0 @@
-﻿cuda.core.NVRTCError
-====================
-
-.. currentmodule:: cuda.core
-
-.. autoexception:: NVRTCError
