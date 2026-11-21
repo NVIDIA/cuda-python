@@ -367,6 +367,20 @@ workflow. Publication mode checks the requested component in the tagged
 source, retains the existing nonempty-note and post-release policies, and
 exports the version for downstream release jobs.
 
+## Verify Public Releases
+
+[CI: Verify release](../.github/workflows/release-verification.yml) follows
+successful **CI: Release** runs. For a full release it checks versioned docs
+and compares the component's public PyPI wheels with the staged wheel names
+and hashes. A dry run verifies the metadata handoff and skips the public
+checks.
+
+After publishing the GitHub release, dispatch **CI: Verify release** with the
+release tag to audit the public result. For a shared bindings tag such as
+`v12.9.11`, it checks both bindings and metapackage wheels and docs. It also
+checks the GitHub release wheels against PyPI and verifies the published source
+archive checksum. The workflow summary lists any missing or mismatched results.
+
 ## Nightly Artifact Sources
 
 `ci-nightly.yml` downloads wheels from the latest successful main CI run and
