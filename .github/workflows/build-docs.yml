@@ -363,6 +363,19 @@ jobs:
           fi
           mv "${COMPONENT}"/docs/build/html/* "artifacts/docs/${TARGET}"
 
+      - name: Check rendered release notes
+        if: ${{ inputs.is-release }}
+        shell: bash --noprofile --norc -euo pipefail {0}
+        env:
+          RELEASE_TAG: ${{ inputs.git-tag }}
+          DOCS_COMPONENT: ${{ inputs.component }}
+        run: |
+          cd .ci-control
+          python3 -m ci.tools.check_tagged_release_notes \
+            --git-tag "$RELEASE_TAG" --component "$DOCS_COMPONENT" \
+            --repo-root .. --rendered-docs ../artifacts/docs \
+            --bindings-package "$RESOLVED_BINDINGS_PACKAGE"
+
       # Check links and anchors in the rendered HTML built above.
       # Links in authored Markdown and reST files are checked separately by the
       # ordinary Linux/Windows pre-commit jobs.
