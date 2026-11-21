@@ -24,6 +24,22 @@ Fixes and enhancements
   (`#3415 <https://github.com/NVIDIA/cuda-python/issues/3415>`__,
   `#3501 <https://github.com/NVIDIA/cuda-python/issues/3501>`__)
 
+- Repeat imports of a memory pool in one process, for example passing a raw
+  file descriptor to :meth:`PinnedMemoryResource.from_allocation_handle`
+  twice, now share one owner, which releases the pool with the last of them.
+  Closing one import no longer removes device access to a pinned pool from
+  the others, or emits a ``CUDAWarning`` from ``cuMemPoolDestroy`` for a
+  device pool while a buffer imported through another is alive. An import
+  that overlaps the release of the last one waits for it, and concurrent
+  imports of one allocation handle return the same resource instead of
+  raising an internal error.
+  (`#3510 <https://github.com/NVIDIA/cuda-python/issues/3510>`__)
+
+- :meth:`DeviceMemoryResource.from_allocation_handle` returns a resource
+  already registered in the process with its original ``device_id``, instead
+  of changing it to the requested device.
+  (`#3510 <https://github.com/NVIDIA/cuda-python/issues/3510>`__)
+
 - :meth:`DeviceMemoryResource.from_allocation_handle` now raises
   ``TypeError`` for the allocation handle of a host memory pool, and
   :meth:`PinnedMemoryResource.from_allocation_handle` for the handle of a
