@@ -1,9 +1,13 @@
 # Build the documentation
 
 1. Install the `cuda-core` package of the version that we need to document.
-2. Ensure the version is included in the [`nv-versions.json`](./nv-versions.json).
-3. Build the docs with `./build_docs.sh`.
-4. The html artifacts should be available under both `./build/html/latest` and `./build/html/<version>`.
+2. Build the docs with `./build_docs.sh`.
+3. The html artifacts should be available under both `./build/html/latest` and
+   `./build/html/<version>`.
+
+A local build does not require a version-selector entry. Add the version to
+[`nv-versions.json`](./nv-versions.json) on `main` only after the package is
+published and its versioned documentation is deployed.
 
 For local development, `cuda_core/pixi.toml` now includes a dedicated `docs`
 environment that mirrors the CI Sphinx dependencies:
