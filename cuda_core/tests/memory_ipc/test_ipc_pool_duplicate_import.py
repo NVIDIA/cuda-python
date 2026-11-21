@@ -36,6 +36,7 @@ ITERATIONS = 20
 RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
 REENTRY_ITERATIONS = 20
+REIMPORT_ROUNDS = 3
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -250,6 +251,60 @@ def child_concurrent_uuid_imports(mr_type, alloc_handle):
         assert _live_owned_mempool_count() == baseline
 
 
+def _import_by_path(import_path, mr_type, device, alloc_handle):
+    """Import the pool as ``import_path`` names; returns every resource the import made."""
+    if import_path == "single":
+        return [import_pool_resource(mr_type, device, alloc_handle)]
+    if import_path == "raw_handle":
+        # A raw file descriptor carries no UUID, so each import is a real import.
+        return [import_pool_resource(mr_type, device, int(alloc_handle)) for _ in range(THREADS)]
+    assert import_path == "concurrent_uuid", import_path
+    return _import_concurrently(mr_type, device, alloc_handle)
+
+
+def _import_fill_and_release_unsynchronized(import_path, mr_type, device, alloc_handle, descriptor, stream):
+    resources = _import_by_path(import_path, mr_type, device, alloc_handle)
+    buffers = [Buffer.from_ipc_descriptor(mr, descriptor, stream=stream) for mr in resources]
+    for buffer in buffers:
+        buffer.fill(7, stream=stream)
+    stream.sync()
+    # Closing a buffer enqueues its cuMemFreeAsync without waiting for it, so
+    # the frees can still be pending when the last resource releases the pool.
+    for buffer in buffers:
+        buffer.close()
+    for mr in resources:
+        mr.close()
+
+
+def _reimport_and_use(import_path, mr_type, device, alloc_handle, descriptor, stream):
+    resources = _import_by_path(import_path, mr_type, device, alloc_handle)
+    for mr in resources:
+        assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    buffer = Buffer.from_ipc_descriptor(resources[0], descriptor, stream=stream)
+    buffer.fill(9, stream=stream)
+    stream.sync()
+    buffer.close()
+    for mr in resources:
+        mr.close()
+
+
+def child_reimport_after_release_with_pending_free(mr_type, alloc_handle, descriptor, import_path):
+    device = Device()
+    device.set_current()
+    stream = device.default_stream
+    baseline = _live_owned_mempool_count()
+
+    # A failed grant is also reported as a warning by the cleanup that follows it.
+    with assert_no_cuda_warning():
+        for _ in range(REIMPORT_ROUNDS):
+            # The helpers keep no reference to any resource once they return, so
+            # the registry entry is gone and the next import is a real one.
+            _import_fill_and_release_unsynchronized(import_path, mr_type, device, alloc_handle, descriptor, stream)
+            _reimport_and_use(import_path, mr_type, device, alloc_handle, descriptor, stream)
+            stream.sync()
+    assert _live_owned_mempool_count() == baseline
+
+
 class TestIpcPoolDuplicateImport:
     """Repeat imports of one pool in a process share the pool and its access settings."""
 
@@ -307,3 +362,17 @@ class TestIpcPoolDuplicateImport:
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):
         ipc_device.set_current()
         run_child(child_concurrent_uuid_imports, type(pool_resource), pool_resource.allocation_handle)
+
+    # Releasing the last import of a pool with unsynchronized frees pending
+    # leaves the driver holding the pool (#3514); the next import must still
+    # grant device access.
+    @pytest.mark.parametrize("import_path", ["single", "raw_handle", "concurrent_uuid"])
+    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+    def test_reimport_after_release_with_pending_free(self, pool_resource, exported_buffer, import_path):
+        run_child(
+            child_reimport_after_release_with_pending_free,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            exported_buffer.ipc_descriptor,
+            import_path,
+        )
