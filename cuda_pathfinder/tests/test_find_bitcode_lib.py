@@ -24,7 +24,7 @@ def _bitcode_lib_info(libname: str):
 
 
 def _bitcode_lib_filename(libname: str) -> str:
-    return _bitcode_lib_info(libname)["filename"]
+    return _bitcode_lib_info(libname)["filenames"][None]
 
 
 @pytest.fixture
@@ -36,9 +36,8 @@ def clear_find_bitcode_lib_cache():
     get_cuda_path_or_home.cache_clear()
 
 
-def _make_bitcode_lib_file(dir_path: Path, libname: str) -> str:
-    dir_path.mkdir(parents=True, exist_ok=True)
-    file_path = dir_path / _bitcode_lib_filename(libname)
+def _make_bitcode_lib_file(file_path: Path) -> str:
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.touch()
     return str(file_path)
 
@@ -91,14 +90,15 @@ def test_locate_bitcode_lib(info_summary_append, libname):
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 @pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS)
 def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
+    filename = _bitcode_lib_filename(libname)
     site_packages_lib_dir = _site_packages_bitcode_lib_dir_under(tmp_path / "site-packages", libname)
-    site_packages_path = _make_bitcode_lib_file(site_packages_lib_dir, libname)
+    site_packages_path = _make_bitcode_lib_file(site_packages_lib_dir / filename)
 
     conda_prefix = tmp_path / "conda-prefix"
-    conda_path = _make_bitcode_lib_file(_bitcode_lib_dir_under(_conda_anchor(conda_prefix), libname), libname)
+    conda_path = _make_bitcode_lib_file(_bitcode_lib_dir_under(_conda_anchor(conda_prefix), libname) / filename)
 
     cuda_home = tmp_path / "cuda-home"
-    cuda_home_path = _make_bitcode_lib_file(_bitcode_lib_dir_under(cuda_home, libname), libname)
+    cuda_home_path = _make_bitcode_lib_file(_bitcode_lib_dir_under(cuda_home, libname) / filename)
 
     site_packages_sub_dirs = tuple(
         tuple(rel_dir.split("/")) for rel_dir in _bitcode_lib_info(libname)["site_packages_dirs"]
@@ -157,7 +157,7 @@ def test_locate_bitcode_lib_returns_resolved_path_for_relative_root(monkeypatch,
             monkeypatch.setenv("CUDA_HOME", str(root))
             lib_dir = root / Path(info["rel_path"])
 
-    expected = (tmp_path / lib_dir / info["filename"]).resolve()
+    expected = (tmp_path / lib_dir / _bitcode_lib_filename("device")).resolve()
     expected.parent.mkdir(parents=True)
     expected.touch()
     located = locate_bitcode_lib("device")
@@ -184,7 +184,7 @@ def test_locate_bitcode_lib_preserves_symlink_parent(monkeypatch, tmp_path):
     (real_root / "child").mkdir(parents=True)
     (tmp_path / "alias").symlink_to(real_root / "child", target_is_directory=True)
     info = _bitcode_lib_info("device")
-    expected = real_root / info["rel_path"] / info["filename"]
+    expected = real_root / info["rel_path"] / _bitcode_lib_filename("device")
     expected.parent.mkdir(parents=True)
     expected.touch()
 
@@ -208,13 +208,14 @@ def test_locate_bitcode_lib_resolves_symlinked_file(monkeypatch, tmp_path):
     info = _bitcode_lib_info("device")
     target = tmp_path / "actual-library"
     target.touch()
-    candidate = root / info["rel_path"] / info["filename"]
+    filename = _bitcode_lib_filename("device")
+    candidate = root / info["rel_path"] / filename
     candidate.parent.mkdir(parents=True)
     candidate.symlink_to(target)
 
     located = locate_bitcode_lib("device")
     assert located.abs_path == str(target.resolve())
-    assert located.filename == info["filename"]
+    assert located.filename == filename
     assert find_bitcode_lib("device") == located.abs_path
 
 
@@ -266,3 +267,74 @@ def test_find_bitcode_lib_not_found_error_without_cuda_home(monkeypatch):
 def test_find_bitcode_lib_invalid_name():
     with pytest.raises(ValueError, match="Unknown bitcode library"):
         find_bitcode_lib_module.locate_bitcode_lib("invalid")
+
+
+@pytest.fixture
+def sm_bitcode_layout(monkeypatch, tmp_path):
+    site_packages = tmp_path / "site-packages"
+    cuda_home = tmp_path / "cuda-home"
+    monkeypatch.setattr(
+        find_bitcode_lib_module,
+        "find_sub_dirs_all_sitepackages",
+        lambda sub_dir: [str(site_packages.joinpath(*sub_dir))],
+    )
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.setenv("CUDA_HOME", str(cuda_home))
+    monkeypatch.delenv("CUDA_PATH", raising=False)
+    return site_packages, cuda_home
+
+
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+@pytest.mark.parametrize(
+    "libname", [name for name in SUPPORTED_BITCODE_LIBS if name in ("nccl_device", "nvshmem_device")]
+)
+def test_sm_arch_selection_and_cache(sm_bitcode_layout, libname):
+    site_packages, _ = sm_bitcode_layout
+    site_dir = _site_packages_bitcode_lib_dir_under(site_packages, libname)
+    future_sm = _make_bitcode_lib_file(site_dir / f"lib{libname}_sm_999a.bc")
+    sm100 = _make_bitcode_lib_file(site_dir / f"lib{libname}_sm_100.bc")
+    default = _make_bitcode_lib_file(site_dir / _bitcode_lib_filename(libname))
+
+    assert find_bitcode_lib(libname, sm_arch="999a") == future_sm
+    assert find_bitcode_lib(libname, sm_arch="100") == sm100
+    assert find_bitcode_lib(libname) == default
+
+
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+@pytest.mark.parametrize("libname", SUPPORTED_BITCODE_LIBS)
+def test_sm_arch_does_not_use_default_file(sm_bitcode_layout, libname):
+    site_packages, _ = sm_bitcode_layout
+    site_dir = _site_packages_bitcode_lib_dir_under(site_packages, libname)
+    default = _make_bitcode_lib_file(site_dir / _bitcode_lib_filename(libname))
+    assert find_bitcode_lib(libname, sm_arch=None) == default
+    with pytest.raises(BitcodeLibNotFoundError, match="sm_arch='100'"):
+        find_bitcode_lib(libname, sm_arch="100")
+
+
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+def test_exact_sm_path_takes_precedence_over_wildcard(monkeypatch, sm_bitcode_layout):
+    site_packages, cuda_home = sm_bitcode_layout
+    site_dir = _site_packages_bitcode_lib_dir_under(site_packages, "device")
+    config = dict(_bitcode_lib_info("device"))
+    config["filenames"] = {"100a": "{sm_arch}/device.bc", "*": "generic.bc"}
+    monkeypatch.setitem(find_bitcode_lib_module._SUPPORTED_BITCODE_LIBS_INFO, "device", config)
+    generic = _make_bitcode_lib_file(site_dir / "generic.bc")
+    exact_dir = _bitcode_lib_dir_under(cuda_home, "device") / "100a"
+    exact = _make_bitcode_lib_file(exact_dir / "device.bc")
+
+    located = locate_bitcode_lib("device", sm_arch="100a")
+    assert located.abs_path == exact
+    assert located.filename == "device.bc"
+    assert locate_bitcode_lib("device", sm_arch="100").abs_path == generic
+    Path(exact).unlink()
+    with pytest.raises(BitcodeLibNotFoundError, match=r"100a/device\.bc") as exc_info:
+        locate_bitcode_lib("device", sm_arch="100a")
+    assert f'listdir("{exact_dir}"):' in str(exc_info.value)
+    with pytest.raises(BitcodeLibNotFoundError, match="no default file configured"):
+        locate_bitcode_lib("device")
+
+
+@pytest.mark.parametrize("sm_arch", ["", 100, "sm_100", "*", "100/../90", r"100\..\90"])
+def test_invalid_sm_arch(sm_arch):
+    with pytest.raises(ValueError, match="sm_arch must be a string"):
+        locate_bitcode_lib("device", sm_arch=sm_arch)
