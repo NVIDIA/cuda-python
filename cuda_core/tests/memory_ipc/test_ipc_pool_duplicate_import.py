@@ -19,11 +19,12 @@ import threading
 import time
 import uuid
 
+import helpers
 import pytest
-from helpers.child_processes import run_child
+from helpers.child_processes import child_timeout_sec, run_child
 from helpers.contexts import assert_no_cuda_warning
+from helpers.latch import LatchKernel
 from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
-from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
@@ -37,11 +38,6 @@ ITERATIONS = 20
 RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
 REENTRY_ITERATIONS = 20
-REIMPORT_ROUNDS = 3
-# A GPU block held on the child's stream for this long keeps an enqueued
-# cuMemFreeAsync pending while the host re-imports the pool and checks the
-# grant. Far longer than that host work, so the free cannot retire first.
-FREE_HOLD_MS = 200
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -278,33 +274,37 @@ def _import_by_path(stack, import_path, mr_type, device, alloc_handle):
     return [stack.enter_context(contextlib.closing(mr)) for mr in _import_concurrently(mr_type, device, alloc_handle)]
 
 
-def _release_import_holding_free(import_path, mr_type, device, alloc_handle, descriptor, stream, block):
-    """Import, fill, and release the pool with the import's free held pending behind ``block``.
+def _release_import_holding_free(import_path, mr_type, device, alloc_handle, descriptor, stream, latch):
+    """Import, fill, and release the pool with the import's free held pending behind ``latch``.
 
-    The frees that closing the buffers enqueues sit behind ``block`` on
-    ``stream``, so the imported pointer stays mapped and the pool stays alive
-    when the next import grants device access. That is the state in which the
-    grant fails with ``CUDA_ERROR_ALREADY_MAPPED`` and the retry under test
-    recovers; a free that retired first would clear it and hide a regression.
+    The frees that closing the buffers enqueues sit behind ``latch`` on
+    ``stream`` until it is released, so the imported pointer stays mapped and
+    the pool stays alive when the next import grants device access. That is the
+    state in which the grant fails with ``CUDA_ERROR_ALREADY_MAPPED`` and the
+    retry under test recovers; a free that retired first would clear it and
+    hide a regression.
     """
     # The stack closes the buffers, then the resources. Returning drops the
     # ``resources`` and ``buffers`` references, so the registry entry clears and
-    # the next import is a real one, while the frees stay pending behind block.
+    # the next import is a real one, while the frees stay pending behind latch.
     with contextlib.ExitStack() as stack:
         resources = _import_by_path(stack, import_path, mr_type, device, alloc_handle)
         buffers = [stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)) for mr in resources]
         for buffer in buffers:
             buffer.fill(7, stream=stream)
         stream.sync()
-        block.launch(stream)
+        latch.launch(stream)
 
 
-def _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descriptor, stream):
+def _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descriptor, stream, latch):
     """Re-import the pool while a free is pending and assert the grant that #3514 fails on."""
     with contextlib.ExitStack() as stack:
         resources = _import_by_path(stack, import_path, mr_type, device, alloc_handle)
         for mr in resources:
             assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        # The grant was checked with the free still pending. Release the stream
+        # before importing a pointer, which waits for a pending free of it.
+        latch.release()
         buffer = stack.enter_context(Buffer.from_ipc_descriptor(resources[0], descriptor, stream=stream))
         buffer.fill(9, stream=stream)
         stream.sync()
@@ -312,18 +312,20 @@ def _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descri
 
 def child_reimport_after_release_with_pending_free(mr_type, alloc_handle, descriptor, import_path):
     # A failed grant is also reported as a warning by the cleanup that follows it.
-    with _child_device() as (device, _baseline), assert_no_cuda_warning():
-        stream = device.create_stream()
-        block = NanosleepKernel(device, sleep_duration_ms=FREE_HOLD_MS)
-        try:
-            for _ in range(REIMPORT_ROUNDS):
-                _release_import_holding_free(import_path, mr_type, device, alloc_handle, descriptor, stream, block)
-                _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descriptor, stream)
-        finally:
-            # Drain the imported frees before the exporter frees its allocation,
-            # even if a round failed partway (the cuMemPoolImportPointer order).
-            stream.sync()
-            stream.close()
+    with _child_device() as (device, _baseline), assert_no_cuda_warning(), contextlib.ExitStack() as stack:
+        stream = stack.enter_context(contextlib.closing(device.create_stream()))
+        # The timeout outlasts run_child's, so a stuck child is ended before the
+        # latch can release itself and let the free retire unobserved.
+        latch = LatchKernel(device, timeout_sec=4 * child_timeout_sec())
+        stack.callback(latch.close)
+        # On every path, release the latch and then drain the stream: the
+        # imported frees must complete before the exporter frees its allocation,
+        # and a held latch would stall the drain.
+        stack.callback(stream.sync)
+        stack.callback(latch.release)
+        _release_import_holding_free(import_path, mr_type, device, alloc_handle, descriptor, stream, latch)
+        _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descriptor, stream, latch)
+        assert not latch.timed_out, "the latch timed out, so the free may have retired before the grant was checked"
 
 
 class TestIpcPoolDuplicateImport:
@@ -389,7 +391,13 @@ class TestIpcPoolDuplicateImport:
     # grant device access.
     @pytest.mark.parametrize("import_path", ["single", "raw_handle", "concurrent_uuid"])
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-    def test_reimport_after_release_with_pending_free(self, pool_resource, exported_buffer, import_path):
+    def test_reimport_after_release_with_pending_free(self, ipc_device, pool_resource, exported_buffer, import_path):
+        # The child holds the free with a LatchKernel. Check what it needs here:
+        # a skip raised in the child would surface as a child failure.
+        if helpers.CUDA_INCLUDE_PATH is None:
+            pytest.skip("LatchKernel needs the CUDA headers")
+        if ipc_device.compute_capability.major < 7:
+            pytest.skip("__nanosleep is only available starting Volta (sm70)")
         run_child(
             child_reimport_after_release_with_pending_free,
             type(pool_resource),
