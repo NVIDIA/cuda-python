@@ -2,129 +2,147 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cuda/core/_memory/_pinned_memory_resource.pyx: 89.25%</title>
+    <title>Coverage for cuda/core/_memory/_pinned_memory_resource.pyx: 84.69%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script type="text/javascript">
         contexts = {
   "a": "tests/test_memory.py::test_pinned_mempool_ipc_basic|run",
   "b": "tests/test_memory.py::test_pinned_mempool_ipc_errors|run",
-  "c": "tests/memory_ipc/test_memory_ipc.py::TestIpcPinnedPoolAccess::test_main[resource]|run",
-  "d": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_current-int-True]|run",
-  "e": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_current-int-True]|run",
-  "f": "tests/test_memory.py::test_pinned_memory_resource_with_options|run",
-  "g": "tests/test_memory.py::test_pinned_memory_resource_kernel_access[new_numa]|run",
-  "h": "tests/memory/test_backward_compatibility.py::test_pinned_mr_accepts_dict_keyword|run",
-  "i": "tests/memory_ipc/test_memory_ipc.py::TestIpcPinnedPoolAccess::test_main[raw_handle]|run",
-  "j": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_current-int-False]|run",
-  "k": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_current-int-False]|run",
-  "l": "tests/test_memory.py::test_mempool_attributes_repr[PinnedMR]|run",
-  "m": "tests/test_memory.py::test_mempool_trim[PinnedMR]|run",
-  "n": "tests/test_memory.py::test_mempool_watermark_reset[PinnedMR-reserved]|run",
-  "o": "tests/test_memory.py::test_mempool_watermark_reset[PinnedMR-used]|run",
-  "p": "tests/test_memory.py::test_pinned_memory_resource_kernel_access[new]|run",
-  "q": "tests/test_memory.py::test_pinned_mr_numa_id_default_with_ipc|run",
-  "r": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|setup",
-  "s": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|setup",
-  "t": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|setup",
-  "u": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|setup",
-  "v": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|setup",
-  "w": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|setup",
-  "x": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|setup",
-  "y": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|setup",
-  "z": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|setup",
-  "A": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[PinnedMR]|setup",
-  "B": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|setup",
-  "C": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[PinnedMR]|setup",
-  "D": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|setup",
-  "E": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|setup",
-  "F": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|setup",
-  "G": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|setup",
-  "H": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|setup",
-  "I": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|setup",
-  "J": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|setup",
-  "K": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|setup",
-  "L": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|setup",
-  "M": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|setup",
-  "N": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|setup",
-  "O": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|setup",
-  "P": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|setup",
-  "Q": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|setup",
-  "R": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|setup",
-  "S": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|setup",
-  "T": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[PinnedMR]|setup",
-  "U": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|setup",
-  "V": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|setup",
-  "W": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
-  "X": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
-  "Y": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
-  "Z": "tests/test_memory.py::test_mempool_attributes[PinnedMR-release_threshold-int-True]|run",
-  "0": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_high-int-True]|run",
-  "1": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_internal_dependencies-bool-True]|run",
-  "2": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_opportunistic-bool-True]|run",
-  "3": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_follow_event_dependencies-bool-True]|run",
-  "4": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_high-int-True]|run",
-  "5": "tests/test_memory.py::test_pinned_memory_resource_initialization|run",
-  "6": "tests/test_memory.py::test_pinned_mr_numa_id_explicit|run",
-  "7": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
-  "8": "tests/test_memory.py::test_pinned_mr_numa_id_default_no_ipc|run",
-  "9": "tests/test_memory.py::test_mempool_attributes[PinnedMR-release_threshold-int-False]|run",
-  "!": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_high-int-False]|run",
-  "#": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_internal_dependencies-bool-False]|run",
-  "$": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_opportunistic-bool-False]|run",
-  "%": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_follow_event_dependencies-bool-False]|run",
-  "'": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_high-int-False]|run",
-  "(": "tests/test_memory.py::test_mempool_attributes_ownership[PinnedMR]|run",
-  ")": "tests/test_memory.py::test_mempool_attributes_set[PinnedMR]|run",
-  "*": "tests/test_memory.py::test_mempool_calls_during_capture_keep_capture_valid[PinnedMR-global-other_thread]|run",
-  "+": "tests/test_memory.py::test_mempool_calls_during_capture_keep_capture_valid[PinnedMR-global-same_thread]|run",
-  ",": "tests/test_memory.py::test_mempool_calls_during_capture_keep_capture_valid[PinnedMR-thread_local-same_thread]|run",
-  "-": "tests/test_memory.py::test_mempool_release_threshold_accepts_index_types[PinnedMR-bool]|run",
-  ".": "tests/test_memory.py::test_mempool_release_threshold_accepts_index_types[PinnedMR-int-subclass]|run",
-  "/": "tests/test_memory.py::test_mempool_release_threshold_accepts_index_types[PinnedMR-np-uint64]|run",
-  ":": "tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]|run",
-  ";": "tests/test_memory.py::test_pinned_memory_resource_kernel_access[current]|run",
-  "=": "tests/test_memory.py::test_pmr_construction_during_capture_keeps_capture_valid[global-other_thread]|run",
-  "?": "tests/test_memory.py::test_pmr_construction_during_capture_keeps_capture_valid[global-same_thread]|run",
-  "@": "tests/test_memory.py::test_pmr_construction_during_capture_keeps_capture_valid[thread_local-same_thread]|run",
-  "[": "tests/test_memory.py::test_pmr_construction_restores_capture_mode[global]|run",
-  "]": "tests/test_memory.py::test_pmr_construction_restores_capture_mode[thread_local]|run",
-  "^": "(empty)",
-  "_": "tests/test_memory.py::test_pinned_memory_resource_rejects_unsupported_host_pool|run",
-  "`": "tests/test_memory.py::test_pinned_mr_numa_id_negative_error|run",
-  "{": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|run",
-  "|": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|run",
-  "}": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
-  "~": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[PinnedMR]|run",
-  "ab": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|run",
-  "bb": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[PinnedMR]|run",
-  "cb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|run",
-  "db": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|run",
-  "eb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|run",
-  "fb": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|run",
-  "gb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|run",
-  "hb": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[PinnedMR]|run",
-  "ib": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|run",
-  "jb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|run",
-  "kb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|run",
-  "lb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|run",
-  "mb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|run",
-  "nb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|run",
-  "ob": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|run",
-  "pb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|run",
-  "qb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|run",
-  "rb": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|run",
-  "sb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
-  "tb": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|run",
-  "ub": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|run",
-  "vb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
-  "wb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
-  "xb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run",
-  "yb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|run",
-  "zb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
-  "Ab": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
-  "Bb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
-  "Cb": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|run"
+  "c": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_closing_both_imports_with_an_outstanding_buffer[PinnedMR]|setup",
+  "d": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_closing_one_import_keeps_the_other_usable[PinnedMR]|setup",
+  "e": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_reimport_racing_the_last_release_keeps_access[PinnedMR]|setup",
+  "f": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolImportWithoutLocationQuery::test_import_without_location_query[PinnedMR]|setup",
+  "g": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolKind::test_mismatched_import_raises[PinnedMR]|setup",
+  "h": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolKind::test_rejected_import_keeps_existing_import[PinnedMR]|setup",
+  "i": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolMatchingImport::test_matching_import_works[PinnedMR]|setup",
+  "j": "tests/memory_ipc/test_memory_ipc.py::TestIpcPinnedPoolAccess::test_main[resource]|run",
+  "k": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_current-int-True]|run",
+  "l": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_current-int-True]|run",
+  "m": "tests/test_memory.py::test_pinned_memory_resource_with_options|run",
+  "n": "tests/test_memory.py::test_pinned_memory_resource_kernel_access[new_numa]|run",
+  "o": "tests/memory/test_backward_compatibility.py::test_pinned_mr_accepts_dict_keyword|run",
+  "p": "tests/memory_ipc/test_memory_ipc.py::TestIpcPinnedPoolAccess::test_main[raw_handle]|run",
+  "q": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_current-int-False]|run",
+  "r": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_current-int-False]|run",
+  "s": "tests/test_memory.py::test_mempool_attributes_repr[PinnedMR]|run",
+  "t": "tests/test_memory.py::test_mempool_trim[PinnedMR]|run",
+  "u": "tests/test_memory.py::test_mempool_watermark_reset[PinnedMR-reserved]|run",
+  "v": "tests/test_memory.py::test_mempool_watermark_reset[PinnedMR-used]|run",
+  "w": "tests/test_memory.py::test_pinned_memory_resource_kernel_access[new]|run",
+  "x": "tests/test_memory.py::test_pinned_mr_numa_id_default_with_ipc|run",
+  "y": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|setup",
+  "z": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|setup",
+  "A": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|setup",
+  "B": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|setup",
+  "C": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|setup",
+  "D": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|setup",
+  "E": "tests/memory_ipc/test_errors.py::test_import_truncated_buffer_descriptor[PinnedMR]|setup",
+  "F": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|setup",
+  "G": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|setup",
+  "H": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[PinnedMR]|setup",
+  "I": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|setup",
+  "J": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[PinnedMR]|setup",
+  "K": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_concurrent_imports_of_one_uuid_share_a_resource[PinnedMR]|setup",
+  "L": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_registration_reentered_from_garbage_collection[PinnedMR]|setup",
+  "M": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|setup",
+  "N": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|setup",
+  "O": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|setup",
+  "P": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|setup",
+  "Q": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|setup",
+  "R": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|setup",
+  "S": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|setup",
+  "T": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|setup",
+  "U": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|setup",
+  "V": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|setup",
+  "W": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|setup",
+  "X": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|setup",
+  "Y": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|setup",
+  "Z": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|setup",
+  "0": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|setup",
+  "1": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|setup",
+  "2": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[PinnedMR]|setup",
+  "3": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|setup",
+  "4": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|setup",
+  "5": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|setup",
+  "6": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|setup",
+  "7": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|setup",
+  "8": "tests/test_memory.py::test_mempool_attributes[PinnedMR-release_threshold-int-True]|run",
+  "9": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_high-int-True]|run",
+  "!": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_internal_dependencies-bool-True]|run",
+  "#": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_opportunistic-bool-True]|run",
+  "$": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_follow_event_dependencies-bool-True]|run",
+  "%": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_high-int-True]|run",
+  "'": "tests/test_memory.py::test_pinned_memory_resource_initialization|run",
+  "(": "tests/test_memory.py::test_pinned_mr_numa_id_explicit|run",
+  ")": "tests/test_memory.py::test_memory_resource_alloc_zero_bytes[PinnedMR]|run",
+  "*": "tests/test_memory.py::test_pinned_mr_numa_id_default_no_ipc|run",
+  "+": "tests/test_memory.py::test_mempool_attributes[PinnedMR-release_threshold-int-False]|run",
+  ",": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reserved_mem_high-int-False]|run",
+  "-": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_internal_dependencies-bool-False]|run",
+  ".": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_allow_opportunistic-bool-False]|run",
+  "/": "tests/test_memory.py::test_mempool_attributes[PinnedMR-reuse_follow_event_dependencies-bool-False]|run",
+  ":": "tests/test_memory.py::test_mempool_attributes[PinnedMR-used_mem_high-int-False]|run",
+  ";": "tests/test_memory.py::test_mempool_attributes_ownership[PinnedMR]|run",
+  "=": "tests/test_memory.py::test_mempool_attributes_set[PinnedMR]|run",
+  "?": "tests/test_memory.py::test_mempool_calls_during_capture_keep_capture_valid[PinnedMR-global-other_thread]|run",
+  "@": "tests/test_memory.py::test_mempool_calls_during_capture_keep_capture_valid[PinnedMR-global-same_thread]|run",
+  "[": "tests/test_memory.py::test_mempool_calls_during_capture_keep_capture_valid[PinnedMR-thread_local-same_thread]|run",
+  "]": "tests/test_memory.py::test_mempool_release_threshold_accepts_index_types[PinnedMR-bool]|run",
+  "^": "tests/test_memory.py::test_mempool_release_threshold_accepts_index_types[PinnedMR-int-subclass]|run",
+  "_": "tests/test_memory.py::test_mempool_release_threshold_accepts_index_types[PinnedMR-np-uint64]|run",
+  "`": "tests/test_memory.py::test_non_managed_resources_report_not_managed[pinned]|run",
+  "{": "tests/test_memory.py::test_pinned_memory_resource_kernel_access[current]|run",
+  "|": "tests/test_memory.py::test_pmr_construction_during_capture_keeps_capture_valid[global-other_thread]|run",
+  "}": "tests/test_memory.py::test_pmr_construction_during_capture_keeps_capture_valid[global-same_thread]|run",
+  "~": "tests/test_memory.py::test_pmr_construction_during_capture_keeps_capture_valid[thread_local-same_thread]|run",
+  "ab": "tests/test_memory.py::test_pmr_construction_restores_capture_mode[global]|run",
+  "bb": "tests/test_memory.py::test_pmr_construction_restores_capture_mode[thread_local]|run",
+  "cb": "(empty)",
+  "db": "tests/test_memory.py::test_pinned_memory_resource_rejects_unsupported_host_pool|run",
+  "eb": "tests/test_memory.py::test_pinned_mr_numa_id_negative_error|run",
+  "fb": "tests/memory_ipc/test_errors.py::TestImportBuffer::test_main[PinnedMR]|run",
+  "gb": "tests/memory_ipc/test_errors.py::TestImportOversizedBufferDescriptorSize::test_main[PinnedMR]|run",
+  "hb": "tests/memory_ipc/test_event_ipc.py::TestEventIpc::test_main[PinnedMR]|run",
+  "ib": "tests/memory_ipc/test_ipc_concurrent_import.py::TestIpcConcurrentImport::test_main[PinnedMR]|run",
+  "jb": "tests/memory_ipc/test_ipc_duplicate_import.py::TestIpcDuplicateImport::test_main[PinnedMR]|run",
+  "kb": "tests/memory_ipc/test_ipc_import_release_race.py::TestIpcImportReleaseRace::test_main[PinnedMR]|run",
+  "lb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer]|run",
+  "mb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer]|run",
+  "nb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer]|run",
+  "ob": "tests/memory_ipc/test_memory_ipc.py::TestIPCMempoolMultiple::test_main[PinnedMR]|run",
+  "pb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferObjects::test_main[PinnedMR]|run",
+  "qb": "tests/memory_ipc/test_memory_ipc.py::TestIpcImportedBufferDeviceAccess::test_main[PinnedMR]|run",
+  "rb": "tests/memory_ipc/test_memory_ipc.py::TestIpcMempool::test_main[PinnedMR]|run",
+  "sb": "tests/memory_ipc/test_send_buffers.py::TestIpcReexport::test_main[PinnedMR]|run",
+  "tb": "tests/memory_ipc/test_serialize.py::TestObjectPassing::test_main[PinnedMR]|run",
+  "ub": "tests/memory_ipc/test_serialize.py::TestObjectSerializationDirect::test_main[PinnedMR]|run",
+  "vb": "tests/memory_ipc/test_serialize.py::TestObjectSerializationWithMR::test_main[PinnedMR]|run",
+  "wb": "tests/memory_ipc/test_memory_ipc.py::TestIPCSharedAllocationHandleAndBufferDescriptors::test_main[PinnedMR]|run",
+  "xb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-buffer_desc]|run",
+  "yb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-buffer_desc]|run",
+  "zb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-buffer_desc]|run",
+  "Ab": "tests/memory_ipc/test_errors.py::test_closed_ipc_allocation_handle_rejected_before_registry_hit[PinnedMR]|run",
+  "Bb": "tests/memory_ipc/test_errors.py::TestAllocFromImportedMr::test_main[PinnedMR]|run",
+  "Cb": "tests/memory_ipc/test_errors.py::TestDanglingBuffer::test_main[PinnedMR]|run",
+  "Db": "tests/memory_ipc/test_errors.py::TestImportWrongMR::test_main[PinnedMR]|run",
+  "Eb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-mr]|run",
+  "Fb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-mr]|run",
+  "Gb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-mr]|run",
+  "Hb": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_closing_both_imports_with_an_outstanding_buffer[PinnedMR]|run",
+  "Ib": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_closing_one_import_keeps_the_other_usable[PinnedMR]|run",
+  "Jb": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_concurrent_imports_of_one_uuid_share_a_resource[PinnedMR]|run",
+  "Kb": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_registration_reentered_from_garbage_collection[PinnedMR]|run",
+  "Lb": "tests/memory_ipc/test_ipc_pool_duplicate_import.py::TestIpcPoolDuplicateImport::test_reimport_racing_the_last_release_keeps_access[PinnedMR]|run",
+  "Mb": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolImportWithoutLocationQuery::test_import_without_location_query[PinnedMR]|run",
+  "Nb": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolKind::test_mismatched_import_raises[PinnedMR]|run",
+  "Ob": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolKind::test_rejected_import_keeps_existing_import[PinnedMR]|run",
+  "Pb": "tests/memory_ipc/test_ipc_pool_kind.py::TestIpcPoolMatchingImport::test_matching_import_works[PinnedMR]|run",
+  "Qb": "tests/memory_ipc/test_leaks.py::test_alloc_handle[PinnedMR]|run",
+  "Rb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_launch_failure-alloc_handle]|run",
+  "Sb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_reduce_failure-alloc_handle]|run",
+  "Tb": "tests/memory_ipc/test_leaks.py::test_pass_object[PinnedMR-exec_success-alloc_handle]|run",
+  "Ub": "tests/memory_ipc/test_errors.py::test_register_rejects_mismatched_uuid[PinnedMR]|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -134,7 +152,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cuda<span class="sep">/</span>core<span class="sep">/</span>_memory<span class="sep">/</span>_pinned_memory_resource.pyx</b>:
-            <span class="pc_cov">89.25%</span>
+            <span class="pc_cov">84.69%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -176,9 +194,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">93 statements &nbsp;</span>
+            <span class="text">98 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">83<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">10<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">15<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">1<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -187,7 +205,7 @@
             <a id="nextFileLink" class="nav" href="z_6928e1fc216e3a2e__synchronous_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.4">coverage.py v7.17.4</a>,
-            created at 2026-11-21 01:40 +0000
+            created at 2026-11-22 00:53 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -327,7 +345,7 @@
     <p class="pln"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="txt">    def __init__(self, options: PinnedMemoryResourceOptions | None = None) -&gt; None:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        _PMR_init(self, options)</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">84 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6`=?@[]</span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t"><span class="txt">        _PMR_init(self, options)</span>&nbsp;</span><input type="checkbox" id="ctxs126"><span class="r"><label for="ctxs126" class="ctx">93 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( eb| } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t"><span class="txt">    def allocate(self, size_t size, *, stream: Stream | GraphBuilder) -&gt; Buffer:</span>&nbsp;</span><span class="r"><label for="ctxs128" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Allocate a host-pinned buffer asynchronously on the supplied stream.</span>&nbsp;</span><span class="r"></span></p>
@@ -353,18 +371,18 @@
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t"><span class="txt">            pool. Use :class:`LegacyPinnedMemoryResource` when stream-ordered</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t150" href="#t150">150</a></span><span class="t"><span class="txt">            allocation is not required.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t151" href="#t151">151</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">39 ctx</label></span><span class="ctxs">2h { | } ~ abbbcbobdbpbebqbfbnbgbhbibjbkblbmb7 j d k e l m n o : 5 ; p g f a b </span></p>
-    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        if self.is_mapped:</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">39 ctx</label></span><span class="ctxs">2h { | } ~ abbbcbobdbpbebqbfbnbgbhbibjbkblbmb7 j d k e l m n o : 5 ; p g f a b </span></p>
+    <p class="run"><span class="n"><a id="t152" href="#t152">152</a></span><span class="t"><span class="txt">        MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs152"><span class="r"><label for="ctxs152" class="ctx">46 ctx</label></span><span class="ctxs">2o fbgbhbibjbkbc d e f g h i lbxbmbybnbzbobwbpbqbrbsbtbubvb) q k r l s t u v ` ' { w n m a b </span></p>
+    <p class="run"><span class="n"><a id="t153" href="#t153">153</a></span><span class="t"><span class="txt">        if self.is_mapped:</span>&nbsp;</span><input type="checkbox" id="ctxs153"><span class="r"><label for="ctxs153" class="ctx">46 ctx</label></span><span class="ctxs">2o fbgbhbibjbkbc d e f g h i lbxbmbybnbzbobwbpbqbrbsbtbubvb) q k r l s t u v ` ' { w n m a b </span></p>
     <p class="mis show_mis"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t"><span class="txt">            raise TypeError(&quot;Cannot allocate from a mapped IPC-enabled memory resource&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">        cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">39 ctx</label></span><span class="ctxs">2h { | } ~ abbbcbobdbpbebqbfbnbgbhbibjbkblbmb7 j d k e l m n o : 5 ; p g f a b </span></p>
-    <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">        device = s.device</span>&nbsp;</span><input type="checkbox" id="ctxs156"><span class="r"><label for="ctxs156" class="ctx">39 ctx</label></span><span class="ctxs">2h { | } ~ abbbcbobdbpbebqbfbnbgbhbibjbkblbmb7 j d k e l m n o : 5 ; p g f a b </span></p>
-    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        if not _host_pool_supported(device, self._numa_id &gt;= 0):</span>&nbsp;</span><input type="checkbox" id="ctxs157"><span class="r"><label for="ctxs157" class="ctx">39 ctx</label></span><span class="ctxs">2h { | } ~ abbbcbobdbpbebqbfbnbgbhbibjbkblbmb7 j d k e l m n o : 5 ; p g f a b </span></p>
+    <p class="run"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t"><span class="txt">        cdef Stream s = Stream_accept(stream)</span>&nbsp;</span><input type="checkbox" id="ctxs155"><span class="r"><label for="ctxs155" class="ctx">46 ctx</label></span><span class="ctxs">2o fbgbhbibjbkbc d e f g h i lbxbmbybnbzbobwbpbqbrbsbtbubvb) q k r l s t u v ` ' { w n m a b </span></p>
+    <p class="run"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t"><span class="txt">        device = s.device</span>&nbsp;</span><input type="checkbox" id="ctxs156"><span class="r"><label for="ctxs156" class="ctx">46 ctx</label></span><span class="ctxs">2o fbgbhbibjbkbc d e f g h i lbxbmbybnbzbobwbpbqbrbsbtbubvb) q k r l s t u v ` ' { w n m a b </span></p>
+    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t"><span class="txt">        if not _host_pool_supported(device, self._numa_id &gt;= 0):</span>&nbsp;</span><input type="checkbox" id="ctxs157"><span class="r"><label for="ctxs157" class="ctx">46 ctx</label></span><span class="ctxs">2o fbgbhbibjbkbc d e f g h i lbxbmbybnbzbobwbpbqbrbsbtbubvb) q k r l s t u v ` ' { w n m a b </span></p>
     <p class="mis show_mis"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t"><span class="txt">            raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t"><span class="txt">                f&quot;CUDA device {device.device_id} does not support the requested &quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="txt">                &quot;host memory pool for PinnedMemoryResource. Use &quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t"><span class="txt">                &quot;LegacyPinnedMemoryResource if memory-pool features are not required.&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="txt">            )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        return _MP_allocate(self, size, s)</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">39 ctx</label></span><span class="ctxs">2h { | } ~ abbbcbobdbpbebqbfbnbgbhbibjbkblbmb7 j d k e l m n o : 5 ; p g f a b </span></p>
+    <p class="run"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="txt">        return _MP_allocate(self, size, s)</span>&nbsp;</span><input type="checkbox" id="ctxs163"><span class="r"><label for="ctxs163" class="ctx">46 ctx</label></span><span class="ctxs">2o fbgbhbibjbkbc d e f g h i lbxbmbybnbzbobwbpbqbrbsbtbubvb) q k r l s t u v ` ' { w n m a b </span></p>
     <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="txt">    def __reduce__(self) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs165" class="ctx">(empty)</label></span></p>
     <p class="mis show_mis"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t"><span class="txt">        MP_check_open(self)</span>&nbsp;</span><span class="r"></span></p>
@@ -398,7 +416,7 @@
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="txt">        ValueError</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="txt">            If the memory resource already has a different UUID.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">        return &lt;PinnedMemoryResource&gt;(_ipc.MP_register(self, uuid))</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">2 ctx</label></span><span class="ctxs">2rbCb</span></p>
+    <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t"><span class="txt">        return &lt;PinnedMemoryResource&gt;(_ipc.MP_register(self, uuid))</span>&nbsp;</span><input type="checkbox" id="ctxs197"><span class="r"><label for="ctxs197" class="ctx">2 ctx</label></span><span class="ctxs">2AbUb</span></p>
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="txt">    @classmethod</span>&nbsp;</span><span class="r"><label for="ctxs199" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="txt">    def from_allocation_handle(</span>&nbsp;</span><span class="r"></span></p>
@@ -408,8 +426,8 @@
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t"><span class="txt">        Construct a new `PinnedMemoryResource` instance that imports a memory</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t"><span class="txt">        pool from a shareable handle. The memory pool is marked as owned. Every</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        device in this process that supports host NUMA memory pools is granted</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        read and write access to the imported pool.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t"><span class="txt">        device in this process that supports pools at the pool&#x27;s host location</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t"><span class="txt">        is granted read and write access to the imported pool.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t"><span class="txt">        Parameters</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t"><span class="txt">        ----------</span>&nbsp;</span><span class="r"></span></p>
@@ -421,150 +439,174 @@
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="txt">        Returns</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t"><span class="txt">        -------</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t"><span class="txt">            A new host-pinned memory resource instance with the imported handle.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        # cuMemPoolImportFromShareableHandle requires CUDA to be initialized, but in</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">        # a child process CUDA may not be initialized yet. For DeviceMemoryResource,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">        # this is not a concern because most likely when retrieving the device_id the</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">        # user would have already initialized CUDA. But since PinnedMemoryResource is</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">        # not device-specific it is unlikelt the case.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuInit(0))</span>&nbsp;</span><input type="checkbox" id="ctxs226"><span class="r"><label for="ctxs226" class="ctx">1 ctx</label></span><span class="ctxs">2rb</span></p>
-    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">        return &lt;PinnedMemoryResource&gt;(</span>&nbsp;</span><input type="checkbox" id="ctxs228"><span class="r"><label for="ctxs228" class="ctx">1 ctx</label></span><span class="ctxs">2rb</span></p>
-    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported))</span>&nbsp;</span><input type="checkbox" id="ctxs229"><span class="r"><label for="ctxs229" class="ctx">1 ctx</label></span><span class="ctxs">2rb</span></p>
-    <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">    def allocation_handle(self) -&gt; IPCAllocationHandle:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Shareable handle for this memory pool (requires IPC).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">        The handle can be used to share the memory pool with other processes.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">        The handle is cached in this `MemoryResource` and owned by it.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">        MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs238"><span class="r"><label for="ctxs238" class="ctx">33 ctx</label></span><span class="ctxs">2sbtb{ | ubrb} ~ abbbybzbcbvbAbdbwbBbebxbfbnbgbhbibi c jbkblbmba b </span></p>
-    <p class="run"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">        if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs239"><span class="r"><label for="ctxs239" class="ctx">33 ctx</label></span><span class="ctxs">2sbtb{ | ubrb} ~ abbbybzbcbvbAbdbwbBbebxbfbnbgbhbibi c jbkblbmba b </span></p>
-    <p class="run"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">            raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs240"><span class="r"><label for="ctxs240" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
-    <p class="run"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">        return self._ipc_data._alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs241"><span class="r"><label for="ctxs241" class="ctx">32 ctx</label></span><span class="ctxs">2sbtb{ | ubrb} ~ abbbybzbcbvbAbdbwbBbebxbfbnbgbhbibi c jbkblbmba </span></p>
-    <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">    def device_id(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return -1. Pinned memory is host memory and is not associated with a specific device.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        return -1</span>&nbsp;</span><input type="checkbox" id="ctxs246"><span class="r"><label for="ctxs246" class="ctx">5 ctx</label></span><span class="ctxs">175fab</span></p>
-    <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">    def numa_id(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The host NUMA node ID used for pool placement, or -1 for OS-managed placement.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">        return self._numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs251"><span class="r"><label for="ctxs251" class="ctx">5 ctx</label></span><span class="ctxs">1ab8q6</span></p>
-    <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">    def is_device_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return True. Every device that supports this kind of host memory pool can read and write its buffers.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs256"><span class="r"><label for="ctxs256" class="ctx">3 ctx</label></span><span class="ctxs">15fa</span></p>
-    <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">    def is_host_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return True. This memory resource provides host-accessible buffers.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs261"><span class="r"><label for="ctxs261" class="ctx">3 ctx</label></span><span class="ctxs">15fa</span></p>
-    <p class="pln"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">cdef inline bint _host_pool_supported(device, bint host_numa):</span>&nbsp;</span><span class="r"><label for="ctxs264" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">    return (</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">        device.properties.host_numa_memory_pools_supported</span>&nbsp;</span><input type="checkbox" id="ctxs266"><span class="r"><label for="ctxs266" class="ctx">69 ctx</label></span><span class="ctxs">2r s { t | u v w x y } z ~ A abB bbC D E cbF obG H I dbJ pbK L M ebN qbO P fbQ nbR gbS hbT ibU i c jbV kbW lbX mbY Z d 0 1 2 3 e 4 g a q 6 </span></p>
-    <p class="run"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">        if host_numa</span>&nbsp;</span><input type="checkbox" id="ctxs267"><span class="r"><label for="ctxs267" class="ctx">103 ctx</label></span><span class="ctxs">2h r s { t | u v w x y } z ~ A abB bbC D E cbF obG H I dbJ pbK L M ebN qbO P fbQ nbR gbS hbT ibU i c jbV kbW lbX mbY 7 9 Z j d ! 0 # 1 $ 2 % 3 k e ' 4 ( l ) * + , - . / m n o : 5 ; p g f a b 8 q 6 = ? @ [ ] </span></p>
-    <p class="run"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">        else device.properties.host_memory_pools_supported</span>&nbsp;</span><input type="checkbox" id="ctxs268"><span class="r"><label for="ctxs268" class="ctx">34 ctx</label></span><span class="ctxs">1h79j!#$%k'(l)*+,-./mno:5;pfb8=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">cdef inline _PMR_init(PinnedMemoryResource self, options):</span>&nbsp;</span><span class="r"><label for="ctxs272" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs273"><span class="r"><label for="ctxs273" class="ctx">84 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6`=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">    cdef PinnedMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs275"><span class="r"><label for="ctxs275" class="ctx">84 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6`=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        PinnedMemoryResourceOptions, options, &quot;PinnedMemoryResource options&quot;,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">        keep_none=True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">    cdef bint ipc_enabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs279"><span class="r"><label for="ctxs279" class="ctx">84 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6`=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    cdef size_t max_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs280"><span class="r"><label for="ctxs280" class="ctx">84 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6`=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemLocationType loc_type</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">    cdef int numa_id = -1</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">84 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6`=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">    if opts is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs284"><span class="r"><label for="ctxs284" class="ctx">84 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6`=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">        ipc_enabled = opts.ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs285"><span class="r"><label for="ctxs285" class="ctx">75 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY9Zjd!0#1$2%3ke'4(l)*+,-./mnopg_fab8q6`</span></p>
-    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">        if ipc_enabled and not _ipc.is_supported():</span>&nbsp;</span><input type="checkbox" id="ctxs286"><span class="r"><label for="ctxs286" class="ctx">75 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY9Zjd!0#1$2%3ke'4(l)*+,-./mnopg_fab8q6`</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">            raise RuntimeError(f&quot;IPC is not available on {platform.system()}&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">        max_size = opts.max_size</span>&nbsp;</span><input type="checkbox" id="ctxs288"><span class="r"><label for="ctxs288" class="ctx">75 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY9Zjd!0#1$2%3ke'4(l)*+,-./mnopg_fab8q6`</span></p>
+    <p class="pln"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t"><span class="txt">        Raises</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t222" href="#t222">222</a></span><span class="t"><span class="txt">        ------</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t"><span class="txt">        TypeError</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t"><span class="txt">            If the handle refers to a device memory pool, which must be</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t"><span class="txt">            imported with :meth:`DeviceMemoryResource.from_allocation_handle`.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t"><span class="txt">            The pool&#x27;s kind is checked with a CUDA 13 build of ``cuda.core``</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t"><span class="txt">            and a 13.2 or later driver. Otherwise it is checked only when the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t"><span class="txt">            handle&#x27;s memory resource is already registered in this process.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t"><span class="txt">        # cuMemPoolImportFromShareableHandle requires CUDA to be initialized, but in</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t"><span class="txt">        # a child process CUDA may not be initialized yet. For DeviceMemoryResource,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t"><span class="txt">        # this is not a concern because most likely when retrieving the device_id the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t233" href="#t233">233</a></span><span class="t"><span class="txt">        # user would have already initialized CUDA. But since PinnedMemoryResource is</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t234" href="#t234">234</a></span><span class="t"><span class="txt">        # not device-specific it is unlikelt the case.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t235" href="#t235">235</a></span><span class="t"><span class="txt">        HANDLE_RETURN(cydriver.cuInit(0))</span>&nbsp;</span><input type="checkbox" id="ctxs235"><span class="r"><label for="ctxs235" class="ctx">1 ctx</label></span><span class="ctxs">2Ab</span></p>
+    <p class="pln"><span class="n"><a id="t236" href="#t236">236</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t237" href="#t237">237</a></span><span class="t"><span class="txt">        return &lt;PinnedMemoryResource&gt;(</span>&nbsp;</span><input type="checkbox" id="ctxs237"><span class="r"><label for="ctxs237" class="ctx">1 ctx</label></span><span class="ctxs">2Ab</span></p>
+    <p class="run"><span class="n"><a id="t238" href="#t238">238</a></span><span class="t"><span class="txt">            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported))</span>&nbsp;</span><input type="checkbox" id="ctxs238"><span class="r"><label for="ctxs238" class="ctx">1 ctx</label></span><span class="ctxs">2Ab</span></p>
+    <p class="pln"><span class="n"><a id="t239" href="#t239">239</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t"><span class="txt">    def allocation_handle(self) -&gt; IPCAllocationHandle:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Shareable handle for this memory pool (requires IPC).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t"><span class="txt">        The handle can be used to share the memory pool with other processes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t"><span class="txt">        The handle is cached in this `MemoryResource` and owned by it.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t"><span class="txt">        MP_check_open(self)</span>&nbsp;</span><input type="checkbox" id="ctxs247"><span class="r"><label for="ctxs247" class="ctx">42 ctx</label></span><span class="ctxs">2BbCbfbgbDbAbhbibjbkbHbIbJbKbLbMbNbObPbQbRblbEbSbmbFbTbnbGbobwbpbqbrbp j sbtbubvba b </span></p>
+    <p class="run"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t"><span class="txt">        if not self.is_ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs248"><span class="r"><label for="ctxs248" class="ctx">42 ctx</label></span><span class="ctxs">2BbCbfbgbDbAbhbibjbkbHbIbJbKbLbMbNbObPbQbRblbEbSbmbFbTbnbGbobwbpbqbrbp j sbtbubvba b </span></p>
+    <p class="run"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t"><span class="txt">            raise RuntimeError(&quot;Memory resource is not IPC-enabled&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs249"><span class="r"><label for="ctxs249" class="ctx">1 ctx</label></span><span class="ctxs">1b</span></p>
+    <p class="run"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t"><span class="txt">        return self._ipc_data._alloc_handle</span>&nbsp;</span><input type="checkbox" id="ctxs250"><span class="r"><label for="ctxs250" class="ctx">41 ctx</label></span><span class="ctxs">2BbCbfbgbDbAbhbibjbkbHbIbJbKbLbMbNbObPbQbRblbEbSbmbFbTbnbGbobwbpbqbrbp j sbtbubvba </span></p>
+    <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="txt">    def device_id(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return -1. Pinned memory is host memory and is not associated with a specific device.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="txt">        return -1</span>&nbsp;</span><input type="checkbox" id="ctxs255"><span class="r"><label for="ctxs255" class="ctx">5 ctx</label></span><span class="ctxs">1)'mab</span></p>
+    <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t"><span class="txt">    def numa_id(self) -&gt; int:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;The host NUMA node ID used for pool placement, or -1 for OS-managed placement.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t"><span class="txt">        For a resource imported with :meth:`from_allocation_handle`, this is the</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="txt">        pool&#x27;s node only if the pool&#x27;s location can be queried (a CUDA 13 build</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t"><span class="txt">        of ``cuda.core`` and a 13.2 or later driver). Otherwise it is 0, which is</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t"><span class="txt">        not known to be the pool&#x27;s node.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t266" href="#t266">266</a></span><span class="t"><span class="txt">        return self._numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs266"><span class="r"><label for="ctxs266" class="ctx">5 ctx</label></span><span class="ctxs">1ab*x(</span></p>
+    <p class="pln"><span class="n"><a id="t267" href="#t267">267</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t268" href="#t268">268</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t269" href="#t269">269</a></span><span class="t"><span class="txt">    def is_device_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t270" href="#t270">270</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return True. Every device that supports this kind of host memory pool can read and write its buffers.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t271" href="#t271">271</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs271"><span class="r"><label for="ctxs271" class="ctx">3 ctx</label></span><span class="ctxs">1'ma</span></p>
+    <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t"><span class="txt">    def is_host_accessible(self) -&gt; bool:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;Return True. This memory resource provides host-accessible buffers.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t"><span class="txt">        return True</span>&nbsp;</span><input type="checkbox" id="ctxs276"><span class="r"><label for="ctxs276" class="ctx">3 ctx</label></span><span class="ctxs">1'ma</span></p>
+    <p class="pln"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t"><span class="txt">cdef inline bint _host_pool_supported(device, bint host_numa):</span>&nbsp;</span><span class="r"><label for="ctxs279" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t"><span class="txt">    return (</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t"><span class="txt">        device.properties.host_numa_memory_pools_supported</span>&nbsp;</span><input type="checkbox" id="ctxs281"><span class="r"><label for="ctxs281" class="ctx">78 ctx</label></span><span class="ctxs">2y z fbA gbB C D E F hbG ibH jbI kbJ c d K L e f g h i M N lbO xbP Q R mbS ybT U V nbW zbX Y obZ wb0 pb1 qb2 rb3 p j sb4 tb5 ub6 vb7 8 k 9 ! # $ l % n a x ( </span></p>
+    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t"><span class="txt">        if host_numa</span>&nbsp;</span><input type="checkbox" id="ctxs282"><span class="r"><label for="ctxs282" class="ctx">112 ctx</label></span><span class="ctxs">2o y z fbA gbB C D E F hbG ibH jbI kbJ c d K L e f g h i M N lbO xbP Q R mbS ybT U V nbW zbX Y obZ wb0 pb1 qb2 rb3 p j sb4 tb5 ub6 vb7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t"><span class="txt">        else device.properties.host_memory_pools_supported</span>&nbsp;</span><input type="checkbox" id="ctxs283"><span class="r"><label for="ctxs283" class="ctx">34 ctx</label></span><span class="ctxs">2o ) + q , - . / r : ; s = ? @ [ ] ^ _ t u v ` ' { w m b * | } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t"><span class="txt">cdef inline _PMR_init(PinnedMemoryResource self, options):</span>&nbsp;</span><span class="r"><label for="ctxs287" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs288"><span class="r"><label for="ctxs288" class="ctx">93 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( eb| } ~ abbb</span></p>
     <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">        if opts.numa_id is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs290"><span class="r"><label for="ctxs290" class="ctx">75 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY9Zjd!0#1$2%3ke'4(l)*+,-./mnopg_fab8q6`</span></p>
-    <p class="run"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">            numa_id = opts.numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs291"><span class="r"><label for="ctxs291" class="ctx">3 ctx</label></span><span class="ctxs">1g6`</span></p>
-    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">            if numa_id &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs292"><span class="r"><label for="ctxs292" class="ctx">3 ctx</label></span><span class="ctxs">1g6`</span></p>
-    <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">                raise ValueError(f&quot;numa_id must be &gt;= 0, got {numa_id}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs293"><span class="r"><label for="ctxs293" class="ctx">1 ctx</label></span><span class="ctxs">1`</span></p>
-    <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">        elif ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">72 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY9Zjd!0#1$2%3ke'4(l)*+,-./mnop_fab8q</span></p>
-    <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">            dev = Device()</span>&nbsp;</span><input type="checkbox" id="ctxs295"><span class="r"><label for="ctxs295" class="ctx">46 ctx</label></span><span class="ctxs">1rstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXYZd0123e4aq</span></p>
-    <p class="run"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">            numa_id = dev.properties.host_numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs296"><span class="r"><label for="ctxs296" class="ctx">46 ctx</label></span><span class="ctxs">1rstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXYZd0123e4aq</span></p>
-    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">            if numa_id &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">46 ctx</label></span><span class="ctxs">1rstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXYZd0123e4aq</span></p>
-    <p class="mis show_mis"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">                raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">                    &quot;Cannot determine host NUMA ID for IPC-enabled pinned &quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">                    &quot;memory pool. The system may not support NUMA, or no &quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">                    &quot;CUDA context is active. Set numa_id explicitly or &quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">                    &quot;call Device.set_current() first.&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">    if numa_id &gt;= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs304"><span class="r"><label for="ctxs304" class="ctx">83 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">        loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA</span>&nbsp;</span><input type="checkbox" id="ctxs305"><span class="r"><label for="ctxs305" class="ctx">48 ctx</label></span><span class="ctxs">1rstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXYZd0123e4gaq6</span></p>
-    <p class="pln"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">        loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">35 ctx</label></span><span class="ctxs">1h79j!#$%k'(l)*+,-./mno:5;p_fb8=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    self._numa_id = numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs309"><span class="r"><label for="ctxs309" class="ctx">83 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">    if opts is None:</span>&nbsp;</span><input type="checkbox" id="ctxs311"><span class="r"><label for="ctxs311" class="ctx">83 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pg_fab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">        MP_init_current_pool(</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">9 ctx</label></span><span class="ctxs">17:5;=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">            self,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">            loc_type,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">            numa_id,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">            cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">        MP_init_create_pool(</span>&nbsp;</span><input type="checkbox" id="ctxs319"><span class="r"><label for="ctxs319" class="ctx">74 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY9Zjd!0#1$2%3ke'4(l)*+,-./mnopg_fab8q6</span></p>
-    <p class="pln"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">            self,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">            loc_type,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">            numa_id,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">            cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">            ipc_enabled,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">            max_size,</span>&nbsp;</span><input type="checkbox" id="ctxs325"><span class="r"><label for="ctxs325" class="ctx">74 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY9Zjd!0#1$2%3ke'4(l)*+,-./mnopg_fab8q6</span></p>
-    <p class="pln"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">    _PMR_grant_device_access(self, numa_id &gt;= 0)</span>&nbsp;</span><input type="checkbox" id="ctxs328"><span class="r"><label for="ctxs328" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">cdef inline int _PMR_grant_device_access(PinnedMemoryResource self, bint host_numa) except? -1:</span>&nbsp;</span><span class="r"><label for="ctxs331" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">    # A pool on a host location is accessible only from the host by default</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    # (see cuMemPoolCreate), and access is per process, so both the creating</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">    # and the importing process grant read/write access to every device that</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">    # supports this kind of host pool, as cudaMallocHost memory is. Other</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">    # devices cannot use the pool.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs337"><span class="r"><label for="ctxs337" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemAccessDesc desc</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">    cdef vector[cydriver.CUmemAccessDesc] access</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">    desc.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE</span>&nbsp;</span><input type="checkbox" id="ctxs341"><span class="r"><label for="ctxs341" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">    for dev in Device.get_all_devices():</span>&nbsp;</span><input type="checkbox" id="ctxs342"><span class="r"><label for="ctxs342" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">        if _host_pool_supported(dev, host_numa):</span>&nbsp;</span><input type="checkbox" id="ctxs343"><span class="r"><label for="ctxs343" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">            desc.location = cumemlocation_from_id(</span>&nbsp;</span><input type="checkbox" id="ctxs344"><span class="r"><label for="ctxs344" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs345"><span class="r"><label for="ctxs345" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">            access.push_back(desc)</span>&nbsp;</span><input type="checkbox" id="ctxs346"><span class="r"><label for="ctxs346" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">    if not access.empty():</span>&nbsp;</span><input type="checkbox" id="ctxs347"><span class="r"><label for="ctxs347" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">        MP_set_access(self, access.data(), access.size())</span>&nbsp;</span><input type="checkbox" id="ctxs348"><span class="r"><label for="ctxs348" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="run"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs349"><span class="r"><label for="ctxs349" class="ctx">82 ctx</label></span><span class="ctxs">1hrstuvwxyzABCDEFGHIJKLMNOPQRSTUicVWXY79Zjd!0#1$2%3ke'4(l)*+,-./mno:5;pgfab8q6=?@[]</span></p>
-    <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">cdef int _PMR_init_imported(_MemPool mr) except? -1:</span>&nbsp;</span><span class="r"><label for="ctxs352" class="ctx">(empty)</label></span></p>
-    <p class="pln"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">    # IPC-enabled pinned pools are always placed on a host NUMA node.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">    return _PMR_grant_device_access(&lt;PinnedMemoryResource&gt;mr, True)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">def _deep_reduce_pinned_memory_resource(mr: object) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs357" class="ctx">(empty)</label></span></p>
-    <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs358"><span class="r"><label for="ctxs358" class="ctx">24 ctx</label></span><span class="ctxs">2sbtb{ | ub} ~ abbbcbvbdbwbebxbfbgbhbibc jbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">    alloc_handle = mr.allocation_handle</span>&nbsp;</span><input type="checkbox" id="ctxs359"><span class="r"><label for="ctxs359" class="ctx">24 ctx</label></span><span class="ctxs">2sbtb{ | ub} ~ abbbcbvbdbwbebxbfbgbhbibc jbkblbmb</span></p>
-    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">    return mr.from_allocation_handle, (alloc_handle,)</span>&nbsp;</span><input type="checkbox" id="ctxs360"><span class="r"><label for="ctxs360" class="ctx">24 ctx</label></span><span class="ctxs">2sbtb{ | ub} ~ abbbcbvbdbwbebxbfbgbhbibc jbkblbmb</span></p>
-    <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)</span>&nbsp;</span><span class="r"><label for="ctxs363" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t"><span class="txt">    cdef PinnedMemoryResourceOptions opts = check_or_create_options(</span>&nbsp;</span><input type="checkbox" id="ctxs290"><span class="r"><label for="ctxs290" class="ctx">93 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( eb| } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t"><span class="txt">        PinnedMemoryResourceOptions, options, &quot;PinnedMemoryResource options&quot;,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t"><span class="txt">        keep_none=True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t"><span class="txt">    )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t"><span class="txt">    cdef bint ipc_enabled = False</span>&nbsp;</span><input type="checkbox" id="ctxs294"><span class="r"><label for="ctxs294" class="ctx">93 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( eb| } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t"><span class="txt">    cdef size_t max_size = 0</span>&nbsp;</span><input type="checkbox" id="ctxs295"><span class="r"><label for="ctxs295" class="ctx">93 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( eb| } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemLocationType loc_type</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t"><span class="txt">    cdef int numa_id = -1</span>&nbsp;</span><input type="checkbox" id="ctxs297"><span class="r"><label for="ctxs297" class="ctx">93 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( eb| } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t"><span class="txt">    if opts is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs299"><span class="r"><label for="ctxs299" class="ctx">93 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( eb| } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t300" href="#t300">300</a></span><span class="t"><span class="txt">        ipc_enabled = opts.ipc_enabled</span>&nbsp;</span><input type="checkbox" id="ctxs300"><span class="r"><label for="ctxs300" class="ctx">84 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v w n dbm a b * x ( eb</span></p>
+    <p class="run"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">        if ipc_enabled and not _ipc.is_supported():</span>&nbsp;</span><input type="checkbox" id="ctxs301"><span class="r"><label for="ctxs301" class="ctx">84 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v w n dbm a b * x ( eb</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">            raise RuntimeError(f&quot;IPC is not available on {platform.system()}&quot;)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">        max_size = opts.max_size</span>&nbsp;</span><input type="checkbox" id="ctxs303"><span class="r"><label for="ctxs303" class="ctx">84 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v w n dbm a b * x ( eb</span></p>
+    <p class="pln"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">        if opts.numa_id is not None:</span>&nbsp;</span><input type="checkbox" id="ctxs305"><span class="r"><label for="ctxs305" class="ctx">84 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v w n dbm a b * x ( eb</span></p>
+    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">            numa_id = opts.numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">3 ctx</label></span><span class="ctxs">2n ( eb</span></p>
+    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">            if numa_id &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">3 ctx</label></span><span class="ctxs">2n ( eb</span></p>
+    <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">                raise ValueError(f&quot;numa_id must be &gt;= 0, got {numa_id}&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs308"><span class="r"><label for="ctxs308" class="ctx">1 ctx</label></span><span class="ctxs">2eb</span></p>
+    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">        elif ipc_enabled:</span>&nbsp;</span><input type="checkbox" id="ctxs309"><span class="r"><label for="ctxs309" class="ctx">81 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v w dbm a b * x </span></p>
+    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">            dev = Device()</span>&nbsp;</span><input type="checkbox" id="ctxs310"><span class="r"><label for="ctxs310" class="ctx">55 ctx</label></span><span class="ctxs">1yzABCDEFGHIJcdKLefghiMNOPQRSTUVWXYZ0123pj45678k9!#$l%ax</span></p>
+    <p class="run"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">            numa_id = dev.properties.host_numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs311"><span class="r"><label for="ctxs311" class="ctx">55 ctx</label></span><span class="ctxs">1yzABCDEFGHIJcdKLefghiMNOPQRSTUVWXYZ0123pj45678k9!#$l%ax</span></p>
+    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t"><span class="txt">            if numa_id &lt; 0:</span>&nbsp;</span><input type="checkbox" id="ctxs312"><span class="r"><label for="ctxs312" class="ctx">55 ctx</label></span><span class="ctxs">1yzABCDEFGHIJcdKLefghiMNOPQRSTUVWXYZ0123pj45678k9!#$l%ax</span></p>
+    <p class="mis show_mis"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t"><span class="txt">                raise RuntimeError(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t"><span class="txt">                    &quot;Cannot determine host NUMA ID for IPC-enabled pinned &quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t"><span class="txt">                    &quot;memory pool. The system may not support NUMA, or no &quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t"><span class="txt">                    &quot;CUDA context is active. Set numa_id explicitly or &quot;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t"><span class="txt">                    &quot;call Device.set_current() first.&quot;)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t"><span class="txt">    if numa_id &gt;= 0:</span>&nbsp;</span><input type="checkbox" id="ctxs319"><span class="r"><label for="ctxs319" class="ctx">92 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t"><span class="txt">        loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA</span>&nbsp;</span><input type="checkbox" id="ctxs320"><span class="r"><label for="ctxs320" class="ctx">57 ctx</label></span><span class="ctxs">1yzABCDEFGHIJcdKLefghiMNOPQRSTUVWXYZ0123pj45678k9!#$l%nax(</span></p>
+    <p class="pln"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t"><span class="txt">        loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST</span>&nbsp;</span><input type="checkbox" id="ctxs322"><span class="r"><label for="ctxs322" class="ctx">35 ctx</label></span><span class="ctxs">2o ) + q , - . / r : ; s = ? @ [ ] ^ _ t u v ` ' { w dbm b * | } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t"><span class="txt">    self._numa_id = numa_id</span>&nbsp;</span><input type="checkbox" id="ctxs324"><span class="r"><label for="ctxs324" class="ctx">92 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( | } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    if opts is None:</span>&nbsp;</span><input type="checkbox" id="ctxs326"><span class="r"><label for="ctxs326" class="ctx">92 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n dbm a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">        MP_init_current_pool(</span>&nbsp;</span><input type="checkbox" id="ctxs327"><span class="r"><label for="ctxs327" class="ctx">9 ctx</label></span><span class="ctxs">2) ` ' { | } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">            self,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">            loc_type,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">            numa_id,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">            cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">    else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">        MP_init_create_pool(</span>&nbsp;</span><input type="checkbox" id="ctxs334"><span class="r"><label for="ctxs334" class="ctx">83 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v w n dbm a b * x ( </span></p>
+    <p class="pln"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">            self,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="txt">            loc_type,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t"><span class="txt">            numa_id,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t"><span class="txt">            cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t"><span class="txt">            ipc_enabled,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t"><span class="txt">            max_size,</span>&nbsp;</span><input type="checkbox" id="ctxs340"><span class="r"><label for="ctxs340" class="ctx">83 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v w n dbm a b * x ( </span></p>
+    <p class="pln"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t"><span class="txt">        )</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t"><span class="txt">    _PMR_grant_device_access(self, numa_id &gt;= 0, False)</span>&nbsp;</span><input type="checkbox" id="ctxs343"><span class="r"><label for="ctxs343" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="txt">cdef inline int _PMR_grant_device_access(</span>&nbsp;</span><span class="r"><label for="ctxs346" class="ctx">(empty)</label></span></p>
+    <p class="pln"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="txt">        PinnedMemoryResource self, bint host_numa, bint imported) except? -1:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="txt">    # A pool on a host location is accessible only from the host by default</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t"><span class="txt">    # (see cuMemPoolCreate), and access is per process, so both the creating</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t"><span class="txt">    # and the importing process grant read/write access to every device that</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t"><span class="txt">    # supports this kind of host pool, as cudaMallocHost memory is. Other</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t"><span class="txt">    # devices cannot use the pool.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t"><span class="txt">    from .._device import Device</span>&nbsp;</span><input type="checkbox" id="ctxs353"><span class="r"><label for="ctxs353" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemAccessDesc desc</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t"><span class="txt">    cdef vector[cydriver.CUmemAccessDesc] access</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t"><span class="txt">    desc.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE</span>&nbsp;</span><input type="checkbox" id="ctxs357"><span class="r"><label for="ctxs357" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t"><span class="txt">    for dev in Device.get_all_devices():</span>&nbsp;</span><input type="checkbox" id="ctxs358"><span class="r"><label for="ctxs358" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t"><span class="txt">        if _host_pool_supported(dev, host_numa):</span>&nbsp;</span><input type="checkbox" id="ctxs359"><span class="r"><label for="ctxs359" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t"><span class="txt">            desc.location = cumemlocation_from_id(</span>&nbsp;</span><input type="checkbox" id="ctxs360"><span class="r"><label for="ctxs360" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t"><span class="txt">                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)</span>&nbsp;</span><input type="checkbox" id="ctxs361"><span class="r"><label for="ctxs361" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t"><span class="txt">            access.push_back(desc)</span>&nbsp;</span><input type="checkbox" id="ctxs362"><span class="r"><label for="ctxs362" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t"><span class="txt">    if not access.empty():</span>&nbsp;</span><input type="checkbox" id="ctxs363"><span class="r"><label for="ctxs363" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t"><span class="txt">        MP_set_access(self, access.data(), access.size(), imported)</span>&nbsp;</span><input type="checkbox" id="ctxs364"><span class="r"><label for="ctxs364" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="run"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><input type="checkbox" id="ctxs365"><span class="r"><label for="ctxs365" class="ctx">91 ctx</label></span><span class="ctxs">2o y z A B C D E F G H I J c d K L e f g h i M N O P Q R S T U V W X Y Z 0 1 2 3 p j 4 5 6 7 ) + 8 q k , 9 - ! . # / $ r l : % ; s = ? @ [ ] ^ _ t u v ` ' { w n m a b * x ( | } ~ abbb</span></p>
+    <p class="pln"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t"><span class="txt">cdef int _PMR_init_imported(_MemPool mr, object unused) except? -1:</span>&nbsp;</span><span class="r"><label for="ctxs368" class="ctx">(empty)</label></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t"><span class="txt">    cdef PinnedMemoryResource self = &lt;PinnedMemoryResource&gt;mr</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t"><span class="txt">    cdef cydriver.CUmemLocation loc</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t"><span class="txt">    # IPC-enabled pinned pools created by cuda.core are always placed on a host</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t"><span class="txt">    # NUMA node. Without a location query (a CUDA 12 build or a driver before</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t"><span class="txt">    # 13.2), the pool&#x27;s kind is not checked and numa_id keeps its default.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t374" href="#t374">374</a></span><span class="t"><span class="txt">    cdef bint host_numa = True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t375" href="#t375">375</a></span><span class="t"><span class="txt">    if _ipc.MP_check_import_location(self, True, &amp;loc):</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t"><span class="txt">        host_numa = loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t377" href="#t377">377</a></span><span class="t"><span class="txt">        self._numa_id = loc.id if host_numa else -1</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t378" href="#t378">378</a></span><span class="t"><span class="txt">    return _PMR_grant_device_access(self, host_numa, True)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t381" href="#t381">381</a></span><span class="t"><span class="txt">def _deep_reduce_pinned_memory_resource(mr: object) -&gt; tuple[object, ...]:</span>&nbsp;</span><span class="r"><label for="ctxs381" class="ctx">(empty)</label></span></p>
+    <p class="run"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t"><span class="txt">    check_multiprocessing_start_method()</span>&nbsp;</span><input type="checkbox" id="ctxs382"><span class="r"><label for="ctxs382" class="ctx">24 ctx</label></span><span class="ctxs">2BbCbfbgbDbhbibjbkblbEbmbFbnbGbobpbqbrbj sbtbubvb</span></p>
+    <p class="run"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t"><span class="txt">    alloc_handle = mr.allocation_handle</span>&nbsp;</span><input type="checkbox" id="ctxs383"><span class="r"><label for="ctxs383" class="ctx">24 ctx</label></span><span class="ctxs">2BbCbfbgbDbhbibjbkblbEbmbFbnbGbobpbqbrbj sbtbubvb</span></p>
+    <p class="run"><span class="n"><a id="t384" href="#t384">384</a></span><span class="t"><span class="txt">    return mr.from_allocation_handle, (alloc_handle,)</span>&nbsp;</span><input type="checkbox" id="ctxs384"><span class="r"><label for="ctxs384" class="ctx">24 ctx</label></span><span class="ctxs">2BbCbfbgbDbhbibjbkblbEbmbFbnbGbobpbqbrbj sbtbubvb</span></p>
+    <p class="pln"><span class="n"><a id="t385" href="#t385">385</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t386" href="#t386">386</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t387" href="#t387">387</a></span><span class="t"><span class="txt">multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)</span>&nbsp;</span><span class="r"><label for="ctxs387" class="ctx">(empty)</label></span></p>
 </main>
 <footer>
     <div class="content">
@@ -574,7 +616,7 @@
             <a class="nav" href="z_6928e1fc216e3a2e__synchronous_memory_resource_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.4">coverage.py v7.17.4</a>,
-            created at 2026-11-21 01:40 +0000
+            created at 2026-11-22 00:53 +0000
         </p>
     </div>
 </footer>
