@@ -23,6 +23,7 @@ import pytest
 from helpers.child_processes import run_child
 from helpers.contexts import assert_no_cuda_warning
 from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
+from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
@@ -37,6 +38,10 @@ RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
 REENTRY_ITERATIONS = 20
 REIMPORT_ROUNDS = 3
+# A GPU block held on the child's stream for this long keeps an enqueued
+# cuMemFreeAsync pending while the host re-imports the pool and checks the
+# grant. Far longer than that host work, so the free cannot retire first.
+FREE_HOLD_MS = 200
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -269,19 +274,29 @@ def _import_by_path(stack, import_path, mr_type, device, alloc_handle):
     return [stack.enter_context(contextlib.closing(mr)) for mr in _import_concurrently(mr_type, device, alloc_handle)]
 
 
-def _import_fill_and_release_unsynchronized(import_path, mr_type, device, alloc_handle, descriptor, stream):
-    # The stack closes in reverse order: the buffers, then the resources.
-    # Closing a buffer enqueues its cuMemFreeAsync without waiting for it, so
-    # the frees can still be pending when the last resource releases the pool.
+def _release_import_holding_free(import_path, mr_type, device, alloc_handle, descriptor, stream, block):
+    """Import, fill, and release the pool with the import's free held pending behind ``block``.
+
+    The frees that closing the buffers enqueues sit behind ``block`` on
+    ``stream``, so the imported pointer stays mapped and the pool stays alive
+    when the next import grants device access. That is the state in which the
+    grant fails with ``CUDA_ERROR_ALREADY_MAPPED`` and the retry under test
+    recovers; a free that retired first would clear it and hide a regression.
+    """
+    # The stack closes the buffers, then the resources. Returning drops the
+    # ``resources`` and ``buffers`` references, so the registry entry clears and
+    # the next import is a real one, while the frees stay pending behind block.
     with contextlib.ExitStack() as stack:
         resources = _import_by_path(stack, import_path, mr_type, device, alloc_handle)
         buffers = [stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)) for mr in resources]
         for buffer in buffers:
             buffer.fill(7, stream=stream)
         stream.sync()
+        block.launch(stream)
 
 
-def _reimport_and_use(import_path, mr_type, device, alloc_handle, descriptor, stream):
+def _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descriptor, stream):
+    """Re-import the pool while a free is pending and assert the grant that #3514 fails on."""
     with contextlib.ExitStack() as stack:
         resources = _import_by_path(stack, import_path, mr_type, device, alloc_handle)
         for mr in resources:
@@ -294,13 +309,17 @@ def _reimport_and_use(import_path, mr_type, device, alloc_handle, descriptor, st
 def child_reimport_after_release_with_pending_free(mr_type, alloc_handle, descriptor, import_path):
     # A failed grant is also reported as a warning by the cleanup that follows it.
     with _child_device() as (device, _baseline), assert_no_cuda_warning():
-        stream = device.default_stream
-        for _ in range(REIMPORT_ROUNDS):
-            # The helpers keep no reference to any resource once they return, so
-            # the registry entry is gone and the next import is a real one.
-            _import_fill_and_release_unsynchronized(import_path, mr_type, device, alloc_handle, descriptor, stream)
-            _reimport_and_use(import_path, mr_type, device, alloc_handle, descriptor, stream)
+        stream = device.create_stream()
+        block = NanosleepKernel(device, sleep_duration_ms=FREE_HOLD_MS)
+        try:
+            for _ in range(REIMPORT_ROUNDS):
+                _release_import_holding_free(import_path, mr_type, device, alloc_handle, descriptor, stream, block)
+                _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descriptor, stream)
+        finally:
+            # Drain the imported frees before the exporter frees its allocation,
+            # even if a round failed partway (the cuMemPoolImportPointer order).
             stream.sync()
+            stream.close()
 
 
 class TestIpcPoolDuplicateImport:
