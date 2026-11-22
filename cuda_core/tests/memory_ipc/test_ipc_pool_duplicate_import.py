@@ -82,9 +82,11 @@ def _import_twice(stack, mr_type, device, alloc_handle):
 
 def child_close_one_import(mr_type, alloc_handle, descriptor):
     # The stack closes the buffer, then both resources; the first is closed
-    # early on purpose, and closing it again is a no-op.
+    # early on purpose, and closing it again is a no-op. It drains the stream
+    # last, so the imported free completes before the exporter frees its buffer.
     with _child_device() as (device, baseline), contextlib.ExitStack() as stack:
         stream = device.default_stream
+        stack.callback(stream.sync)
         first, second = _import_twice(stack, mr_type, device, alloc_handle)
         assert _live_owned_mempool_count() == baseline + 1
 
@@ -98,9 +100,11 @@ def child_close_one_import(mr_type, alloc_handle, descriptor):
 
 def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, descriptor):
     # The closes below are the sequence under test; the stack repeats them as
-    # no-ops, and releases whatever a failed assertion leaves open.
+    # no-ops, and releases whatever a failed assertion leaves open. It drains the
+    # stream last, so a failure partway still completes the imported frees.
     with _child_device() as (device, baseline), assert_no_cuda_warning(), contextlib.ExitStack() as stack:
         stream = device.default_stream
+        stack.callback(stream.sync)
         first, second = _import_twice(stack, mr_type, device, alloc_handle)
         assert _live_owned_mempool_count() == baseline + 1
         # The buffer keeps the pool alive after both resources are closed.
