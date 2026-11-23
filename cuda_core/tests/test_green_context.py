@@ -19,6 +19,7 @@ from cuda.core import (
     WorkqueueResourceOptions,
     launch,
 )
+from cuda.core._rt import _attach_rollback_failure_for_testing
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import GraphDefinition
@@ -279,10 +280,12 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
             # plain, non-owning Context for it and registers it.
             stale = dev.set_current(primary)
         except BaseException:
-            # Do not leave the foreign context current once it is destroyed, and
-            # let the original error propagate: rollback statuses are ignored.
-            driver.cuCtxSetCurrent(primary.handle)
-            driver.cuGreenCtxDestroy(foreign)
+            # Do not leave the foreign context current once it is destroyed. Run
+            # both rollback calls, and let the original error propagate with each
+            # rollback failure attached to it.
+            for (err,) in (driver.cuCtxSetCurrent(primary.handle), driver.cuGreenCtxDestroy(foreign)):
+                if err != driver.CUresult.CUDA_SUCCESS:
+                    _attach_rollback_failure_for_testing(int(err))
             raise
         handle_return(driver.cuGreenCtxDestroy(foreign))
         assert not stale.is_green

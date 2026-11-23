@@ -4,15 +4,15 @@
 import gc
 import threading
 import time
-import warnings
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from helpers.child_processes import run_child
+from helpers.contexts import assert_no_cuda_warning
 
 import cuda.core
 from cuda.bindings import driver
-from cuda.core import CUDAWarning, Device, Stream
+from cuda.core import Device, Stream
 from cuda.core._utils.cuda_utils import handle_return
 
 
@@ -141,25 +141,27 @@ def _use_event(dev, event):
 
 
 def _primary_context_across_threads_child(device_id, lookup, use):
-    warnings.simplefilter("error", CUDAWarning)
-
     def retain():
         Device(device_id).set_current()
 
-    # Each executor runs its work on one thread, whose exit ends the ``with``
-    # block, and result() re-raises any error from that thread.
-    with ThreadPoolExecutor(max_workers=1) as thread_a:
-        thread_a.submit(retain).result()
-        # B must retain the primary context after A: if B registered first and
-        # exited, A would register its own retain and hide the bug.
-        with ThreadPoolExecutor(max_workers=1) as thread_b:
-            thread_b.submit(retain).result()
+    # A failed primary-context release is reported as a CUDAWarning, which a
+    # warning filter cannot turn into a failure here (see
+    # assert_no_cuda_warning), so the block asserts that none was issued.
+    with assert_no_cuda_warning():
+        # Each executor runs its work on one thread, whose exit ends the ``with``
+        # block, and result() re-raises any error from that thread.
+        with ThreadPoolExecutor(max_workers=1) as thread_a:
+            thread_a.submit(retain).result()
+            # B must retain the primary context after A: if B registered first
+            # and exited, A would register its own retain and hide the bug.
+            with ThreadPoolExecutor(max_workers=1) as thread_b:
+                thread_b.submit(retain).result()
+            time.sleep(1.0)
+            obj = thread_a.submit(lambda: lookup(Device(device_id))).result()
         time.sleep(1.0)
-        obj = thread_a.submit(lambda: lookup(Device(device_id))).result()
-    time.sleep(1.0)
 
-    assert _primary_active(device_id), "primary context destroyed while a cuda.core object still refers to it"
-    use(Device(device_id), obj)
+        assert _primary_active(device_id), "primary context destroyed while a cuda.core object still refers to it"
+        use(Device(device_id), obj)
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
@@ -186,7 +188,6 @@ def test_primary_context_survives_thread_exit(init_cuda, lookup, use):
 # the same box as the Context, so they do not affect the first check, and the
 # second check polls until they are gone.
 def _concurrent_primary_retains_child(device_id):
-    warnings.simplefilter("error", CUDAWarning)
     num_threads = 8
     barrier = threading.Barrier(num_threads)
 
@@ -196,21 +197,24 @@ def _concurrent_primary_retains_child(device_id):
         dev.set_current()
         return dev.context
 
-    # The workers block on the barrier, so each runs on its own thread.
-    with ThreadPoolExecutor(max_workers=num_threads) as pool:
-        contexts = list(pool.map(worker, range(num_threads)))
+    # An extra release of the primary context fails and is reported as a
+    # CUDAWarning, so the block asserts that none was issued.
+    with assert_no_cuda_warning():
+        # The workers block on the barrier, so each runs on its own thread.
+        with ThreadPoolExecutor(max_workers=num_threads) as pool:
+            contexts = list(pool.map(worker, range(num_threads)))
 
-    held = contexts[0]
-    contexts.clear()
-    gc.collect()
-    assert _primary_active(device_id), "primary context destroyed while a Context is held"
+        held = contexts[0]
+        contexts.clear()
+        gc.collect()
+        assert _primary_active(device_id), "primary context destroyed while a Context is held"
 
-    del held
-    gc.collect()
-    deadline = time.monotonic() + 5.0
-    while _primary_active(device_id) and time.monotonic() < deadline:
-        time.sleep(0.05)
-    assert not _primary_active(device_id), "primary context still active after its last Context was dropped"
+        del held
+        gc.collect()
+        deadline = time.monotonic() + 5.0
+        while _primary_active(device_id) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert not _primary_active(device_id), "primary context still active after its last Context was dropped"
 
 
 @pytest.mark.agent_authored(model="claude-opus-5-5")
