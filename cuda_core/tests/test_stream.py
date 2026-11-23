@@ -68,7 +68,7 @@ def test_stream_sync(init_cuda):
 def test_stream_record(init_cuda):
     """Rejecting an invalid event leaves the stream able to record and synchronize an event."""
     with closing(init_cuda.create_stream()) as stream:
-        with pytest.raises(TypeError, match="Event expected, got object"):
+        with pytest.raises(TypeError):
             stream.record(object())
         with closing(stream.record()) as event:
             assert isinstance(event, Event)

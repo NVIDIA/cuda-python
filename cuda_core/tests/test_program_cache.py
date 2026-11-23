@@ -1698,11 +1698,8 @@ def test_filestream_cache_clear_does_not_break_concurrent_writer(tmp_path):
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")
-@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.stat process-wide")
 def test_filestream_cache_size_cap_does_not_unlink_replaced_file(tmp_path, monkeypatch):
     """Eviction preserves a concurrent replacement and accounts for its changed size."""
-    from pathlib import Path
-
     from cuda.core.utils import FileStreamProgramCache
 
     with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=250) as cache:
@@ -1711,25 +1708,23 @@ def test_filestream_cache_size_cap_does_not_unlink_replaced_file(tmp_path, monke
         victim = cache._path_for_key(b"a")
         st = victim.stat()
         os.utime(victim, ns=(st.st_atime_ns - 10_000_000_000, st.st_mtime_ns))
-        real_stat = Path.stat
-        victim_stats = 0
+        iter_entry_paths = cache._iter_entry_paths
+        replacement_done = False
         replacement = b"replacement" * 3
 
-        def replace_before_eviction(self, *args, **kwargs):
-            nonlocal victim_stats
-            if self == victim:
-                victim_stats += 1
-                # First stat is the eviction snapshot; second is its freshness check.
-                if victim_stats == 2:
-                    staged = tmp_path / "replacement"
-                    staged.write_bytes(replacement)
-                    os.replace(staged, victim)
-            return real_stat(self, *args, **kwargs)
+        def replace_after_snapshot():
+            nonlocal replacement_done
+            yield from iter_entry_paths()
+            if not replacement_done:
+                staged = tmp_path / "replacement"
+                staged.write_bytes(replacement)
+                os.replace(staged, victim)
+                replacement_done = True
 
         with monkeypatch.context() as patch:
-            patch.setattr(Path, "stat", replace_before_eviction)
+            patch.setattr(cache, "_iter_entry_paths", replace_after_snapshot)
             cache[b"c"] = b"c" * 100
-            assert victim_stats == 2, "replacement did not reach the eviction freshness check"
+            assert replacement_done, "replacement did not occur after the eviction snapshot"
         assert cache[b"a"] == replacement
         assert cache[b"b"] == b"b" * 100
         assert cache[b"c"] == b"c" * 100
@@ -1737,31 +1732,30 @@ def test_filestream_cache_size_cap_does_not_unlink_replaced_file(tmp_path, monke
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")
-@pytest.mark.thread_unsafe(reason="monkeypatches pathlib.Path.stat process-wide")
 def test_filestream_eviction_skips_entry_that_vanishes_during_snapshot(tmp_path, monkeypatch):
     """Eviction tolerates a vanished snapshot entry without deleting surviving entries."""
-    from pathlib import Path
-
     from cuda.core.utils import FileStreamProgramCache
 
     with FileStreamProgramCache(tmp_path / "fc", max_size_bytes=250) as cache:
         cache[b"a"] = b"a" * 100
         cache[b"b"] = b"b" * 100
         gone = cache._path_for_key(b"a")
-        real_stat = Path.stat
-        removed = []
+        iter_entry_paths = cache._iter_entry_paths
+        removed = False
 
-        def vanish_during_snapshot(self, *args, **kwargs):
-            if self == gone and not removed:
-                self.unlink()
-                removed.append(self)
-                raise FileNotFoundError(self)
-            return real_stat(self, *args, **kwargs)
+        def vanish_during_snapshot():
+            nonlocal removed
+            # Surviving entries must follow the missing entry to exercise continuation.
+            for path in sorted(iter_entry_paths(), key=lambda path: path != gone):
+                if path == gone and not removed:
+                    path.unlink()
+                    removed = True
+                yield path
 
         with monkeypatch.context() as patch:
-            patch.setattr(Path, "stat", vanish_during_snapshot)
+            patch.setattr(cache, "_iter_entry_paths", vanish_during_snapshot)
             cache[b"c"] = b"c" * 100
-            assert removed == [gone], "race injection did not reach the eviction snapshot"
+            assert removed, "race injection did not reach the eviction snapshot"
         assert cache.get(b"a") is None
         assert cache[b"b"] == b"b" * 100
         assert cache[b"c"] == b"c" * 100
@@ -3071,10 +3065,8 @@ def test_filestream_write_over_cap_skips_vanished_files(tmp_path, monkeypatch):
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")
-@pytest.mark.thread_unsafe(reason="monkeypatches os.scandir process-wide")
 def test_filestream_startup_ignores_temp_that_vanishes_during_accounting(tmp_path, monkeypatch):
     """Startup accounting skips a vanished temporary file without over-evicting valid entries."""
-    from contextlib import contextmanager
     from pathlib import Path
 
     from cuda.core.utils import FileStreamProgramCache
@@ -3084,41 +3076,42 @@ def test_filestream_startup_ignores_temp_that_vanishes_during_accounting(tmp_pat
         cache[b"survivor"] = b"s" * 64
     inflight = root / "tmp" / "entry-inflight"
     inflight.write_bytes(b"t" * 64)
-    real_scandir = os.scandir
-    temp_stats = []
+    surviving_temp = root / "tmp" / "entry-survivor"
+    surviving_temp.write_bytes(b"t" * 16)
+    removed = False
 
     class VanishingEntry:
         def __init__(self, entry):
-            self.entry = entry
             self.path = entry.path
 
-        def is_file(self, *, follow_symlinks=True):
-            return self.entry.is_file(follow_symlinks=follow_symlinks)
-
         def stat(self, *, follow_symlinks=True):
-            temp_stats.append(self.path)
-            if len(temp_stats) == 2:
-                # First scan is the stale-file sweep, second is size accounting.
-                inflight.unlink()
-                raise FileNotFoundError(self.path)
-            return self.entry.stat(follow_symlinks=follow_symlinks)
+            nonlocal removed
+            inflight.unlink()
+            removed = True
+            raise FileNotFoundError(self.path)
 
-    @contextmanager
-    def scandir_with_racing_deletion(path):
-        with real_scandir(path) as entries:
-            if Path(path) == root / "tmp":
-                yield (VanishingEntry(entry) for entry in entries)
-            else:
-                yield entries
+    class RacingCache(FileStreamProgramCache):
+        def _sum_tmp_sizes(self):
+            iter_tmp_entries = self._iter_tmp_entries
 
-    with monkeypatch.context() as patch:
-        patch.setattr(os, "scandir", scandir_with_racing_deletion)
-        cache = FileStreamProgramCache(root, max_size_bytes=80)
-    with cache:
-        assert len(temp_stats) == 2, "deletion did not reach startup size accounting"
+            def entries_with_racing_deletion():
+                # Keep a live temp after the vanished entry to detect an early exit.
+                for entry in sorted(iter_tmp_entries(), key=lambda entry: Path(entry.path) != inflight):
+                    if Path(entry.path) == inflight and not removed:
+                        yield VanishingEntry(entry)
+                    else:
+                        yield entry
+
+            with monkeypatch.context() as patch:
+                patch.setattr(self, "_iter_tmp_entries", entries_with_racing_deletion)
+                return super()._sum_tmp_sizes()
+
+    with RacingCache(root, max_size_bytes=96) as cache:
+        assert removed, "deletion did not reach startup size accounting"
         assert not inflight.exists()
-        assert cache._tracked_size_bytes == 64
+        assert cache._tracked_size_bytes == 80
         cache[b"new"] = b"n" * 16
         assert cache[b"survivor"] == b"s" * 64
         assert cache[b"new"] == b"n" * 16
-        assert cache._tracked_size_bytes == 80
+        assert surviving_temp.read_bytes() == b"t" * 16
+        assert cache._tracked_size_bytes == 96
