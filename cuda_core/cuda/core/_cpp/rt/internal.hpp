@@ -221,13 +221,17 @@ class HandleRegistry {
     Handle
     insert_or_get(const Key &key, const Handle &candidate, Replace &&replace)
     {
+        // Declared before the lock so that it is destroyed after the unlock.
+        // A displaced handle may hold the last reference to its box: another
+        // thread can drop its own copy while we hold this one. Its deleter
+        // takes this mutex, so releasing it under the lock would deadlock.
+        Handle existing;
         std::scoped_lock lock(mutex_);
         auto [it, inserted] = map_.try_emplace(key);
         if (!inserted) {
-            if (Handle existing = it->second.handle.lock()) {
-                if (!replace(existing)) {
-                    return existing;
-                }
+            existing = it->second.handle.lock();
+            if (existing && !replace(existing)) {
+                return existing;
             }
         }
         it->second = Entry{candidate, candidate.get()};

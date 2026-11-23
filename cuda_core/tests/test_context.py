@@ -180,3 +180,73 @@ def test_primary_context_survives_thread_exit(init_cuda, lookup, use):
     )
     result = run_python_snippet(code, timeout=child_timeout_sec())
     assert "CONTEXT_IS_DESTROYED" not in result.stderr
+
+
+# Several threads retain the primary context concurrently, so most of them lose
+# the registration race in get_primary_context() and must release their extra
+# retain. One Context must keep the context alive after every thread has exited,
+# and dropping it must release the last retain: a leaked extra retain keeps the
+# context active, and an extra release destroys it while the Context is held.
+# The thread_local caches are destroyed after Thread.join() returns, so the child
+# waits a fixed second before checking (see _PRIMARY_CONTEXT_ACROSS_THREADS).
+_CONCURRENT_PRIMARY_RETAINS = """
+import gc
+import threading
+import time
+import warnings
+
+from cuda.bindings import driver
+from cuda.core import CUDAWarning, Device
+
+warnings.simplefilter("error", CUDAWarning)
+NUM_THREADS = 8
+barrier = threading.Barrier(NUM_THREADS)
+contexts = []
+errors = []
+
+
+def worker():
+    try:
+        dev = Device({device_id})
+        barrier.wait()
+        dev.set_current()
+        contexts.append(dev.context)
+    except BaseException as exc:
+        errors.append(exc)
+
+
+def primary_active():
+    err, _, active = driver.cuDevicePrimaryCtxGetState({device_id})
+    assert err == driver.CUresult.CUDA_SUCCESS, err
+    return bool(active)
+
+
+threads = [threading.Thread(target=worker) for _ in range(NUM_THREADS)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+time.sleep(1.0)
+if errors:
+    raise errors[0]
+assert len(contexts) == NUM_THREADS
+
+held = contexts[0]
+contexts.clear()
+gc.collect()
+assert primary_active(), "primary context destroyed while a Context is held"
+
+del held
+gc.collect()
+deadline = time.monotonic() + 5.0
+while primary_active() and time.monotonic() < deadline:
+    time.sleep(0.05)
+assert not primary_active(), "primary context still active after its last Context was dropped"
+"""
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_concurrent_set_current_shares_one_primary_retain(init_cuda):
+    """Concurrent Device.set_current() calls leave exactly one primary-context retain, held by the Context."""
+    code = _CONCURRENT_PRIMARY_RETAINS.format(device_id=init_cuda.device_id)
+    run_python_snippet(code, timeout=child_timeout_sec())
