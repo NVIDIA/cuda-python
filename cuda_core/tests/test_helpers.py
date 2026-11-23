@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import os
+import pathlib
 import sys
 import time
 import types
@@ -20,12 +22,16 @@ from helpers.oom_diagnostics import (
     OomDiagnosticsRecorder,
     ProbeSnapshot,
     classify,
+    format_probe_log,
     probe_basics,
     record_if_oom,
     report_terminal_summary,
     run_probe,
 )
 from helpers.oom_diagnostics import _round_up as oom_round_up  # white-box test of the alignment guard
+from helpers.oom_diagnostics import (
+    artifact_directory as oom_artifact_directory,
+)
 
 from cuda.bindings import driver
 from cuda.core import Device
@@ -148,6 +154,7 @@ def _fake_item(rootpath, nodeid="tests/test_x.py::test_a", xmlpath=None):
     config = types.SimpleNamespace(
         rootpath=rootpath,
         option=types.SimpleNamespace(xmlpath=xmlpath),
+        invocation_params=types.SimpleNamespace(dir=pathlib.Path(rootpath)),
         pluginmanager=types.SimpleNamespace(get_plugin=lambda _: None),
     )
     return types.SimpleNamespace(nodeid=nodeid, config=config)
@@ -276,6 +283,58 @@ def test_oom_diagnostics_artifact_lands_beside_the_junit_file(tmp_path, monkeypa
 
     assert recorder.artifact_path == junit_dir / DEFAULT_FILENAME
     assert OOM_MARKER in recorder.artifact_path.read_text(encoding="utf-8")
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_oom_diagnostics_relative_junit_path_is_anchored_at_the_invocation_dir(tmp_path, monkeypatch):
+    # A test may have changed directory by the time an OOM is captured.
+    invocation = tmp_path / "invocation"
+    elsewhere = tmp_path / "elsewhere"
+    invocation.mkdir()
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+    item = _fake_item(invocation, xmlpath=os.path.join("test-results", "junit-core.xml"))
+
+    assert oom_artifact_directory(item.config) == invocation / "test-results"
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_oom_diagnostics_does_not_overwrite_an_earlier_invocations_artifact(tmp_path):
+    # tests/ and tests/cython run as separate pytest processes into one directory.
+    first = OomDiagnosticsRecorder()
+    first.capture("first", "call", OOM_MARKER, tmp_path, snapshot=_PROBED_SNAPSHOT)
+    second = OomDiagnosticsRecorder()
+    second.capture("second", "call", OOM_MARKER, tmp_path, snapshot=_PROBED_SNAPSHOT)
+
+    assert first.artifact_path == tmp_path / DEFAULT_FILENAME
+    assert second.artifact_path != first.artifact_path
+    assert "test:      first" in first.artifact_path.read_text(encoding="utf-8")
+    assert "test:      second" in second.artifact_path.read_text(encoding="utf-8")
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_oom_diagnostics_failed_borrow_names_the_failing_call(monkeypatch):
+    # No GPU needed: the driver calls are faked so that no context is current
+    # and the primary-context retain fails.
+    def fake_call(fn, *args):
+        if fn is driver.cuCtxGetCurrent:
+            return True, None, (0,)
+        if fn is driver.cuDeviceGet:
+            return True, None, (0,)
+        if fn is driver.cuDevicePrimaryCtxRetain:
+            return False, "CUDA_ERROR_OUT_OF_MEMORY", ()
+        raise AssertionError(f"unexpected driver call {fn}")
+
+    monkeypatch.setattr("helpers.oom_diagnostics._call", fake_call)
+    snapshot = run_probe()
+
+    assert not snapshot.has_context
+    assert snapshot.context_error is None
+    assert "cuDevicePrimaryCtxRetain(dev 0): CUDA_ERROR_OUT_OF_MEMORY" in snapshot.borrow_error
+    log = format_probe_log(snapshot)
+    assert "cuCtxGetCurrent() (no context)" in log
+    assert "borrowing device 0's primary context -> <failed: cuDevicePrimaryCtxRetain" in log
+    assert "borrowing device 0's primary context failed" in classify(snapshot)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")

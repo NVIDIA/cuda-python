@@ -146,6 +146,9 @@ class ProbeSnapshot:
     # True when no context was current and the probe ran in device 0's
     # primary context, pushed for the probe only.
     borrowed_primary_context: bool = False
+    # Set when no context was current and making one current failed; names the
+    # failing call, which context_error (a cuCtxGetCurrent failure) does not.
+    borrow_error: str | None = None
     context_restore_error: str | None = None
 
     mem_free: int | None = None
@@ -244,28 +247,30 @@ def run_probe():
 
     If no context is current, device 0's primary context is retained and
     pushed for the probe, then popped and released, so the caller's context
-    state is unchanged. See :func:`_probe_current_context` for the probes.
+    state is unchanged. Device 0 is always the one borrowed, so on a multi-GPU
+    host the memory figures may describe a different device than the failing
+    test used; the host virtual-address probes are process-wide either way. See :func:`_probe_current_context` for the probes.
     """
     ctx_ok, ctx_err, ctx_values = _call(driver.cuCtxGetCurrent)
     if not ctx_ok:
-        return ProbeSnapshot(context_error=f"cuCtxGetCurrent: {ctx_err}")
+        return ProbeSnapshot(context_error=ctx_err)
     if _is_context(ctx_values):
         return _probe_current_context()
 
     dev_ok, dev_err, dev_values = _call(driver.cuDeviceGet, 0)
     if not dev_ok:
-        return ProbeSnapshot(context_error=f"cuDeviceGet(0): {dev_err}")
+        return ProbeSnapshot(borrow_error=f"cuDeviceGet(0): {dev_err}")
     (dev,) = dev_values
     retain_ok, retain_err, retain_values = _call(driver.cuDevicePrimaryCtxRetain, dev)
     if not retain_ok:
-        return ProbeSnapshot(context_error=f"cuDevicePrimaryCtxRetain(dev 0): {retain_err}")
+        return ProbeSnapshot(borrow_error=f"cuDevicePrimaryCtxRetain(dev 0): {retain_err}")
     (ctx,) = retain_values
 
     restore_errors = []
     try:
         push_ok, push_err, _ = _call(driver.cuCtxPushCurrent, ctx)
         if not push_ok:
-            snapshot = ProbeSnapshot(context_error=f"cuCtxPushCurrent(primary context of dev 0): {push_err}")
+            snapshot = ProbeSnapshot(borrow_error=f"cuCtxPushCurrent(primary context of dev 0): {push_err}")
         else:
             try:
                 snapshot = _probe_current_context()
@@ -370,6 +375,11 @@ def classify(snapshot: ProbeSnapshot) -> str:
     specific enough to act on.
     """
     if not snapshot.has_context:
+        if snapshot.borrow_error is not None:
+            return (
+                f"no current CUDA context and borrowing device 0's primary context failed ({snapshot.borrow_error}); "
+                "the driver could not set up a context, so this may be the same resource exhaustion"
+            )
         return "no current CUDA context and none could be made current; cannot narrow down the reason"
 
     if snapshot.mem_get_info_error is not None:
@@ -427,6 +437,8 @@ def format_probe_log(snapshot: ProbeSnapshot) -> str:
     if not snapshot.has_context:
         suffix = f" <failed: {snapshot.context_error}>" if snapshot.context_error else " (no context)"
         lines.append(f"cuCtxGetCurrent(){suffix}")
+        if snapshot.borrow_error is not None:
+            lines.append(f"borrowing device 0's primary context -> <failed: {snapshot.borrow_error}>")
         return "\n".join(lines)
     if snapshot.borrowed_primary_context:
         lines.append(
@@ -496,12 +508,30 @@ def artifact_directory(config):
     """Where the report goes: beside ``--junitxml`` if given, else the rootdir.
 
     CI uploads the JUnit directory as an artifact. The path is resolved the way
-    pytest's junitxml plugin resolves it.
+    pytest's junitxml plugin resolves it, except that a relative path is
+    anchored at the invocation directory, not the current one: a test may have
+    changed directory by the time an OOM is captured.
     """
     xmlpath = getattr(config.option, "xmlpath", None)
     if xmlpath:
-        return pathlib.Path(os.path.abspath(os.path.expanduser(os.path.expandvars(xmlpath)))).parent
+        expanded = pathlib.Path(os.path.expanduser(os.path.expandvars(xmlpath)))
+        return pathlib.Path(os.path.normpath(config.invocation_params.dir / expanded)).parent
     return config.rootpath
+
+
+def _unused_path(path):
+    """``path``, or ``stem.N.suffix`` if it exists.
+
+    Several pytest invocations (for example ``tests/`` and ``tests/cython``)
+    share one results directory; a later one must not truncate the report of
+    an earlier one.
+    """
+    candidate = path
+    n = 0
+    while candidate.exists():
+        n += 1
+        candidate = path.with_name(f"{path.stem}.{n}{path.suffix}")
+    return candidate
 
 
 class OomDiagnosticsRecorder:
@@ -605,7 +635,7 @@ class OomDiagnosticsRecorder:
             if not self._captured:
                 self._captured = True
                 self._nodeid = nodeid
-                self._artifact_path = pathlib.Path(directory) / self._filename
+                self._artifact_path = _unused_path(pathlib.Path(directory) / self._filename)
             if snapshot.has_context:
                 self._probed = True
                 self._probed_nodeid = nodeid
