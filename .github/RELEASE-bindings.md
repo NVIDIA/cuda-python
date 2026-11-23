@@ -39,14 +39,25 @@ intended toolkit inputs. Follow the
    Tag-triggered CI selects that line's bindings and metapackage, validates them
    with the published Pathfinder dependency, and builds release artifacts.
    The tag does not have to be on `main`. Wait for this exact tag's CI to pass.
-4. Run **CI: Release** with `release-action=dry-run`, the tag, and
-   `component=cuda-bindings`; repeat for `cuda-python`. Leave `run-id` blank
-   to exercise automatic lookup, and leave `dry-run-docs-branch` blank to avoid
+4. Release `cuda-bindings` before `cuda-python`. For each component, run
+   **CI: Release** with `release-action=dry-run`, the tag, and the chosen
+   `component`. Leave `run-id` blank to exercise automatic lookup, and leave
+   `dry-run-docs-branch` blank to avoid
    deploying docs. The workflow verifies a successful tag-triggered CI run
    with the exact source SHA, validates artifacts, and builds docs.
-5. Review the dry runs, then separately approve and run `full-release` for
-   each component under the team's release procedure. A successful candidate
-   rehearsal or ordinary branch CI is not a substitute for exact-tag CI.
+   The `cuda-python` dry run also installs the candidate metapackage with
+   dependencies from PyPI in clean environments across the tag's supported
+   Python versions, including free-threaded builds, on Linux x86-64, Linux
+   ARM64, and Windows x86-64. It tests both the default install and `[all]`
+   using only binary wheels and runs `pip check`. Publish the matching
+   bindings and any required Core or Pathfinder versions to PyPI first;
+   unpublished CI dependency artifacts cannot satisfy this check.
+5. Review that component's dry run, then separately approve and run
+   `full-release` for the same component under the team's release procedure.
+   A successful candidate rehearsal or ordinary branch CI is not a substitute
+   for exact-tag CI.
+   The metapackage dependency check runs again for `full-release` and must
+   pass before GitHub asset uploads or TestPyPI/PyPI publication.
 6. After both component releases succeed, review and publish the shared
    `vX.Y.Z` GitHub Release draft. Check its release notes, versioned
    documentation links, source archive, checksum, and wheels. These component
@@ -60,13 +71,20 @@ release dry run. Tag CI does not publish documentation. This focused tag-CI
 check is specific to the shared bindings/metapackage tags; Core and Pathfinder
 release behavior is unchanged.
 
-For either bindings line, add the released version to
+Release notes can land on `main` before publication without entries in the
+documentation version selectors. For either bindings line, wait for successful
+publication and deployment of each component's versioned documentation, then
+open a PR on `main` adding the released bindings version to
 [`cuda_bindings_13/docs/nv-versions.json`](../cuda_bindings_13/docs/nv-versions.json)
 and its matching metapackage version to
-[`cuda_python/docs/nv-versions.json`](../cuda_python/docs/nv-versions.json)
-on `main`. Documentation deployments from `main` own these shared version
-selectors. Release deployments publish versioned pages without replacing the
-selectors or shared `latest` pages.
+[`cuda_python/docs/nv-versions.json`](../cuda_python/docs/nv-versions.json).
+Confirm that each versioned documentation URL works before merging its entry.
+
+Documentation deployments from `main` own these shared version selectors.
+Release deployments publish versioned pages without replacing the selectors or
+shared `latest` pages. An entry in the tagged source alone does not update the
+live switcher. If an entry is missing after release, correct it on `main`
+without changing the release tag.
 
 The workflow revision used for a release is its **control revision**; the
 tagged commit is its **source revision**. Record both and the artifact CI run

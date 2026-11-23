@@ -150,8 +150,8 @@ class PinnedMemoryResource(_MemPool):
 
         Construct a new `PinnedMemoryResource` instance that imports a memory
         pool from a shareable handle. The memory pool is marked as owned. Every
-        device in this process that supports host NUMA memory pools is granted
-        read and write access to the imported pool.
+        device in this process that supports pools at the pool's host location
+        is granted read and write access to the imported pool.
 
         Parameters
         ----------
@@ -163,6 +163,15 @@ class PinnedMemoryResource(_MemPool):
         Returns
         -------
             A new host-pinned memory resource instance with the imported handle.
+
+        Raises
+        ------
+        TypeError
+            If the handle refers to a device memory pool, which must be
+            imported with :meth:`DeviceMemoryResource.from_allocation_handle`.
+            The pool's kind is checked with a CUDA 13 build of ``cuda.core``
+            and a 13.2 or later driver. Otherwise it is checked only when the
+            handle's memory resource is already registered in this process.
         """
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
@@ -176,7 +185,13 @@ class PinnedMemoryResource(_MemPool):
         """Return -1. Pinned memory is host memory and is not associated with a specific device."""
     @property
     def numa_id(self) -> int:
-        """The host NUMA node ID used for pool placement, or -1 for OS-managed placement."""
+        """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
+
+        For a resource imported with :meth:`from_allocation_handle`, this is the
+        pool's node only if the pool's location can be queried (a CUDA 13 build
+        of ``cuda.core`` and a 13.2 or later driver). Otherwise it is 0, which is
+        not known to be the pool's node.
+        """
     @property
     def is_device_accessible(self) -> bool:
         """Return True. Every device that supports this kind of host memory pool can read and write its buffers."""

@@ -342,26 +342,15 @@ and during `pre-commit run --all-files`.
 The tagged-source checks in the release workflow remain the final validation
 before publication.
 
-The same hook checks documentation version selectors for these bindings and
-metapackage releases, Core releases starting at **1.3.2**, and Pathfinder
-releases starting at **1.9.2**. Each checked numeric release note must have its
-version listed in the package's `docs/nv-versions.json`, with the exact
-versioned documentation URL, including the trailing slash. All bindings roots
-share the selector in the second root after sorting indexed
-`cuda_bindings_<major>` roots in ascending numeric order. Exactly two or three
-roots are expected: maintenance, current, and optionally a newer unreleased
-major. Both `[12, 13]` and `[12, 13, 14]` therefore use
-`cuda_bindings_13/docs/nv-versions.json`. Retiring root 12 leaves `[13, 14]`
-and moves ownership to `cuda_bindings_14/docs/nv-versions.json`; stage that
-selector and coordinate the build and release routing migration. Discovery
-uses all indexed files, including templates, before applying note cutoffs.
-The hook does not fall back to another root. Metapackage URLs use
-`https://nvidia.github.io/cuda-python/<version>/`, while the other components
-use their `cuda-bindings`, `cuda-core`, or `cuda-pathfinder` subdirectory.
-
-The hook uses only the standard library. All four selectors must exist in
-Git's index and parse as JSON. The hook reads their staged contents, so
-unstaged edits cannot satisfy the check.
+The hook uses only the standard library and checks note pairing independently
+of documentation version selectors. Numeric release notes can describe work
+for an upcoming release without advertising unpublished documentation. Update
+selectors on `main` only after the component is published and its versioned
+documentation is deployed. Both bindings majors use
+`cuda_bindings_13/docs/nv-versions.json`; the metapackage, Core, and Pathfinder
+use their own package's `docs/nv-versions.json`. Deployments from `main` own
+these shared selectors; release deployments leave them unchanged. A missing
+selector entry can be corrected on `main` without changing the release tag.
 
 Tag-push CI runs the `--tag-ci` mode of
 `ci/tools/check_tagged_release_notes.py` at the start of its `should-skip` job,
@@ -371,7 +360,7 @@ bindings major; `cuda-core-v` and `cuda-pathfinder-v` tags select their own
 component. Public beta, release-candidate, and final tags require their full
 version in the filename. Internal alpha and development tags skip this check.
 Post releases require a new note only for Pathfinder. This early check tests
-file existence; pairing and selectors belong to the separate staged check.
+file existence; pairing belongs to the separate staged check.
 
 The same module provides the publication preflight used by the release
 workflow. Publication mode checks the requested component in the tagged

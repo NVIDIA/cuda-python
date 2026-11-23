@@ -184,7 +184,10 @@ MemoryPoolHandle get_device_mempool(int device_id);
 
 // Create an owning memory pool handle from an IPC import.
 // The file descriptor is NOT owned by this handle (caller manages FD separately).
-// When the last reference is released, cuMemPoolDestroy is called automatically.
+// Repeat imports of one pool share one handle, because access settings belong to
+// the pool rather than to an import (#3510). When the last reference is released,
+// access is revoked and cuMemPoolDestroy is called once for every import. An
+// import that races that release waits until it is done.
 // Returns empty handle on error (caller must check).
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type);
 
@@ -305,6 +308,11 @@ size_t va_reservation_size(const VaReservationHandle &h) noexcept;
 // conftest.py reads these to gate the per-test gc.collect().
 long long live_owned_mempool_count() noexcept;
 long long live_va_reservation_count() noexcept;
+
+// Test hook: the owner of an imported pool sleeps this long after its last
+// reference is released and before it revokes access, so that a re-import can
+// be made to race the release. 0 (the default) disables the delay.
+void set_ipc_pool_release_delay_for_testing(unsigned int microseconds) noexcept;
 
 // Map the whole allocation at ptr inside the reservation via cuMemMap and
 // apply the allocation's access descriptors. The mapping structurally depends

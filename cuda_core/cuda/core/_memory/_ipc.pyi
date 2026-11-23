@@ -8,7 +8,7 @@ from cuda.core.typing import VirtualMemoryHandleType
 from typing_extensions import TypeAlias
 
 __all__ = []
-MP_import_init_t: TypeAlias = Callable[[_MemPool], int]
+MP_import_init_t: TypeAlias = Callable[[_MemPool, object], int]
 
 class IPCDataForBuffer:
     """Data members related to sharing memory buffers via IPC."""

@@ -194,6 +194,8 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const VaReservationHandle& h) noexcept nogil
     long long live_owned_mempool_count "cuda_core::rt::live_owned_mempool_count" () noexcept nogil
     long long live_va_reservation_count "cuda_core::rt::live_va_reservation_count" () noexcept nogil
+    void set_ipc_pool_release_delay_for_testing "cuda_core::rt::set_ipc_pool_release_delay_for_testing" (
+        unsigned int microseconds) noexcept nogil
     VaMappingHandle create_va_mapping_handle "cuda_core::rt::create_va_mapping_handle" (
         cydriver.CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
         const VaReservationHandle& h_res) except+ nogil
@@ -355,6 +357,16 @@ def _set_context_restore_fault_for_testing(int status):
     ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
     """
     set_context_restore_fault_for_testing(<cydriver.CUresult>status)
+
+
+def _set_ipc_pool_release_delay_for_testing(unsigned int microseconds):
+    """Delay the release of an imported pool's owner by ``microseconds``.
+
+    Test hook: once the owner's last reference is released, it sleeps before it
+    revokes access and destroys the pool's imports, so that a re-import can be
+    made to race the release. 0 disables the delay.
+    """
+    set_ipc_pool_release_delay_for_testing(microseconds)
 
 
 def _attach_rollback_failure_for_testing(int status):
