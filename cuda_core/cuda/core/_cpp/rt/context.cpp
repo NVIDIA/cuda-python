@@ -255,16 +255,44 @@ create_green_ctx_handle_ref(CUgreenCtx green_ctx)
     return GreenCtxHandle(box, &box->resource);
 }
 
+namespace {
+// Set when the calling thread's primary-context cache is torn down. A plain
+// bool needs no destructor, so it stays readable for the whole thread exit.
+thread_local bool primary_context_cache_closed = false;
+
 // Thread-local cache of primary contexts indexed by device ID. A fast path in
 // front of the registry: every thread caches the same process-wide box.
-static thread_local std::vector<ContextHandle> primary_context_cache;
+struct PrimaryContextCache {
+    std::vector<ContextHandle> entries;
+
+    PrimaryContextCache() = default;
+    PrimaryContextCache(const PrimaryContextCache &) = delete;
+    PrimaryContextCache &operator=(const PrimaryContextCache &) = delete;
+
+    // Releasing the last entry can run a CUDAWarning hook on this thread, and
+    // the hook may call get_primary_context(). Close the cache first and drop
+    // the entries from a local, so such a call bypasses the cache instead of
+    // reading one that is being destroyed.
+    ~PrimaryContextCache()
+    {
+        primary_context_cache_closed = true;
+        std::vector<ContextHandle> doomed;
+        doomed.swap(entries);
+    }
+};
+
+thread_local PrimaryContextCache primary_context_cache;
+}  // namespace
 
 ContextHandle
 get_primary_context(int device_id)
 {
+    const bool use_cache = !primary_context_cache_closed;
+    auto idx = static_cast<size_t>(device_id);
+
     // Check thread-local cache
-    if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
-        if (auto cached = primary_context_cache[device_id]) {
+    if (use_cache && idx < primary_context_cache.entries.size()) {
+        if (auto cached = primary_context_cache.entries[idx]) {
             return cached;
         }
     }
@@ -303,10 +331,12 @@ get_primary_context(int device_id)
     box.reset();
 
     // Update cache
-    if (static_cast<size_t>(device_id) >= primary_context_cache.size()) {
-        primary_context_cache.resize(device_id + 1);
+    if (use_cache) {
+        if (idx >= primary_context_cache.entries.size()) {
+            primary_context_cache.entries.resize(idx + 1);
+        }
+        primary_context_cache.entries[idx] = h;
     }
-    primary_context_cache[device_id] = h;
     return h;
 }
 

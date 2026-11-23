@@ -294,14 +294,12 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
         pytest.skip("driver did not reuse the destroyed context's CUcontext address")
 
     # Do not compare green with stale: Context equality compares raw CUcontext
-    # values, so they are equal with or without the fix.
+    # values, so they are equal with or without the fix. Query the SM resource
+    # to show the context is alive: unlike a stream, that works on driver 12.4,
+    # which the sm_resource fixture admits.
     try:
         assert green.is_green
-        stream = green.create_stream()
-        try:
-            stream.sync()
-        finally:
-            stream.close()
+        assert green.resources.sm.sm_count == groups[0].sm_count
     finally:
         green.close()
 
