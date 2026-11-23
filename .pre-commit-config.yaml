@@ -57,7 +57,7 @@ repos:
         pass_filenames: false
 
       - id: check-staged-release-notes
-        name: Check staged release-note pairs and documentation version selectors
+        name: Check staged release-note pairs
         entry: python -m ci.tools.check_staged_release_notes
         language: python
         always_run: true

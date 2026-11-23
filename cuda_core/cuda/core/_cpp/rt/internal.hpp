@@ -7,6 +7,7 @@
 #include "types.hpp"
 #include "driver_api.hpp"
 #include "error.hpp"
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -192,7 +193,6 @@ class HandleRegistry {
         std::scoped_lock lock(mutex_);
         map_.erase(key);
     }
-
     Handle
     lookup(const Key &key)
     {
@@ -242,6 +242,83 @@ class HandleRegistry {
    private:
     std::mutex mutex_;
     MapType map_;
+};
+
+// ============================================================================
+// Handle registry that waits for in-flight releases
+//
+// Like HandleRegistry, but an entry outlives its handle's last reference: only
+// the owner's deleter removes it, by calling release() once its cleanup is
+// done. get_or_create() waits while the entry under its key has expired, so a
+// new owner is never created while the previous owner is still releasing the
+// resource. Used where the driver hands the same resource to repeat imports
+// (IPC pools and IPC pointers), so a new owner and an old owner's cleanup
+// would act on one driver resource. See REGISTRY_DESIGN.md.
+// ============================================================================
+
+template <typename Key, typename Handle, typename Hash = std::hash<Key>>
+class ReleasingHandleRegistry {
+   public:
+    // Return the live handle registered under key, waiting first while the
+    // previous owner's release is in flight. Otherwise register and return the
+    // handle that create() returns; an empty handle is returned unregistered.
+    // create() runs under the registry's mutex, so it must not acquire the GIL
+    // or release a handle whose deleter calls release().
+    template <typename Factory>
+    Handle
+    get_or_create(const Key &key, Factory &&create)
+    {
+        std::unique_lock lock(mutex_);
+        for (auto it = map_.find(key); it != map_.end(); it = map_.find(key)) {
+            if (Handle h = it->second.handle.lock()) {
+                return h;
+            }
+            released_.wait(lock);
+        }
+        // Insert before creating, so a failed insertion has nothing to undo.
+        auto it = map_.try_emplace(key).first;
+        Handle h;
+        try {
+            h = create();
+        }
+        catch (...) {
+            map_.erase(it);
+            throw;
+        }
+        if (h) {
+            it->second = Entry{h, h.get()};
+        }
+        else {
+            map_.erase(it);
+        }
+        return h;
+    }
+
+    // Called by an owner's deleter after its last driver call on the resource:
+    // erase key's entry if it belongs to the handle that pointed to resource,
+    // and wake the importers waiting for it.
+    void
+    release(const Key &key, const typename Handle::element_type *resource) noexcept
+    {
+        {
+            std::scoped_lock lock(mutex_);
+            auto it = map_.find(key);
+            if (it != map_.end() && it->second.resource == resource) {
+                map_.erase(it);
+            }
+        }
+        released_.notify_all();
+    }
+
+   private:
+    struct Entry {
+        std::weak_ptr<typename Handle::element_type> handle;
+        const typename Handle::element_type *resource = nullptr;
+    };
+
+    std::mutex mutex_;
+    std::condition_variable released_;
+    std::unordered_map<Key, Entry, Hash> map_;
 };
 
 }  // namespace cuda_core::rt::detail
