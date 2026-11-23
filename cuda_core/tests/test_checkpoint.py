@@ -579,6 +579,7 @@ class TestCheckpointGpuMigration:
     NVBug 5437334).
     """
 
+    # This test is not currently run in any CI job
     def test_rotation_migrates_context(self):
         """Rotate context through all GPUs and back to the origin.
 
@@ -589,6 +590,7 @@ class TestCheckpointGpuMigration:
         """
         _run_checkpoint_scenario_or_skip("rotation_migrates_context", timeout=180)
 
+    # This test is not currently run in any CI job
     def test_swap_identical_gpus(self):
         """Swap context between two GPUs of the same chip type.
 

@@ -689,6 +689,8 @@ def test_node_type_preserved_by_pred_succ(node_spec):
         assert matched[0] is node
 
 
+# For node_spec values empty and host_callback_cfunc:
+# This test is not currently run in any CI job
 def test_node_attrs(node_spec):
     """Type-specific attributes have expected values after construction."""
     spec, g, node, expected_attrs = node_spec
@@ -702,6 +704,8 @@ def test_node_attrs(node_spec):
             assert actual == expected, f"{spec.name}.{attr}: expected {expected}, got {actual}"
 
 
+# For node_spec values empty and host_callback_cfunc:
+# This test is not currently run in any CI job
 def test_node_attrs_preserved_by_nodes(node_spec):
     """Type-specific attributes survive round-trip through graph_definition.nodes()."""
     spec, g, node, expected_attrs = node_spec
@@ -922,6 +926,7 @@ def test_alloc_peer_access(mempool_device_x2):
     assert d1.device_id in node.peer_access
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_alloc_memory_type_host(init_cuda):
     """HOST graph alloc nodes reconstruct memory_type from the driver, not the Python argument."""

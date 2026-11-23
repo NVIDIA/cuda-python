@@ -90,6 +90,8 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
         DeviceMemoryResource.from_registry(key)
 
 
+# For the VirtualMR parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.human_authored
 def test_register_rejects_mismatched_uuid(ipc_memory_resource):
     """register() rejects a UUID that does not match the resource's own.
@@ -138,6 +140,8 @@ def test_ipc_allocation_handle_state_tracks_close():
         os.close(write_fd)
 
 
+# For the VirtualMR parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_closed_ipc_allocation_handle_rejected_before_registry_hit(ipc_device, ipc_memory_resource):
     mr = ipc_memory_resource
@@ -330,6 +334,8 @@ class TestImportBuffer(ChildErrorHarness):
         assert exc_msg.startswith("Argument 'ipc_descriptor' has incorrect type")
 
 
+# For the inherited test_main[VirtualMR] case:
+# This test is not currently run in any CI job
 class TestDanglingBuffer(ChildErrorHarness):
     """
     Error when importing a buffer object without registering its memory

@@ -245,6 +245,8 @@ def gpu_array_ptr(arr):
 
 @pytest.mark.parametrize(("in_arr", "use_stream"), gpu_array_samples())
 class TestViewGPU:
+    # For the empty parameter set ([NOTSET]):
+    # This test is not currently run in any CI job
     def test_args_viewable_as_strided_memory_gpu(self, in_arr, use_stream):
         # TODO: use the device fixture?
         dev = Device()
@@ -259,6 +261,8 @@ class TestViewGPU:
 
         my_func(in_arr)
 
+    # For the empty parameter set ([NOTSET]):
+    # This test is not currently run in any CI job
     def test_strided_memory_view_cpu(self, in_arr, use_stream):
         # TODO: use the device fixture?
         dev = Device()
@@ -269,6 +273,8 @@ class TestViewGPU:
         view = StridedMemoryView.from_any_interface(in_arr, stream_ptr=s.handle if s else -1)
         self._check_view(view, in_arr, dev)
 
+    # For the empty parameter set ([NOTSET]):
+    # This test is not currently run in any CI job
     def test_strided_memory_view_init(self, in_arr, use_stream):
         # TODO: use the device fixture?
         dev = Device()
@@ -338,6 +344,8 @@ def test_strided_memory_view_exposes_dlpack_c_exchange_api_capsule():
 @pytest.mark.skipif(cp is None, reason="CuPy is not installed")
 @pytest.mark.parametrize("in_arr,use_stream", (*gpu_array_samples(),))
 class TestViewCudaArrayInterfaceGPU:
+    # For the empty parameter set ([NOTSET]):
+    # This test is not currently run in any CI job
     def test_cuda_array_interface_gpu(self, in_arr, use_stream):
         # TODO: use the device fixture?
         dev = Device()
@@ -753,6 +761,7 @@ def test_ml_dtypes_bfloat16_dlpack(init_cuda, slices):
         assert smv.strides == strides_in_counts
 
 
+# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     "slices",
     [
@@ -953,6 +962,7 @@ def test_array_interface_mask_rejected():
 _torch_skip = pytest.mark.skipif(torch is None, reason="PyTorch is not installed")
 
 
+# This test is not currently run in any CI job
 @_torch_skip
 @pytest.mark.parametrize(
     "dtype",
