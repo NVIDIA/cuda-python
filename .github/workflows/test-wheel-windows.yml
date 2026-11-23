@@ -36,8 +36,8 @@ on:
       test-mode:
         description: >
           Test mode: 'standard' (default), 'nightly-pytorch',
-          'nightly-numba-cuda', 'nightly-numba-cuda-mlir', or
-          'nightly-cuda-core'.
+          'nightly-numba-cuda', 'nightly-numba-cuda-mlir',
+          'nightly-cuda-core', or 'diagnostic-pinned-memory'.
         type: string
         default: 'standard'
       sha:
@@ -388,6 +388,47 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_BITCODE_LIB_STRICTNESS: all_must_work
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder
+
+      # Collect only to install the same wheel/dependencies as the standard
+      # Core job, without running tests before the fresh-process diagnostics.
+      - name: Install pinned-memory diagnostic dependencies
+        if: ${{ inputs.test-mode == 'diagnostic-pinned-memory' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+          PYTEST_ADDOPTS: --collect-only
+          SKIP_CYTHON_TEST: '1'
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests core
+
+      - name: Download native pinned-memory reproducer
+        if: ${{ inputs.test-mode == 'diagnostic-pinned-memory' }}
+        # A missing build still lets the runner collect the Python diagnostics;
+        # its native cases report the missing executable as a failure.
+        continue-on-error: true
+        uses: $/.github/actions/download-artifact-retry
+        with:
+          # The executable and .ci-control tools belong to this workflow revision,
+          # even when inputs.run-id/sha select older wheels for testing.
+          name: native-pinned-memory-${{ inputs.host-platform }}-${{ github.sha }}
+          path: pinned-memory-diagnostics/native
+
+      - name: Diagnose pinned-memory failures
+        if: ${{ inputs.test-mode == 'diagnostic-pinned-memory' }}
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: >-
+          python .ci-control/ci/tools/diagnose_pinned_memory.py --cycles 100
+          --output-dir pinned-memory-diagnostics
+          --native-executable pinned-memory-diagnostics/native/pinned_pool_probe.exe
+
+      - name: Upload pinned-memory diagnostics
+        if: ${{ !cancelled() && inputs.test-mode == 'diagnostic-pinned-memory' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: pinned-memory-diagnostics-${{ inputs.host-platform }}-py${{ matrix.PY_VER }}-cu${{ matrix.CUDA_VER }}-${{ matrix.GPU }}-${{ matrix.DRIVER_MODE }}
+          path: pinned-memory-diagnostics/
+          if-no-files-found: error
+          retention-days: 14
 
       # ── Nightly: install wheels + optional dep together ──
       - name: Install Visual C++ Redistributable (required by PyTorch on Windows)

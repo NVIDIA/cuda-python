@@ -25,6 +25,7 @@ conftest module globals).
 import gc
 import inspect
 import warnings
+from types import SimpleNamespace
 
 import pytest
 from helpers.contexts import current_context_handle
@@ -360,3 +361,55 @@ def test_cleanup_preserves_first_failure(request, monkeypatch, fail_setup, fail_
         assert any(str(sync_error) in note for note in notes)
     if fail_pop and (fail_setup or fail_sync):
         assert any(str(pop_error) in note for note in notes)
+
+
+@_THREAD_UNSAFE_MARKER
+@pytest.mark.parametrize("probe_fails", [False, True])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_teardown_oom_is_captured_before_pop_without_masking_failure(request, monkeypatch, tmp_path, probe_fails):
+    from helpers import oom_diagnostics
+
+    func = _init_cuda_func(request)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", lambda: (0, 0))
+    current = []
+    failure = RuntimeError("CUDA_ERROR_OUT_OF_MEMORY: injected teardown failure")
+
+    class DeviceStub:
+        def __init__(self, _ordinal):
+            pass
+
+        def set_current(self):
+            current.append(123)
+
+        def sync(self):
+            raise failure
+
+    def probe():
+        assert current == [123], "OOM context was popped before diagnostics"
+        if probe_fails:
+            raise RuntimeError("injected probe failure")
+        return oom_diagnostics.ProbeSnapshot(has_context=True, mem_get_info_error="sticky CUDA OOM")
+
+    recorder = oom_diagnostics.OomDiagnosticsRecorder()
+    monkeypatch.setattr(oom_diagnostics, "_default_recorder", recorder)
+    monkeypatch.setattr(oom_diagnostics, "run_probe", probe)
+    _patch_conftest_global(monkeypatch, func, "Device", DeviceStub)
+    _patch_conftest_global(monkeypatch, func, "_device_unset_current", current.pop)
+    fake = _FakeRequest()
+    fake.node.config = SimpleNamespace(rootpath=tmp_path, pluginmanager=SimpleNamespace(get_plugin=lambda _: None))
+    gen = func(fake)
+    next(gen)
+    with pytest.raises(RuntimeError) as raised:
+        next(gen)
+    assert raised.value is failure
+    assert current == []
+    if probe_fails:
+        assert any("injected probe failure" in note for note in failure.__notes__)
+    else:
+        report = (tmp_path / oom_diagnostics.DEFAULT_FILENAME).read_text()
+        assert "before context pop" in report
+        assert "sticky CUDA OOM" in report
+        # The later report hook must retain the useful pre-pop snapshot.
+        assert oom_diagnostics.record_exception_if_oom(fake.node, "teardown", failure) is None
+        assert (tmp_path / oom_diagnostics.DEFAULT_FILENAME).read_text() == report
