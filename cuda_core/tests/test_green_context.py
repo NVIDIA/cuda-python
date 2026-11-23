@@ -273,16 +273,15 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
     # the next green context. Retry until the address is reused.
     for _ in range(20):
         foreign = handle_return(driver.cuGreenCtxCreate(desc, dev.device_id, flags))
-        handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
-        # cuda.core did not create this context, so set_current() returns a
-        # plain, non-owning Context for it and registers it.
-        stale = dev.set_current(primary)
-        handle_return(driver.cuGreenCtxDestroy(foreign))
-        assert not stale.is_green
         try:
-            green = dev.create_context(opts)
-        except CUDAError as exc:
-            pytest.skip(str(exc))
+            handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+            # cuda.core did not create this context, so set_current() returns a
+            # plain, non-owning Context for it and registers it.
+            stale = dev.set_current(primary)
+        finally:
+            handle_return(driver.cuGreenCtxDestroy(foreign))
+        assert not stale.is_green
+        green = dev.create_context(opts)
         if int(green.handle) == int(stale.handle):
             break
         green.close()
@@ -294,8 +293,10 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
     try:
         assert green.is_green
         stream = green.create_stream()
-        stream.sync()
-        stream.close()
+        try:
+            stream.sync()
+        finally:
+            stream.close()
     finally:
         green.close()
 

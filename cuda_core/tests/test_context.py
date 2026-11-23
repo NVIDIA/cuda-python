@@ -178,8 +178,9 @@ def test_primary_context_survives_thread_exit(init_cuda, lookup, use):
     code = _PRIMARY_CONTEXT_ACROSS_THREADS.format(
         device_id=device_id, lookup=lookup, use=use.format(device_id=device_id)
     )
-    result = run_python_snippet(code, timeout=child_timeout_sec())
-    assert "CONTEXT_IS_DESTROYED" not in result.stderr
+    # The child asserts on the primary context's state and uses the object, so
+    # it exits non-zero (failing the test) if the context was destroyed.
+    run_python_snippet(code, timeout=child_timeout_sec())
 
 
 # Several threads retain the primary context concurrently, so most of them lose
