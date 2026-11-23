@@ -26,6 +26,8 @@ skip_if_unrunnable = pytest.mark.skipif(
 pytestmark = pytest.mark.thread_unsafe(reason="Tests number of fds which is shared.")
 
 
+# For the VirtualMR parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 def test_alloc_handle(ipc_memory_resource):
@@ -97,6 +99,8 @@ def _get_buffer_desc(mr, stream):
     return mr.allocate(NBYTES, stream=stream).ipc_descriptor
 
 
+# For VirtualMR with getobject=alloc_handle (all launchers):
+# This test is not currently run in any CI job
 @pytest.mark.flaky(reruns=2)
 @skip_if_unrunnable
 @pytest.mark.parametrize(

@@ -36,6 +36,7 @@ def test_bridge_chip_hierarchy_t():
     assert isinstance(hierarchy.bridge_chip_info, nvml.BridgeChipInfo)
 
 
+# This test is not currently run in any CI job
 def test_bridge_chip_info(all_devices, subtests):
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):

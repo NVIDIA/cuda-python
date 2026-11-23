@@ -15,6 +15,7 @@ def unit_handles(nvml_init):
     return [nvml.unit_get_handle_by_index(i) for i in range(count)]
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-4-6")
 def test_unit_get_devices_returns_array(unit_handles):
     """Regression test: unit_get_devices must not crash due to double-pointer cast.

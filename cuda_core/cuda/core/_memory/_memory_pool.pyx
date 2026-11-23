@@ -31,6 +31,7 @@ from cuda.core._rt cimport create_mempool_handle_ref  # no-cython-lint
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
+from cuda.core._utils.version import driver_version  # no-cython-lint
 
 import uuid
 from typing import TYPE_CHECKING
@@ -462,21 +463,92 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
 
 
 cdef int MP_set_access(
-        _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count) except? -1:
+        _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count,
+        bint retry_already_mapped=False) except? -1:
     """Set device access to the pool.
 
     Runs in relaxed capture mode, like every pool attribute access (see
     ``_enter_relaxed_capture_mode``): the driver refuses cuMemPoolSetAccess,
     and invalidates the capture, while a global-mode capture is active on
     any thread or a thread-local one on the calling thread.
+
+    With ``retry_already_mapped``, each entry is set on its own, and an
+    identical second call follows a CUDA_ERROR_ALREADY_MAPPED. Importing a
+    pool that is already imported in this process returns the same
+    CUmemoryPool. Once its previous owner has revoked access and destroyed its
+    import, the driver can still hold the pool and fail a grant over the
+    mapping that an unsynchronized free left behind. The identical retry
+    succeeds (seen on drivers 580 and 595); with several devices, one retry of
+    a combined call is not enough. Any other status, and a second failure for
+    an entry, raise.
     """
     cdef cydriver.CUstreamCaptureMode mode
-    cdef cydriver.CUresult err
+    cdef cydriver.CUresult err = cydriver.CUDA_SUCCESS
+    cdef size_t i
     with nogil:
         _enter_relaxed_capture_mode(&mode)
-        err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
+        if not retry_already_mapped:
+            err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
+        else:
+            for i in range(count):
+                err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc + i, 1)
+                if err == cydriver.CUDA_ERROR_ALREADY_MAPPED:
+                    err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc + i, 1)
+                if err != cydriver.CUDA_SUCCESS:
+                    break
         _exit_relaxed_capture_mode(err, &mode)
     return 0
+
+
+cdef bint MP_location_query_available() except? -1:
+    """Whether ``MP_get_location`` can query a pool's location.
+
+    ``CU_MEMPOOL_ATTR_LOCATION_TYPE`` and ``_ID`` are 13.2 driver attributes.
+    Every cuda-bindings at or above the CUDA 13 floor defines them, so only the
+    driver can lack them; an older driver rejects them as invalid.
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        # Not cy_driver_version(): imports run concurrently on free-threaded
+        # builds, and its cache is filled without synchronization. Tests replace
+        # this module's driver_version to exercise the pre-13.2 fallback.
+        return driver_version() >= (13, 2, 0)
+    ELSE:
+        return False
+
+
+cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1:
+    """Store the pool's location type and ID in ``loc``.
+
+    Runs in relaxed capture mode, like every pool attribute access (see
+    ``_enter_relaxed_capture_mode``). Requires a CUDA 13 build and a 13.2 or
+    later driver (``MP_location_query_available``).
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef int loc_type = 0
+        cdef int loc_id = 0
+        cdef cydriver.CUstreamCaptureMode mode
+        cdef cydriver.CUresult err
+        with nogil:
+            _enter_relaxed_capture_mode(&mode)
+            err = cydriver.cuMemPoolGetAttribute(
+                as_cu(self._h_pool),
+                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE,
+                &loc_type
+            )
+            if err == cydriver.CUDA_SUCCESS:
+                err = cydriver.cuMemPoolGetAttribute(
+                    as_cu(self._h_pool),
+                    cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID,
+                    &loc_id
+                )
+            _exit_relaxed_capture_mode(err, &mode)
+        loc.type = <cydriver.CUmemLocationType>loc_type
+        loc.id = loc_id
+        return 0
+    ELSE:
+        raise RuntimeError(
+            "Querying the location of a memory pool requires a CUDA 13 build of cuda.core"
+        )
 
 
 # Raise an exception if the given stream is capturing.

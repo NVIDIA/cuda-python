@@ -128,6 +128,8 @@ def test_load_lib_no_cache_does_not_dispatch_ctk_lib_to_driver_path(mocker):
 # ---------------------------------------------------------------------------
 
 
+# For libname=nvcudla:
+# This test is not currently run in any CI job
 @pytest.mark.parametrize("libname", sorted(_DRIVER_ONLY_LIBNAMES))
 def test_real_load_driver_lib(info_summary_append, libname):
     """Load a real driver library in a dedicated subprocess.

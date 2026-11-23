@@ -172,6 +172,8 @@ def ptx_code_object():
     return ptx_object_code
 
 
+# For the options31 parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     "options",
     [

@@ -3,11 +3,12 @@
 
 import gc
 import weakref
+from contextlib import closing
 
 import numpy as np
 import pytest
 from helpers.contexts import no_current_context, use_context
-from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_memory_unsupported
+from helpers.memory import create_managed_memory_resource_or_skip, skip_if_managed_mempool_unsupported
 
 from cuda.core import (
     ContextOptions,
@@ -516,6 +517,7 @@ class TestTensorMapReplaceAddress:
         with pytest.raises(ValueError, match=r"replace_address expects tensor on device 0, got 1"):
             desc.replace_address(buf1)
 
+    # This test is not currently run in any CI job
     def test_replace_address_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
         if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
@@ -523,18 +525,23 @@ class TestTensorMapReplaceAddress:
         dev1 = Device(1)
         if not dev1.properties.tensor_map_access_supported:
             pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
-        skip_if_managed_memory_unsupported(dev1)
+        skip_if_managed_mempool_unsupported(dev1)
 
         dev1.set_current()
-        desc = _as_view(dev1.allocate(1024 * 4, stream=dev1.default_stream)).as_tensor_map(
-            box_dim=(64,),
-            data_type=TensorMapDataType.FLOAT32,
-        )
+        options = ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        with (
+            dev1.allocate(1024 * 4, stream=dev1.default_stream) as buf,
+            closing(create_managed_memory_resource_or_skip(options)) as mr,
+        ):
+            desc = _as_view(buf).as_tensor_map(
+                box_dim=(64,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+            managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
 
-        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
-
-        desc.replace_address(managed_buf)
+            desc.replace_address(managed_buf)
+            managed_buf.close()
+            dev1.sync()
 
 
 class TestTensorMapMultiDeviceValidation:
@@ -609,6 +616,7 @@ class TestTensorMapMultiDeviceValidation:
                 pytest.skip("Im2col-wide requires cuda.core built with CUDA 13+")
             raise
 
+    # This test is not currently run in any CI job
     def test_from_tiled_accepts_managed_buffer_on_nonzero_device(self, init_cuda):
         if len(Device.get_all_devices()) < 2:
             pytest.skip("requires multi-GPU")
@@ -616,17 +624,20 @@ class TestTensorMapMultiDeviceValidation:
         dev1 = Device(1)
         if not dev1.properties.tensor_map_access_supported:
             pytest.skip("Device does not support TMA (requires compute capability 9.0+)")
-        skip_if_managed_memory_unsupported(dev1)
+        skip_if_managed_mempool_unsupported(dev1)
 
         dev1.set_current()
-        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=dev1.device_id))
-        managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
+        options = ManagedMemoryResourceOptions(preferred_location=dev1.device_id)
+        with closing(create_managed_memory_resource_or_skip(options)) as mr:
+            managed_buf = mr.allocate(1024 * 4, stream=dev1.default_stream)
 
-        desc = _as_view(managed_buf).as_tensor_map(
-            box_dim=(64,),
-            data_type=TensorMapDataType.FLOAT32,
-        )
-        assert desc is not None
+            desc = _as_view(managed_buf).as_tensor_map(
+                box_dim=(64,),
+                data_type=TensorMapDataType.FLOAT32,
+            )
+            assert desc is not None
+            managed_buf.close()
+            dev1.sync()
 
 
 class TestTensorMapIm2col:
@@ -738,6 +749,7 @@ class TestTensorMapIm2colWide:
                 pytest.skip("Im2col-wide unsupported on this driver/GPU combination")
             raise
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_3d(self, dev, skip_if_no_im2col_wide):
         # 3D tensor: batch=1, width=32, channels=64
         buf = dev.allocate(1 * 32 * 64 * 4, stream=dev.default_stream)
@@ -752,6 +764,7 @@ class TestTensorMapIm2colWide:
         )
         assert desc is not None
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_4d(self, dev, skip_if_no_im2col_wide):
         # NHWC layout: N=1, H=8, W=8, C=64
         # Wide mode only uses scalar W corners, even with higher rank
@@ -767,6 +780,7 @@ class TestTensorMapIm2colWide:
         )
         assert desc is not None
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_5d(self, dev, skip_if_no_im2col_wide):
         # NDHWC layout: N=1, D=4, H=8, W=8, C=64
         # Max rank boundary — verifies all 5 dim/stride slots are filled
@@ -782,6 +796,7 @@ class TestTensorMapIm2colWide:
         )
         assert desc is not None
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_rank_validation(self, dev, skip_if_no_im2col_wide):
         buf = dev.allocate(1024 * 4, stream=dev.default_stream)
         with pytest.raises(ValueError, match="Im2col-wide tensor rank must be between 3 and 5"):

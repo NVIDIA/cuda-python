@@ -317,6 +317,56 @@ No version override or local preview-tag preparation is needed.
 Follow the
 [Git-derived version lifecycle](../AGENTS.md#git-derived-version-lifecycle).
 
+## Paired Release Notes
+
+The `check-staged-release-notes` pre-commit hook runs
+`ci/tools/check_staged_release_notes.py` and requires paired notes starting at:
+
+- CUDA 12: **12.9.11** and later.
+- CUDA 13: **13.5.1** and later.
+- CUDA major **14 and later**: every release.
+
+For these releases, every tracked numeric
+`cuda_bindings_*/docs/source/release/X.Y.Z-notes.rst` must have a matching
+`cuda_python/docs/source/release/X.Y.Z-notes.rst`. It checks Git's
+index, so new notes must be staged. Conversely, each numeric `cuda_python`
+release note requires a matching note in `cuda_bindings_<major>`,
+where `<major>` comes from the release version. For example, `12.9.11` requires
+`cuda_bindings_12/docs/source/release/12.9.11-notes.rst`; a note in another
+bindings root does not satisfy this check. The files do not need identical contents.
+Templates with literal `X` and `Y`, and prerelease filenames, are excluded.
+
+Earlier releases are ignored in both directions; there is no historical
+exception list. The hook runs on every commit, including counterpart deletions,
+and during `pre-commit run --all-files`.
+The tagged-source checks in the release workflow remain the final validation
+before publication.
+
+The hook uses only the standard library and checks note pairing independently
+of documentation version selectors. Numeric release notes can describe work
+for an upcoming release without advertising unpublished documentation. Update
+selectors on `main` only after the component is published and its versioned
+documentation is deployed. Both bindings majors use
+`cuda_bindings_13/docs/nv-versions.json`; the metapackage, Core, and Pathfinder
+use their own package's `docs/nv-versions.json`. Deployments from `main` own
+these shared selectors; release deployments leave them unchanged. A missing
+selector entry can be corrected on `main` without changing the release tag.
+
+Tag-push CI runs the `--tag-ci` mode of
+`ci/tools/check_tagged_release_notes.py` at the start of its `should-skip` job,
+before Python setup or builds. This mode uses only the standard library and
+checks one exact release-note filename. Bare `v` tags select the matching
+bindings major; `cuda-core-v` and `cuda-pathfinder-v` tags select their own
+component. Public beta, release-candidate, and final tags require their full
+version in the filename. Internal alpha and development tags skip this check.
+Post releases require a new note only for Pathfinder. This early check tests
+file existence; pairing belongs to the separate staged check.
+
+The same module provides the publication preflight used by the release
+workflow. Publication mode checks the requested component in the tagged
+source, retains the existing nonempty-note and post-release policies, and
+exports the version for downstream release jobs.
+
 ## Nightly Artifact Sources
 
 `ci-nightly.yml` downloads wheels from the latest successful main CI run and

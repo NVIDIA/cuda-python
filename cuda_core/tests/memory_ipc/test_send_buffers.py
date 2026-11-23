@@ -85,6 +85,8 @@ class TestIpcReexport:
     re-exported from B to C.
     """
 
+    # For the VirtualMR parameter case:
+    # This test is not currently run in any CI job
     @pytest.mark.flaky(reruns=2)
     def test_main(self, ipc_device, ipc_memory_resource):
         # Set up the device.

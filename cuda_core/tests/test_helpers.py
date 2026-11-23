@@ -6,6 +6,7 @@ import ctypes
 import sys
 import time
 import types
+from contextlib import closing
 from unittest.mock import Mock
 
 import pytest
@@ -58,9 +59,30 @@ def test_latchkernel(init_cuda, pinned_alloc):
     log("releasing latch and syncing")
     latch.release()
     stream.sync()
+    assert not latch.timed_out
     log("checking target == 1")
     assert compare_equal_buffers(target, ones)
     log("done")
+
+
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_latchkernel_reports_timeout(init_cuda, pinned_alloc):
+    """A latch that is never released ends by timeout and reports it; relaunching clears the report."""
+    device = init_cuda
+    with (
+        closing(device.create_stream()) as stream,
+        closing(LatchKernel(device, pinned_alloc=pinned_alloc, timeout_sec=0.1)) as latch,
+    ):
+        latch.launch(stream)
+        stream.sync()
+        assert latch.timed_out
+
+        latch.launch(stream)
+        latch.release()
+        stream.sync()
+        assert not latch.timed_out
 
 
 @pytest.mark.skipif(

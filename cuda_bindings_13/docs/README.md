@@ -1,9 +1,13 @@
 # Build the documentation
 
 1. Install the CUDA 13 `cuda-bindings` build that you need to document.
-2. Ensure the version is included in the [`nv-versions.json`](./nv-versions.json).
-3. Build the docs with `./build_docs.sh`.
-4. The html artifacts should be available under both `./build/html/latest` and `./build/html/<version>`.
+2. Build the docs with `./build_docs.sh`.
+3. The html artifacts should be available under both `./build/html/latest` and
+   `./build/html/<version>`.
+
+A local build does not require a version-selector entry. Add the version to
+[`nv-versions.json`](./nv-versions.json) on `main` only after the package is
+published and its versioned documentation is deployed.
 
 [`cuda_python/docs/build_all_docs.sh`](../../cuda_python/docs/build_all_docs.sh)
 builds this current bindings line together with the metapackage, Core, and

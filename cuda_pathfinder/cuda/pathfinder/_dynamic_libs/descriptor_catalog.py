@@ -429,14 +429,21 @@ DESCRIPTOR_CATALOG: tuple[DescriptorSpec, ...] = (
         linux_sonames=("libcudnn.so.9",),
         windows_dlls=("cudnn64_9.dll",),
         supported_windows_arch=("x64", "arm64"),
+        # Skip DLLs that do not match the running Python interpreter's architecture,
+        # allowing the search to continue to a compatible installation.
+        requires_windows_binary_arch_check=True,
         site_packages_linux=("nvidia/cudnn/lib",),
-        site_packages_windows=WindowsSearchDirs.x64_only("nvidia/cudnn/bin"),
+        site_packages_windows=WindowsSearchDirs(
+            x64=("nvidia/cudnn/bin",),
+            arm64=("nvidia/cudnn/bin",),
+        ),
         dependencies=("cublasLt",),
         optional_dependencies=("nvrtc",),
         install_root_env_vars_linux=("CUDNN_PATH",),
         install_root_env_rel_dirs_linux=("lib", "lib64"),
-        # The ARM64 layout is verified only for the standalone archive rooted
-        # at CUDNN_PATH, not for conda, CUDA_PATH, or Program Files installs.
+        # The ARM64 layouts are verified only for the nvidia-cudnn-cu13 wheel and
+        # the standalone archive rooted at CUDNN_PATH, not for conda, CUDA_PATH,
+        # or Program Files installs.
         anchor_rel_dirs_windows=WindowsSearchDirs.x64_only("bin/x64", "bin"),
         install_root_env_vars_windows=("CUDNN_PATH",),
         install_root_env_rel_dirs_windows=WindowsSearchDirs(
