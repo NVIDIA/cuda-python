@@ -47,7 +47,7 @@ DEFAULT_WINDOWS_CTK_ANCHOR_DIRS = WindowsSearchDirs(
 
 
 def _ctk_windows_wheel_dirs(cuda13_bin_dir: str, cuda12_dir: str) -> WindowsSearchDirs:
-    """Search CUDA 13 first, with the x64-only CUDA 12 wheel as an x64 fallback."""
+    """Within each site root, prefer CUDA 13, with CUDA 12 as an x64 fallback."""
     cuda13_bin_path = PurePosixPath(cuda13_bin_dir)
     return WindowsSearchDirs(
         x64=((cuda13_bin_path / "x86_64").as_posix(), cuda12_dir),

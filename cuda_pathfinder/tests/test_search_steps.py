@@ -72,7 +72,11 @@ def _patch_site_packages_search(mocker, root):
         path = root.joinpath(*sub_dirs)
         return [str(path)] if path.is_dir() else []
 
-    return mocker.patch(f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages", side_effect=_find_sub_dirs)
+    mocker.patch(f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages", side_effect=_find_sub_dirs)
+    return mocker.patch(
+        f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
+        side_effect=lambda patterns: [directory for pattern in patterns for directory in _find_sub_dirs(pattern)],
+    )
 
 
 def _write_pe(path, machine):
@@ -277,7 +281,7 @@ class TestFindInSitePackages:
         so_file.touch()
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(lib_dir)],
         )
 
@@ -297,7 +301,7 @@ class TestFindInSitePackages:
         so_file.touch()
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(lib_dir)],
         )
 
@@ -314,7 +318,7 @@ class TestFindInSitePackages:
         dll.touch()
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(bin_dir)],
         )
         mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
@@ -338,7 +342,7 @@ class TestFindInSitePackages:
         _write_pe(bin_dir / "cudnn_adv64_9.dll", windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(bin_dir)],
         )
 
@@ -355,7 +359,7 @@ class TestFindInSitePackages:
         (bin_dir / "cupti64_14.dll").touch()
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(bin_dir)],
         )
 
@@ -511,7 +515,7 @@ class TestFindInSitePackages:
         empty_dir.mkdir(parents=True)
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(empty_dir)],
         )
 
@@ -528,7 +532,7 @@ class TestFindInSitePackages:
         versioned.touch()
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(lib_dir)],
         )
 
@@ -548,7 +552,7 @@ class TestFindInSitePackages:
         fallback.touch()
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(lib_dir)],
         )
 
@@ -569,7 +573,7 @@ class TestFindInSitePackages:
         (lib_dir / undeclared_filename).touch()
 
         mocker.patch(
-            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
+            f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages_ordered",
             return_value=[str(lib_dir)],
         )
 
