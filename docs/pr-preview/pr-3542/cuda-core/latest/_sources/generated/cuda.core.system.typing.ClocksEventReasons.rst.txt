@@ -1,0 +1,6 @@
+﻿cuda.core.system.typing.ClocksEventReasons
+==========================================
+
+.. currentmodule:: cuda.core.system.typing
+
+.. autoenum:: ClocksEventReasons
