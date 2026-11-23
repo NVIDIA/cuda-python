@@ -23,10 +23,13 @@ from helpers.oom_diagnostics import (
     probe_basics,
     record_if_oom,
     report_terminal_summary,
+    run_probe,
 )
 from helpers.oom_diagnostics import _round_up as oom_round_up  # white-box test of the alignment guard
 
+from cuda.bindings import driver
 from cuda.core import Device
+from cuda.core._utils.cuda_utils import handle_return
 from cuda_python_test_helpers import under_compute_sanitizer
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
@@ -140,10 +143,11 @@ def _fake_call(exc_text, when="call"):
     return types.SimpleNamespace(excinfo=excinfo, when=when)
 
 
-def _fake_item(rootpath, nodeid="tests/test_x.py::test_a"):
+def _fake_item(rootpath, nodeid="tests/test_x.py::test_a", xmlpath=None):
     # get_plugin returns None so record_if_oom skips the terminal write.
     config = types.SimpleNamespace(
         rootpath=rootpath,
+        option=types.SimpleNamespace(xmlpath=xmlpath),
         pluginmanager=types.SimpleNamespace(get_plugin=lambda _: None),
     )
     return types.SimpleNamespace(nodeid=nodeid, config=config)
@@ -153,6 +157,8 @@ def _fake_item(rootpath, nodeid="tests/test_x.py::test_a"):
 # first check, so harness tests never depend on -- or need to fake -- driver
 # call results.
 _NO_CONTEXT_SNAPSHOT = ProbeSnapshot(has_context=False)
+# The smallest snapshot that counts as probed; its probe log stops at "VMM unsupported".
+_PROBED_SNAPSHOT = ProbeSnapshot(has_context=True, mem_free=1 << 30, mem_total=1 << 30, small_alloc_ok=True)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -227,6 +233,49 @@ def test_oom_diagnostics_latch_to_the_first_oom(tmp_path):
     assert recorder.capture("second", "call", OOM_MARKER, tmp_path, snapshot=_NO_CONTEXT_SNAPSHOT) is None
 
     assert "first" in (tmp_path / DEFAULT_FILENAME).read_text(encoding="utf-8")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_report_without_context_keeps_the_latch_open(tmp_path):
+    recorder = OomDiagnosticsRecorder()
+    assert recorder.capture("first", "teardown", OOM_MARKER, tmp_path, snapshot=_NO_CONTEXT_SNAPSHOT) is not None
+    assert not recorder.probed
+    # A second unprobed report would only repeat the first.
+    assert recorder.capture("second", "call", OOM_MARKER, tmp_path, snapshot=_NO_CONTEXT_SNAPSHOT) is None
+
+    text = recorder.capture("third", "call", OOM_MARKER, tmp_path, snapshot=_PROBED_SNAPSHOT)
+    assert "the probe at first had no context" in text
+    assert recorder.probed
+    assert recorder.capture("fourth", "call", OOM_MARKER, tmp_path, snapshot=_PROBED_SNAPSHOT) is None
+
+    written = (tmp_path / DEFAULT_FILENAME).read_text(encoding="utf-8")
+    assert "test:      first" in written
+    assert "test:      third" in written
+    assert "second" not in written
+    assert "fourth" not in written
+
+    lines = []
+    reporter = types.SimpleNamespace(write_sep=lambda *_, **__: None, write_line=lines.append)
+    assert "first CUDA OOM at first; probed at third" in report_terminal_summary(reporter, recorder=recorder)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_artifact_lands_beside_the_junit_file(tmp_path, monkeypatch):
+    # CI uploads only the JUnit directory, which may not exist yet if the run
+    # crashes before pytest writes the JUnit file.
+    recorder = OomDiagnosticsRecorder()
+    monkeypatch.setattr("helpers.oom_diagnostics._default_recorder", recorder)
+    junit_dir = tmp_path / "test-results"
+
+    record_if_oom(
+        _fake_item(tmp_path / "rootdir", xmlpath=str(junit_dir / "junit-core.xml")),
+        _fake_call(f"boom {OOM_MARKER}"),
+        _fake_report(True),
+        snapshot=_NO_CONTEXT_SNAPSHOT,
+    )
+
+    assert recorder.artifact_path == junit_dir / DEFAULT_FILENAME
+    assert OOM_MARKER in recorder.artifact_path.read_text(encoding="utf-8")
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -373,6 +422,43 @@ def test_oom_diagnostics_probe_basics_is_live_and_cheap(init_cuda):
     assert snapshot.pool_va_ok is None
     assert snapshot.get_mem_pool_ok is None
     assert snapshot.capped_pool_create_ok is None
+
+
+def _current_context():
+    return int(handle_return(driver.cuCtxGetCurrent()))
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_probe_borrows_and_restores_the_primary_context(init_cuda, monkeypatch):
+    # The real probes are replaced: only the context handling is under test,
+    # and the full probe reserves a ~2x-device-memory VA window.
+    seen = []
+
+    def fake_probe():
+        seen.append(_current_context())
+        return ProbeSnapshot(has_context=True)
+
+    monkeypatch.setattr("helpers.oom_diagnostics._probe_current_context", fake_probe)
+    dev = handle_return(driver.cuDeviceGet(0))
+    primary = int(handle_return(driver.cuDevicePrimaryCtxRetain(dev)))
+    handle_return(driver.cuDevicePrimaryCtxRelease(dev))
+    current = _current_context()
+
+    snapshot = run_probe()
+    assert not snapshot.borrowed_primary_context
+    assert seen == [current]
+
+    popped = handle_return(driver.cuCtxPopCurrent())
+    try:
+        assert _current_context() == 0
+        snapshot = run_probe()
+        assert _current_context() == 0
+    finally:
+        handle_return(driver.cuCtxPushCurrent(popped))
+
+    assert snapshot.borrowed_primary_context
+    assert snapshot.context_restore_error is None
+    assert seen[1] == primary
 
 
 # ---------------------------------------------------------------------------
