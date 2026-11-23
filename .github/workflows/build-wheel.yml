@@ -500,9 +500,7 @@ jobs:
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${bindings_wheels[0]}"
           python -m pip install "${bindings_wheels[0]}" --group "${CURRENT_BINDINGS_ROOT}/pyproject.toml:test"
-          pushd ${{ env.CURRENT_BINDINGS_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+          python "${CURRENT_BINDINGS_CYTHON_TESTS_DIR}/build_tests.py"
 
       - name: Upload cuda.bindings ${{ env.CURRENT_CUDA_MAJOR }} Cython tests
         if: ${{ env.TEST_BINDINGS_CURRENT == 'true' }}
@@ -526,9 +524,7 @@ jobs:
             exit 1
           fi
           pip install "${core_wheel}" --group ./cuda_core/pyproject.toml:test
-          pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+          python "${CUDA_CORE_CYTHON_TESTS_DIR}/build_tests.py"
 
       - name: Upload current cuda.core Cython tests
         if: ${{ env.TEST_CORE_CURRENT == 'true' }}
@@ -623,9 +619,7 @@ jobs:
           test "${#bindings_wheels[@]}" -eq 1
           test -f "${bindings_wheels[0]}"
           python -m pip install "${bindings_wheels[0]}" --group "${MAINTENANCE_BINDINGS_ROOT}/pyproject.toml:test"
-          pushd ${{ env.MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+          python "${MAINTENANCE_BINDINGS_CYTHON_TESTS_DIR}/build_tests.py"
 
       - name: Upload cuda.bindings ${{ env.MAINTENANCE_CUDA_MAJOR }} Cython tests
         if: ${{ !inputs.single-cuda-major && env.TEST_BINDINGS_MAINTENANCE == 'true' }}
@@ -755,9 +749,7 @@ jobs:
             exit 1
           fi
           pip install "${core_wheel}" --group ./cuda_core/pyproject.toml:test
-          pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
-          bash build_tests.sh
-          popd
+          python "${CUDA_CORE_CYTHON_TESTS_DIR}/build_tests.py"
 
       - name: Upload maintenance cuda.core Cython tests
         if: ${{ !inputs.single-cuda-major && env.TEST_CORE_MAINTENANCE == 'true' }}

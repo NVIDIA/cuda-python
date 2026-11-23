@@ -89,6 +89,19 @@ def _get_cuda_path() -> str:
     return cuda_path
 
 
+def _add_cython_test_include_dirs(extensions, *package_include_dirs: Path) -> None:
+    """Set the compiler include paths for the Cython test extensions."""
+    cuda_include_dir = Path(_get_cuda_path()) / "include"
+    include_dirs = [str(path) for path in (*package_include_dirs, cuda_include_dir)]
+    for extension in extensions:
+        if sys.platform == "win32":
+            extension.include_dirs.extend(include_dirs)
+        else:
+            # CPLUS_INCLUDE_PATH treated these directories as system headers.
+            for include_dir in include_dirs:
+                extension.extra_compile_args.extend(("-isystem", include_dir))
+
+
 # -----------------------------------------------------------------------
 # Toolchain selection
 

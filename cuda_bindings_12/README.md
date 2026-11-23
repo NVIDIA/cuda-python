@@ -31,12 +31,11 @@ and pip 25.1 or newer:
 ```console
 cd cuda_bindings_12
 python -m pip install -v -e . --group test
-tests/cython/build_tests.sh
+python tests/cython/build_tests.py
 python -m pytest tests/ tests/cython/
 ```
 
-Use `build_tests.bat` on Windows. Free-threaded Python also needs the
-`test-ft` dependency group.
+Free-threaded Python also needs the `test-ft` dependency group.
 
 Versions follow reachable `v12.*` tags through standard `setuptools-scm`.
 Source builds need the matching tag and the history connecting it to the
