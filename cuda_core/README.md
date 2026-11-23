@@ -33,7 +33,7 @@ Builds run clang-tidy on the handwritten C++ sources (`cuda/core/_cpp/`) and fai
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [those of cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
 1. Set up environment variable `CUDA_PATH` (or `CUDA_HOME`) with the path to the CUDA Toolkit installation. Note: If both are set, `CUDA_PATH` takes precedence.
-2. Run `build_tests` script located in `tests/cython` appropriate to your platform. This will both cythonize the tests and build them.
+2. Run `python tests/cython/build_tests.py` to cythonize and build the tests.
 
 To run these tests:
 * `python -m pytest tests/cython/` with editable installations
