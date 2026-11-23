@@ -44,7 +44,10 @@ entry of another, still-live Box registered under the same key.
 `insert_or_get(key, candidate, replace)` registers a new Box without blindly
 overwriting a live entry; `replace(existing)` decides. Build the candidate
 before the call and drop a losing candidate after it, never under the
-registry's lock, because its deleter takes that lock. `context_registry` uses
+registry's lock, because its deleter takes that lock. For the same reason,
+`insert_or_get` releases a displaced live handle only after the unlock: another
+thread may have dropped its own copy, leaving the last reference to that Box
+inside the call. `context_registry` uses
 this to keep one owning Box per live context (#3533): a Box that holds a
 primary-context retain or the owning green-context handle replaces a plain
 one, and nothing replaces an owning one. `get_primary_context()` therefore

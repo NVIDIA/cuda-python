@@ -278,8 +278,13 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
             # cuda.core did not create this context, so set_current() returns a
             # plain, non-owning Context for it and registers it.
             stale = dev.set_current(primary)
-        finally:
-            handle_return(driver.cuGreenCtxDestroy(foreign))
+        except BaseException:
+            # Do not leave the foreign context current once it is destroyed, and
+            # let the original error propagate: rollback statuses are ignored.
+            driver.cuCtxSetCurrent(primary.handle)
+            driver.cuGreenCtxDestroy(foreign)
+            raise
+        handle_return(driver.cuGreenCtxDestroy(foreign))
         assert not stale.is_green
         green = dev.create_context(opts)
         if int(green.handle) == int(stale.handle):

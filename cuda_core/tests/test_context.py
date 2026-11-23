@@ -188,8 +188,9 @@ def test_primary_context_survives_thread_exit(init_cuda, lookup, use):
 # retain. One Context must keep the context alive after every thread has exited,
 # and dropping it must release the last retain: a leaked extra retain keeps the
 # context active, and an extra release destroys it while the Context is held.
-# The thread_local caches are destroyed after Thread.join() returns, so the child
-# waits a fixed second before checking (see _PRIMARY_CONTEXT_ACROSS_THREADS).
+# The thread_local caches are destroyed after Thread.join() returns. They hold
+# the same box as the Context, so they do not affect the first check, and the
+# second check polls until they are gone.
 _CONCURRENT_PRIMARY_RETAINS = """
 import gc
 import threading
@@ -227,7 +228,6 @@ for t in threads:
     t.start()
 for t in threads:
     t.join()
-time.sleep(1.0)
 if errors:
     raise errors[0]
 assert len(contexts) == NUM_THREADS
