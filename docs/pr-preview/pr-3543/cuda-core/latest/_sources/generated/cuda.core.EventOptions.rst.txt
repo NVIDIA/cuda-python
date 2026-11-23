@@ -1,0 +1,6 @@
+﻿cuda.core.EventOptions
+======================
+
+.. currentmodule:: cuda.core
+
+.. autoclass:: EventOptions
