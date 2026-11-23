@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+from helpers.child_processes import child_timeout_sec
 
 import cuda.core
 from cuda.core import Device
@@ -89,3 +91,92 @@ def test_context_dict_key(init_cuda):
 
     ctx_cache = {context: "context_data"}
     assert ctx_cache[context] == "context_data"
+
+
+# ============================================================================
+# Primary-context lifetime across threads (#3533)
+# ============================================================================
+
+# Thread A retains the primary context and waits until thread B has retained
+# it too and exited. Thread A then resolves a Context through the context
+# registry (``{lookup}``), and the main thread uses that object (``{use}``) once
+# both threads are gone. The child process starts clean, so nothing else holds
+# a retain of the primary context: the pytest process does, through fixtures,
+# which would hide the bug.
+#
+# Thread.join() can return before a thread's C++ thread_local destructors run,
+# and they cannot be observed, so the child waits a fixed second after each
+# join. With the fix, the test passes regardless of that timing. Without it,
+# the test fails only if the destructors run within the wait, so a pass on
+# unfixed code is not evidence that the bug is gone.
+_PRIMARY_CONTEXT_ACROSS_THREADS = """
+import threading
+import time
+import warnings
+
+from cuda.bindings import driver
+from cuda.core import CUDAWarning, Device, Stream
+
+warnings.simplefilter("error", CUDAWarning)
+out = []
+errors = []
+b_exited = threading.Event()
+
+
+def thread_a():
+    try:
+        dev = Device({device_id})
+        dev.set_current()
+        b_exited.wait()
+        out.append({lookup})
+    except BaseException as exc:
+        errors.append(exc)
+
+
+def thread_b():
+    try:
+        Device({device_id}).set_current()
+    except BaseException as exc:
+        errors.append(exc)
+
+
+a = threading.Thread(target=thread_a)
+a.start()
+b = threading.Thread(target=thread_b)
+b.start()
+b.join()
+time.sleep(1.0)
+b_exited.set()
+a.join()
+time.sleep(1.0)
+if errors:
+    raise errors[0]
+
+err, _, active = driver.cuDevicePrimaryCtxGetState({device_id})
+assert err == driver.CUresult.CUDA_SUCCESS, err
+assert active, "primary context destroyed while a cuda.core object still refers to it"
+obj = out[0]
+{use}
+"""
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    ("lookup", "use"),
+    [
+        pytest.param(
+            "Stream.from_handle(int(driver.CU_STREAM_LEGACY)).context",
+            "Device({device_id}).set_current(obj)\nDevice({device_id}).create_stream().sync()",
+            id="foreign-stream-context",
+        ),
+        pytest.param("dev.default_stream.record()", "obj.sync()", id="default-stream-event"),
+    ],
+)
+def test_primary_context_survives_thread_exit(init_cuda, lookup, use):
+    """A Context resolved through the registry keeps the primary context alive after other threads exit."""
+    device_id = init_cuda.device_id
+    code = _PRIMARY_CONTEXT_ACROSS_THREADS.format(
+        device_id=device_id, lookup=lookup, use=use.format(device_id=device_id)
+    )
+    result = run_python_snippet(code, timeout=child_timeout_sec())
+    assert "CONTEXT_IS_DESTROYED" not in result.stderr

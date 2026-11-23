@@ -119,6 +119,7 @@ namespace {
 struct ContextBox {
     CUcontext resource;
     GreenCtxHandle h_green_ctx;
+    bool retains_primary = false;  // Owns one cuDevicePrimaryCtxRetain.
 };
 
 struct GreenCtxBox {
@@ -135,6 +136,27 @@ get_box(const ContextHandle &h) noexcept
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 HandleRegistry<CUcontext, ContextHandle> context_registry;
 
+// A box keeps its context alive if it holds a primary-context retain or the
+// owning green-context handle. Reads only immutable box fields, so it is safe
+// under the registry's mutex.
+bool
+owns_context(const ContextHandle &h) noexcept
+{
+    const ContextBox *b = get_box(h);
+    return b->retains_primary || b->h_green_ctx;
+}
+
+// Registry replacement policy for contexts: an owning candidate replaces a
+// non-owning entry, and nothing replaces an owning entry. This keeps one
+// owning box per live context, and a lookup never trades it for a plain one.
+auto
+replace_if_upgrade(const ContextHandle &candidate) noexcept
+{
+    return [owning = owns_context(candidate)](const ContextHandle &existing) noexcept {
+        return owning && !owns_context(existing);
+    };
+}
+
 // Create a context handle reference, with optional green context as source.
 ContextHandle
 create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
@@ -143,20 +165,26 @@ create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
         return {};
     }
     if (auto h = context_registry.lookup(ctx)) {
-        return h;
+        // An owning entry for ctx is either this green context's own box or a
+        // live primary context. A green context cannot share a live primary
+        // context's CUcontext, so returning it never drops a needed green owner.
+        if (!h_green_ctx || owns_context(h)) {
+            return h;
+        }
     }
     // clang-format off
     auto box = std::shared_ptr<const ContextBox>(
         new ContextBox{ctx, std::move(h_green_ctx)},
         [](const ContextBox *b) {
-            context_registry.unregister_handle(b->resource);
+            context_registry.unregister_handle(b->resource, &b->resource);
             delete b;
         }
     );
     // clang-format on
-    ContextHandle h(box, &box->resource);
-    context_registry.register_handle(ctx, h);
-    return h;
+    ContextHandle candidate(box, &box->resource);
+    // A losing candidate is dropped by the caller, outside the registry's lock;
+    // its deleter's ownership-checked erase is then a no-op.
+    return context_registry.insert_or_get(ctx, candidate, replace_if_upgrade(candidate));
 }
 }  // namespace
 
@@ -227,7 +255,8 @@ create_green_ctx_handle_ref(CUgreenCtx green_ctx)
     return GreenCtxHandle(box, &box->resource);
 }
 
-// Thread-local cache of primary contexts indexed by device ID
+// Thread-local cache of primary contexts indexed by device ID. A fast path in
+// front of the registry: every thread caches the same process-wide box.
 static thread_local std::vector<ContextHandle> primary_context_cache;
 
 ContextHandle
@@ -249,22 +278,29 @@ get_primary_context(int device_id)
 
     // clang-format off
     auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, {}},
+        new ContextBox{ctx, {}, true},
         [device_id](const ContextBox *b) {
-            context_registry.unregister_handle(b->resource);
+            context_registry.unregister_handle(b->resource, &b->resource);
             // During interpreter shutdown, leave primary-context cleanup to
-            // process teardown. An unavailable table entry would need Python
-            // to report itself.
+            // process teardown. Reporting a failure needs Python too.
             if (Py_IsInitialized() && !py_is_finalizing()) {
                 GILReleaseGuard gil;
-                DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);
+                pw_cuDevicePrimaryCtxRelease(device_id);
             }
             delete b;
         }
     );
     // clang-format on
-    auto h = ContextHandle(box, &box->resource);
-    context_registry.register_handle(ctx, h);
+    ContextHandle candidate(box, &box->resource);
+    // Keep one retaining box per primary context per process. If another
+    // thread's box is live, use it, and dropping our candidate releases the
+    // extra retain taken above; the live box still holds its own retain, so the
+    // driver's count never reaches zero. This runs with the GIL released and
+    // after insert_or_get has released the registry's lock, so the deleter may
+    // report through a pw_ wrapper.
+    ContextHandle h = context_registry.insert_or_get(ctx, candidate, replace_if_upgrade(candidate));
+    candidate.reset();
+    box.reset();
 
     // Update cache
     if (static_cast<size_t>(device_id) >= primary_context_cache.size()) {

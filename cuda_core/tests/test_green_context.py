@@ -256,6 +256,50 @@ def test_set_current_rejects_closed_context(init_cuda, sm_resource):
         init_cuda.set_current(ctx)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
+    """create_context() keeps its green context alive when a plain Context for
+    a destroyed context at the same CUcontext address is still registered (#3533)."""
+    dev = init_cuda
+    primary = dev.context
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    opts = ContextOptions(resources=[groups[0]])
+    res = handle_return(driver.cuDeviceGetDevResource(dev.device_id, driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM))
+    desc = handle_return(driver.cuDevResourceGenerateDesc([res], 1))
+    flags = driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
+
+    # The stale plain entry must belong to a context that cuda.core did not
+    # create, then destroyed, and whose CUcontext address the driver reuses for
+    # the next green context. Retry until the address is reused.
+    for _ in range(20):
+        foreign = handle_return(driver.cuGreenCtxCreate(desc, dev.device_id, flags))
+        handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+        # cuda.core did not create this context, so set_current() returns a
+        # plain, non-owning Context for it and registers it.
+        stale = dev.set_current(primary)
+        handle_return(driver.cuGreenCtxDestroy(foreign))
+        assert not stale.is_green
+        try:
+            green = dev.create_context(opts)
+        except CUDAError as exc:
+            pytest.skip(str(exc))
+        if int(green.handle) == int(stale.handle):
+            break
+        green.close()
+    else:
+        pytest.skip("driver did not reuse the destroyed context's CUcontext address")
+
+    # Do not compare green with stale: Context equality compares raw CUcontext
+    # values, so they are equal with or without the fix.
+    try:
+        assert green.is_green
+        stream = green.create_stream()
+        stream.sync()
+        stream.close()
+    finally:
+        green.close()
+
+
 # ---------------------------------------------------------------------------
 # SM resource query
 # ---------------------------------------------------------------------------

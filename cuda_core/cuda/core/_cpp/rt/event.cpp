@@ -98,7 +98,7 @@ create_event_handle(
     auto box = std::shared_ptr<const EventBox>(
         new EventBox{event, timing_enabled, is_blocking_sync, ipc_enabled, device_id, h_ctx},
         [](const EventBox *b) {
-            event_registry.unregister_handle(b->resource);
+            event_registry.unregister_handle(b->resource, &b->resource);
             GILReleaseGuard gil;
             pw_cuEventDestroy(b->resource);
             delete b;
@@ -154,7 +154,7 @@ create_event_handle_ipc(const CUipcEventHandle &ipc_handle, bool is_blocking_syn
     auto box = std::shared_ptr<const EventBox>(
         new EventBox{event, false, is_blocking_sync, true, -1, {}},
         [](const EventBox *b) {
-            event_registry.unregister_handle(b->resource);
+            event_registry.unregister_handle(b->resource, &b->resource);
             GILReleaseGuard gil;
             pw_cuEventDestroy(b->resource);
             delete b;

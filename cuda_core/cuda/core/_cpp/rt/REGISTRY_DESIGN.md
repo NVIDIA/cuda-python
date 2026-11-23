@@ -33,6 +33,23 @@ Instances: `context_registry`, `stream_registry`, `event_registry`,
 `kernel_registry`, and, per `GraphBox`, one registry for its direct child
 graphs and one for its nodes.
 
+### Removing and replacing entries
+
+More than one Box can exist for one raw handle, for example a plain `_ref`
+Box and an owning one. An entry therefore records the address of the
+element its handle points to, and `unregister_handle(key, resource)` erases
+the entry only if `resource` matches. A Box destructor thus never erases the
+entry of another, still-live Box registered under the same key.
+
+`insert_or_get(key, candidate, replace)` registers a new Box without blindly
+overwriting a live entry; `replace(existing)` decides. Build the candidate
+before the call and drop a losing candidate after it, never under the
+registry's lock, because its deleter takes that lock. `context_registry` uses
+this to keep one owning Box per live context (#3533): a Box that holds a
+primary-context retain or the owning green-context handle replaces a plain
+one, and nothing replaces an owning one. `get_primary_context()` therefore
+shares one retaining Box per primary context across all threads.
+
 ### Imports that wait for an in-flight release
 
 IPC imports use `ReleasingHandleRegistry`, a variant whose entry outlives its

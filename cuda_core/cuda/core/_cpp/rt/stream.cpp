@@ -95,7 +95,7 @@ create_stream_handle(const ContextHandle &h_ctx, unsigned int flags, int priorit
     auto box = std::shared_ptr<const StreamBox>(
         new StreamBox{stream, h_ctx},
         [](const StreamBox *b) {
-            stream_registry.unregister_handle(b->resource);
+            stream_registry.unregister_handle(b->resource, &b->resource);
             GILReleaseGuard gil;
             pw_cuStreamDestroy(b->resource);
             delete b;
@@ -117,7 +117,7 @@ create_stream_handle_ref(CUstream stream)
     auto box = std::shared_ptr<const StreamBox>(
         new StreamBox{stream, {}},
         [](const StreamBox *b) {
-            stream_registry.unregister_handle(b->resource);
+            stream_registry.unregister_handle(b->resource, &b->resource);
             delete b;
         }
     );

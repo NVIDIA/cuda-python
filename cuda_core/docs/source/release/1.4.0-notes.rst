@@ -54,3 +54,27 @@ Fixes and enhancements
   later driver; with a CUDA 12 build or an older driver, imports behave as
   before.
   (`#3502 <https://github.com/NVIDIA/cuda-python/issues/3502>`__)
+
+- A :class:`Context`, :class:`Stream` or :class:`Event` no longer fails with
+  ``CUDA_ERROR_CONTEXT_IS_DESTROYED`` after other threads that used the same
+  device exit. Each thread that called :meth:`Device.set_current` retained
+  the primary context separately, and a thread's exit could leave later
+  lookups, such as :meth:`Stream.from_handle` or recording an event on
+  :attr:`Device.default_stream`, with a :class:`Context` that held no
+  retain. Once the last retaining thread exited, the driver destroyed the
+  primary context while the application still used it. All threads now
+  share one retain per primary context, which is released when the last
+  ``cuda.core`` object that refers to it is released. A context that
+  ``cuda.core`` did not retain, for example one made current by another
+  library, stays valid only as long as that library keeps it alive.
+  (`#3533 <https://github.com/NVIDIA/cuda-python/issues/3533>`__)
+
+- :meth:`Device.create_context` no longer returns a context with
+  ``is_green == False`` that is already destroyed when the driver reuses the
+  address of a context that ``cuda.core`` saw earlier, for example as the
+  previous context returned by :meth:`Device.set_current`.
+  (`#3533 <https://github.com/NVIDIA/cuda-python/issues/3533>`__)
+
+- ``cuDevicePrimaryCtxRelease`` failures are now reported as a
+  :class:`CUDAWarning` instead of being ignored.
+  (`#3533 <https://github.com/NVIDIA/cuda-python/issues/3533>`__)
