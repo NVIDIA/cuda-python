@@ -90,6 +90,18 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
         DeviceMemoryResource.from_registry(key)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize("key", ["not-a-uuid", 1, None], ids=["str", "int", "none"])
+def test_registry_rejects_a_key_that_is_not_a_uuid(mempool_device, key):
+    """The registry is keyed by UUID bytes; any other key is a TypeError, not an AttributeError."""
+    mr = DeviceMemoryResource(mempool_device)
+
+    with pytest.raises(TypeError, match="uuid.UUID"):
+        mr.register(key)
+    with pytest.raises(TypeError, match="uuid.UUID"):
+        DeviceMemoryResource.from_registry(key)
+
+
 # For the VirtualMR parameter case:
 # This test is not currently run in any CI job
 @pytest.mark.human_authored

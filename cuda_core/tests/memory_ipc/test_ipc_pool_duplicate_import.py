@@ -37,7 +37,7 @@ ITERATIONS = 20
 # The owner's release sleeps this long in the race test, so the re-import overlaps it.
 RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
-REENTRY_ITERATIONS = 20
+REENTRY_ITERATIONS = 100
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -221,6 +221,168 @@ def child_register_reentered_by_gc(mr_type, alloc_handle):
             gc.set_threshold(*threshold)
             gc.callbacks.remove(register_during_collection)
 
+        _register_one_uuid_during_collections(stack, mr_type, device, alloc_handle)
+
+
+def _register_one_uuid_during_collections(stack, mr_type, device, alloc_handle):
+    # Two imports register one UUID, and every collection that starts while the
+    # first registers makes the second register it too. However the two
+    # interleave, both calls must return the one resource the registry holds.
+    registering = []
+    nested_results = []
+
+    def register_during_collection(phase, info):
+        if phase == "start" and registering:
+            key, rival = registering
+            nested_results.append((key, rival.register(key)))
+
+    threshold = gc.get_threshold()
+    gc.callbacks.append(register_during_collection)
+    try:
+        gc.set_threshold(1)
+        for _ in range(REENTRY_ITERATIONS):
+            mr = _enter_import(stack, mr_type, device, int(alloc_handle))
+            rival = _enter_import(stack, mr_type, device, int(alloc_handle))
+            key = uuid.uuid4()
+            registering[:] = [key, rival]
+            try:
+                registered = mr.register(key)
+            finally:
+                registering.clear()
+            assert registered is mr or registered is rival
+            assert mr_type.from_registry(key) is registered
+            assert all(result is registered for k, result in nested_results if k == key)
+    finally:
+        gc.set_threshold(*threshold)
+        gc.callbacks.remove(register_during_collection)
+
+
+class _TripwireUUID(uuid.UUID):
+    """A UUID that calls ``tripwire`` whenever Python code reads its value.
+
+    ``__hash__``, ``__eq__`` and ``bytes`` are how code that keeps a UUID in a
+    registry reaches the value. Each is a point where a garbage-collection
+    callback or finalizer could run in the middle of a registration, so a test
+    can inject code at every such point without a hook in the implementation.
+    """
+
+    def __init__(self, tripwire):
+        super().__init__(int=uuid.uuid4().int)
+        object.__setattr__(self, "_tripwire", tripwire)
+
+    def __hash__(self):
+        self._tripwire()
+        return super().__hash__()
+
+    def __eq__(self, other):
+        self._tripwire()
+        return super().__eq__(other)
+
+    @property
+    def bytes(self):
+        self._tripwire()
+        return super().bytes
+
+
+def _register_interrupted_at(index, register, action):
+    """Call ``register(key)``, running ``action(key)`` at the ``index``-th use of ``key`` inside it.
+
+    Returns ``(key, fired, outcome)``: whether ``action`` ran, and what the call
+    returned or raised.
+    """
+    state = {"armed": True, "remaining": index, "fired": False}
+
+    def tripwire():
+        if not state["armed"] or state["fired"]:
+            return
+        state["remaining"] -= 1
+        if state["remaining"] == 0:
+            state["fired"] = True
+            action(key)
+
+    key = _TripwireUUID(tripwire)
+    try:
+        outcome = register(key)
+    except Exception as e:  # the outcome under test
+        outcome = e
+    finally:
+        state["armed"] = False
+    return key, state["fired"], outcome
+
+
+def _run_interrupted_registration(mr_type, device, alloc_handle, case, shared_handle, index):
+    """Register one UUID with an import that is interrupted at the ``index``-th use of the key.
+
+    Returns whether the interruption happened. ``case`` is what the
+    interruption does: ``keep`` registers the same UUID with another import,
+    ``close`` does that and then closes the winner, and ``fail`` raises.
+    """
+    with contextlib.ExitStack() as stack:
+        first = _enter_import(stack, mr_type, device, int(alloc_handle))
+        # Two imports share a handle only when one is built from the other's
+        # handle, which carries no UUID until one of them registers.
+        second_source = first.allocation_handle if shared_handle else int(alloc_handle)
+        second = _enter_import(stack, mr_type, device, second_source)
+        assert (second.allocation_handle is first.allocation_handle) == shared_handle
+        nested = []
+
+        def interrupt(key):
+            if case == "fail":
+                raise MemoryError("simulated failure at a use of the key")
+            nested.append(second.register(key))
+            if case == "close":
+                second.close()
+
+        key, fired, outcome = _register_interrupted_at(index, first.register, interrupt)
+
+        if not fired:
+            assert outcome is first
+            return False
+        if case == "fail":
+            assert isinstance(outcome, MemoryError)
+            # The failed call must leave the resource as it was.
+            assert first.uuid is None
+            with pytest.raises(RuntimeError, match="was not found"):
+                mr_type.from_registry(key)
+            other = uuid.uuid4()
+            assert first.register(other) is first
+            assert first.uuid == other
+            return True
+        (winner,) = nested
+        if case == "keep":
+            assert winner.uuid == key
+            assert outcome is winner
+            assert mr_type.from_registry(key) is winner
+        else:
+            # The call found the closed winner, as it would for any closed hit.
+            assert outcome is winner or isinstance(outcome, RuntimeError)
+        return True
+
+
+def child_register_interrupted_at_every_key_use(mr_type, alloc_handle, case, shared_handle):
+    with _child_device() as (device, _baseline):
+        index = 1
+        while _run_interrupted_registration(mr_type, device, alloc_handle, case, shared_handle, index):
+            index += 1
+        # Without a first interruption the sweep would prove nothing.
+        assert index > 1, "the registration never used its key"
+
+
+def child_dead_registry_entry_is_removed(mr_type, alloc_handle):
+    with _child_device() as (device, _baseline), contextlib.ExitStack() as stack:
+        key = uuid.uuid4()
+        dead = import_pool_resource(mr_type, device, int(alloc_handle))
+        assert dead.register(key) is dead
+        dead.close()
+        del dead
+        with pytest.raises(RuntimeError, match="was not found"):
+            mr_type.from_registry(key)
+
+        # The UUID is free again for another import.
+        successor = _enter_import(stack, mr_type, device, int(alloc_handle))
+        assert successor.register(key) is successor
+        assert mr_type.from_registry(key) is successor
+
 
 def _import_concurrently(mr_type, device, alloc_handle):
     barrier = threading.Barrier(THREADS)
@@ -383,6 +545,24 @@ class TestIpcPoolDuplicateImport:
     def test_registration_reentered_from_garbage_collection(self, ipc_device, pool_resource):
         ipc_device.set_current()
         run_child(child_register_reentered_by_gc, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    @pytest.mark.parametrize("shared_handle", [False, True], ids=["separate_handles", "shared_handle"])
+    @pytest.mark.parametrize("case", ["keep", "close", "fail"])
+    def test_registration_interrupted_at_every_use_of_its_key(self, ipc_device, pool_resource, case, shared_handle):
+        ipc_device.set_current()
+        run_child(
+            child_register_interrupted_at_every_key_use,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            case,
+            shared_handle,
+        )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_registry_entry_of_a_dropped_resource_is_removed(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_dead_registry_entry_is_removed, type(pool_resource), pool_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):
