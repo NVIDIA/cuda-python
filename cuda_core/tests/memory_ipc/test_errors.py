@@ -136,14 +136,16 @@ def test_register_rejects_mismatched_uuid(ipc_memory_resource):
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-2")
-def test_register_keeps_the_uuid_object_the_resource_already_has(ipc_memory_resource):
+def test_register_keeps_the_uuid_object_the_resource_already_has(ipc_memory_resource_factory):
     """register() under an equal UUID keeps the UUID object the resource already has.
 
     The UUID of an allocation handle is read without a lock. Replacing the
     object would release the old one while another thread may be taking a
     reference to it, which is a use-after-free on a free-threaded build.
     """
-    mr = ipc_memory_resource
+    # A resource of its own: pytest-run-parallel shares fixtures between its
+    # threads, and another thread could register a shared resource first.
+    mr = ipc_memory_resource_factory()
     if not is_pool_resource(mr):
         pytest.skip("allocation handles and the registry are pool-only")
 
