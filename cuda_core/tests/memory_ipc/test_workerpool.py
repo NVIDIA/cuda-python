@@ -1,12 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import multiprocessing as mp
 import pickle
 from itertools import cycle
 
 import pytest
 from helpers.buffers import PatternGen
+from helpers.memory import drain_on_exit
 
 from cuda.core import Buffer, Device, VirtualMemoryResource
 
@@ -56,10 +58,12 @@ class TestIpcWorkerPool:
         device = Device(buffer.memory_resource.device_id)
         device.set_current()
         stream = device.default_stream
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        pgen.fill_buffer(buffer, seed=True)
-        buffer.close()
-        stream.sync()
+        # Drain the import's free after the buffer closes, also if the fill fails.
+        with contextlib.ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            stack.enter_context(buffer)
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.fill_buffer(buffer, seed=True)
 
 
 class TestIpcWorkerPoolUsingIPCDescriptors:
@@ -106,11 +110,11 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         device = Device(mr.device_id)
         device.set_current()
         stream = device.default_stream
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc, stream=stream)
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        pgen.fill_buffer(buffer, seed=True)
-        buffer.close()
-        stream.sync()
+        with contextlib.ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            buffer = stack.enter_context(Buffer.from_ipc_descriptor(mr, buffer_desc, stream=stream))
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.fill_buffer(buffer, seed=True)
 
 
 class TestIpcWorkerPoolUsingRegistry:
@@ -158,9 +162,9 @@ class TestIpcWorkerPoolUsingRegistry:
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
-        buffer = pickle.loads(buffer_s)  # noqa: S301
         stream = device.default_stream
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        pgen.fill_buffer(buffer, seed=True)
-        buffer.close()
-        stream.sync()
+        with contextlib.ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            buffer = stack.enter_context(pickle.loads(buffer_s))  # noqa: S301
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.fill_buffer(buffer, seed=True)

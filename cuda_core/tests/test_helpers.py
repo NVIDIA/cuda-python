@@ -6,6 +6,7 @@ import ctypes
 import os
 import pathlib
 import sys
+import threading
 import time
 import types
 from contextlib import closing
@@ -16,6 +17,7 @@ from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buff
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 from helpers.memory import create_managed_memory_resource_or_skip
+from helpers.misc import run_in_threads
 from helpers.oom_diagnostics import (
     DEFAULT_FILENAME,
     OOM_MARKER,
@@ -675,3 +677,109 @@ def test_managed_mr_helper_constructs_when_pool_is_usable(monkeypatch, concurren
     factory = _patch_managed_mr_factory(monkeypatch, concurrent_managed_access)
     assert create_managed_memory_resource_or_skip(*args, **kwargs) is factory.return_value
     factory.assert_called_once_with(*args, **kwargs)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_reraises_a_failure_after_joining_every_thread():
+    finished = threading.Event()
+
+    def fails():
+        raise ValueError("worker failed")
+
+    def finishes():
+        time.sleep(0.05)
+        finished.set()
+
+    with pytest.raises(ValueError, match="worker failed"):
+        run_in_threads([fails, finishes])
+    assert finished.is_set()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_aborts_the_barrier_for_the_waiting_threads():
+    barrier = threading.Barrier(3)
+
+    def fails():
+        raise ValueError("before the barrier")
+
+    try:
+        # The waiting threads raise BrokenBarrierError, but the original failure is re-raised.
+        with pytest.raises(ValueError, match="before the barrier"):
+            run_in_threads([fails, barrier.wait, barrier.wait], barrier=barrier, timeout=10)
+        assert barrier.broken
+    finally:
+        # Release threads still waiting if the helper did not, so the process can exit.
+        barrier.abort()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_reports_a_thread_that_does_not_finish():
+    release = threading.Event()
+    try:
+        with pytest.raises(TimeoutError, match="still running"):
+            run_in_threads([lambda: release.wait(30)], timeout=0.1)
+    finally:
+        release.set()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_reports_a_stuck_thread_before_another_threads_failure():
+    release = threading.Event()
+
+    def fails():
+        raise ValueError("worker failed")
+
+    try:
+        with pytest.raises(TimeoutError, match="still running") as excinfo:
+            run_in_threads([fails, lambda: release.wait(30)], timeout=0.2)
+        assert isinstance(excinfo.value.__cause__, ValueError)
+    finally:
+        release.set()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_aborts_the_barrier_when_a_thread_times_out():
+    barrier = threading.Barrier(2)
+    waiters = []
+    after_wait = []
+
+    def wait_at_barrier():
+        waiters.append(threading.current_thread())
+        barrier.wait()
+        after_wait.append(True)
+
+    try:
+        # The second party never arrives, so the first worker would block forever.
+        with pytest.raises(TimeoutError, match="still running"):
+            run_in_threads([wait_at_barrier, lambda: None], barrier=barrier, timeout=0.2)
+        waiters[0].join(10)
+        assert not waiters[0].is_alive()
+        assert after_wait == []
+    finally:
+        # Release the waiter if the helper did not, so the process can exit.
+        barrier.abort()
+
+
+@pytest.mark.thread_unsafe(reason="patches threading.Thread.start")
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_aborts_the_barrier_when_a_thread_fails_to_start(monkeypatch):
+    barrier = threading.Barrier(2)
+    real_start = threading.Thread.start
+    started = []
+
+    def start(self):
+        if started:
+            raise RuntimeError("cannot start")
+        started.append(self)
+        real_start(self)
+
+    monkeypatch.setattr(threading.Thread, "start", start)
+    try:
+        # The started thread would otherwise wait at the barrier for a thread that never starts.
+        with pytest.raises(RuntimeError, match="cannot start"):
+            run_in_threads([barrier.wait, barrier.wait], barrier=barrier, timeout=10)
+        assert barrier.broken
+        assert not started[0].is_alive()
+    finally:
+        # Release the started thread if the helper did not, so the process can exit.
+        barrier.abort()

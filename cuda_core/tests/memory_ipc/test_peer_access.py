@@ -105,43 +105,45 @@ class TestBufferPeerAccessAfterImport:
         mr.close()
 
     def child_main(self, mr, buffer):
-        # Verify MR and buffer are mapped
-        Device(1).set_current()
-        assert mr.is_mapped is True
-        assert buffer.is_mapped is True
-        assert mr.device_id == 1
-        assert buffer.device_id == 1
-
-        # Test 1: Buffer accessible from resident device (dev1) - should always work
         dev1 = Device(1)
-        dev1.set_current()
-        stream1 = dev1.default_stream
-        PatternGen(dev1, NBYTES, stream=stream1).verify_buffer(buffer, seed=False)
+        try:
+            # Verify MR and buffer are mapped
+            dev1.set_current()
+            assert mr.is_mapped is True
+            assert buffer.is_mapped is True
+            assert mr.device_id == 1
+            assert buffer.device_id == 1
 
-        # Test 2: Buffer NOT accessible from dev0 initially (peer access not preserved)
-        dev0 = Device(0)
-        dev0.set_current()
-        stream0 = dev0.default_stream
-        with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
+            # Test 1: Buffer accessible from resident device (dev1) - should always work
+            stream1 = dev1.default_stream
+            PatternGen(dev1, NBYTES, stream=stream1).verify_buffer(buffer, seed=False)
+
+            # Test 2: Buffer NOT accessible from dev0 initially (peer access not preserved)
+            dev0 = Device(0)
+            dev0.set_current()
+            stream0 = dev0.default_stream
+            with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
+                PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
+
+            # Test 3: Set peer access and verify buffer becomes accessible
+            dev1.set_current()
+            mr.peer_accessible_by = [0]
+            assert mr.peer_accessible_by == {dev0}
+            dev0.set_current()
             PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
 
-        # Test 3: Set peer access and verify buffer becomes accessible
-        dev1.set_current()
-        mr.peer_accessible_by = [0]
-        assert mr.peer_accessible_by == {dev0}
-        dev0.set_current()
-        PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
-
-        # Test 4: Revoke peer access and verify buffer becomes inaccessible
-        dev1.set_current()
-        mr.peer_accessible_by = []
-        assert mr.peer_accessible_by == set()
-        dev0.set_current()
-        with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
-            PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
-
-        dev1.set_current()
-        buffer.close()
-        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
-        dev1.sync()
-        mr.close()
+            # Test 4: Revoke peer access and verify buffer becomes inaccessible
+            dev1.set_current()
+            mr.peer_accessible_by = []
+            assert mr.peer_accessible_by == set()
+            dev0.set_current()
+            with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
+                PatternGen(dev0, NBYTES, stream=stream0).verify_buffer(buffer, seed=False)
+        finally:
+            # Also when a check failed: unpickling bound the buffer's free to
+            # dev1, so close and drain it there before the exporter frees it.
+            dev1.set_current()
+            buffer.close()
+            # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+            dev1.sync()
+            mr.close()

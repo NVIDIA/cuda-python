@@ -13,6 +13,7 @@ last of them is released.
 """
 
 import contextlib
+import functools
 import gc
 import multiprocessing as mp
 import threading
@@ -24,7 +25,14 @@ import pytest
 from helpers.child_processes import child_timeout_sec, run_child
 from helpers.contexts import assert_no_cuda_warning
 from helpers.latch import LatchKernel
-from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
+from helpers.memory import (
+    drain_on_exit,
+    enter_imported_pool,
+    import_pool_resource,
+    is_pool_resource,
+    pool_access_flags,
+)
+from helpers.misc import run_in_threads
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
@@ -44,19 +52,6 @@ REENTRY_ITERATIONS = 20
 pytestmark = pytest.mark.parallel_threads_limit(2)
 
 
-def _enter_import(stack, mr_type, device, alloc_handle):
-    """Import the pool for ``alloc_handle`` and register it to close on ``stack``."""
-    return stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, alloc_handle)))
-
-
-def _run_threads(threads):
-    """Start every thread, then join every thread."""
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
-
-
 @contextlib.contextmanager
 def _child_device():
     """Set the child's current device, and assert the owned-pool count returns to its baseline."""
@@ -69,8 +64,8 @@ def _child_device():
 
 def _import_twice(stack, mr_type, device, alloc_handle):
     # A raw file descriptor carries no UUID, so the registry cannot dedupe.
-    first = _enter_import(stack, mr_type, device, int(alloc_handle))
-    second = _enter_import(stack, mr_type, device, int(alloc_handle))
+    first = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+    second = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
     assert first is not second
     assert int(first.handle) == int(second.handle)
     return first, second
@@ -78,11 +73,10 @@ def _import_twice(stack, mr_type, device, alloc_handle):
 
 def child_close_one_import(mr_type, alloc_handle, descriptor):
     # The stack closes the buffer, then both resources; the first is closed
-    # early on purpose, and closing it again is a no-op. It drains the stream
-    # last, so the imported free completes before the exporter frees its buffer.
+    # early on purpose, and closing it again is a no-op.
     with _child_device() as (device, baseline), contextlib.ExitStack() as stack:
         stream = device.default_stream
-        stack.callback(stream.sync)
+        drain_on_exit(stack, stream)
         first, second = _import_twice(stack, mr_type, device, alloc_handle)
         assert _live_owned_mempool_count() == baseline + 1
 
@@ -96,11 +90,10 @@ def child_close_one_import(mr_type, alloc_handle, descriptor):
 
 def child_close_both_imports_with_outstanding_buffer(mr_type, alloc_handle, descriptor):
     # The closes below are the sequence under test; the stack repeats them as
-    # no-ops, and releases whatever a failed assertion leaves open. It drains the
-    # stream last, so a failure partway still completes the imported frees.
+    # no-ops, and releases whatever a failed assertion leaves open.
     with _child_device() as (device, baseline), assert_no_cuda_warning(), contextlib.ExitStack() as stack:
         stream = device.default_stream
-        stack.callback(stream.sync)
+        drain_on_exit(stack, stream)
         first, second = _import_twice(stack, mr_type, device, alloc_handle)
         assert _live_owned_mempool_count() == baseline + 1
         # The buffer keeps the pool alive after both resources are closed.
@@ -128,7 +121,7 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
     # stream after it has synchronized the pending frees.
     with contextlib.ExitStack() as stack:
         stack.enter_context(contextlib.closing(stream))
-        stack.callback(stream.sync)
+        drain_on_exit(stack, stream)
 
         # The buffer holds the last reference to the pool once its resource is
         # closed, so closing the buffer releases the pool.
@@ -139,39 +132,30 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
         barrier = threading.Barrier(2)
         reimported = []
         reimported_buffers = []
-        errors = []
 
         def release():
-            try:
-                barrier.wait()
-                outstanding.close()
-            except Exception as e:
-                errors.append(e)
-                barrier.abort()
+            barrier.wait()
+            outstanding.close()
 
         def reimport():
-            try:
-                Device().set_current()
-                barrier.wait()
-                # Start once the release is under way, inside its delay.
-                time.sleep(RELEASE_DELAY_US / 4 / 1e6)
-                # A raw file descriptor carries no UUID, so this is a real import,
-                # through an object the releasing thread never sees.
-                mr = import_pool_resource(mr_type, device, int(alloc_handle))
-                reimported.append(mr)
-                reimported_buffers.append(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
-            except Exception as e:
-                errors.append(e)
-                barrier.abort()
+            Device().set_current()
+            barrier.wait()
+            # Start once the release is under way, inside its delay.
+            time.sleep(RELEASE_DELAY_US / 4 / 1e6)
+            # A raw file descriptor carries no UUID, so this is a real import,
+            # through an object the releasing thread never sees.
+            mr = import_pool_resource(mr_type, device, int(alloc_handle))
+            reimported.append(mr)
+            reimported_buffers.append(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
 
-        _run_threads([threading.Thread(target=release), threading.Thread(target=reimport)])
-        # Own whatever the thread made before looking at its errors.
-        for mr in reimported:
-            stack.enter_context(contextlib.closing(mr))
-        for buffer in reimported_buffers:
-            stack.enter_context(buffer)
-        if errors:
-            raise errors[0]
+        try:
+            run_in_threads([release, reimport], barrier=barrier)
+        finally:
+            # Own whatever the thread made, also when a thread failed.
+            for mr in reimported:
+                stack.enter_context(contextlib.closing(mr))
+            for buffer in reimported_buffers:
+                stack.enter_context(buffer)
 
         # The release has finished: its cleanup must have left the new import alone.
         (mr,) = reimported
@@ -195,7 +179,7 @@ def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
 def child_register_reentered_by_gc(mr_type, alloc_handle):
     # The stack closes the imports, then the nested resource.
     with _child_device() as (device, _baseline), contextlib.ExitStack() as stack:
-        nested = _enter_import(stack, mr_type, device, int(alloc_handle))
+        nested = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
         nested_uuid = uuid.uuid4()
         nested.register(nested_uuid)
 
@@ -212,7 +196,7 @@ def child_register_reentered_by_gc(mr_type, alloc_handle):
             gc.set_threshold(1)
             for _ in range(REENTRY_ITERATIONS):
                 # A raw file descriptor carries no UUID, so each import registers a new one.
-                mr = _enter_import(stack, mr_type, device, int(alloc_handle))
+                mr = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
                 assert mr.register(uuid.uuid4()) is mr
         finally:
             gc.set_threshold(*threshold)
@@ -222,24 +206,20 @@ def child_register_reentered_by_gc(mr_type, alloc_handle):
 def _import_concurrently(mr_type, device, alloc_handle):
     barrier = threading.Barrier(THREADS)
     results = [None] * THREADS
-    errors = []
 
     def importer(index):
-        try:
-            Device().set_current()
-            barrier.wait()
-            results[index] = import_pool_resource(mr_type, device, alloc_handle)
-        except Exception as e:
-            errors.append(e)
-            barrier.abort()
+        Device().set_current()
+        barrier.wait()
+        results[index] = import_pool_resource(mr_type, device, alloc_handle)
 
-    _run_threads([threading.Thread(target=importer, args=(i,)) for i in range(THREADS)])
-    if errors:
+    try:
+        run_in_threads([functools.partial(importer, i) for i in range(THREADS)], barrier=barrier)
+    except BaseException:
         # The imports that succeeded would otherwise stay open.
         for mr in results:
             if mr is not None:
                 mr.close()
-        raise errors[0]
+        raise
     return results
 
 
@@ -266,10 +246,10 @@ def child_concurrent_uuid_imports(mr_type, alloc_handle):
 def _import_by_path(stack, import_path, mr_type, device, alloc_handle):
     """Import the pool as ``import_path`` names; ``stack`` closes every resource the import made."""
     if import_path == "single":
-        return [_enter_import(stack, mr_type, device, alloc_handle)]
+        return [enter_imported_pool(stack, mr_type, device, alloc_handle)]
     if import_path == "raw_handle":
         # A raw file descriptor carries no UUID, so each import is a real import.
-        return [_enter_import(stack, mr_type, device, int(alloc_handle)) for _ in range(THREADS)]
+        return [enter_imported_pool(stack, mr_type, device, int(alloc_handle)) for _ in range(THREADS)]
     assert import_path == "concurrent_uuid", import_path
     return [stack.enter_context(contextlib.closing(mr)) for mr in _import_concurrently(mr_type, device, alloc_handle)]
 
@@ -318,10 +298,8 @@ def child_reimport_after_release_with_pending_free(mr_type, alloc_handle, descri
         # latch can release itself and let the free retire unobserved.
         latch = LatchKernel(device, timeout_sec=4 * child_timeout_sec())
         stack.callback(latch.close)
-        # On every path, release the latch and then drain the stream: the
-        # imported frees must complete before the exporter frees its allocation,
-        # and a held latch would stall the drain.
-        stack.callback(stream.sync)
+        drain_on_exit(stack, stream)
+        # Registered after the drain so that it runs first: a held latch would stall the drain.
         stack.callback(latch.release)
         _release_import_holding_free(import_path, mr_type, device, alloc_handle, descriptor, stream, latch)
         _reimport_and_check_grant(import_path, mr_type, device, alloc_handle, descriptor, stream, latch)
