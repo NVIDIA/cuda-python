@@ -49,10 +49,11 @@ def run_in_threads(targets, *, barrier=None, timeout=None):
     finally:
         for thread in started:
             thread.join(timeout)
+    # Check liveness before reading ``errors``: a thread that has exited has already recorded its failure.
+    running = [thread.name for thread in started if thread.is_alive()]
     failure = (
         next((e for e in errors if not isinstance(e, threading.BrokenBarrierError)), errors[0]) if errors else None
     )
-    running = [thread.name for thread in started if thread.is_alive()]
     if running:
         if barrier is not None:
             barrier.abort()
