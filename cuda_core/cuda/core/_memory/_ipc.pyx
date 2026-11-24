@@ -55,7 +55,9 @@ cdef dict registry = {}
 # drop resources on this thread. That includes hashing or comparing a
 # uuid.UUID, calling a WeakValueDictionary method, raising, and dropping the
 # last reference to a resource. Anything that can run Python goes before
-# the lock, and errors are raised after it is released.
+# the lock, and errors are raised after it is released. One exception remains:
+# if the insertion fails (for example with MemoryError), building the traceback
+# allocates objects, which on Python 3.11 can start a collection under the lock.
 cdef object _registry_lock = threading.RLock()
 
 
