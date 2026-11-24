@@ -82,13 +82,15 @@ cdef bytes _registry_key(key):
     return key.bytes
 
 
+cdef inline _MemPool _registry_lookup_locked(bytes key):
+    """Return the live resource, or None. The caller must hold _registry_lock."""
+    ref = registry.get(key)
+    return None if ref is None else ref()
+
+
 cdef inline _MemPool _registry_lookup(bytes key):
-    """The live resource registered under ``key``, or None."""
-    # Takes the lock itself, so that no caller can read the registry without
-    # it. The lock is reentrant: MP_register calls this while holding it.
     with _registry_lock:
-        ref = registry.get(key)
-        return None if ref is None else ref()
+        return _registry_lookup_locked(key)
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
@@ -720,7 +722,8 @@ cdef _MemPool MP_register(_MemPool self, uuid):
         # UUID, and a nested registration cannot run between them because no
         # Python code runs here. See the comment at _registry_lock.
         with _registry_lock:
-            existing = _registry_lookup(key)
+            # Entering another lock scope here can allocate and trigger GC.
+            existing = _registry_lookup_locked(key)
             if existing is None and handle is not None:
                 # Imports can share one handle. If another registration gave it
                 # its UUID since it was read, validate again.
