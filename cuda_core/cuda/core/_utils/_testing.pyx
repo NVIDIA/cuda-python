@@ -201,7 +201,8 @@ cdef extern from *:
         CUmemoryPool pool = nullptr;
         std::chrono::duration<double> timeout{0};
         std::chrono::duration<double> grace{0};
-        bool entered = false;
+        bool entered = false;  // a release reached the gate since arming
+        bool held = false;     // that release is still blocked in the gate
         bool imported = false;
         bool opened = false;
         bool disarmed = false;
@@ -225,11 +226,14 @@ cdef extern from *:
             if (pool_release_gate_armed.load() && pool == gate.pool) {
                 pool_release_gate_armed.store(false);  // one-shot: later calls pass through
                 gate.entered = true;
+                gate.held = true;
                 gate.changed.notify_all();
                 gate.changed.wait_for(lock, gate.timeout, [&] { return gate.imported || gate.disarmed; });
                 if (gate.imported) {
                     gate.changed.wait_for(lock, gate.grace, [&] { return gate.opened || gate.disarmed; });
                 }
+                // The release proceeds: a later import did not overlap it.
+                gate.held = false;
             }
         }
         return real_mempool_set_access.load()(pool, map, count);
@@ -249,7 +253,7 @@ cdef extern from *:
             PoolReleaseGate &gate = pool_release_gate();
             std::lock_guard<std::mutex> lock(gate.mutex);
             // Only an import made while the release is held counts.
-            if (gate.entered && !gate.disarmed && *pool == gate.pool) {
+            if (gate.held && !gate.disarmed && *pool == gate.pool) {
                 gate.imported = true;
                 gate.changed.notify_all();
             }
@@ -268,6 +272,7 @@ cdef extern from *:
         gate.timeout = std::chrono::duration<double>(timeout_sec);
         gate.grace = std::chrono::duration<double>(grace_sec);
         gate.entered = false;
+        gate.held = false;
         gate.imported = false;
         gate.opened = false;
         gate.disarmed = false;
