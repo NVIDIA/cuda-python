@@ -19,6 +19,8 @@ from helpers.child_processes import run_child
 from helpers.constants import POOL_SIZE
 from helpers.contexts import assert_no_cuda_warning
 from helpers.memory import (
+    drain_on_exit,
+    enter_imported_pool,
     import_pool_resource,
     is_pool_resource,
     pool_access_flags,
@@ -87,12 +89,11 @@ def child_mismatched_import_raises(mr_type, alloc_handle, descriptor):
     assert _live_owned_mempool_count() == baseline
 
     # The rejected imports did not register the UUID, so the matching class imports it.
-    mr = import_pool_resource(mr_type, device, alloc_handle)
-    buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
-    buffer.fill(7, stream=stream)
-    stream.sync()
-    buffer.close()
-    mr.close()
+    with contextlib.ExitStack() as stack:
+        drain_on_exit(stack, stream)
+        mr = enter_imported_pool(stack, mr_type, device, alloc_handle)
+        buffer = stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
+        buffer.fill(7, stream=stream)
     assert _live_owned_mempool_count() == baseline
 
 
@@ -104,22 +105,23 @@ def child_rejected_import_keeps_existing_import(mr_type, alloc_handle, descripto
     # The driver returns the same pool for every import in a process, so the
     # rejected import must not destroy the pool or revoke any device's access
     # to it, including peer access and while a buffer from it is alive.
-    mr = import_pool_resource(mr_type, device, int(alloc_handle))
-    if mr_type is DeviceMemoryResource:
-        mr.peer_accessible_by = [
-            dev for dev in Device.get_all_devices() if dev.device_id != device.device_id and dev.can_access_peer(device)
-        ]
-    buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
-    access = _access_by_device(mr)
-    assert access[device.device_id] == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    with contextlib.ExitStack() as stack:
+        drain_on_exit(stack, stream)
+        mr = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        if mr_type is DeviceMemoryResource:
+            mr.peer_accessible_by = [
+                dev
+                for dev in Device.get_all_devices()
+                if dev.device_id != device.device_id and dev.can_access_peer(device)
+            ]
+        buffer = stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
+        access = _access_by_device(mr)
+        assert access[device.device_id] == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
 
-    _assert_import_raises(mr_type, device, int(alloc_handle))
-    assert _access_by_device(mr) == access
+        _assert_import_raises(mr_type, device, int(alloc_handle))
+        assert _access_by_device(mr) == access
 
-    buffer.fill(7, stream=stream)
-    stream.sync()
-    buffer.close()
-    mr.close()
+        buffer.fill(7, stream=stream)
 
 
 def child_imported_numa_id(alloc_handle, numa_id):
@@ -134,18 +136,16 @@ def child_matching_import(mr_type, alloc_handle, descriptor):
     device.set_current()
     stream = device.default_stream
 
-    # The raw file descriptor and the IPCAllocationHandle are the two import paths.
-    from_fd = import_pool_resource(mr_type, device, int(alloc_handle))
-    from_handle = import_pool_resource(mr_type, device, alloc_handle)
-    assert isinstance(from_fd, mr_type)
-    assert isinstance(from_handle, mr_type)
+    with contextlib.ExitStack() as stack:
+        drain_on_exit(stack, stream)
+        # The raw file descriptor and the IPCAllocationHandle are the two import paths.
+        from_fd = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        from_handle = enter_imported_pool(stack, mr_type, device, alloc_handle)
+        assert isinstance(from_fd, mr_type)
+        assert isinstance(from_handle, mr_type)
 
-    buffer = Buffer.from_ipc_descriptor(from_fd, descriptor, stream=stream)
-    buffer.fill(7, stream=stream)
-    stream.sync()
-    buffer.close()
-    from_fd.close()
-    from_handle.close()
+        buffer = stack.enter_context(Buffer.from_ipc_descriptor(from_fd, descriptor, stream=stream))
+        buffer.fill(7, stream=stream)
 
 
 def child_import_without_location_query(mr_type, alloc_handle, descriptor):
@@ -163,15 +163,14 @@ def child_import_without_location_query(mr_type, alloc_handle, descriptor):
     # runs the other class's initialization on the wrong kind of pool, which
     # can fail on some topologies (a pinned import of a device pool grants
     # every device access, which needs peer access; #3540).
-    mr = import_pool_resource(mr_type, device, int(alloc_handle))
-    if mr_type is PinnedMemoryResource:
-        # Without the location query the pool's node is unknown (see numa_id).
-        assert mr.numa_id == 0
-    buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
-    buffer.fill(7, stream=stream)
-    stream.sync()
-    buffer.close()
-    mr.close()
+    with contextlib.ExitStack() as stack:
+        drain_on_exit(stack, stream)
+        mr = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        if mr_type is PinnedMemoryResource:
+            # Without the location query the pool's node is unknown (see numa_id).
+            assert mr.numa_id == 0
+        buffer = stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
+        buffer.fill(7, stream=stream)
 
 
 class _IpcPoolFixtures:
