@@ -725,7 +725,7 @@ struct DiscardedIpcImport {
     static DiscardedIpcImport
     discard(CUdeviceptr ptr, const StreamHandle &h_stream) noexcept
     {
-        return {ptr, p_cuMemFreeAsync(ptr, as_cu(h_stream))};
+        return {ptr, p_cuMemFreeAsync(ptr, as_cu(h_stream))};  // raw: under the cache's mutex
     }
 
     void
@@ -783,7 +783,8 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         try {
             imported = ipc_ptr_cache.get_or_create(key, [&]() -> DevicePtrHandle {
                 CUdeviceptr ptr;
-                if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
+                if (CUDA_SUCCESS !=
+                    (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {  // raw: under the cache's mutex
                     return {};
                 }
                 // Without a recorded deallocation stream the import is
