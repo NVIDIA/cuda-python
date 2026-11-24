@@ -119,6 +119,11 @@ Follow these rules when adding or moving shared test code:
   when the test needs to communicate with a running child or inspect its lifetime;
   use `kill_subprocesses` before assertions and `track_child_processes` for
   fixture cleanup so a stuck child cannot block IPC resource teardown.
+- Run worker threads with `run_in_threads` from `helpers.misc` instead of
+  hand-written start/join loops. An exception in a thread otherwise only ends
+  that thread and the test can pass. The helper re-raises the first failure,
+  aborts a shared `threading.Barrier` so the other workers do not hang, and
+  with `timeout` fails on a thread that does not finish.
 - Use the skip guards in `helpers/memory.py` instead of per-module copies:
   `skip_if_mempool_unsupported`, `skip_if_managed_mempool_unsupported` (a
   property check only; it never constructs a managed resource),

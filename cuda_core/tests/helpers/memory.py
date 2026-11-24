@@ -3,6 +3,8 @@
 
 """Memory-related test helpers (skip guards and resource factories)."""
 
+import contextlib
+
 import pytest
 
 from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
@@ -87,6 +89,27 @@ def pool_supported_devices(mr_type, device):
         return [d for d in Device.get_all_devices() if d.properties.host_numa_memory_pools_supported]
     assert mr_type is DeviceMemoryResource, mr_type
     return [device]
+
+
+def drain_on_exit(stack, synchronizable):
+    """Make ``stack`` synchronize ``synchronizable`` (a stream or a device) when it closes.
+
+    Closing a buffer imported from a memory pool enqueues a stream-ordered
+    ``cuMemFreeAsync``, and the importer's free must complete before the
+    exporter frees the allocation. Call this before entering the imported
+    buffers on ``stack``: an ExitStack unwinds in reverse, so the sync then runs
+    after they close, also when the body raises.
+    """
+    stack.callback(synchronizable.sync)
+
+
+def enter_imported_pool(stack, cls, device, alloc_handle):
+    """Import the pool like :func:`import_pool_resource`, and register it to close on ``stack``.
+
+    ``stack`` is a :class:`contextlib.ExitStack`. A pool resource is not a
+    context manager, so it is entered through :func:`contextlib.closing`.
+    """
+    return stack.enter_context(contextlib.closing(import_pool_resource(cls, device, alloc_handle)))
 
 
 def pool_access_flags(mr, device):

@@ -269,6 +269,9 @@ class ChildErrorHarness:
             exc_info = type(e), str(e)
         else:
             exc_info = None, None
+        # An import rejected after mapping (an oversized descriptor) enqueues the
+        # free of its mapping; drain it before the exporter frees its allocation.
+        self.device.sync()
         pipe[1].put(exc_info)
 
 

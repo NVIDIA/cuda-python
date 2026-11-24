@@ -1,12 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import multiprocessing as mp
 from itertools import cycle
 
 import pytest
 from helpers.buffers import PatternGen
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.memory import drain_on_exit
 
 from cuda.core import Device, VirtualMemoryResource
 
@@ -63,12 +65,14 @@ class TestIpcSendBuffers:
     def child_main(self, device, buffers):
         device.set_current()
         stream = device.default_stream
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        for buffer in buffers:
-            pgen.verify_buffer(buffer, seed=False)
-            pgen.fill_buffer(buffer, seed=True)
-            buffer.close()
-        stream.sync()
+        with contextlib.ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            for buffer in buffers:
+                stack.enter_context(buffer)
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            for buffer in buffers:
+                pgen.verify_buffer(buffer, seed=False)
+                pgen.fill_buffer(buffer, seed=True)
 
 
 class TestIpcReexport:
