@@ -49,15 +49,20 @@ __all__ = []
 # Maps uuid.UUID.bytes to a weakref.KeyedRef of the registered resource. The key
 # is bytes so that the dict hashes and compares it in C, without running Python.
 cdef dict registry = {}
-# Serializes registry writes (MP_register and the removal of dead entries).
-# Reads do not take it. No Python code may run while it is held: a collection
-# can start in Python code, and its callbacks and finalizers can register or
-# drop resources on this thread. That includes hashing or comparing a
-# uuid.UUID, calling a WeakValueDictionary method, raising, and dropping the
-# last reference to a resource. Anything that can run Python goes before
-# the lock, and errors are raised after it is released. One exception remains:
-# if the insertion fails (for example with MemoryError), building the traceback
-# allocates objects, which on Python 3.11 can start a collection under the lock.
+# Guards every access to the registry, reads included. Without the GIL a read
+# needs it for two reasons. Cython reads a typed dict through a borrowed
+# reference, which a concurrent removal can free before the read takes its own
+# reference. And a registration inserts the entry and then sets the handle's
+# UUID, so a reader must not run between the two.
+#
+# No Python code may run while it is held: a collection can start in Python
+# code, and its callbacks and finalizers can register or drop resources on this
+# thread. That includes hashing or comparing a uuid.UUID, calling a
+# WeakValueDictionary method, raising, and dropping the last reference to a
+# resource. Anything that can run Python goes before the lock, and errors are
+# raised after it is released. One exception remains: if the insertion fails
+# (for example with MemoryError), building the traceback allocates objects,
+# which on Python 3.11 can start a collection under the lock.
 cdef object _registry_lock = threading.RLock()
 
 
@@ -79,8 +84,11 @@ cdef bytes _registry_key(key):
 
 cdef inline _MemPool _registry_lookup(bytes key):
     """The live resource registered under ``key``, or None."""
-    ref = registry.get(key)
-    return None if ref is None else ref()
+    # Takes the lock itself, so that no caller can read the registry without
+    # it. The lock is reentrant: MP_register calls this while holding it.
+    with _registry_lock:
+        ref = registry.get(key)
+        return None if ref is None else ref()
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \

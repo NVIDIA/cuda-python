@@ -38,6 +38,7 @@ ITERATIONS = 20
 RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
 REENTRY_ITERATIONS = 100
+LOOKUP_RACE_SECONDS = 0.5
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -407,6 +408,65 @@ def child_shared_handle_keeps_its_uuid_object(mr_type, alloc_handle):
         assert mr_type.from_registry(equal) is second
 
 
+def child_lookups_race_registrations(mr_type, alloc_handle):
+    # Lookups run against registrations and against the removal of dead
+    # entries. Without the GIL, a lookup outside the registry lock could use a
+    # removed entry after it was freed, or find a resource whose UUID was not
+    # set yet. With the GIL neither can happen, and this test only checks
+    # that the lookups succeed. The test runs for a fixed time rather than a
+    # fixed number of registrations: with the GIL, the lookups leave the
+    # registering thread little time to run.
+    with _child_device() as (device, _baseline):
+        key = uuid.uuid4()
+        fd = int(alloc_handle)
+        barrier = threading.Barrier(THREADS + 1)
+        done = threading.Event()
+        errors = []
+
+        def register():
+            try:
+                Device().set_current()
+                barrier.wait()
+                deadline = time.monotonic() + LOOKUP_RACE_SECONDS
+                while not done.is_set() and time.monotonic() < deadline:
+                    # A raw file descriptor carries no UUID, so every import is
+                    # a new resource with a handle of its own.
+                    mr = import_pool_resource(mr_type, device, fd)
+                    mr.register(key)
+                    # Removes the entry, unless a lookup holds the resource.
+                    del mr
+            except Exception as e:
+                errors.append(e)
+                barrier.abort()
+            finally:
+                done.set()
+
+        def look_up():
+            try:
+                Device().set_current()
+                barrier.wait()
+                while not done.is_set():
+                    try:
+                        mr = mr_type.from_registry(key)
+                    except RuntimeError as e:
+                        if "was not found" not in str(e):
+                            raise
+                        continue
+                    assert mr.uuid is key
+                    # Holding it would keep its entry from being removed.
+                    del mr
+            except Exception as e:
+                errors.append(e)
+                barrier.abort()
+                done.set()
+
+        threads = [threading.Thread(target=register)]
+        threads += [threading.Thread(target=look_up) for _ in range(THREADS)]
+        _run_threads(threads)
+        if errors:
+            raise errors[0]
+
+
 def _import_concurrently(mr_type, device, alloc_handle):
     barrier = threading.Barrier(THREADS)
     results = [None] * THREADS
@@ -591,6 +651,11 @@ class TestIpcPoolDuplicateImport:
     def test_shared_handle_keeps_its_uuid_object_after_its_first_owner(self, ipc_device, pool_resource):
         ipc_device.set_current()
         run_child(child_shared_handle_keeps_its_uuid_object, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_lookups_racing_registrations_find_registered_resources(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_lookups_race_registrations, type(pool_resource), pool_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):
