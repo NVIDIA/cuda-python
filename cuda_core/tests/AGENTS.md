@@ -167,13 +167,19 @@ To make a hard-to-reach path testable, use the first option that works:
    declared in a `.pxd`. Extend it rather than adding a module.
 4. **Wrap a driver function.** To make a driver call fail or wait, add a
    wrapper to the driver function wrappers in `_testing.pyx`; see
-   `set_context_restore_fault` and `set_mempool_set_access_delay`. Write the
+   `set_context_restore_fault` and `arm_pool_release_gate`. Write the
    wrapper in C++ in the inline block: it can run without the GIL, from any
    thread, and during interpreter shutdown. When disarmed it must only check
    an atomic or a thread-local and then call the driver. Its setter must call
    `_require_driver_fn_wrappers()` when arming. `conftest.py` installs the
    wrappers for the session, but a spawned child does not run `conftest.py`
    and must call `install_driver_fn_wrappers()` before its first driver call.
+   To make two threads overlap, block one wrapper until another wrapper
+   observes the event it waits for, as `arm_pool_release_gate` does, instead
+   of sleeping for a fixed time; bound each wait with a timeout and assert
+   afterwards that the event, not the timeout, ended it. Then temporarily
+   revert the fix the test guards and confirm the test fails: proving the
+   overlap does not prove the test can see the bug.
 
 If none of these works, raise it in review before adding a hook, and explain
 why. `_capture_callback_with_tail_failure_for_testing` in

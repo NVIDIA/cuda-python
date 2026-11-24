@@ -36,8 +36,10 @@ fills once per process, on its first driver call, from
 stores test wrappers for selected entries. Each wrapper calls the real driver
 function unless a test arms it. Install the wrappers before ``cuda.core``'s
 first driver call in the process: conftest.py does so for the test session,
-and a spawned child must do so itself. The setters raise if the table was filled without the wrappers, so a
-test cannot silently run unarmed.
+and a spawned child must do so itself. The setters raise unless the table was
+filled with the wrappers, so a test cannot silently run unarmed. Arm a wrapper
+only after the process's first driver call through ``cuda.core``, for example
+after creating a device or a stream.
 """
 
 from libc.stdint cimport intptr_t
@@ -141,6 +143,8 @@ def weak_handle(obj):
     )
 
 
+# Keeps the ``_for_testing`` suffix because it shares its name with the cimported
+# ``attach_rollback_failure``, which this wrapper calls.
 def attach_rollback_failure_for_testing(int status):
     """Attach a failed CUDA call to the exception being handled, or report it.
 
@@ -157,10 +161,13 @@ cdef extern from *:
     """
     #include <atomic>
     #include <chrono>
+    #include <condition_variable>
     #include <cstdint>
-    #include <thread>
+    #include <mutex>
     #include <cuda.h>
-    namespace cuda_core_testing {
+    namespace cuda_core_test {
+    // The real pointers are atomic because the fill may run on two threads at
+    // once in a free-threaded build, and each run calls the wrap functions.
     using CtxSetCurrentFn = CUresult(CUDAAPI *)(CUcontext);
     static std::atomic<CtxSetCurrentFn> real_ctx_set_current{nullptr};
     static thread_local CUresult ctx_set_current_fault = CUDA_SUCCESS;
@@ -183,32 +190,126 @@ cdef extern from *:
         ctx_set_current_fault_target = target;
     }
 
+    // The pool release gate: the first cuMemPoolSetAccess on the target pool
+    // after arming blocks until an import returns that pool (or a timeout),
+    // then until the test opens the gate (or a grace period passes).
+    // Only the armed path touches the mutex; the gate is never destroyed, so a
+    // deleter that runs during process exit cannot reach a destroyed mutex.
+    struct PoolReleaseGate {
+        std::mutex mutex;
+        std::condition_variable changed;
+        CUmemoryPool pool = nullptr;
+        std::chrono::duration<double> timeout{0};
+        std::chrono::duration<double> grace{0};
+        bool entered = false;
+        bool imported = false;
+        bool opened = false;
+        bool disarmed = false;
+    };
+    static PoolReleaseGate &pool_release_gate() {
+        static PoolReleaseGate *gate = new PoolReleaseGate;
+        return *gate;
+    }
+    // Armed until the release enters the gate; watching until disarmed.
+    static std::atomic<bool> pool_release_gate_armed{false};
+    static std::atomic<bool> pool_release_gate_watching{false};
+
     using MemPoolSetAccessFn = CUresult(CUDAAPI *)(CUmemoryPool, const CUmemAccessDesc *, size_t);
     static std::atomic<MemPoolSetAccessFn> real_mempool_set_access{nullptr};
-    static std::atomic<unsigned int> mempool_set_access_delay_us{0};
 
-    static CUresult CUDAAPI delayed_mempool_set_access(
+    static CUresult CUDAAPI gated_mempool_set_access(
             CUmemoryPool pool, const CUmemAccessDesc *map, size_t count) {
-        if (unsigned int delay = mempool_set_access_delay_us.load()) {
-            std::this_thread::sleep_for(std::chrono::microseconds(delay));
+        if (pool_release_gate_armed.load()) {
+            PoolReleaseGate &gate = pool_release_gate();
+            std::unique_lock<std::mutex> lock(gate.mutex);
+            if (pool_release_gate_armed.load() && pool == gate.pool) {
+                pool_release_gate_armed.store(false);  // one-shot: later calls pass through
+                gate.entered = true;
+                gate.changed.notify_all();
+                gate.changed.wait_for(lock, gate.timeout, [&] { return gate.imported || gate.disarmed; });
+                if (gate.imported) {
+                    gate.changed.wait_for(lock, gate.grace, [&] { return gate.opened || gate.disarmed; });
+                }
+            }
         }
         return real_mempool_set_access.load()(pool, map, count);
     }
     static std::intptr_t wrap_mempool_set_access(std::intptr_t real) {
         real_mempool_set_access.store(reinterpret_cast<MemPoolSetAccessFn>(real));
-        return reinterpret_cast<std::intptr_t>(&delayed_mempool_set_access);
+        return reinterpret_cast<std::intptr_t>(&gated_mempool_set_access);
     }
-    static void set_mempool_set_access_delay(unsigned int microseconds) {
-        mempool_set_access_delay_us.store(microseconds);
+
+    using MemPoolImportFn = CUresult(CUDAAPI *)(CUmemoryPool *, void *, CUmemAllocationHandleType, unsigned long long);
+    static std::atomic<MemPoolImportFn> real_mempool_import{nullptr};
+
+    static CUresult CUDAAPI signaling_mempool_import(
+            CUmemoryPool *pool, void *handle, CUmemAllocationHandleType type, unsigned long long flags) {
+        CUresult status = real_mempool_import.load()(pool, handle, type, flags);
+        if (status == CUDA_SUCCESS && pool_release_gate_watching.load()) {
+            PoolReleaseGate &gate = pool_release_gate();
+            std::lock_guard<std::mutex> lock(gate.mutex);
+            // Only an import made while the release is held counts.
+            if (gate.entered && !gate.disarmed && *pool == gate.pool) {
+                gate.imported = true;
+                gate.changed.notify_all();
+            }
+        }
+        return status;
     }
-    }  // namespace cuda_core_testing
+    static std::intptr_t wrap_mempool_import(std::intptr_t real) {
+        real_mempool_import.store(reinterpret_cast<MemPoolImportFn>(real));
+        return reinterpret_cast<std::intptr_t>(&signaling_mempool_import);
+    }
+
+    static void arm_pool_release_gate(CUmemoryPool pool, double timeout_sec, double grace_sec) {
+        PoolReleaseGate &gate = pool_release_gate();
+        std::lock_guard<std::mutex> lock(gate.mutex);
+        gate.pool = pool;
+        gate.timeout = std::chrono::duration<double>(timeout_sec);
+        gate.grace = std::chrono::duration<double>(grace_sec);
+        gate.entered = false;
+        gate.imported = false;
+        gate.opened = false;
+        gate.disarmed = false;
+        pool_release_gate_watching.store(true);
+        pool_release_gate_armed.store(true);
+    }
+    static bool wait_pool_release_gate_entered(double timeout_sec) {
+        PoolReleaseGate &gate = pool_release_gate();
+        std::unique_lock<std::mutex> lock(gate.mutex);
+        return gate.changed.wait_for(
+            lock, std::chrono::duration<double>(timeout_sec), [&] { return gate.entered || gate.disarmed; })
+            && gate.entered;
+    }
+    static void open_pool_release_gate() {
+        PoolReleaseGate &gate = pool_release_gate();
+        std::lock_guard<std::mutex> lock(gate.mutex);
+        gate.opened = true;
+        gate.changed.notify_all();
+    }
+    static bool disarm_pool_release_gate() {
+        PoolReleaseGate &gate = pool_release_gate();
+        std::lock_guard<std::mutex> lock(gate.mutex);
+        pool_release_gate_armed.store(false);
+        pool_release_gate_watching.store(false);
+        const bool overlapped = gate.entered && gate.imported;
+        gate.disarmed = true;
+        gate.changed.notify_all();  // release a held release or waiter
+        return overlapped;
+    }
+    }  // namespace cuda_core_test
     """
-    intptr_t _wrap_ctx_set_current "cuda_core_testing::wrap_ctx_set_current" (intptr_t real) noexcept
-    void _set_ctx_set_current_fault "cuda_core_testing::set_ctx_set_current_fault" (
+    intptr_t _wrap_ctx_set_current "cuda_core_test::wrap_ctx_set_current" (intptr_t real) noexcept
+    void _set_ctx_set_current_fault "cuda_core_test::set_ctx_set_current_fault" (
         cydriver.CUresult status, cydriver.CUcontext target) noexcept nogil
-    intptr_t _wrap_mempool_set_access "cuda_core_testing::wrap_mempool_set_access" (intptr_t real) noexcept
-    void _set_mempool_set_access_delay "cuda_core_testing::set_mempool_set_access_delay" (
-        unsigned int microseconds) noexcept nogil
+    intptr_t _wrap_mempool_set_access "cuda_core_test::wrap_mempool_set_access" (intptr_t real) noexcept
+    intptr_t _wrap_mempool_import "cuda_core_test::wrap_mempool_import" (intptr_t real) noexcept
+    void _arm_pool_release_gate "cuda_core_test::arm_pool_release_gate" (
+        cydriver.CUmemoryPool pool, double timeout_sec, double grace_sec) noexcept nogil
+    bint _wait_pool_release_gate_entered "cuda_core_test::wait_pool_release_gate_entered" (
+        double timeout_sec) noexcept nogil
+    void _open_pool_release_gate "cuda_core_test::open_pool_release_gate" () noexcept nogil
+    bint _disarm_pool_release_gate "cuda_core_test::disarm_pool_release_gate" () noexcept nogil
 
 
 _inspect_without_wrappers = None
@@ -220,6 +321,8 @@ def _inspect_with_wrappers():
     pointers = dict(_inspect_without_wrappers())
     pointers["__cuCtxSetCurrent"] = _wrap_ctx_set_current(pointers["__cuCtxSetCurrent"])
     pointers["__cuMemPoolSetAccess"] = _wrap_mempool_set_access(pointers["__cuMemPoolSetAccess"])
+    pointers["__cuMemPoolImportFromShareableHandle"] = _wrap_mempool_import(
+        pointers["__cuMemPoolImportFromShareableHandle"])
     _wrappers_installed = True
     return pointers
 
@@ -239,22 +342,56 @@ def install_driver_fn_wrappers():
 cdef int _require_driver_fn_wrappers() except -1:
     if not _wrappers_installed:
         raise RuntimeError(
-            "cuda.core filled its driver function table without the test wrappers; "
-            "call install_driver_fn_wrappers() before cuda.core's first driver call in this process"
+            "cuda.core's driver function table does not hold the test wrappers yet. "
+            "Either install_driver_fn_wrappers() was not called before cuda.core's first driver call "
+            "in this process, or cuda.core has not made a driver call yet; arm the wrapper after one"
         )
     return 0
 
 
-def set_mempool_set_access_delay(unsigned int microseconds):
-    """Make every ``cuMemPoolSetAccess`` call from the C++ layer sleep first.
+def arm_pool_release_gate(intptr_t pool, double timeout_sec, double grace_sec):
+    """Hold the next release of ``pool`` while the pool is imported again.
 
     The C++ layer calls ``cuMemPoolSetAccess`` only to revoke access just
-    before it destroys a pool (or an imported pool's imports), so the delay
-    holds a pool's release in that state. 0 disables the delay.
+    before it destroys a pool (or an imported pool's imports), after its last
+    reference is gone. The first such call on ``pool`` after arming blocks
+    until a ``cuMemPoolImportFromShareableHandle`` from the C++ layer returns
+    ``pool``, or until ``timeout_sec`` passes. Once that import has returned,
+    it stays blocked until :func:`open_pool_release_gate` is called, or until
+    ``grace_sec`` passes, and then proceeds. Later calls pass through.
+
+    Open the gate once the import has finished. An import that correctly waits
+    for the release cannot finish first, so the grace period ends the hold; an
+    import that does not wait finishes, opens the gate, and the release then
+    revokes access after the import was granted it, so the test sees the
+    damage. Use :func:`wait_pool_release_gate_entered` to start the import once
+    the release is held, and :func:`disarm_pool_release_gate` to check that the
+    import overlapped the release.
     """
-    if microseconds:
-        _require_driver_fn_wrappers()
-    _set_mempool_set_access_delay(microseconds)
+    _require_driver_fn_wrappers()
+    _arm_pool_release_gate(<cydriver.CUmemoryPool>pool, timeout_sec, grace_sec)
+
+
+def open_pool_release_gate():
+    """Let a held release proceed once the import that overlapped it has finished."""
+    _open_pool_release_gate()
+
+
+def wait_pool_release_gate_entered(double timeout_sec):
+    """Wait until a release is held by the gate; return ``False`` on timeout or disarm."""
+    cdef bint entered
+    with nogil:
+        entered = _wait_pool_release_gate_entered(timeout_sec)
+    return entered
+
+
+def disarm_pool_release_gate():
+    """Disarm the gate and let a held release proceed.
+
+    Return ``True`` if a release was held and an import of the pool returned
+    while it was held, so the import overlapped the release.
+    """
+    return _disarm_pool_release_gate()
 
 
 def set_context_restore_fault(int status):

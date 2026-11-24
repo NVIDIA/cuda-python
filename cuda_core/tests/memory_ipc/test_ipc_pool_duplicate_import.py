@@ -17,7 +17,6 @@ import functools
 import gc
 import multiprocessing as mp
 import threading
-import time
 import uuid
 
 import helpers
@@ -37,16 +36,28 @@ from helpers.misc import run_in_threads
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
 from cuda.core._memory._buffer import _live_owned_mempool_count
-from cuda.core._utils._testing import install_driver_fn_wrappers, set_mempool_set_access_delay
+from cuda.core._utils._testing import (
+    arm_pool_release_gate,
+    disarm_pool_release_gate,
+    install_driver_fn_wrappers,
+    open_pool_release_gate,
+    wait_pool_release_gate_entered,
+)
 
 NBYTES = 64
 THREADS = 4
 ITERATIONS = 20
-# The owner's release sleeps this long before it revokes access in the race test,
-# so the re-import overlaps it.
-RELEASE_DELAY_US = 50_000
-RACE_ITERATIONS = 3
+# How long the race test holds the release after the re-import's driver call.
+# A correct registry makes the re-import wait for the release, so the hold
+# always runs out; it only bounds how fast a broken registry's re-import must
+# finish to be caught.
+RELEASE_GRACE_SEC = 0.25
 REENTRY_ITERATIONS = 20
+# How long the race test holds the release after the re-import's driver call.
+# A correct registry makes the re-import wait for the release, so the hold
+# always runs out; it only bounds how fast a broken registry's re-import must
+# finish to be caught.
+RELEASE_GRACE_SEC = 0.25
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -118,6 +129,9 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
     # The buffer is freed on another thread, which a per-thread default stream
     # would report as a cross-thread free.
     stream = device.create_stream()
+    # Only a hang reaches a gate timeout; it ends before run_child's timeout, so
+    # that a hang fails here with a message.
+    gate_timeout = child_timeout_sec() / 4
     # The stack closes in reverse order: the new buffer and resource, then the
     # stream after it has synchronized the pending frees.
     with contextlib.ExitStack() as stack:
@@ -127,6 +141,7 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
         # The buffer holds the last reference to the pool once its resource is
         # closed, so closing the buffer releases the pool.
         with contextlib.closing(import_pool_resource(mr_type, device, int(alloc_handle))) as mr:
+            pool = int(mr.handle)
             outstanding = stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
         del mr
 
@@ -136,27 +151,38 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
 
         def release():
             barrier.wait()
+            # The gate holds this release after its last reference is gone and
+            # before it revokes access, while the re-import below runs.
             outstanding.close()
 
         def reimport():
             Device().set_current()
             barrier.wait()
-            # Start once the release is under way, inside its delay.
-            time.sleep(RELEASE_DELAY_US / 4 / 1e6)
+            # Start once the release is held, past the point where it could be joined.
+            assert wait_pool_release_gate_entered(gate_timeout), "the release never reached its access revocation"
             # A raw file descriptor carries no UUID, so this is a real import,
             # through an object the releasing thread never sees.
-            mr = import_pool_resource(mr_type, device, int(alloc_handle))
+            try:
+                mr = import_pool_resource(mr_type, device, int(alloc_handle))
+            finally:
+                # Only an import that did not wait for the release gets here first.
+                open_pool_release_gate()
             reimported.append(mr)
             reimported_buffers.append(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
 
+        arm_pool_release_gate(pool, gate_timeout, RELEASE_GRACE_SEC)
         try:
             run_in_threads([release, reimport], barrier=barrier)
         finally:
+            overlapped = disarm_pool_release_gate()
             # Own whatever the thread made, also when a thread failed.
             for mr in reimported:
                 stack.enter_context(contextlib.closing(mr))
             for buffer in reimported_buffers:
                 stack.enter_context(buffer)
+
+        # Without the overlap the race was not exercised, and a pass would mean nothing.
+        assert overlapped, "the re-import did not run while the release was held; the gate timed out"
 
         # The release has finished: its cleanup must have left the new import alone.
         (mr,) = reimported
@@ -167,15 +193,10 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
 
 
 def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
+    # A spawned child does not run conftest.py, which installs the wrappers.
     install_driver_fn_wrappers()
-    with _child_device() as (device, _baseline):
-        set_mempool_set_access_delay(RELEASE_DELAY_US)
-        try:
-            with assert_no_cuda_warning():
-                for _ in range(RACE_ITERATIONS):
-                    _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
-        finally:
-            set_mempool_set_access_delay(0)
+    with _child_device() as (device, _baseline), assert_no_cuda_warning():
+        _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
 
 
 def child_register_reentered_by_gc(mr_type, alloc_handle):
