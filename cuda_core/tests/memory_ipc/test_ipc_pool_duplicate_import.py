@@ -13,6 +13,7 @@ last of them is released.
 """
 
 import contextlib
+import functools
 import gc
 import multiprocessing as mp
 import threading
@@ -25,6 +26,7 @@ from helpers.child_processes import child_timeout_sec, run_child
 from helpers.contexts import assert_no_cuda_warning
 from helpers.latch import LatchKernel
 from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
+from helpers.misc import run_in_threads
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
@@ -47,14 +49,6 @@ pytestmark = pytest.mark.parallel_threads_limit(2)
 def _enter_import(stack, mr_type, device, alloc_handle):
     """Import the pool for ``alloc_handle`` and register it to close on ``stack``."""
     return stack.enter_context(contextlib.closing(import_pool_resource(mr_type, device, alloc_handle)))
-
-
-def _run_threads(threads):
-    """Start every thread, then join every thread."""
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
 
 
 @contextlib.contextmanager
@@ -139,39 +133,30 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
         barrier = threading.Barrier(2)
         reimported = []
         reimported_buffers = []
-        errors = []
 
         def release():
-            try:
-                barrier.wait()
-                outstanding.close()
-            except Exception as e:
-                errors.append(e)
-                barrier.abort()
+            barrier.wait()
+            outstanding.close()
 
         def reimport():
-            try:
-                Device().set_current()
-                barrier.wait()
-                # Start once the release is under way, inside its delay.
-                time.sleep(RELEASE_DELAY_US / 4 / 1e6)
-                # A raw file descriptor carries no UUID, so this is a real import,
-                # through an object the releasing thread never sees.
-                mr = import_pool_resource(mr_type, device, int(alloc_handle))
-                reimported.append(mr)
-                reimported_buffers.append(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
-            except Exception as e:
-                errors.append(e)
-                barrier.abort()
+            Device().set_current()
+            barrier.wait()
+            # Start once the release is under way, inside its delay.
+            time.sleep(RELEASE_DELAY_US / 4 / 1e6)
+            # A raw file descriptor carries no UUID, so this is a real import,
+            # through an object the releasing thread never sees.
+            mr = import_pool_resource(mr_type, device, int(alloc_handle))
+            reimported.append(mr)
+            reimported_buffers.append(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
 
-        _run_threads([threading.Thread(target=release), threading.Thread(target=reimport)])
-        # Own whatever the thread made before looking at its errors.
-        for mr in reimported:
-            stack.enter_context(contextlib.closing(mr))
-        for buffer in reimported_buffers:
-            stack.enter_context(buffer)
-        if errors:
-            raise errors[0]
+        try:
+            run_in_threads([release, reimport], barrier=barrier)
+        finally:
+            # Own whatever the thread made, also when a thread failed.
+            for mr in reimported:
+                stack.enter_context(contextlib.closing(mr))
+            for buffer in reimported_buffers:
+                stack.enter_context(buffer)
 
         # The release has finished: its cleanup must have left the new import alone.
         (mr,) = reimported
@@ -222,24 +207,20 @@ def child_register_reentered_by_gc(mr_type, alloc_handle):
 def _import_concurrently(mr_type, device, alloc_handle):
     barrier = threading.Barrier(THREADS)
     results = [None] * THREADS
-    errors = []
 
     def importer(index):
-        try:
-            Device().set_current()
-            barrier.wait()
-            results[index] = import_pool_resource(mr_type, device, alloc_handle)
-        except Exception as e:
-            errors.append(e)
-            barrier.abort()
+        Device().set_current()
+        barrier.wait()
+        results[index] = import_pool_resource(mr_type, device, alloc_handle)
 
-    _run_threads([threading.Thread(target=importer, args=(i,)) for i in range(THREADS)])
-    if errors:
+    try:
+        run_in_threads([functools.partial(importer, i) for i in range(THREADS)], barrier=barrier)
+    except BaseException:
         # The imports that succeeded would otherwise stay open.
         for mr in results:
             if mr is not None:
                 mr.close()
-        raise errors[0]
+        raise
     return results
 
 
