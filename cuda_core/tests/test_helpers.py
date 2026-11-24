@@ -312,6 +312,64 @@ def test_oom_diagnostics_does_not_overwrite_an_earlier_invocations_artifact(tmp_
     assert "test:      second" in second.artifact_path.read_text(encoding="utf-8")
 
 
+def _deny_mkdir(self, *args, **kwargs):
+    raise PermissionError(13, "Permission denied", str(self))
+
+
+_CHMOD_CANNOT_DENY_TRAVERSAL = sys.platform == "win32" or (hasattr(os, "geteuid") and os.geteuid() == 0)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    "failure",
+    [
+        pytest.param(
+            "untraversable_dir",
+            marks=pytest.mark.skipif(_CHMOD_CANNOT_DENY_TRAVERSAL, reason="chmod cannot deny traversal here"),
+        ),
+        "parent_is_a_file",
+        "permission_denied",
+    ],
+)
+def test_oom_diagnostics_unusable_artifact_directory_keeps_the_report(tmp_path, monkeypatch, failure):
+    # The capture runs inside pytest_runtest_makereport, where an escaping
+    # OSError becomes an INTERNALERROR and the report is lost.
+    locked = None
+    if failure == "untraversable_dir":
+        locked = tmp_path / "locked"
+        (locked / "test-results").mkdir(parents=True)
+        locked.chmod(0)
+        bad_dir = locked / "test-results"
+    elif failure == "parent_is_a_file":
+        blocker = tmp_path / "blocker"
+        blocker.write_text("")
+        bad_dir = blocker / "test-results"
+    else:
+        bad_dir = tmp_path / "test-results"
+        monkeypatch.setattr(pathlib.Path, "mkdir", _deny_mkdir)
+    recorder = OomDiagnosticsRecorder()
+
+    try:
+        text = recorder.capture("first", "teardown", OOM_MARKER, bad_dir, snapshot=_NO_CONTEXT_SNAPSHOT)
+    finally:
+        if locked is not None:
+            locked.chmod(0o700)
+
+    assert "test:      first" in text
+    assert f"could not write {bad_dir / DEFAULT_FILENAME}" in text
+    assert recorder.artifact_path == bad_dir / DEFAULT_FILENAME
+    assert not recorder.artifact_written
+
+    # A later report still gets a fresh file once the directory is usable.
+    monkeypatch.undo()
+    good_dir = tmp_path / "good"
+    text = recorder.capture("second", "call", OOM_MARKER, good_dir, snapshot=_PROBED_SNAPSHOT)
+
+    assert recorder.artifact_written
+    assert recorder.artifact_path == good_dir / DEFAULT_FILENAME
+    assert "test:      second" in recorder.artifact_path.read_text(encoding="utf-8")
+
+
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_oom_diagnostics_failed_borrow_names_the_failing_call(monkeypatch):
     # No GPU needed: the driver calls are faked so that no context is current

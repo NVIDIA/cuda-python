@@ -519,19 +519,25 @@ def artifact_directory(config):
     return config.rootpath
 
 
-def _unused_path(path):
-    """``path``, or ``stem.N.suffix`` if it exists.
+def _write_new_file(path, text):
+    """Write ``text`` to ``path``, or to ``stem.N.suffix`` if that exists; return the path used.
 
     Several pytest invocations (for example ``tests/`` and ``tests/cython``)
     share one results directory; a later one must not truncate the report of
-    an earlier one.
+    an earlier one. Exclusive creation picks the name without a separate
+    existence check, so every filesystem error surfaces as ``OSError`` here.
     """
+    path.parent.mkdir(parents=True, exist_ok=True)
     candidate = path
     n = 0
-    while candidate.exists():
-        n += 1
-        candidate = path.with_name(f"{path.stem}.{n}{path.suffix}")
-    return candidate
+    while True:
+        try:
+            with candidate.open("x", encoding="utf-8") as f:
+                f.write(text)
+            return candidate
+        except FileExistsError:
+            n += 1
+            candidate = path.with_name(f"{path.stem}.{n}{path.suffix}")
 
 
 class OomDiagnosticsRecorder:
@@ -635,22 +641,24 @@ class OomDiagnosticsRecorder:
             if not self._captured:
                 self._captured = True
                 self._nodeid = nodeid
-                self._artifact_path = _unused_path(pathlib.Path(directory) / self._filename)
             if snapshot.has_context:
                 self._probed = True
                 self._probed_nodeid = nodeid
 
-            destination = self._artifact_path
+            # Until a write succeeds, the artifact path is the unnumbered name
+            # and a later report creates a new file rather than appending.
+            if not self._artifact_written:
+                self._artifact_path = pathlib.Path(directory) / self._filename
             try:
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                with destination.open("a" if self._artifact_written else "w", encoding="utf-8") as f:
-                    if self._artifact_written:
-                        f.write("\n\n")
-                    f.write(report)
-                self._artifact_written = True
-                return f"{report}\n(diagnostics also written to {destination})"
+                if self._artifact_written:
+                    with self._artifact_path.open("a", encoding="utf-8") as f:
+                        f.write(f"\n\n{report}")
+                else:
+                    self._artifact_path = _write_new_file(self._artifact_path, report)
+                    self._artifact_written = True
+                return f"{report}\n(diagnostics also written to {self._artifact_path})"
             except OSError as exc:
-                return f"{report}\n(could not write {destination}: {exc!r})"
+                return f"{report}\n(could not write {self._artifact_path}: {exc!r})"
 
 
 _default_recorder = OomDiagnosticsRecorder()
