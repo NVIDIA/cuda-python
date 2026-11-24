@@ -16,9 +16,11 @@ import contextlib
 import functools
 import gc
 import multiprocessing as mp
+import sys
 import threading
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor, wait
 
 import helpers
 import pytest
@@ -31,6 +33,7 @@ from helpers.memory import (
     import_pool_resource,
     is_pool_resource,
     pool_access_flags,
+    pool_supported_devices,
 )
 from helpers.misc import run_in_threads
 
@@ -45,7 +48,8 @@ ITERATIONS = 20
 # The owner's release sleeps this long in the race test, so the re-import overlaps it.
 RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
-REENTRY_ITERATIONS = 20
+REENTRY_ITERATIONS = 100
+LOOKUP_RACE_SECONDS = 0.5
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -158,9 +162,12 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
                 stack.enter_context(buffer)
 
         # The release has finished: its cleanup must have left the new import alone.
+        # The final release revokes access one GPU at a time, so check every GPU the
+        # pool grants access to, not only the default one.
         (mr,) = reimported
         (buffer,) = reimported_buffers
-        assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        for access_device in pool_supported_devices(mr_type, device):
+            assert pool_access_flags(mr, access_device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
         buffer.fill(7, stream=stream)
         stream.sync()
 
@@ -201,6 +208,289 @@ def child_register_reentered_by_gc(mr_type, alloc_handle):
         finally:
             gc.set_threshold(*threshold)
             gc.callbacks.remove(register_during_collection)
+
+        _register_one_uuid_during_collections(stack, mr_type, device, alloc_handle)
+
+
+def _register_one_uuid_during_collections(stack, mr_type, device, alloc_handle):
+    # Two imports register one UUID, and every collection that starts while the
+    # first registers makes the second register it too. However the two
+    # interleave, both calls must return the one resource the registry holds.
+    registering = []
+    nested_results = []
+
+    def register_during_collection(phase, info):
+        if phase == "start" and registering:
+            key, rival = registering
+            nested_results.append((key, rival.register(key)))
+
+    threshold = gc.get_threshold()
+    gc.callbacks.append(register_during_collection)
+    try:
+        gc.set_threshold(1)
+        for _ in range(REENTRY_ITERATIONS):
+            mr = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+            rival = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+            key = uuid.uuid4()
+            registering[:] = [key, rival]
+            try:
+                registered = mr.register(key)
+            finally:
+                registering.clear()
+            assert registered is mr or registered is rival
+            assert mr_type.from_registry(key) is registered
+            assert all(result is registered for k, result in nested_results if k == key)
+    finally:
+        gc.set_threshold(*threshold)
+        gc.callbacks.remove(register_during_collection)
+
+
+def child_gc_during_registration_allows_registry_lookup(mr_type, alloc_handle):
+    with (
+        _child_device() as (device, _baseline),
+        contextlib.ExitStack() as stack,
+        ThreadPoolExecutor(max_workers=1) as worker,
+    ):
+        registered = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        candidate = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        registered_key = uuid.uuid4()
+        key = uuid.uuid4()
+        assert registered.register(registered_key) is registered
+
+        # Start the worker before arming GC. Its lookup needs the same lock as
+        # weakref cleanup, so a GC callback waiting for it detects the inversion.
+        look_up = functools.partial(mr_type.from_registry, registered_key)
+        assert worker.submit(look_up).result() is registered
+        register = candidate.register
+        registering_thread = threading.get_ident()
+        lookup_timeout = child_timeout_sec() / 3
+        lookups = []
+        lookup_blocked = False
+        registering = False
+
+        def look_up_during_collection(phase, info):
+            nonlocal lookup_blocked
+            if phase == "start" and registering and not lookup_blocked and threading.get_ident() == registering_thread:
+                future = worker.submit(look_up)
+                lookups.append(future)
+                _, pending = wait((future,), timeout=lookup_timeout)
+                lookup_blocked = bool(pending)
+
+        threshold = gc.get_threshold()
+        gc.collect()
+        gc.callbacks.append(look_up_during_collection)
+        try:
+            gc.set_threshold(1)
+            registering = True
+            assert register(key) is candidate
+        finally:
+            registering = False
+            gc.set_threshold(*threshold)
+            gc.callbacks.remove(look_up_during_collection)
+
+        assert lookups, "GC did not run during registration"
+        assert not lookup_blocked, "a registry lookup blocked the GC callback during registration"
+        assert all(future.result() is registered for future in lookups)
+
+
+class _TripwireUUID(uuid.UUID):
+    """A UUID that calls ``tripwire`` whenever Python code reads its value.
+
+    ``__hash__``, ``__eq__`` and ``bytes`` are how code that keeps a UUID in a
+    registry reaches the value. Each is a point where a garbage-collection
+    callback or finalizer could run in the middle of a registration, so a test
+    can inject code at every such point without a hook in the implementation.
+    """
+
+    def __init__(self, tripwire):
+        super().__init__(int=uuid.uuid4().int)
+        object.__setattr__(self, "_tripwire", tripwire)
+
+    def __hash__(self):
+        self._tripwire()
+        return super().__hash__()
+
+    def __eq__(self, other):
+        self._tripwire()
+        return super().__eq__(other)
+
+    @property
+    def bytes(self):
+        self._tripwire()
+        return super().bytes
+
+
+def _register_interrupted_at(index, register, action):
+    """Call ``register(key)``, running ``action(key)`` at the ``index``-th use of ``key`` inside it.
+
+    Returns ``(key, fired, outcome)``: whether ``action`` ran, and what the call
+    returned or raised.
+    """
+    state = {"armed": True, "remaining": index, "fired": False}
+
+    def tripwire():
+        if not state["armed"] or state["fired"]:
+            return
+        state["remaining"] -= 1
+        if state["remaining"] == 0:
+            state["fired"] = True
+            action(key)
+
+    key = _TripwireUUID(tripwire)
+    try:
+        outcome = register(key)
+    except Exception as e:  # the outcome under test
+        outcome = e
+    finally:
+        state["armed"] = False
+    return key, state["fired"], outcome
+
+
+def _run_interrupted_registration(mr_type, device, alloc_handle, case, shared_handle, index):
+    """Register one UUID with an import that is interrupted at the ``index``-th use of the key.
+
+    Returns whether the interruption happened. ``case`` is what the
+    interruption does: ``keep`` registers the same UUID with another import,
+    ``close`` does that and then closes the winner, and ``fail`` raises.
+    """
+    with contextlib.ExitStack() as stack:
+        first = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        # Two imports share a handle only when one is built from the other's
+        # handle, which carries no UUID until one of them registers.
+        second_source = first.allocation_handle if shared_handle else int(alloc_handle)
+        second = enter_imported_pool(stack, mr_type, device, second_source)
+        assert (second.allocation_handle is first.allocation_handle) == shared_handle
+        nested = []
+
+        def interrupt(key):
+            if case == "fail":
+                raise MemoryError("simulated failure at a use of the key")
+            nested.append(second.register(key))
+            if case == "close":
+                second.close()
+
+        key, fired, outcome = _register_interrupted_at(index, first.register, interrupt)
+
+        if not fired:
+            assert outcome is first
+            return False
+        if case == "fail":
+            assert isinstance(outcome, MemoryError)
+            # The failed call must leave the resource as it was.
+            assert first.uuid is None
+            with pytest.raises(RuntimeError, match="was not found"):
+                mr_type.from_registry(key)
+            other = uuid.uuid4()
+            assert first.register(other) is first
+            assert first.uuid == other
+            return True
+        (winner,) = nested
+        if case == "keep":
+            assert winner.uuid == key
+            assert outcome is winner
+            assert mr_type.from_registry(key) is winner
+        else:
+            # The call found the closed winner, as it would for any closed hit.
+            assert outcome is winner or isinstance(outcome, RuntimeError)
+        return True
+
+
+def child_register_interrupted_at_every_key_use(mr_type, alloc_handle, case, shared_handle):
+    with _child_device() as (device, _baseline):
+        index = 1
+        while _run_interrupted_registration(mr_type, device, alloc_handle, case, shared_handle, index):
+            index += 1
+        # Without a first interruption the sweep would prove nothing.
+        assert index > 1, "the registration never used its key"
+
+
+def child_dead_registry_entry_is_removed(mr_type, alloc_handle):
+    with _child_device() as (device, _baseline), contextlib.ExitStack() as stack:
+        key = uuid.uuid4()
+        dead = import_pool_resource(mr_type, device, int(alloc_handle))
+        assert dead.register(key) is dead
+        dead.close()
+        del dead
+        with pytest.raises(RuntimeError, match="was not found"):
+            mr_type.from_registry(key)
+
+        # The UUID is free again for another import.
+        successor = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        assert successor.register(key) is successor
+        assert mr_type.from_registry(key) is successor
+
+
+def child_shared_handle_keeps_its_uuid_object(mr_type, alloc_handle):
+    with _child_device() as (device, _baseline), contextlib.ExitStack() as stack:
+        first = import_pool_resource(mr_type, device, int(alloc_handle))
+        # Built from the first import's handle while it carries no UUID, so the
+        # two imports share that handle.
+        second = enter_imported_pool(stack, mr_type, device, first.allocation_handle)
+        assert second.allocation_handle is first.allocation_handle
+        key = uuid.uuid4()
+        assert first.register(key) is first
+        first.close()
+        del first
+        with pytest.raises(RuntimeError, match="was not found"):
+            mr_type.from_registry(key)
+
+        # The handle outlived its first owner and still has the UUID. Registering
+        # the second import under an equal UUID must not replace that object:
+        # the handle's UUID is read without a lock.
+        equal = uuid.UUID(bytes=key.bytes)
+        assert second.register(equal) is second
+        assert second.uuid is key
+        assert mr_type.from_registry(equal) is second
+
+
+def child_lookups_race_registrations(mr_type, alloc_handle):
+    # Lookups run against registrations and against the removal of dead
+    # entries. Without the GIL, a lookup outside the registry lock could use a
+    # removed entry after it was freed, or find a resource whose UUID was not
+    # set yet. With the GIL neither can happen, and this test only checks
+    # that the lookups succeed. The test runs for a fixed time rather than a
+    # fixed number of registrations: with the GIL, the lookups leave the
+    # registering thread little time to run.
+    with _child_device() as (device, _baseline):
+        key = uuid.uuid4()
+        fd = int(alloc_handle)
+        barrier = threading.Barrier(THREADS + 1)
+        # Set when the registrations end or any thread fails, to stop the others.
+        done = threading.Event()
+
+        def register():
+            try:
+                Device().set_current()
+                barrier.wait()
+                deadline = time.monotonic() + LOOKUP_RACE_SECONDS
+                while not done.is_set() and time.monotonic() < deadline:
+                    # A raw file descriptor carries no UUID, so every import is
+                    # a new resource with a handle of its own.
+                    mr = import_pool_resource(mr_type, device, fd)
+                    mr.register(key)
+                    # Removes the entry, unless a lookup holds the resource.
+                    del mr
+            finally:
+                done.set()
+
+        def look_up():
+            try:
+                Device().set_current()
+                barrier.wait()
+                while not done.is_set():
+                    try:
+                        mr = mr_type.from_registry(key)
+                    except RuntimeError as e:
+                        if "was not found" not in str(e):
+                            raise
+                        continue
+                    assert mr.uuid is key
+                    # Holding it would keep its entry from being removed.
+                    del mr
+            finally:
+                done.set()
+
+        run_in_threads([register] + [look_up] * THREADS, barrier=barrier)
 
 
 def _import_concurrently(mr_type, device, alloc_handle):
@@ -358,6 +648,42 @@ class TestIpcPoolDuplicateImport:
     def test_registration_reentered_from_garbage_collection(self, ipc_device, pool_resource):
         ipc_device.set_current()
         run_child(child_register_reentered_by_gc, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.skipif(sys.version_info[:2] != (3, 11), reason="requires CPython 3.11's allocation-triggered GC")
+    @pytest.mark.agent_authored(model="gpt-6.2-sol")
+    def test_gc_during_registration_allows_registry_lookup(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(
+            child_gc_during_registration_allows_registry_lookup, type(pool_resource), pool_resource.allocation_handle
+        )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    @pytest.mark.parametrize("shared_handle", [False, True], ids=["separate_handles", "shared_handle"])
+    @pytest.mark.parametrize("case", ["keep", "close", "fail"])
+    def test_registration_interrupted_at_every_use_of_its_key(self, ipc_device, pool_resource, case, shared_handle):
+        ipc_device.set_current()
+        run_child(
+            child_register_interrupted_at_every_key_use,
+            type(pool_resource),
+            pool_resource.allocation_handle,
+            case,
+            shared_handle,
+        )
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_registry_entry_of_a_dropped_resource_is_removed(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_dead_registry_entry_is_removed, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-fable-5-2")
+    def test_shared_handle_keeps_its_uuid_object_after_its_first_owner(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_shared_handle_keeps_its_uuid_object, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_lookups_racing_registrations_find_registered_resources(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_lookups_race_registrations, type(pool_resource), pool_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):
