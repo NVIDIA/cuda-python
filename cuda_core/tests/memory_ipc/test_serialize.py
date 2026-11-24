@@ -292,6 +292,8 @@ def test_buffer_unpickle_initializes_missing_current_context(ipc_device):
                         assert _read_buffer(buffer) == b"\x35" * NBYTES
                         buffer.fill(0x6B, stream=ipc_device.default_stream)
                         ipc_device.default_stream.sync()
+                    # Complete the imported free before allowing exporter teardown.
+                    ipc_device.default_stream.sync()
                 finally:
                     # no_current_context restores the old stack; pop only the context created here.
                     if current_context_handle():
