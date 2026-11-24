@@ -333,7 +333,7 @@ class ReleasingHandleRegistry {
     };
 
     // Takes the caller's lock as proof that it holds mutex_, and checks it.
-    Lookup
+    [[nodiscard]] Lookup
     find(const std::unique_lock<std::mutex> &held, const Key &key) const
     {
         if (!held.owns_lock() || held.mutex() != &mutex_) {
