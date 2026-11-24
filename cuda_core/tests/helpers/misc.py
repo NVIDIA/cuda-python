@@ -13,12 +13,13 @@ def run_in_threads(targets, *, barrier=None, timeout=None):
     raises aborts ``barrier``, if given, so the threads waiting at it raise
     ``threading.BrokenBarrierError`` instead of blocking forever; the original
     exception is re-raised, not the broken barrier. If starting a thread fails,
-    the barrier is aborted the same way. Every started thread is joined before
-    this returns or raises.
+    the barrier is aborted the same way. Every started thread is joined (up to
+    ``timeout``) before this returns or raises.
 
     With ``timeout``, each join waits at most that many seconds, and a thread
     still running afterwards (for example a deadlocked one) raises
-    ``TimeoutError``. Such a thread cannot be stopped, so callers must not
+    ``TimeoutError``, also when another thread failed; the failure is its
+    ``__cause__``. Such a thread cannot be stopped, so callers must not
     release anything it may still be using. The barrier is aborted first, so a
     thread waiting at it (or reaching it later) raises
     ``threading.BrokenBarrierError`` and exits instead of blocking until the
@@ -48,13 +49,16 @@ def run_in_threads(targets, *, barrier=None, timeout=None):
     finally:
         for thread in started:
             thread.join(timeout)
-    if errors:
-        raise next((e for e in errors if not isinstance(e, threading.BrokenBarrierError)), errors[0])
+    failure = (
+        next((e for e in errors if not isinstance(e, threading.BrokenBarrierError)), errors[0]) if errors else None
+    )
     running = [thread.name for thread in started if thread.is_alive()]
     if running:
         if barrier is not None:
             barrier.abort()
-        raise TimeoutError(f"threads still running after {timeout} s: {running}")
+        raise TimeoutError(f"threads still running after {timeout} s: {running}") from failure
+    if failure is not None:
+        raise failure
 
 
 def try_create_condition(g, default_value=1):

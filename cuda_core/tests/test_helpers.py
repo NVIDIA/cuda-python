@@ -571,6 +571,21 @@ def test_run_in_threads_reports_a_thread_that_does_not_finish():
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_reports_a_stuck_thread_before_another_threads_failure():
+    release = threading.Event()
+
+    def fails():
+        raise ValueError("worker failed")
+
+    try:
+        with pytest.raises(TimeoutError, match="still running") as excinfo:
+            run_in_threads([fails, lambda: release.wait(30)], timeout=0.2)
+        assert isinstance(excinfo.value.__cause__, ValueError)
+    finally:
+        release.set()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_run_in_threads_aborts_the_barrier_when_a_thread_times_out():
     barrier = threading.Barrier(2)
     waiters = []
