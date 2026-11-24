@@ -570,6 +570,29 @@ def test_run_in_threads_reports_a_thread_that_does_not_finish():
         release.set()
 
 
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_aborts_the_barrier_when_a_thread_times_out():
+    barrier = threading.Barrier(2)
+    waiters = []
+    after_wait = []
+
+    def wait_at_barrier():
+        waiters.append(threading.current_thread())
+        barrier.wait()
+        after_wait.append(True)
+
+    try:
+        # The second party never arrives, so the first worker would block forever.
+        with pytest.raises(TimeoutError, match="still running"):
+            run_in_threads([wait_at_barrier, lambda: None], barrier=barrier, timeout=0.2)
+        waiters[0].join(10)
+        assert not waiters[0].is_alive()
+        assert after_wait == []
+    finally:
+        # Release the waiter if the helper did not, so the process can exit.
+        barrier.abort()
+
+
 @pytest.mark.thread_unsafe(reason="patches threading.Thread.start")
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_run_in_threads_aborts_the_barrier_when_a_thread_fails_to_start(monkeypatch):

@@ -19,7 +19,10 @@ def run_in_threads(targets, *, barrier=None, timeout=None):
     With ``timeout``, each join waits at most that many seconds, and a thread
     still running afterwards (for example a deadlocked one) raises
     ``TimeoutError``. Such a thread cannot be stopped, so callers must not
-    release anything it may still be using.
+    release anything it may still be using. The barrier is aborted first, so a
+    thread waiting at it (or reaching it later) raises
+    ``threading.BrokenBarrierError`` and exits instead of blocking until the
+    interpreter shuts down. It does not run the code after its wait.
     """
     errors = []
 
@@ -49,6 +52,8 @@ def run_in_threads(targets, *, barrier=None, timeout=None):
         raise next((e for e in errors if not isinstance(e, threading.BrokenBarrierError)), errors[0])
     running = [thread.name for thread in started if thread.is_alive()]
     if running:
+        if barrier is not None:
+            barrier.abort()
         raise TimeoutError(f"threads still running after {timeout} s: {running}")
 
 
