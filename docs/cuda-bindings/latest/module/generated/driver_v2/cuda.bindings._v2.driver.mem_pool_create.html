@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=9352cd0d"></script>
+    <script src="../../../_static/documentation_options.js?v=00d2c37e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2314,24 +2314,24 @@
 <code class="docutils literal notranslate"><span class="pre">pool_props</span></code> determines the properties of the pool such as the backing device
 and IPC capabilities.
 To create a memory pool for HOST memory not targeting a specific NUMA node,
-applications must set set <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::type to
-<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST</span></code>. <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::id is ignored
+applications must set set <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.type</span></code> to
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST</span></code>. <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.id</span></code> is ignored
 for such pools. Pools created with the type <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST</span></code> are
 not IPC capable and <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.handleTypes</span></code> must be 0, any other values
 will result in <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>. To create a memory pool targeting
 a specific host NUMA node, applications must set
-<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::type to <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code>
-and <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::id must specify the NUMA ID of the host
-memory node. Specifying <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT</span></code> as the
-<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::type will result in
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.type</span></code> to <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.id</span></code> must specify the NUMA ID of the host memory
+node. Specifying <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT</span></code> as the
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.type</span></code> will result in
 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>. To create a memory pool targeting a specific
 device locality domain, applications must set
-<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::type to
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.type</span></code> to
 <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN</span></code>,
-<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::localized.deviceId must specify the device
-ID, and <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation::localized.localityDomainId must
-specify the locality domain ID. The locality domain ID must be a valid locality
-domain ID for the specified device. See also <code class="docutils literal notranslate"><span class="pre">cuDeviceGetAttribute</span></code> with the
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.localized.deviceId</span></code> must specify the device ID,
+and <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation.localized.localityDomainId</span></code> must specify
+the locality domain ID. The locality domain ID must be a valid locality domain
+ID for the specified device. See also <code class="docutils literal notranslate"><span class="pre">cuDeviceGetAttribute</span></code> with the
 attribute <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT</span></code>.
 By default, the pool’s memory will be accessible from the device it is
 allocated on. In the case of pools created with
@@ -2356,10 +2356,10 @@ create channel0 with the major number from /proc/devices users can execute the
 following command: <code class="docutils literal notranslate"><span class="pre">mknod</span> <span class="pre">/dev/nvidia-caps-imex-channels/channel0</span> <span class="pre">c</span> <span class="pre">&lt;major</span>
 <span class="pre">number&gt;</span> <span class="pre">0</span></code>.
 To create a managed memory pool, applications must set
-<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemAllocationType to CU_MEM_ALLOCATION_TYPE_MANAGED.
-<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemAllocationHandleType must also be set to
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemAllocationType</span></code> to CU_MEM_ALLOCATION_TYPE_MANAGED.
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemAllocationHandleType</span></code> must also be set to
 CU_MEM_HANDLE_TYPE_NONE since IPC is not supported. For managed memory pools,
-<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps</span></code>::CUmemLocation will be treated as the preferred location for
+<code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.CUmemLocation</span></code> will be treated as the preferred location for
 all allocations created from the pool. An application can also set
 CU_MEM_LOCATION_TYPE_NONE to indicate no preferred location.
 <code class="docutils literal notranslate"><span class="pre">CUmemPoolProps.maxSize</span></code> must be set to zero for managed memory pools.

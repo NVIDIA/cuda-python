@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=9352cd0d"></script>
+    <script src="../../../_static/documentation_options.js?v=00d2c37e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2341,8 +2341,6 @@
 <dt><strong>CONDITIONAL</strong>: 13</dt><dd><p>Conditional Node                                         May be used to implement a conditional execution path or loop                                         inside of a graph. The graph(s) contained within the body of the conditional node                                         can be selectively executed or iterated upon based on the value of a conditional                                         variable.                                          Handles must be created in advance of creating the node                                         using <cite>cuGraphConditionalHandleCreate</cite>.                                          The following restrictions apply to graphs which contain conditional nodes:                                          The graph cannot be used in a child node.                                          Only one instantiation of the graph may exist at any point in time.                                          The graph cannot be cloned.                                          To set the control value, supply a default value when creating the handle and/or                                         call <cite>cudaGraphSetConditional</cite> from device code.</p>
 </dd>
 <dt><strong>MEMCPY_BATCH</strong>: 14</dt><dd><p>Batch Memcpy Node</p>
-</dd>
-<dt><strong>RESERVED_16</strong>: 16</dt><dd><p>Reserved</p>
 </dd>
 <dt><strong>EXTERNAL_ENGINE</strong>: 17</dt><dd><p>Reserved for External Engine node</p>
 </dd>

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=9352cd0d"></script>
+    <script src="../../../_static/documentation_options.js?v=00d2c37e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2350,7 +2350,7 @@ If <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_ME
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name</span></code> must not be NULL. If
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle</span></code> is not NULL, then it
 must represent a valid shared NT handle that is returned by
-ID3D12Device::CreateSharedHandle when referring to a ID3D12Heap object. This
+<code class="docutils literal notranslate"><span class="pre">ID3D12Device.CreateSharedHandle</span></code> when referring to a ID3D12Heap object. This
 handle holds a reference to the underlying object. If
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name</span></code> is not NULL, then it
 must point to a NULL-terminated array of UTF-16 characters that refers to a
@@ -2361,7 +2361,7 @@ If <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_ME
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name</span></code> must not be NULL. If
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle</span></code> is not NULL, then it
 must represent a valid shared NT handle that is returned by
-ID3D12Device::CreateSharedHandle when referring to a ID3D12Resource object.
+<code class="docutils literal notranslate"><span class="pre">ID3D12Device.CreateSharedHandle</span></code> when referring to a ID3D12Resource object.
 This handle holds a reference to the underlying object. If
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name</span></code> is not NULL, then it
 must point to a NULL-terminated array of UTF-16 characters that refers to a
@@ -2369,7 +2369,7 @@ ID3D12Resource object.
 If <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type</span></code> is
 <code class="docutils literal notranslate"><span class="pre">CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE</span></code>, then
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle</span></code> must represent a valid
-shared NT handle that is returned by IDXGIResource1::CreateSharedHandle when
+shared NT handle that is returned by <code class="docutils literal notranslate"><span class="pre">IDXGIResource1.CreateSharedHandle</span></code> when
 referring to a ID3D11Resource object. If
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name</span></code> is not NULL, then it
 must point to a NULL-terminated array of UTF-16 characters that refers to a
@@ -2377,7 +2377,7 @@ ID3D11Resource object.
 If <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type</span></code> is
 <code class="docutils literal notranslate"><span class="pre">CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE_KMT</span></code>, then
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle</span></code> must represent a valid
-shared KMT handle that is returned by IDXGIResource::GetSharedHandle when
+shared KMT handle that is returned by <code class="docutils literal notranslate"><span class="pre">IDXGIResource.GetSharedHandle</span></code> when
 referring to a ID3D11Resource object and
 <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name</span></code> must be NULL.
 If <code class="docutils literal notranslate"><span class="pre">CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type</span></code> is

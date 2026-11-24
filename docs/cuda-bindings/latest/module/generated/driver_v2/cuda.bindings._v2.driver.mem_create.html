@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=9352cd0d"></script>
+    <script src="../../../_static/documentation_options.js?v=00d2c37e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2322,22 +2322,21 @@ The <code class="docutils literal notranslate"><span class="pre">size</span></co
 <code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationGranularity</span></code> with the <code class="docutils literal notranslate"><span class="pre">CU_MEM_ALLOC_GRANULARITY_MINIMUM</span></code>
 flag. To create a CPU allocation that doesn’t target any specific NUMA nodes,
 applications must set <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.CUmemLocation.type</span></code> to
-<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST</span></code>. <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp</span></code>::CUmemLocation::id is
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST</span></code>. <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.CUmemLocation.id</span></code> is
 ignored for HOST allocations. HOST allocations are not IPC capable and
 <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.requestedHandleTypes</span></code> must be 0, any other value will
 result in <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>. To create a CPU allocation targeting a
 specific host NUMA node, applications must set
 <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.CUmemLocation.type</span></code> to
-<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> and
-<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp</span></code>::CUmemLocation::id must specify the NUMA ID of the CPU.
-On systems where NUMA is not available
-<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp</span></code>::CUmemLocation::id must be set to 0. Specifying
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> and <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.CUmemLocation.id</span></code>
+must specify the NUMA ID of the CPU. On systems where NUMA is not available
+<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.CUmemLocation.id</span></code> must be set to 0. Specifying
 <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT</span></code> as the <code class="docutils literal notranslate"><span class="pre">CUmemLocation.type</span></code> will
 result in <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code>. Specifying
 <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN</span></code> as the <code class="docutils literal notranslate"><span class="pre">CUmemLocation.type</span></code>
 will localize the allocation to the specified locality domain.
-<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp</span></code>::CUmemLocation::localized.deviceId must specify the
-device ID. <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp</span></code>::CUmemLocation::localized.localityDomainId
+<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.CUmemLocation.localized.deviceId</span></code> must specify the
+device ID. <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp.CUmemLocation.localized.localityDomainId</span></code>
 must specify the locality domain ID. The locality domain ID must be a valid
 locality domain ID for the specified device. See also <code class="docutils literal notranslate"><span class="pre">cuDeviceGetAttribute</span></code>
 with the attribute <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT</span></code>.

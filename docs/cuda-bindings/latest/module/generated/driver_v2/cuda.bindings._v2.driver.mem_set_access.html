@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=9352cd0d"></script>
+    <script src="../../../_static/documentation_options.js?v=00d2c37e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2315,9 +2315,9 @@ the array given by <code class="docutils literal notranslate"><span class="pre">
 locations. The range must be a fully mapped address range containing all
 allocations created by <code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code> / <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>. Users cannot specify
 <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> accessibility for allocations created on
-with other location types. Note: When <code class="docutils literal notranslate"><span class="pre">CUmemAccessDesc</span></code>::CUmemLocation::type
-is <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code>, <code class="docutils literal notranslate"><span class="pre">CUmemAccessDesc</span></code>::CUmemLocation::id
-is ignored. When setting the access flags for a virtual address range mapping a
+with other location types. Note: When <code class="docutils literal notranslate"><span class="pre">CUmemAccessDesc.CUmemLocation.type</span></code> is
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code>, <code class="docutils literal notranslate"><span class="pre">CUmemAccessDesc.CUmemLocation.id</span></code> is
+ignored. When setting the access flags for a virtual address range mapping a
 multicast object, <code class="docutils literal notranslate"><span class="pre">ptr</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code> must be aligned to the value returned by
 <code class="docutils literal notranslate"><span class="pre">cuMulticastGetGranularity</span></code> with the flag
 <code class="docutils literal notranslate"><span class="pre">CU_MULTICAST_MINIMUM_GRANULARITY</span></code>. For best performance however, it is

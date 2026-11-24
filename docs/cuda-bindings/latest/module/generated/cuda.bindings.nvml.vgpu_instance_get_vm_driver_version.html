@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../_static/documentation_options.js?v=9352cd0d"></script>
+    <script src="../../_static/documentation_options.js?v=00d2c37e"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2313,7 +2313,7 @@
 <p>The version is returned as an alphanumeric string in the caller-supplied buffer
 <code class="docutils literal notranslate"><span class="pre">version</span></code>. The length of the version string will not exceed 80 characters in
 length (including the NUL terminator). See
-nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
+<code class="docutils literal notranslate"><span class="pre">nvmlConstants.NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE</span></code>.
 <a class="reference internal" href="#cuda.bindings.nvml.vgpu_instance_get_vm_driver_version" title="cuda.bindings.nvml.vgpu_instance_get_vm_driver_version"><code class="xref py py-func docutils literal notranslate"><span class="pre">vgpu_instance_get_vm_driver_version()</span></code></a> may be called at any time for a
 vGPU instance. The guest VM driver version is returned as “Not Available” if no
 NVIDIA driver is installed in the VM, or the VM has not yet booted to the point

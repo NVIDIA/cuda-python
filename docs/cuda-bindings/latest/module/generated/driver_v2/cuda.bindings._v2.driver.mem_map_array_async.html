@@ -44,7 +44,7 @@
 
 
 
-    <script src="../../../_static/documentation_options.js?v=9352cd0d"></script>
+    <script src="../../../_static/documentation_options.js?v=00d2c37e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev85';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev87';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -2325,7 +2325,7 @@ entry in the <code class="docutils literal notranslate"><span class="pre">map_in
 **View CUDA Toolkit Documentation for a C++ code example**.
 where <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.resourceType</span></code> specifies the type of resource to be
 operated on. If <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.resourceType</span></code> is set to
-<code class="docutils literal notranslate"><span class="pre">CUresourcetype</span></code>::CU_RESOURCE_TYPE_ARRAY then
+<code class="docutils literal notranslate"><span class="pre">CUresourcetype.CU_RESOURCE_TYPE_ARRAY</span></code> then
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.resource.array</span></code> must be set to a valid sparse CUDA array
 handle. The CUDA array must be either a 2D, 2D layered or 3D CUDA array and
 must have been allocated using <code class="docutils literal notranslate"><span class="pre">cuArrayCreate</span></code> or <code class="docutils literal notranslate"><span class="pre">cuArray3DCreate</span></code> with
@@ -2333,7 +2333,7 @@ the flag <code class="docutils literal notranslate"><span class="pre">CUDA_ARRAY
 arrays obtained using <code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetLevel</span></code>,
 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_VALUE</span></code> will be returned. If
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.resourceType</span></code> is set to
-<code class="docutils literal notranslate"><span class="pre">CUresourcetype</span></code>::CU_RESOURCE_TYPE_MIPMAPPED_ARRAY then
+<code class="docutils literal notranslate"><span class="pre">CUresourcetype.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY</span></code> then
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.resource.mipmap</span></code> must be set to a valid sparse CUDA mipmapped
 array handle. The CUDA mipmapped array must be either a 2D, 2D layered or 3D
 CUDA mipmapped array and must have been allocated using
@@ -2343,14 +2343,14 @@ CUDA mipmapped array and must have been allocated using
 resource. <code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType_enum</span></code> is defined as:.
 **View CUDA Toolkit Documentation for a C++ code example**.
 where
-<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType</span></code>::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
+<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL</span></code>
 indicates a sparse-miplevel which spans at least one tile in every dimension.
 The remaining miplevels which are too small to span at least one tile in any
 dimension constitute the mip tail region as indicated by
-<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType</span></code>::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
+<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL</span></code>
 subresource type.
 If <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.subresourceType</span></code> is set to
-<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType</span></code>::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
+<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL</span></code>
 then <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.subresource.sparseLevel</span></code> struct must contain valid array
 subregion offsets and extents. The
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.subresource.sparseLevel.offsetX</span></code>,
@@ -2372,7 +2372,7 @@ and 2D layered CUDA arrays and CUDA mipmapped arrays. Tile extents can be
 obtained by calling <code class="docutils literal notranslate"><span class="pre">cuArrayGetSparseProperties</span></code> and
 <code class="docutils literal notranslate"><span class="pre">cuMipmappedArrayGetSparseProperties</span></code>.
 If <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.subresourceType</span></code> is set to
-<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType</span></code>::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL then
+<code class="docutils literal notranslate"><span class="pre">CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL</span></code> then
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.subresource.miptail</span></code> struct must contain valid mip tail
 offset in <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.subresource.miptail.offset</span></code> and size in
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.subresource.miptail.size</span></code>. Both, mip tail offset and mip tail
@@ -2390,20 +2390,20 @@ created with <code class="docutils literal notranslate"><span class="pre">CUDA_A
 <code class="docutils literal notranslate"><span class="pre">CUmemOperationType</span></code> is defined as:.
 **View CUDA Toolkit Documentation for a C++ code example**.
 If <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.memOperationType</span></code> is set to
-<code class="docutils literal notranslate"><span class="pre">CUmemOperationType</span></code>::CU_MEM_OPERATION_TYPE_MAP then the subresource will be
+<code class="docutils literal notranslate"><span class="pre">CUmemOperationType.CU_MEM_OPERATION_TYPE_MAP</span></code> then the subresource will be
 mapped onto the tile pool memory specified by <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.memHandle</span></code> at
 offset <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.offset</span></code>. The tile pool allocation has to be created by
 specifying the <code class="docutils literal notranslate"><span class="pre">CU_MEM_CREATE_USAGE_TILE_POOL</span></code> flag when calling
 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>. Also, <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.memHandleType</span></code> must be set to
-<code class="docutils literal notranslate"><span class="pre">CUmemHandleType</span></code>::CU_MEM_HANDLE_TYPE_GENERIC.
+<code class="docutils literal notranslate"><span class="pre">CUmemHandleType.CU_MEM_HANDLE_TYPE_GENERIC</span></code>.
 If <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.memOperationType</span></code> is set to
-<code class="docutils literal notranslate"><span class="pre">CUmemOperationType</span></code>::CU_MEM_OPERATION_TYPE_UNMAP then an unmapping operation
+<code class="docutils literal notranslate"><span class="pre">CUmemOperationType.CU_MEM_OPERATION_TYPE_UNMAP</span></code> then an unmapping operation
 is performed. <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.memHandle</span></code> must be NULL.
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.deviceBitMask</span></code> specifies the list of devices that must map or
 unmap physical memory. Currently, this mask must have exactly one bit set, and
 the corresponding device must match the device associated with the stream. If
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.memOperationType</span></code> is set to
-<code class="docutils literal notranslate"><span class="pre">CUmemOperationType</span></code>::CU_MEM_OPERATION_TYPE_MAP, the device must also match
+<code class="docutils literal notranslate"><span class="pre">CUmemOperationType.CU_MEM_OPERATION_TYPE_MAP</span></code>, the device must also match
 the device associated with the tile pool memory allocation as specified by
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.memHandle</span></code>.
 <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.flags</span></code> and <code class="docutils literal notranslate"><span class="pre">CUarrayMapInfo.reserved</span></code>[] are unused and must
