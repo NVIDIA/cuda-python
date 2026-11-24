@@ -384,6 +384,29 @@ def child_dead_registry_entry_is_removed(mr_type, alloc_handle):
         assert mr_type.from_registry(key) is successor
 
 
+def child_shared_handle_keeps_its_uuid_object(mr_type, alloc_handle):
+    with _child_device() as (device, _baseline), contextlib.ExitStack() as stack:
+        first = import_pool_resource(mr_type, device, int(alloc_handle))
+        # Built from the first import's handle while it carries no UUID, so the
+        # two imports share that handle.
+        second = _enter_import(stack, mr_type, device, first.allocation_handle)
+        assert second.allocation_handle is first.allocation_handle
+        key = uuid.uuid4()
+        assert first.register(key) is first
+        first.close()
+        del first
+        with pytest.raises(RuntimeError, match="was not found"):
+            mr_type.from_registry(key)
+
+        # The handle outlived its first owner and still has the UUID. Registering
+        # the second import under an equal UUID must not replace that object:
+        # the handle's UUID is read without a lock.
+        equal = uuid.UUID(bytes=key.bytes)
+        assert second.register(equal) is second
+        assert second.uuid is key
+        assert mr_type.from_registry(equal) is second
+
+
 def _import_concurrently(mr_type, device, alloc_handle):
     barrier = threading.Barrier(THREADS)
     results = [None] * THREADS
@@ -563,6 +586,11 @@ class TestIpcPoolDuplicateImport:
     def test_registry_entry_of_a_dropped_resource_is_removed(self, ipc_device, pool_resource):
         ipc_device.set_current()
         run_child(child_dead_registry_entry_is_removed, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-fable-5-2")
+    def test_shared_handle_keeps_its_uuid_object_after_its_first_owner(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(child_shared_handle_keeps_its_uuid_object, type(pool_resource), pool_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_concurrent_imports_of_one_uuid_share_a_resource(self, ipc_device, pool_resource):

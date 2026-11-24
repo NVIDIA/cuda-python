@@ -135,6 +135,32 @@ def test_register_rejects_mismatched_uuid(ipc_memory_resource):
     assert mr.register(mr.uuid) is mr
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_register_keeps_the_uuid_object_the_resource_already_has(ipc_memory_resource):
+    """register() under an equal UUID keeps the UUID object the resource already has.
+
+    The UUID of an allocation handle is read without a lock. Replacing the
+    object would release the old one while another thread may be taking a
+    reference to it, which is a use-after-free on a free-threaded build.
+    """
+    mr = ipc_memory_resource
+    if not is_pool_resource(mr):
+        pytest.skip("allocation handles and the registry are pool-only")
+
+    original = mr.uuid
+    assert original is not None
+    equal = uuid.UUID(bytes=original.bytes)
+    assert equal is not original
+    # Not registered yet, so the call below inserts rather than returning a hit.
+    with pytest.raises(RuntimeError, match="was not found"):
+        type(mr).from_registry(equal)
+
+    assert mr.register(equal) is mr
+
+    assert mr.uuid is original
+    assert type(mr).from_registry(equal) is mr
+
+
 @pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_ipc_allocation_handle_state_tracks_close():

@@ -719,7 +719,14 @@ cdef _MemPool MP_register(_MemPool self, uuid):
                 changed = handle._uuid is not current
                 if not changed and not conflict:
                     registry[key] = ref
-                    handle._uuid = uuid
+                    # Write the UUID once. The handle's UUID is read without
+                    # this lock (above and in IPCAllocationHandle.uuid), so
+                    # replacing an equal UUID would release an object that
+                    # another thread may be taking a reference to. Releasing it
+                    # here could also run a uuid.UUID subclass's __del__ under
+                    # the lock.
+                    if current is None:
+                        handle._uuid = uuid
                     return self
         if existing is not None:
             MP_check_open(existing)
