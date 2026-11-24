@@ -159,6 +159,9 @@ the literal floor.
   call-site consistency.
 - Prefer explicit error propagation over silent fallback paths.
 - If you change public behavior, update tests and docs under `docs/source/`.
+- Do not add test-only hooks (`*_for_testing` functions, test-only globals,
+  parameters, or branches) to production code; see "Keep test hooks out of
+  production code" in `tests/AGENTS.md` for the alternatives.
 
 ## Concurrency and free-threading
 
