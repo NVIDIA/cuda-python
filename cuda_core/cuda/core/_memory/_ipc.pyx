@@ -722,7 +722,9 @@ cdef _MemPool MP_register(_MemPool self, uuid):
         # UUID, and a nested registration cannot run between them because no
         # Python code runs here. See the comment at _registry_lock.
         with _registry_lock:
-            # Entering another lock scope here can allocate and trigger GC.
+            # Reuse the held lock. On CPython 3.11, binding the context manager
+            # methods for another lock scope can allocate GC-tracked objects
+            # and start a collection here.
             existing = _registry_lookup_locked(key)
             if existing is None and handle is not None:
                 # Imports can share one handle. If another registration gave it
