@@ -13,6 +13,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <thread>
 #include <type_traits>
 #include <unordered_map>
@@ -271,7 +272,7 @@ class ReleasingHandleRegistry {
         std::unique_lock lock(mutex_);
         Lookup found;
         released_.wait(lock, [&] {
-            found = find(key);
+            found = find(lock, key);
             return found.state != State::Releasing;
         });
         if (found.state == State::Live) {
@@ -331,10 +332,15 @@ class ReleasingHandleRegistry {
         Handle owner;  // set only when state is Live
     };
 
-    // Requires mutex_.
+    // Takes the caller's lock as proof that it holds mutex_, and checks it.
     Lookup
-    find(const Key &key) const
+    find(const std::unique_lock<std::mutex> &held, const Key &key) const
     {
+        if (!held.owns_lock() || held.mutex() != &mutex_) {
+            throw std::runtime_error(
+                "internal cuda.core error, please report: registry lookup without the registry's lock"
+            );
+        }
         auto it = map_.find(key);
         if (it == map_.end()) {
             return {State::Vacant, {}};
