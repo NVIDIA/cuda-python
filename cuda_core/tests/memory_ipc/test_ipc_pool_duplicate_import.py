@@ -24,7 +24,7 @@ import pytest
 from helpers.child_processes import child_timeout_sec, run_child
 from helpers.contexts import assert_no_cuda_warning
 from helpers.latch import LatchKernel
-from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags
+from helpers.memory import import_pool_resource, is_pool_resource, pool_access_flags, pool_supported_devices
 
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
@@ -174,9 +174,12 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
             raise errors[0]
 
         # The release has finished: its cleanup must have left the new import alone.
+        # The final release revokes access one GPU at a time, so check every GPU the
+        # pool grants access to, not only the default one.
         (mr,) = reimported
         (buffer,) = reimported_buffers
-        assert pool_access_flags(mr, device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        for access_device in pool_supported_devices(mr_type, device):
+            assert pool_access_flags(mr, access_device) == driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
         buffer.fill(7, stream=stream)
         stream.sync()
 

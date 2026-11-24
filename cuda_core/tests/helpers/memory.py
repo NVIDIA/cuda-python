@@ -76,6 +76,19 @@ def import_pool_resource(cls, device, alloc_handle):
     return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
 
 
+def pool_supported_devices(mr_type, device):
+    """Devices on which an imported pool of ``mr_type`` grants access in this process.
+
+    A pinned (host-NUMA) pool grants device access to every device that supports
+    host NUMA memory pools; a device pool grants access to its own device. Keep
+    this in sync with ``_PMR_grant_device_access``.
+    """
+    if mr_type is PinnedMemoryResource:
+        return [d for d in Device.get_all_devices() if d.properties.host_numa_memory_pools_supported]
+    assert mr_type is DeviceMemoryResource, mr_type
+    return [device]
+
+
 def pool_access_flags(mr, device):
     """The ``CUmemAccess_flags`` that ``device`` has on the memory pool of ``mr`` in this process."""
     location = driver.CUmemLocation()
