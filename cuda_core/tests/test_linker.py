@@ -2,16 +2,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
 import inspect
 import warnings
 
-import numpy as np
 import pytest
 
 from cuda.core import (
     Device,
     LaunchConfig,
-    LegacyPinnedMemoryResource,
     Linker,
     LinkerOptions,
     Program,
@@ -629,25 +628,16 @@ def _compile_incremental_inputs(target_type):
     return caller, helper
 
 
-def _launch_incrementally_linked_kernel(device, linked_code):
+def _launch_incrementally_linked_kernel(device, linked_code, pinned_alloc):
     kernel = linked_code.get_kernel("incremental_kernel")
     stream = device.create_stream()
     try:
-        with LegacyPinnedMemoryResource().allocate(4) as host_buffer:
-            result = np.from_dlpack(host_buffer).view(np.int32)
-            try:
-                with device.memory_resource.allocate(4, stream=stream) as device_buffer:
-                    result[:] = 0
-
-                    launch(stream, LaunchConfig(grid=1, block=1), kernel, device_buffer)
-                    device_buffer.copy_to(host_buffer, stream=stream)
-                    stream.sync()
-                    actual = int(result[0])
-            finally:
-                # Drop the DLPack view before releasing its pinned allocation.
-                result = None
-
-        assert actual == 42
+        with pinned_alloc(ctypes.sizeof(ctypes.c_int)) as host_buffer:
+            result = ctypes.c_int.from_address(int(host_buffer.handle))
+            result.value = 0
+            launch(stream, LaunchConfig(grid=1, block=1), kernel, host_buffer)
+            stream.sync()
+            assert result.value == 42
     finally:
         try:
             stream.sync()
@@ -660,7 +650,7 @@ def _launch_incrementally_linked_kernel(device, linked_code):
     is_culink_backend or nvjitlink_version < (13, 2),
     reason="incremental linking requires nvJitLink 13.2 or newer",
 )
-def test_incremental_cubin_round_trip(init_cuda):
+def test_incremental_cubin_round_trip(init_cuda, pinned_alloc):
     caller, helper = _compile_incremental_inputs("ptx")
 
     partial = Linker(caller, options=LinkerOptions(arch=ARCH, incremental=True)).link("cubin")
@@ -672,10 +662,10 @@ def test_incremental_cubin_round_trip(init_cuda):
         options=LinkerOptions(arch=ARCH, incremental=True),
     ).link("cubin")
     assert resolved_partial.code_type == "cubin"
-    _launch_incrementally_linked_kernel(init_cuda, resolved_partial)
+    _launch_incrementally_linked_kernel(init_cuda, resolved_partial, pinned_alloc)
 
     final = Linker(resolved_partial, options=LinkerOptions(arch=ARCH)).link("cubin")
-    _launch_incrementally_linked_kernel(init_cuda, final)
+    _launch_incrementally_linked_kernel(init_cuda, final, pinned_alloc)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -683,7 +673,7 @@ def test_incremental_cubin_round_trip(init_cuda):
     is_culink_backend or nvjitlink_version < (13, 3),
     reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
 )
-def test_incremental_ltoir_round_trip(init_cuda):
+def test_incremental_ltoir_round_trip(init_cuda, pinned_alloc):
     caller, helper = _compile_incremental_inputs("ltoir")
     incremental_options = LinkerOptions(
         arch=ARCH,
@@ -701,7 +691,7 @@ def test_incremental_ltoir_round_trip(init_cuda):
         resolved_partial,
         options=LinkerOptions(arch=ARCH, link_time_optimization=True),
     ).link("cubin")
-    _launch_incrementally_linked_kernel(init_cuda, final)
+    _launch_incrementally_linked_kernel(init_cuda, final, pinned_alloc)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -709,7 +699,7 @@ def test_incremental_ltoir_round_trip(init_cuda):
     is_culink_backend or nvjitlink_version < (13, 3),
     reason="linked LTOIR output requires nvJitLink 13.3 or newer and matching cuda-bindings",
 )
-def test_complete_ltoir_round_trip_matches_direct_cubin(init_cuda):
+def test_complete_ltoir_round_trip_matches_direct_cubin(init_cuda, pinned_alloc):
     caller, helper = _compile_incremental_inputs("ltoir")
     options = LinkerOptions(arch=ARCH, link_time_optimization=True)
 
@@ -719,7 +709,7 @@ def test_complete_ltoir_round_trip_matches_direct_cubin(init_cuda):
 
     assert linked_ltoir.code_type == "ltoir"
     assert round_trip_cubin.code == direct_cubin.code
-    _launch_incrementally_linked_kernel(init_cuda, round_trip_cubin)
+    _launch_incrementally_linked_kernel(init_cuda, round_trip_cubin, pinned_alloc)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
@@ -727,7 +717,7 @@ def test_complete_ltoir_round_trip_matches_direct_cubin(init_cuda):
     is_culink_backend or nvjitlink_version < (13, 2),
     reason="incremental linking requires nvJitLink 13.2 or newer",
 )
-def test_incremental_lto_cubin_round_trip(init_cuda):
+def test_incremental_lto_cubin_round_trip(init_cuda, pinned_alloc):
     caller, helper = _compile_incremental_inputs("ltoir")
     partial = Linker(
         caller,
@@ -747,7 +737,7 @@ def test_incremental_lto_cubin_round_trip(init_cuda):
         helper,
         options=LinkerOptions(arch=ARCH, link_time_optimization=True),
     ).link("cubin")
-    _launch_incrementally_linked_kernel(init_cuda, final)
+    _launch_incrementally_linked_kernel(init_cuda, final, pinned_alloc)
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")

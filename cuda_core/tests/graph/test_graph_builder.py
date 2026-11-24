@@ -18,7 +18,6 @@ from cuda.core import (
     CUDAWarning,
     Device,
     LaunchConfig,
-    LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
     StreamOptions,
@@ -154,14 +153,13 @@ def test_graph_is_join_required(init_cuda):
 
 
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_repeat_capture(init_cuda):
+def test_graph_repeat_capture(init_cuda, pinned_alloc):
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = pinned_alloc(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 
@@ -475,14 +473,13 @@ def test_capture_tail_discovery_failure_preserves_callback_attachment(init_cuda)
 
 
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_graph_child_graph(init_cuda):
+def test_graph_child_graph(init_cuda, pinned_alloc):
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
 
     # Allocate memory
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(8)
+    b = pinned_alloc(8)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
     arr[1] = 0
@@ -706,14 +703,13 @@ def test_graph_definition_raises_after_close(init_cuda):
 
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
-def test_graph_definition_round_trips_through_explicit_api(init_cuda):
+def test_graph_definition_round_trips_through_explicit_api(init_cuda, pinned_alloc):
     """Mutating via the explicit API survives complete() and runs correctly."""
     mod = compile_common_kernels()
     add_one = mod.get_kernel("add_one")
 
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = pinned_alloc(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 
@@ -737,7 +733,7 @@ def test_graph_definition_round_trips_through_explicit_api(init_cuda):
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 @requires_module(np, "2.1")
-def test_graph_definition_hybrid_conditional_body(init_cuda):
+def test_graph_definition_hybrid_conditional_body(init_cuda, pinned_alloc):
     """Populate a conditional body entirely through the explicit API.
 
     This is the headline hybrid flow enabled by the new property:
@@ -750,8 +746,7 @@ def test_graph_definition_hybrid_conditional_body(init_cuda):
     set_handle = mod.get_kernel("set_handle")
 
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = pinned_alloc(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 
@@ -777,15 +772,14 @@ def test_graph_definition_hybrid_conditional_body(init_cuda):
 
 @pytest.mark.agent_authored(model="claude-opus-4.8")
 @requires_module(np, "2.1")
-def test_graph_definition_conditional_body_after_capture(init_cuda):
+def test_graph_definition_conditional_body_after_capture(init_cuda, pinned_alloc):
     """Capture into a conditional body, then augment it via the explicit API."""
     mod = compile_conditional_kernels(int)
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
     launch_stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
+    b = pinned_alloc(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
 
@@ -828,7 +822,7 @@ def test_graph_definition_conditional_body_during_capture_raises(init_cuda):
 
 
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_pdl_launch_graph_capture(init_cuda):
+def test_pdl_launch_graph_capture(init_cuda, pinned_alloc):
     """PDL LaunchConfig is graph-compatible via GraphBuilder stream capture.
 
     Captures a first then a secondary launch with
@@ -869,8 +863,7 @@ def test_pdl_launch_graph_capture(init_cuda):
     dummy_kernel = mod.get_kernel("add_one")
 
     stream = Device().create_stream()
-    mr = LegacyPinnedMemoryResource()
-    buf = mr.allocate(4)
+    buf = pinned_alloc(4)
     arr = np.from_dlpack(buf).view(np.int32)
     arr[0] = 0
 
@@ -894,7 +887,7 @@ def test_pdl_launch_graph_capture(init_cuda):
 
 @skipif_need_cuda_headers
 @requires_module(np, "2.2.5", reason="need numpy 2.2.5+ (numpy GH #28632)")
-def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda):
+def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda, pinned_alloc):
     """Same-stream PDL overlap via GraphBuilder stream capture on Hopper+."""
     dev = Device()
     if dev.compute_capability < (9, 0):
@@ -932,9 +925,8 @@ def test_pdl_same_stream_primary_secondary_overlap_via_graph(init_cuda):
     secondary = module.get_kernel("secondary_kernel")
 
     stream = dev.create_stream(options=StreamOptions(nonblocking=True))
-    mr = LegacyPinnedMemoryResource()
-    secondary_started = np.from_dlpack(mr.allocate(4)).view(np.int32)
-    overlapped = np.from_dlpack(mr.allocate(4)).view(np.int32)
+    secondary_started = np.from_dlpack(pinned_alloc(4)).view(np.int32)
+    overlapped = np.from_dlpack(pinned_alloc(4)).view(np.int32)
     primary_cfg = LaunchConfig(grid=1, block=1)
     secondary_cfg = LaunchConfig(grid=1, block=1, programmatic_stream_serialization=True)
 

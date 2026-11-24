@@ -8,7 +8,6 @@ import pytest
 import helpers
 from cuda.core import (
     LaunchConfig,
-    LegacyPinnedMemoryResource,
     Program,
     ProgramOptions,
     launch,
@@ -26,7 +25,7 @@ class LatchKernel:
     latch ran into its timeout, the release protocol did not drive the test.
     """
 
-    def __init__(self, device, timeout_sec=60):
+    def __init__(self, device, *, pinned_alloc, timeout_sec=60):
         if helpers.CUDA_INCLUDE_PATH is None:
             pytest.skip("need CUDA header")
         code = """
@@ -66,8 +65,7 @@ class LatchKernel:
         mod = prog.compile(target_type="cubin")
         self.kernel = mod.get_kernel("latch")
 
-        mr = LegacyPinnedMemoryResource()
-        self.buffer = mr.allocate(8)
+        self.buffer = pinned_alloc(2 * ctypes.sizeof(ctypes.c_int32))
         self.busy_wait_flag[0] = 0
         self.busy_wait_flag[1] = 0
         clock_rate_hz = device.properties.clock_rate * 1000

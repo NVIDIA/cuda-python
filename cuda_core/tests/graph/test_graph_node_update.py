@@ -10,12 +10,21 @@ import time
 import weakref
 from collections.abc import Callable
 from dataclasses import dataclass
+from functools import partial
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
+from helpers.memory import make_pinned_allocator
 from helpers.nanosleep_kernel import NanosleepKernel
 
-from cuda.core import Device, DeviceMemoryResource, EventOptions, LaunchConfig, LegacyPinnedMemoryResource
+from cuda.core import (
+    Device,
+    DeviceMemoryResource,
+    EventOptions,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    PinnedMemoryResource,
+)
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
 from cuda.core._utils._weak_handles import weak_handle
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
@@ -421,14 +430,14 @@ def _memcpy_destination_case(device):
     return _memcpy_case(device, replace_operand="dst")
 
 
-def _kernel_case(device, *, replace):
+def _kernel_case(device, *, replace, resource_type):
+    pinned_alloc = make_pinned_allocator(resource_type)
     module = compile_common_kernels()
     add_one = module.get_kernel("add_one")
     empty_kernel = module.get_kernel("empty_kernel")
     write_launch_dims = module.get_kernel("write_launch_dims")
-    memory_resource = LegacyPinnedMemoryResource()
-    original_buffer = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
-    replacement_buffer = memory_resource.allocate(ctypes.sizeof(ctypes.c_int)) if replace == "args" else original_buffer
+    original_buffer = pinned_alloc(ctypes.sizeof(ctypes.c_int))
+    replacement_buffer = pinned_alloc(ctypes.sizeof(ctypes.c_int)) if replace == "args" else original_buffer
 
     original_config = LaunchConfig(grid=1, block=1)
     replacement_config = LaunchConfig(grid=2, block=3) if replace == "config" else original_config
@@ -512,21 +521,6 @@ def _kernel_case(device, *, replace):
     )
 
 
-def _kernel_config_case(device):
-    """Replace launch dimensions while preserving the kernel and arguments."""
-    return _kernel_case(device, replace="config")
-
-
-def _kernel_args_case(device):
-    """Replace arguments while preserving the kernel and configuration."""
-    return _kernel_case(device, replace="args")
-
-
-def _kernel_function_case(device):
-    """Replace a kernel and explicitly supply its coupled arguments."""
-    return _kernel_case(device, replace="kernel")
-
-
 def _child_graph_case(device):
     """Replace the embedded clone while preserving existing executables."""
     called = []
@@ -595,9 +589,14 @@ def _child_graph_case(device):
         pytest.param(_memcpy_size_case, id="memcpy-size"),
         pytest.param(_memcpy_source_case, id="memcpy-source"),
         pytest.param(_memcpy_destination_case, id="memcpy-destination"),
-        pytest.param(_kernel_config_case, id="kernel-config"),
-        pytest.param(_kernel_args_case, id="kernel-args"),
-        pytest.param(_kernel_function_case, id="kernel-function"),
+        *(
+            pytest.param(
+                partial(_kernel_case, replace=replace, resource_type=resource_type),
+                id=f"kernel-{name}-{resource_type.__name__}",
+            )
+            for replace, name in (("config", "config"), ("args", "args"), ("kernel", "function"))
+            for resource_type in (LegacyPinnedMemoryResource, PinnedMemoryResource)
+        ),
         pytest.param(_child_graph_case, id="child-graph"),
     ]
 )
@@ -1204,15 +1203,14 @@ def test_executable_attachment_accumulators_are_independent(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_rejected_executable_update_rolls_back_owners(init_cuda):
+def test_rejected_executable_update_rolls_back_owners(init_cuda, pinned_alloc):
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
 
     kernel = compile_common_kernels().get_kernel("add_one")
     config = LaunchConfig(grid=1, block=1)
-    memory_resource = LegacyPinnedMemoryResource()
-    active = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
-    rejected = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    active = pinned_alloc(ctypes.sizeof(ctypes.c_int))
+    rejected = pinned_alloc(ctypes.sizeof(ctypes.c_int))
     ctypes.c_int.from_address(int(active.handle)).value = 0
     rejected_weak = weak_handle(rejected)
 
@@ -1308,7 +1306,7 @@ def test_failed_whole_update_preserves_executable_accumulator(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-5.6")
-def test_inflight_launch_defers_replaced_executable_owners(init_cuda):
+def test_inflight_launch_defers_replaced_executable_owners(init_cuda, pinned_alloc):
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
 
@@ -1321,10 +1319,10 @@ def test_inflight_launch_defers_replaced_executable_owners(init_cuda):
 
     kernel = compile_common_kernels().get_kernel("add_one")
     config = LaunchConfig(grid=1, block=1)
-    memory_resource = LegacyPinnedMemoryResource()
-    original = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
-    inflight = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
-    future = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    original = pinned_alloc(ctypes.sizeof(ctypes.c_int))
+    inflight = pinned_alloc(ctypes.sizeof(ctypes.c_int))
+    future = pinned_alloc(ctypes.sizeof(ctypes.c_int))
+    ctypes.c_int.from_address(int(inflight.handle)).value = 0
     inflight_weak = weak_handle(inflight)
 
     source = GraphDefinition()
@@ -1438,7 +1436,7 @@ def test_child_graph_update_transfers_source_owners_to_executable(init_cuda):
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")
-def test_closing_executable_during_launch_defers_owner_release(init_cuda):
+def test_closing_executable_during_launch_defers_owner_release(init_cuda, pinned_alloc):
     if driver_version() < (12, 2, 0):
         pytest.skip("individual graph node updates require CUDA 12.2+")
 
@@ -1451,9 +1449,9 @@ def test_closing_executable_during_launch_defers_owner_release(init_cuda):
 
     kernel = compile_common_kernels().get_kernel("add_one")
     config = LaunchConfig(grid=1, block=1)
-    memory_resource = LegacyPinnedMemoryResource()
-    original = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
-    inflight = memory_resource.allocate(ctypes.sizeof(ctypes.c_int))
+    original = pinned_alloc(ctypes.sizeof(ctypes.c_int))
+    inflight = pinned_alloc(ctypes.sizeof(ctypes.c_int))
+    ctypes.c_int.from_address(int(inflight.handle)).value = 0
     inflight_weak = weak_handle(inflight)
 
     source = GraphDefinition()

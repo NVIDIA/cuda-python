@@ -127,9 +127,9 @@ def test_error_timing_recorded():
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 @pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
 @pytest.mark.agent_authored(model="claude-opus-5-5")
-def test_error_timing_incomplete(init_cuda):
+def test_error_timing_incomplete(init_cuda, pinned_alloc):
     device = init_cuda
-    latch = LatchKernel(device, timeout_sec=_LATCH_TIMEOUT_SEC)
+    latch = LatchKernel(device, pinned_alloc=pinned_alloc, timeout_sec=_LATCH_TIMEOUT_SEC)
     enabled = EventOptions(timing_enabled=True)
     stream = device.create_stream()
 
@@ -253,10 +253,10 @@ def test_event_ipc_descriptor_non_ipc(init_cuda):
 
 @pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
 @pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
-def test_event_is_done_false(init_cuda):
+def test_event_is_done_false(init_cuda, pinned_alloc):
     """Event.is_done returns False when captured work has not yet completed."""
     device = Device()
-    latch = LatchKernel(device)
+    latch = LatchKernel(device, pinned_alloc=pinned_alloc)
     stream = device.create_stream()
     latch.launch(stream)
     event = stream.record()

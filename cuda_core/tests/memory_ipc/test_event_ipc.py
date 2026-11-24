@@ -26,14 +26,14 @@ pytestmark = pytest.mark.parallel_threads_limit(2)
 class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
-    def test_main(self, ipc_device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource, pinned_alloc):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
         mr = ipc_memory_resource
         stream1 = device.create_stream()
         # The child's reply releases the latch. The timeout must outlast the parent's
         # waits below, so that it can only expire after the parent has given up.
-        latch = LatchKernel(device, timeout_sec=4 * CHILD_TIMEOUT_SEC)
+        latch = LatchKernel(device, pinned_alloc=pinned_alloc, timeout_sec=4 * CHILD_TIMEOUT_SEC)
 
         # Prepare scratch buffers.
         target = make_scratch_buffer(device, 0, NBYTES)

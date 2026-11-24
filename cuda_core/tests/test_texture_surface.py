@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
 import gc
 
 import numpy as np
@@ -1330,13 +1331,11 @@ def test_surface_invalid_resource_then_live_texture_lifecycle(init_cuda):
 
 
 @pytest.mark.agent_authored(model="gpt-6-sol")
-def test_texture_border_color_is_sampled_on_device(init_cuda):
+def test_texture_border_color_is_sampled_on_device(init_cuda, pinned_alloc):
     """Out-of-bounds texture reads return the configured RGBA border color."""
     from contextlib import closing
 
-    from cuda.bindings import driver
     from cuda.core import LaunchConfig, Program, ProgramOptions, launch
-    from cuda.core._utils.cuda_utils import handle_return
 
     code = r"""
     extern "C" __global__ void sample_border(unsigned long long texture, float* result) {
@@ -1354,14 +1353,13 @@ def test_texture_border_color_is_sampled_on_device(init_cuda):
     border = (0.25, 0.5, 0.75, 1.0)
     texel = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float32)
     source = np.tile(texel, (2, 2, 1))
-    actual = np.empty(8, dtype=np.float32)
     with (
         closing(Program(code, "c++", options=ProgramOptions(std="c++17", arch=f"sm_{init_cuda.arch}"))) as program,
         closing(init_cuda.create_stream()) as stream,
         init_cuda.create_opaque_array(
             OpaqueArrayOptions(shape=(2, 2), format=ArrayFormatType.FLOAT32, num_channels=4)
         ) as array,
-        init_cuda.allocate(actual.nbytes, stream=stream) as output,
+        pinned_alloc(8 * ctypes.sizeof(ctypes.c_float)) as output,
     ):
         module = program.compile("cubin")
         kernel = module.get_kernel("sample_border")
@@ -1375,8 +1373,8 @@ def test_texture_border_color_is_sampled_on_device(init_cuda):
             ),
         ) as texture:
             launch(stream, LaunchConfig(grid=1, block=2), kernel, np.uint64(texture.handle), output)
-            handle_return(driver.cuMemcpyDtoHAsync(actual.ctypes.data, output.handle, actual.nbytes, stream.handle))
             stream.sync()
+            actual = np.ctypeslib.as_array((ctypes.c_float * 8).from_address(int(output.handle)))
             np.testing.assert_array_equal(actual[:4], np.asarray(border, dtype=np.float32))
             np.testing.assert_array_equal(actual[4:], texel)
 
