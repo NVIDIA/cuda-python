@@ -269,11 +269,14 @@ class ReleasingHandleRegistry {
     get_or_create(const Key &key, Factory &&create)
     {
         std::unique_lock lock(mutex_);
-        for (auto it = map_.find(key); it != map_.end(); it = map_.find(key)) {
-            if (Handle h = it->second.handle.lock()) {
-                return h;
-            }
-            released_.wait(lock);
+        Handle owner;
+        State state;
+        released_.wait(lock, [&] {
+            state = find(key, owner);
+            return state != State::Releasing;
+        });
+        if (state == State::Live) {
+            return owner;
         }
         // Insert before creating, so a failed insertion has nothing to undo.
         auto it = map_.try_emplace(key).first;
@@ -315,6 +318,26 @@ class ReleasingHandleRegistry {
         std::weak_ptr<typename Handle::element_type> handle;
         const typename Handle::element_type *resource = nullptr;
     };
+
+    // What is registered under a key. An entry outlives its owner's last
+    // reference, so an entry whose owner has expired is a release in flight.
+    enum class State {
+        Vacant,     // no entry: the caller may create an owner
+        Live,       // an owner holds the resource
+        Releasing,  // the owner's deleter has not called release() yet
+    };
+
+    // Requires mutex_. Sets owner only when the state is Live.
+    State
+    find(const Key &key, Handle &owner) const
+    {
+        auto it = map_.find(key);
+        if (it == map_.end()) {
+            return State::Vacant;
+        }
+        owner = it->second.handle.lock();
+        return owner ? State::Live : State::Releasing;
+    }
 
     std::mutex mutex_;
     std::condition_variable released_;
