@@ -269,14 +269,13 @@ class ReleasingHandleRegistry {
     get_or_create(const Key &key, Factory &&create)
     {
         std::unique_lock lock(mutex_);
-        Handle owner;
-        State state;
+        Lookup found;
         released_.wait(lock, [&] {
-            state = find(key, owner);
-            return state != State::Releasing;
+            found = find(key);
+            return found.state != State::Releasing;
         });
-        if (state == State::Live) {
-            return owner;
+        if (found.state == State::Live) {
+            return found.owner;
         }
         // Insert before creating, so a failed insertion has nothing to undo.
         auto it = map_.try_emplace(key).first;
@@ -327,16 +326,24 @@ class ReleasingHandleRegistry {
         Releasing,  // the owner's deleter has not called release() yet
     };
 
-    // Requires mutex_. Sets owner only when the state is Live.
-    State
-    find(const Key &key, Handle &owner) const
+    struct Lookup {
+        State state = State::Vacant;
+        Handle owner;  // set only when state is Live
+    };
+
+    // Requires mutex_.
+    Lookup
+    find(const Key &key) const
     {
         auto it = map_.find(key);
         if (it == map_.end()) {
-            return State::Vacant;
+            return {State::Vacant, {}};
         }
-        owner = it->second.handle.lock();
-        return owner ? State::Live : State::Releasing;
+        Handle owner = it->second.handle.lock();
+        if (!owner) {
+            return {State::Releasing, {}};
+        }
+        return {State::Live, std::move(owner)};
     }
 
     std::mutex mutex_;
