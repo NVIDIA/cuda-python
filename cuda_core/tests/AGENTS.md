@@ -142,6 +142,44 @@ Follow these rules when adding or moving shared test code:
 - In directories without `__init__.py`, keep test-module basenames unique
   within this test suite.
 
+## Keep test hooks out of production code
+
+Production modules under `cuda/core/` must not contain code that exists only
+for tests. Do not add:
+
+- `*_for_testing` functions, setters, or Python wrappers in production modules;
+- globals, thread-locals, or atomics that a production code path reads only so
+  a test can inject a fault, a delay, or a callback;
+- `bint ..._for_testing` parameters or other test-only branches;
+- `extern` declarations or aliases that exist only to serve a test wrapper.
+
+To make a hard-to-reach path testable, use the first option that works:
+
+1. **Drive it through the public API** or real conditions, for example an
+   oversized allocation, a closed resource, or a second device.
+2. **Pass an object the code under test calls back into.** A `uuid.UUID`
+   subclass whose `__hash__` runs an action, or a `gc.callbacks` entry, can
+   interrupt a specific step deterministically (see
+   `tests/memory_ipc/test_ipc_pool_duplicate_import.py`).
+3. **Observe or call internals from `cuda/core/_utils/_testing.pyx`.** This
+   test-only module `cimport`s private declarations, for example weak handles
+   built from `cdef` handle fields, or a wrapper around a `cdef` function
+   declared in a `.pxd`. Extend it rather than adding a module.
+4. **Wrap a driver function.** To make a driver call fail or wait, add a
+   wrapper to the driver function wrappers in `_testing.pyx`; see
+   `set_context_restore_fault` and `set_mempool_set_access_delay`. Write the
+   wrapper in C++ in the inline block: it can run without the GIL, from any
+   thread, and during interpreter shutdown. When disarmed it must only check
+   an atomic or a thread-local and then call the driver. Its setter must call
+   `_require_driver_fn_wrappers()` when arming. `conftest.py` installs the
+   wrappers for the session, but a spawned child does not run `conftest.py`
+   and must call `install_driver_fn_wrappers()` before its first driver call.
+
+If none of these works, raise it in review before adding a hook, and explain
+why. `_capture_callback_with_tail_failure_for_testing` in
+`graph/_graph_builder.pyx` is a remaining legacy hook; do not use it as prior
+art.
+
 ## Skip only real setup failures
 
 `pytest.skip(reason)` records the test as SKIPPED with `reason` in the
