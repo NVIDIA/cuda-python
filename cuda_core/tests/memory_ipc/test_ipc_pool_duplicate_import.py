@@ -16,9 +16,11 @@ import contextlib
 import functools
 import gc
 import multiprocessing as mp
+import sys
 import threading
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor, wait
 
 import helpers
 import pytest
@@ -241,6 +243,54 @@ def _register_one_uuid_during_collections(stack, mr_type, device, alloc_handle):
     finally:
         gc.set_threshold(*threshold)
         gc.callbacks.remove(register_during_collection)
+
+
+def child_gc_during_registration_allows_registry_lookup(mr_type, alloc_handle):
+    with (
+        _child_device() as (device, _baseline),
+        contextlib.ExitStack() as stack,
+        ThreadPoolExecutor(max_workers=1) as worker,
+    ):
+        registered = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        candidate = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
+        registered_key = uuid.uuid4()
+        key = uuid.uuid4()
+        assert registered.register(registered_key) is registered
+
+        # Start the worker before arming GC. Its lookup needs the same lock as
+        # weakref cleanup, so a GC callback waiting for it detects the inversion.
+        look_up = functools.partial(mr_type.from_registry, registered_key)
+        assert worker.submit(look_up).result() is registered
+        register = candidate.register
+        registering_thread = threading.get_ident()
+        lookup_timeout = child_timeout_sec() / 3
+        lookups = []
+        lookup_blocked = False
+        registering = False
+
+        def look_up_during_collection(phase, info):
+            nonlocal lookup_blocked
+            if phase == "start" and registering and not lookup_blocked and threading.get_ident() == registering_thread:
+                future = worker.submit(look_up)
+                lookups.append(future)
+                _, pending = wait((future,), timeout=lookup_timeout)
+                lookup_blocked = bool(pending)
+
+        threshold = gc.get_threshold()
+        gc.collect()
+        gc.callbacks.append(look_up_during_collection)
+        try:
+            gc.set_threshold(1)
+            registering = True
+            assert register(key) is candidate
+        finally:
+            registering = False
+            gc.set_threshold(*threshold)
+            gc.callbacks.remove(look_up_during_collection)
+
+        assert lookups, "GC did not run during registration"
+        assert not lookup_blocked, "a registry lookup blocked the GC callback during registration"
+        assert all(future.result() is registered for future in lookups)
 
 
 class _TripwireUUID(uuid.UUID):
@@ -598,6 +648,14 @@ class TestIpcPoolDuplicateImport:
     def test_registration_reentered_from_garbage_collection(self, ipc_device, pool_resource):
         ipc_device.set_current()
         run_child(child_register_reentered_by_gc, type(pool_resource), pool_resource.allocation_handle)
+
+    @pytest.mark.skipif(sys.version_info[:2] != (3, 11), reason="requires CPython 3.11's allocation-triggered GC")
+    @pytest.mark.agent_authored(model="gpt-6.2-sol")
+    def test_gc_during_registration_allows_registry_lookup(self, ipc_device, pool_resource):
+        ipc_device.set_current()
+        run_child(
+            child_gc_during_registration_allows_registry_lookup, type(pool_resource), pool_resource.allocation_handle
+        )
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     @pytest.mark.parametrize("shared_handle", [False, True], ids=["separate_handles", "shared_handle"])
