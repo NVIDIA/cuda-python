@@ -29,11 +29,9 @@ from cuda.core import (
     LegacyPinnedMemoryResource,
 )
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
-from cuda.core._rt import (
-    _attach_rollback_failure_for_testing,
-    _set_context_restore_fault_for_testing,
-)
+from cuda.core._rt import _set_context_restore_fault_for_testing
 from cuda.core._stream import default_stream
+from cuda.core._utils._testing import attach_rollback_failure_for_testing
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import GraphDefinition
@@ -304,9 +302,9 @@ def test_rollback_failure_is_attached_to_the_propagating_exception():
             raise RuntimeError("primary failure")
         except RuntimeError:
             with assert_no_cuda_warning():
-                _attach_rollback_failure_for_testing(INVALID_VALUE)
+                attach_rollback_failure_for_testing(INVALID_VALUE)
             with assert_no_cuda_warning():
-                _attach_rollback_failure_for_testing(DEINITIALIZED)
+                attach_rollback_failure_for_testing(DEINITIALIZED)
             raise
     exc = excinfo.value
     assert str(exc) == "primary failure"
@@ -314,4 +312,4 @@ def test_rollback_failure_is_attached_to_the_propagating_exception():
     assert "cuTestOperation failed while testing: CUDA_ERROR_INVALID_VALUE" in exc.__notes__[0]
     # With no exception being handled there is nothing to attach to.
     with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
-        _attach_rollback_failure_for_testing(INVALID_VALUE)
+        attach_rollback_failure_for_testing(INVALID_VALUE)

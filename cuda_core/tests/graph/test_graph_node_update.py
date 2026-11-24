@@ -17,7 +17,7 @@ from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import Device, DeviceMemoryResource, EventOptions, LaunchConfig, LegacyPinnedMemoryResource
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
-from cuda.core._utils._weak_handles import weak_handle
+from cuda.core._utils._testing import weak_handle
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import driver_version
 from cuda.core.graph import (

@@ -57,10 +57,6 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const char* operation, long code) noexcept nogil
     void attach_rollback_failure "cuda_core::rt::attach_rollback_failure" (
         const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
-    # Alias for calls made from this module: calling the pxd-declared name here
-    # would make Cython emit a conflicting static prototype for it.
-    void _attach_rollback_failure_local "cuda_core::rt::attach_rollback_failure" (
-        const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
     const char* take_last_error_detail "cuda_core::rt::take_last_error_detail" (
         cydriver.CUresult status) noexcept nogil
     void clear_last_error_detail "cuda_core::rt::clear_last_error_detail" () noexcept nogil
@@ -367,14 +363,3 @@ def _set_ipc_pool_release_delay_for_testing(unsigned int microseconds):
     made to race the release. 0 disables the delay.
     """
     set_ipc_pool_release_delay_for_testing(microseconds)
-
-
-def _attach_rollback_failure_for_testing(int status):
-    """Attach a failed CUDA call to the exception being handled, or report it.
-
-    Test hook for ``attach_rollback_failure()``. Called inside an ``except``
-    block it adds a note to the exception being handled (Python 3.11+); anywhere
-    else it emits a ``CUDAWarning``.
-    """
-    _attach_rollback_failure_local(
-        b"cuTestOperation", <cydriver.CUresult>status, b"failed while testing")

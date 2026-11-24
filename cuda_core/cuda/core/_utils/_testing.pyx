@@ -1,14 +1,19 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Test-only weak handles for resource-handle lifetime checks.
+"""Test-only helpers that reach into ``cuda.core`` internals.
 
 This module is **not** part of the public ``cuda.core`` API. It is built into
-the package (like other private ``_utils`` modules) purely so the test suite can
-observe, deterministically, when the strong references that keep a CUDA resource
-alive have all been released -- without relying on driver- or hardware-specific
-side effects (for example, whether freed device memory happens to remain
-readable).
+the package (like other private ``_utils`` modules) purely for the test suite,
+so that production modules need no test hooks of their own.
+
+Weak handles
+------------
+
+Weak handles let tests observe, deterministically, when the strong references
+that keep a CUDA resource alive have all been released -- without relying on
+driver- or hardware-specific side effects (for example, whether freed device
+memory happens to remain readable).
 
 Every resource handle is owned by a C++ ``std::shared_ptr``. A **weak handle**
 is a non-owning ``std::weak_ptr`` observer of that control block: truthy while
@@ -22,9 +27,10 @@ Python owners via ``make_opaque_py`` are not covered here -- use
 :class:`weakref.ref` on a weak-referenceable owner object in tests instead.
 """
 
+from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core.graph._graph_definition cimport GraphDefinition
-from cuda.core._rt cimport OpaqueHandle
+from cuda.core._rt cimport OpaqueHandle, attach_rollback_failure
 
 
 # Cython cannot spell ``weak_ptr[const void]`` inline (the ``const void``
@@ -115,3 +121,13 @@ def weak_handle(obj):
         f"weak_handle() does not support {type(obj).__name__!r}; "
         "supported types: Buffer, GraphDefinition"
     )
+
+
+def attach_rollback_failure_for_testing(int status):
+    """Attach a failed CUDA call to the exception being handled, or report it.
+
+    Calls ``attach_rollback_failure()`` for a fictitious ``cuTestOperation``.
+    Called inside an ``except`` block it adds a note to the exception being
+    handled (Python 3.11+); anywhere else it emits a ``CUDAWarning``.
+    """
+    attach_rollback_failure(b"cuTestOperation", <cydriver.CUresult>status, b"failed while testing")

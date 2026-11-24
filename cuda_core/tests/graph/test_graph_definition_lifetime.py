@@ -898,7 +898,7 @@ def test_inflight_launch_retains_attachments_until_completion(init_cuda, make_mr
     outlives ``buf.close()`` until the launch completes and the graph is gone.
     For a virtual memory buffer that release also unmaps the range.
     """
-    from cuda.core._utils._weak_handles import weak_handle
+    from cuda.core._utils._testing import weak_handle
 
     dev = Device()
     mr = make_mr(dev)
@@ -962,7 +962,7 @@ def test_memcpy_node_retains_vmm_range_across_grow(init_cuda):
     buffer creates an alias; closing both buffers leaves the node as the last
     owner, so the range stays mapped until the graph that retains it is gone.
     """
-    from cuda.core._utils._weak_handles import weak_handle
+    from cuda.core._utils._testing import weak_handle
 
     dev = Device()
     mr = _virtual_memory_resource(dev)
@@ -1611,12 +1611,12 @@ def test_memcpy_buffer_allocations_released_after_graph_destroyed(init_cuda):
     """Destroying the graph frees both memcpy operand allocations.
 
     Each operand's device-pointer handle is observed via a weak handle
-    (see ``cuda.core._utils._weak_handles``), so release is checked at the
+    (see ``cuda.core._utils._testing``), so release is checked at the
     reference-count level rather than through a driver side effect. With both
     Buffer wrappers closed, the node attachment is the only remaining owner;
     destroying the graph releases it and the weak handles expire.
     """
-    from cuda.core._utils._weak_handles import weak_handle
+    from cuda.core._utils._testing import weak_handle
 
     skip_if_mempool_unsupported()
     dev = Device()

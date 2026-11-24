@@ -64,10 +64,3 @@ def _set_ipc_pool_release_delay_for_testing(microseconds: int):
     revokes access and destroys the pool's imports, so that a re-import can be
     made to race the release. 0 disables the delay.
     """
-def _attach_rollback_failure_for_testing(status: int):
-    """Attach a failed CUDA call to the exception being handled, or report it.
-
-    Test hook for ``attach_rollback_failure()``. Called inside an ``except``
-    block it adds a note to the exception being handled (Python 3.11+); anywhere
-    else it emits a ``CUDAWarning``.
-    """
