@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.BitcodeLibNotFoundError
-=======================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autoexception:: BitcodeLibNotFoundError
