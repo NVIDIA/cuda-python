@@ -25,12 +25,29 @@ handle field (see ``*.pxd``), assigns to :ctype:`OpaqueHandle`, and extend the
 ``isinstance`` chain in :func:`weak_handle`. Types whose slots hold arbitrary
 Python owners via ``make_opaque_py`` are not covered here -- use
 :class:`weakref.ref` on a weak-referenceable owner object in tests instead.
+
+Driver function wrappers
+------------------------
+
+The C++ layer calls the driver through a table of function pointers that it
+fills once per process, on its first driver call, from
+``cuda.bindings._internal.driver._inspect_function_pointers()``.
+:func:`install_driver_fn_wrappers` replaces that function so that the fill
+stores test wrappers for selected entries. Each wrapper calls the real driver
+function unless a test arms it. Install the wrappers before ``cuda.core``'s
+first driver call in the process, for example at the start of a spawned
+child. The setters raise if the table was filled without the wrappers, so a
+test cannot silently run unarmed.
 """
+
+from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core.graph._graph_definition cimport GraphDefinition
 from cuda.core._rt cimport OpaqueHandle, attach_rollback_failure
+
+import cuda.bindings._internal.driver as _driver_loader
 
 
 # Cython cannot spell ``weak_ptr[const void]`` inline (the ``const void``
@@ -131,3 +148,83 @@ def attach_rollback_failure_for_testing(int status):
     handled (Python 3.11+); anywhere else it emits a ``CUDAWarning``.
     """
     attach_rollback_failure(b"cuTestOperation", <cydriver.CUresult>status, b"failed while testing")
+
+
+# The wrappers run on driver calls from any thread, with or without the GIL,
+# and during interpreter shutdown, so they are plain C++ and never call Python.
+cdef extern from *:
+    """
+    #include <atomic>
+    #include <chrono>
+    #include <cstdint>
+    #include <thread>
+    #include <cuda.h>
+    namespace cuda_core_testing {
+    using MemPoolSetAccessFn = CUresult(CUDAAPI *)(CUmemoryPool, const CUmemAccessDesc *, size_t);
+    static std::atomic<MemPoolSetAccessFn> real_mempool_set_access{nullptr};
+    static std::atomic<unsigned int> mempool_set_access_delay_us{0};
+
+    static CUresult CUDAAPI delayed_mempool_set_access(
+            CUmemoryPool pool, const CUmemAccessDesc *map, size_t count) {
+        if (unsigned int delay = mempool_set_access_delay_us.load()) {
+            std::this_thread::sleep_for(std::chrono::microseconds(delay));
+        }
+        return real_mempool_set_access.load()(pool, map, count);
+    }
+    static std::intptr_t wrap_mempool_set_access(std::intptr_t real) {
+        real_mempool_set_access.store(reinterpret_cast<MemPoolSetAccessFn>(real));
+        return reinterpret_cast<std::intptr_t>(&delayed_mempool_set_access);
+    }
+    static void set_mempool_set_access_delay(unsigned int microseconds) {
+        mempool_set_access_delay_us.store(microseconds);
+    }
+    }  // namespace cuda_core_testing
+    """
+    intptr_t _wrap_mempool_set_access "cuda_core_testing::wrap_mempool_set_access" (intptr_t real) noexcept
+    void _set_mempool_set_access_delay "cuda_core_testing::set_mempool_set_access_delay" (
+        unsigned int microseconds) noexcept nogil
+
+
+_inspect_without_wrappers = None
+_wrappers_installed = False
+
+
+def _inspect_with_wrappers():
+    global _wrappers_installed
+    pointers = dict(_inspect_without_wrappers())
+    pointers["__cuMemPoolSetAccess"] = _wrap_mempool_set_access(pointers["__cuMemPoolSetAccess"])
+    _wrappers_installed = True
+    return pointers
+
+
+def install_driver_fn_wrappers():
+    """Make the C++ driver function table use the test wrappers in this process.
+
+    Call before ``cuda.core`` makes its first driver call; see the module
+    docstring. Calling it again has no effect.
+    """
+    global _inspect_without_wrappers
+    if _inspect_without_wrappers is None:
+        _inspect_without_wrappers = _driver_loader._inspect_function_pointers
+        _driver_loader._inspect_function_pointers = _inspect_with_wrappers
+
+
+cdef int _require_driver_fn_wrappers() except -1:
+    if not _wrappers_installed:
+        raise RuntimeError(
+            "cuda.core filled its driver function table without the test wrappers; "
+            "call install_driver_fn_wrappers() before cuda.core's first driver call in this process"
+        )
+    return 0
+
+
+def set_mempool_set_access_delay(unsigned int microseconds):
+    """Make every ``cuMemPoolSetAccess`` call from the C++ layer sleep first.
+
+    The C++ layer calls ``cuMemPoolSetAccess`` only to revoke access just
+    before it destroys a pool (or an imported pool's imports), so the delay
+    holds a pool's release in that state. 0 disables the delay.
+    """
+    if microseconds:
+        _require_driver_fn_wrappers()
+    _set_mempool_set_access_delay(microseconds)

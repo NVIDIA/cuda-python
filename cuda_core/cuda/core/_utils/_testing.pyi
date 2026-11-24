@@ -24,10 +24,25 @@ handle field (see ``*.pxd``), assigns to :ctype:`OpaqueHandle`, and extend the
 ``isinstance`` chain in :func:`weak_handle`. Types whose slots hold arbitrary
 Python owners via ``make_opaque_py`` are not covered here -- use
 :class:`weakref.ref` on a weak-referenceable owner object in tests instead.
+
+Driver function wrappers
+------------------------
+
+The C++ layer calls the driver through a table of function pointers that it
+fills once per process, on its first driver call, from
+``cuda.bindings._internal.driver._inspect_function_pointers()``.
+:func:`install_driver_fn_wrappers` replaces that function so that the fill
+stores test wrappers for selected entries. Each wrapper calls the real driver
+function unless a test arms it. Install the wrappers before ``cuda.core``'s
+first driver call in the process, for example at the start of a spawned
+child. The setters raise if the table was filled without the wrappers, so a
+test cannot silently run unarmed.
 """
 from _typeshed import Incomplete
 from typing_extensions import TypeAlias
 
+_inspect_without_wrappers = None
+_wrappers_installed = False
 OpaqueWeakHandle: TypeAlias = Incomplete
 
 class WeakHandle:
@@ -63,4 +78,18 @@ def attach_rollback_failure_for_testing(status: int):
     Calls ``attach_rollback_failure()`` for a fictitious ``cuTestOperation``.
     Called inside an ``except`` block it adds a note to the exception being
     handled (Python 3.11+); anywhere else it emits a ``CUDAWarning``.
+    """
+def _inspect_with_wrappers(): ...
+def install_driver_fn_wrappers():
+    """Make the C++ driver function table use the test wrappers in this process.
+
+    Call before ``cuda.core`` makes its first driver call; see the module
+    docstring. Calling it again has no effect.
+    """
+def set_mempool_set_access_delay(microseconds: int):
+    """Make every ``cuMemPoolSetAccess`` call from the C++ layer sleep first.
+
+    The C++ layer calls ``cuMemPoolSetAccess`` only to revoke access just
+    before it destroys a pool (or an imported pool's imports), so the delay
+    holds a pool's release in that state. 0 disables the delay.
     """

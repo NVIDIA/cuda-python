@@ -57,10 +57,3 @@ def _set_context_restore_fault_for_testing(status: int):
     injected failure leaves the target context current, exactly as a failing
     ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
     """
-def _set_ipc_pool_release_delay_for_testing(microseconds: int):
-    """Delay the release of an imported pool's owner by ``microseconds``.
-
-    Test hook: once the owner's last reference is released, it sleeps before it
-    revokes access and destroys the pool's imports, so that a re-import can be
-    made to race the release. 0 disables the delay.
-    """

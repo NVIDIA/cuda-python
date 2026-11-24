@@ -37,12 +37,13 @@ from helpers.misc import run_in_threads
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, DeviceMemoryResource
 from cuda.core._memory._buffer import _live_owned_mempool_count
-from cuda.core._rt import _set_ipc_pool_release_delay_for_testing
+from cuda.core._utils._testing import install_driver_fn_wrappers, set_mempool_set_access_delay
 
 NBYTES = 64
 THREADS = 4
 ITERATIONS = 20
-# The owner's release sleeps this long in the race test, so the re-import overlaps it.
+# The owner's release sleeps this long before it revokes access in the race test,
+# so the re-import overlaps it.
 RELEASE_DELAY_US = 50_000
 RACE_ITERATIONS = 3
 REENTRY_ITERATIONS = 20
@@ -166,14 +167,15 @@ def _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor):
 
 
 def child_reimport_races_last_release(mr_type, alloc_handle, descriptor):
+    install_driver_fn_wrappers()
     with _child_device() as (device, _baseline):
-        _set_ipc_pool_release_delay_for_testing(RELEASE_DELAY_US)
+        set_mempool_set_access_delay(RELEASE_DELAY_US)
         try:
             with assert_no_cuda_warning():
                 for _ in range(RACE_ITERATIONS):
                     _race_reimport_with_last_release(mr_type, device, alloc_handle, descriptor)
         finally:
-            _set_ipc_pool_release_delay_for_testing(0)
+            set_mempool_set_access_delay(0)
 
 
 def child_register_reentered_by_gc(mr_type, alloc_handle):
