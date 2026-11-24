@@ -95,6 +95,7 @@ def _gl_context():
                 win.close()
 
 
+# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     "flags",
     [

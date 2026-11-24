@@ -158,12 +158,11 @@ def child_import_without_location_query(mr_type, alloc_handle, descriptor):
     device.set_current()
     stream = device.default_stream
 
-    # The pool's kind is not checked, so the other class's import succeeds, as
-    # it did before #3502 was fixed.
-    with assert_no_cuda_warning():
-        other = import_pool_resource(_other_class(mr_type), device, int(alloc_handle))
-        other.close()
-
+    # Importing with the exporter's class must not need the location query. A
+    # wrong-class import is not tested here: without the pool kind check it
+    # runs the other class's initialization on the wrong kind of pool, which
+    # can fail on some topologies (a pinned import of a device pool grants
+    # every device access, which needs peer access; #3540).
     mr = import_pool_resource(mr_type, device, int(alloc_handle))
     if mr_type is PinnedMemoryResource:
         # Without the location query the pool's node is unknown (see numa_id).
@@ -212,7 +211,7 @@ class TestIpcPoolMatchingImport(_IpcPoolFixtures):
 
 
 class TestIpcPoolImportWithoutLocationQuery(_IpcPoolFixtures):
-    """With a driver before 13.2, imports skip the pool kind check and behave as before."""
+    """With a driver before 13.2, importing with the exporter's class works without the pool kind check."""
 
     @pytest.mark.agent_authored(model="claude-opus-5-5")
     def test_import_without_location_query(self, pool_resource, exported_buffer):

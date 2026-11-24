@@ -98,6 +98,7 @@ def main() -> None:
         raise SystemExit(f"no test_*.pyx files under {script_dir}")
 
     ext_modules = _cythonize_tests(pyx_files)
+    build_shared._add_cython_test_include_dirs(ext_modules)
 
     # pytest imports each extension by bare module name (see test_cython.py),
     # so build in-place next to its .pyx regardless of the invoking cwd.

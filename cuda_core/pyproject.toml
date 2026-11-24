@@ -76,6 +76,7 @@ build = [
     "clang-tidy==22.1.8; sys_platform != 'win32' or platform_machine != 'ARM64'",
 ]
 test = [
+    "cuda-pathfinder>=1.5",
     "cython>=3.2.5,<3.3",
     "setuptools>=80",
     "pytest==9.1.0",

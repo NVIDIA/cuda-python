@@ -127,6 +127,7 @@ def test_linker_link_ptx_nvjitlink(compile_ltoir_functions):
     assert linked_code.name == options.name
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(not is_culink_backend, reason="nvjitlink requires lto for ptx linking")
 def test_linker_link_ptx_culink(compile_ptx_functions):
     options = LinkerOptions(arch=ARCH)
@@ -311,6 +312,7 @@ def test_linker_handle(compile_ptx_functions):
     assert int(handle) != 0
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-5")
 @pytest.mark.skipif(not is_culink_backend, reason="driver backend regression test")
 def test_driver_linker_lifetime_no_heap_corruption(compile_ptx_functions):
@@ -330,6 +332,7 @@ def test_driver_linker_lifetime_no_heap_corruption(compile_ptx_functions):
     linker.close()
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-5")
 @pytest.mark.skipif(not is_culink_backend, reason="driver backend regression test")
 def test_driver_linker_preserves_error_log_after_close(init_cuda):

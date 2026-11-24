@@ -9,6 +9,7 @@ import pytest
 from cuda.bindings import runtime as cudart
 
 
+# This test is not currently run in any CI job
 def test_graphics_api_smoketest():
     if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
         pytest.skip("No display available for the OpenGL smoke test")

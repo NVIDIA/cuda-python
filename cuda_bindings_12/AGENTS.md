@@ -35,7 +35,7 @@ for generation provenance and review expectations.
   From this directory, install with
   `python -m pip install -v -e . --group test`, then run `python -m pytest tests/`.
   Free-threaded development also needs the `test-ft` dependency group.
-- Build Cython tests with `tests/cython/build_tests.sh` or `build_tests.bat`
+- Build Cython tests with `python tests/cython/build_tests.py`
   before running `python -m pytest tests/cython/`. This requires the matching
   CUDA headers and compiler toolchain.
 - Legacy samples remain under `examples/`; do not assume CUDA 13's sample
