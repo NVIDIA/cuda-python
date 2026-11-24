@@ -35,8 +35,8 @@ fills once per process, on its first driver call, from
 :func:`install_driver_fn_wrappers` replaces that function so that the fill
 stores test wrappers for selected entries. Each wrapper calls the real driver
 function unless a test arms it. Install the wrappers before ``cuda.core``'s
-first driver call in the process, for example at the start of a spawned
-child. The setters raise if the table was filled without the wrappers, so a
+first driver call in the process: conftest.py does so for the test session,
+and a spawned child must do so itself. The setters raise if the table was filled without the wrappers, so a
 test cannot silently run unarmed.
 """
 
@@ -46,6 +46,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core.graph._graph_definition cimport GraphDefinition
 from cuda.core._rt cimport OpaqueHandle, attach_rollback_failure
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import cuda.bindings._internal.driver as _driver_loader
 
@@ -160,6 +161,28 @@ cdef extern from *:
     #include <thread>
     #include <cuda.h>
     namespace cuda_core_testing {
+    using CtxSetCurrentFn = CUresult(CUDAAPI *)(CUcontext);
+    static std::atomic<CtxSetCurrentFn> real_ctx_set_current{nullptr};
+    static thread_local CUresult ctx_set_current_fault = CUDA_SUCCESS;
+    static thread_local CUcontext ctx_set_current_fault_target = nullptr;
+
+    static CUresult CUDAAPI faulty_ctx_set_current(CUcontext ctx) {
+        if (ctx_set_current_fault != CUDA_SUCCESS && ctx == ctx_set_current_fault_target) {
+            CUresult fault = ctx_set_current_fault;
+            ctx_set_current_fault = CUDA_SUCCESS;
+            return fault;
+        }
+        return real_ctx_set_current.load()(ctx);
+    }
+    static std::intptr_t wrap_ctx_set_current(std::intptr_t real) {
+        real_ctx_set_current.store(reinterpret_cast<CtxSetCurrentFn>(real));
+        return reinterpret_cast<std::intptr_t>(&faulty_ctx_set_current);
+    }
+    static void set_ctx_set_current_fault(CUresult status, CUcontext target) {
+        ctx_set_current_fault = status;
+        ctx_set_current_fault_target = target;
+    }
+
     using MemPoolSetAccessFn = CUresult(CUDAAPI *)(CUmemoryPool, const CUmemAccessDesc *, size_t);
     static std::atomic<MemPoolSetAccessFn> real_mempool_set_access{nullptr};
     static std::atomic<unsigned int> mempool_set_access_delay_us{0};
@@ -180,6 +203,9 @@ cdef extern from *:
     }
     }  // namespace cuda_core_testing
     """
+    intptr_t _wrap_ctx_set_current "cuda_core_testing::wrap_ctx_set_current" (intptr_t real) noexcept
+    void _set_ctx_set_current_fault "cuda_core_testing::set_ctx_set_current_fault" (
+        cydriver.CUresult status, cydriver.CUcontext target) noexcept nogil
     intptr_t _wrap_mempool_set_access "cuda_core_testing::wrap_mempool_set_access" (intptr_t real) noexcept
     void _set_mempool_set_access_delay "cuda_core_testing::set_mempool_set_access_delay" (
         unsigned int microseconds) noexcept nogil
@@ -192,6 +218,7 @@ _wrappers_installed = False
 def _inspect_with_wrappers():
     global _wrappers_installed
     pointers = dict(_inspect_without_wrappers())
+    pointers["__cuCtxSetCurrent"] = _wrap_ctx_set_current(pointers["__cuCtxSetCurrent"])
     pointers["__cuMemPoolSetAccess"] = _wrap_mempool_set_access(pointers["__cuMemPoolSetAccess"])
     _wrappers_installed = True
     return pointers
@@ -228,3 +255,20 @@ def set_mempool_set_access_delay(unsigned int microseconds):
     if microseconds:
         _require_driver_fn_wrappers()
     _set_mempool_set_access_delay(microseconds)
+
+
+def set_context_restore_fault(int status):
+    """Make ``cuda.core``'s next switch back to the current context fail on this thread.
+
+    The next ``cuCtxSetCurrent`` that the C++ layer makes on this thread to the
+    context that is current now returns ``status`` without switching, so the
+    context it switched to stays current, exactly as a real failure would. The
+    C++ layer switches contexts only to enter an operation's context and to
+    restore the caller's afterwards, and it does not switch to a context that
+    is already current, so only a restoration can fail. 0 disarms the fault.
+    """
+    cdef cydriver.CUcontext current = NULL
+    if status:
+        _require_driver_fn_wrappers()
+        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&current))
+    _set_ctx_set_current_fault(<cydriver.CUresult>status, current)

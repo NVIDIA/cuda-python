@@ -282,7 +282,7 @@ below are for contributors. Reviewers and agents should flag violations.
   bug (#1489, #2417), not a policy choice: `noexcept` helpers must not
   allocate, or must catch what they call.
 - **Testing**: inject restoration failures with
-  `cuda.core._rt._set_context_restore_fault_for_testing`; assert
+  `cuda.core._utils._testing.set_context_restore_fault`; assert
   reports with `pytest.warns(CUDAWarning)` or `warnings.catch_warnings`, never
   by matching stderr text.
 

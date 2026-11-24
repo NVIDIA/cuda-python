@@ -60,8 +60,6 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
     const char* take_last_error_detail "cuda_core::rt::take_last_error_detail" (
         cydriver.CUresult status) noexcept nogil
     void clear_last_error_detail "cuda_core::rt::clear_last_error_detail" () noexcept nogil
-    void set_context_restore_fault_for_testing "cuda_core::rt::set_context_restore_fault_for_testing" (
-        cydriver.CUresult status) noexcept nogil
 
     # Context handles
     ContextHandle create_context_handle_ref "cuda_core::rt::create_context_handle_ref" (
@@ -341,13 +339,3 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
 
 
 initialize_deferred_cleanup()
-
-
-def _set_context_restore_fault_for_testing(int status):
-    """Make the next context restoration on this thread fail with ``status``.
-
-    Test hook for the context save/restore paths in the handle layer. The
-    injected failure leaves the target context current, exactly as a failing
-    ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
-    """
-    set_context_restore_fault_for_testing(<cydriver.CUresult>status)

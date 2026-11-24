@@ -56,7 +56,11 @@ from cuda.core import (
     _device,
 )
 from cuda.core._memory._buffer import _live_owned_mempool_count, _live_va_reservation_count
+from cuda.core._utils._testing import install_driver_fn_wrappers
 from cuda.core._utils.cuda_utils import handle_return
+
+# Before any test makes a driver call through cuda.core; see cuda.core._utils._testing.
+install_driver_fn_wrappers()
 
 
 def pytest_collection_finish(session):

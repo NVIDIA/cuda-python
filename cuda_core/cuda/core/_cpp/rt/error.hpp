@@ -80,9 +80,4 @@ void clear_last_error_detail() noexcept;
 // fill and does not suggest a missed cuInit() call. Implemented in error.cpp.
 void note_driver_table_failure(const char *reason) noexcept;
 
-// Tests only: make the next context restoration on this thread fail with
-// `status`, leaving the target context current as a real failure would.
-// Implemented in context.cpp
-void set_context_restore_fault_for_testing(CUresult status) noexcept;
-
 }  // namespace cuda_core::rt

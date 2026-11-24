@@ -17,17 +17,6 @@ namespace cuda_core::rt {
 
 using namespace detail;
 
-namespace {
-// Thread-local fault injected into the next context restoration (tests only).
-thread_local CUresult context_restore_fault = CUDA_SUCCESS;
-}  // namespace
-
-void
-set_context_restore_fault_for_testing(CUresult status) noexcept
-{
-    context_restore_fault = status;
-}
-
 namespace detail {
 // Make a context current and record the state needed to restore it.
 // An empty handle is a no-op: the operation runs in the caller's current
@@ -60,13 +49,6 @@ enter_context(const ContextHandle &h_context, CUcontext *previous, int *changed)
 CUresult
 restore_context(CUcontext previous) noexcept
 {
-    if (context_restore_fault != CUDA_SUCCESS) {
-        // Test hook: behave as if cuCtxSetCurrent(previous) failed, leaving the
-        // target context current exactly as a real failure would.
-        CUresult fault = context_restore_fault;
-        context_restore_fault = CUDA_SUCCESS;
-        return fault;
-    }
     GILReleaseGuard gil;
     return DRIVER_CALL(cuCtxSetCurrent, previous);
 }

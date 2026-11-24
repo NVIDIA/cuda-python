@@ -34,8 +34,8 @@ fills once per process, on its first driver call, from
 :func:`install_driver_fn_wrappers` replaces that function so that the fill
 stores test wrappers for selected entries. Each wrapper calls the real driver
 function unless a test arms it. Install the wrappers before ``cuda.core``'s
-first driver call in the process, for example at the start of a spawned
-child. The setters raise if the table was filled without the wrappers, so a
+first driver call in the process: conftest.py does so for the test session,
+and a spawned child must do so itself. The setters raise if the table was filled without the wrappers, so a
 test cannot silently run unarmed.
 """
 from _typeshed import Incomplete
@@ -92,4 +92,14 @@ def set_mempool_set_access_delay(microseconds: int):
     The C++ layer calls ``cuMemPoolSetAccess`` only to revoke access just
     before it destroys a pool (or an imported pool's imports), so the delay
     holds a pool's release in that state. 0 disables the delay.
+    """
+def set_context_restore_fault(status: int):
+    """Make ``cuda.core``'s next switch back to the current context fail on this thread.
+
+    The next ``cuCtxSetCurrent`` that the C++ layer makes on this thread to the
+    context that is current now returns ``status`` without switching, so the
+    context it switched to stays current, exactly as a real failure would. The
+    C++ layer switches contexts only to enter an operation's context and to
+    restore the caller's afterwards, and it does not switch to a context that
+    is already current, so only a restoration can fail. 0 disarms the fault.
     """
