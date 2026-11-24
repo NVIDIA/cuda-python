@@ -87,7 +87,8 @@ To ensure PTX compatibility with your system's installed CUDA driver:
 
 1. **Use the system-installed CUDA Toolkit**:
    If an appropriate CUDA Toolkit matching your driver is already installed on the system, install
-   only the bindings extra:
+   only the bindings extra in a clean environment (or ensure conflicting wheels like ``nvidia-cuda-nvrtc-cu12``
+   have been removed, as ``cuda.pathfinder`` inspects installed Python packages before system paths):
 
    .. code-block:: console
 
@@ -96,12 +97,13 @@ To ensure PTX compatibility with your system's installed CUDA driver:
       $ pip install cuda-core[minimal-sysctk13]
 
 2. **Constrain the Toolkit Wheel Version**:
-   If installing toolkit wheels via PyPI, constrain the ``cuda-toolkit`` package version to match your
-   system driver's supported CUDA version:
+   If installing toolkit wheels via PyPI, constrain the NVRTC compiler wheel (e.g. ``nvidia-cuda-nvrtc-cu12`` or
+   ``cuda-toolkit[nvrtc]``) alongside ``cuda-toolkit`` so that ``pip`` does not resolve an unconstrained, newer
+   compiler package:
 
    .. code-block:: console
 
-      $ pip install "cuda-core[cu12]" "cuda-toolkit<12.5"
+      $ pip install "cuda-core[cu12]" "nvidia-cuda-nvrtc-cu12<12.5" "cuda-toolkit<12.5"
 
    In Conda environments, pin ``cuda-version`` to the specific minor version:
 
