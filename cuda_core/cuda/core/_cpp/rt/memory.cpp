@@ -8,14 +8,10 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
-#include <atomic>
-#include <chrono>
 #include <cstddef>
-#include <cstdio>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
-#include <thread>
 #include <utility>
 #ifndef _WIN32
 #include <unistd.h>
@@ -24,234 +20,6 @@
 namespace cuda_core::rt {
 
 using namespace detail;
-
-// ============================================================================
-// Memory Pool Handles
-// ============================================================================
-
-namespace {
-struct MemoryPoolBox {
-    CUmemoryPool resource;
-};
-
-// Process-wide count of live *owned* memory pools -- those this layer created
-// with cuMemPoolCreate or imported (and will cuMemPoolDestroy). Borrowed pool
-// references (create_mempool_handle_ref, get_device_mempool) are not counted.
-// Read by the test suite to gate the per-test gc.collect(); atomic for
-// free-threaded builds.
-std::atomic<long long> g_live_owned_mempools{0};
-
-// See set_ipc_pool_release_delay_for_testing.
-std::atomic<unsigned int> g_ipc_pool_release_delay_us{0};
-}  // namespace
-
-void
-set_ipc_pool_release_delay_for_testing(unsigned int microseconds) noexcept
-{
-    g_ipc_pool_release_delay_us.store(microseconds, std::memory_order_relaxed);
-}
-
-// Helper to clear peer access before destroying a memory pool.
-// Works around nvbug 5698116: recycled pool handles inherit peer access state.
-// The driver validates a request as a whole and rejects it if any entry cannot
-// be applied: the pool's own device, a device without memory-map support, or
-// devices of more than one kind in one request. Each device is therefore
-// revoked with its own request, and the owning device (-1 if the pool has
-// none) is not requested at all.
-// Must be noexcept since it's called from a shared_ptr deleter.
-static void
-clear_mempool_peer_access(CUmemoryPool pool, int owner_device) noexcept
-{
-    try {
-        int device_count = 0;
-        if (DRIVER_CALL(cuDeviceGetCount, &device_count) != CUDA_SUCCESS || device_count <= 0) {
-            return;
-        }
-
-        CUmemAccessDesc revoke{};
-        revoke.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
-        revoke.flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
-        for (int i = 0; i < device_count; ++i) {
-            if (i == owner_device) {
-                continue;
-            }
-            revoke.location.id = i;
-            DRIVER_CALL(cuMemPoolSetAccess, pool, &revoke, 1);  // Best effort
-        }
-    }
-    catch (...) {  // NOLINT(bugprone-empty-catch)
-        // Swallow exceptions - this is best-effort cleanup in destructor context
-    }
-}
-
-// owner_device is the ordinal of a device-located pool, or -1 when there is no
-// device to skip (host pools) or the location is unknown (imported pools).
-static MemoryPoolHandle
-wrap_mempool_owned(CUmemoryPool pool, int owner_device)
-{
-    auto *raw = new MemoryPoolBox{pool};
-    // Count before constructing the shared_ptr: if its control-block allocation
-    // throws, it runs the deleter on raw, whose decrement then balances this.
-    g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
-    // clang-format off
-    auto box = std::shared_ptr<const MemoryPoolBox>(
-        raw,
-        [owner_device](const MemoryPoolBox *b) {
-            GILReleaseGuard gil;
-            clear_mempool_peer_access(b->resource, owner_device);
-            pw_cuMemPoolDestroy(b->resource);
-            g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
-            delete b;
-        }
-    );
-    // clang-format on
-    return MemoryPoolHandle(box, &box->resource);
-}
-
-// Test-suite instrumentation; see g_live_owned_mempools.
-long long
-live_owned_mempool_count() noexcept
-{
-    return g_live_owned_mempools.load(std::memory_order_relaxed);
-}
-
-MemoryPoolHandle
-create_mempool_handle(const CUmemPoolProps &props)
-{
-    GILReleaseGuard gil;
-    CUmemoryPool pool;
-    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuMemPoolCreate, &pool, &props))) {
-        return {};
-    }
-    int owner_device = props.location.type == CU_MEM_LOCATION_TYPE_DEVICE ? props.location.id : -1;
-    return wrap_mempool_owned(pool, owner_device);
-}
-
-MemoryPoolHandle
-create_mempool_handle_ref(CUmemoryPool pool)
-{
-    auto box = std::make_shared<const MemoryPoolBox>(MemoryPoolBox{pool});
-    return MemoryPoolHandle(box, &box->resource);
-}
-
-MemoryPoolHandle
-get_device_mempool(int device_id)
-{
-    GILReleaseGuard gil;
-    CUmemoryPool pool;
-    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuDeviceGetMemPool, &pool, device_id))) {
-        return {};
-    }
-    return create_mempool_handle_ref(pool);
-}
-
-// Importing a pool that is already imported in this process returns the same
-// CUmemoryPool and adds a driver reference: each import needs its own
-// cuMemPoolDestroy, and one made while allocations imported from the pool are
-// outstanding fails without dropping its reference. Access settings belong to
-// the pool, not to an import, so revoking them on behalf of one import
-// (nvbug 5698116) would remove access that another import relies on (#3510).
-// All imports of a pool therefore share one owner, found through
-// ipc_pool_registry. It counts the imports and, when its last reference is
-// released, revokes access once and then destroys every import. An import that
-// finds the owner's release in flight waits for it, even when the last
-// reference was dropped by a buffer and not by a resource the importer could
-// synchronize with: the revocation would remove access granted by a new owner,
-// and a destroy fails once the new owner has imported a buffer.
-namespace {
-struct IpcMemoryPoolBox {
-    CUmemoryPool resource;
-    // The imports this box owns: 0 until it becomes the pool's owner, then
-    // one for every import of the pool.
-    mutable std::atomic<std::size_t> imports{0};
-};
-
-const IpcMemoryPoolBox *
-get_ipc_box(const MemoryPoolHandle &h)
-{
-    const CUmemoryPool *p = h.get();
-    return reinterpret_cast<const IpcMemoryPoolBox *>(
-        reinterpret_cast<const char *>(p) - offsetof(IpcMemoryPoolBox, resource)
-    );
-}
-}  // namespace
-
-// See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static ReleasingHandleRegistry<CUmemoryPool, MemoryPoolHandle> ipc_pool_registry;
-
-MemoryPoolHandle
-create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
-{
-    // Released before the registry can wait: the owner's deleter may need it.
-    GILReleaseGuard gil;
-    // Allocate before importing: a failed allocation then has nothing to undo.
-    // clang-format off
-    auto box = std::shared_ptr<IpcMemoryPoolBox>(
-        new IpcMemoryPoolBox{},
-        [](const IpcMemoryPoolBox *b) {
-            // Shared ownership synchronizes the increments with this load.
-            std::size_t imports = b->imports.load(std::memory_order_relaxed);
-            if (imports > 0) {
-                GILReleaseGuard gil;
-                if (unsigned int delay = g_ipc_pool_release_delay_us.load(std::memory_order_relaxed)) {
-                    std::this_thread::sleep_for(std::chrono::microseconds(delay));
-                }
-                clear_mempool_peer_access(b->resource, -1);
-                const std::size_t total = imports;
-                std::size_t failed = 0;
-                CUresult first_failure = CUDA_SUCCESS;
-                for (; imports > 0; --imports) {
-                    if (CUresult s = DRIVER_CALL(cuMemPoolDestroy, b->resource); s != CUDA_SUCCESS) {
-                        if (failed++ == 0) {
-                            first_failure = s;
-                        }
-                    }
-                }
-                g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
-                // Wake waiting importers before reporting: a report can run
-                // user code, which could import this pool again.
-                ipc_pool_registry.release(b->resource, &b->resource);
-                if (failed > 0) {
-                    char operation[kOperationNameSize];
-                    format_operation(operation, sizeof(operation), "cuMemPoolDestroy", handle_bits(b->resource));
-                    char detail[kErrorMessageSize];
-                    std::snprintf(detail, sizeof(detail), "failed %zu of %zu times, first with", failed, total);
-                    report_cuda_error(operation, first_failure, total > 1 ? detail : nullptr);
-                }
-            }
-            delete b;
-        }
-    );
-    // clang-format on
-    auto *handle_ptr = reinterpret_cast<void *>(static_cast<uintptr_t>(fd));
-    if (CUDA_SUCCESS !=
-        (err = DRIVER_CALL(cuMemPoolImportFromShareableHandle, &box->resource, handle_ptr, handle_type, 0))) {
-        return {};
-    }
-
-    MemoryPoolHandle h(box, &box->resource);
-    MemoryPoolHandle owner;
-    try {
-        owner = ipc_pool_registry.get_or_create(box->resource, [&]() noexcept {
-            box->imports.store(1, std::memory_order_relaxed);
-            return h;
-        });
-    }
-    catch (...) {
-        // The box owns no import yet, so its deleter would not drop this one.
-        pw_cuMemPoolDestroy(box->resource);
-        throw;
-    }
-    if (owner == h) {
-        g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
-    }
-    else {
-        // An earlier import's box owns the pool; it now holds this import's
-        // driver reference too.
-        get_ipc_box(owner)->imports.fetch_add(1, std::memory_order_relaxed);
-    }
-    return owner;
-}
 
 // ============================================================================
 // Device Pointer Handles
@@ -634,6 +402,79 @@ struct ExportDataKeyHash {
 // handle (nvbug 5570902).
 static ReleasingHandleRegistry<ExportDataKey, DevicePtrHandle, ExportDataKeyHash> ipc_ptr_cache;
 
+namespace {
+// Deleter of the box behind a cached IPC import. The box is allocated before
+// the import, so it may never have held one: a box whose import failed, or
+// that found an earlier import in the cache, has nothing to free.
+struct DeleteIpcPtrBox {
+    MemoryPoolHandle h_pool;  // keeps the pool alive until the mapping is freed
+    ExportDataKey key;
+
+    static bool
+    holds_import(const DevicePtrBox &box) noexcept
+    {
+        return box.resource != 0;
+    }
+
+    void
+    operator()(DevicePtrBox *box) const
+    {
+        if (holds_import(*box)) {
+            free_import(*box);
+        }
+        delete box;
+    }
+
+   private:
+    void
+    free_import(const DevicePtrBox &box) const
+    {
+        GILReleaseGuard gil;
+        const DeallocationStream &stream = box.deallocation;
+        // Release the entry once the mapping is freed, and before reporting:
+        // a report can run user code.
+        cleanup_in_context(
+            deallocation_context(stream),
+            "cuMemFreeAsync",
+            handle_bits(box.resource),
+            [&]() noexcept { return DRIVER_CALL(cuMemFreeAsync, box.resource, as_cu(stream.h_stream)); },
+            [&]() noexcept { ipc_ptr_cache.release(key, &box.resource); }
+        );
+    }
+};
+
+// An import that was discarded under the cache's mutex because no
+// deallocation stream could be recorded for it. Nothing under that mutex may
+// acquire the GIL, so the discard uses the raw p_ call and keeps its status;
+// report() runs after the mutex is released (see DESIGN.md).
+struct DiscardedIpcImport {
+    CUdeviceptr ptr = 0;
+    CUresult status = CUDA_SUCCESS;
+
+    static DiscardedIpcImport
+    discard(CUdeviceptr ptr, const StreamHandle &h_stream) noexcept
+    {
+        return {ptr, p_cuMemFreeAsync(ptr, as_cu(h_stream))};  // raw: under the cache's mutex
+    }
+
+    void
+    report() const noexcept
+    {
+        if (status == CUDA_SUCCESS) {
+            return;
+        }
+        char operation[kOperationNameSize];
+        format_operation(operation, sizeof(operation), "cuMemFreeAsync", ptr);
+        report_cuda_error(
+            operation,
+            status,
+            "failed while discarding an IPC import that could not record a "
+            "deallocation stream; the mapping leaked"
+        );
+    }
+};
+}  // namespace
+
 DevicePtrHandle
 deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream)
 {
@@ -658,26 +499,8 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         GILReleaseGuard gil;
         // Allocate before taking the mutex: a failed allocation then cannot run
         // a deleter under it. The box owns nothing until it holds an import.
-        // clang-format off
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{0, DeallocationStream{}},
-            [h_pool, key](DevicePtrBox *b) {
-                if (b->resource != 0) {
-                    GILReleaseGuard gil;
-                    const DeallocationStream& stream = b->deallocation;
-                    // Release the entry once the mapping is freed, and before
-                    // reporting: a report can run user code.
-                    cleanup_in_context(
-                        deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
-                        [&]() noexcept {
-                            return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream));
-                        },
-                        [&]() noexcept { ipc_ptr_cache.release(key, &b->resource); });
-                }
-                delete b;
-            }
-        );
-        // clang-format on
+        auto box =
+            std::shared_ptr<DevicePtrBox>(new DevicePtrBox{0, DeallocationStream{}}, DeleteIpcPtrBox{h_pool, key});
         DevicePtrHandle h(box, &box->resource);
 
         // Resolve the deallocation stream before the mutex is taken: for a
@@ -694,23 +517,9 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
 
         // The factory runs under the cache's mutex, which makes lookup, import
         // and registration one step: two threads cannot import the same
-        // descriptor twice. Nothing under the mutex may acquire the GIL, so a
-        // failed discard is reported only after the lock is released (see
-        // DESIGN.md).
-        CUresult discard_status = CUDA_SUCCESS;
-        CUdeviceptr discarded = 0;
-        auto report_failed_discard = [&]() noexcept {
-            if (discard_status != CUDA_SUCCESS) {
-                char operation[kOperationNameSize];
-                format_operation(operation, sizeof(operation), "cuMemFreeAsync", discarded);
-                report_cuda_error(
-                    operation,
-                    discard_status,
-                    "failed while discarding an IPC import that could not record a "
-                    "deallocation stream; the mapping leaked"
-                );
-            }
-        };
+        // descriptor twice. It therefore calls the driver through the raw p_
+        // pointers only, and hands a failed discard out to be reported here.
+        DiscardedIpcImport discarded;
         DevicePtrHandle imported;
         try {
             imported = ipc_ptr_cache.get_or_create(key, [&]() -> DevicePtrHandle {
@@ -720,13 +529,11 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                     return {};
                 }
                 // No deallocation stream could be recorded: discard the import
-                // with the raw call (a pw_ report would acquire the GIL) before
-                // the mutex is released, or a concurrent import would share the
-                // mapping this free unmaps.
+                // before the mutex is released, or a concurrent import would
+                // share the mapping this free unmaps.
                 if (!ds_ok) {
                     err = ds_status;
-                    discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
-                    discarded = ptr;
+                    discarded = DiscardedIpcImport::discard(ptr, h_stream);
                     return {};
                 }
                 // Moves two handles; no deleter runs under the mutex.
@@ -736,14 +543,13 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
             });
         }
         catch (...) {
-            report_failed_discard();
+            discarded.report();
             throw;
         }
-        if (imported) {
-            return imported;
+        if (!imported) {
+            discarded.report();
         }
-        report_failed_discard();
-        return {};
+        return imported;
     }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
