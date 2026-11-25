@@ -1,26 +1,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for the canonical library descriptors and their legacy projections."""
+"""Tests for the canonical library descriptors and the tables derived from them."""
 
 import pytest
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-    DIRECT_DEPENDENCIES,
-    LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
-    LIBNAMES_REQUIRING_RTLD_DEEPBIND,
-    SITE_PACKAGES_LIBDIRS_LINUX,
-    SITE_PACKAGES_LIBDIRS_WINDOWS,
-    SITE_PACKAGES_LIBDIRS_WINDOWS_ARM64,
-    SITE_PACKAGES_LIBDIRS_WINDOWS_CTK,
-    SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64,
-    SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER,
-    SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64,
-    SITE_PACKAGES_LIBDIRS_WINDOWS_X64,
     SUPPORTED_LIBNAMES,
     SUPPORTED_LIBNAMES_LINUX,
-    SUPPORTED_LIBNAMES_WINDOWS,
     SUPPORTED_LIBNAMES_WINDOWS_ARM64,
     SUPPORTED_LIBNAMES_WINDOWS_X64,
     SUPPORTED_LINUX_SONAMES,
@@ -61,36 +49,6 @@ def test_windows_dlls_match(name):
     assert tuple(reversed(LIB_DESCRIPTORS[name].windows_dlls)) == SUPPORTED_WINDOWS_DLLS.get(name, ())
 
 
-@pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-def test_site_packages_linux_match(name):
-    assert LIB_DESCRIPTORS[name].site_packages_linux == SITE_PACKAGES_LIBDIRS_LINUX.get(name, ())
-
-
-@pytest.mark.parametrize(
-    ("target_arch", "site_packages_libdirs"),
-    [
-        ("x64", SITE_PACKAGES_LIBDIRS_WINDOWS_X64),
-        ("arm64", SITE_PACKAGES_LIBDIRS_WINDOWS_ARM64),
-    ],
-)
-@pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-@pytest.mark.agent_authored(model="gpt-5")
-def test_site_packages_windows_match(name, target_arch, site_packages_libdirs):
-    assert LIB_DESCRIPTORS[name].site_packages_windows.for_arch(target_arch) == site_packages_libdirs.get(name, ())
-
-
-@pytest.mark.agent_authored(model="gpt-5")
-def test_legacy_site_packages_windows_tables_are_x64_aliases():
-    assert SITE_PACKAGES_LIBDIRS_WINDOWS_CTK is SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64
-    assert SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER is SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER_X64
-    assert SITE_PACKAGES_LIBDIRS_WINDOWS is SITE_PACKAGES_LIBDIRS_WINDOWS_X64
-
-
-@pytest.mark.agent_authored(model="gpt-5")
-def test_legacy_supported_libnames_windows_is_x64_alias():
-    assert SUPPORTED_LIBNAMES_WINDOWS is SUPPORTED_LIBNAMES_WINDOWS_X64
-
-
 @pytest.mark.agent_authored(model="gpt-5")
 def test_supported_libnames_selects_current_platform_and_arch():
     if not IS_WINDOWS:
@@ -109,21 +67,6 @@ def test_arch_specific_ctk_libname_projections():
     assert "cudla" in SUPPORTED_LIBNAMES_WINDOWS_ARM64
     assert "nvjpeg" in SUPPORTED_LIBNAMES_WINDOWS_X64
     assert "nvjpeg" in SUPPORTED_LIBNAMES_WINDOWS_ARM64
-
-
-@pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-def test_dependencies_match(name):
-    assert LIB_DESCRIPTORS[name].dependencies == DIRECT_DEPENDENCIES.get(name, ())
-
-
-@pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-def test_requires_add_dll_directory_match(name):
-    assert LIB_DESCRIPTORS[name].requires_add_dll_directory == (name in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY)
-
-
-@pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-def test_requires_rtld_deepbind_match(name):
-    assert LIB_DESCRIPTORS[name].requires_rtld_deepbind == (name in LIBNAMES_REQUIRING_RTLD_DEEPBIND)
 
 
 # ---------------------------------------------------------------------------

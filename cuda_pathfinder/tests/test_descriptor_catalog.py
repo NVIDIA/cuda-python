@@ -42,6 +42,13 @@ def test_has_at_least_one_soname_or_dll(spec: DescriptorSpec):
 
 
 @pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_platform_load_flags_require_that_platform_filenames(spec: DescriptorSpec):
+    assert not spec.requires_add_dll_directory or spec.windows_dlls
+    assert not spec.requires_rtld_deepbind or spec.linux_sonames
+
+
+@pytest.mark.parametrize("spec", DESCRIPTOR_CATALOG, ids=lambda s: s.name)
 def test_dependencies_reference_existing_entries(spec: DescriptorSpec):
     for dep in spec.dependencies:
         assert dep in _CATALOG_BY_NAME, f"{spec.name} depends on unknown library {dep!r}"
