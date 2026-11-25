@@ -28,12 +28,11 @@ _GPU_COUNT = get_gpu_count() if _SAMPLES else 0
 
 # Samples launch full GPU workloads in their own subprocess, so keep them
 # serialized when the suite is run under pytest-run-parallel.
-# For sample_key values: cuda_core/binarySearch, cuda_core/cudaComputeLambdas, cuda_core/customPyTorchKernel,
-# cuda_core/customTensorFlowKernel, cuda_core/fftSignalAnalysis, cuda_core/glInteropFluidNumbaCudaMlir,
-# cuda_core/glInteropFluid, cuda_core/glInteropMipmapLod, cuda_core/glInteropPlasma, cuda_core/greenContext,
-# cuda_core/matrixMulSharedMem, cuda_core/multiGPUGradientAverage, cuda_core/numpyVsCupy, cuda_core/pageRank,
-# cuda_core/parallelReduction, cuda_core/prefixSum, cuda_core/processCheckpoint, cuda_core/reductionMultiBlockCG,
-# cuda_core/simplePrint, cuda_core/tmaTensorMap:
+# For sample_key values: cuda_core/binarySearch, cuda_core/cudaComputeLambdas, cuda_core/customTensorFlowKernel,
+# cuda_core/glInteropFluidNumbaCudaMlir, cuda_core/glInteropFluid, cuda_core/glInteropMipmapLod,
+# cuda_core/glInteropPlasma, cuda_core/greenContext, cuda_core/matrixMulSharedMem, cuda_core/multiGPUGradientAverage,
+# cuda_core/pageRank, cuda_core/parallelReduction, cuda_core/prefixSum, cuda_core/processCheckpoint,
+# cuda_core/reductionMultiBlockCG, cuda_core/simplePrint, cuda_core/tmaTensorMap:
 # This test is not currently run in any CI job
 @pytest.mark.parallel_threads_limit(1)
 @pytest.mark.parametrize("sample_key", _SAMPLES)

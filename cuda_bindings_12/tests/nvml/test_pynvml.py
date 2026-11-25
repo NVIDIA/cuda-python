@@ -62,7 +62,6 @@ def test_device_get_handle_by_pci_bus_id(ngpus, pci_info):
     assert len(handles) == ngpus
 
 
-# This test is not currently run in any CI job
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
 @pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
 def test_device_get_memory_affinity(handles, scope):
@@ -74,7 +73,6 @@ def test_device_get_memory_affinity(handles, scope):
         assert len(node_set) == size
 
 
-# This test is not currently run in any CI job
 @pytest.mark.parametrize("scope", [nvml.AffinityScope.NODE, nvml.AffinityScope.SOCKET])
 @pytest.mark.skipif(util.is_wsl() or util.is_windows(), reason="Not supported on WSL or Windows")
 def test_device_get_cpu_affinity_within_scope(handles, scope):
@@ -248,7 +246,6 @@ def test_device_get_pcie_throughput(ngpus, handles):
 # Test pynvml.nvmlDeviceGetNvLinkRemotePciInfo
 
 
-# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     "cap_type",
     [
