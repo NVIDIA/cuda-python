@@ -87,7 +87,7 @@
 #
 
 # /// script
-# dependencies = ["cuda_bindings", "cuda_core>0.6.0", "pyglet"]
+# dependencies = ["cuda-core[cu13]>=1.1.0", "numpy>=1.24", "pyglet>=2.0"]
 # ///
 
 import argparse

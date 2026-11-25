@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import pytest
 from packaging.requirements import InvalidRequirement, Requirement
 from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion
@@ -35,6 +36,8 @@ from packaging.version import InvalidVersion
 DEFAULT_TIMEOUT = 300
 EXIT_WAIVED = 77
 WAIVER_EXIT_CODE_ENV = "CUDA_PYTHON_SAMPLE_WAIVER_EXIT_CODE"
+# Prefix of the RunResult detail for a sample waived for unmet PEP 723 dependencies.
+UNMET_DEPENDENCIES = "unmet package requirement(s):"
 _print_lock = threading.Lock()
 
 
@@ -318,7 +321,62 @@ def _provided_extras(dist: importlib.metadata.Distribution) -> set[str]:
     return {canonicalize_name(extra) for extra in (dist.metadata.get_all("Provides-Extra") or ())}
 
 
-def _distribution_mismatches(requirement: Requirement, dist: importlib.metadata.Distribution) -> list[str]:
+def _extra_requirements(dist: importlib.metadata.Distribution, extra: str) -> list[Requirement]:
+    """Return the requirements that ``extra`` adds to ``dist``'s base requirements."""
+    requirements: list[Requirement] = []
+    for spec in dist.requires or ():
+        requirement = Requirement(spec)
+        marker = requirement.marker
+        if marker is not None and marker.evaluate({"extra": extra}) and not marker.evaluate({"extra": ""}):
+            requirements.append(requirement)
+    return requirements
+
+
+def _requirement_without_marker(requirement: Requirement) -> str:
+    text = requirement.name
+    if requirement.extras:
+        text += f"[{','.join(sorted(requirement.extras))}]"
+    return text + str(requirement.specifier)
+
+
+def _extra_mismatches(
+    name: str, dist: importlib.metadata.Distribution, extra: str, seen: set[tuple[str, str]]
+) -> list[str]:
+    """Check the installed distributions that ``extra`` of ``dist`` requires.
+
+    A distribution the extra requires but that is not installed is accepted:
+    conda packages and a local CUDA Toolkit provide many of these libraries
+    without pip metadata. An installed one must satisfy the requirement, so
+    that, for example, ``cuda-core[cu13]`` is unmet when cuda-bindings 12.x is
+    installed.
+    """
+    key = (name, extra)
+    if key in seen:
+        return []
+    seen.add(key)
+
+    mismatches: list[str] = []
+    for requirement in _extra_requirements(dist, extra):
+        for provider in _distribution_providers(requirement):
+            try:
+                provider_dist = importlib.metadata.distribution(provider)
+            except importlib.metadata.PackageNotFoundError:
+                continue
+            for detail in _distribution_mismatches(requirement, provider_dist, provider, seen):
+                mismatches.append(
+                    f"extra {extra} requires {_requirement_without_marker(requirement)} "
+                    f"({provider} {provider_dist.version}: {detail})"
+                )
+            break
+    return mismatches
+
+
+def _distribution_mismatches(
+    requirement: Requirement,
+    dist: importlib.metadata.Distribution,
+    name: str,
+    seen: set[tuple[str, str]] | None = None,
+) -> list[str]:
     mismatches: list[str] = []
     if requirement.specifier:
         try:
@@ -329,9 +387,15 @@ def _distribution_mismatches(requirement: Requirement, dist: importlib.metadata.
             if not version_matches:
                 mismatches.append(f"version {dist.version} does not satisfy {requirement.specifier}")
 
-    missing_extras = {canonicalize_name(extra) for extra in requirement.extras} - _provided_extras(dist)
+    requested_extras = {canonicalize_name(extra) for extra in requirement.extras}
+    missing_extras = requested_extras - _provided_extras(dist)
     if missing_extras:
         mismatches.append(f"does not provide extra(s): {', '.join(sorted(missing_extras))}")
+
+    if seen is None:
+        seen = set()
+    for extra in sorted(requested_extras - missing_extras):
+        mismatches.extend(_extra_mismatches(canonicalize_name(name), dist, extra, seen))
     return mismatches
 
 
@@ -362,7 +426,7 @@ def missing_dependencies(example: Path) -> list[str]:
                 dist = importlib.metadata.distribution(provider)
             except importlib.metadata.PackageNotFoundError:
                 continue
-            mismatches = _distribution_mismatches(requirement, dist)
+            mismatches = _distribution_mismatches(requirement, dist, provider)
             if not mismatches:
                 break
             installed.append(f"{provider} {dist.version}: {', '.join(mismatches)}")
@@ -485,7 +549,7 @@ def run_sample(plan: RunPlan) -> RunResult:
         _safe_print(f"  [ERROR] {name}: {reason}")
         return RunResult(sample, "ERROR", -1, reason, plan.sample_key)
     if missing:
-        reason = f"unmet package requirement(s): {'; '.join(missing)}"
+        reason = f"{UNMET_DEPENDENCIES} {'; '.join(missing)}"
         _safe_print(f"  [WAIVED] {name}: {reason}")
         return RunResult(sample, "WAIVED", EXIT_WAIVED, reason, plan.sample_key)
 
@@ -526,6 +590,54 @@ def run_sample(plan: RunPlan) -> RunResult:
     if proc.stderr:
         _safe_print(f"---- stderr ({name}) ----\n{proc.stderr.rstrip()}")
     return RunResult(sample, "FAIL", proc.returncode, msg, plan.sample_key)
+
+
+# ---------------------------------------------------------------------------
+# Pytest integration
+# ---------------------------------------------------------------------------
+
+
+class SampleSuite:
+    """The samples one package owns, resolved once at collection time."""
+
+    def __init__(self, samples_dir: Path, namespace: str, config_path: Path) -> None:
+        self.entries = collect_sample_entries(samples_dir, namespace)
+        self.keys = sorted(self.entries)
+        self.config = load_config(config_path)
+        # Resolve the GPU count once, so every parametrized test id reports the
+        # same skip reason.
+        if self.keys:
+            self.gpu_count = get_gpu_count()
+        else:
+            self.gpu_count = 0
+
+    def check(self, sample_key: str, *, fail_on_unmet_dependencies: bool = False) -> None:
+        """Run one sample and turn its result into a pytest outcome.
+
+        A waived sample skips. With ``fail_on_unmet_dependencies``, a sample
+        waived because its PEP 723 dependencies are not installed fails instead.
+        """
+        if self.gpu_count == 0:
+            pytest.skip("No CUDA GPU detected on the test runner")
+
+        entry = self.entries.get(sample_key)
+        if entry is None or not entry.is_file():
+            pytest.fail(f"Sample entrypoint missing: {sample_key}")
+
+        plan = build_run_plan(entry, self.config, self.gpu_count, sample_key=sample_key)
+        result = run_sample(plan)
+
+        if result.status == "WAIVED":
+            if fail_on_unmet_dependencies and result.detail.startswith(UNMET_DEPENDENCIES):
+                pytest.fail(f"sample dependencies are not satisfied: {result.detail}")
+            pytest.skip(result.detail or "sample waived")
+        if result.status == "PASS":
+            return
+
+        # run_sample printed the sample's output; flush it so pytest's failure
+        # capture surfaces it in the report.
+        sys.stdout.flush()
+        pytest.fail(f"sample {sample_key} returned status={result.status} (rc={result.return_code}): {result.detail}")
 
 
 # ---------------------------------------------------------------------------

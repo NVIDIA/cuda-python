@@ -17,7 +17,7 @@ This sample demonstrates zero-copy access using **`cuda.core`** to compile and l
 
 - `numpy` – CPU arrays and reference computation
 - `cuda-core` – `Device`, stream, `Program`, `LaunchConfig`, `launch`
-- `cuda-python` (`cuda.bindings.runtime`) – `cudaHostAlloc` / `cudaHostGetDevicePointer` / `cudaFreeHost` for mapped host memory
+- `cuda-bindings` (`cuda.bindings.runtime`) – `cudaHostAlloc` / `cudaHostGetDevicePointer` / `cudaFreeHost` for mapped host memory
 
 ## Key APIs
 
@@ -51,9 +51,9 @@ This sample demonstrates zero-copy access using **`cuda.core`** to compile and l
 
 ## Requirements
 
-1. **NVIDIA GPU** and a **driver** compatible with your installed `cuda-python` / `cuda-core` wheels.
+1. **NVIDIA GPU** and a **driver** compatible with your installed `cuda-core` wheels.
 2. **Python 3.11 or newer**
-3. Install **`pip install -r requirements.txt`** (NumPy, `cuda-python`, `cuda-core`). A **system** CUDA Toolkit is not strictly required if the process can load the driver/runtime; use `LD_LIBRARY_PATH` in *How to run* if you hit missing-library errors.
+3. Install **`pip install -r requirements.txt`** (NumPy, `cuda-core[cu13]`). A **system** CUDA Toolkit is not strictly required if the process can load the driver/runtime; use `LD_LIBRARY_PATH` in *How to run* if you hit missing-library errors.
 
 **Install packages:**
 ```bash
@@ -62,7 +62,7 @@ pip install -r requirements.txt
 
 Or manually:
 ```bash
-pip install numpy>=2.3.2 cuda-core>=1.0.0 cuda-python>=13.0.0
+pip install "numpy>=2.3.2" "cuda-core[cu13]>=1.0.0"
 ```
 
 ## How to run

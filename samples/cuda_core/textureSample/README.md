@@ -30,8 +30,7 @@ blend of texels ``(0, 0)`` and ``(1, 0)``.
 
 - CUDA Toolkit 13.0 or newer
 - Python 3.11 or newer
-- `cuda-python` (>=13.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.1.0)
 - `numpy` (>=1.24)
 
 ## Installation

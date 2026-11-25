@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["cuda-python>=13.0.0", "cuda-core<1.0.0", "cugraph-cu13>=26.0.0", "cudf-cu13>=26.0.0", "dask-cuda>=26.4.0", "cupy-cuda13x>=14.0.0", "numpy>=2.3.2"]
+# dependencies = ["cuda-core[cu13]>=1.0.0", "cugraph-cu13>=26.0.0", "cudf-cu13>=26.0.0", "dask-cuda>=26.4.0", "cupy-cuda13x>=14.0.0", "numpy>=2.3.2"]
 # ///
 
 """

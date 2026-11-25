@@ -19,6 +19,7 @@ from packaging.utils import canonicalize_name
 class _Distribution:
     def __init__(self, version: str, extras: tuple[str, ...] = ()) -> None:
         self.version = version
+        self.requires = None
         self.metadata = Message()
         for extra in extras:
             self.metadata["Provides-Extra"] = extra

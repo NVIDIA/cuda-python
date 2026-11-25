@@ -98,7 +98,7 @@ running ---------> locked ------------> checkpointed -----------> locked -------
 - NVIDIA driver with CUDA process checkpoint support.
 - CUDA Toolkit 13.0 or newer.
 - Python 3.11 or newer.
-- `cuda-core >= 1.0.0`.
+- `cuda-core[cu13] >= 1.3.0`.
 
 On non-Linux platforms and integrated GPUs, the sample prints a diagnostic
 and waives without attempting the checkpoint lifecycle.

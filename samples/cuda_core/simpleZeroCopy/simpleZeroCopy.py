@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["numpy>=2.3.2", "cuda-python>=13.0.0", "cuda-core>=1.0.0"]
+# dependencies = ["numpy>=2.3.2", "cuda-core[cu13]>=1.0.0"]
 # ///
 
 import argparse

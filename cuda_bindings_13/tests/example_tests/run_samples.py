@@ -19,12 +19,6 @@ DEFAULT_CONFIG = Path(__file__).resolve().parent / "test_args.json"
 DEFAULT_SAMPLES_DIR = REPO_ROOT / "samples" / "cuda_bindings"
 SAMPLE_NAMESPACE = "cuda_bindings"
 
-build_run_plan = _runner.build_run_plan
-collect_sample_entries = _runner.collect_sample_entries
-get_gpu_count = _runner.get_gpu_count
-load_config = _runner.load_config
-run_sample = _runner.run_sample
-
 
 def main(argv: list[str] | None = None) -> int:
     return _runner.main(

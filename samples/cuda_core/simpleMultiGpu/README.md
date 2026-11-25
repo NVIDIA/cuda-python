@@ -55,10 +55,9 @@ input buffers, so the kernels see fully-materialized data.
 
 ### Software
 
-- CUDA Toolkit 13.0 or newer (matches `cuda-python` 13.x)
+- CUDA Toolkit 13.0 or newer
 - Python 3.11 or newer
-- `cuda-python` (>=13.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
 
 ## Installation

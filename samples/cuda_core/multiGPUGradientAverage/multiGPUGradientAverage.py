@@ -25,7 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # /// script
-# dependencies = ["mpi4py>=3.1.4", "cupy-cuda13x>=14.0.0", "cuda-python>=13.0.0", "cuda-core>=1.0.0"]
+# dependencies = ["mpi4py>=3.1.4", "cupy-cuda13x>=14.0.0", "cuda-core[cu13]>=1.0.0"]
 # ///
 
 """

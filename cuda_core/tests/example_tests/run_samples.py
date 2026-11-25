@@ -19,20 +19,16 @@ DEFAULT_CONFIG = Path(__file__).resolve().parent / "test_args.json"
 DEFAULT_SAMPLES_DIR = REPO_ROOT / "samples" / "cuda_core"
 SAMPLE_NAMESPACE = "cuda_core"
 
-DEFAULT_TIMEOUT = _runner.DEFAULT_TIMEOUT
-DependencyMetadataError = _runner.DependencyMetadataError
+# Re-exported for the runner unit tests in test_run_samples.py and
+# test_sample_verification.py.
 RunPlan = _runner.RunPlan
-RunResult = _runner.RunResult
 build_run_plan = _runner.build_run_plan
 collect_sample_entries = _runner.collect_sample_entries
-discover_samples = _runner.discover_samples
 get_gpu_count = _runner.get_gpu_count
-get_sample_id = _runner.get_sample_id
 load_config = _runner.load_config
 missing_dependencies = _runner.missing_dependencies
 run_sample = _runner.run_sample
-
-# Kept available for runner unit tests that patch distribution metadata.
+# Patched by the runner unit tests to fake distribution metadata.
 importlib = _runner.importlib
 
 

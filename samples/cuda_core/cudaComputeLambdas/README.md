@@ -59,7 +59,7 @@ The sample exercises three algorithm families:
   Numba, which needs the toolkit's `nvvm` and `libdevice`).
 - Python 3.11 or newer
 - `cuda-cccl` (>=1.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
 - `numba-cuda` (pulled in transitively by `cuda-cccl`)
 
@@ -82,7 +82,7 @@ pip install -r requirements.txt
 The `requirements.txt` installs:
 
 - `cuda-cccl` (>=1.0.0) - ships the `cuda.compute` module
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
 - `numpy` (>=1.24.0)
 
