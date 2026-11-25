@@ -6,7 +6,6 @@
 ``cuda-bindings`` 12.9.9 Release notes
 =======================================
 
-Released on TBD
 
 Changes
 -------
@@ -344,6 +343,29 @@ Bugfixes
 - Fixed readonly correctness in ``__setitem__`` for generated struct wrapper
   classes in ``cudla``, ``cufile``, and ``nvml``.
   (`PR #2875 <https://github.com/NVIDIA/cuda-python/pull/2875>`_)
+- Fixed the internal result storage and Python conversion for several
+  ``CUpointer_attribute`` and ``CUcoredumpSettings`` result types:
+  ``CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL`` is now returned from signed integer
+  storage so negative CUDA device sentinels are preserved,
+  ``CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES`` is stored in its 64-bit
+  unsigned slot instead of being truncated to 32 bits,
+  ``CU_POINTER_ATTRIBUTE_HOST_POINTER`` uses a ``void *`` result slot, and the
+  boolean coredump attributes use a one-byte ``bool`` matching the driver ABI.
+  (`PR #2930 <https://github.com/NVIDIA/cuda-python/pull/2930>`_)
+- Fixed ``CU_JIT_WALL_TIME`` and ``cudaJitWallTime`` OUT slots: the pointer
+  passed to the driver is now the address of the float storage cell instead
+  of the float bit-pattern value-cast to a pointer, which previously produced
+  a garbage address that could crash or corrupt memory when CUDA wrote back
+  the elapsed time.
+  (`PR #2934 <https://github.com/NVIDIA/cuda-python/pull/2934>`_)
+- Added missing helper branches for ``CUpointer_attribute``,
+  ``CUmem_range_attribute``, ``CUjit_option`` and ``CUcoredumpSettings``
+  enumerators that previously raised ``TypeError`` at construction time.
+  (`PR #2934 <https://github.com/NVIDIA/cuda-python/pull/2934>`_)
+- Added missing ``getDescInfo`` arms for the
+  ``{Signed,Unsigned}Normalized{8,16}X{1,2,4}`` channel-format kinds, which
+  previously returned ``cudaErrorInvalidChannelDescriptor``.
+  (`PR #2934 <https://github.com/NVIDIA/cuda-python/pull/2934>`_)
 
 Known issues
 ------------
