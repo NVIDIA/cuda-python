@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import PurePath
 from typing import Protocol, cast
 
@@ -21,6 +21,76 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dl
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
+
+
+@dataclass(frozen=True, slots=True)
+class SearchContext:
+    """One library's search inputs, resolved for one target platform.
+
+    Build one with :func:`linux_search_context`, :func:`windows_search_context`,
+    or :func:`search_context` (the platform this process runs on).
+    """
+
+    desc: LibDescriptor
+    #: ``None`` on Linux; ``"x64"`` or ``"arm64"`` on Windows.
+    windows_arch: str | None
+    #: Wording that names the library in error messages.
+    lib_searched_for: str
+    site_packages_rel_dirs: tuple[str, ...]
+    #: Path parts between ``$CONDA_PREFIX`` and the directory the anchors hang off.
+    conda_anchor_parts: tuple[str, ...]
+    anchor_rel_dirs: tuple[str, ...]
+    install_root_env_vars: tuple[str, ...]
+    install_root_env_rel_dirs: tuple[str, ...]
+    #: Globs relative to the Windows Program Files directory.
+    program_files_rel_globs: tuple[str, ...]
+    #: Windows architecture that a candidate DLL must match; ``None`` means no check.
+    pe_arch_to_check: str | None
+    error_messages: list[str] = field(default_factory=list)
+    attachments: list[str] = field(default_factory=list)
+
+    def conda_anchor_point(self, conda_prefix: str) -> str:
+        return os.path.join(conda_prefix, *self.conda_anchor_parts)
+
+
+def linux_search_context(desc: LibDescriptor) -> SearchContext:
+    return SearchContext(
+        desc=desc,
+        windows_arch=None,
+        lib_searched_for=" or ".join(desc.linux_sonames),
+        site_packages_rel_dirs=desc.site_packages_linux,
+        conda_anchor_parts=(),
+        anchor_rel_dirs=desc.anchor_rel_dirs_linux,
+        install_root_env_vars=desc.install_root_env_vars_linux,
+        install_root_env_rel_dirs=desc.install_root_env_rel_dirs_linux,
+        program_files_rel_globs=(),
+        pe_arch_to_check=None,
+    )
+
+
+def windows_search_context(desc: LibDescriptor, target_arch: str) -> SearchContext:
+    arch_is_supported = target_arch in desc.supported_windows_arch
+    return SearchContext(
+        desc=desc,
+        windows_arch=target_arch,
+        lib_searched_for=f"known {desc.name} DLL",
+        site_packages_rel_dirs=desc.site_packages_windows.for_arch(target_arch),
+        conda_anchor_parts=("Library",),
+        anchor_rel_dirs=desc.anchor_rel_dirs_windows.for_arch(target_arch),
+        install_root_env_vars=desc.install_root_env_vars_windows if arch_is_supported else (),
+        install_root_env_rel_dirs=(
+            desc.install_root_env_rel_dirs_windows.for_arch(target_arch) if arch_is_supported else ()
+        ),
+        program_files_rel_globs=desc.program_files_root_globs_windows.for_arch(target_arch),
+        pe_arch_to_check=target_arch if desc.requires_windows_binary_arch_check else None,
+    )
+
+
+def search_context(desc: LibDescriptor) -> SearchContext:
+    """Resolve *desc* for the platform this process runs on."""
+    if IS_WINDOWS:
+        return windows_search_context(desc, windows_python_arch())
+    return linux_search_context(desc)
 
 
 def _no_such_file_in_sub_dirs(
