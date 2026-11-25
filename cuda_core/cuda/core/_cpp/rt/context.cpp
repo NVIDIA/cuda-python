@@ -8,6 +8,7 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <mutex>
@@ -170,18 +171,48 @@ replace_if_upgrade(const ContextHandle &candidate) noexcept
 // The retain is held by one box per device, pinned in a process-wide table
 // that is never freed: no thread's exit and no handle's release can drop the
 // box's last reference, so its deleter never runs.
+//
+// The table is read without a lock. It is published as immutable snapshots:
+// pinning a context, under primary_context_mutex, publishes a copy of the
+// current snapshot with one more entry. Snapshots and the handles they point
+// to are leaked, so a reader never sees freed memory, and other threads may
+// still use them while the process exits. At most one snapshot is published
+// per device.
 // ----------------------------------------------------------------------------
 
-std::mutex primary_context_mutex;
+struct PinnedPrimaryContexts {
+    std::vector<const ContextHandle *> slots;  // indexed by device ordinal
+};
 
-// Pinned primary contexts indexed by device ordinal; guarded by
-// primary_context_mutex. Leaked on purpose: other threads may still use it
-// while the process exits.
-std::vector<ContextHandle> &
-primary_context_table()
+std::mutex primary_context_mutex;  // serializes pinning
+std::atomic<const PinnedPrimaryContexts *> pinned_primary_contexts{nullptr};
+
+// Return the pinned primary context of device ordinal idx, or an empty handle.
+ContextHandle
+find_pinned_primary_context(size_t idx) noexcept
 {
-    static auto *table = new std::vector<ContextHandle>();  // NOLINT(cppcoreguidelines-owning-memory)
-    return *table;
+    const PinnedPrimaryContexts *pinned = pinned_primary_contexts.load(std::memory_order_acquire);
+    if (pinned && idx < pinned->slots.size() && pinned->slots[idx]) {
+        return *pinned->slots[idx];
+    }
+    return {};
+}
+
+// Publish h as the pinned primary context of device ordinal idx. The caller
+// holds primary_context_mutex, so no other snapshot is published meanwhile.
+void
+publish_pinned_primary_context(size_t idx, const ContextHandle &h)
+{
+    // The previous store was made under the same mutex, so a relaxed load sees it.
+    const PinnedPrimaryContexts *current = pinned_primary_contexts.load(std::memory_order_relaxed);
+    // Both allocations are leaked on purpose (see above).
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    auto *next = new PinnedPrimaryContexts{current ? current->slots : std::vector<const ContextHandle *>{}};
+    if (idx >= next->slots.size()) {
+        next->slots.resize(idx + 1, nullptr);
+    }
+    next->slots[idx] = new ContextHandle(h);  // NOLINT(cppcoreguidelines-owning-memory)
+    pinned_primary_contexts.store(next, std::memory_order_release);
 }
 
 // Return the pinned primary context of device_id, pinning it first if needed.
@@ -200,6 +231,17 @@ ContextHandle
 pin_primary_context(int device_id, CUcontext expected, CUresult *status)
 {
     *status = CUDA_SUCCESS;
+    const auto idx = static_cast<size_t>(device_id);
+    auto pinned_result = [expected](ContextHandle pinned) -> ContextHandle {
+        if (expected && as_cu(pinned) != expected) {
+            return {};
+        }
+        return pinned;
+    };
+    if (ContextHandle pinned = find_pinned_primary_context(idx)) {
+        return pinned_result(std::move(pinned));
+    }
+
     // The GIL is the outermost lock, and filling the table acquires it: do both
     // before the mutex is taken. The raw p_ calls below rely on the fill.
     GILReleaseGuard gil;
@@ -209,17 +251,13 @@ pin_primary_context(int device_id, CUcontext expected, CUresult *status)
         return {};
     }
 
-    const auto idx = static_cast<size_t>(device_id);
     ContextHandle h;
     bool release_probe = false;
     {
         std::scoped_lock lock(primary_context_mutex);
-        auto &table = primary_context_table();
-        if (idx < table.size() && table[idx]) {
-            if (expected && as_cu(table[idx]) != expected) {
-                return {};
-            }
-            return table[idx];
+        // Another thread may have pinned it since the check above.
+        if (ContextHandle pinned = find_pinned_primary_context(idx)) {
+            return pinned_result(std::move(pinned));
         }
         if (expected) {
             unsigned int flags = 0;
@@ -250,10 +288,7 @@ pin_primary_context(int device_id, CUcontext expected, CUresult *status)
             );
             // clang-format on
             h = ContextHandle(box, &box->resource);
-            if (idx >= table.size()) {
-                table.resize(idx + 1);
-            }
-            table[idx] = h;
+            publish_pinned_primary_context(idx, h);
         }
     }
     if (release_probe) {
@@ -442,30 +477,15 @@ create_green_ctx_handle_ref(CUgreenCtx green_ctx)
     return GreenCtxHandle(box, &box->resource);
 }
 
-// Thread-local cache of pinned primary contexts indexed by device ordinal: a
-// fast path in front of primary_context_mutex. Its entries share the pinned
-// boxes, so destroying it at thread exit only drops references.
-static thread_local std::vector<ContextHandle> primary_context_cache;
-
 ContextHandle
 get_primary_context(int device_id)
 {
-    const auto idx = static_cast<size_t>(device_id);
-    if (idx < primary_context_cache.size()) {
-        if (auto cached = primary_context_cache[idx]) {
-            return cached;
-        }
+    // The common case: the context is pinned already. Leave the thread's last
+    // error untouched, as any other lookup that succeeds does.
+    if (ContextHandle h = find_pinned_primary_context(static_cast<size_t>(device_id))) {
+        return h;
     }
-
-    ContextHandle h = pin_primary_context(device_id, nullptr, &err);
-    if (!h) {
-        return {};
-    }
-    if (idx >= primary_context_cache.size()) {
-        primary_context_cache.resize(idx + 1);
-    }
-    primary_context_cache[idx] = h;
-    return h;
+    return pin_primary_context(device_id, nullptr, &err);
 }
 
 ContextHandle

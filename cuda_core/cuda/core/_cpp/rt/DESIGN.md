@@ -344,9 +344,10 @@ behaved this way; #1368 released the retain when the last handle dropped, which
 - `get_primary_context()` pins one retaining `ContextBox` per device in a
   process-wide table (`pin_primary_context()` in `context.cpp`). The table is
   leaked on purpose and holds a strong reference, so the box's deleter never
-  runs and its retain is never given back. The per-thread cache is only a fast
-  path in front of the table's mutex, and its destruction at thread exit drops
-  references, nothing more.
+  runs and its retain is never given back. The table is read without a lock:
+  pinning publishes a new immutable snapshot under the table's mutex, and old
+  snapshots are leaked, so a reader never sees freed memory. There is no
+  per-thread cache, so a thread's exit has no effect on primary contexts.
 - `create_context_handle_ref()`, `create_current_context_handle_ref()` and
   `get_current_context()` pin a primary context that another library made
   current: when `ctx` is the calling thread's current context and its device's

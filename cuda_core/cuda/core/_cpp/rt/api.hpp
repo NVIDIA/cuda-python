@@ -45,7 +45,7 @@ GreenCtxHandle create_green_ctx_handle(
 // Create a non-owning green context handle.
 GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
 
-// Get handle to the primary context for a device (with thread-local caching).
+// Get handle to the primary context for a device.
 // cuda.core retains each primary context at most once per process and never
 // releases it. Returns empty handle on error (caller must check)
 ContextHandle get_primary_context(int device_id);
