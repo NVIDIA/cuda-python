@@ -11,7 +11,7 @@
 ###############################################################################
 
 # enums
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2c738c3fcedf7ae3325451885afecee74d7aa012ce8cf57d351957d5f22e02fc
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=18f24866cadb434b5312ebe3aa384030731e3b319ab6535781ee95f25ab32ff4
 ctypedef enum nvmlBridgeChipType_t "nvmlBridgeChipType_t":
     NVML_BRIDGE_CHIP_PLX "NVML_BRIDGE_CHIP_PLX" = 0
     NVML_BRIDGE_CHIP_BRO4 "NVML_BRIDGE_CHIP_BRO4" = 1
@@ -20,7 +20,6 @@ ctypedef enum nvmlNvLinkUtilizationCountUnits_t "nvmlNvLinkUtilizationCountUnits
     NVML_NVLINK_COUNTER_UNIT_CYCLES "NVML_NVLINK_COUNTER_UNIT_CYCLES" = 0
     NVML_NVLINK_COUNTER_UNIT_PACKETS "NVML_NVLINK_COUNTER_UNIT_PACKETS" = 1
     NVML_NVLINK_COUNTER_UNIT_BYTES "NVML_NVLINK_COUNTER_UNIT_BYTES" = 2
-    NVML_NVLINK_COUNTER_UNIT_RESERVED "NVML_NVLINK_COUNTER_UNIT_RESERVED" = 3
     NVML_NVLINK_COUNTER_UNIT_COUNT "NVML_NVLINK_COUNTER_UNIT_COUNT"
 
 ctypedef enum nvmlNvLinkUtilizationCountPktTypes_t "nvmlNvLinkUtilizationCountPktTypes_t":

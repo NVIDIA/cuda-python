@@ -129,6 +129,7 @@ def test_affinity(subtests):
                 assert isinstance(affinity, list)
 
 
+# This test is not currently run in any CI job
 def test_numa_node_id(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
@@ -339,6 +340,7 @@ def test_device_pci_bus_id():
         assert new_device.index == device.index
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_attributes(subtests):
     for device in system.Device.get_all_devices():
@@ -635,6 +637,7 @@ def test_get_inforom_version(subtests):
             inforom.validate()
 
 
+# This test is not currently run in any CI job
 def test_auto_boosted_clocks_enabled(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):

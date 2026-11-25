@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9df535111c371b1a39c43b944cf9245be42211d5f06b80d888ea9c4596329edc
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aa6f8135abba7596111ca9a218e25ed73978afc7f5c88ea07cc58a63a32da4dc
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -85,53 +85,35 @@ cdef void* __cudlaGetLastError = NULL
 cdef void* __cudlaDestroyDevice = NULL
 cdef void* __cudlaSetTaskTimeoutInMs = NULL
 
+cdef enum: _cyb_cudla_n_functions = 13
+cdef void** _cyb_cudla_slots[_cyb_cudla_n_functions]
+cdef const char* _cyb_cudla_names[_cyb_cudla_n_functions]
+_cyb_cudla_slots[0] = &__cudlaGetVersion; _cyb_cudla_names[0] = b'cudlaGetVersion'
+_cyb_cudla_slots[1] = &__cudlaDeviceGetCount; _cyb_cudla_names[1] = b'cudlaDeviceGetCount'
+_cyb_cudla_slots[2] = &__cudlaCreateDevice; _cyb_cudla_names[2] = b'cudlaCreateDevice'
+_cyb_cudla_slots[3] = &__cudlaMemRegister; _cyb_cudla_names[3] = b'cudlaMemRegister'
+_cyb_cudla_slots[4] = &__cudlaModuleLoadFromMemory; _cyb_cudla_names[4] = b'cudlaModuleLoadFromMemory'
+_cyb_cudla_slots[5] = &__cudlaModuleGetAttributes; _cyb_cudla_names[5] = b'cudlaModuleGetAttributes'
+_cyb_cudla_slots[6] = &__cudlaModuleUnload; _cyb_cudla_names[6] = b'cudlaModuleUnload'
+_cyb_cudla_slots[7] = &__cudlaSubmitTask; _cyb_cudla_names[7] = b'cudlaSubmitTask'
+_cyb_cudla_slots[8] = &__cudlaDeviceGetAttribute; _cyb_cudla_names[8] = b'cudlaDeviceGetAttribute'
+_cyb_cudla_slots[9] = &__cudlaMemUnregister; _cyb_cudla_names[9] = b'cudlaMemUnregister'
+_cyb_cudla_slots[10] = &__cudlaGetLastError; _cyb_cudla_names[10] = b'cudlaGetLastError'
+_cyb_cudla_slots[11] = &__cudlaDestroyDevice; _cyb_cudla_names[11] = b'cudlaDestroyDevice'
+_cyb_cudla_slots[12] = &__cudlaSetTaskTimeoutInMs; _cyb_cudla_names[12] = b'cudlaSetTaskTimeoutInMs'
+
 cdef int _init_cudla() except -1 nogil:
     global _cyb___py_cudla_init
 
     cdef int err
     cdef uintptr_t handle
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_cudla_init: return 0
 
         handle = load_library()
-        global __cudlaGetVersion
-        __cudlaGetVersion = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaGetVersion')
-
-        global __cudlaDeviceGetCount
-        __cudlaDeviceGetCount = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaDeviceGetCount')
-
-        global __cudlaCreateDevice
-        __cudlaCreateDevice = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaCreateDevice')
-
-        global __cudlaMemRegister
-        __cudlaMemRegister = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaMemRegister')
-
-        global __cudlaModuleLoadFromMemory
-        __cudlaModuleLoadFromMemory = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaModuleLoadFromMemory')
-
-        global __cudlaModuleGetAttributes
-        __cudlaModuleGetAttributes = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaModuleGetAttributes')
-
-        global __cudlaModuleUnload
-        __cudlaModuleUnload = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaModuleUnload')
-
-        global __cudlaSubmitTask
-        __cudlaSubmitTask = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaSubmitTask')
-
-        global __cudlaDeviceGetAttribute
-        __cudlaDeviceGetAttribute = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaDeviceGetAttribute')
-
-        global __cudlaMemUnregister
-        __cudlaMemUnregister = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaMemUnregister')
-
-        global __cudlaGetLastError
-        __cudlaGetLastError = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaGetLastError')
-
-        global __cudlaDestroyDevice
-        __cudlaDestroyDevice = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaDestroyDevice')
-
-        global __cudlaSetTaskTimeoutInMs
-        __cudlaSetTaskTimeoutInMs = _cyb_GetProcAddress(<HMODULE>handle, 'cudlaSetTaskTimeoutInMs')
+        for i in range(_cyb_cudla_n_functions):
+            _cyb_cudla_slots[i][0] = _cyb_GetProcAddress(<HMODULE>handle, _cyb_cudla_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_cudla_init, 1)
         return 0
@@ -150,44 +132,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_cudla()
     cdef dict data = {}
-    global __cudlaGetVersion
-    data["__cudlaGetVersion"] = <intptr_t>__cudlaGetVersion
-
-    global __cudlaDeviceGetCount
-    data["__cudlaDeviceGetCount"] = <intptr_t>__cudlaDeviceGetCount
-
-    global __cudlaCreateDevice
-    data["__cudlaCreateDevice"] = <intptr_t>__cudlaCreateDevice
-
-    global __cudlaMemRegister
-    data["__cudlaMemRegister"] = <intptr_t>__cudlaMemRegister
-
-    global __cudlaModuleLoadFromMemory
-    data["__cudlaModuleLoadFromMemory"] = <intptr_t>__cudlaModuleLoadFromMemory
-
-    global __cudlaModuleGetAttributes
-    data["__cudlaModuleGetAttributes"] = <intptr_t>__cudlaModuleGetAttributes
-
-    global __cudlaModuleUnload
-    data["__cudlaModuleUnload"] = <intptr_t>__cudlaModuleUnload
-
-    global __cudlaSubmitTask
-    data["__cudlaSubmitTask"] = <intptr_t>__cudlaSubmitTask
-
-    global __cudlaDeviceGetAttribute
-    data["__cudlaDeviceGetAttribute"] = <intptr_t>__cudlaDeviceGetAttribute
-
-    global __cudlaMemUnregister
-    data["__cudlaMemUnregister"] = <intptr_t>__cudlaMemUnregister
-
-    global __cudlaGetLastError
-    data["__cudlaGetLastError"] = <intptr_t>__cudlaGetLastError
-
-    global __cudlaDestroyDevice
-    data["__cudlaDestroyDevice"] = <intptr_t>__cudlaDestroyDevice
-
-    global __cudlaSetTaskTimeoutInMs
-    data["__cudlaSetTaskTimeoutInMs"] = <intptr_t>__cudlaSetTaskTimeoutInMs
+    cdef Py_ssize_t i
+    for i in range(_cyb_cudla_n_functions):
+        data['__' + _cyb_cudla_names[i].decode()] = <intptr_t>_cyb_cudla_slots[i][0]
     _cyb_func_ptrs = data
     return data
 

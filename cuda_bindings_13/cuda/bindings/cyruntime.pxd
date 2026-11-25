@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=954df8ef058bb13213696a889e371949b55720bf8fe69e6f8eb90b898dbebb04
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b891b334bfced10b68d02e0b633a991a50b28ed92b6f7aaa66e70d7cafa22a56
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -677,11 +677,7 @@ cdef extern from 'driver_types.h':
         cudaDevAttrConcurrentManagedAccess
         cudaDevAttrComputePreemptionSupported
         cudaDevAttrCanUseHostPointerForRegisteredMem
-        cudaDevAttrReserved92
-        cudaDevAttrReserved93
-        cudaDevAttrReserved94
         cudaDevAttrCooperativeLaunch
-        cudaDevAttrReserved96
         cudaDevAttrMaxSharedMemoryPerBlockOptin
         cudaDevAttrCanFlushRemoteWrites
         cudaDevAttrHostRegisterSupported
@@ -701,28 +697,19 @@ cdef extern from 'driver_types.h':
         cudaDevAttrMemoryPoolSupportedHandleTypes
         cudaDevAttrClusterLaunch
         cudaDevAttrDeferredMappingCudaArraySupported
-        cudaDevAttrReserved122
-        cudaDevAttrReserved123
-        cudaDevAttrReserved124
         cudaDevAttrIpcEventSupport
         cudaDevAttrMemSyncDomainCount
-        cudaDevAttrReserved127
-        cudaDevAttrReserved128
-        cudaDevAttrReserved129
         cudaDevAttrNumaConfig
         cudaDevAttrNumaId
-        cudaDevAttrReserved132
         cudaDevAttrMpsEnabled
         cudaDevAttrHostNumaId
         cudaDevAttrD3D12CigSupported
         cudaDevAttrVulkanCigSupported
         cudaDevAttrGpuPciDeviceId
         cudaDevAttrGpuPciSubsystemId
-        cudaDevAttrReserved141
         cudaDevAttrHostNumaMemoryPoolsSupported
         cudaDevAttrHostNumaMultinodeIpcSupported
         cudaDevAttrHostMemoryPoolsSupported
-        cudaDevAttrReserved145
         cudaDevAttrOnlyPartialHostNativeAtomicSupported
         cudaDevAttrAtomicReductionSupported
         cudaDevAttrLocalityDomainCount
@@ -885,7 +872,6 @@ cdef extern from 'driver_types.h':
     cdef enum cudaCGScope:
         cudaCGScopeInvalid
         cudaCGScopeGrid
-        cudaCGScopeReserved
         cudaCGScopeMultiGrid
 
 cdef extern from 'driver_types.h':
@@ -914,7 +900,6 @@ cdef extern from 'driver_types.h':
         cudaGraphNodeTypeMemFree
         cudaGraphNodeTypeConditional
         cudaGraphNodeTypeMemcpyBatch
-        cudaGraphNodeTypeReserved16
         cudaGraphNodeTypeExternalEngine
         cudaGraphNodeTypeCount
 
@@ -2104,6 +2089,12 @@ cdef extern from 'driver_types.h':
     ctypedef cudaDevResource_st cudaDevResource
 
 cdef extern from 'driver_types.h':
+    cdef struct cudaLaunchAttribute_st:
+        cudaLaunchAttributeID id
+        cudaLaunchAttributeValue val
+    ctypedef cudaLaunchAttribute_st cudaLaunchAttribute
+
+cdef extern from 'driver_types.h':
     cdef struct cudaResourceDesc:
         cudaResourceType resType
         cuda_bindings_runtime__anon_pod1 res
@@ -2164,6 +2155,16 @@ cdef extern from 'driver_types.h':
         cudaExternalSemaphoreWaitParams* paramsArray
         unsigned int numExtSems
         cudaExecutionContext_t ctx
+
+cdef extern from 'driver_types.h':
+    cdef struct cudaLaunchConfig_st:
+        dim3 gridDim
+        dim3 blockDim
+        size_t dynamicSmemBytes
+        cudaStream_t stream
+        cudaLaunchAttribute* attrs
+        unsigned int numAttrs
+    ctypedef cudaLaunchConfig_st cudaLaunchConfig_t
 
 cdef extern from 'driver_types.h':
     cdef struct cudaMemAllocNodeParams:
@@ -2244,32 +2245,6 @@ cdef extern from '':
     cdef struct cudaGraphRecaptureCallbackData:
         cudaGraphRecaptureCallback_t callbackFunc
         void* userData
-
-cdef extern from 'driver_types.h':
-    # cudaLaunchAttribute_st is SKIPped (sizeof-based array dimension in pad field).
-    # Declared here (after the enum and type sections) so that cudaLaunchAttributeID and
-    # cudaLaunchAttributeValue are already in scope — Cython requires forward types to
-    # be visible at the point of use even inside cdef extern from blocks.
-    # Field types must match the legacy_cython_gen ABI baseline for __pyx_capi__ compat.
-    ctypedef struct cudaLaunchAttribute_st 'cudaLaunchAttribute_st':
-        cudaLaunchAttributeID id
-        cudaLaunchAttributeValue val
-
-cdef extern from 'driver_types.h':
-    ctypedef cudaLaunchAttribute_st cudaLaunchAttribute 'cudaLaunchAttribute'
-
-# cudaLaunchConfig_st references cudaLaunchAttribute* so it must follow the above.
-# Declared here rather than auto-generated (which would land in type_decls, before
-# cudaLaunchAttribute) to satisfy Cython's forward-declaration requirement.
-cdef extern from '':
-    cdef struct cudaLaunchConfig_st:
-        dim3 gridDim
-        dim3 blockDim
-        size_t dynamicSmemBytes
-        cudaStream_t stream
-        cudaLaunchAttribute* attrs
-        unsigned int numAttrs
-    ctypedef cudaLaunchConfig_st cudaLaunchConfig_t
 
 cdef extern from 'cuda_runtime_api.h':
     ctypedef void (*cudaAsyncCallback)(cudaAsyncNotificationInfo_t* info, void* userData, cudaAsyncCallbackHandle_t handle) nogil

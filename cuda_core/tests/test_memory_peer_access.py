@@ -57,6 +57,7 @@ def test_peer_access_basic(mempool_device_x2):
         zero_on_dev0.copy_from(buf_on_dev1, stream=stream_on_dev0)
 
 
+# This test is not currently run in any CI job
 def test_peer_access_transitions(mempool_device_x3):
     """Advanced tests for dmr.peer_accessible_by."""
 

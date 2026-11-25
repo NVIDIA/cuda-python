@@ -9,6 +9,10 @@ subpackage in the `cuda-python` monorepo.
   wrappers. High-level ergonomics belong in `cuda_core`, not here.
 - **Cross-platform**: preserve Linux and Windows behavior unless a change is
   intentionally platform-specific.
+- **Cross-major review**: follow
+  [Changes across bindings majors](../AGENTS.md#changes-across-bindings-majors)
+  during implementation and review. Inspect the CUDA 12 counterpart and record
+  matching changes or why they are not applicable.
 
 ## Package architecture
 
@@ -23,8 +27,8 @@ subpackage in the `cuda-python` monorepo.
   (toolchain selection, the compiler flag set, the Cython cache helpers, the
   rebuild stamps and the release-tag pinning of README links) lives in
   `_build_shared.py`. `cuda_bindings_13/_build_shared.py` is canonical;
-  the `cuda_core` and `cuda_pathfinder` copies must each be either a symlink to
-  it or a byte-for-byte identical copy.
+  the `cuda_bindings_12`, `cuda_core`, and `cuda_pathfinder` copies must each
+  be either a symlink to it or a byte-for-byte identical copy.
 
 ## Generated-source workflow
 
@@ -42,7 +46,7 @@ subpackage in the `cuda-python` monorepo.
 
 - **Primary tests**: `pytest tests/`
 - **Cython tests**:
-  - build: `tests/cython/build_tests.sh` (or platform equivalent)
+  - build: `python tests/cython/build_tests.py`
   - run: `pytest tests/cython/`
 - **Samples**: run pytest-based sample coverage in `tests/example_tests/`;
   sample sources and instructions live in `../samples/cuda_bindings/`.

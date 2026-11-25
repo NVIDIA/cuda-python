@@ -6,14 +6,9 @@ name: "WoA main CI"
 run-name: "WoA main CI for ${{ inputs.public_run_id || 'latest successful public main CI run' }}"
 
 on:
-  workflow_call:
-    inputs:
-      public_run_id:
-        required: true
-        type: string
-    secrets:
-      CUDA_PYTHON_WOA_XREPO_CI_PRIVATE_APP_PRIVATE_KEY:
-        required: true
+  schedule:
+    # 03:17 UTC daily, offset from the other nightly workflows.
+    - cron: "17 3 * * *"
   workflow_dispatch:
     inputs:
       public_run_id:

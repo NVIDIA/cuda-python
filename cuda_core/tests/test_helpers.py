@@ -3,9 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
+import os
+import pathlib
 import sys
+import threading
 import time
 import types
+from contextlib import closing
 from unittest.mock import Mock
 
 import pytest
@@ -13,6 +17,7 @@ from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buff
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 from helpers.memory import create_managed_memory_resource_or_skip
+from helpers.misc import run_in_threads
 from helpers.oom_diagnostics import (
     DEFAULT_FILENAME,
     OOM_MARKER,
@@ -22,10 +27,14 @@ from helpers.oom_diagnostics import (
     probe_basics,
     record_if_oom,
     report_terminal_summary,
+    run_probe,
 )
 from helpers.oom_diagnostics import _round_up as oom_round_up  # white-box test of the alignment guard
+from helpers.oom_diagnostics import artifact_path as oom_artifact_path
 
+from cuda.bindings import driver
 from cuda.core import Device
+from cuda.core._utils.cuda_utils import handle_return
 from cuda_python_test_helpers import under_compute_sanitizer
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
@@ -58,9 +67,27 @@ def test_latchkernel(init_cuda):
     log("releasing latch and syncing")
     latch.release()
     stream.sync()
+    assert not latch.timed_out
     log("checking target == 1")
     assert compare_equal_buffers(target, ones)
     log("done")
+
+
+@pytest.mark.skipif(Device().compute_capability.major < 7, reason="__nanosleep is only available starting Volta (sm70)")
+@pytest.mark.thread_unsafe(reason="requires a barrier wait to avoid overlapping pinned latch allocations")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_latchkernel_reports_timeout(init_cuda):
+    """A latch that is never released ends by timeout and reports it; relaunching clears the report."""
+    device = init_cuda
+    with closing(device.create_stream()) as stream, closing(LatchKernel(device, timeout_sec=0.1)) as latch:
+        latch.launch(stream)
+        stream.sync()
+        assert latch.timed_out
+
+        latch.launch(stream)
+        latch.release()
+        stream.sync()
+        assert not latch.timed_out
 
 
 @pytest.mark.skipif(
@@ -121,19 +148,23 @@ def _fake_call(exc_text, when="call"):
     return types.SimpleNamespace(excinfo=excinfo, when=when)
 
 
-def _fake_item(rootpath, nodeid="tests/test_x.py::test_a"):
+def _fake_item(rootpath, nodeid="tests/test_x.py::test_a", xmlpath=None):
     # get_plugin returns None so record_if_oom skips the terminal write.
     config = types.SimpleNamespace(
         rootpath=rootpath,
+        option=types.SimpleNamespace(xmlpath=xmlpath),
+        invocation_params=types.SimpleNamespace(dir=pathlib.Path(rootpath)),
         pluginmanager=types.SimpleNamespace(get_plugin=lambda _: None),
     )
     return types.SimpleNamespace(nodeid=nodeid, config=config)
 
 
-# A snapshot that short-circuits classify()/format_probe_log() at the very
-# first check, so harness tests never depend on -- or need to fake -- driver
-# call results.
+# Injected snapshots, so harness tests never depend on -- or need to fake --
+# driver call results. Without a context, capture emits only a note.
 _NO_CONTEXT_SNAPSHOT = ProbeSnapshot(has_context=False)
+# The smallest snapshot that counts as probed; its probe log stops at "VMM unsupported".
+_PROBED_SNAPSHOT = ProbeSnapshot(has_context=True, mem_free=1 << 30, mem_total=1 << 30, small_alloc_ok=True)
+_JUNIT_ARTIFACT = "junit-core-oom-diagnostics.txt"
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -153,7 +184,7 @@ def test_oom_diagnostics_fire_only_on_a_failing_oom(tmp_path, failed, exc_text, 
         _fake_call(exc_text),
         _fake_report(failed),
         recorder=recorder,
-        snapshot=_NO_CONTEXT_SNAPSHOT,
+        snapshot=_PROBED_SNAPSHOT,
     )
 
     assert (result is not None) == should_capture
@@ -171,7 +202,7 @@ def test_oom_diagnostics_write_an_artifact_naming_the_failing_test(tmp_path, mon
         _fake_item(tmp_path, nodeid="tests/test_x.py::test_first"),
         _fake_call(f"boom {OOM_MARKER}"),
         _fake_report(True),
-        snapshot=_NO_CONTEXT_SNAPSHOT,
+        snapshot=_PROBED_SNAPSHOT,
     )
 
     written = (tmp_path / DEFAULT_FILENAME).read_text(encoding="utf-8")
@@ -191,7 +222,9 @@ def test_oom_diagnostics_summary_points_at_the_artifact(tmp_path):
     assert report_terminal_summary(reporter, recorder=recorder) is None
     assert lines == []
 
-    recorder.capture("tests/test_x.py::test_first", "call", OOM_MARKER, tmp_path, snapshot=_NO_CONTEXT_SNAPSHOT)
+    recorder.capture(
+        "tests/test_x.py::test_first", "call", OOM_MARKER, tmp_path / DEFAULT_FILENAME, snapshot=_PROBED_SNAPSHOT
+    )
     emitted = report_terminal_summary(reporter, recorder=recorder)
 
     assert "tests/test_x.py::test_first" in emitted
@@ -203,11 +236,135 @@ def test_oom_diagnostics_summary_points_at_the_artifact(tmp_path):
 def test_oom_diagnostics_latch_to_the_first_oom(tmp_path):
     # A failing run produces ~190 OOMs; capturing each would bury the log.
     recorder = OomDiagnosticsRecorder()
-    assert recorder.capture("first", "call", OOM_MARKER, tmp_path, snapshot=_NO_CONTEXT_SNAPSHOT) is not None
+    path = tmp_path / DEFAULT_FILENAME
+    assert recorder.capture("first", "call", OOM_MARKER, path, snapshot=_PROBED_SNAPSHOT) is not None
     assert recorder.captured
-    assert recorder.capture("second", "call", OOM_MARKER, tmp_path, snapshot=_NO_CONTEXT_SNAPSHOT) is None
+    assert recorder.capture("second", "call", OOM_MARKER, path, snapshot=_PROBED_SNAPSHOT) is None
 
-    assert "first" in (tmp_path / DEFAULT_FILENAME).read_text(encoding="utf-8")
+    assert "first" in path.read_text(encoding="utf-8")
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_oom_without_context_gets_a_note_and_waits(tmp_path):
+    # The first OOM often comes from a teardown, after init_cuda popped the context.
+    recorder = OomDiagnosticsRecorder()
+    path = tmp_path / DEFAULT_FILENAME
+    note = recorder.capture("first", "teardown", OOM_MARKER, path, snapshot=_NO_CONTEXT_SNAPSHOT)
+    assert "teardown of first" in note
+    assert not recorder.captured
+    assert not path.exists()
+    assert recorder.capture("second", "setup", OOM_MARKER, path, snapshot=_NO_CONTEXT_SNAPSHOT) is None
+
+    text = recorder.capture("third", "call", OOM_MARKER, path, snapshot=_PROBED_SNAPSHOT)
+    assert "first OOM: first" in text
+    assert recorder.captured
+    assert "test:      third" in path.read_text(encoding="utf-8")
+
+    reporter = types.SimpleNamespace(write_sep=lambda *_, **__: None, write_line=lambda _: None)
+    assert "first CUDA OOM at first; probed CUDA OOM at third" in report_terminal_summary(reporter, recorder=recorder)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_summary_when_no_oom_could_be_probed(tmp_path):
+    recorder = OomDiagnosticsRecorder()
+    recorder.capture("first", "teardown", OOM_MARKER, tmp_path / DEFAULT_FILENAME, snapshot=_NO_CONTEXT_SNAPSHOT)
+    reporter = types.SimpleNamespace(write_sep=lambda *_, **__: None, write_line=lambda _: None)
+
+    assert "none was probed" in report_terminal_summary(reporter, recorder=recorder)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_artifact_lands_beside_the_junit_file(tmp_path, monkeypatch):
+    # CI uploads only the JUnit directory, which may not exist yet if the run
+    # crashes before pytest writes the JUnit file.
+    recorder = OomDiagnosticsRecorder()
+    monkeypatch.setattr("helpers.oom_diagnostics._default_recorder", recorder)
+    junit_dir = tmp_path / "test-results"
+
+    record_if_oom(
+        _fake_item(tmp_path / "rootdir", xmlpath=str(junit_dir / "junit-core.xml")),
+        _fake_call(f"boom {OOM_MARKER}"),
+        _fake_report(True),
+        snapshot=_PROBED_SNAPSHOT,
+    )
+
+    assert recorder.artifact_path == junit_dir / _JUNIT_ARTIFACT
+    assert OOM_MARKER in recorder.artifact_path.read_text(encoding="utf-8")
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_oom_diagnostics_relative_junit_path_is_anchored_at_the_invocation_dir(tmp_path, monkeypatch):
+    # A test may have changed directory by the time an OOM is captured.
+    invocation = tmp_path / "invocation"
+    elsewhere = tmp_path / "elsewhere"
+    invocation.mkdir()
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+    item = _fake_item(invocation, xmlpath=os.path.join("test-results", "junit-core.xml"))
+
+    assert oom_artifact_path(item.config) == invocation / "test-results" / _JUNIT_ARTIFACT
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_artifact_is_named_after_the_junit_file(tmp_path):
+    # tests/ and tests/cython run as separate pytest processes into one directory.
+    results = tmp_path / "test-results"
+    core = _fake_item(tmp_path, xmlpath=str(results / "junit-core.xml"))
+    cython = _fake_item(tmp_path, xmlpath=str(results / "junit-core-cython.xml"))
+
+    assert oom_artifact_path(core.config) == results / _JUNIT_ARTIFACT
+    assert oom_artifact_path(cython.config) == results / "junit-core-cython-oom-diagnostics.txt"
+    assert oom_artifact_path(_fake_item(tmp_path).config) == tmp_path / DEFAULT_FILENAME
+
+
+def _deny_mkdir(self, *args, **kwargs):
+    raise PermissionError(13, "Permission denied", str(self))
+
+
+_CHMOD_CANNOT_DENY_TRAVERSAL = sys.platform == "win32" or (hasattr(os, "geteuid") and os.geteuid() == 0)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    "failure",
+    [
+        pytest.param(
+            "untraversable_dir",
+            marks=pytest.mark.skipif(_CHMOD_CANNOT_DENY_TRAVERSAL, reason="chmod cannot deny traversal here"),
+        ),
+        "parent_is_a_file",
+        "permission_denied",
+    ],
+)
+def test_oom_diagnostics_unusable_artifact_directory_keeps_the_report(tmp_path, monkeypatch, failure):
+    # The capture runs inside pytest_runtest_makereport, where an escaping
+    # OSError becomes an INTERNALERROR and the report is lost.
+    locked = None
+    if failure == "untraversable_dir":
+        locked = tmp_path / "locked"
+        (locked / "test-results").mkdir(parents=True)
+        locked.chmod(0)
+        bad_dir = locked / "test-results"
+    elif failure == "parent_is_a_file":
+        blocker = tmp_path / "blocker"
+        blocker.write_text("")
+        bad_dir = blocker / "test-results"
+    else:
+        bad_dir = tmp_path / "test-results"
+        monkeypatch.setattr(pathlib.Path, "mkdir", _deny_mkdir)
+    recorder = OomDiagnosticsRecorder()
+    path = bad_dir / DEFAULT_FILENAME
+
+    try:
+        text = recorder.capture("first", "call", OOM_MARKER, path, snapshot=_PROBED_SNAPSHOT)
+    finally:
+        if locked is not None:
+            locked.chmod(0o700)
+
+    assert "test:      first" in text
+    assert f"could not write {path}" in text
+    assert recorder.captured
+    assert not recorder.artifact_written
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5")
@@ -354,6 +511,22 @@ def test_oom_diagnostics_probe_basics_is_live_and_cheap(init_cuda):
     assert snapshot.pool_va_ok is None
     assert snapshot.get_mem_pool_ok is None
     assert snapshot.capped_pool_create_ok is None
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_oom_diagnostics_probe_without_context_stops_and_leaves_none_current(init_cuda):
+    # Without a context the probe must stop at its first check: everything
+    # after it needs one, and the diagnostics never make one current.
+    popped = handle_return(driver.cuCtxPopCurrent())
+    try:
+        snapshot = run_probe()
+        assert int(handle_return(driver.cuCtxGetCurrent())) == 0
+    finally:
+        handle_return(driver.cuCtxPushCurrent(popped))
+
+    assert not snapshot.has_context
+    assert snapshot.context_error is None
+    assert snapshot.mem_total is None
 
 
 # ---------------------------------------------------------------------------
@@ -504,3 +677,109 @@ def test_managed_mr_helper_constructs_when_pool_is_usable(monkeypatch, concurren
     factory = _patch_managed_mr_factory(monkeypatch, concurrent_managed_access)
     assert create_managed_memory_resource_or_skip(*args, **kwargs) is factory.return_value
     factory.assert_called_once_with(*args, **kwargs)
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_reraises_a_failure_after_joining_every_thread():
+    finished = threading.Event()
+
+    def fails():
+        raise ValueError("worker failed")
+
+    def finishes():
+        time.sleep(0.05)
+        finished.set()
+
+    with pytest.raises(ValueError, match="worker failed"):
+        run_in_threads([fails, finishes])
+    assert finished.is_set()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_aborts_the_barrier_for_the_waiting_threads():
+    barrier = threading.Barrier(3)
+
+    def fails():
+        raise ValueError("before the barrier")
+
+    try:
+        # The waiting threads raise BrokenBarrierError, but the original failure is re-raised.
+        with pytest.raises(ValueError, match="before the barrier"):
+            run_in_threads([fails, barrier.wait, barrier.wait], barrier=barrier, timeout=10)
+        assert barrier.broken
+    finally:
+        # Release threads still waiting if the helper did not, so the process can exit.
+        barrier.abort()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_reports_a_thread_that_does_not_finish():
+    release = threading.Event()
+    try:
+        with pytest.raises(TimeoutError, match="still running"):
+            run_in_threads([lambda: release.wait(30)], timeout=0.1)
+    finally:
+        release.set()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_reports_a_stuck_thread_before_another_threads_failure():
+    release = threading.Event()
+
+    def fails():
+        raise ValueError("worker failed")
+
+    try:
+        with pytest.raises(TimeoutError, match="still running") as excinfo:
+            run_in_threads([fails, lambda: release.wait(30)], timeout=0.2)
+        assert isinstance(excinfo.value.__cause__, ValueError)
+    finally:
+        release.set()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_aborts_the_barrier_when_a_thread_times_out():
+    barrier = threading.Barrier(2)
+    waiters = []
+    after_wait = []
+
+    def wait_at_barrier():
+        waiters.append(threading.current_thread())
+        barrier.wait()
+        after_wait.append(True)
+
+    try:
+        # The second party never arrives, so the first worker would block forever.
+        with pytest.raises(TimeoutError, match="still running"):
+            run_in_threads([wait_at_barrier, lambda: None], barrier=barrier, timeout=0.2)
+        waiters[0].join(10)
+        assert not waiters[0].is_alive()
+        assert after_wait == []
+    finally:
+        # Release the waiter if the helper did not, so the process can exit.
+        barrier.abort()
+
+
+@pytest.mark.thread_unsafe(reason="patches threading.Thread.start")
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_run_in_threads_aborts_the_barrier_when_a_thread_fails_to_start(monkeypatch):
+    barrier = threading.Barrier(2)
+    real_start = threading.Thread.start
+    started = []
+
+    def start(self):
+        if started:
+            raise RuntimeError("cannot start")
+        started.append(self)
+        real_start(self)
+
+    monkeypatch.setattr(threading.Thread, "start", start)
+    try:
+        # The started thread would otherwise wait at the barrier for a thread that never starts.
+        with pytest.raises(RuntimeError, match="cannot start"):
+            run_in_threads([barrier.wait, barrier.wait], barrier=barrier, timeout=10)
+        assert barrier.broken
+        assert not started[0].is_alive()
+    finally:
+        # Release the started thread if the helper did not, so the process can exit.
+        barrier.abort()

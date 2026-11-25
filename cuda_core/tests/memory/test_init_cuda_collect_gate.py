@@ -33,7 +33,8 @@ from helpers.memory import (
     UnreleasedMemoryResourceWarning,
 )
 
-from cuda.core._utils.cuda_utils import driver, handle_return
+from cuda.core import Device
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 
 
 class _ScriptedCounts:
@@ -250,3 +251,112 @@ def test_teardown_warns_on_baseline_release(request, monkeypatch):
         pytest.raises(StopIteration),
     ):
         next(gen)  # teardown: live_after == (0, 0) -> baseline-release warning
+
+
+@_THREAD_UNSAFE_MARKER
+@pytest.mark.agent_authored(model="gpt-6")
+@pytest.mark.parametrize("clear_current", [False, True])
+def test_teardown_synchronizes_fixture_context(request, monkeypatch, clear_current):
+    """Teardown works even after the test wrapper has popped the current context."""
+    func = _init_cuda_func(request)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((0, 0)))
+
+    saved = _pop_context_stack()
+    gen = func(_FakeRequest())
+    try:
+        next(gen)
+        if clear_current:
+            handle_return(driver.cuCtxPopCurrent())
+            assert current_context_handle() == 0
+        _finish_teardown(gen)
+        assert current_context_handle() == 0
+    finally:
+        gen.close()
+        _push_context_stack(saved)
+
+
+@_THREAD_UNSAFE_MARKER
+@pytest.mark.agent_authored(model="gpt-6")
+def test_teardown_sync_failure_still_pops_context(request, monkeypatch):
+    """A synchronization error propagates without leaving the context current."""
+    func = _init_cuda_func(request)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", _ScriptedCounts((0, 0)))
+    failure = CUDAError("injected synchronization failure")
+
+    class FailingSyncDevice:
+        device_id = 0
+
+        def set_current(self):
+            Device(0).set_current()
+
+        def sync(self):
+            raise failure
+
+    _patch_conftest_global(monkeypatch, func, "Device", lambda _: FailingSyncDevice())
+    saved = _pop_context_stack()
+    gen = func(_FakeRequest())
+    try:
+        next(gen)
+        with pytest.raises(CUDAError) as excinfo:
+            next(gen)
+        assert excinfo.value is failure
+        assert current_context_handle() == 0
+    finally:
+        gen.close()
+        _push_context_stack(saved)
+
+
+@_THREAD_UNSAFE_MARKER
+@pytest.mark.agent_authored(model="gpt-6")
+@pytest.mark.parametrize(
+    "fail_setup, fail_sync, fail_pop",
+    [(True, True, True), (True, False, True), (True, True, False), (False, True, True), (False, False, True)],
+)
+@pytest.mark.parametrize("error_type", [RuntimeError, KeyboardInterrupt])
+def test_cleanup_preserves_first_failure(request, monkeypatch, fail_setup, fail_sync, fail_pop, error_type):
+    """Later cleanup errors annotate the first failure, and pop is always attempted."""
+    func = _init_cuda_func(request)
+    _patch_conftest_global(monkeypatch, func, "_mr_expected_live", None)
+    monkeypatch.setenv("CUDA_CORE_TEST_BLOCKING_SYNC", "0")
+    setup_error = error_type("injected setup failure")
+    sync_error = error_type("injected synchronization failure")
+    pop_error = error_type("injected context pop failure")
+    state = {"current": False}
+
+    class FakeDevice:
+        def set_current(self):
+            state["current"] = True
+
+        def sync(self):
+            if fail_sync:
+                raise sync_error
+
+    def counts():
+        if fail_setup:
+            raise setup_error
+        return (0, 0)
+
+    def pop():
+        state["current"] = False
+        if fail_pop:
+            raise pop_error
+
+    _patch_conftest_global(monkeypatch, func, "Device", lambda _: FakeDevice())
+    _patch_conftest_global(monkeypatch, func, "_live_resource_counts", counts)
+    _patch_conftest_global(monkeypatch, func, "_device_unset_current", pop)
+    gen = func(_FakeRequest())
+    if not fail_setup:
+        next(gen)
+    with pytest.raises(error_type) as excinfo:
+        next(gen)
+    expected = setup_error if fail_setup else sync_error if fail_sync else pop_error
+    assert excinfo.value is expected
+    assert not state["current"]
+    notes = getattr(expected, "__notes__", [])
+    assert len(notes) == int(fail_setup and fail_sync) + int(fail_pop and (fail_setup or fail_sync))
+    if fail_setup and fail_sync:
+        assert any(str(sync_error) in note for note in notes)
+    if fail_pop and (fail_setup or fail_sync):
+        assert any(str(pop_error) in note for note in notes)

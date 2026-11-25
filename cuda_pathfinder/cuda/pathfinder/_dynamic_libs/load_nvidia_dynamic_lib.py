@@ -259,17 +259,15 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
            - Fall back to the native loader:
 
-             - Linux: ``dlopen()``
+             - Linux: ``dlopen()``. CUDA Toolkit (CTK) system installs may be
+               discovered via ``LD_LIBRARY_PATH`` or linker configuration such
+               as ``/etc/ld.so.conf.d/*cuda*.conf``.
 
-             - Windows: ``LoadLibraryExW()``
-
-             On Linux, CUDA Toolkit (CTK) system installs with system config updates are
-             usually discovered via ``/etc/ld.so.conf.d/*cuda*.conf``.
-
-             On Windows, under Python 3.8+, CPython configures the process with
-             ``SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)``.
-             As a result, the native DLL search used here does **not** include
-             the system ``PATH``.
+             - Windows: ``LoadLibraryExW(dll_name, NULL, 0)``. For an ordinary
+               unpackaged process, native DLL search includes ``PATH`` unless
+               a different process DLL search policy has been configured.
+               Python's restricted defaults for its own loads do not override
+               this native call.
 
         4. **Environment variables**
 
@@ -277,9 +275,10 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
              such as ``CUDNN_PATH`` and ``NCCL_HOME``, using their
              platform-specific product layouts. Then use ``CUDA_PATH`` or
              ``CUDA_HOME`` (in that order).
-             On Windows, ``CUDA_PATH`` is the typical way system-installed CTK
-             DLLs are located. Note that the NVIDIA CTK installer automatically
-             adds ``CUDA_PATH`` to the system-wide environment.
+             These are fallback discovery locations, not runtime toolkit
+             selectors: libraries found by earlier steps take precedence.
+             On Windows, the NVIDIA CTK installer automatically adds
+             ``CUDA_PATH`` to the system-wide environment.
 
         5. **Windows Program Files (configured libraries only)**
 
@@ -290,11 +289,12 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         6. **CTK root canary probe (discoverable libs only)**
 
            - For selected libraries whose shared object doesn't reside on the
-             standard linker path (currently ``nvvm``), attempt to derive CTK
-             root by system-loading a well-known CTK canary library in a
-             subprocess and then searching relative to that root. On Windows,
-             the canary uses the same native ``LoadLibraryExW`` semantics as
-             step 3, so there is also no ``PATH``-based discovery.
+             standard linker path (such as ``nvvm`` and ``cupti``), attempt to
+             derive CTK root by system-loading a well-known CTK canary library
+             in a subprocess and then searching relative to that root. On Windows,
+             the canary uses the same native ``LoadLibraryExW(..., 0)``
+             semantics as step 3, so it can discover libraries through
+             ``PATH`` subject to the child process's DLL search policy.
 
     **Driver libraries** (``"cuda"``, ``"nvml"``):
 

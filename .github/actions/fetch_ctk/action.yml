@@ -34,20 +34,24 @@ inputs:
       Override to install from an alternate redistrib server.
     required: false
     default: "https://developer.download.nvidia.com/compute/cuda/redist"
+  redistrib-tool:
+    description: "Path to fetch_ctk_redistrib.py, relative to the runtime workspace"
+    required: false
+    default: "ci/tools/fetch_ctk_redistrib.py"
 
 runs:
   using: composite
   steps:
     - name: Install Unix dependencies
       if: ${{ runner.os == 'Linux' }}
-      uses: ./.github/actions/install_unix_deps
+      uses: $/.github/actions/install_unix_deps
       with:
         dependencies: "zstd curl xz-utils"
         dependent_exes: "zstd curl xz"
 
     - name: Install Windows dependencies
       if: ${{ runner.os == 'Windows' }}
-      uses: ./.github/actions/install_windows_deps
+      uses: $/.github/actions/install_windows_deps
       with:
         dependent_exes: "curl unzip tar sha256sum cygpath"
 
@@ -83,7 +87,7 @@ runs:
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # Use the runtime workspace mount so this also works inside container jobs.
-        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/${{ inputs.redistrib-tool }}"
         CTK_BASE_URL="${{ inputs.redist-base-url }}"
         # A trailing slash would defeat the public-server comparison below and double up in URLs.
         CTK_BASE_URL="${CTK_BASE_URL%/}"
@@ -118,9 +122,11 @@ runs:
         # prefixes its output line with "\", which would end up in the cache key.
         MANIFEST_SHA256="$(sha256sum < "$CTK_JSON_FILE" | awk '{print $1}')"
         HASH=$(echo -n "${CTK_CACHE_COMPONENTS}" | sha256sum | awk '{print $1}')
+        # Bump the layout tag (l2) whenever the unpacked tree changes shape, so
+        # caches saved with an older layout are not restored.
         {
-          echo "CTK_CACHE_KEY=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH-m$MANIFEST_SHA256"
-          echo "CTK_CACHE_FILENAME=mini-ctk-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH-m$MANIFEST_SHA256.tar.gz"
+          echo "CTK_CACHE_KEY=mini-ctk-l2-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH-m$MANIFEST_SHA256"
+          echo "CTK_CACHE_FILENAME=mini-ctk-l2-${{ inputs.cuda-version }}-${{ inputs.host-platform }}-$HASH-m$MANIFEST_SHA256.tar.gz"
           echo "CTK_CACHE_COMPONENTS=${CTK_CACHE_COMPONENTS}"
           echo "CTK_BASE_URL=${CTK_BASE_URL}"
           echo "CTK_JSON_FILE=${CTK_JSON_FILE}"
@@ -146,21 +152,21 @@ runs:
         mkdir $CACHE_TMP_DIR
 
         # Use the runtime workspace mount so this also works inside container jobs.
-        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/ci/tools/fetch_ctk_redistrib.py"
+        CTK_REDIST_TOOL="${GITHUB_WORKSPACE}/${{ inputs.redistrib-tool }}"
         # CTK_BASE_URL and the verified manifest at CTK_JSON_FILE come from
         # "Set up CTK cache variable".
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
           function extract() {
-            tar -xvf $1 -C $CACHE_TMP_DIR --strip-components=1
+            tar -xvf $1 -C $2 --strip-components=1
           }
         elif [[ "${{ inputs.host-platform }}" == win* ]]; then
           function extract() {
             _TEMP_DIR_=$(mktemp -d)
             unzip $1 -d $_TEMP_DIR_
-            cp -r $_TEMP_DIR_/*/* $CACHE_TMP_DIR
+            cp -r $_TEMP_DIR_/*/* $2
             rm -rf $_TEMP_DIR_
             # see commit NVIDIA/cuda-python@69410f1d9228e775845ef6c8b4a9c7f37ffc68a5
-            chmod 644 $CACHE_TMP_DIR/LICENSE
+            chmod 644 $2/LICENSE
           }
         fi
         function populate_cuda_path() {
@@ -183,7 +189,14 @@ runs:
             --component "$CTK_COMPONENT" \
             --metadata-path "$CTK_JSON_FILE")"
           echo "${CTK_COMPONENT_SHA256}  ${CTK_COMPONENT_COMPONENT_FILENAME}" | sha256sum --check --strict -
-          extract $CTK_COMPONENT_COMPONENT_FILENAME
+          # cuda.pathfinder looks for CUPTI only under extras/CUPTI, the CTK installer
+          # layout; the redistrib archive itself has a flat include/ + lib/ layout.
+          CTK_COMPONENT_DEST="$CACHE_TMP_DIR"
+          if [[ "$CTK_COMPONENT" == cuda_cupti ]]; then
+            CTK_COMPONENT_DEST="$CACHE_TMP_DIR/extras/CUPTI"
+          fi
+          mkdir -p "$CTK_COMPONENT_DEST"
+          extract $CTK_COMPONENT_COMPONENT_FILENAME "$CTK_COMPONENT_DEST"
           rm $CTK_COMPONENT_COMPONENT_FILENAME
         }
 
@@ -191,9 +204,19 @@ runs:
         for item in $(echo $CTK_CACHE_COMPONENTS | tr ',' ' '); do
             populate_cuda_path "$item"
         done
-        # TODO: check Windows
-        if [[ "${{ inputs.host-platform }}" == linux* && -d "${CACHE_TMP_DIR}/lib" ]]; then
-          mv $CACHE_TMP_DIR/lib $CACHE_TMP_DIR/lib64
+        CUPTI_DIR="$CACHE_TMP_DIR/extras/CUPTI"
+        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+          for lib_parent in "$CACHE_TMP_DIR" "$CUPTI_DIR"; do
+            if [[ -d "$lib_parent/lib" ]]; then
+              mv "$lib_parent/lib" "$lib_parent/lib64"
+            fi
+          done
+        elif [[ "${{ inputs.host-platform }}" == win* ]]; then
+          # CUPTI archives before 13.4 put the DLLs directly in lib/, where the
+          # CTK installer uses extras/CUPTI/lib64; later ones use lib/<arch>.
+          if [[ -d "$CUPTI_DIR/lib" && ! -d "$CUPTI_DIR/lib/x64" && ! -d "$CUPTI_DIR/lib/arm64" ]]; then
+            mv "$CUPTI_DIR/lib" "$CUPTI_DIR/lib64"
+          fi
         fi
         ls -l $CACHE_TMP_DIR
 
@@ -250,7 +273,6 @@ runs:
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
           CUDA_PATH=$(realpath "${{ inputs.cuda-path }}")
           echo "${CUDA_PATH}/bin" >> $GITHUB_PATH
-          echo "LD_LIBRARY_PATH=${CUDA_PATH}/lib64:${LD_LIBRARY_PATH:-}" >> $GITHUB_ENV
         elif [[ "${{ inputs.host-platform }}" == win* ]]; then
           function normpath() {
             echo "$(echo $(cygpath -w $1) | sed 's/\\/\\\\/g')"

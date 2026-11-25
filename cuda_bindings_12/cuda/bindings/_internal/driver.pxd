@@ -4,7 +4,7 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=395f93ae98b3b074267a9275aa19aff34b001e2b982b686301aace8270e40ea1
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fa645ffe06fa0f1c1ad1736199e42e0bbb46b69528fcecbb11ec4eace27c91b5
 from ..cydriver cimport *
 
 
@@ -447,7 +447,7 @@ cdef CUresult _cuCtxFromGreenCtx(CUcontext* pContext, CUgreenCtx hCtx) except ?C
 cdef CUresult _cuDeviceGetDevResource(CUdevice device, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuCtxGetDevResource(CUcontext hCtx, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource, CUdevResourceType type) except ?CUDA_ERROR_NOT_FOUND nogil
-cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResource* resources, unsigned int nbResources) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuGreenCtxRecordEvent(CUgreenCtx hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil
 cdef CUresult _cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent) except ?CUDA_ERROR_NOT_FOUND nogil

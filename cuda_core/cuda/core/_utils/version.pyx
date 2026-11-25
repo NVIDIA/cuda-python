@@ -46,11 +46,8 @@ def driver_version() -> tuple[int, int, int]:
     return (ver // 1000, (ver // 10) % 100, ver % 10)
 
 
-cdef tuple _cached_driver_version = None
-
-
 cdef tuple cy_driver_version():
-    global _cached_driver_version
-    if _cached_driver_version is None:
-        _cached_driver_version = driver_version()
-    return _cached_driver_version
+    # Do not add a module-level cache here: it would be filled without
+    # synchronization, which is unsafe on free-threaded builds.
+    # functools.cache on driver_version() is.
+    return driver_version()

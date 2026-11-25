@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2dcfd746c3b9fd0e890cb0c319541c52bba6ed389e67765e542509b743dc95a9
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3b8b25417027fecbe1f002168775e688c2af62826825699a84a775ab43c46b23
 
 
 # <<<< PREAMBLE CONTENT >>>>
 
 from libcpp cimport bool as _cyb_bool
+
+cdef extern from "<type_traits>":
+    pass
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
@@ -184,13 +187,14 @@ cdef extern from 'cufile.h':
         CUfileOpError err
         CUresult cu_err
 
-cdef struct cuda_bindings_cufile__anon_pod0:
-    unsigned int major_version
-    unsigned int minor_version
-    size_t poll_thresh_size
-    size_t max_direct_io_size
-    unsigned int dstatusflags
-    unsigned int dcontrolflags
+cdef extern from 'cufile.h':
+    ctypedef struct cuda_bindings_cufile__anon_pod0 "std::remove_all_extents<decltype(((CUfileDrvProps_t*)0)->nvfs)>::type":
+        unsigned int major_version
+        unsigned int minor_version
+        size_t poll_thresh_size
+        size_t max_direct_io_size
+        unsigned int dstatusflags
+        unsigned int dcontrolflags
 
 cdef extern from 'cufile.h':
     ctypedef struct cufileRDMAInfo_t 'cufileRDMAInfo_t':
@@ -199,22 +203,16 @@ cdef extern from 'cufile.h':
         char* desc_str
 
 cdef extern from 'cufile.h':
-    ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
-        char* (*fs_type)(void*)
-        int (*getRDMADeviceList)(void*, sockaddr_t**)
-        int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
-        ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
-        ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
+    ctypedef union cuda_bindings_cufile__anon_pod1 "std::remove_all_extents<decltype(((CUfileDescr_t*)0)->handle)>::type":
+        int fd
+        void* handle
 
-cdef union cuda_bindings_cufile__anon_pod1:
-    int fd
-    void* handle
-
-cdef struct cuda_bindings_cufile__anon_pod3:
-    void* devPtr_base
-    off_t file_offset
-    off_t devPtr_offset
-    size_t size
+cdef extern from 'cufile.h':
+    ctypedef struct cuda_bindings_cufile__anon_pod3 "std::remove_all_extents<decltype(((CUfileIOParams_t*)0)->u.batch)>::type":
+        void* devPtr_base
+        off_t file_offset
+        off_t devPtr_offset
+        size_t size
 
 cdef extern from 'cufile.h':
     ctypedef struct CUfileIOEvents_t 'CUfileIOEvents_t':
@@ -233,13 +231,22 @@ cdef extern from 'cufile.h':
         unsigned int max_batch_io_timeout_msecs
 
 cdef extern from 'cufile.h':
+    ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
+        char* (*fs_type)(void*)
+        int (*getRDMADeviceList)(void*, sockaddr_t**)
+        int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
+        ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
+        ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
+
+cdef extern from 'cufile.h':
+    ctypedef union cuda_bindings_cufile__anon_pod2 "std::remove_all_extents<decltype(((CUfileIOParams_t*)0)->u)>::type":
+        cuda_bindings_cufile__anon_pod3 batch
+
+cdef extern from 'cufile.h':
     ctypedef struct CUfileDescr_t 'CUfileDescr_t':
         CUfileFileHandleType type
         cuda_bindings_cufile__anon_pod1 handle
         CUfileFSOps_t* fs_ops
-
-cdef union cuda_bindings_cufile__anon_pod2:
-    cuda_bindings_cufile__anon_pod3 batch
 
 cdef extern from 'cufile.h':
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':

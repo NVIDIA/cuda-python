@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e12046de9e30b8295fe41d5061cde9687a84c9bcca32bbf6ddbcfa565fc488b5
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=cb3b6b9aa1163e7e39f1bd8728002ff326c7893c6f53adc17810a4ab7ac856f2
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -82,102 +82,36 @@ cdef void* __cudlaGetLastError = NULL
 cdef void* __cudlaDestroyDevice = NULL
 cdef void* __cudlaSetTaskTimeoutInMs = NULL
 
+cdef enum: _cyb_cudla_n_functions = 13
+cdef void** _cyb_cudla_slots[_cyb_cudla_n_functions]
+cdef const char* _cyb_cudla_names[_cyb_cudla_n_functions]
+_cyb_cudla_slots[0] = &__cudlaGetVersion; _cyb_cudla_names[0] = b'cudlaGetVersion'
+_cyb_cudla_slots[1] = &__cudlaDeviceGetCount; _cyb_cudla_names[1] = b'cudlaDeviceGetCount'
+_cyb_cudla_slots[2] = &__cudlaCreateDevice; _cyb_cudla_names[2] = b'cudlaCreateDevice'
+_cyb_cudla_slots[3] = &__cudlaMemRegister; _cyb_cudla_names[3] = b'cudlaMemRegister'
+_cyb_cudla_slots[4] = &__cudlaModuleLoadFromMemory; _cyb_cudla_names[4] = b'cudlaModuleLoadFromMemory'
+_cyb_cudla_slots[5] = &__cudlaModuleGetAttributes; _cyb_cudla_names[5] = b'cudlaModuleGetAttributes'
+_cyb_cudla_slots[6] = &__cudlaModuleUnload; _cyb_cudla_names[6] = b'cudlaModuleUnload'
+_cyb_cudla_slots[7] = &__cudlaSubmitTask; _cyb_cudla_names[7] = b'cudlaSubmitTask'
+_cyb_cudla_slots[8] = &__cudlaDeviceGetAttribute; _cyb_cudla_names[8] = b'cudlaDeviceGetAttribute'
+_cyb_cudla_slots[9] = &__cudlaMemUnregister; _cyb_cudla_names[9] = b'cudlaMemUnregister'
+_cyb_cudla_slots[10] = &__cudlaGetLastError; _cyb_cudla_names[10] = b'cudlaGetLastError'
+_cyb_cudla_slots[11] = &__cudlaDestroyDevice; _cyb_cudla_names[11] = b'cudlaDestroyDevice'
+_cyb_cudla_slots[12] = &__cudlaSetTaskTimeoutInMs; _cyb_cudla_names[12] = b'cudlaSetTaskTimeoutInMs'
+
 cdef int _init_cudla() except -1 nogil:
     global _cyb___py_cudla_init
     cdef void* handle = NULL
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_cudla_init: return 0
 
-        global __cudlaGetVersion
-        __cudlaGetVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaGetVersion')
-        if __cudlaGetVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaGetVersion = _cyb_dlsym(handle, 'cudlaGetVersion')
-
-        global __cudlaDeviceGetCount
-        __cudlaDeviceGetCount = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaDeviceGetCount')
-        if __cudlaDeviceGetCount == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaDeviceGetCount = _cyb_dlsym(handle, 'cudlaDeviceGetCount')
-
-        global __cudlaCreateDevice
-        __cudlaCreateDevice = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaCreateDevice')
-        if __cudlaCreateDevice == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaCreateDevice = _cyb_dlsym(handle, 'cudlaCreateDevice')
-
-        global __cudlaMemRegister
-        __cudlaMemRegister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaMemRegister')
-        if __cudlaMemRegister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaMemRegister = _cyb_dlsym(handle, 'cudlaMemRegister')
-
-        global __cudlaModuleLoadFromMemory
-        __cudlaModuleLoadFromMemory = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaModuleLoadFromMemory')
-        if __cudlaModuleLoadFromMemory == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaModuleLoadFromMemory = _cyb_dlsym(handle, 'cudlaModuleLoadFromMemory')
-
-        global __cudlaModuleGetAttributes
-        __cudlaModuleGetAttributes = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaModuleGetAttributes')
-        if __cudlaModuleGetAttributes == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaModuleGetAttributes = _cyb_dlsym(handle, 'cudlaModuleGetAttributes')
-
-        global __cudlaModuleUnload
-        __cudlaModuleUnload = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaModuleUnload')
-        if __cudlaModuleUnload == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaModuleUnload = _cyb_dlsym(handle, 'cudlaModuleUnload')
-
-        global __cudlaSubmitTask
-        __cudlaSubmitTask = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaSubmitTask')
-        if __cudlaSubmitTask == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaSubmitTask = _cyb_dlsym(handle, 'cudlaSubmitTask')
-
-        global __cudlaDeviceGetAttribute
-        __cudlaDeviceGetAttribute = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaDeviceGetAttribute')
-        if __cudlaDeviceGetAttribute == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaDeviceGetAttribute = _cyb_dlsym(handle, 'cudlaDeviceGetAttribute')
-
-        global __cudlaMemUnregister
-        __cudlaMemUnregister = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaMemUnregister')
-        if __cudlaMemUnregister == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaMemUnregister = _cyb_dlsym(handle, 'cudlaMemUnregister')
-
-        global __cudlaGetLastError
-        __cudlaGetLastError = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaGetLastError')
-        if __cudlaGetLastError == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaGetLastError = _cyb_dlsym(handle, 'cudlaGetLastError')
-
-        global __cudlaDestroyDevice
-        __cudlaDestroyDevice = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaDestroyDevice')
-        if __cudlaDestroyDevice == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaDestroyDevice = _cyb_dlsym(handle, 'cudlaDestroyDevice')
-
-        global __cudlaSetTaskTimeoutInMs
-        __cudlaSetTaskTimeoutInMs = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'cudlaSetTaskTimeoutInMs')
-        if __cudlaSetTaskTimeoutInMs == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cudlaSetTaskTimeoutInMs = _cyb_dlsym(handle, 'cudlaSetTaskTimeoutInMs')
+        for i in range(_cyb_cudla_n_functions):
+            _cyb_cudla_slots[i][0] = _cyb_dlsym(_cyb_RTLD_DEFAULT, _cyb_cudla_names[i])
+            if _cyb_cudla_slots[i][0] == NULL:
+                if handle == NULL:
+                    handle = load_library()
+                _cyb_cudla_slots[i][0] = _cyb_dlsym(handle, _cyb_cudla_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_cudla_init, 1)
         return 0
@@ -196,44 +130,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_cudla()
     cdef dict data = {}
-    global __cudlaGetVersion
-    data["__cudlaGetVersion"] = <intptr_t>__cudlaGetVersion
-
-    global __cudlaDeviceGetCount
-    data["__cudlaDeviceGetCount"] = <intptr_t>__cudlaDeviceGetCount
-
-    global __cudlaCreateDevice
-    data["__cudlaCreateDevice"] = <intptr_t>__cudlaCreateDevice
-
-    global __cudlaMemRegister
-    data["__cudlaMemRegister"] = <intptr_t>__cudlaMemRegister
-
-    global __cudlaModuleLoadFromMemory
-    data["__cudlaModuleLoadFromMemory"] = <intptr_t>__cudlaModuleLoadFromMemory
-
-    global __cudlaModuleGetAttributes
-    data["__cudlaModuleGetAttributes"] = <intptr_t>__cudlaModuleGetAttributes
-
-    global __cudlaModuleUnload
-    data["__cudlaModuleUnload"] = <intptr_t>__cudlaModuleUnload
-
-    global __cudlaSubmitTask
-    data["__cudlaSubmitTask"] = <intptr_t>__cudlaSubmitTask
-
-    global __cudlaDeviceGetAttribute
-    data["__cudlaDeviceGetAttribute"] = <intptr_t>__cudlaDeviceGetAttribute
-
-    global __cudlaMemUnregister
-    data["__cudlaMemUnregister"] = <intptr_t>__cudlaMemUnregister
-
-    global __cudlaGetLastError
-    data["__cudlaGetLastError"] = <intptr_t>__cudlaGetLastError
-
-    global __cudlaDestroyDevice
-    data["__cudlaDestroyDevice"] = <intptr_t>__cudlaDestroyDevice
-
-    global __cudlaSetTaskTimeoutInMs
-    data["__cudlaSetTaskTimeoutInMs"] = <intptr_t>__cudlaSetTaskTimeoutInMs
+    cdef Py_ssize_t i
+    for i in range(_cyb_cudla_n_functions):
+        data['__' + _cyb_cudla_names[i].decode()] = <intptr_t>_cyb_cudla_slots[i][0]
     _cyb_func_ptrs = data
     return data
 

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=41c2a2147ee34ceed11d38eb00faa851b5c1d5f10c215a0df65f85b22a41757c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9ee117b62b84a62a8a0110bcfb87436ca6e1e8637a88d8a9e94c654dd7f9e94a
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -127,8 +127,6 @@ class NvLinkUtilizationCountUnits(_cyb_FastEnum):
     NVLINK_COUNTER_UNIT_PACKETS = PACKETS  # backward-compat alias
     BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
     NVLINK_COUNTER_UNIT_BYTES = BYTES  # backward-compat alias
-    RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
-    NVLINK_COUNTER_UNIT_RESERVED = RESERVED  # backward-compat alias
     COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
     NVLINK_COUNTER_UNIT_COUNT = COUNT  # backward-compat alias
 
@@ -2132,7 +2130,7 @@ class GpuOperationalEventContextType(_cyb_FastEnum):
     NVML-defined GPU Operational Event context classifications.  These
     values describe the NVML public interpretation of a context payload.
     The original source-defined context type is returned separately in
-    `nvmlEventSetGetContextInfo_v1_t.sourceEventContextType`.
+    ``nvmlEventSetGetContextInfo_v1_t.sourceEventContextType``.
 
     See `nvmlGpuOperationalEventContextType_t`.
     """
@@ -3102,23 +3100,28 @@ cpdef int check_status_size(int status) except 1 nogil:
 
 
 cdef _get_pci_info_ext_v1_dtype_offsets():
-    cdef nvmlPciInfoExt_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'base_class', 'sub_class', 'bus_id'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 32)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.domain)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bus)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pciDeviceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pciSubSystemId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.baseClass)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.subClass)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.busId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPciInfoExt_v1_t),
-    })
+    cdef nvmlPciInfoExt_v1_t *pod = <nvmlPciInfoExt_v1_t *>_cyb_calloc(1, sizeof(nvmlPciInfoExt_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPciInfoExt_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'base_class', 'sub_class', 'bus_id'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 32)],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.domain)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bus)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.device)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pciDeviceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pciSubSystemId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.baseClass)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.subClass)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.busId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPciInfoExt_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pci_info_ext_v1_dtype = _get_pci_info_ext_v1_dtype_offsets()
 
@@ -3327,21 +3330,26 @@ cdef class PciInfoExt_v1:
 
 
 cdef _get_pci_info_dtype_offsets():
-    cdef nvmlPciInfo_t pod
-    return _numpy.dtype({
-        'names': ['bus_id_legacy', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'bus_id'],
-        'formats': [(_numpy.int8, 16), _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 32)],
-        'offsets': [
-            (<intptr_t>&(pod.busIdLegacy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.domain)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bus)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pciDeviceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pciSubSystemId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.busId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPciInfo_t),
-    })
+    cdef nvmlPciInfo_t *pod = <nvmlPciInfo_t *>_cyb_calloc(1, sizeof(nvmlPciInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPciInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['bus_id_legacy', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'bus_id'],
+            'formats': [(_numpy.int8, 16), _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 32)],
+            'offsets': [
+                (<intptr_t>&(pod.busIdLegacy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.domain)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bus)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.device)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pciDeviceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pciSubSystemId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.busId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPciInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pci_info_dtype = _get_pci_info_dtype_offsets()
 
@@ -3544,16 +3552,21 @@ cdef class PciInfo:
 
 
 cdef _get_utilization_dtype_offsets():
-    cdef nvmlUtilization_t pod
-    return _numpy.dtype({
-        'names': ['gpu', 'memory'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.gpu)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memory)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlUtilization_t),
-    })
+    cdef nvmlUtilization_t *pod = <nvmlUtilization_t *>_cyb_calloc(1, sizeof(nvmlUtilization_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlUtilization_t")
+    try:
+        return _numpy.dtype({
+            'names': ['gpu', 'memory'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.gpu)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memory)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlUtilization_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 utilization_dtype = _get_utilization_dtype_offsets()
 
@@ -3681,17 +3694,22 @@ cdef class Utilization:
 
 
 cdef _get_memory_dtype_offsets():
-    cdef nvmlMemory_t pod
-    return _numpy.dtype({
-        'names': ['total', 'free', 'used'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.total)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.free)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.used)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlMemory_t),
-    })
+    cdef nvmlMemory_t *pod = <nvmlMemory_t *>_cyb_calloc(1, sizeof(nvmlMemory_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlMemory_t")
+    try:
+        return _numpy.dtype({
+            'names': ['total', 'free', 'used'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.total)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.free)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.used)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlMemory_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 memory_dtype = _get_memory_dtype_offsets()
 
@@ -3830,19 +3848,24 @@ cdef class Memory:
 
 
 cdef _get_memory_v2_dtype_offsets():
-    cdef nvmlMemory_v2_t pod
-    return _numpy.dtype({
-        'names': ['version', 'total', 'reserved', 'free', 'used'],
-        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.total)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.free)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.used)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlMemory_v2_t),
-    })
+    cdef nvmlMemory_v2_t *pod = <nvmlMemory_v2_t *>_cyb_calloc(1, sizeof(nvmlMemory_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlMemory_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'total', 'reserved', 'free', 'used'],
+            'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.total)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.free)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.used)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlMemory_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 memory_v2_dtype = _get_memory_v2_dtype_offsets()
 
@@ -4003,17 +4026,22 @@ cdef class Memory_v2:
 
 
 cdef _get_ba_r1memory_dtype_offsets():
-    cdef nvmlBAR1Memory_t pod
-    return _numpy.dtype({
-        'names': ['bar1_total', 'bar1_free', 'bar1_used'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.bar1Total)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bar1Free)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bar1Used)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlBAR1Memory_t),
-    })
+    cdef nvmlBAR1Memory_t *pod = <nvmlBAR1Memory_t *>_cyb_calloc(1, sizeof(nvmlBAR1Memory_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlBAR1Memory_t")
+    try:
+        return _numpy.dtype({
+            'names': ['bar1_total', 'bar1_free', 'bar1_used'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.bar1Total)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bar1Free)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bar1Used)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlBAR1Memory_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 ba_r1memory_dtype = _get_ba_r1memory_dtype_offsets()
 
@@ -4152,18 +4180,23 @@ cdef class BAR1Memory:
 
 
 cdef _get_process_info_dtype_offsets():
-    cdef nvmlProcessInfo_t pod
-    return _numpy.dtype({
-        'names': ['pid', 'used_gpu_memory', 'gpu_instance_id', 'compute_instance_id'],
-        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.usedGpuMemory)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlProcessInfo_t),
-    })
+    cdef nvmlProcessInfo_t *pod = <nvmlProcessInfo_t *>_cyb_calloc(1, sizeof(nvmlProcessInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlProcessInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['pid', 'used_gpu_memory', 'gpu_instance_id', 'compute_instance_id'],
+            'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.usedGpuMemory)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlProcessInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 process_info_dtype = _get_process_info_dtype_offsets()
 cdef object process_info_dtype_record = _numpy.dtype((_numpy.record, process_info_dtype))
@@ -4348,19 +4381,24 @@ cdef class ProcessInfo:
 
 
 cdef _get_process_detail_v1_dtype_offsets():
-    cdef nvmlProcessDetail_v1_t pod
-    return _numpy.dtype({
-        'names': ['pid', 'used_gpu_memory', 'gpu_instance_id', 'compute_instance_id', 'used_gpu_cc_protected_memory'],
-        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.usedGpuMemory)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.usedGpuCcProtectedMemory)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlProcessDetail_v1_t),
-    })
+    cdef nvmlProcessDetail_v1_t *pod = <nvmlProcessDetail_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessDetail_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlProcessDetail_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['pid', 'used_gpu_memory', 'gpu_instance_id', 'compute_instance_id', 'used_gpu_cc_protected_memory'],
+            'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.usedGpuMemory)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.usedGpuCcProtectedMemory)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlProcessDetail_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 process_detail_v1_dtype = _get_process_detail_v1_dtype_offsets()
 cdef object process_detail_v1_dtype_record = _numpy.dtype((_numpy.record, process_detail_v1_dtype))
@@ -4558,23 +4596,28 @@ cdef class ProcessDetail_v1:
 
 
 cdef _get_device_attributes_dtype_offsets():
-    cdef nvmlDeviceAttributes_t pod
-    return _numpy.dtype({
-        'names': ['multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'gpu_instance_slice_count', 'compute_instance_slice_count', 'memory_size_mb'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuInstanceSliceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.computeInstanceSliceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlDeviceAttributes_t),
-    })
+    cdef nvmlDeviceAttributes_t *pod = <nvmlDeviceAttributes_t *>_cyb_calloc(1, sizeof(nvmlDeviceAttributes_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlDeviceAttributes_t")
+    try:
+        return _numpy.dtype({
+            'names': ['multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'gpu_instance_slice_count', 'compute_instance_slice_count', 'memory_size_mb'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuInstanceSliceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.computeInstanceSliceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlDeviceAttributes_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 device_attributes_dtype = _get_device_attributes_dtype_offsets()
 
@@ -4779,15 +4822,20 @@ cdef class DeviceAttributes:
 
 
 cdef _get_c2c_mode_info_v1_dtype_offsets():
-    cdef nvmlC2cModeInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['is_c2c_enabled'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.isC2cEnabled)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlC2cModeInfo_v1_t),
-    })
+    cdef nvmlC2cModeInfo_v1_t *pod = <nvmlC2cModeInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlC2cModeInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlC2cModeInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['is_c2c_enabled'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.isC2cEnabled)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlC2cModeInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 c2c_mode_info_v1_dtype = _get_c2c_mode_info_v1_dtype_offsets()
 
@@ -4904,19 +4952,24 @@ cdef class C2cModeInfo_v1:
 
 
 cdef _get_row_remapper_histogram_values_dtype_offsets():
-    cdef nvmlRowRemapperHistogramValues_t pod
-    return _numpy.dtype({
-        'names': ['max_', 'high', 'partial', 'low', 'none'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.max)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.high)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.partial)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.low)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.none)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlRowRemapperHistogramValues_t),
-    })
+    cdef nvmlRowRemapperHistogramValues_t *pod = <nvmlRowRemapperHistogramValues_t *>_cyb_calloc(1, sizeof(nvmlRowRemapperHistogramValues_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlRowRemapperHistogramValues_t")
+    try:
+        return _numpy.dtype({
+            'names': ['max_', 'high', 'partial', 'low', 'none'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.max)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.high)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.partial)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.low)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.none)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlRowRemapperHistogramValues_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 row_remapper_histogram_values_dtype = _get_row_remapper_histogram_values_dtype_offsets()
 
@@ -5077,16 +5130,21 @@ cdef class RowRemapperHistogramValues:
 
 
 cdef _get_bridge_chip_info_dtype_offsets():
-    cdef nvmlBridgeChipInfo_t pod
-    return _numpy.dtype({
-        'names': ['type', 'fw_version'],
-        'formats': [_numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fwVersion)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlBridgeChipInfo_t),
-    })
+    cdef nvmlBridgeChipInfo_t *pod = <nvmlBridgeChipInfo_t *>_cyb_calloc(1, sizeof(nvmlBridgeChipInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlBridgeChipInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'fw_version'],
+            'formats': [_numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fwVersion)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlBridgeChipInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 bridge_chip_info_dtype = _get_bridge_chip_info_dtype_offsets()
 cdef object bridge_chip_info_dtype_record = _numpy.dtype((_numpy.record, bridge_chip_info_dtype))
@@ -5245,21 +5303,26 @@ cdef class BridgeChipInfo:
 
 
 cdef _get_value_dtype_offsets():
-    cdef nvmlValue_t pod
-    return _numpy.dtype({
-        'names': ['d_val', 'si_val', 'ui_val', 'ul_val', 'ull_val', 'sll_val', 'us_val'],
-        'formats': [_numpy.float64, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int64, _numpy.uint16],
-        'offsets': [
-            (<intptr_t>&(pod.dVal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.siVal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.uiVal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ulVal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ullVal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sllVal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.usVal)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlValue_t),
-    })
+    cdef nvmlValue_t *pod = <nvmlValue_t *>_cyb_calloc(1, sizeof(nvmlValue_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlValue_t")
+    try:
+        return _numpy.dtype({
+            'names': ['d_val', 'si_val', 'ui_val', 'ul_val', 'ull_val', 'sll_val', 'us_val'],
+            'formats': [_numpy.float64, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int64, _numpy.uint16],
+            'offsets': [
+                (<intptr_t>&(pod.dVal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.siVal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.uiVal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ulVal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ullVal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sllVal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.usVal)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlValue_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 value_dtype = _get_value_dtype_offsets()
 
@@ -5454,19 +5517,24 @@ cdef class Value:
 
 
 cdef _get__py_anon_pod0_dtype_offsets():
-    cdef cuda_bindings_nvml__anon_pod0 pod
-    return _numpy.dtype({
-        'names': ['controller', 'default_min_temp', 'default_max_temp', 'current_temp', 'target'],
-        'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.controller)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.defaultMinTemp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.defaultMaxTemp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.currentTemp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.target)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_nvml__anon_pod0),
-    })
+    cdef cuda_bindings_nvml__anon_pod0 *pod = <cuda_bindings_nvml__anon_pod0 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod0))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_nvml__anon_pod0")
+    try:
+        return _numpy.dtype({
+            'names': ['controller', 'default_min_temp', 'default_max_temp', 'current_temp', 'target'],
+            'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.controller)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.defaultMinTemp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.defaultMaxTemp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.currentTemp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.target)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_nvml__anon_pod0),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod0_dtype = _get__py_anon_pod0_dtype_offsets()
 cdef object _py_anon_pod0_dtype_record = _numpy.dtype((_numpy.record, _py_anon_pod0_dtype))
@@ -5664,18 +5732,23 @@ cdef class _py_anon_pod0:
 
 
 cdef _get_cooler_info_v1_dtype_offsets():
-    cdef nvmlCoolerInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'index', 'signal_type', 'target'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.index)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.signalType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.target)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlCoolerInfo_v1_t),
-    })
+    cdef nvmlCoolerInfo_v1_t *pod = <nvmlCoolerInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlCoolerInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlCoolerInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'index', 'signal_type', 'target'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.index)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.signalType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.target)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlCoolerInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 cooler_info_v1_dtype = _get_cooler_info_v1_dtype_offsets()
 
@@ -5825,16 +5898,21 @@ cdef class CoolerInfo_v1:
 
 
 cdef _get_clk_mon_fault_info_dtype_offsets():
-    cdef nvmlClkMonFaultInfo_t pod
-    return _numpy.dtype({
-        'names': ['clk_api_domain', 'clk_domain_fault_mask'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.clkApiDomain)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clkDomainFaultMask)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlClkMonFaultInfo_t),
-    })
+    cdef nvmlClkMonFaultInfo_t *pod = <nvmlClkMonFaultInfo_t *>_cyb_calloc(1, sizeof(nvmlClkMonFaultInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlClkMonFaultInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['clk_api_domain', 'clk_domain_fault_mask'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.clkApiDomain)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clkDomainFaultMask)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlClkMonFaultInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 clk_mon_fault_info_dtype = _get_clk_mon_fault_info_dtype_offsets()
 cdef object clk_mon_fault_info_dtype_record = _numpy.dtype((_numpy.record, clk_mon_fault_info_dtype))
@@ -5993,20 +6071,25 @@ cdef class ClkMonFaultInfo:
 
 
 cdef _get_clock_offset_v1_dtype_offsets():
-    cdef nvmlClockOffset_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'type', 'pstate', 'clock_offset_m_hz', 'min_clock_offset_m_hz', 'max_clock_offset_m_hz'],
-        'formats': [_numpy.uint32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pstate)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clockOffsetMHz)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minClockOffsetMHz)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxClockOffsetMHz)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlClockOffset_v1_t),
-    })
+    cdef nvmlClockOffset_v1_t *pod = <nvmlClockOffset_v1_t *>_cyb_calloc(1, sizeof(nvmlClockOffset_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlClockOffset_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'type', 'pstate', 'clock_offset_m_hz', 'min_clock_offset_m_hz', 'max_clock_offset_m_hz'],
+            'formats': [_numpy.uint32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pstate)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clockOffsetMHz)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minClockOffsetMHz)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxClockOffsetMHz)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlClockOffset_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 clock_offset_v1_dtype = _get_clock_offset_v1_dtype_offsets()
 
@@ -6178,20 +6261,25 @@ cdef class ClockOffset_v1:
 
 
 cdef _get_process_utilization_sample_dtype_offsets():
-    cdef nvmlProcessUtilizationSample_t pod
-    return _numpy.dtype({
-        'names': ['pid', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
-        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlProcessUtilizationSample_t),
-    })
+    cdef nvmlProcessUtilizationSample_t *pod = <nvmlProcessUtilizationSample_t *>_cyb_calloc(1, sizeof(nvmlProcessUtilizationSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlProcessUtilizationSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['pid', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+            'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.smUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.encUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decUtil)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlProcessUtilizationSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 process_utilization_sample_dtype = _get_process_utilization_sample_dtype_offsets()
 cdef object process_utilization_sample_dtype_record = _numpy.dtype((_numpy.record, process_utilization_sample_dtype))
@@ -6402,22 +6490,27 @@ cdef class ProcessUtilizationSample:
 
 
 cdef _get_process_utilization_info_v1_dtype_offsets():
-    cdef nvmlProcessUtilizationInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['time_stamp', 'pid', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
-        'formats': [_numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlProcessUtilizationInfo_v1_t),
-    })
+    cdef nvmlProcessUtilizationInfo_v1_t *pod = <nvmlProcessUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessUtilizationInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlProcessUtilizationInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['time_stamp', 'pid', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
+            'formats': [_numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.timeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.smUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.encUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlProcessUtilizationInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 process_utilization_info_v1_dtype = _get_process_utilization_info_v1_dtype_offsets()
 cdef object process_utilization_info_v1_dtype_record = _numpy.dtype((_numpy.record, process_utilization_info_v1_dtype))
@@ -6654,27 +6747,32 @@ cdef class ProcessUtilizationInfo_v1:
 
 
 cdef _get_ecc_sram_error_status_v1_dtype_offsets():
-    cdef nvmlEccSramErrorStatus_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'aggregate_unc_parity', 'aggregate_unc_sec_ded', 'aggregate_cor', 'volatile_unc_parity', 'volatile_unc_sec_ded', 'volatile_cor', 'aggregate_unc_bucket_l2', 'aggregate_unc_bucket_sm', 'aggregate_unc_bucket_pcie', 'aggregate_unc_bucket_mcu', 'aggregate_unc_bucket_other', 'b_threshold_exceeded'],
-        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateUncParity)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateUncSecDed)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateCor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.volatileUncParity)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.volatileUncSecDed)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.volatileCor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateUncBucketL2)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateUncBucketSm)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateUncBucketPcie)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateUncBucketMcu)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.aggregateUncBucketOther)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bThresholdExceeded)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEccSramErrorStatus_v1_t),
-    })
+    cdef nvmlEccSramErrorStatus_v1_t *pod = <nvmlEccSramErrorStatus_v1_t *>_cyb_calloc(1, sizeof(nvmlEccSramErrorStatus_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEccSramErrorStatus_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'aggregate_unc_parity', 'aggregate_unc_sec_ded', 'aggregate_cor', 'volatile_unc_parity', 'volatile_unc_sec_ded', 'volatile_cor', 'aggregate_unc_bucket_l2', 'aggregate_unc_bucket_sm', 'aggregate_unc_bucket_pcie', 'aggregate_unc_bucket_mcu', 'aggregate_unc_bucket_other', 'b_threshold_exceeded'],
+            'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateUncParity)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateUncSecDed)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateCor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.volatileUncParity)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.volatileUncSecDed)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.volatileCor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateUncBucketL2)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateUncBucketSm)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateUncBucketPcie)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateUncBucketMcu)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.aggregateUncBucketOther)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bThresholdExceeded)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEccSramErrorStatus_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 ecc_sram_error_status_v1_dtype = _get_ecc_sram_error_status_v1_dtype_offsets()
 
@@ -6923,22 +7021,27 @@ cdef class EccSramErrorStatus_v1:
 
 
 cdef _get_platform_info_v1_dtype_offsets():
-    cdef nvmlPlatformInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'ib_guid', 'rack_guid', 'chassis_physical_slot_number', 'compute_slot_index', 'node_index', 'peer_type', 'module_id'],
-        'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ibGuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.rackGuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.chassisPhysicalSlotNumber)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.computeSlotIndex)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nodeIndex)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.peerType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.moduleId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPlatformInfo_v1_t),
-    })
+    cdef nvmlPlatformInfo_v1_t *pod = <nvmlPlatformInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlPlatformInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPlatformInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'ib_guid', 'rack_guid', 'chassis_physical_slot_number', 'compute_slot_index', 'node_index', 'peer_type', 'module_id'],
+            'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ibGuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.rackGuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.chassisPhysicalSlotNumber)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.computeSlotIndex)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nodeIndex)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.peerType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.moduleId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPlatformInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 platform_info_v1_dtype = _get_platform_info_v1_dtype_offsets()
 
@@ -7144,22 +7247,27 @@ cdef class PlatformInfo_v1:
 
 
 cdef _get_platform_info_v2_dtype_offsets():
-    cdef nvmlPlatformInfo_v2_t pod
-    return _numpy.dtype({
-        'names': ['version', 'ib_guid', 'chassis_serial_number', 'slot_number', 'tray_index', 'host_id', 'peer_type', 'module_id'],
-        'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ibGuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.chassisSerialNumber)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.slotNumber)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.trayIndex)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hostId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.peerType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.moduleId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPlatformInfo_v2_t),
-    })
+    cdef nvmlPlatformInfo_v2_t *pod = <nvmlPlatformInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlPlatformInfo_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPlatformInfo_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'ib_guid', 'chassis_serial_number', 'slot_number', 'tray_index', 'host_id', 'peer_type', 'module_id'],
+            'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ibGuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.chassisSerialNumber)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.slotNumber)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.trayIndex)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hostId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.peerType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.moduleId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPlatformInfo_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 platform_info_v2_dtype = _get_platform_info_v2_dtype_offsets()
 
@@ -7365,18 +7473,23 @@ cdef class PlatformInfo_v2:
 
 
 cdef _get__py_anon_pod1_dtype_offsets():
-    cdef cuda_bindings_nvml__anon_pod1 pod
-    return _numpy.dtype({
-        'names': ['b_is_present', 'percentage', 'inc_threshold', 'dec_threshold'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.bIsPresent)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.percentage)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.incThreshold)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decThreshold)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_nvml__anon_pod1),
-    })
+    cdef cuda_bindings_nvml__anon_pod1 *pod = <cuda_bindings_nvml__anon_pod1 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod1))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_nvml__anon_pod1")
+    try:
+        return _numpy.dtype({
+            'names': ['b_is_present', 'percentage', 'inc_threshold', 'dec_threshold'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.bIsPresent)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.percentage)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.incThreshold)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decThreshold)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_nvml__anon_pod1),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 cdef object _py_anon_pod1_dtype_record = _numpy.dtype((_numpy.record, _py_anon_pod1_dtype))
@@ -7561,19 +7674,24 @@ cdef class _py_anon_pod1:
 
 
 cdef _get_vgpu_placement_list_v2_dtype_offsets():
-    cdef nvmlVgpuPlacementList_v2_t pod
-    return _numpy.dtype({
-        'names': ['version', 'placement_size', 'count', 'placement_ids', 'mode'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.placementSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.placementIds)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuPlacementList_v2_t),
-    })
+    cdef nvmlVgpuPlacementList_v2_t *pod = <nvmlVgpuPlacementList_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuPlacementList_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuPlacementList_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'placement_size', 'count', 'placement_ids', 'mode'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.placementSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.placementIds)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.mode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuPlacementList_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_placement_list_v2_dtype = _get_vgpu_placement_list_v2_dtype_offsets()
 
@@ -7734,16 +7852,21 @@ cdef class VgpuPlacementList_v2:
 
 
 cdef _get_vgpu_type_bar1info_v1_dtype_offsets():
-    cdef nvmlVgpuTypeBar1Info_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'bar1size'],
-        'formats': [_numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bar1Size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuTypeBar1Info_v1_t),
-    })
+    cdef nvmlVgpuTypeBar1Info_v1_t *pod = <nvmlVgpuTypeBar1Info_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuTypeBar1Info_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuTypeBar1Info_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'bar1size'],
+            'formats': [_numpy.uint32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bar1Size)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuTypeBar1Info_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_type_bar1info_v1_dtype = _get_vgpu_type_bar1info_v1_dtype_offsets()
 
@@ -7871,22 +7994,27 @@ cdef class VgpuTypeBar1Info_v1:
 
 
 cdef _get_vgpu_process_utilization_sample_dtype_offsets():
-    cdef nvmlVgpuProcessUtilizationSample_t pod
-    return _numpy.dtype({
-        'names': ['vgpu_instance', 'pid', 'process_name', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
-        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.processName)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuProcessUtilizationSample_t),
-    })
+    cdef nvmlVgpuProcessUtilizationSample_t *pod = <nvmlVgpuProcessUtilizationSample_t *>_cyb_calloc(1, sizeof(nvmlVgpuProcessUtilizationSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuProcessUtilizationSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['vgpu_instance', 'pid', 'process_name', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+            'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.processName)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.smUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.encUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decUtil)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuProcessUtilizationSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_process_utilization_sample_dtype = _get_vgpu_process_utilization_sample_dtype_offsets()
 cdef object vgpu_process_utilization_sample_dtype_record = _numpy.dtype((_numpy.record, vgpu_process_utilization_sample_dtype))
@@ -8121,24 +8249,29 @@ cdef class VgpuProcessUtilizationSample:
 
 
 cdef _get_vgpu_process_utilization_info_v1_dtype_offsets():
-    cdef nvmlVgpuProcessUtilizationInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['process_name', 'time_stamp', 'vgpu_instance', 'pid', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
-        'formats': [(_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.processName)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuProcessUtilizationInfo_v1_t),
-    })
+    cdef nvmlVgpuProcessUtilizationInfo_v1_t *pod = <nvmlVgpuProcessUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuProcessUtilizationInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuProcessUtilizationInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['process_name', 'time_stamp', 'vgpu_instance', 'pid', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
+            'formats': [(_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.processName)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.smUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.encUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuProcessUtilizationInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_process_utilization_info_v1_dtype = _get_vgpu_process_utilization_info_v1_dtype_offsets()
 cdef object vgpu_process_utilization_info_v1_dtype_record = _numpy.dtype((_numpy.record, vgpu_process_utilization_info_v1_dtype))
@@ -8399,16 +8532,21 @@ cdef class VgpuProcessUtilizationInfo_v1:
 
 
 cdef _get__py_anon_pod2_dtype_offsets():
-    cdef cuda_bindings_nvml__anon_pod2 pod
-    return _numpy.dtype({
-        'names': ['avg_factor', 'timeslice'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_nvml__anon_pod2),
-    })
+    cdef cuda_bindings_nvml__anon_pod2 *pod = <cuda_bindings_nvml__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod2))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_nvml__anon_pod2")
+    try:
+        return _numpy.dtype({
+            'names': ['avg_factor', 'timeslice'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.avgFactor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeslice)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_nvml__anon_pod2),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
@@ -8548,15 +8686,20 @@ cdef class _py_anon_pod2:
 
 
 cdef _get__py_anon_pod3_dtype_offsets():
-    cdef cuda_bindings_nvml__anon_pod3 pod
-    return _numpy.dtype({
-        'names': ['timeslice'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_nvml__anon_pod3),
-    })
+    cdef cuda_bindings_nvml__anon_pod3 *pod = <cuda_bindings_nvml__anon_pod3 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod3))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_nvml__anon_pod3")
+    try:
+        return _numpy.dtype({
+            'names': ['timeslice'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.timeslice)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_nvml__anon_pod3),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
@@ -8685,20 +8828,25 @@ cdef class _py_anon_pod3:
 
 
 cdef _get_vgpu_scheduler_log_entry_dtype_offsets():
-    cdef nvmlVgpuSchedulerLogEntry_t pod
-    return _numpy.dtype({
-        'names': ['timestamp', 'time_run_total', 'time_run', 'sw_runlist_id', 'target_time_slice', 'cumulative_preemption_time'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.timestamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeRunTotal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeRun)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.swRunlistId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.targetTimeSlice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cumulativePreemptionTime)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerLogEntry_t),
-    })
+    cdef nvmlVgpuSchedulerLogEntry_t *pod = <nvmlVgpuSchedulerLogEntry_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogEntry_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerLogEntry_t")
+    try:
+        return _numpy.dtype({
+            'names': ['timestamp', 'time_run_total', 'time_run', 'sw_runlist_id', 'target_time_slice', 'cumulative_preemption_time'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.timestamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeRunTotal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeRun)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.swRunlistId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.targetTimeSlice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cumulativePreemptionTime)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerLogEntry_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_log_entry_dtype = _get_vgpu_scheduler_log_entry_dtype_offsets()
 cdef object vgpu_scheduler_log_entry_dtype_record = _numpy.dtype((_numpy.record, vgpu_scheduler_log_entry_dtype))
@@ -8909,16 +9057,21 @@ cdef class VgpuSchedulerLogEntry:
 
 
 cdef _get__py_anon_pod4_dtype_offsets():
-    cdef cuda_bindings_nvml__anon_pod4 pod
-    return _numpy.dtype({
-        'names': ['avg_factor', 'frequency'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_nvml__anon_pod4),
-    })
+    cdef cuda_bindings_nvml__anon_pod4 *pod = <cuda_bindings_nvml__anon_pod4 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod4))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_nvml__anon_pod4")
+    try:
+        return _numpy.dtype({
+            'names': ['avg_factor', 'frequency'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.avgFactor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.frequency)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_nvml__anon_pod4),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod4_dtype = _get__py_anon_pod4_dtype_offsets()
 
@@ -9058,15 +9211,20 @@ cdef class _py_anon_pod4:
 
 
 cdef _get__py_anon_pod5_dtype_offsets():
-    cdef cuda_bindings_nvml__anon_pod5 pod
-    return _numpy.dtype({
-        'names': ['timeslice'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_nvml__anon_pod5),
-    })
+    cdef cuda_bindings_nvml__anon_pod5 *pod = <cuda_bindings_nvml__anon_pod5 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod5))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_nvml__anon_pod5")
+    try:
+        return _numpy.dtype({
+            'names': ['timeslice'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.timeslice)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_nvml__anon_pod5),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod5_dtype = _get__py_anon_pod5_dtype_offsets()
 
@@ -9195,22 +9353,27 @@ cdef class _py_anon_pod5:
 
 
 cdef _get_vgpu_scheduler_capabilities_dtype_offsets():
-    cdef nvmlVgpuSchedulerCapabilities_t pod
-    return _numpy.dtype({
-        'names': ['supported_schedulers', 'max_timeslice', 'min_timeslice', 'is_arr_mode_supported', 'max_frequency_for_arr', 'min_frequency_for_arr', 'max_avg_factor_for_arr', 'min_avg_factor_for_arr'],
-        'formats': [(_numpy.uint32, 3), _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.supportedSchedulers)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxTimeslice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minTimeslice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isArrModeSupported)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxFrequencyForARR)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minFrequencyForARR)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxAvgFactorForARR)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minAvgFactorForARR)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerCapabilities_t),
-    })
+    cdef nvmlVgpuSchedulerCapabilities_t *pod = <nvmlVgpuSchedulerCapabilities_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerCapabilities_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerCapabilities_t")
+    try:
+        return _numpy.dtype({
+            'names': ['supported_schedulers', 'max_timeslice', 'min_timeslice', 'is_arr_mode_supported', 'max_frequency_for_arr', 'min_frequency_for_arr', 'max_avg_factor_for_arr', 'min_avg_factor_for_arr'],
+            'formats': [(_numpy.uint32, 3), _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.supportedSchedulers)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxTimeslice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minTimeslice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.isArrModeSupported)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxFrequencyForARR)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minFrequencyForARR)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxAvgFactorForARR)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minAvgFactorForARR)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerCapabilities_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_capabilities_dtype = _get_vgpu_scheduler_capabilities_dtype_offsets()
 
@@ -9410,21 +9573,26 @@ cdef class VgpuSchedulerCapabilities:
 
 
 cdef _get_vgpu_license_expiry_dtype_offsets():
-    cdef nvmlVgpuLicenseExpiry_t pod
-    return _numpy.dtype({
-        'names': ['year', 'month', 'day', 'hour', 'min_', 'sec', 'status'],
-        'formats': [_numpy.uint32, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.year)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.month)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.day)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hour)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.min)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sec)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuLicenseExpiry_t),
-    })
+    cdef nvmlVgpuLicenseExpiry_t *pod = <nvmlVgpuLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseExpiry_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuLicenseExpiry_t")
+    try:
+        return _numpy.dtype({
+            'names': ['year', 'month', 'day', 'hour', 'min_', 'sec', 'status'],
+            'formats': [_numpy.uint32, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.year)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.month)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.day)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hour)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.min)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sec)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.status)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuLicenseExpiry_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_license_expiry_dtype = _get_vgpu_license_expiry_dtype_offsets()
 
@@ -9619,21 +9787,26 @@ cdef class VgpuLicenseExpiry:
 
 
 cdef _get_grid_license_expiry_dtype_offsets():
-    cdef nvmlGridLicenseExpiry_t pod
-    return _numpy.dtype({
-        'names': ['year', 'month', 'day', 'hour', 'min_', 'sec', 'status'],
-        'formats': [_numpy.uint32, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.year)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.month)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.day)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hour)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.min)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sec)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGridLicenseExpiry_t),
-    })
+    cdef nvmlGridLicenseExpiry_t *pod = <nvmlGridLicenseExpiry_t *>_cyb_calloc(1, sizeof(nvmlGridLicenseExpiry_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGridLicenseExpiry_t")
+    try:
+        return _numpy.dtype({
+            'names': ['year', 'month', 'day', 'hour', 'min_', 'sec', 'status'],
+            'formats': [_numpy.uint32, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.year)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.month)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.day)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hour)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.min)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sec)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.status)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGridLicenseExpiry_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 grid_license_expiry_dtype = _get_grid_license_expiry_dtype_offsets()
 
@@ -9828,17 +10001,22 @@ cdef class GridLicenseExpiry:
 
 
 cdef _get_vgpu_type_id_info_v1_dtype_offsets():
-    cdef nvmlVgpuTypeIdInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'vgpu_count', 'vgpu_type_ids'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuTypeIds)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuTypeIdInfo_v1_t),
-    })
+    cdef nvmlVgpuTypeIdInfo_v1_t *pod = <nvmlVgpuTypeIdInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuTypeIdInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuTypeIdInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'vgpu_count', 'vgpu_type_ids'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuTypeIds)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuTypeIdInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_type_id_info_v1_dtype = _get_vgpu_type_id_info_v1_dtype_offsets()
 
@@ -9977,17 +10155,22 @@ cdef class VgpuTypeIdInfo_v1:
 
 
 cdef _get_active_vgpu_instance_info_v1_dtype_offsets():
-    cdef nvmlActiveVgpuInstanceInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'vgpu_count', 'vgpu_instances'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuInstances)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlActiveVgpuInstanceInfo_v1_t),
-    })
+    cdef nvmlActiveVgpuInstanceInfo_v1_t *pod = <nvmlActiveVgpuInstanceInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlActiveVgpuInstanceInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'vgpu_count', 'vgpu_instances'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuInstances)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlActiveVgpuInstanceInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 active_vgpu_instance_info_v1_dtype = _get_active_vgpu_instance_info_v1_dtype_offsets()
 
@@ -10126,19 +10309,24 @@ cdef class ActiveVgpuInstanceInfo_v1:
 
 
 cdef _get_vgpu_creatable_placement_info_v1_dtype_offsets():
-    cdef nvmlVgpuCreatablePlacementInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'vgpu_type_id', 'count', 'placement_ids', 'placement_size'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuTypeId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.placementIds)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.placementSize)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuCreatablePlacementInfo_v1_t),
-    })
+    cdef nvmlVgpuCreatablePlacementInfo_v1_t *pod = <nvmlVgpuCreatablePlacementInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuCreatablePlacementInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuCreatablePlacementInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'vgpu_type_id', 'count', 'placement_ids', 'placement_size'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuTypeId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.placementIds)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.placementSize)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuCreatablePlacementInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_creatable_placement_info_v1_dtype = _get_vgpu_creatable_placement_info_v1_dtype_offsets()
 
@@ -10299,16 +10487,21 @@ cdef class VgpuCreatablePlacementInfo_v1:
 
 
 cdef _get_hwbc_entry_dtype_offsets():
-    cdef nvmlHwbcEntry_t pod
-    return _numpy.dtype({
-        'names': ['hwbc_id', 'firmware_version'],
-        'formats': [_numpy.uint32, (_numpy.int8, 32)],
-        'offsets': [
-            (<intptr_t>&(pod.hwbcId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlHwbcEntry_t),
-    })
+    cdef nvmlHwbcEntry_t *pod = <nvmlHwbcEntry_t *>_cyb_calloc(1, sizeof(nvmlHwbcEntry_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlHwbcEntry_t")
+    try:
+        return _numpy.dtype({
+            'names': ['hwbc_id', 'firmware_version'],
+            'formats': [_numpy.uint32, (_numpy.int8, 32)],
+            'offsets': [
+                (<intptr_t>&(pod.hwbcId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlHwbcEntry_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 hwbc_entry_dtype = _get_hwbc_entry_dtype_offsets()
 cdef object hwbc_entry_dtype_record = _numpy.dtype((_numpy.record, hwbc_entry_dtype))
@@ -10465,16 +10658,21 @@ cdef class HwbcEntry:
 
 
 cdef _get_led_state_dtype_offsets():
-    cdef nvmlLedState_t pod
-    return _numpy.dtype({
-        'names': ['cause', 'color'],
-        'formats': [(_numpy.int8, 256), _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.cause)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.color)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlLedState_t),
-    })
+    cdef nvmlLedState_t *pod = <nvmlLedState_t *>_cyb_calloc(1, sizeof(nvmlLedState_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlLedState_t")
+    try:
+        return _numpy.dtype({
+            'names': ['cause', 'color'],
+            'formats': [(_numpy.int8, 256), _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.cause)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.color)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlLedState_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 led_state_dtype = _get_led_state_dtype_offsets()
 
@@ -10606,18 +10804,23 @@ cdef class LedState:
 
 
 cdef _get_unit_info_dtype_offsets():
-    cdef nvmlUnitInfo_t pod
-    return _numpy.dtype({
-        'names': ['name', 'id', 'serial', 'firmware_version'],
-        'formats': [(_numpy.int8, 96), (_numpy.int8, 96), (_numpy.int8, 96), (_numpy.int8, 96)],
-        'offsets': [
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.serial)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlUnitInfo_t),
-    })
+    cdef nvmlUnitInfo_t *pod = <nvmlUnitInfo_t *>_cyb_calloc(1, sizeof(nvmlUnitInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlUnitInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['name', 'id', 'serial', 'firmware_version'],
+            'formats': [(_numpy.int8, 96), (_numpy.int8, 96), (_numpy.int8, 96), (_numpy.int8, 96)],
+            'offsets': [
+                (<intptr_t>&(pod.name)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.serial)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlUnitInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 unit_info_dtype = _get_unit_info_dtype_offsets()
 
@@ -10783,18 +10986,23 @@ cdef class UnitInfo:
 
 
 cdef _get_psu_info_dtype_offsets():
-    cdef nvmlPSUInfo_t pod
-    return _numpy.dtype({
-        'names': ['state', 'current', 'voltage', 'power'],
-        'formats': [(_numpy.int8, 256), _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.current)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.voltage)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.power)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPSUInfo_t),
-    })
+    cdef nvmlPSUInfo_t *pod = <nvmlPSUInfo_t *>_cyb_calloc(1, sizeof(nvmlPSUInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPSUInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['state', 'current', 'voltage', 'power'],
+            'formats': [(_numpy.int8, 256), _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.state)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.current)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.voltage)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.power)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPSUInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 psu_info_dtype = _get_psu_info_dtype_offsets()
 
@@ -10948,16 +11156,21 @@ cdef class PSUInfo:
 
 
 cdef _get_unit_fan_info_dtype_offsets():
-    cdef nvmlUnitFanInfo_t pod
-    return _numpy.dtype({
-        'names': ['speed', 'state'],
-        'formats': [_numpy.uint32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.speed)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlUnitFanInfo_t),
-    })
+    cdef nvmlUnitFanInfo_t *pod = <nvmlUnitFanInfo_t *>_cyb_calloc(1, sizeof(nvmlUnitFanInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlUnitFanInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['speed', 'state'],
+            'formats': [_numpy.uint32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.speed)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.state)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlUnitFanInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 unit_fan_info_dtype = _get_unit_fan_info_dtype_offsets()
 cdef object unit_fan_info_dtype_record = _numpy.dtype((_numpy.record, unit_fan_info_dtype))
@@ -11116,19 +11329,24 @@ cdef class UnitFanInfo:
 
 
 cdef _get_event_data_dtype_offsets():
-    cdef nvmlEventData_t pod
-    return _numpy.dtype({
-        'names': ['device_', 'event_type', 'event_data', 'gpu_instance_id', 'compute_instance_id'],
-        'formats': [_numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.eventType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.eventData)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEventData_t),
-    })
+    cdef nvmlEventData_t *pod = <nvmlEventData_t *>_cyb_calloc(1, sizeof(nvmlEventData_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEventData_t")
+    try:
+        return _numpy.dtype({
+            'names': ['device_', 'event_type', 'event_data', 'gpu_instance_id', 'compute_instance_id'],
+            'formats': [_numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.device)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.eventType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.eventData)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEventData_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 event_data_dtype = _get_event_data_dtype_offsets()
 
@@ -11289,16 +11507,21 @@ cdef class EventData:
 
 
 cdef _get_system_event_data_v1_dtype_offsets():
-    cdef nvmlSystemEventData_v1_t pod
-    return _numpy.dtype({
-        'names': ['event_type', 'gpu_id'],
-        'formats': [_numpy.uint64, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.eventType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuId)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlSystemEventData_v1_t),
-    })
+    cdef nvmlSystemEventData_v1_t *pod = <nvmlSystemEventData_v1_t *>_cyb_calloc(1, sizeof(nvmlSystemEventData_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlSystemEventData_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['event_type', 'gpu_id'],
+            'formats': [_numpy.uint64, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.eventType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuId)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlSystemEventData_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 system_event_data_v1_dtype = _get_system_event_data_v1_dtype_offsets()
 cdef object system_event_data_v1_dtype_record = _numpy.dtype((_numpy.record, system_event_data_v1_dtype))
@@ -11457,21 +11680,26 @@ cdef class SystemEventData_v1:
 
 
 cdef _get_accounting_stats_dtype_offsets():
-    cdef nvmlAccountingStats_t pod
-    return _numpy.dtype({
-        'names': ['gpu_utilization', 'memory_utilization', 'max_memory_usage', 'time', 'start_time', 'is_running', 'reserved'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 5)],
-        'offsets': [
-            (<intptr_t>&(pod.gpuUtilization)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memoryUtilization)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxMemoryUsage)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.time)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.startTime)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isRunning)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlAccountingStats_t),
-    })
+    cdef nvmlAccountingStats_t *pod = <nvmlAccountingStats_t *>_cyb_calloc(1, sizeof(nvmlAccountingStats_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlAccountingStats_t")
+    try:
+        return _numpy.dtype({
+            'names': ['gpu_utilization', 'memory_utilization', 'max_memory_usage', 'time', 'start_time', 'is_running', 'reserved'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 5)],
+            'offsets': [
+                (<intptr_t>&(pod.gpuUtilization)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memoryUtilization)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxMemoryUsage)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.time)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.startTime)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.isRunning)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlAccountingStats_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 accounting_stats_dtype = _get_accounting_stats_dtype_offsets()
 
@@ -11643,22 +11871,27 @@ cdef class AccountingStats:
 
 
 cdef _get_encoder_session_info_dtype_offsets():
-    cdef nvmlEncoderSessionInfo_t pod
-    return _numpy.dtype({
-        'names': ['session_id', 'pid', 'vgpu_instance', 'codec_type', 'h_resolution', 'v_resolution', 'average_fps', 'average_latency'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.sessionId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.codecType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hResolution)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vResolution)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.averageFps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.averageLatency)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEncoderSessionInfo_t),
-    })
+    cdef nvmlEncoderSessionInfo_t *pod = <nvmlEncoderSessionInfo_t *>_cyb_calloc(1, sizeof(nvmlEncoderSessionInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEncoderSessionInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['session_id', 'pid', 'vgpu_instance', 'codec_type', 'h_resolution', 'v_resolution', 'average_fps', 'average_latency'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.sessionId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.codecType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hResolution)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vResolution)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.averageFps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.averageLatency)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEncoderSessionInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 encoder_session_info_dtype = _get_encoder_session_info_dtype_offsets()
 cdef object encoder_session_info_dtype_record = _numpy.dtype((_numpy.record, encoder_session_info_dtype))
@@ -11895,17 +12128,22 @@ cdef class EncoderSessionInfo:
 
 
 cdef _get_fbc_stats_dtype_offsets():
-    cdef nvmlFBCStats_t pod
-    return _numpy.dtype({
-        'names': ['sessions_count', 'average_fps', 'average_latency'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.sessionsCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.averageFPS)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.averageLatency)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlFBCStats_t),
-    })
+    cdef nvmlFBCStats_t *pod = <nvmlFBCStats_t *>_cyb_calloc(1, sizeof(nvmlFBCStats_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlFBCStats_t")
+    try:
+        return _numpy.dtype({
+            'names': ['sessions_count', 'average_fps', 'average_latency'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.sessionsCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.averageFPS)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.averageLatency)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlFBCStats_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 fbc_stats_dtype = _get_fbc_stats_dtype_offsets()
 
@@ -12044,26 +12282,31 @@ cdef class FBCStats:
 
 
 cdef _get_fbc_session_info_dtype_offsets():
-    cdef nvmlFBCSessionInfo_t pod
-    return _numpy.dtype({
-        'names': ['session_id', 'pid', 'vgpu_instance', 'display_ordinal', 'session_type', 'session_flags', 'h_max_resolution', 'v_max_resolution', 'h_resolution', 'v_resolution', 'average_fps', 'average_latency'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.sessionId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.displayOrdinal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sessionType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sessionFlags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hMaxResolution)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vMaxResolution)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hResolution)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vResolution)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.averageFPS)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.averageLatency)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlFBCSessionInfo_t),
-    })
+    cdef nvmlFBCSessionInfo_t *pod = <nvmlFBCSessionInfo_t *>_cyb_calloc(1, sizeof(nvmlFBCSessionInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlFBCSessionInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['session_id', 'pid', 'vgpu_instance', 'display_ordinal', 'session_type', 'session_flags', 'h_max_resolution', 'v_max_resolution', 'h_resolution', 'v_resolution', 'average_fps', 'average_latency'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.sessionId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.displayOrdinal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sessionType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sessionFlags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hMaxResolution)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vMaxResolution)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hResolution)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vResolution)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.averageFPS)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.averageLatency)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlFBCSessionInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 fbc_session_info_dtype = _get_fbc_session_info_dtype_offsets()
 cdef object fbc_session_info_dtype_record = _numpy.dtype((_numpy.record, fbc_session_info_dtype))
@@ -12352,16 +12595,21 @@ cdef class FBCSessionInfo:
 
 
 cdef _get_conf_compute_system_caps_dtype_offsets():
-    cdef nvmlConfComputeSystemCaps_t pod
-    return _numpy.dtype({
-        'names': ['cpu_caps', 'gpus_caps'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.cpuCaps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpusCaps)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlConfComputeSystemCaps_t),
-    })
+    cdef nvmlConfComputeSystemCaps_t *pod = <nvmlConfComputeSystemCaps_t *>_cyb_calloc(1, sizeof(nvmlConfComputeSystemCaps_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlConfComputeSystemCaps_t")
+    try:
+        return _numpy.dtype({
+            'names': ['cpu_caps', 'gpus_caps'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.cpuCaps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpusCaps)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlConfComputeSystemCaps_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 conf_compute_system_caps_dtype = _get_conf_compute_system_caps_dtype_offsets()
 
@@ -12489,17 +12737,22 @@ cdef class ConfComputeSystemCaps:
 
 
 cdef _get_conf_compute_system_state_dtype_offsets():
-    cdef nvmlConfComputeSystemState_t pod
-    return _numpy.dtype({
-        'names': ['environment', 'cc_feature', 'dev_tools_mode'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.environment)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ccFeature)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlConfComputeSystemState_t),
-    })
+    cdef nvmlConfComputeSystemState_t *pod = <nvmlConfComputeSystemState_t *>_cyb_calloc(1, sizeof(nvmlConfComputeSystemState_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlConfComputeSystemState_t")
+    try:
+        return _numpy.dtype({
+            'names': ['environment', 'cc_feature', 'dev_tools_mode'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.environment)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ccFeature)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlConfComputeSystemState_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 conf_compute_system_state_dtype = _get_conf_compute_system_state_dtype_offsets()
 
@@ -12638,19 +12891,24 @@ cdef class ConfComputeSystemState:
 
 
 cdef _get_system_conf_compute_settings_v1_dtype_offsets():
-    cdef nvmlSystemConfComputeSettings_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'environment', 'cc_feature', 'dev_tools_mode', 'multi_gpu_mode'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.environment)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ccFeature)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.multiGpuMode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlSystemConfComputeSettings_v1_t),
-    })
+    cdef nvmlSystemConfComputeSettings_v1_t *pod = <nvmlSystemConfComputeSettings_v1_t *>_cyb_calloc(1, sizeof(nvmlSystemConfComputeSettings_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlSystemConfComputeSettings_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'environment', 'cc_feature', 'dev_tools_mode', 'multi_gpu_mode'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.environment)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ccFeature)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.multiGpuMode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlSystemConfComputeSettings_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 system_conf_compute_settings_v1_dtype = _get_system_conf_compute_settings_v1_dtype_offsets()
 
@@ -12811,16 +13069,21 @@ cdef class SystemConfComputeSettings_v1:
 
 
 cdef _get_conf_compute_mem_size_info_dtype_offsets():
-    cdef nvmlConfComputeMemSizeInfo_t pod
-    return _numpy.dtype({
-        'names': ['protected_mem_size_kib', 'unprotected_mem_size_kib'],
-        'formats': [_numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.protectedMemSizeKib)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.unprotectedMemSizeKib)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlConfComputeMemSizeInfo_t),
-    })
+    cdef nvmlConfComputeMemSizeInfo_t *pod = <nvmlConfComputeMemSizeInfo_t *>_cyb_calloc(1, sizeof(nvmlConfComputeMemSizeInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlConfComputeMemSizeInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['protected_mem_size_kib', 'unprotected_mem_size_kib'],
+            'formats': [_numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.protectedMemSizeKib)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.unprotectedMemSizeKib)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlConfComputeMemSizeInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 conf_compute_mem_size_info_dtype = _get_conf_compute_mem_size_info_dtype_offsets()
 
@@ -12948,18 +13211,23 @@ cdef class ConfComputeMemSizeInfo:
 
 
 cdef _get_conf_compute_gpu_certificate_dtype_offsets():
-    cdef nvmlConfComputeGpuCertificate_t pod
-    return _numpy.dtype({
-        'names': ['cert_chain_size', 'attestation_cert_chain_size', 'cert_chain', 'attestation_cert_chain'],
-        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.uint8, 4096), (_numpy.uint8, 5120)],
-        'offsets': [
-            (<intptr_t>&(pod.certChainSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attestationCertChainSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.certChain)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attestationCertChain)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlConfComputeGpuCertificate_t),
-    })
+    cdef nvmlConfComputeGpuCertificate_t *pod = <nvmlConfComputeGpuCertificate_t *>_cyb_calloc(1, sizeof(nvmlConfComputeGpuCertificate_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlConfComputeGpuCertificate_t")
+    try:
+        return _numpy.dtype({
+            'names': ['cert_chain_size', 'attestation_cert_chain_size', 'cert_chain', 'attestation_cert_chain'],
+            'formats': [_numpy.uint32, _numpy.uint32, (_numpy.uint8, 4096), (_numpy.uint8, 5120)],
+            'offsets': [
+                (<intptr_t>&(pod.certChainSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attestationCertChainSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.certChain)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attestationCertChain)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlConfComputeGpuCertificate_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 conf_compute_gpu_certificate_dtype = _get_conf_compute_gpu_certificate_dtype_offsets()
 
@@ -13109,20 +13377,25 @@ cdef class ConfComputeGpuCertificate:
 
 
 cdef _get_conf_compute_gpu_attestation_report_dtype_offsets():
-    cdef nvmlConfComputeGpuAttestationReport_t pod
-    return _numpy.dtype({
-        'names': ['is_cec_attestation_report_present', 'attestation_report_size', 'cec_attestation_report_size', 'nonce', 'attestation_report', 'cec_attestation_report'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.uint8, 32), (_numpy.uint8, 8192), (_numpy.uint8, 4096)],
-        'offsets': [
-            (<intptr_t>&(pod.isCecAttestationReportPresent)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attestationReportSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cecAttestationReportSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nonce)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attestationReport)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cecAttestationReport)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlConfComputeGpuAttestationReport_t),
-    })
+    cdef nvmlConfComputeGpuAttestationReport_t *pod = <nvmlConfComputeGpuAttestationReport_t *>_cyb_calloc(1, sizeof(nvmlConfComputeGpuAttestationReport_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlConfComputeGpuAttestationReport_t")
+    try:
+        return _numpy.dtype({
+            'names': ['is_cec_attestation_report_present', 'attestation_report_size', 'cec_attestation_report_size', 'nonce', 'attestation_report', 'cec_attestation_report'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.uint8, 32), (_numpy.uint8, 8192), (_numpy.uint8, 4096)],
+            'offsets': [
+                (<intptr_t>&(pod.isCecAttestationReportPresent)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attestationReportSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cecAttestationReportSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nonce)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attestationReport)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cecAttestationReport)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlConfComputeGpuAttestationReport_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 conf_compute_gpu_attestation_report_dtype = _get_conf_compute_gpu_attestation_report_dtype_offsets()
 
@@ -13300,20 +13573,25 @@ cdef class ConfComputeGpuAttestationReport:
 
 
 cdef _get_gpu_fabric_info_v2_dtype_offsets():
-    cdef nvmlGpuFabricInfo_v2_t pod
-    return _numpy.dtype({
-        'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask'],
-        'formats': [_numpy.uint32, (_numpy.uint8, 16), _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cliqueId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.healthMask)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuFabricInfo_v2_t),
-    })
+    cdef nvmlGpuFabricInfo_v2_t *pod = <nvmlGpuFabricInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricInfo_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuFabricInfo_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask'],
+            'formats': [_numpy.uint32, (_numpy.uint8, 16), _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.status)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cliqueId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.state)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.healthMask)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuFabricInfo_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_fabric_info_v2_dtype = _get_gpu_fabric_info_v2_dtype_offsets()
 
@@ -13491,17 +13769,22 @@ cdef class GpuFabricInfo_v2:
 
 
 cdef _get_nvlink_supported_bw_modes_v1_dtype_offsets():
-    cdef nvmlNvlinkSupportedBwModes_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'bw_modes', 'total_bw_modes'],
-        'formats': [_numpy.uint32, (_numpy.uint8, 23), _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bwModes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.totalBwModes)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkSupportedBwModes_v1_t),
-    })
+    cdef nvmlNvlinkSupportedBwModes_v1_t *pod = <nvmlNvlinkSupportedBwModes_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSupportedBwModes_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkSupportedBwModes_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'bw_modes', 'total_bw_modes'],
+            'formats': [_numpy.uint32, (_numpy.uint8, 23), _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bwModes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.totalBwModes)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkSupportedBwModes_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_supported_bw_modes_v1_dtype = _get_nvlink_supported_bw_modes_v1_dtype_offsets()
 
@@ -13640,17 +13923,22 @@ cdef class NvlinkSupportedBwModes_v1:
 
 
 cdef _get_nvlink_get_bw_mode_v1_dtype_offsets():
-    cdef nvmlNvlinkGetBwMode_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'b_is_best', 'bw_mode'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bIsBest)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bwMode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkGetBwMode_v1_t),
-    })
+    cdef nvmlNvlinkGetBwMode_v1_t *pod = <nvmlNvlinkGetBwMode_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkGetBwMode_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkGetBwMode_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'b_is_best', 'bw_mode'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bIsBest)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bwMode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkGetBwMode_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_get_bw_mode_v1_dtype = _get_nvlink_get_bw_mode_v1_dtype_offsets()
 
@@ -13789,17 +14077,22 @@ cdef class NvlinkGetBwMode_v1:
 
 
 cdef _get_nvlink_set_bw_mode_v1_dtype_offsets():
-    cdef nvmlNvlinkSetBwMode_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'b_set_best', 'bw_mode'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bSetBest)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bwMode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkSetBwMode_v1_t),
-    })
+    cdef nvmlNvlinkSetBwMode_v1_t *pod = <nvmlNvlinkSetBwMode_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSetBwMode_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkSetBwMode_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'b_set_best', 'bw_mode'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bSetBest)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bwMode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkSetBwMode_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_set_bw_mode_v1_dtype = _get_nvlink_set_bw_mode_v1_dtype_offsets()
 
@@ -13938,16 +14231,21 @@ cdef class NvlinkSetBwMode_v1:
 
 
 cdef _get_vgpu_version_dtype_offsets():
-    cdef nvmlVgpuVersion_t pod
-    return _numpy.dtype({
-        'names': ['min_version', 'max_version'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.minVersion)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxVersion)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuVersion_t),
-    })
+    cdef nvmlVgpuVersion_t *pod = <nvmlVgpuVersion_t *>_cyb_calloc(1, sizeof(nvmlVgpuVersion_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuVersion_t")
+    try:
+        return _numpy.dtype({
+            'names': ['min_version', 'max_version'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.minVersion)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxVersion)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuVersion_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_version_dtype = _get_vgpu_version_dtype_offsets()
 
@@ -14087,24 +14385,29 @@ cdef class VgpuVersion:
 
 
 cdef _get_vgpu_metadata_dtype_offsets():
-    cdef nvmlVgpuMetadata_t pod
-    return _numpy.dtype({
-        'names': ['version', 'revision', 'guest_info_state', 'guest_driver_version', 'host_driver_version', 'reserved', 'vgpu_virtualization_caps', 'guest_vgpu_version', 'opaque_data_size', 'opaque_data'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, (_numpy.int8, 80), (_numpy.int8, 80), (_numpy.uint32, 6), _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 4)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.revision)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.guestInfoState)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.guestDriverVersion)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hostDriverVersion)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuVirtualizationCaps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.guestVgpuVersion)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.opaqueDataSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.opaqueData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuMetadata_t),
-    })
+    cdef nvmlVgpuMetadata_t *pod = <nvmlVgpuMetadata_t *>_cyb_calloc(1, sizeof(nvmlVgpuMetadata_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuMetadata_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'revision', 'guest_info_state', 'guest_driver_version', 'host_driver_version', 'reserved', 'vgpu_virtualization_caps', 'guest_vgpu_version', 'opaque_data_size', 'opaque_data'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, (_numpy.int8, 80), (_numpy.int8, 80), (_numpy.uint32, 6), _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 4)],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.revision)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.guestInfoState)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.guestDriverVersion)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hostDriverVersion)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuVirtualizationCaps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.guestVgpuVersion)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.opaqueDataSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.opaqueData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuMetadata_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_metadata_dtype = _get_vgpu_metadata_dtype_offsets()
 
@@ -14321,16 +14624,21 @@ cdef class VgpuMetadata:
 
 
 cdef _get_vgpu_pgpu_compatibility_dtype_offsets():
-    cdef nvmlVgpuPgpuCompatibility_t pod
-    return _numpy.dtype({
-        'names': ['vgpu_vm_compatibility', 'compatibility_limit_code'],
-        'formats': [_numpy.int32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.vgpuVmCompatibility)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.compatibilityLimitCode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuPgpuCompatibility_t),
-    })
+    cdef nvmlVgpuPgpuCompatibility_t *pod = <nvmlVgpuPgpuCompatibility_t *>_cyb_calloc(1, sizeof(nvmlVgpuPgpuCompatibility_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuPgpuCompatibility_t")
+    try:
+        return _numpy.dtype({
+            'names': ['vgpu_vm_compatibility', 'compatibility_limit_code'],
+            'formats': [_numpy.int32, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.vgpuVmCompatibility)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.compatibilityLimitCode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuPgpuCompatibility_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_pgpu_compatibility_dtype = _get_vgpu_pgpu_compatibility_dtype_offsets()
 
@@ -14458,16 +14766,21 @@ cdef class VgpuPgpuCompatibility:
 
 
 cdef _get_gpu_instance_placement_dtype_offsets():
-    cdef nvmlGpuInstancePlacement_t pod
-    return _numpy.dtype({
-        'names': ['start', 'size_'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.start)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuInstancePlacement_t),
-    })
+    cdef nvmlGpuInstancePlacement_t *pod = <nvmlGpuInstancePlacement_t *>_cyb_calloc(1, sizeof(nvmlGpuInstancePlacement_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuInstancePlacement_t")
+    try:
+        return _numpy.dtype({
+            'names': ['start', 'size_'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.start)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuInstancePlacement_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_instance_placement_dtype = _get_gpu_instance_placement_dtype_offsets()
 cdef object gpu_instance_placement_dtype_record = _numpy.dtype((_numpy.record, gpu_instance_placement_dtype))
@@ -14626,27 +14939,32 @@ cdef class GpuInstancePlacement:
 
 
 cdef _get_gpu_instance_profile_info_v3_dtype_offsets():
-    cdef nvmlGpuInstanceProfileInfo_v3_t pod
-    return _numpy.dtype({
-        'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'copy_engine_count', 'decoder_count', 'encoder_count', 'jpeg_count', 'ofa_count', 'memory_size_mb', 'name', 'capabilities'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, (_numpy.int8, 96), _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.copyEngineCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.jpegCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ofaCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.capabilities)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuInstanceProfileInfo_v3_t),
-    })
+    cdef nvmlGpuInstanceProfileInfo_v3_t *pod = <nvmlGpuInstanceProfileInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlGpuInstanceProfileInfo_v3_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuInstanceProfileInfo_v3_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'copy_engine_count', 'decoder_count', 'encoder_count', 'jpeg_count', 'ofa_count', 'memory_size_mb', 'name', 'capabilities'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, (_numpy.int8, 96), _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sliceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.instanceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.copyEngineCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.encoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.jpegCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ofaCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.name)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.capabilities)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuInstanceProfileInfo_v3_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_instance_profile_info_v3_dtype = _get_gpu_instance_profile_info_v3_dtype_offsets()
 
@@ -14899,16 +15217,21 @@ cdef class GpuInstanceProfileInfo_v3:
 
 
 cdef _get_compute_instance_placement_dtype_offsets():
-    cdef nvmlComputeInstancePlacement_t pod
-    return _numpy.dtype({
-        'names': ['start', 'size_'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.start)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlComputeInstancePlacement_t),
-    })
+    cdef nvmlComputeInstancePlacement_t *pod = <nvmlComputeInstancePlacement_t *>_cyb_calloc(1, sizeof(nvmlComputeInstancePlacement_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlComputeInstancePlacement_t")
+    try:
+        return _numpy.dtype({
+            'names': ['start', 'size_'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.start)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlComputeInstancePlacement_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 compute_instance_placement_dtype = _get_compute_instance_placement_dtype_offsets()
 cdef object compute_instance_placement_dtype_record = _numpy.dtype((_numpy.record, compute_instance_placement_dtype))
@@ -15067,25 +15390,30 @@ cdef class ComputeInstancePlacement:
 
 
 cdef _get_compute_instance_profile_info_v2_dtype_offsets():
-    cdef nvmlComputeInstanceProfileInfo_v2_t pod
-    return _numpy.dtype({
-        'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 96)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlComputeInstanceProfileInfo_v2_t),
-    })
+    cdef nvmlComputeInstanceProfileInfo_v2_t *pod = <nvmlComputeInstanceProfileInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlComputeInstanceProfileInfo_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 96)],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sliceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.instanceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.name)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlComputeInstanceProfileInfo_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 compute_instance_profile_info_v2_dtype = _get_compute_instance_profile_info_v2_dtype_offsets()
 
@@ -15316,26 +15644,31 @@ cdef class ComputeInstanceProfileInfo_v2:
 
 
 cdef _get_compute_instance_profile_info_v3_dtype_offsets():
-    cdef nvmlComputeInstanceProfileInfo_v3_t pod
-    return _numpy.dtype({
-        'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name', 'capabilities'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 96), _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.capabilities)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlComputeInstanceProfileInfo_v3_t),
-    })
+    cdef nvmlComputeInstanceProfileInfo_v3_t *pod = <nvmlComputeInstanceProfileInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceProfileInfo_v3_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlComputeInstanceProfileInfo_v3_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name', 'capabilities'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 96), _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sliceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.instanceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.name)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.capabilities)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlComputeInstanceProfileInfo_v3_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 compute_instance_profile_info_v3_dtype = _get_compute_instance_profile_info_v3_dtype_offsets()
 
@@ -15577,16 +15910,21 @@ cdef class ComputeInstanceProfileInfo_v3:
 
 
 cdef _get_device_addressing_mode_v1_dtype_offsets():
-    cdef nvmlDeviceAddressingMode_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'value'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlDeviceAddressingMode_v1_t),
-    })
+    cdef nvmlDeviceAddressingMode_v1_t *pod = <nvmlDeviceAddressingMode_v1_t *>_cyb_calloc(1, sizeof(nvmlDeviceAddressingMode_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlDeviceAddressingMode_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'value'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlDeviceAddressingMode_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 device_addressing_mode_v1_dtype = _get_device_addressing_mode_v1_dtype_offsets()
 
@@ -15714,17 +16052,22 @@ cdef class DeviceAddressingMode_v1:
 
 
 cdef _get_repair_status_v1_dtype_offsets():
-    cdef nvmlRepairStatus_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'b_channel_repair_pending', 'b_tpc_repair_pending'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bChannelRepairPending)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bTpcRepairPending)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlRepairStatus_v1_t),
-    })
+    cdef nvmlRepairStatus_v1_t *pod = <nvmlRepairStatus_v1_t *>_cyb_calloc(1, sizeof(nvmlRepairStatus_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlRepairStatus_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'b_channel_repair_pending', 'b_tpc_repair_pending'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bChannelRepairPending)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bTpcRepairPending)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlRepairStatus_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 repair_status_v1_dtype = _get_repair_status_v1_dtype_offsets()
 
@@ -15863,17 +16206,22 @@ cdef class RepairStatus_v1:
 
 
 cdef _get_device_power_mizer_modes_v1_dtype_offsets():
-    cdef nvmlDevicePowerMizerModes_v1_t pod
-    return _numpy.dtype({
-        'names': ['current_mode', 'mode', 'supported_power_mizer_modes'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.currentMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.supportedPowerMizerModes)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlDevicePowerMizerModes_v1_t),
-    })
+    cdef nvmlDevicePowerMizerModes_v1_t *pod = <nvmlDevicePowerMizerModes_v1_t *>_cyb_calloc(1, sizeof(nvmlDevicePowerMizerModes_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlDevicePowerMizerModes_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['current_mode', 'mode', 'supported_power_mizer_modes'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.currentMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.mode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.supportedPowerMizerModes)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlDevicePowerMizerModes_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 device_power_mizer_modes_v1_dtype = _get_device_power_mizer_modes_v1_dtype_offsets()
 
@@ -16012,21 +16360,26 @@ cdef class DevicePowerMizerModes_v1:
 
 
 cdef _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets():
-    cdef nvmlEccSramUniqueUncorrectedErrorEntry_v1_t pod
-    return _numpy.dtype({
-        'names': ['unit', 'location', 'sublocation', 'extlocation', 'address', 'is_parity', 'count'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.unit)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.location)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sublocation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.extlocation)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.address)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isParity)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t),
-    })
+    cdef nvmlEccSramUniqueUncorrectedErrorEntry_v1_t *pod = <nvmlEccSramUniqueUncorrectedErrorEntry_v1_t *>_cyb_calloc(1, sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEccSramUniqueUncorrectedErrorEntry_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['unit', 'location', 'sublocation', 'extlocation', 'address', 'is_parity', 'count'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.unit)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.location)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sublocation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.extlocation)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.address)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.isParity)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 ecc_sram_unique_uncorrected_error_entry_v1_dtype = _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets()
 cdef object ecc_sram_unique_uncorrected_error_entry_v1_dtype_record = _numpy.dtype((_numpy.record, ecc_sram_unique_uncorrected_error_entry_v1_dtype))
@@ -16250,21 +16603,26 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
 
 
 cdef _get_gpu_fabric_info_v3_dtype_offsets():
-    cdef nvmlGpuFabricInfo_v3_t pod
-    return _numpy.dtype({
-        'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask', 'health_summary'],
-        'formats': [_numpy.uint32, (_numpy.uint8, 16), _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cliqueId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.healthMask)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.healthSummary)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuFabricInfo_v3_t),
-    })
+    cdef nvmlGpuFabricInfo_v3_t *pod = <nvmlGpuFabricInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricInfo_v3_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuFabricInfo_v3_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask', 'health_summary'],
+            'formats': [_numpy.uint32, (_numpy.uint8, 16), _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.status)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cliqueId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.state)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.healthMask)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.healthSummary)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuFabricInfo_v3_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_fabric_info_v3_dtype = _get_gpu_fabric_info_v3_dtype_offsets()
 
@@ -16453,16 +16811,21 @@ cdef class GpuFabricInfo_v3:
 
 
 cdef _get_nv_link_info_v1_dtype_offsets():
-    cdef nvmlNvLinkInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'is_nvle_enabled'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvLinkInfo_v1_t),
-    })
+    cdef nvmlNvLinkInfo_v1_t *pod = <nvmlNvLinkInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlNvLinkInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvLinkInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'is_nvle_enabled'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvLinkInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nv_link_info_v1_dtype = _get_nv_link_info_v1_dtype_offsets()
 
@@ -16590,18 +16953,23 @@ cdef class NvLinkInfo_v1:
 
 
 cdef _get_nvlink_firmware_version_dtype_offsets():
-    cdef nvmlNvlinkFirmwareVersion_t pod
-    return _numpy.dtype({
-        'names': ['ucode_type', 'major', 'minor', 'sub_minor'],
-        'formats': [_numpy.uint8, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.ucodeType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.major)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.subMinor)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkFirmwareVersion_t),
-    })
+    cdef nvmlNvlinkFirmwareVersion_t *pod = <nvmlNvlinkFirmwareVersion_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareVersion_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkFirmwareVersion_t")
+    try:
+        return _numpy.dtype({
+            'names': ['ucode_type', 'major', 'minor', 'sub_minor'],
+            'formats': [_numpy.uint8, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.ucodeType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.major)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.subMinor)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkFirmwareVersion_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_firmware_version_dtype = _get_nvlink_firmware_version_dtype_offsets()
 cdef object nvlink_firmware_version_dtype_record = _numpy.dtype((_numpy.record, nvlink_firmware_version_dtype))
@@ -16786,15 +17154,20 @@ cdef class NvlinkFirmwareVersion:
 
 
 cdef _get_prm_counter_input_v1_dtype_offsets():
-    cdef nvmlPRMCounterInput_v1_t pod
-    return _numpy.dtype({
-        'names': ['local_port'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.localPort)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPRMCounterInput_v1_t),
-    })
+    cdef nvmlPRMCounterInput_v1_t *pod = <nvmlPRMCounterInput_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterInput_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPRMCounterInput_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['local_port'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.localPort)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPRMCounterInput_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 prm_counter_input_v1_dtype = _get_prm_counter_input_v1_dtype_offsets()
 
@@ -16923,18 +17296,23 @@ cdef class PRMCounterInput_v1:
 
 
 cdef _get_vgpu_scheduler_state_info_v2_dtype_offsets():
-    cdef nvmlVgpuSchedulerStateInfo_v2_t pod
-    return _numpy.dtype({
-        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerStateInfo_v2_t),
-    })
+    cdef nvmlVgpuSchedulerStateInfo_v2_t *pod = <nvmlVgpuSchedulerStateInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerStateInfo_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.engineId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.avgFactor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeslice)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerStateInfo_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_state_info_v2_dtype = _get_vgpu_scheduler_state_info_v2_dtype_offsets()
 
@@ -17084,21 +17462,26 @@ cdef class VgpuSchedulerStateInfo_v2:
 
 
 cdef _get_vgpu_scheduler_log_entry_v2_dtype_offsets():
-    cdef nvmlVgpuSchedulerLogEntry_v2_t pod
-    return _numpy.dtype({
-        'names': ['timestamp', 'time_run_total', 'time_run', 'sw_runlist_id', 'target_time_slice', 'cumulative_preemption_time', 'weight'],
-        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.timestamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeRunTotal)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeRun)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.swRunlistId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.targetTimeSlice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cumulativePreemptionTime)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.weight)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerLogEntry_v2_t),
-    })
+    cdef nvmlVgpuSchedulerLogEntry_v2_t *pod = <nvmlVgpuSchedulerLogEntry_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogEntry_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerLogEntry_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['timestamp', 'time_run_total', 'time_run', 'sw_runlist_id', 'target_time_slice', 'cumulative_preemption_time', 'weight'],
+            'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.timestamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeRunTotal)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeRun)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.swRunlistId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.targetTimeSlice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cumulativePreemptionTime)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.weight)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerLogEntry_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_log_entry_v2_dtype = _get_vgpu_scheduler_log_entry_v2_dtype_offsets()
 cdef object vgpu_scheduler_log_entry_v2_dtype_record = _numpy.dtype((_numpy.record, vgpu_scheduler_log_entry_v2_dtype))
@@ -17322,18 +17705,23 @@ cdef class VgpuSchedulerLogEntry_v2:
 
 
 cdef _get_vgpu_scheduler_state_v2_dtype_offsets():
-    cdef nvmlVgpuSchedulerState_v2_t pod
-    return _numpy.dtype({
-        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'frequency'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerState_v2_t),
-    })
+    cdef nvmlVgpuSchedulerState_v2_t *pod = <nvmlVgpuSchedulerState_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerState_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerState_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'frequency'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.engineId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.avgFactor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.frequency)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerState_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_state_v2_dtype = _get_vgpu_scheduler_state_v2_dtype_offsets()
 
@@ -17483,15 +17871,20 @@ cdef class VgpuSchedulerState_v2:
 
 
 cdef _get_bbx_time_data_v1_dtype_offsets():
-    cdef nvmlBBXTimeData_v1_t pod
-    return _numpy.dtype({
-        'names': ['time_run'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.timeRun)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlBBXTimeData_v1_t),
-    })
+    cdef nvmlBBXTimeData_v1_t *pod = <nvmlBBXTimeData_v1_t *>_cyb_calloc(1, sizeof(nvmlBBXTimeData_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlBBXTimeData_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['time_run'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.timeRun)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlBBXTimeData_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 bbx_time_data_v1_dtype = _get_bbx_time_data_v1_dtype_offsets()
 
@@ -17608,20 +18001,25 @@ cdef class BBXTimeData_v1:
 
 
 cdef _get_remapped_rows_info_v2_dtype_offsets():
-    cdef nvmlRemappedRowsInfo_v2_t pod
-    return _numpy.dtype({
-        'names': ['corr_active_remaps', 'corr_inactive_remaps', 'unc_active_remaps', 'unc_inactive_remaps', 'b_pending', 'b_failure_occurred'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.corrActiveRemaps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.corrInactiveRemaps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.uncActiveRemaps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.uncInactiveRemaps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bPending)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bFailureOccurred)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlRemappedRowsInfo_v2_t),
-    })
+    cdef nvmlRemappedRowsInfo_v2_t *pod = <nvmlRemappedRowsInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlRemappedRowsInfo_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlRemappedRowsInfo_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['corr_active_remaps', 'corr_inactive_remaps', 'unc_active_remaps', 'unc_inactive_remaps', 'b_pending', 'b_failure_occurred'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.corrActiveRemaps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.corrInactiveRemaps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.uncActiveRemaps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.uncInactiveRemaps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bPending)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bFailureOccurred)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlRemappedRowsInfo_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 remapped_rows_info_v2_dtype = _get_remapped_rows_info_v2_dtype_offsets()
 
@@ -17793,24 +18191,29 @@ cdef class RemappedRowsInfo_v2:
 
 
 cdef _get_accounting_stats_v2_dtype_offsets():
-    cdef nvmlAccountingStats_v2_t pod
-    return _numpy.dtype({
-        'names': ['pid', 'is_running', 'gpu_utilization', 'memory_utilization', 'max_memory_usage', 'sample_count', 'sum_gpu_util', 'sum_fb_util', 'time', 'start_time'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isRunning)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuUtilization)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memoryUtilization)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxMemoryUsage)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sampleCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sumGpuUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sumFbUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.time)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.startTime)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlAccountingStats_v2_t),
-    })
+    cdef nvmlAccountingStats_v2_t *pod = <nvmlAccountingStats_v2_t *>_cyb_calloc(1, sizeof(nvmlAccountingStats_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlAccountingStats_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['pid', 'is_running', 'gpu_utilization', 'memory_utilization', 'max_memory_usage', 'sample_count', 'sum_gpu_util', 'sum_fb_util', 'time', 'start_time'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.pid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.isRunning)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuUtilization)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memoryUtilization)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxMemoryUsage)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sampleCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sumGpuUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sumFbUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.time)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.startTime)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlAccountingStats_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 accounting_stats_v2_dtype = _get_accounting_stats_v2_dtype_offsets()
 
@@ -18026,17 +18429,22 @@ cdef class AccountingStats_v2:
 
 
 cdef _get_cper_cursor_v1_dtype_offsets():
-    cdef nvmlCPERCursor_v1_t pod
-    return _numpy.dtype({
-        'names': ['cper_type_mask', 'uuid', 'handle'],
-        'formats': [_numpy.uint32, (_numpy.int8, 80), _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.cperTypeMask)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlCPERCursor_v1_t),
-    })
+    cdef nvmlCPERCursor_v1_t *pod = <nvmlCPERCursor_v1_t *>_cyb_calloc(1, sizeof(nvmlCPERCursor_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlCPERCursor_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['cper_type_mask', 'uuid', 'handle'],
+            'formats': [_numpy.uint32, (_numpy.int8, 80), _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.cperTypeMask)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.uuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlCPERCursor_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 cper_cursor_v1_dtype = _get_cper_cursor_v1_dtype_offsets()
 
@@ -18191,17 +18599,22 @@ cdef class CPERCursor_v1:
 
 
 cdef _get_set_memory_limits_v1_dtype_offsets():
-    cdef nvmlSetMemoryLimits_v1_t pod
-    return _numpy.dtype({
-        'names': ['name_space', 'soft_limit', 'hard_limit'],
-        'formats': [_numpy.intp, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.nameSpace)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.softLimit)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hardLimit)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlSetMemoryLimits_v1_t),
-    })
+    cdef nvmlSetMemoryLimits_v1_t *pod = <nvmlSetMemoryLimits_v1_t *>_cyb_calloc(1, sizeof(nvmlSetMemoryLimits_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlSetMemoryLimits_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['name_space', 'soft_limit', 'hard_limit'],
+            'formats': [_numpy.intp, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.nameSpace)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.softLimit)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hardLimit)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlSetMemoryLimits_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 set_memory_limits_v1_dtype = _get_set_memory_limits_v1_dtype_offsets()
 
@@ -18349,18 +18762,23 @@ cdef class SetMemoryLimits_v1:
 
 
 cdef _get_get_memory_limits_v1_dtype_offsets():
-    cdef nvmlGetMemoryLimits_v1_t pod
-    return _numpy.dtype({
-        'names': ['name_space', 'soft_limit', 'hard_limit', 'current_used'],
-        'formats': [_numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.nameSpace)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.softLimit)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hardLimit)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.currentUsed)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGetMemoryLimits_v1_t),
-    })
+    cdef nvmlGetMemoryLimits_v1_t *pod = <nvmlGetMemoryLimits_v1_t *>_cyb_calloc(1, sizeof(nvmlGetMemoryLimits_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGetMemoryLimits_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['name_space', 'soft_limit', 'hard_limit', 'current_used'],
+            'formats': [_numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.nameSpace)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.softLimit)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hardLimit)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.currentUsed)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGetMemoryLimits_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 get_memory_limits_v1_dtype = _get_get_memory_limits_v1_dtype_offsets()
 
@@ -18519,15 +18937,20 @@ cdef class GetMemoryLimits_v1:
 
 
 cdef _get_pmgr_pwr_tuple_dtype_offsets():
-    cdef nvmlPmgrPwrTuple_t pod
-    return _numpy.dtype({
-        'names': ['pwrm_w'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.pwrmW)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPmgrPwrTuple_t),
-    })
+    cdef nvmlPmgrPwrTuple_t *pod = <nvmlPmgrPwrTuple_t *>_cyb_calloc(1, sizeof(nvmlPmgrPwrTuple_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPmgrPwrTuple_t")
+    try:
+        return _numpy.dtype({
+            'names': ['pwrm_w'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.pwrmW)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPmgrPwrTuple_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pmgr_pwr_tuple_dtype = _get_pmgr_pwr_tuple_dtype_offsets()
 cdef object pmgr_pwr_tuple_dtype_record = _numpy.dtype((_numpy.record, pmgr_pwr_tuple_dtype))
@@ -18673,16 +19096,21 @@ cdef class PmgrPwrTuple:
 
 
 cdef _get_rail_metrics_dtype_offsets():
-    cdef nvmlRailMetrics_t pod
-    return _numpy.dtype({
-        'names': ['freqk_hz', 'util_pct'],
-        'formats': [_numpy.uint32, _numpy.uint64],
-        'offsets': [
-            (<intptr_t>&(pod.freqkHz)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.utilPct)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlRailMetrics_t),
-    })
+    cdef nvmlRailMetrics_t *pod = <nvmlRailMetrics_t *>_cyb_calloc(1, sizeof(nvmlRailMetrics_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlRailMetrics_t")
+    try:
+        return _numpy.dtype({
+            'names': ['freqk_hz', 'util_pct'],
+            'formats': [_numpy.uint32, _numpy.uint64],
+            'offsets': [
+                (<intptr_t>&(pod.freqkHz)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.utilPct)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlRailMetrics_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 rail_metrics_dtype = _get_rail_metrics_dtype_offsets()
 cdef object rail_metrics_dtype_record = _numpy.dtype((_numpy.record, rail_metrics_dtype))
@@ -18841,15 +19269,20 @@ cdef class RailMetrics:
 
 
 cdef _get_pwr_model_metrics_dlppm1x_perf_dtype_offsets():
-    cdef nvmlPwrModelMetricsDlppm1xPerf_t pod
-    return _numpy.dtype({
-        'names': ['perfms'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.perfms)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPwrModelMetricsDlppm1xPerf_t),
-    })
+    cdef nvmlPwrModelMetricsDlppm1xPerf_t *pod = <nvmlPwrModelMetricsDlppm1xPerf_t *>_cyb_calloc(1, sizeof(nvmlPwrModelMetricsDlppm1xPerf_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPwrModelMetricsDlppm1xPerf_t")
+    try:
+        return _numpy.dtype({
+            'names': ['perfms'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.perfms)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPwrModelMetricsDlppm1xPerf_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pwr_model_metrics_dlppm1x_perf_dtype = _get_pwr_model_metrics_dlppm1x_perf_dtype_offsets()
 cdef object pwr_model_metrics_dlppm1x_perf_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_dlppm1x_perf_dtype))
@@ -18995,16 +19428,21 @@ cdef class PwrModelMetricsDlppm1xPerf:
 
 
 cdef _get_pwr_model_metrics_sample_pfpp1x_dtype_offsets():
-    cdef nvmlPwrModelMetricsSamplePfpp1x_t pod
-    return _numpy.dtype({
-        'names': ['freqk_hz', 'est_tgp_pwrm_w'],
-        'formats': [(_numpy.uint32, 16), _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.freqkHz)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.estTgpPwrmW)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPwrModelMetricsSamplePfpp1x_t),
-    })
+    cdef nvmlPwrModelMetricsSamplePfpp1x_t *pod = <nvmlPwrModelMetricsSamplePfpp1x_t *>_cyb_calloc(1, sizeof(nvmlPwrModelMetricsSamplePfpp1x_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPwrModelMetricsSamplePfpp1x_t")
+    try:
+        return _numpy.dtype({
+            'names': ['freqk_hz', 'est_tgp_pwrm_w'],
+            'formats': [(_numpy.uint32, 16), _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.freqkHz)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.estTgpPwrmW)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPwrModelMetricsSamplePfpp1x_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pwr_model_metrics_sample_pfpp1x_dtype = _get_pwr_model_metrics_sample_pfpp1x_dtype_offsets()
 cdef object pwr_model_metrics_sample_pfpp1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_sample_pfpp1x_dtype))
@@ -19161,16 +19599,21 @@ cdef class PwrModelMetricsSamplePfpp1x:
 
 
 cdef _get_pwr_model_operating_point_pfpp1x_dtype_offsets():
-    cdef nvmlPwrModelOperatingPointPfpp1x_t pod
-    return _numpy.dtype({
-        'names': ['freqk_hz', 'pwrm_w'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.freqkHz)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pwrmW)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPwrModelOperatingPointPfpp1x_t),
-    })
+    cdef nvmlPwrModelOperatingPointPfpp1x_t *pod = <nvmlPwrModelOperatingPointPfpp1x_t *>_cyb_calloc(1, sizeof(nvmlPwrModelOperatingPointPfpp1x_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPwrModelOperatingPointPfpp1x_t")
+    try:
+        return _numpy.dtype({
+            'names': ['freqk_hz', 'pwrm_w'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.freqkHz)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pwrmW)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPwrModelOperatingPointPfpp1x_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pwr_model_operating_point_pfpp1x_dtype = _get_pwr_model_operating_point_pfpp1x_dtype_offsets()
 cdef object pwr_model_operating_point_pfpp1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_operating_point_pfpp1x_dtype))
@@ -19329,19 +19772,24 @@ cdef class PwrModelOperatingPointPfpp1x:
 
 
 cdef _get_adaptive_tgp_mode_info_v1_dtype_offsets():
-    cdef nvmlAdaptiveTgpModeInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['in_band_enable_request', 'feature_allowed_by_admin', 'admin_override_enabled', 'enablement_status', 'adjusted_limit_mw'],
-        'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.inBandEnableRequest)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.featureAllowedByAdmin)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.adminOverrideEnabled)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.enablementStatus)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.adjustedLimitMw)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlAdaptiveTgpModeInfo_v1_t),
-    })
+    cdef nvmlAdaptiveTgpModeInfo_v1_t *pod = <nvmlAdaptiveTgpModeInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlAdaptiveTgpModeInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlAdaptiveTgpModeInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['in_band_enable_request', 'feature_allowed_by_admin', 'admin_override_enabled', 'enablement_status', 'adjusted_limit_mw'],
+            'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.inBandEnableRequest)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.featureAllowedByAdmin)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.adminOverrideEnabled)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.enablementStatus)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.adjustedLimitMw)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlAdaptiveTgpModeInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 adaptive_tgp_mode_info_v1_dtype = _get_adaptive_tgp_mode_info_v1_dtype_offsets()
 
@@ -19502,15 +19950,20 @@ cdef class AdaptiveTgpModeInfo_v1:
 
 
 cdef _get_event_set_get_context_count_v1_dtype_offsets():
-    cdef nvmlEventSetGetContextCount_v1_t pod
-    return _numpy.dtype({
-        'names': ['count'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEventSetGetContextCount_v1_t),
-    })
+    cdef nvmlEventSetGetContextCount_v1_t *pod = <nvmlEventSetGetContextCount_v1_t *>_cyb_calloc(1, sizeof(nvmlEventSetGetContextCount_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEventSetGetContextCount_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['count'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEventSetGetContextCount_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 event_set_get_context_count_v1_dtype = _get_event_set_get_context_count_v1_dtype_offsets()
 
@@ -19627,19 +20080,24 @@ cdef class EventSetGetContextCount_v1:
 
 
 cdef _get_event_set_get_context_info_v1_dtype_offsets():
-    cdef nvmlEventSetGetContextInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['index', 'nvml_gpu_operational_event_context_type', 'source_event_context_type', 'data_size', 'data_format_version'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint16],
-        'offsets': [
-            (<intptr_t>&(pod.index)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvmlGpuOperationalEventContextType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sourceEventContextType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataFormatVersion)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEventSetGetContextInfo_v1_t),
-    })
+    cdef nvmlEventSetGetContextInfo_v1_t *pod = <nvmlEventSetGetContextInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlEventSetGetContextInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEventSetGetContextInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['index', 'nvml_gpu_operational_event_context_type', 'source_event_context_type', 'data_size', 'data_format_version'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint16],
+            'offsets': [
+                (<intptr_t>&(pod.index)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvmlGpuOperationalEventContextType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sourceEventContextType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataFormatVersion)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEventSetGetContextInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 event_set_get_context_info_v1_dtype = _get_event_set_get_context_info_v1_dtype_offsets()
 
@@ -19800,16 +20258,21 @@ cdef class EventSetGetContextInfo_v1:
 
 
 cdef _get_event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype_offsets():
-    cdef nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t pod
-    return _numpy.dtype({
-        'names': ['index', 'xid_code'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.index)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.xidCode)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t),
-    })
+    cdef nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *pod = <nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t *>_cyb_calloc(1, sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['index', 'xid_code'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.index)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.xidCode)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype = _get_event_set_get_gpu_operational_event_context_legacy_xid_v1_dtype_offsets()
 
@@ -19937,16 +20400,21 @@ cdef class EventSetGetGpuOperationalEventContextLegacyXid_v1:
 
 
 cdef _get_gpu_fabric_clique_v1_dtype_offsets():
-    cdef nvmlGpuFabricClique_v1_t pod
-    return _numpy.dtype({
-        'names': ['type', 'id'],
-        'formats': [_numpy.uint8, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuFabricClique_v1_t),
-    })
+    cdef nvmlGpuFabricClique_v1_t *pod = <nvmlGpuFabricClique_v1_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricClique_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuFabricClique_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'id'],
+            'formats': [_numpy.uint8, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuFabricClique_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_fabric_clique_v1_dtype = _get_gpu_fabric_clique_v1_dtype_offsets()
 
@@ -20086,17 +20554,22 @@ cdef class GpuFabricClique_v1:
 
 
 cdef _get_gpu_operational_event_config_v1_dtype_offsets():
-    cdef nvmlGpuOperationalEventConfig_v1_t pod
-    return _numpy.dtype({
-        'names': ['uuid', 'min_log_level', 'min_severity'],
-        'formats': [(_numpy.int8, 96), _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minLogLevel)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.minSeverity)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuOperationalEventConfig_v1_t),
-    })
+    cdef nvmlGpuOperationalEventConfig_v1_t *pod = <nvmlGpuOperationalEventConfig_v1_t *>_cyb_calloc(1, sizeof(nvmlGpuOperationalEventConfig_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuOperationalEventConfig_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['uuid', 'min_log_level', 'min_severity'],
+            'formats': [(_numpy.int8, 96), _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.uuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minLogLevel)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.minSeverity)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuOperationalEventConfig_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_operational_event_config_v1_dtype = _get_gpu_operational_event_config_v1_dtype_offsets()
 
@@ -20239,39 +20712,44 @@ cdef class GpuOperationalEventConfig_v1:
 
 
 cdef _get_event_set_wait_v3_dtype_offsets():
-    cdef nvmlEventSetWait_v3_t pod
-    return _numpy.dtype({
-        'names': ['timeout_ms', 'data_type', 'uuid', 'source_module', 'event_type', 'event_data', 'group_cursor', 'instance_id', 'timestamp_usec', 'trace_id', 'gpu_instance_id', 'compute_instance_id', 'severity', 'category_id', 'module_event_code', 'scope', 'originator', 'module_instance', 'chiplet_id', 'log_level', 'attributes', 'group_cper_size', 'group_attributes', 'group_size', 'group_index'],
-        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 96), (_numpy.int8, 16), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.timeoutMs)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.dataType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sourceModule)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.eventType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.eventData)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.groupCursor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.instanceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timestampUsec)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.traceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.severity)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.categoryId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.moduleEventCode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.scope)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.originator)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.moduleInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.chipletId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.logLevel)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.attributes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.groupCperSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.groupAttributes)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.groupSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.groupIndex)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEventSetWait_v3_t),
-    })
+    cdef nvmlEventSetWait_v3_t *pod = <nvmlEventSetWait_v3_t *>_cyb_calloc(1, sizeof(nvmlEventSetWait_v3_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEventSetWait_v3_t")
+    try:
+        return _numpy.dtype({
+            'names': ['timeout_ms', 'data_type', 'uuid', 'source_module', 'event_type', 'event_data', 'group_cursor', 'instance_id', 'timestamp_usec', 'trace_id', 'gpu_instance_id', 'compute_instance_id', 'severity', 'category_id', 'module_event_code', 'scope', 'originator', 'module_instance', 'chiplet_id', 'log_level', 'attributes', 'group_cper_size', 'group_attributes', 'group_size', 'group_index'],
+            'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 96), (_numpy.int8, 16), _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.timeoutMs)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.dataType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.uuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sourceModule)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.eventType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.eventData)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.groupCursor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.instanceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timestampUsec)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.traceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.severity)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.categoryId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.moduleEventCode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.scope)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.originator)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.moduleInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.chipletId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.logLevel)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.attributes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.groupCperSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.groupAttributes)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.groupSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.groupIndex)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEventSetWait_v3_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 event_set_wait_v3_dtype = _get_event_set_wait_v3_dtype_offsets()
 
@@ -20660,17 +21138,22 @@ cdef class EventSetWait_v3:
 
 
 cdef _get_nvlink_set_bw_mode_async_v1_dtype_offsets():
-    cdef nvmlNvlinkSetBwModeAsync_v1_t pod
-    return _numpy.dtype({
-        'names': ['b_set_best', 'bw_mode', 'async_poll_timeout_ms'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.bSetBest)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bwMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.asyncPollTimeoutMs)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkSetBwModeAsync_v1_t),
-    })
+    cdef nvmlNvlinkSetBwModeAsync_v1_t *pod = <nvmlNvlinkSetBwModeAsync_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSetBwModeAsync_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkSetBwModeAsync_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['b_set_best', 'bw_mode', 'async_poll_timeout_ms'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.bSetBest)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bwMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.asyncPollTimeoutMs)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkSetBwModeAsync_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_set_bw_mode_async_v1_dtype = _get_nvlink_set_bw_mode_async_v1_dtype_offsets()
 
@@ -20809,19 +21292,24 @@ cdef class NvlinkSetBwModeAsync_v1:
 
 
 cdef _get_nvlink_telemetry_sample_v1_dtype_offsets():
-    cdef nvmlNvlinkTelemetrySample_v1_t pod
-    return _numpy.dtype({
-        'names': ['link_id', 'sample_type', 'sample_count', 'samples', 'nvml_return'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.linkId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sampleType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sampleCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.samples)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvmlReturn)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkTelemetrySample_v1_t),
-    })
+    cdef nvmlNvlinkTelemetrySample_v1_t *pod = <nvmlNvlinkTelemetrySample_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkTelemetrySample_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkTelemetrySample_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['link_id', 'sample_type', 'sample_count', 'samples', 'nvml_return'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.int32],
+            'offsets': [
+                (<intptr_t>&(pod.linkId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sampleType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sampleCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.samples)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvmlReturn)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkTelemetrySample_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_telemetry_sample_v1_dtype = _get_nvlink_telemetry_sample_v1_dtype_offsets()
 cdef object nvlink_telemetry_sample_v1_dtype_record = _numpy.dtype((_numpy.record, nvlink_telemetry_sample_v1_dtype))
@@ -21019,16 +21507,21 @@ cdef class NvlinkTelemetrySample_v1:
 
 
 cdef _get_ecc_bank_remapper_histogram_v1_dtype_offsets():
-    cdef nvmlEccBankRemapperHistogram_v1_t pod
-    return _numpy.dtype({
-        'names': ['max_spare_group_count', 'no_spare_group_count'],
-        'formats': [_numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.maxSpareGroupCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.noSpareGroupCount)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEccBankRemapperHistogram_v1_t),
-    })
+    cdef nvmlEccBankRemapperHistogram_v1_t *pod = <nvmlEccBankRemapperHistogram_v1_t *>_cyb_calloc(1, sizeof(nvmlEccBankRemapperHistogram_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEccBankRemapperHistogram_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['max_spare_group_count', 'no_spare_group_count'],
+            'formats': [_numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.maxSpareGroupCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.noSpareGroupCount)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEccBankRemapperHistogram_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 ecc_bank_remapper_histogram_v1_dtype = _get_ecc_bank_remapper_histogram_v1_dtype_offsets()
 
@@ -21168,15 +21661,20 @@ cdef class EccBankRemapperHistogram_v1:
 
 
 cdef _get_gpu_uptime_v1_dtype_offsets():
-    cdef nvmlGpuUptime_v1_t pod
-    return _numpy.dtype({
-        'names': ['uptime'],
-        'formats': [_numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.uptime)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuUptime_v1_t),
-    })
+    cdef nvmlGpuUptime_v1_t *pod = <nvmlGpuUptime_v1_t *>_cyb_calloc(1, sizeof(nvmlGpuUptime_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuUptime_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['uptime'],
+            'formats': [_numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.uptime)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuUptime_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_uptime_v1_dtype = _get_gpu_uptime_v1_dtype_offsets()
 
@@ -21293,20 +21791,25 @@ cdef class GpuUptime_v1:
 
 
 cdef _get_system_conf_compute_settings_v2_dtype_offsets():
-    cdef nvmlSystemConfComputeSettings_v2_t pod
-    return _numpy.dtype({
-        'names': ['version', 'environment', 'cc_feature', 'dev_tools_mode', 'multi_gpu_mode', 'tdisp_state'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.environment)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ccFeature)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.multiGpuMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.tdispState)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlSystemConfComputeSettings_v2_t),
-    })
+    cdef nvmlSystemConfComputeSettings_v2_t *pod = <nvmlSystemConfComputeSettings_v2_t *>_cyb_calloc(1, sizeof(nvmlSystemConfComputeSettings_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlSystemConfComputeSettings_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'environment', 'cc_feature', 'dev_tools_mode', 'multi_gpu_mode', 'tdisp_state'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.environment)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ccFeature)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.multiGpuMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.tdispState)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlSystemConfComputeSettings_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 system_conf_compute_settings_v2_dtype = _get_system_conf_compute_settings_v2_dtype_offsets()
 
@@ -21478,18 +21981,23 @@ cdef class SystemConfComputeSettings_v2:
 
 
 cdef _get_nvlink_get_remap_table_info_v1_dtype_offsets():
-    cdef nvmlNvlinkGetRemapTableInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['alid', 'fla_remap_tab_addr', 'gpa_remap_tab_addr', 'remap_tab_size'],
-        'formats': [_numpy.uint32, (_numpy.uint32, 4096), (_numpy.uint32, 4096), _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.alid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.flaRemapTabAddr)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpaRemapTabAddr)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.remapTabSize)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkGetRemapTableInfo_v1_t),
-    })
+    cdef nvmlNvlinkGetRemapTableInfo_v1_t *pod = <nvmlNvlinkGetRemapTableInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkGetRemapTableInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkGetRemapTableInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['alid', 'fla_remap_tab_addr', 'gpa_remap_tab_addr', 'remap_tab_size'],
+            'formats': [_numpy.uint32, (_numpy.uint32, 4096), (_numpy.uint32, 4096), _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.alid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.flaRemapTabAddr)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpaRemapTabAddr)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.remapTabSize)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkGetRemapTableInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_get_remap_table_info_v1_dtype = _get_nvlink_get_remap_table_info_v1_dtype_offsets()
 
@@ -21650,15 +22158,20 @@ cdef class NvlinkGetRemapTableInfo_v1:
 
 
 cdef _get_nvlink_set_nvle_ready_v1_dtype_offsets():
-    cdef nvmlNvlinkSetNvleReady_v1_t pod
-    return _numpy.dtype({
-        'names': ['b_nvle_ready'],
-        'formats': [_numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.bNvleReady)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkSetNvleReady_v1_t),
-    })
+    cdef nvmlNvlinkSetNvleReady_v1_t *pod = <nvmlNvlinkSetNvleReady_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSetNvleReady_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkSetNvleReady_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['b_nvle_ready'],
+            'formats': [_numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.bNvleReady)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkSetNvleReady_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_set_nvle_ready_v1_dtype = _get_nvlink_set_nvle_ready_v1_dtype_offsets()
 
@@ -21775,16 +22288,21 @@ cdef class NvlinkSetNvleReady_v1:
 
 
 cdef _get_nvlink_lock_remap_table_v1_dtype_offsets():
-    cdef nvmlNvlinkLockRemapTable_v1_t pod
-    return _numpy.dtype({
-        'names': ['b_remap_table_locked', 'b_remap_table_lock_disabled'],
-        'formats': [_numpy.uint8, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.bRemapTableLocked)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bRemapTableLockDisabled)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkLockRemapTable_v1_t),
-    })
+    cdef nvmlNvlinkLockRemapTable_v1_t *pod = <nvmlNvlinkLockRemapTable_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkLockRemapTable_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkLockRemapTable_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['b_remap_table_locked', 'b_remap_table_lock_disabled'],
+            'formats': [_numpy.uint8, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.bRemapTableLocked)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bRemapTableLockDisabled)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkLockRemapTable_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_lock_remap_table_v1_dtype = _get_nvlink_lock_remap_table_v1_dtype_offsets()
 
@@ -21912,16 +22430,21 @@ cdef class NvlinkLockRemapTable_v1:
 
 
 cdef _get_nvlink_nvle_private_info_v1_dtype_offsets():
-    cdef nvmlNvlinkNvlePrivateInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['data_', 'size_'],
-        'formats': [(_numpy.uint8, 256), _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.data)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkNvlePrivateInfo_v1_t),
-    })
+    cdef nvmlNvlinkNvlePrivateInfo_v1_t *pod = <nvmlNvlinkNvlePrivateInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkNvlePrivateInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkNvlePrivateInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['data_', 'size_'],
+            'formats': [(_numpy.uint8, 256), _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.data)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.size)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkNvlePrivateInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_nvle_private_info_v1_dtype = _get_nvlink_nvle_private_info_v1_dtype_offsets()
 
@@ -22061,16 +22584,21 @@ cdef class NvlinkNvlePrivateInfo_v1:
 
 
 cdef _get_excluded_device_info_dtype_offsets():
-    cdef nvmlExcludedDeviceInfo_t pod
-    return _numpy.dtype({
-        'names': ['pci_info', 'uuid'],
-        'formats': [pci_info_dtype, (_numpy.int8, 80)],
-        'offsets': [
-            (<intptr_t>&(pod.pciInfo)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlExcludedDeviceInfo_t),
-    })
+    cdef nvmlExcludedDeviceInfo_t *pod = <nvmlExcludedDeviceInfo_t *>_cyb_calloc(1, sizeof(nvmlExcludedDeviceInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlExcludedDeviceInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['pci_info', 'uuid'],
+            'formats': [pci_info_dtype, (_numpy.int8, 80)],
+            'offsets': [
+                (<intptr_t>&(pod.pciInfo)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.uuid)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlExcludedDeviceInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 excluded_device_info_dtype = _get_excluded_device_info_dtype_offsets()
 
@@ -22207,18 +22735,23 @@ cdef class ExcludedDeviceInfo:
 
 
 cdef _get_process_detail_list_v1_dtype_offsets():
-    cdef nvmlProcessDetailList_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'mode', 'num_proc_array_entries', 'proc_array'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numProcArrayEntries)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.procArray)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlProcessDetailList_v1_t),
-    })
+    cdef nvmlProcessDetailList_v1_t *pod = <nvmlProcessDetailList_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessDetailList_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlProcessDetailList_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'mode', 'num_proc_array_entries', 'proc_array'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.mode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numProcArrayEntries)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.procArray)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlProcessDetailList_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 process_detail_list_v1_dtype = _get_process_detail_list_v1_dtype_offsets()
 
@@ -22370,16 +22903,21 @@ cdef class ProcessDetailList_v1:
 
 
 cdef _get_bridge_chip_hierarchy_dtype_offsets():
-    cdef nvmlBridgeChipHierarchy_t pod
-    return _numpy.dtype({
-        'names': ['bridge_count', 'bridge_chip_info'],
-        'formats': [_numpy.uint8, (bridge_chip_info_dtype, 128)],
-        'offsets': [
-            (<intptr_t>&(pod.bridgeCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bridgeChipInfo)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlBridgeChipHierarchy_t),
-    })
+    cdef nvmlBridgeChipHierarchy_t *pod = <nvmlBridgeChipHierarchy_t *>_cyb_calloc(1, sizeof(nvmlBridgeChipHierarchy_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlBridgeChipHierarchy_t")
+    try:
+        return _numpy.dtype({
+            'names': ['bridge_count', 'bridge_chip_info'],
+            'formats': [_numpy.uint8, (bridge_chip_info_dtype, 128)],
+            'offsets': [
+                (<intptr_t>&(pod.bridgeCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bridgeChipInfo)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlBridgeChipHierarchy_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 bridge_chip_hierarchy_dtype = _get_bridge_chip_hierarchy_dtype_offsets()
 
@@ -22507,16 +23045,21 @@ cdef class BridgeChipHierarchy:
 
 
 cdef _get_sample_dtype_offsets():
-    cdef nvmlSample_t pod
-    return _numpy.dtype({
-        'names': ['time_stamp', 'sample_value'],
-        'formats': [_numpy.uint64, value_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sampleValue)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlSample_t),
-    })
+    cdef nvmlSample_t *pod = <nvmlSample_t *>_cyb_calloc(1, sizeof(nvmlSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['time_stamp', 'sample_value'],
+            'formats': [_numpy.uint64, value_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.timeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sampleValue)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 sample_dtype = _get_sample_dtype_offsets()
 cdef object sample_dtype_record = _numpy.dtype((_numpy.record, sample_dtype))
@@ -22673,20 +23216,25 @@ cdef class Sample:
 
 
 cdef _get_vgpu_instance_utilization_sample_dtype_offsets():
-    cdef nvmlVgpuInstanceUtilizationSample_t pod
-    return _numpy.dtype({
-        'names': ['vgpu_instance', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
-        'formats': [_numpy.uint32, _numpy.uint64, value_dtype, value_dtype, value_dtype, value_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuInstanceUtilizationSample_t),
-    })
+    cdef nvmlVgpuInstanceUtilizationSample_t *pod = <nvmlVgpuInstanceUtilizationSample_t *>_cyb_calloc(1, sizeof(nvmlVgpuInstanceUtilizationSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuInstanceUtilizationSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['vgpu_instance', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+            'formats': [_numpy.uint32, _numpy.uint64, value_dtype, value_dtype, value_dtype, value_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.smUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.encUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decUtil)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuInstanceUtilizationSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_instance_utilization_sample_dtype = _get_vgpu_instance_utilization_sample_dtype_offsets()
 cdef object vgpu_instance_utilization_sample_dtype_record = _numpy.dtype((_numpy.record, vgpu_instance_utilization_sample_dtype))
@@ -22889,22 +23437,27 @@ cdef class VgpuInstanceUtilizationSample:
 
 
 cdef _get_vgpu_instance_utilization_info_v1_dtype_offsets():
-    cdef nvmlVgpuInstanceUtilizationInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['time_stamp', 'vgpu_instance', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
-        'formats': [_numpy.uint64, _numpy.uint32, value_dtype, value_dtype, value_dtype, value_dtype, value_dtype, value_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t),
-    })
+    cdef nvmlVgpuInstanceUtilizationInfo_v1_t *pod = <nvmlVgpuInstanceUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuInstanceUtilizationInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['time_stamp', 'vgpu_instance', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
+            'formats': [_numpy.uint64, _numpy.uint32, value_dtype, value_dtype, value_dtype, value_dtype, value_dtype, value_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.timeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.smUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.memUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.encUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.decUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_instance_utilization_info_v1_dtype = _get_vgpu_instance_utilization_info_v1_dtype_offsets()
 cdef object vgpu_instance_utilization_info_v1_dtype_record = _numpy.dtype((_numpy.record, vgpu_instance_utilization_info_v1_dtype))
@@ -23129,21 +23682,26 @@ cdef class VgpuInstanceUtilizationInfo_v1:
 
 
 cdef _get_field_value_dtype_offsets():
-    cdef nvmlFieldValue_t pod
-    return _numpy.dtype({
-        'names': ['field_id', 'scope_id', 'timestamp', 'latency_usec', 'value_type', 'nvml_return', 'value'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int64, _numpy.int64, _numpy.int32, _numpy.int32, value_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.fieldId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.scopeId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timestamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.latencyUsec)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.valueType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.nvmlReturn)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlFieldValue_t),
-    })
+    cdef nvmlFieldValue_t *pod = <nvmlFieldValue_t *>_cyb_calloc(1, sizeof(nvmlFieldValue_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlFieldValue_t")
+    try:
+        return _numpy.dtype({
+            'names': ['field_id', 'scope_id', 'timestamp', 'latency_usec', 'value_type', 'nvml_return', 'value'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.int64, _numpy.int64, _numpy.int32, _numpy.int32, value_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.fieldId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.scopeId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timestamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.latencyUsec)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.valueType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.nvmlReturn)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.value)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlFieldValue_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 field_value_dtype = _get_field_value_dtype_offsets()
 cdef object field_value_dtype_record = _numpy.dtype((_numpy.record, field_value_dtype))
@@ -23365,17 +23923,22 @@ cdef class FieldValue:
 
 
 cdef _get_prm_counter_value_v1_dtype_offsets():
-    cdef nvmlPRMCounterValue_v1_t pod
-    return _numpy.dtype({
-        'names': ['status', 'output_type', 'output_value'],
-        'formats': [_numpy.int32, _numpy.int32, value_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.outputType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.outputValue)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPRMCounterValue_v1_t),
-    })
+    cdef nvmlPRMCounterValue_v1_t *pod = <nvmlPRMCounterValue_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounterValue_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPRMCounterValue_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['status', 'output_type', 'output_value'],
+            'formats': [_numpy.int32, _numpy.int32, value_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.status)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.outputType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.outputValue)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPRMCounterValue_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 prm_counter_value_v1_dtype = _get_prm_counter_value_v1_dtype_offsets()
 
@@ -23531,16 +24094,21 @@ cdef class PRMCounterValue_v1:
 
 
 cdef _get_gpu_thermal_settings_dtype_offsets():
-    cdef nvmlGpuThermalSettings_t pod
-    return _numpy.dtype({
-        'names': ['count', 'sensor'],
-        'formats': [_numpy.uint32, (_py_anon_pod0_dtype, 3)],
-        'offsets': [
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sensor)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuThermalSettings_t),
-    })
+    cdef nvmlGpuThermalSettings_t *pod = <nvmlGpuThermalSettings_t *>_cyb_calloc(1, sizeof(nvmlGpuThermalSettings_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuThermalSettings_t")
+    try:
+        return _numpy.dtype({
+            'names': ['count', 'sensor'],
+            'formats': [_numpy.uint32, (_py_anon_pod0_dtype, 3)],
+            'offsets': [
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sensor)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuThermalSettings_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_thermal_settings_dtype = _get_gpu_thermal_settings_dtype_offsets()
 
@@ -23676,17 +24244,22 @@ cdef class GpuThermalSettings:
 
 
 cdef _get_clk_mon_status_dtype_offsets():
-    cdef nvmlClkMonStatus_t pod
-    return _numpy.dtype({
-        'names': ['b_global_status', 'clk_mon_list_size', 'clk_mon_list'],
-        'formats': [_numpy.uint32, _numpy.uint32, (clk_mon_fault_info_dtype, 32)],
-        'offsets': [
-            (<intptr_t>&(pod.bGlobalStatus)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clkMonListSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.clkMonList)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlClkMonStatus_t),
-    })
+    cdef nvmlClkMonStatus_t *pod = <nvmlClkMonStatus_t *>_cyb_calloc(1, sizeof(nvmlClkMonStatus_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlClkMonStatus_t")
+    try:
+        return _numpy.dtype({
+            'names': ['b_global_status', 'clk_mon_list_size', 'clk_mon_list'],
+            'formats': [_numpy.uint32, _numpy.uint32, (clk_mon_fault_info_dtype, 32)],
+            'offsets': [
+                (<intptr_t>&(pod.bGlobalStatus)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clkMonListSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.clkMonList)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlClkMonStatus_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 clk_mon_status_dtype = _get_clk_mon_status_dtype_offsets()
 
@@ -23825,18 +24398,23 @@ cdef class ClkMonStatus:
 
 
 cdef _get_processes_utilization_info_v1_dtype_offsets():
-    cdef nvmlProcessesUtilizationInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'process_samples_count', 'last_seen_time_stamp', 'proc_util_array'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.processSamplesCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.procUtilArray)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlProcessesUtilizationInfo_v1_t),
-    })
+    cdef nvmlProcessesUtilizationInfo_v1_t *pod = <nvmlProcessesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlProcessesUtilizationInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlProcessesUtilizationInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'process_samples_count', 'last_seen_time_stamp', 'proc_util_array'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.processSamplesCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.procUtilArray)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlProcessesUtilizationInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 processes_utilization_info_v1_dtype = _get_processes_utilization_info_v1_dtype_offsets()
 
@@ -23988,16 +24566,21 @@ cdef class ProcessesUtilizationInfo_v1:
 
 
 cdef _get_gpu_dynamic_pstates_info_dtype_offsets():
-    cdef nvmlGpuDynamicPstatesInfo_t pod
-    return _numpy.dtype({
-        'names': ['flags_', 'utilization'],
-        'formats': [_numpy.uint32, (_py_anon_pod1_dtype, 8)],
-        'offsets': [
-            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.utilization)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuDynamicPstatesInfo_t),
-    })
+    cdef nvmlGpuDynamicPstatesInfo_t *pod = <nvmlGpuDynamicPstatesInfo_t *>_cyb_calloc(1, sizeof(nvmlGpuDynamicPstatesInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuDynamicPstatesInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['flags_', 'utilization'],
+            'formats': [_numpy.uint32, (_py_anon_pod1_dtype, 8)],
+            'offsets': [
+                (<intptr_t>&(pod.flags)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.utilization)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuDynamicPstatesInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_dynamic_pstates_info_dtype = _get_gpu_dynamic_pstates_info_dtype_offsets()
 
@@ -24133,18 +24716,23 @@ cdef class GpuDynamicPstatesInfo:
 
 
 cdef _get_vgpu_processes_utilization_info_v1_dtype_offsets():
-    cdef nvmlVgpuProcessesUtilizationInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'vgpu_process_count', 'last_seen_time_stamp', 'vgpu_proc_util_array'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuProcessCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuProcUtilArray)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t),
-    })
+    cdef nvmlVgpuProcessesUtilizationInfo_v1_t *pod = <nvmlVgpuProcessesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuProcessesUtilizationInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'vgpu_process_count', 'last_seen_time_stamp', 'vgpu_proc_util_array'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuProcessCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuProcUtilArray)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_processes_utilization_info_v1_dtype = _get_vgpu_processes_utilization_info_v1_dtype_offsets()
 
@@ -24296,16 +24884,21 @@ cdef class VgpuProcessesUtilizationInfo_v1:
 
 
 cdef _get_vgpu_scheduler_params_dtype_offsets():
-    cdef nvmlVgpuSchedulerParams_t pod
-    return _numpy.dtype({
-        'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
-        'formats': [_py_anon_pod2_dtype, _py_anon_pod3_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerParams_t),
-    })
+    cdef nvmlVgpuSchedulerParams_t *pod = <nvmlVgpuSchedulerParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerParams_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerParams_t")
+    try:
+        return _numpy.dtype({
+            'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
+            'formats': [_py_anon_pod2_dtype, _py_anon_pod3_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerParams_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_params_dtype = _get_vgpu_scheduler_params_dtype_offsets()
 
@@ -24455,16 +25048,21 @@ cdef class VgpuSchedulerParams:
 
 
 cdef _get_vgpu_scheduler_set_params_dtype_offsets():
-    cdef nvmlVgpuSchedulerSetParams_t pod
-    return _numpy.dtype({
-        'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
-        'formats': [_py_anon_pod4_dtype, _py_anon_pod5_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerSetParams_t),
-    })
+    cdef nvmlVgpuSchedulerSetParams_t *pod = <nvmlVgpuSchedulerSetParams_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerSetParams_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerSetParams_t")
+    try:
+        return _numpy.dtype({
+            'names': ['vgpu_sched_data_with_arr', 'vgpu_sched_data'],
+            'formats': [_py_anon_pod4_dtype, _py_anon_pod5_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.vgpuSchedDataWithARR)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuSchedData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerSetParams_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_set_params_dtype = _get_vgpu_scheduler_set_params_dtype_offsets()
 
@@ -24614,17 +25212,22 @@ cdef class VgpuSchedulerSetParams:
 
 
 cdef _get_vgpu_license_info_dtype_offsets():
-    cdef nvmlVgpuLicenseInfo_t pod
-    return _numpy.dtype({
-        'names': ['is_licensed', 'license_expiry', 'current_state'],
-        'formats': [_numpy.uint8, vgpu_license_expiry_dtype, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.isLicensed)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.licenseExpiry)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.currentState)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuLicenseInfo_t),
-    })
+    cdef nvmlVgpuLicenseInfo_t *pod = <nvmlVgpuLicenseInfo_t *>_cyb_calloc(1, sizeof(nvmlVgpuLicenseInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuLicenseInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['is_licensed', 'license_expiry', 'current_state'],
+            'formats': [_numpy.uint8, vgpu_license_expiry_dtype, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.isLicensed)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.licenseExpiry)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.currentState)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuLicenseInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_license_info_dtype = _get_vgpu_license_info_dtype_offsets()
 
@@ -24768,20 +25371,25 @@ cdef class VgpuLicenseInfo:
 
 
 cdef _get_grid_licensable_feature_dtype_offsets():
-    cdef nvmlGridLicensableFeature_t pod
-    return _numpy.dtype({
-        'names': ['feature_code', 'feature_state', 'license_info', 'product_name', 'feature_enabled', 'license_expiry'],
-        'formats': [_numpy.int32, _numpy.uint32, (_numpy.int8, 128), (_numpy.int8, 128), _numpy.uint32, grid_license_expiry_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.featureCode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.featureState)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.licenseInfo)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.productName)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.featureEnabled)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.licenseExpiry)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGridLicensableFeature_t),
-    })
+    cdef nvmlGridLicensableFeature_t *pod = <nvmlGridLicensableFeature_t *>_cyb_calloc(1, sizeof(nvmlGridLicensableFeature_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGridLicensableFeature_t")
+    try:
+        return _numpy.dtype({
+            'names': ['feature_code', 'feature_state', 'license_info', 'product_name', 'feature_enabled', 'license_expiry'],
+            'formats': [_numpy.int32, _numpy.uint32, (_numpy.int8, 128), (_numpy.int8, 128), _numpy.uint32, grid_license_expiry_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.featureCode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.featureState)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.licenseInfo)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.productName)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.featureEnabled)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.licenseExpiry)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGridLicensableFeature_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 grid_licensable_feature_dtype = _get_grid_licensable_feature_dtype_offsets()
 cdef object grid_licensable_feature_dtype_record = _numpy.dtype((_numpy.record, grid_licensable_feature_dtype))
@@ -24986,16 +25594,21 @@ cdef class GridLicensableFeature:
 
 
 cdef _get_unit_fan_speeds_dtype_offsets():
-    cdef nvmlUnitFanSpeeds_t pod
-    return _numpy.dtype({
-        'names': ['fans', 'count'],
-        'formats': [(unit_fan_info_dtype, 24), _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.fans)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlUnitFanSpeeds_t),
-    })
+    cdef nvmlUnitFanSpeeds_t *pod = <nvmlUnitFanSpeeds_t *>_cyb_calloc(1, sizeof(nvmlUnitFanSpeeds_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlUnitFanSpeeds_t")
+    try:
+        return _numpy.dtype({
+            'names': ['fans', 'count'],
+            'formats': [(unit_fan_info_dtype, 24), _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.fans)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.count)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlUnitFanSpeeds_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 unit_fan_speeds_dtype = _get_unit_fan_speeds_dtype_offsets()
 
@@ -25131,22 +25744,27 @@ cdef class UnitFanSpeeds:
 
 
 cdef _get_vgpu_pgpu_metadata_dtype_offsets():
-    cdef nvmlVgpuPgpuMetadata_t pod
-    return _numpy.dtype({
-        'names': ['version', 'revision', 'host_driver_version', 'pgpu_virtualization_caps', 'reserved', 'host_supported_vgpu_range', 'opaque_data_size', 'opaque_data'],
-        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 80), _numpy.uint32, (_numpy.uint32, 5), vgpu_version_dtype, _numpy.uint32, (_numpy.int8, 4)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.revision)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hostDriverVersion)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pgpuVirtualizationCaps)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.hostSupportedVgpuRange)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.opaqueDataSize)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.opaqueData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuPgpuMetadata_t),
-    })
+    cdef nvmlVgpuPgpuMetadata_t *pod = <nvmlVgpuPgpuMetadata_t *>_cyb_calloc(1, sizeof(nvmlVgpuPgpuMetadata_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuPgpuMetadata_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'revision', 'host_driver_version', 'pgpu_virtualization_caps', 'reserved', 'host_supported_vgpu_range', 'opaque_data_size', 'opaque_data'],
+            'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 80), _numpy.uint32, (_numpy.uint32, 5), vgpu_version_dtype, _numpy.uint32, (_numpy.int8, 4)],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.revision)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hostDriverVersion)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pgpuVirtualizationCaps)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.reserved)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.hostSupportedVgpuRange)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.opaqueDataSize)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.opaqueData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuPgpuMetadata_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_pgpu_metadata_dtype = _get_vgpu_pgpu_metadata_dtype_offsets()
 
@@ -25342,18 +25960,23 @@ cdef class VgpuPgpuMetadata:
 
 
 cdef _get_gpu_instance_info_dtype_offsets():
-    cdef nvmlGpuInstanceInfo_t pod
-    return _numpy.dtype({
-        'names': ['device_', 'id', 'profile_id', 'placement'],
-        'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, gpu_instance_placement_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.profileId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.placement)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuInstanceInfo_t),
-    })
+    cdef nvmlGpuInstanceInfo_t *pod = <nvmlGpuInstanceInfo_t *>_cyb_calloc(1, sizeof(nvmlGpuInstanceInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuInstanceInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['device_', 'id', 'profile_id', 'placement'],
+            'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, gpu_instance_placement_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.device)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.profileId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.placement)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuInstanceInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_instance_info_dtype = _get_gpu_instance_info_dtype_offsets()
 
@@ -25509,19 +26132,24 @@ cdef class GpuInstanceInfo:
 
 
 cdef _get_compute_instance_info_dtype_offsets():
-    cdef nvmlComputeInstanceInfo_t pod
-    return _numpy.dtype({
-        'names': ['device_', 'gpu_instance', 'id', 'profile_id', 'placement'],
-        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, compute_instance_placement_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gpuInstance)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.profileId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.placement)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlComputeInstanceInfo_t),
-    })
+    cdef nvmlComputeInstanceInfo_t *pod = <nvmlComputeInstanceInfo_t *>_cyb_calloc(1, sizeof(nvmlComputeInstanceInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlComputeInstanceInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['device_', 'gpu_instance', 'id', 'profile_id', 'placement'],
+            'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, compute_instance_placement_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.device)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gpuInstance)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.id)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.profileId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.placement)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlComputeInstanceInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 compute_instance_info_dtype = _get_compute_instance_info_dtype_offsets()
 
@@ -25688,17 +26316,22 @@ cdef class ComputeInstanceInfo:
 
 
 cdef _get_ecc_sram_unique_uncorrected_error_counts_v1_dtype_offsets():
-    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'entry_count', 'entries'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.entryCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.entries)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t),
-    })
+    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *pod = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>_cyb_calloc(1, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEccSramUniqueUncorrectedErrorCounts_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'entry_count', 'entries'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.entryCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.entries)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 ecc_sram_unique_uncorrected_error_counts_v1_dtype = _get_ecc_sram_unique_uncorrected_error_counts_v1_dtype_offsets()
 
@@ -25839,16 +26472,21 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
 
 
 cdef _get_nvlink_firmware_info_dtype_offsets():
-    cdef nvmlNvlinkFirmwareInfo_t pod
-    return _numpy.dtype({
-        'names': ['firmware_version', 'num_valid_entries'],
-        'formats': [(nvlink_firmware_version_dtype, 100), _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numValidEntries)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkFirmwareInfo_t),
-    })
+    cdef nvmlNvlinkFirmwareInfo_t *pod = <nvmlNvlinkFirmwareInfo_t *>_cyb_calloc(1, sizeof(nvmlNvlinkFirmwareInfo_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkFirmwareInfo_t")
+    try:
+        return _numpy.dtype({
+            'names': ['firmware_version', 'num_valid_entries'],
+            'formats': [(nvlink_firmware_version_dtype, 100), _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numValidEntries)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkFirmwareInfo_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_firmware_info_dtype = _get_nvlink_firmware_info_dtype_offsets()
 
@@ -25988,20 +26626,25 @@ cdef class NvlinkFirmwareInfo:
 
 
 cdef _get_vgpu_scheduler_log_info_v2_dtype_offsets():
-    cdef nvmlVgpuSchedulerLogInfo_v2_t pod
-    return _numpy.dtype({
-        'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice', 'entries_count', 'log_entries'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (vgpu_scheduler_log_entry_v2_dtype, 200)],
-        'offsets': [
-            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.entriesCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.logEntries)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerLogInfo_v2_t),
-    })
+    cdef nvmlVgpuSchedulerLogInfo_v2_t *pod = <nvmlVgpuSchedulerLogInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerLogInfo_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['engine_id', 'scheduler_policy', 'avg_factor', 'timeslice', 'entries_count', 'log_entries'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (vgpu_scheduler_log_entry_v2_dtype, 200)],
+            'offsets': [
+                (<intptr_t>&(pod.engineId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.avgFactor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.timeslice)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.entriesCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.logEntries)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerLogInfo_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_log_info_v2_dtype = _get_vgpu_scheduler_log_info_v2_dtype_offsets()
 
@@ -26181,17 +26824,22 @@ cdef class VgpuSchedulerLogInfo_v2:
 
 
 cdef _get_get_cper_v1_dtype_offsets():
-    cdef nvmlGetCPER_v1_t pod
-    return _numpy.dtype({
-        'names': ['cursor', 'buffer', 'buffer_size'],
-        'formats': [cper_cursor_v1_dtype, _numpy.intp, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.cursor)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.buffer)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bufferSize)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGetCPER_v1_t),
-    })
+    cdef nvmlGetCPER_v1_t *pod = <nvmlGetCPER_v1_t *>_cyb_calloc(1, sizeof(nvmlGetCPER_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGetCPER_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['cursor', 'buffer', 'buffer_size'],
+            'formats': [cper_cursor_v1_dtype, _numpy.intp, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.cursor)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.buffer)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bufferSize)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGetCPER_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 get_cper_v1_dtype = _get_get_cper_v1_dtype_offsets()
 
@@ -26335,15 +26983,20 @@ cdef class GetCPER_v1:
 
 
 cdef _get_core_rail_metrics_dtype_offsets():
-    cdef nvmlCoreRailMetrics_t pod
-    return _numpy.dtype({
-        'names': ['rails'],
-        'formats': [(rail_metrics_dtype, 2)],
-        'offsets': [
-            (<intptr_t>&(pod.rails)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlCoreRailMetrics_t),
-    })
+    cdef nvmlCoreRailMetrics_t *pod = <nvmlCoreRailMetrics_t *>_cyb_calloc(1, sizeof(nvmlCoreRailMetrics_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlCoreRailMetrics_t")
+    try:
+        return _numpy.dtype({
+            'names': ['rails'],
+            'formats': [(rail_metrics_dtype, 2)],
+            'offsets': [
+                (<intptr_t>&(pod.rails)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlCoreRailMetrics_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 core_rail_metrics_dtype = _get_core_rail_metrics_dtype_offsets()
 cdef object core_rail_metrics_dtype_record = _numpy.dtype((_numpy.record, core_rail_metrics_dtype))
@@ -26487,20 +27140,25 @@ cdef class CoreRailMetrics:
 
 
 cdef _get_pwr_model_metrics_pfpp1x_dtype_offsets():
-    cdef nvmlPwrModelMetricsPfpp1x_t pod
-    return _numpy.dtype({
-        'names': ['num_vf_points', 'estimated_metrics', 'b_valid', 'max_perf_per_watt_point', 'fmax_at_vmax_point', 'tgp_headroomm_w'],
-        'formats': [_numpy.uint8, (pwr_model_metrics_sample_pfpp1x_dtype, 32), _numpy.uint8, pwr_model_operating_point_pfpp1x_dtype, pwr_model_operating_point_pfpp1x_dtype, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.numVfPoints)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bValid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.maxPerfPerWattPoint)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fmaxAtVmaxPoint)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.tgpHeadroommW)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPwrModelMetricsPfpp1x_t),
-    })
+    cdef nvmlPwrModelMetricsPfpp1x_t *pod = <nvmlPwrModelMetricsPfpp1x_t *>_cyb_calloc(1, sizeof(nvmlPwrModelMetricsPfpp1x_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPwrModelMetricsPfpp1x_t")
+    try:
+        return _numpy.dtype({
+            'names': ['num_vf_points', 'estimated_metrics', 'b_valid', 'max_perf_per_watt_point', 'fmax_at_vmax_point', 'tgp_headroomm_w'],
+            'formats': [_numpy.uint8, (pwr_model_metrics_sample_pfpp1x_dtype, 32), _numpy.uint8, pwr_model_operating_point_pfpp1x_dtype, pwr_model_operating_point_pfpp1x_dtype, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.numVfPoints)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bValid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.maxPerfPerWattPoint)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fmaxAtVmaxPoint)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.tgpHeadroommW)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPwrModelMetricsPfpp1x_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pwr_model_metrics_pfpp1x_dtype = _get_pwr_model_metrics_pfpp1x_dtype_offsets()
 cdef object pwr_model_metrics_pfpp1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_pfpp1x_dtype))
@@ -26702,21 +27360,26 @@ cdef class PwrModelMetricsPfpp1x:
 
 
 cdef _get_gpu_fabric_info_v4_dtype_offsets():
-    cdef nvmlGpuFabricInfo_v4_t pod
-    return _numpy.dtype({
-        'names': ['cluster_uuid', 'status', 'cliques', 'num_cliques', 'state', 'health_mask', 'health_summary'],
-        'formats': [(_numpy.uint8, 16), _numpy.int32, (gpu_fabric_clique_v1_dtype, 64), _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.cliques)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numCliques)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.healthMask)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.healthSummary)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGpuFabricInfo_v4_t),
-    })
+    cdef nvmlGpuFabricInfo_v4_t *pod = <nvmlGpuFabricInfo_v4_t *>_cyb_calloc(1, sizeof(nvmlGpuFabricInfo_v4_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGpuFabricInfo_v4_t")
+    try:
+        return _numpy.dtype({
+            'names': ['cluster_uuid', 'status', 'cliques', 'num_cliques', 'state', 'health_mask', 'health_summary'],
+            'formats': [(_numpy.uint8, 16), _numpy.int32, (gpu_fabric_clique_v1_dtype, 64), _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.status)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.cliques)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numCliques)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.state)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.healthMask)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.healthSummary)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGpuFabricInfo_v4_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 gpu_fabric_info_v4_dtype = _get_gpu_fabric_info_v4_dtype_offsets()
 
@@ -26912,16 +27575,21 @@ cdef class GpuFabricInfo_v4:
 
 
 cdef _get_nvlink_telemetry_samples_v1_dtype_offsets():
-    cdef nvmlNvlinkTelemetrySamples_v1_t pod
-    return _numpy.dtype({
-        'names': ['telemetry_count', 'telemetry_samples'],
-        'formats': [_numpy.uint32, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.telemetryCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.telemetrySamples)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkTelemetrySamples_v1_t),
-    })
+    cdef nvmlNvlinkTelemetrySamples_v1_t *pod = <nvmlNvlinkTelemetrySamples_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkTelemetrySamples_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkTelemetrySamples_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['telemetry_count', 'telemetry_samples'],
+            'formats': [_numpy.uint32, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.telemetryCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.telemetrySamples)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkTelemetrySamples_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_telemetry_samples_v1_dtype = _get_nvlink_telemetry_samples_v1_dtype_offsets()
 
@@ -27051,18 +27719,23 @@ cdef class NvlinkTelemetrySamples_v1:
 
 
 cdef _get_ecc_bank_remapper_status_v1_dtype_offsets():
-    cdef nvmlEccBankRemapperStatus_v1_t pod
-    return _numpy.dtype({
-        'names': ['active_remappings', 'inactive_remappings', 'b_pending', 'histogram'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, ecc_bank_remapper_histogram_v1_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.activeRemappings)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.inactiveRemappings)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bPending)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.histogram)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlEccBankRemapperStatus_v1_t),
-    })
+    cdef nvmlEccBankRemapperStatus_v1_t *pod = <nvmlEccBankRemapperStatus_v1_t *>_cyb_calloc(1, sizeof(nvmlEccBankRemapperStatus_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlEccBankRemapperStatus_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['active_remappings', 'inactive_remappings', 'b_pending', 'histogram'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, ecc_bank_remapper_histogram_v1_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.activeRemappings)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.inactiveRemappings)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bPending)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.histogram)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlEccBankRemapperStatus_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 ecc_bank_remapper_status_v1_dtype = _get_ecc_bank_remapper_status_v1_dtype_offsets()
 
@@ -27217,19 +27890,24 @@ cdef class EccBankRemapperStatus_v1:
 
 
 cdef _get_nvlink_setup_nvle_encryption_key_v1_dtype_offsets():
-    cdef nvmlNvlinkSetupNvleEncryptionKey_v1_t pod
-    return _numpy.dtype({
-        'names': ['nvle_key', 'local_gpu_alid', 'remote_gpu_alid', 'local_gpu_nvle_private_info', 'remote_gpu_nvle_private_info'],
-        'formats': [(_numpy.uint8, 32), _numpy.uint32, _numpy.uint32, nvlink_nvle_private_info_v1_dtype, nvlink_nvle_private_info_v1_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.nvleKey)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.localGpuAlid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.remoteGpuAlid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.localGpuNvlePrivateInfo)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.remoteGpuNvlePrivateInfo)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t),
-    })
+    cdef nvmlNvlinkSetupNvleEncryptionKey_v1_t *pod = <nvmlNvlinkSetupNvleEncryptionKey_v1_t *>_cyb_calloc(1, sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvlinkSetupNvleEncryptionKey_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['nvle_key', 'local_gpu_alid', 'remote_gpu_alid', 'local_gpu_nvle_private_info', 'remote_gpu_nvle_private_info'],
+            'formats': [(_numpy.uint8, 32), _numpy.uint32, _numpy.uint32, nvlink_nvle_private_info_v1_dtype, nvlink_nvle_private_info_v1_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.nvleKey)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.localGpuAlid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.remoteGpuAlid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.localGpuNvlePrivateInfo)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.remoteGpuNvlePrivateInfo)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvlinkSetupNvleEncryptionKey_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nvlink_setup_nvle_encryption_key_v1_dtype = _get_nvlink_setup_nvle_encryption_key_v1_dtype_offsets()
 
@@ -27406,19 +28084,24 @@ cdef class NvlinkSetupNvleEncryptionKey_v1:
 
 
 cdef _get_vgpu_instances_utilization_info_v1_dtype_offsets():
-    cdef nvmlVgpuInstancesUtilizationInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'sample_val_type', 'vgpu_instance_count', 'last_seen_time_stamp', 'vgpu_util_array'],
-        'formats': [_numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint64, _numpy.intp],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.sampleValType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuInstanceCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.vgpuUtilArray)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t),
-    })
+    cdef nvmlVgpuInstancesUtilizationInfo_v1_t *pod = <nvmlVgpuInstancesUtilizationInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuInstancesUtilizationInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'sample_val_type', 'vgpu_instance_count', 'last_seen_time_stamp', 'vgpu_util_array'],
+            'formats': [_numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint64, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.sampleValType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuInstanceCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.vgpuUtilArray)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_instances_utilization_info_v1_dtype = _get_vgpu_instances_utilization_info_v1_dtype_offsets()
 
@@ -27581,17 +28264,22 @@ cdef class VgpuInstancesUtilizationInfo_v1:
 
 
 cdef _get_prm_counter_v1_dtype_offsets():
-    cdef nvmlPRMCounter_v1_t pod
-    return _numpy.dtype({
-        'names': ['counter_id', 'in_data', 'counter_value'],
-        'formats': [_numpy.uint32, prm_counter_input_v1_dtype, prm_counter_value_v1_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.counterId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.inData)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.counterValue)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPRMCounter_v1_t),
-    })
+    cdef nvmlPRMCounter_v1_t *pod = <nvmlPRMCounter_v1_t *>_cyb_calloc(1, sizeof(nvmlPRMCounter_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPRMCounter_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['counter_id', 'in_data', 'counter_value'],
+            'formats': [_numpy.uint32, prm_counter_input_v1_dtype, prm_counter_value_v1_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.counterId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.inData)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.counterValue)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPRMCounter_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 prm_counter_v1_dtype = _get_prm_counter_v1_dtype_offsets()
 cdef object prm_counter_v1_dtype_record = _numpy.dtype((_numpy.record, prm_counter_v1_dtype))
@@ -27759,20 +28447,25 @@ cdef class PRMCounter_v1:
 
 
 cdef _get_vgpu_scheduler_log_dtype_offsets():
-    cdef nvmlVgpuSchedulerLog_t pod
-    return _numpy.dtype({
-        'names': ['engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, (vgpu_scheduler_log_entry_dtype, 200)],
-        'offsets': [
-            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.entriesCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.logEntries)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerLog_t),
-    })
+    cdef nvmlVgpuSchedulerLog_t *pod = <nvmlVgpuSchedulerLog_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLog_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerLog_t")
+    try:
+        return _numpy.dtype({
+            'names': ['engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, (vgpu_scheduler_log_entry_dtype, 200)],
+            'offsets': [
+                (<intptr_t>&(pod.engineId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.arrMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.entriesCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.logEntries)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerLog_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_log_dtype = _get_vgpu_scheduler_log_dtype_offsets()
 
@@ -27957,17 +28650,22 @@ cdef class VgpuSchedulerLog:
 
 
 cdef _get_vgpu_scheduler_get_state_dtype_offsets():
-    cdef nvmlVgpuSchedulerGetState_t pod
-    return _numpy.dtype({
-        'names': ['scheduler_policy', 'arr_mode', 'scheduler_params'],
-        'formats': [_numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerGetState_t),
-    })
+    cdef nvmlVgpuSchedulerGetState_t *pod = <nvmlVgpuSchedulerGetState_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerGetState_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerGetState_t")
+    try:
+        return _numpy.dtype({
+            'names': ['scheduler_policy', 'arr_mode', 'scheduler_params'],
+            'formats': [_numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.arrMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerGetState_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_get_state_dtype = _get_vgpu_scheduler_get_state_dtype_offsets()
 
@@ -28111,19 +28809,24 @@ cdef class VgpuSchedulerGetState:
 
 
 cdef _get_vgpu_scheduler_state_info_v1_dtype_offsets():
-    cdef nvmlVgpuSchedulerStateInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerStateInfo_v1_t),
-    })
+    cdef nvmlVgpuSchedulerStateInfo_v1_t *pod = <nvmlVgpuSchedulerStateInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerStateInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerStateInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.engineId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.arrMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerStateInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_state_info_v1_dtype = _get_vgpu_scheduler_state_info_v1_dtype_offsets()
 
@@ -28289,21 +28992,26 @@ cdef class VgpuSchedulerStateInfo_v1:
 
 
 cdef _get_vgpu_scheduler_log_info_v1_dtype_offsets():
-    cdef nvmlVgpuSchedulerLogInfo_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, (vgpu_scheduler_log_entry_dtype, 200)],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.entriesCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.logEntries)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerLogInfo_v1_t),
-    })
+    cdef nvmlVgpuSchedulerLogInfo_v1_t *pod = <nvmlVgpuSchedulerLogInfo_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerLogInfo_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerLogInfo_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, (vgpu_scheduler_log_entry_dtype, 200)],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.engineId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.arrMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.entriesCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.logEntries)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerLogInfo_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_log_info_v1_dtype = _get_vgpu_scheduler_log_info_v1_dtype_offsets()
 
@@ -28499,19 +29207,24 @@ cdef class VgpuSchedulerLogInfo_v1:
 
 
 cdef _get_vgpu_scheduler_state_v1_dtype_offsets():
-    cdef nvmlVgpuSchedulerState_v1_t pod
-    return _numpy.dtype({
-        'names': ['version', 'engine_id', 'scheduler_policy', 'enable_arr_mode', 'scheduler_params'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_set_params_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.enableARRMode)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlVgpuSchedulerState_v1_t),
-    })
+    cdef nvmlVgpuSchedulerState_v1_t *pod = <nvmlVgpuSchedulerState_v1_t *>_cyb_calloc(1, sizeof(nvmlVgpuSchedulerState_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlVgpuSchedulerState_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'engine_id', 'scheduler_policy', 'enable_arr_mode', 'scheduler_params'],
+            'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_set_params_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.engineId)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.enableARRMode)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlVgpuSchedulerState_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 vgpu_scheduler_state_v1_dtype = _get_vgpu_scheduler_state_v1_dtype_offsets()
 
@@ -28677,17 +29390,22 @@ cdef class VgpuSchedulerState_v1:
 
 
 cdef _get_grid_licensable_features_dtype_offsets():
-    cdef nvmlGridLicensableFeatures_t pod
-    return _numpy.dtype({
-        'names': ['is_grid_license_supported', 'licensable_features_count', 'grid_licensable_features'],
-        'formats': [_numpy.int32, _numpy.uint32, (grid_licensable_feature_dtype, 3)],
-        'offsets': [
-            (<intptr_t>&(pod.isGridLicenseSupported)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.licensableFeaturesCount)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.gridLicensableFeatures)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlGridLicensableFeatures_t),
-    })
+    cdef nvmlGridLicensableFeatures_t *pod = <nvmlGridLicensableFeatures_t *>_cyb_calloc(1, sizeof(nvmlGridLicensableFeatures_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlGridLicensableFeatures_t")
+    try:
+        return _numpy.dtype({
+            'names': ['is_grid_license_supported', 'licensable_features_count', 'grid_licensable_features'],
+            'formats': [_numpy.int32, _numpy.uint32, (grid_licensable_feature_dtype, 3)],
+            'offsets': [
+                (<intptr_t>&(pod.isGridLicenseSupported)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.licensableFeaturesCount)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.gridLicensableFeatures)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlGridLicensableFeatures_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 grid_licensable_features_dtype = _get_grid_licensable_features_dtype_offsets()
 
@@ -28826,17 +29544,22 @@ cdef class GridLicensableFeatures:
 
 
 cdef _get_nv_link_info_v2_dtype_offsets():
-    cdef nvmlNvLinkInfo_v2_t pod
-    return _numpy.dtype({
-        'names': ['version', 'is_nvle_enabled', 'firmware_info'],
-        'formats': [_numpy.uint32, _numpy.uint32, nvlink_firmware_info_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvLinkInfo_v2_t),
-    })
+    cdef nvmlNvLinkInfo_v2_t *pod = <nvmlNvLinkInfo_v2_t *>_cyb_calloc(1, sizeof(nvmlNvLinkInfo_v2_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvLinkInfo_v2_t")
+    try:
+        return _numpy.dtype({
+            'names': ['version', 'is_nvle_enabled', 'firmware_info'],
+            'formats': [_numpy.uint32, _numpy.uint32, nvlink_firmware_info_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.version)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvLinkInfo_v2_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nv_link_info_v2_dtype = _get_nv_link_info_v2_dtype_offsets()
 
@@ -28980,17 +29703,22 @@ cdef class NvLinkInfo_v2:
 
 
 cdef _get_nv_link_info_v3_dtype_offsets():
-    cdef nvmlNvLinkInfo_v3_t pod
-    return _numpy.dtype({
-        'names': ['is_nvle_enabled', 'firmware_info', 'is_nvle_ready'],
-        'formats': [_numpy.uint32, nvlink_firmware_info_dtype, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.isNvleReady)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlNvLinkInfo_v3_t),
-    })
+    cdef nvmlNvLinkInfo_v3_t *pod = <nvmlNvLinkInfo_v3_t *>_cyb_calloc(1, sizeof(nvmlNvLinkInfo_v3_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlNvLinkInfo_v3_t")
+    try:
+        return _numpy.dtype({
+            'names': ['is_nvle_enabled', 'firmware_info', 'is_nvle_ready'],
+            'formats': [_numpy.uint32, nvlink_firmware_info_dtype, _numpy.uint32],
+            'offsets': [
+                (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.isNvleReady)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlNvLinkInfo_v3_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 nv_link_info_v3_dtype = _get_nv_link_info_v3_dtype_offsets()
 
@@ -29134,19 +29862,24 @@ cdef class NvLinkInfo_v3:
 
 
 cdef _get_pwr_model_metrics_dlppm1x_dtype_offsets():
-    cdef nvmlPwrModelMetricsDlppm1x_t pod
-    return _numpy.dtype({
-        'names': ['b_valid', 'core_rail', 'fb_rail', 'tgp_pwr_tuple', 'perf_metrics'],
-        'formats': [_numpy.uint8, core_rail_metrics_dtype, rail_metrics_dtype, pmgr_pwr_tuple_dtype, pwr_model_metrics_dlppm1x_perf_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.bValid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.coreRail)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fbRail)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.tgpPwrTuple)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.perfMetrics)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPwrModelMetricsDlppm1x_t),
-    })
+    cdef nvmlPwrModelMetricsDlppm1x_t *pod = <nvmlPwrModelMetricsDlppm1x_t *>_cyb_calloc(1, sizeof(nvmlPwrModelMetricsDlppm1x_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPwrModelMetricsDlppm1x_t")
+    try:
+        return _numpy.dtype({
+            'names': ['b_valid', 'core_rail', 'fb_rail', 'tgp_pwr_tuple', 'perf_metrics'],
+            'formats': [_numpy.uint8, core_rail_metrics_dtype, rail_metrics_dtype, pmgr_pwr_tuple_dtype, pwr_model_metrics_dlppm1x_perf_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.bValid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.coreRail)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fbRail)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.tgpPwrTuple)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.perfMetrics)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPwrModelMetricsDlppm1x_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pwr_model_metrics_dlppm1x_dtype = _get_pwr_model_metrics_dlppm1x_dtype_offsets()
 cdef object pwr_model_metrics_dlppm1x_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_dlppm1x_dtype))
@@ -29336,15 +30069,20 @@ cdef class PwrModelMetricsDlppm1x:
 
 
 cdef _get_perf_metrics_pfpp1x_sample_dtype_offsets():
-    cdef nvmlPerfMetricsPfpp1xSample_t pod
-    return _numpy.dtype({
-        'names': ['estimated_metrics'],
-        'formats': [pwr_model_metrics_pfpp1x_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPerfMetricsPfpp1xSample_t),
-    })
+    cdef nvmlPerfMetricsPfpp1xSample_t *pod = <nvmlPerfMetricsPfpp1xSample_t *>_cyb_calloc(1, sizeof(nvmlPerfMetricsPfpp1xSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPerfMetricsPfpp1xSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['estimated_metrics'],
+            'formats': [pwr_model_metrics_pfpp1x_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPerfMetricsPfpp1xSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 perf_metrics_pfpp1x_sample_dtype = _get_perf_metrics_pfpp1x_sample_dtype_offsets()
 cdef object perf_metrics_pfpp1x_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metrics_pfpp1x_sample_dtype))
@@ -29488,16 +30226,21 @@ cdef class PerfMetricsPfpp1xSample:
 
 
 cdef _get_pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_offsets():
-    cdef nvmlPwrModelMetricsDlppm1xDramclkEstimates_t pod
-    return _numpy.dtype({
-        'names': ['estimated_metrics', 'num_estimated_metrics'],
-        'formats': [(pwr_model_metrics_dlppm1x_dtype, 8), _numpy.uint8],
-        'offsets': [
-            (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.numEstimatedMetrics)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t),
-    })
+    cdef nvmlPwrModelMetricsDlppm1xDramclkEstimates_t *pod = <nvmlPwrModelMetricsDlppm1xDramclkEstimates_t *>_cyb_calloc(1, sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPwrModelMetricsDlppm1xDramclkEstimates_t")
+    try:
+        return _numpy.dtype({
+            'names': ['estimated_metrics', 'num_estimated_metrics'],
+            'formats': [(pwr_model_metrics_dlppm1x_dtype, 8), _numpy.uint8],
+            'offsets': [
+                (<intptr_t>&(pod.estimatedMetrics)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.numEstimatedMetrics)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPwrModelMetricsDlppm1xDramclkEstimates_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 pwr_model_metrics_dlppm1x_dramclk_estimates_dtype = _get_pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_offsets()
 cdef object pwr_model_metrics_dlppm1x_dramclk_estimates_dtype_record = _numpy.dtype((_numpy.record, pwr_model_metrics_dlppm1x_dramclk_estimates_dtype))
@@ -29651,20 +30394,25 @@ cdef class PwrModelMetricsDlppm1xDramclkEstimates:
 
 
 cdef _get_observed_metrics_dtype_offsets():
-    cdef nvmlObservedMetrics_t pod
-    return _numpy.dtype({
-        'names': ['initial_dramclk_est', 'b_valid', 'core_rail', 'fb_rail', 'tgp_pwr_tuple', 'perf_metrics'],
-        'formats': [(pwr_model_metrics_dlppm1x_dramclk_estimates_dtype, 3), _numpy.uint8, core_rail_metrics_dtype, rail_metrics_dtype, pmgr_pwr_tuple_dtype, pwr_model_metrics_dlppm1x_perf_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.initialDramclkEst)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.bValid)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.coreRail)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fbRail)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.tgpPwrTuple)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.perfMetrics)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlObservedMetrics_t),
-    })
+    cdef nvmlObservedMetrics_t *pod = <nvmlObservedMetrics_t *>_cyb_calloc(1, sizeof(nvmlObservedMetrics_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlObservedMetrics_t")
+    try:
+        return _numpy.dtype({
+            'names': ['initial_dramclk_est', 'b_valid', 'core_rail', 'fb_rail', 'tgp_pwr_tuple', 'perf_metrics'],
+            'formats': [(pwr_model_metrics_dlppm1x_dramclk_estimates_dtype, 3), _numpy.uint8, core_rail_metrics_dtype, rail_metrics_dtype, pmgr_pwr_tuple_dtype, pwr_model_metrics_dlppm1x_perf_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.initialDramclkEst)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.bValid)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.coreRail)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fbRail)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.tgpPwrTuple)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.perfMetrics)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlObservedMetrics_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 observed_metrics_dtype = _get_observed_metrics_dtype_offsets()
 cdef object observed_metrics_dtype_record = _numpy.dtype((_numpy.record, observed_metrics_dtype))
@@ -29865,15 +30613,20 @@ cdef class ObservedMetrics:
 
 
 cdef _get_perf_metrics_dlppc2x_sample_dtype_offsets():
-    cdef nvmlPerfMetricsDlppc2xSample_t pod
-    return _numpy.dtype({
-        'names': ['observed_metrics'],
-        'formats': [observed_metrics_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.observedMetrics)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPerfMetricsDlppc2xSample_t),
-    })
+    cdef nvmlPerfMetricsDlppc2xSample_t *pod = <nvmlPerfMetricsDlppc2xSample_t *>_cyb_calloc(1, sizeof(nvmlPerfMetricsDlppc2xSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPerfMetricsDlppc2xSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['observed_metrics'],
+            'formats': [observed_metrics_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.observedMetrics)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPerfMetricsDlppc2xSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 perf_metrics_dlppc2x_sample_dtype = _get_perf_metrics_dlppc2x_sample_dtype_offsets()
 cdef object perf_metrics_dlppc2x_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metrics_dlppc2x_sample_dtype))
@@ -30017,16 +30770,21 @@ cdef class PerfMetricsDlppc2xSample:
 
 
 cdef _get__py_anon_pod8_dtype_offsets():
-    cdef cuda_bindings_nvml__anon_pod8 pod
-    return _numpy.dtype({
-        'names': ['dlppc2x', 'pfpp1x'],
-        'formats': [perf_metrics_dlppc2x_sample_dtype, perf_metrics_pfpp1x_sample_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.dlppc2x)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.pfpp1x)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(cuda_bindings_nvml__anon_pod8),
-    })
+    cdef cuda_bindings_nvml__anon_pod8 *pod = <cuda_bindings_nvml__anon_pod8 *>_cyb_calloc(1, sizeof(cuda_bindings_nvml__anon_pod8))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_nvml__anon_pod8")
+    try:
+        return _numpy.dtype({
+            'names': ['dlppc2x', 'pfpp1x'],
+            'formats': [perf_metrics_dlppc2x_sample_dtype, perf_metrics_pfpp1x_sample_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.dlppc2x)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.pfpp1x)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_nvml__anon_pod8),
+        })
+    finally:
+        _cyb_free(pod)
 
 _py_anon_pod8_dtype = _get__py_anon_pod8_dtype_offsets()
 
@@ -30178,16 +30936,21 @@ cdef class _py_anon_pod8:
 
 
 cdef _get_perf_metric_controller_sample_dtype_offsets():
-    cdef nvmlPerfMetricControllerSample_t pod
-    return _numpy.dtype({
-        'names': ['controller_type', 'data_'],
-        'formats': [_numpy.uint32, _py_anon_pod8_dtype],
-        'offsets': [
-            (<intptr_t>&(pod.controllerType)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.data)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPerfMetricControllerSample_t),
-    })
+    cdef nvmlPerfMetricControllerSample_t *pod = <nvmlPerfMetricControllerSample_t *>_cyb_calloc(1, sizeof(nvmlPerfMetricControllerSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPerfMetricControllerSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['controller_type', 'data_'],
+            'formats': [_numpy.uint32, _py_anon_pod8_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.controllerType)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.data)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPerfMetricControllerSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 perf_metric_controller_sample_dtype = _get_perf_metric_controller_sample_dtype_offsets()
 cdef object perf_metric_controller_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metric_controller_sample_dtype))
@@ -30344,16 +31107,21 @@ cdef class PerfMetricControllerSample:
 
 
 cdef _get_perf_metrics_sample_dtype_offsets():
-    cdef nvmlPerfMetricsSample_t pod
-    return _numpy.dtype({
-        'names': ['num_controller_data', 'controller_data'],
-        'formats': [_numpy.uint8, (perf_metric_controller_sample_dtype, 4)],
-        'offsets': [
-            (<intptr_t>&(pod.numControllerData)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.controllerData)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPerfMetricsSample_t),
-    })
+    cdef nvmlPerfMetricsSample_t *pod = <nvmlPerfMetricsSample_t *>_cyb_calloc(1, sizeof(nvmlPerfMetricsSample_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPerfMetricsSample_t")
+    try:
+        return _numpy.dtype({
+            'names': ['num_controller_data', 'controller_data'],
+            'formats': [_numpy.uint8, (perf_metric_controller_sample_dtype, 4)],
+            'offsets': [
+                (<intptr_t>&(pod.numControllerData)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.controllerData)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPerfMetricsSample_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 perf_metrics_sample_dtype = _get_perf_metrics_sample_dtype_offsets()
 cdef object perf_metrics_sample_dtype_record = _numpy.dtype((_numpy.record, perf_metrics_sample_dtype))
@@ -30507,16 +31275,21 @@ cdef class PerfMetricsSample:
 
 
 cdef _get_perf_metrics_samples_v1_dtype_offsets():
-    cdef nvmlPerfMetricsSamples_v1_t pod
-    return _numpy.dtype({
-        'names': ['num_samples', 'samples'],
-        'formats': [_numpy.uint32, (perf_metrics_sample_dtype, 13)],
-        'offsets': [
-            (<intptr_t>&(pod.numSamples)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.samples)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlPerfMetricsSamples_v1_t),
-    })
+    cdef nvmlPerfMetricsSamples_v1_t *pod = <nvmlPerfMetricsSamples_v1_t *>_cyb_calloc(1, sizeof(nvmlPerfMetricsSamples_v1_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating nvmlPerfMetricsSamples_v1_t")
+    try:
+        return _numpy.dtype({
+            'names': ['num_samples', 'samples'],
+            'formats': [_numpy.uint32, (perf_metrics_sample_dtype, 13)],
+            'offsets': [
+                (<intptr_t>&(pod.numSamples)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.samples)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(nvmlPerfMetricsSamples_v1_t),
+        })
+    finally:
+        _cyb_free(pod)
 
 perf_metrics_samples_v1_dtype = _get_perf_metrics_samples_v1_dtype_offsets()
 
@@ -30750,7 +31523,7 @@ cpdef str system_get_driver_version():
     For all products.
     The version identifier is an alphanumeric string. It will not exceed 80
     characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE``.
 
     Returns:
         str: Reference in which to return the version identifier.
@@ -30777,7 +31550,7 @@ cpdef str system_get_nvml_version():
         This query is available in the MPS locality-domain view described in ``MPS
         Locality Domain Device Enumeration``. The version identifier is an alphanumeric
         string. It will not exceed 80 characters in length (including the NULL
-        terminator). See nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
+        terminator). See ``nvmlConstants.NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE``.
     .. seealso:: `nvmlSystemGetNVMLVersion`
     """
     cdef unsigned int length = 80
@@ -31296,7 +32069,7 @@ cpdef str device_get_name(intptr_t device):
     For all products.
     The name is an alphanumeric string that denotes a particular product, e.g.
     Tesla ™️ C2070. It will not exceed 96 characters in length (including the NULL
-    terminator). See nvmlConstants::NVML_DEVICE_NAME_V2_BUFFER_SIZE.
+    terminator). See ``nvmlConstants.NVML_DEVICE_NAME_V2_BUFFER_SIZE``.
     When used with MIG device handles the API returns MIG device names which can be
     used to identify devices based on their attributes.
 
@@ -31383,7 +32156,7 @@ cpdef str device_get_serial(intptr_t device):
     The serial number is an alphanumeric string that will not exceed 30 characters
     (including the NULL terminator). This number matches the serial number tag that
     is physically attached to the board. See
-    nvmlConstants::NVML_DEVICE_SERIAL_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_SERIAL_BUFFER_SIZE``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -31669,7 +32442,7 @@ cpdef str device_get_uuid(intptr_t device):
     The UUID is a globally unique identifier. It is the only available identifier
     for pre-Fermi-architecture products. It does NOT correspond to any identifier
     printed on the board. It will not exceed 96 characters in length (including the
-    NULL terminator). See nvmlConstants::NVML_DEVICE_UUID_V2_BUFFER_SIZE.
+    NULL terminator). See ``nvmlConstants.NVML_DEVICE_UUID_V2_BUFFER_SIZE``.
     When used with MIG device handles the API returns globally unique UUIDs which
     can be used to identify MIG devices across both GPU and MIG devices. UUIDs are
     immutable for the lifetime of a MIG device.
@@ -31743,7 +32516,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
     info, such as aggregate ECC counts. The version of the data structures in this
     memory may change from time to time. It will not exceed 16 characters in length
     (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE``.
     See ``nvmlInforomObject_t`` for details on the available infoROM objects.
 
     Args:
@@ -31771,7 +32544,7 @@ cpdef str device_get_inforom_image_version(intptr_t device):
     the infoROM flashed on the board in contrast to infoROM object version which is
     only an indicator of supported features. Version string will not exceed 16
     characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33145,8 +33918,8 @@ cpdef unsigned long long device_get_total_ecc_errors(intptr_t device, int error_
         device (intptr_t): The identifier of the target device.
         error_type (MemoryErrorType): Flag that specifies the type of the
             errors.
-        counter_type (EccCounterType): Flag that specifies the counter-
-            type of the errors.
+        counter_type (EccCounterType): Flag that specifies the
+            counter-type of the errors.
 
     Returns:
         unsigned long long: Reference in which to return the specified ECC
@@ -33179,8 +33952,8 @@ cpdef unsigned long long device_get_memory_error_counter(intptr_t device, int er
         device (intptr_t): The identifier of the target device.
         error_type (MemoryErrorType): Flag that specifies the type of
             error.
-        counter_type (EccCounterType): Flag that specifies the counter-
-            type of the errors.
+        counter_type (EccCounterType): Flag that specifies the
+            counter-type of the errors.
         location_type (MemoryLocation): Specifies the location of the
             counter.
 
@@ -33189,8 +33962,8 @@ cpdef unsigned long long device_get_memory_error_counter(intptr_t device, int er
 
     .. note::
         On MIG-enabled GPUs, per instance information can be queried using specific MIG
-        device handles. Per instance information is currently only supported for non-
-        DRAM uncorrectable volatile errors. Querying volatile errors using device
+        device handles. Per instance information is currently only supported for
+        non-DRAM uncorrectable volatile errors. Querying volatile errors using device
         handles is currently not supported.
     .. seealso:: `nvmlDeviceGetMemoryErrorCounter`
     """
@@ -33524,7 +34297,7 @@ cpdef str device_get_vbios_version(intptr_t device):
     For all products.
     The VBIOS version may change from time to time. It will not exceed 32
     characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -33590,9 +34363,9 @@ cpdef object device_get_compute_running_processes_v3(intptr_t device):
     .. note::
         In MIG mode, if device handle is provided, the API returns aggregate
         information, only if the caller has appropriate privileges. Per-instance
-        information can be queried by using specific MIG device handles. Querying per-
-        instance information using MIG device handles is not supported if the device is
-        in vGPU Host virtualization mode.
+        information can be queried by using specific MIG device handles. Querying
+        per-instance information using MIG device handles is not supported if the
+        device is in vGPU Host virtualization mode.
     .. seealso:: `nvmlDeviceGetComputeRunningProcesses_v3`
     """
     cdef unsigned int[1] info_count = [0]
@@ -33633,9 +34406,9 @@ cpdef object device_get_graphics_running_processes_v3(intptr_t device):
     .. note::
         In MIG mode, if device handle is provided, the API returns aggregate
         information, only if the caller has appropriate privileges. Per-instance
-        information can be queried by using specific MIG device handles. Querying per-
-        instance information using MIG device handles is not supported if the device is
-        in vGPU Host virtualization mode.
+        information can be queried by using specific MIG device handles. Querying
+        per-instance information using MIG device handles is not supported if the
+        device is in vGPU Host virtualization mode.
     .. seealso:: `nvmlDeviceGetGraphicsRunningProcesses_v3`
     """
     cdef unsigned int[1] info_count = [0]
@@ -33677,9 +34450,9 @@ cpdef object device_get_mps_compute_running_processes_v3(intptr_t device):
     .. note::
         In MIG mode, if device handle is provided, the API returns aggregate
         information, only if the caller has appropriate privileges. Per-instance
-        information can be queried by using specific MIG device handles. Querying per-
-        instance information using MIG device handles is not supported if the device is
-        in vGPU Host virtualization mode.
+        information can be queried by using specific MIG device handles. Querying
+        per-instance information using MIG device handles is not supported if the
+        device is in vGPU Host virtualization mode.
     .. seealso:: `nvmlDeviceGetMPSComputeRunningProcesses_v3`
     """
     cdef unsigned int[1] info_count = [0]
@@ -35811,7 +36584,7 @@ cpdef object device_get_creatable_vgpus(intptr_t device):
 
 
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
-    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
+    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See ``nvmlConstants.NVML_DEVICE_NAME_BUFFER_SIZE``.
 
     For Kepler ™️ or newer fully supported devices.
 
@@ -35951,11 +36724,11 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
     The license type and version required to run the specified vGPU type is
     returned as an alphanumeric string, in the form "<license name>,<version>", for
     example "GRID-Virtual-PC,2.0". If a vGPU is runnable with* more than one type
-    of license, the licenses are delimited by a semicolon, for example "GRID-
-    Virtual-PC,2.0;GRID-Virtual-WS,2.0;GRID-Virtual-WS-Ext,2.0".
+    of license, the licenses are delimited by a semicolon, for example
+    "GRID-Virtual-PC,2.0;GRID-Virtual-WS,2.0;GRID-Virtual-WS-Ext,2.0".
     The total length of the returned string will not exceed 128 characters,
     including the NUL terminator. See
-    nvmlVgpuConstants::NVML_GRID_LICENSE_BUFFER_SIZE.
+    ``nvmlVgpuConstants.NVML_GRID_LICENSE_BUFFER_SIZE``.
     For Kepler ™️ or newer fully supported devices.
 
     Args:
@@ -36103,7 +36876,7 @@ cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
 
     The VM ID is returned as a string, not exceeding 80 characters in length
     (including the NUL terminator). See
-    nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_UUID_BUFFER_SIZE``.
     The format of the VM ID varies by platform, and is indicated by the type
     identifier returned in ``vm_idType``.
     For Kepler ™️ or newer fully supported devices.
@@ -36134,7 +36907,7 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
     The UUID is a globally unique identifier associated with the vGPU, and is
     returned as a 5-part hexadecimal string, not exceeding 80 characters in length
     (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_UUID_BUFFER_SIZE``.
     For Kepler ™️ or newer fully supported devices.
 
     Args:
@@ -36160,7 +36933,7 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
     The version is returned as an alphanumeric string in the caller-supplied buffer
     ``version``. The length of the version string will not exceed 80 characters in
     length (including the NUL terminator). See
-    nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE``.
     :func:`vgpu_instance_get_vm_driver_version` may be called at any time for a
     vGPU instance. The guest VM driver version is returned as "Not Available" if no
     NVIDIA driver is installed in the VM, or the VM has not yet booted to the point
@@ -36545,7 +37318,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     The MDEV UUID is a globally unique identifier of the mdev device assigned to
     the VM, and is returned as a 5-part hexadecimal string, not exceeding 80
     characters in length (including the NULL terminator). MDEV UUID is displayed
-    only on KVM platform. See nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    only on KVM platform. See ``nvmlConstants.NVML_DEVICE_UUID_BUFFER_SIZE``.
     For Maxwell ™️ or newer fully supported devices.
 
     Args:
@@ -36823,13 +37596,13 @@ cpdef tuple device_get_vgpu_utilization(intptr_t device, unsigned long long last
     For Kepler ™️ or newer fully supported devices.
     Reads recent utilization of GPU SM (3D/Compute), framebuffer, video encoder,
     and video decoder for vGPU instances running on a device. Utilization values
-    are returned as an array of utilization sample structures in the caller-
-    supplied buffer pointed at by ``utilization_samples``. One utilization sample
-    structure is returned per vGPU instance, and includes the CPU timestamp at
-    which the samples were recorded. Individual utilization values are returned as
-    "unsigned int" values in ``nvmlValue_t`` unions. The function sets the caller-
-    supplied ``sample_val_type`` to NVML_VALUE_TYPE_UNSIGNED_INT to indicate the
-    returned value type.
+    are returned as an array of utilization sample structures in the
+    caller-supplied buffer pointed at by ``utilization_samples``. One utilization
+    sample structure is returned per vGPU instance, and includes the CPU timestamp
+    at which the samples were recorded. Individual utilization values are returned
+    as "unsigned int" values in ``nvmlValue_t`` unions. The function sets the
+    caller-supplied ``sample_val_type`` to NVML_VALUE_TYPE_UNSIGNED_INT to indicate
+    the returned value type.
     To read utilization values, first determine the size of buffer required to hold
     the samples by invoking the function with ``utilization_samples`` set to NULL.
     The function will return NVML_ERROR_INSUFFICIENT_SIZE, with the current vGPU

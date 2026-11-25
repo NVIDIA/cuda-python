@@ -47,6 +47,7 @@ cdef object _tensor_bridge = None
 # Cache: type(obj) -> True/False for the torch tensor check.
 # Once a type is seen, we never re-check.
 cdef dict _torch_type_cache = {}
+cdef object _torch_tensor_type = None
 # Tri-state: None = not checked, True/False = result of version check
 cdef object _torch_version_ok = None
 
@@ -82,14 +83,33 @@ cdef inline bint _torch_version_check():
     return <bint>_torch_version_ok
 
 
+cdef object _get_torch_tensor_type():
+    global _torch_tensor_type
+    with cython.critical_section(_torch_type_cache):
+        if _torch_tensor_type is None:
+            torch = sys.modules.get("torch")
+            tensor_type = getattr(torch, "Tensor", None)
+            if tensor_type is None:
+                # Torch may be imported after an earlier protocol-only call.
+                return None
+            _torch_tensor_type = tensor_type
+        if not _torch_version_check():
+            return None
+        return _torch_tensor_type
+
+
 cdef inline bint _is_torch_tensor(object obj):
     cdef type tp = type(obj)
     cdef object cached = _torch_type_cache.get(tp)
     if cached is not None:
         return <bint>cached
     cdef str mod = tp.__module__ or ""
-    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
-        and _torch_version_check()
+    cdef object tensor_type
+    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr")
+    if result:
+        tensor_type = _get_torch_tensor_type()
+        # The bridge requires a real Tensor, not just Tensor-like attributes.
+        result = tensor_type is not None and issubclass(tp, tensor_type)
     _torch_type_cache[tp] = result  # setdefault not needed for bools
     return result
 
@@ -702,6 +722,10 @@ cdef inline int _smv_dtype_numpy_to_dlpack(object dtype_obj, DLDataType* out_dty
         if bits not in (64, 128):
             raise BufferError(f"Unsupported complex dtype: {np_dtype}")
         code = <uint8_t>kDLComplex
+    elif np_dtype.type is bfloat16:
+        # ml_dtypes bfloat16 has kind "V", so the kind chain cannot reach it;
+        # the byte-order check above has already run for it.
+        code = <uint8_t>kDLBfloat
     else:
         raise BufferError(f"Unsupported dtype for DLPack export: {np_dtype}")
 

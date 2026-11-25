@@ -2,20 +2,49 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import ast
+import os
+import tomllib
+from pathlib import Path
 
 from packaging.version import Version
 from setuptools import setup
 from setuptools_scm import get_version
 
-version = get_version(
-    root="..",
-    relative_to=__file__,
-    git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v13.*"],
-)
+# The selector table ships with standalone sdists, which have neither the
+# CI registry nor sibling bindings packages. The metadata hook checks drift.
+with Path(__file__).with_name("pyproject.toml").open("rb") as stream:
+    scm_selectors = tomllib.load(stream)["tool"]["cuda-python"]["scm-describe-match-by-major"]
+
+# Source builds require an explicit major; standalone sdists already carry
+# their fixed version in PKG-INFO, which setuptools-scm recovers below.
+build_major = os.environ.get("CUDA_PYTHON_BUILD_MAJOR")
+if build_major not in {"12", "13"} and not (build_major is None and Path(__file__).with_name("PKG-INFO").is_file()):
+    raise ValueError(f"Set CUDA_PYTHON_BUILD_MAJOR to 12 or 13 for source builds, got {build_major!r}")
+
+version_options = {
+    "root": "..",
+    "relative_to": __file__,
+    "dist_name": "cuda-python",
+}
+if build_major is not None:
+    # Keep metapackage tag selection identical to its bindings source line.
+    version_options["git_describe_command"] = [
+        "git",
+        "describe",
+        "--dirty",
+        "--tags",
+        "--long",
+        "--match",
+        scm_selectors[build_major],
+    ]
+
+version = get_version(**version_options)
 
 
-base_version = Version(version).base_version
+resolved_version = Version(version)
+if build_major is not None and resolved_version.major != int(build_major):
+    raise ValueError(f"CUDA_PYTHON_BUILD_MAJOR={build_major} does not match resolved version {version}")
+base_version = resolved_version.base_version
 
 
 if base_version == version:
@@ -25,16 +54,23 @@ else:
     # Pre-release version
     matcher = "=="
 
+install_requires = [f"cuda-bindings{matcher}{version}"]
+# An sdist recovers its fixed version without Git; its dependency set must
+# follow that version without requiring a checkout selector.
+if resolved_version.major >= 13:
+    install_requires.extend(
+        [
+            # Bump this with every cuda-core release and release the current-major
+            # cuda-python right after it; see .github/RELEASE-core.md.
+            "cuda-core~=1.3.0",
+            "cuda-pathfinder~=1.1",
+        ]
+    )
+
 
 setup(
     version=version,
-    install_requires=[
-        f"cuda-bindings{matcher}{version}",
-        # Bump this with every cuda-core release and release cuda-python right
-        # after it; see .github/RELEASE-core.md and cuda_python/AGENTS.md.
-        "cuda-core~=1.2.0",
-        "cuda-pathfinder~=1.1",
-    ],
+    install_requires=install_requires,
     extras_require={
         "all": [f"cuda-bindings[all]{matcher}{version}"],
     },

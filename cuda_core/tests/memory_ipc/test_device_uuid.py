@@ -84,16 +84,21 @@ def _receive(obj):
         return {"device_id": obj.device_id, "device_uuid": obj.uuid}
     if not isinstance(obj, Buffer):
         return {"received": type(obj).__name__}
-    mr = obj.memory_resource
-    report = {"device_id": obj.device_id, "device_uuid": Device(obj.device_id).uuid}
-    host = (ctypes.c_ubyte * NBYTES)()
-    handle_return(driver.cuMemcpyDtoH(ctypes.addressof(host), int(obj.handle), NBYTES))
-    report["data"] = bytes(host)
-    if isinstance(mr, VirtualMemoryResource):
-        report["peer_uuids"] = [Device(peer).uuid for peer in mr.config.peers]
-        report["peer_access"] = [_access_flags(obj, peer) for peer in mr.config.peers]
-    obj.close()
-    return report
+    try:
+        mr = obj.memory_resource
+        report = {"device_id": obj.device_id, "device_uuid": Device(obj.device_id).uuid}
+        host = (ctypes.c_ubyte * NBYTES)()
+        handle_return(driver.cuMemcpyDtoH(ctypes.addressof(host), int(obj.handle), NBYTES))
+        report["data"] = bytes(host)
+        if isinstance(mr, VirtualMemoryResource):
+            report["peer_uuids"] = [Device(peer).uuid for peer in mr.config.peers]
+            report["peer_access"] = [_access_flags(obj, peer) for peer in mr.config.peers]
+        return report
+    finally:
+        obj.close()
+        # Unpickling bound the free to the default stream of the device it made
+        # current; drain it before the exporter frees its allocation.
+        Device().sync()
 
 
 def _access_flags(buf, device_id):

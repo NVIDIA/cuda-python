@@ -64,12 +64,15 @@ cuda-crt-dev_win-64 = "*"
 # For finding headers when building the Cython tests.
 [feature.cython-tests.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+CUDA_PATH = "$CONDA_PREFIX/targets/x86_64-linux"
 
 [feature.cython-tests.target.linux-aarch64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
+CUDA_PATH = "$CONDA_PREFIX/targets/sbsa-linux"
 
 [feature.cython-tests.target.win-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/Library"
+CUDA_PATH = "$CONDA_PREFIX/Library"
 
 [feature.cu12.dependencies]
 cuda-version = "12.*"
@@ -109,7 +112,6 @@ cuda-version = "12.*"
 setuptools = ">=80"
 setuptools-scm = ">=8,!=10.1"
 cython = ">=3.3.1,<3.4"
-pyclibrary = ">=0.1.7"
 cuda-pathfinder = { path = "../cuda_pathfinder" }
 cuda-cudart-static = "*"
 cuda-nvrtc-dev = "*"
@@ -140,11 +142,8 @@ libnvfatbin = "*"
 [package.target.linux.run-dependencies]
 libcufile = "*"
 
-[target.linux.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
-
-[target.win-64.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
+[tasks.build-cython-tests]
+cmd = 'python "$PIXI_PROJECT_ROOT/tests/cython/build_tests.py"'
 
 [target.linux.tasks.test]
 cmd = [

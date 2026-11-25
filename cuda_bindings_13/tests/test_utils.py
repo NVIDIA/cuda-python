@@ -197,6 +197,7 @@ def test_check_nvvm_compiler_options_arch_detection():
     assert check_nvvm_compiler_options(["-arch=compute_99999"]) is False
 
 
+# This test is not currently run in any CI job
 def test_check_nvvm_compiler_options_no_libnvvm():
     if _libnvvm_available:
         pytest.skip("libNVVM is available; this test targets the fallback path")

@@ -11,7 +11,12 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_check_open, Buffer_from_deviceptr_handle
-from cuda.core._memory._memory_pool cimport _MemPool, MP_check_open
+from cuda.core._memory._memory_pool cimport (
+    _MemPool,
+    MP_check_open,
+    MP_get_location,  # no-cython-lint
+    MP_location_query_available,  # no-cython-lint
+)
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._rt cimport (
     DevicePtrHandle,
@@ -30,6 +35,7 @@ import multiprocessing
 import operator
 import os
 import platform
+import threading
 import uuid
 import weakref
 from typing import TYPE_CHECKING, Iterable
@@ -40,7 +46,51 @@ if TYPE_CHECKING:
 __all__ = []
 
 
-cdef object registry = weakref.WeakValueDictionary()
+# Maps uuid.UUID.bytes to a weakref.KeyedRef of the registered resource. The key
+# is bytes so that the dict hashes and compares it in C, without running Python.
+cdef dict registry = {}
+# Guards every access to the registry, reads included. Without the GIL a read
+# needs it for two reasons. Cython reads a typed dict through a borrowed
+# reference, which a concurrent removal can free before the read takes its own
+# reference. And a registration inserts the entry and then sets the handle's
+# UUID, so a reader must not run between the two.
+#
+# No Python code may run while it is held: a collection can start in Python
+# code, and its callbacks and finalizers can register or drop resources on this
+# thread. That includes hashing or comparing a uuid.UUID, calling a
+# WeakValueDictionary method, raising, and dropping the last reference to a
+# resource. Anything that can run Python goes before the lock, and errors are
+# raised after it is released. One exception remains: if the insertion fails
+# (for example with MemoryError), building the traceback allocates objects,
+# which on Python 3.11 can start a collection under the lock.
+cdef object _registry_lock = threading.RLock()
+
+
+def _registry_remove(ref):
+    # Runs wherever the last reference to a registered resource is dropped. The
+    # registry lock is a leaf lock, so taking it here cannot deadlock.
+    key = ref.key
+    with _registry_lock:
+        # A newer entry may have replaced this one.
+        if registry.get(key) is ref:
+            del registry[key]
+
+
+cdef bytes _registry_key(key):
+    if not isinstance(key, uuid.UUID):
+        raise TypeError(f"the key of a memory resource must be a uuid.UUID, got {type(key).__name__}")
+    return key.bytes
+
+
+cdef inline _MemPool _registry_lookup_locked(bytes key):
+    """Return the live resource, or None. The caller must hold _registry_lock."""
+    ref = registry.get(key)
+    return None if ref is None else ref()
+
+
+cdef inline _MemPool _registry_lookup(bytes key):
+    with _registry_lock:
+        return _registry_lookup_locked(key)
 
 
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
@@ -538,18 +588,63 @@ cdef Buffer Buffer_from_ipc_descriptor(
 # _MemPool IPC Implementation
 # ---------------------------
 
-cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
+cdef inline _check_registered_type(mr, cls, uuid):
+    if not isinstance(mr, cls):
+        raise TypeError(
+            f"Registry contains a {type(mr).__name__} for uuid "
+            f"{uuid}, but {cls.__name__} was requested")
+
+
+cdef int MP_check_import_location(
+        _MemPool self, bint host, cydriver.CUmemLocation* loc) except? -1:
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef cydriver.CUmemLocationType loc_type
+        cdef bint on_host
+        cdef bint on_device
+        cdef int loc_type_value
+        if not MP_location_query_available():
+            return 0
+        MP_get_location(self, loc)
+        loc_type = loc.type
+        loc_type_value = <int>loc_type
+        on_host = (
+            loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+            or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+        )
+        # An imported device pool is INVISIBLE when its device is not visible to
+        # this process (for example under a restricted CUDA_VISIBLE_DEVICES). A
+        # DEVICE_LOCALITY_DOMAIN pool lives in part of a device's memory.
+        on_device = (
+            loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVISIBLE
+            or loc_type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN
+        )
+        if (host and on_host) or (not host and on_device):
+            return 1
+        if on_host:
+            problem = "a host memory pool; import it with PinnedMemoryResource.from_allocation_handle"
+        elif on_device:
+            problem = "a device memory pool; import it with DeviceMemoryResource.from_allocation_handle"
+        else:
+            problem = f"a memory pool at location type {loc_type_value}, which neither class can import"
+        raise TypeError(
+            f"The allocation handle refers to {problem}, but {type(self).__name__} was requested")
+    ELSE:
+        return 0
+
+
+cdef _MemPool MP_from_allocation_handle(
+        cls, alloc_handle, MP_import_init_t init=NULL, object init_arg=None):
     if isinstance(alloc_handle, IPCAllocationHandle):
         IPCAllocationHandle_check_open(<IPCAllocationHandle>alloc_handle)
 
     # Quick exit for registry hits.
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
-    mr = registry.get(uuid)
+    cdef _MemPool mr = None
+    if uuid is not None:
+        mr = _registry_lookup(_registry_key(uuid))
     if mr is not None:
-        if not isinstance(mr, cls):
-            raise TypeError(
-                f"Registry contains a {type(mr).__name__} for uuid "
-                f"{uuid}, but {cls.__name__} was requested")
+        _check_registered_type(mr, cls, uuid)
         MP_check_open(<_MemPool>mr)
         return mr
 
@@ -578,44 +673,85 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
         )
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
+    # Initialize before registering: a registry hit in another thread must not
+    # return a pool whose initialization is in progress or has failed. A
+    # resource returned from the registry is never initialized again.
+    if init != NULL:
+        init(self, init_arg)
+
     # Register it.
     if uuid is not None:
         registered = self.register(uuid)
         if registered is not self:
-            raise RuntimeError(
-                "internal cuda.core error, please report: register() returned a "
-                "different memory resource than the one being registered"
-            )
+            # A concurrent import of the same UUID registered first. Both
+            # imports share one pool handle, so dropping this one only drops a
+            # reference.
+            _check_registered_type(registered, cls, uuid)
+            return registered
 
     return self
 
 
 cdef _MemPool MP_from_registry(uuid):
-    cdef _MemPool mr
-    try:
-        mr = registry[uuid]
-        MP_check_open(mr)
-        return mr
-    except KeyError:
-        raise RuntimeError(f"Memory resource {uuid} was not found") from None
+    cdef _MemPool mr = _registry_lookup(_registry_key(uuid))
+    if mr is None:
+        raise RuntimeError(f"Memory resource {uuid} was not found")
+    MP_check_open(mr)
+    return mr
 
 
 cdef _MemPool MP_register(_MemPool self, uuid):
     MP_check_open(self)
-    existing = registry.get(uuid)
-    if existing is not None:
-        MP_check_open(<_MemPool>existing)
-        return existing
-    if not self.is_ipc_enabled:
-        raise RuntimeError("Memory resource is not IPC-enabled")
-    if self.uuid is not None and self.uuid != uuid:
+    cdef IPCAllocationHandle handle = None
+    cdef _MemPool existing
+    cdef object current = None
+    cdef bint changed
+    cdef bint conflict = False
+    # Everything that can run Python code happens before the lock.
+    cdef bytes key = _registry_key(uuid)
+    ref = weakref.KeyedRef(self, _registry_remove, key)
+    if self.is_ipc_enabled:
+        handle = self._ipc_data._alloc_handle
+    while True:
+        changed = False
+        if handle is not None:
+            current = handle._uuid
+            conflict = current is not None and current != uuid
+        # The lookup and the insertion are one step: without the GIL, two threads
+        # could otherwise both miss and register different resources for one
+        # UUID, and a nested registration cannot run between them because no
+        # Python code runs here. See the comment at _registry_lock.
+        with _registry_lock:
+            # Reuse the held lock. On CPython 3.11, binding the context manager
+            # methods for another lock scope can allocate GC-tracked objects
+            # and start a collection here.
+            existing = _registry_lookup_locked(key)
+            if existing is None and handle is not None:
+                # Imports can share one handle. If another registration gave it
+                # its UUID since it was read, validate again.
+                changed = handle._uuid is not current
+                if not changed and not conflict:
+                    registry[key] = ref
+                    # Write the UUID once. The handle's UUID is read without
+                    # this lock (above and in IPCAllocationHandle.uuid), so
+                    # replacing an equal UUID would release an object that
+                    # another thread may be taking a reference to. Releasing it
+                    # here could also run a uuid.UUID subclass's __del__ under
+                    # the lock.
+                    if current is None:
+                        handle._uuid = uuid
+                    return self
+        if existing is not None:
+            MP_check_open(existing)
+            return existing
+        if handle is None:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        if changed:
+            continue
         raise ValueError(
             f"Cannot register memory resource with UUID {uuid}: "
-            f"the resource already has UUID {self.uuid}"
+            f"the resource already has UUID {current}"
         )
-    registry[uuid] = self
-    self._ipc_data._alloc_handle._uuid = uuid
-    return self
 
 
 cdef IPCAllocationHandle MP_export_mempool(_MemPool self):

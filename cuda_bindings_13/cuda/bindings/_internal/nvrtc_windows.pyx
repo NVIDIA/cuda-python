@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d78b8abcbbad91273124709973e2dd589b377212faafd7156cf108d28e4954fe
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=06e1a3ad8b1db096ef582165efc6dfba7956e36ecc222910b5f4adae9ed0d8e4
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -94,101 +94,51 @@ cdef void* __nvrtcInstallBundledHeaders = NULL
 cdef void* __nvrtcGetBundledHeadersInfo = NULL
 cdef void* __nvrtcRemoveBundledHeaders = NULL
 
+cdef enum: _cyb_nvrtc_n_functions = 29
+cdef void** _cyb_nvrtc_slots[_cyb_nvrtc_n_functions]
+cdef const char* _cyb_nvrtc_names[_cyb_nvrtc_n_functions]
+_cyb_nvrtc_slots[0] = &__nvrtcGetErrorString; _cyb_nvrtc_names[0] = b'nvrtcGetErrorString'
+_cyb_nvrtc_slots[1] = &__nvrtcVersion; _cyb_nvrtc_names[1] = b'nvrtcVersion'
+_cyb_nvrtc_slots[2] = &__nvrtcGetNumSupportedArchs; _cyb_nvrtc_names[2] = b'nvrtcGetNumSupportedArchs'
+_cyb_nvrtc_slots[3] = &__nvrtcGetSupportedArchs; _cyb_nvrtc_names[3] = b'nvrtcGetSupportedArchs'
+_cyb_nvrtc_slots[4] = &__nvrtcCreateProgram; _cyb_nvrtc_names[4] = b'nvrtcCreateProgram'
+_cyb_nvrtc_slots[5] = &__nvrtcDestroyProgram; _cyb_nvrtc_names[5] = b'nvrtcDestroyProgram'
+_cyb_nvrtc_slots[6] = &__nvrtcCompileProgram; _cyb_nvrtc_names[6] = b'nvrtcCompileProgram'
+_cyb_nvrtc_slots[7] = &__nvrtcGetPTXSize; _cyb_nvrtc_names[7] = b'nvrtcGetPTXSize'
+_cyb_nvrtc_slots[8] = &__nvrtcGetPTX; _cyb_nvrtc_names[8] = b'nvrtcGetPTX'
+_cyb_nvrtc_slots[9] = &__nvrtcGetCUBINSize; _cyb_nvrtc_names[9] = b'nvrtcGetCUBINSize'
+_cyb_nvrtc_slots[10] = &__nvrtcGetCUBIN; _cyb_nvrtc_names[10] = b'nvrtcGetCUBIN'
+_cyb_nvrtc_slots[11] = &__nvrtcGetLTOIRSize; _cyb_nvrtc_names[11] = b'nvrtcGetLTOIRSize'
+_cyb_nvrtc_slots[12] = &__nvrtcGetLTOIR; _cyb_nvrtc_names[12] = b'nvrtcGetLTOIR'
+_cyb_nvrtc_slots[13] = &__nvrtcGetOptiXIRSize; _cyb_nvrtc_names[13] = b'nvrtcGetOptiXIRSize'
+_cyb_nvrtc_slots[14] = &__nvrtcGetOptiXIR; _cyb_nvrtc_names[14] = b'nvrtcGetOptiXIR'
+_cyb_nvrtc_slots[15] = &__nvrtcGetProgramLogSize; _cyb_nvrtc_names[15] = b'nvrtcGetProgramLogSize'
+_cyb_nvrtc_slots[16] = &__nvrtcGetProgramLog; _cyb_nvrtc_names[16] = b'nvrtcGetProgramLog'
+_cyb_nvrtc_slots[17] = &__nvrtcAddNameExpression; _cyb_nvrtc_names[17] = b'nvrtcAddNameExpression'
+_cyb_nvrtc_slots[18] = &__nvrtcGetLoweredName; _cyb_nvrtc_names[18] = b'nvrtcGetLoweredName'
+_cyb_nvrtc_slots[19] = &__nvrtcGetPCHHeapSize; _cyb_nvrtc_names[19] = b'nvrtcGetPCHHeapSize'
+_cyb_nvrtc_slots[20] = &__nvrtcSetPCHHeapSize; _cyb_nvrtc_names[20] = b'nvrtcSetPCHHeapSize'
+_cyb_nvrtc_slots[21] = &__nvrtcGetPCHCreateStatus; _cyb_nvrtc_names[21] = b'nvrtcGetPCHCreateStatus'
+_cyb_nvrtc_slots[22] = &__nvrtcGetPCHHeapSizeRequired; _cyb_nvrtc_names[22] = b'nvrtcGetPCHHeapSizeRequired'
+_cyb_nvrtc_slots[23] = &__nvrtcSetFlowCallback; _cyb_nvrtc_names[23] = b'nvrtcSetFlowCallback'
+_cyb_nvrtc_slots[24] = &__nvrtcGetTileIRSize; _cyb_nvrtc_names[24] = b'nvrtcGetTileIRSize'
+_cyb_nvrtc_slots[25] = &__nvrtcGetTileIR; _cyb_nvrtc_names[25] = b'nvrtcGetTileIR'
+_cyb_nvrtc_slots[26] = &__nvrtcInstallBundledHeaders; _cyb_nvrtc_names[26] = b'nvrtcInstallBundledHeaders'
+_cyb_nvrtc_slots[27] = &__nvrtcGetBundledHeadersInfo; _cyb_nvrtc_names[27] = b'nvrtcGetBundledHeadersInfo'
+_cyb_nvrtc_slots[28] = &__nvrtcRemoveBundledHeaders; _cyb_nvrtc_names[28] = b'nvrtcRemoveBundledHeaders'
+
 cdef int _init_nvrtc() except -1 nogil:
     global _cyb___py_nvrtc_init
 
     cdef int err
     cdef uintptr_t handle
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_nvrtc_init: return 0
 
         handle = load_library()
-        global __nvrtcGetErrorString
-        __nvrtcGetErrorString = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetErrorString')
-
-        global __nvrtcVersion
-        __nvrtcVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcVersion')
-
-        global __nvrtcGetNumSupportedArchs
-        __nvrtcGetNumSupportedArchs = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetNumSupportedArchs')
-
-        global __nvrtcGetSupportedArchs
-        __nvrtcGetSupportedArchs = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetSupportedArchs')
-
-        global __nvrtcCreateProgram
-        __nvrtcCreateProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcCreateProgram')
-
-        global __nvrtcDestroyProgram
-        __nvrtcDestroyProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcDestroyProgram')
-
-        global __nvrtcCompileProgram
-        __nvrtcCompileProgram = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcCompileProgram')
-
-        global __nvrtcGetPTXSize
-        __nvrtcGetPTXSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPTXSize')
-
-        global __nvrtcGetPTX
-        __nvrtcGetPTX = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPTX')
-
-        global __nvrtcGetCUBINSize
-        __nvrtcGetCUBINSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetCUBINSize')
-
-        global __nvrtcGetCUBIN
-        __nvrtcGetCUBIN = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetCUBIN')
-
-        global __nvrtcGetLTOIRSize
-        __nvrtcGetLTOIRSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetLTOIRSize')
-
-        global __nvrtcGetLTOIR
-        __nvrtcGetLTOIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetLTOIR')
-
-        global __nvrtcGetOptiXIRSize
-        __nvrtcGetOptiXIRSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetOptiXIRSize')
-
-        global __nvrtcGetOptiXIR
-        __nvrtcGetOptiXIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetOptiXIR')
-
-        global __nvrtcGetProgramLogSize
-        __nvrtcGetProgramLogSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetProgramLogSize')
-
-        global __nvrtcGetProgramLog
-        __nvrtcGetProgramLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetProgramLog')
-
-        global __nvrtcAddNameExpression
-        __nvrtcAddNameExpression = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcAddNameExpression')
-
-        global __nvrtcGetLoweredName
-        __nvrtcGetLoweredName = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetLoweredName')
-
-        global __nvrtcGetPCHHeapSize
-        __nvrtcGetPCHHeapSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPCHHeapSize')
-
-        global __nvrtcSetPCHHeapSize
-        __nvrtcSetPCHHeapSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcSetPCHHeapSize')
-
-        global __nvrtcGetPCHCreateStatus
-        __nvrtcGetPCHCreateStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPCHCreateStatus')
-
-        global __nvrtcGetPCHHeapSizeRequired
-        __nvrtcGetPCHHeapSizeRequired = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetPCHHeapSizeRequired')
-
-        global __nvrtcSetFlowCallback
-        __nvrtcSetFlowCallback = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcSetFlowCallback')
-
-        global __nvrtcGetTileIRSize
-        __nvrtcGetTileIRSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetTileIRSize')
-
-        global __nvrtcGetTileIR
-        __nvrtcGetTileIR = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetTileIR')
-
-        global __nvrtcInstallBundledHeaders
-        __nvrtcInstallBundledHeaders = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcInstallBundledHeaders')
-
-        global __nvrtcGetBundledHeadersInfo
-        __nvrtcGetBundledHeadersInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcGetBundledHeadersInfo')
-
-        global __nvrtcRemoveBundledHeaders
-        __nvrtcRemoveBundledHeaders = _cyb_GetProcAddress(<HMODULE>handle, 'nvrtcRemoveBundledHeaders')
+        for i in range(_cyb_nvrtc_n_functions):
+            _cyb_nvrtc_slots[i][0] = _cyb_GetProcAddress(<HMODULE>handle, _cyb_nvrtc_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvrtc_init, 1)
         return 0
@@ -207,92 +157,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_nvrtc()
     cdef dict data = {}
-    global __nvrtcGetErrorString
-    data["__nvrtcGetErrorString"] = <intptr_t>__nvrtcGetErrorString
-
-    global __nvrtcVersion
-    data["__nvrtcVersion"] = <intptr_t>__nvrtcVersion
-
-    global __nvrtcGetNumSupportedArchs
-    data["__nvrtcGetNumSupportedArchs"] = <intptr_t>__nvrtcGetNumSupportedArchs
-
-    global __nvrtcGetSupportedArchs
-    data["__nvrtcGetSupportedArchs"] = <intptr_t>__nvrtcGetSupportedArchs
-
-    global __nvrtcCreateProgram
-    data["__nvrtcCreateProgram"] = <intptr_t>__nvrtcCreateProgram
-
-    global __nvrtcDestroyProgram
-    data["__nvrtcDestroyProgram"] = <intptr_t>__nvrtcDestroyProgram
-
-    global __nvrtcCompileProgram
-    data["__nvrtcCompileProgram"] = <intptr_t>__nvrtcCompileProgram
-
-    global __nvrtcGetPTXSize
-    data["__nvrtcGetPTXSize"] = <intptr_t>__nvrtcGetPTXSize
-
-    global __nvrtcGetPTX
-    data["__nvrtcGetPTX"] = <intptr_t>__nvrtcGetPTX
-
-    global __nvrtcGetCUBINSize
-    data["__nvrtcGetCUBINSize"] = <intptr_t>__nvrtcGetCUBINSize
-
-    global __nvrtcGetCUBIN
-    data["__nvrtcGetCUBIN"] = <intptr_t>__nvrtcGetCUBIN
-
-    global __nvrtcGetLTOIRSize
-    data["__nvrtcGetLTOIRSize"] = <intptr_t>__nvrtcGetLTOIRSize
-
-    global __nvrtcGetLTOIR
-    data["__nvrtcGetLTOIR"] = <intptr_t>__nvrtcGetLTOIR
-
-    global __nvrtcGetOptiXIRSize
-    data["__nvrtcGetOptiXIRSize"] = <intptr_t>__nvrtcGetOptiXIRSize
-
-    global __nvrtcGetOptiXIR
-    data["__nvrtcGetOptiXIR"] = <intptr_t>__nvrtcGetOptiXIR
-
-    global __nvrtcGetProgramLogSize
-    data["__nvrtcGetProgramLogSize"] = <intptr_t>__nvrtcGetProgramLogSize
-
-    global __nvrtcGetProgramLog
-    data["__nvrtcGetProgramLog"] = <intptr_t>__nvrtcGetProgramLog
-
-    global __nvrtcAddNameExpression
-    data["__nvrtcAddNameExpression"] = <intptr_t>__nvrtcAddNameExpression
-
-    global __nvrtcGetLoweredName
-    data["__nvrtcGetLoweredName"] = <intptr_t>__nvrtcGetLoweredName
-
-    global __nvrtcGetPCHHeapSize
-    data["__nvrtcGetPCHHeapSize"] = <intptr_t>__nvrtcGetPCHHeapSize
-
-    global __nvrtcSetPCHHeapSize
-    data["__nvrtcSetPCHHeapSize"] = <intptr_t>__nvrtcSetPCHHeapSize
-
-    global __nvrtcGetPCHCreateStatus
-    data["__nvrtcGetPCHCreateStatus"] = <intptr_t>__nvrtcGetPCHCreateStatus
-
-    global __nvrtcGetPCHHeapSizeRequired
-    data["__nvrtcGetPCHHeapSizeRequired"] = <intptr_t>__nvrtcGetPCHHeapSizeRequired
-
-    global __nvrtcSetFlowCallback
-    data["__nvrtcSetFlowCallback"] = <intptr_t>__nvrtcSetFlowCallback
-
-    global __nvrtcGetTileIRSize
-    data["__nvrtcGetTileIRSize"] = <intptr_t>__nvrtcGetTileIRSize
-
-    global __nvrtcGetTileIR
-    data["__nvrtcGetTileIR"] = <intptr_t>__nvrtcGetTileIR
-
-    global __nvrtcInstallBundledHeaders
-    data["__nvrtcInstallBundledHeaders"] = <intptr_t>__nvrtcInstallBundledHeaders
-
-    global __nvrtcGetBundledHeadersInfo
-    data["__nvrtcGetBundledHeadersInfo"] = <intptr_t>__nvrtcGetBundledHeadersInfo
-
-    global __nvrtcRemoveBundledHeaders
-    data["__nvrtcRemoveBundledHeaders"] = <intptr_t>__nvrtcRemoveBundledHeaders
+    cdef Py_ssize_t i
+    for i in range(_cyb_nvrtc_n_functions):
+        data['__' + _cyb_nvrtc_names[i].decode()] = <intptr_t>_cyb_nvrtc_slots[i][0]
     _cyb_func_ptrs = data
     return data
 

@@ -19,6 +19,7 @@ except ImportError:
 import numpy as np
 import pytest
 
+from cuda.bindings import driver
 from cuda.core._dlpack import DLDeviceType
 from cuda.core.utils import StridedMemoryView
 
@@ -71,6 +72,30 @@ def _assert_dlpack_export_roundtrip(src):
 def test_dlpack_export_roundtrip_dtypes(dtype):
     """Export every NumPy-native DLPack dtype through ``StridedMemoryView.__dlpack__``."""
     _assert_dlpack_export_roundtrip(np.zeros((2, 3), dtype=dtype))
+
+
+@pytest.mark.agent_authored(model="glm-5.3")
+def test_dlpack_export_bfloat16_roundtrip(init_cuda):
+    """bfloat16 views export as kDLBfloat and re-import as bfloat16 (#3337).
+
+    This test becomes unnecessary when `_assert_dlpack_export_roundtrip`
+    starts testing bfloat16, which should be `ml_dtypes>0.6.0`.
+    """
+    if ml_dtypes is None:
+        pytest.skip("ml_dtypes is not installed")
+    src = np.zeros((2, 3), dtype=np.uint16)
+    view = StridedMemoryView.from_any_interface(src, stream_ptr=-1).view(dtype=np.dtype(ml_dtypes.bfloat16))
+    imported = StridedMemoryView.from_dlpack(view, stream_ptr=-1)
+    assert imported.dtype == np.dtype(ml_dtypes.bfloat16)
+    assert imported.shape == (2, 3)
+    assert imported.ptr == view.ptr
+    # Pin the exported type code and bit width directly: the importer maps
+    # kDLBfloat to bfloat16 without checking bits (kDLBfloat = 4 in dlpack.h).
+    capsule = view.__dlpack__()
+    dlm = ctypes.cast(_PyCapsule_GetPointer(capsule, b"dltensor"), ctypes.POINTER(_DLManagedTensor))
+    exported_dtype = dlm.contents.dl_tensor.dtype
+    assert exported_dtype.code == 4
+    assert exported_dtype.bits == 16
 
 
 @pytest.mark.parametrize(
@@ -329,6 +354,296 @@ def test_from_dlpack_typeerror_fallback_unversioned_import():
     out = np.from_dlpack(view)
     assert np.array_equal(out, src)
     del view  # exercise __dealloc__ on the imported (used) unversioned capsule
+
+
+@pytest.fixture(scope="module")
+def torch_module():
+    # Module scope checks Torch before function-scoped CUDA setup.
+    return pytest.importorskip("torch", minversion="2.3")
+
+
+@pytest.mark.parametrize("entry", ["from_dlpack", "from_any_interface", "from_array_interface"])
+@pytest.mark.parametrize("module", ["application_adapter", "torch_adapter", "torch.adapters", "torchvision.adapters"])
+@pytest.mark.parametrize("has_data_ptr", [False, True])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_protocol_adapter_uses_protocol_on_first_and_cached_import(entry, module, has_data_ptr, torch_module):
+    """Non-Tensor adapters retain their protocol routing on repeated imports."""
+
+    def dlpack(self, **kwargs):
+        self.calls["dlpack"] += 1
+        return self.array.__dlpack__(**kwargs)
+
+    def array_interface(self):
+        self.calls["array"] += 1
+        return self.array.__array_interface__
+
+    namespace = {
+        "__module__": module,
+        "__dlpack_device__": lambda self: self.array.__dlpack_device__(),
+        "__dlpack__": dlpack,
+        "__array_interface__": property(array_interface),
+    }
+    if has_data_ptr:
+        namespace["data_ptr"] = lambda self: self.array.ctypes.data
+    adapter_type = type("ProtocolAdapter", (), namespace)
+    for _ in range(2):
+        adapter = adapter_type()
+        adapter.array = np.arange(4, dtype=np.int32)
+        adapter.calls = {"dlpack": 0, "array": 0}
+        kwargs = {} if entry == "from_array_interface" else {"stream_ptr": -1}
+        view = getattr(StridedMemoryView, entry)(adapter, **kwargs)
+        assert view.ptr == adapter.array.ctypes.data
+        np.testing.assert_array_equal(np.from_dlpack(view), adapter.array)
+        assert adapter.calls["array" if entry == "from_array_interface" else "dlpack"] > 0
+        assert adapter.calls["dlpack" if entry == "from_array_interface" else "array"] == 0
+
+
+@pytest.mark.parametrize("entry", ["from_dlpack", "from_any_interface"])
+@pytest.mark.parametrize("legacy_dlpack", [False, True])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_class_proxy_is_not_a_native_tensor(entry, legacy_dlpack, torch_module):
+    """A proxy advertising Tensor through __class__ still uses its DLPack protocol."""
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+    from helpers.child_processes import child_timeout_sec
+
+    code = f"""import sys,ctypes,numpy as np,torch
+from cuda.core.utils import StridedMemoryView
+if sys.platform == "win32":
+    ctypes.windll.kernel32.SetErrorMode(3)
+class Proxy:
+    __module__ = "torch_adapter"
+
+    @property
+    def __class__(self):
+        return torch.Tensor
+
+    def data_ptr(self):
+        return self.array.ctypes.data
+
+    def __dlpack_device__(self):
+        return self.array.__dlpack_device__()
+
+    def __dlpack__(self, **kwargs):
+        self.calls += 1
+        if {legacy_dlpack!r} and "max_version" in kwargs:
+            raise TypeError("max_version is not supported")
+        return self.array.__dlpack__(**kwargs)
+
+adapter = Proxy()
+adapter.array = np.arange(4, dtype=np.int32)
+adapter.calls = 0
+assert isinstance(adapter, torch.Tensor)
+assert not issubclass(type(adapter), torch.Tensor)
+view = getattr(StridedMemoryView, {entry!r})(adapter, stream_ptr=-1)
+np.testing.assert_array_equal(np.from_dlpack(view), adapter.array)
+assert adapter.calls > 0
+"""
+    run_python_snippet(code, timeout=child_timeout_sec(), extra_env={"PYTHONFAULTHANDLER": "1"})
+
+
+@pytest.mark.parametrize("entry", ["from_dlpack", "from_any_interface"])
+@pytest.mark.parametrize(
+    ("module", "legacy_dlpack"),
+    [(None, False), ("torch_custom", False), ("application_tensor", False), ("application_tensor", True)],
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_real_tensor_and_subclasses_keep_existing_routes(entry, module, legacy_dlpack, torch_module):
+    """Real Tensors and subclasses preserve their data and existing import routes."""
+    torch = torch_module
+    calls = []
+
+    def dlpack(self, **kwargs):
+        calls.append(kwargs)
+        if legacy_dlpack and "max_version" in kwargs:
+            raise TypeError("max_version is not supported")
+        return torch.Tensor.__dlpack__(self, **kwargs)
+
+    array = torch.arange(4, dtype=torch.int32)
+    if module is not None:
+        tensor_type = type("TensorSubclass", (torch.Tensor,), {"__module__": module, "__dlpack__": dlpack})
+        array = array.as_subclass(tensor_type)
+    for _ in range(2):
+        calls_before = len(calls)
+        view = getattr(StridedMemoryView, entry)(array, stream_ptr=-1)
+        assert view.ptr == array.data_ptr()
+        np.testing.assert_array_equal(np.from_dlpack(view), np.arange(4, dtype=np.int32))
+        if module == "application_tensor":
+            assert len(calls) > calls_before
+        else:
+            assert len(calls) == calls_before
+
+
+@pytest.mark.parametrize("entry", ["from_cuda_array_interface", "from_any_interface"])
+@pytest.mark.parametrize("module", ["application_cuda", "torch_cuda_adapter", "torchvision.adapters"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_cuda_adapter_uses_real_device_storage(init_cuda, entry, module, torch_module):
+    """Torch-looking CAI adapters import real device storage through their protocol."""
+    source = np.arange(4, dtype=np.int32)
+    buffer = init_cuda.allocate(source.nbytes, stream=init_cuda.default_stream)
+    try:
+        init_cuda.sync()
+        ptr = int(buffer.handle)
+        (status,) = driver.cuMemcpyHtoD(ptr, source.ctypes.data, source.nbytes)
+        assert int(status) == 0
+        calls = []
+
+        def interface(self):
+            calls.append(True)
+            return {"shape": (4,), "strides": None, "typestr": source.dtype.str, "data": (ptr, False), "version": 3}
+
+        adapter_type = type(
+            "CudaAdapter",
+            (),
+            {"__module__": module, "data_ptr": lambda _self: ptr, "__cuda_array_interface__": property(interface)},
+        )
+        for _ in range(2):
+            view = getattr(StridedMemoryView, entry)(adapter_type(), stream_ptr=-1)
+            assert view.ptr == ptr
+            actual = np.empty_like(source)
+            (status,) = driver.cuMemcpyDtoH(actual.ctypes.data, view.ptr, actual.nbytes)
+            assert int(status) == 0
+            np.testing.assert_array_equal(actual, source)
+        assert len(calls) > 0
+    finally:
+        buffer.close()
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_protocol_import_does_not_load_torch():
+    """A Torch-looking protocol adapter imports successfully without importing Torch."""
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+    from helpers.child_processes import child_timeout_sec
+
+    code = """import sys,numpy as np
+from cuda.core.utils import StridedMemoryView
+assert "torch" not in sys.modules
+class Adapter:
+ __module__="torch_adapter"
+ def __init__(self):self.array=np.arange(4,dtype=np.int32)
+ def data_ptr(self):return self.array.ctypes.data
+ def __dlpack_device__(self):return self.array.__dlpack_device__()
+ def __dlpack__(self,**kwargs):return self.array.__dlpack__(**kwargs)
+x=Adapter();v=StridedMemoryView.from_dlpack(x,stream_ptr=-1)
+np.testing.assert_array_equal(np.from_dlpack(v),x.array)
+assert "torch" not in sys.modules
+"""
+    run_python_snippet(code, timeout=child_timeout_sec(), extra_env={"PYTHONFAULTHANDLER": "1"})
+
+
+@pytest.mark.parametrize("entry", ["from_dlpack", "from_any_interface", "from_array_interface"])
+@pytest.mark.parametrize(
+    ("module", "has_data_ptr"),
+    [("application_adapter", False), ("application_adapter", True), ("torch_adapter", False)],
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_protocol_import_keeps_unrelated_torch_module_lazy(entry, module, has_data_ptr):
+    """Protocol adapters outside the Torch candidate filter do not initialize lazy Torch."""
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+    from helpers.child_processes import child_timeout_sec
+
+    code = f"""import importlib.abc
+import importlib.util
+import sys
+import numpy as np
+from cuda.core.utils import StridedMemoryView
+
+class RaisingTorchLoader(importlib.abc.Loader):
+    def __init__(self):
+        self.calls = 0
+    def create_module(self, spec):
+        return None
+    def exec_module(self, module):
+        self.calls += 1
+        raise AssertionError("Unrelated protocol import initialized Torch")
+
+loader = RaisingTorchLoader()
+spec = importlib.util.spec_from_loader("torch", importlib.util.LazyLoader(loader))
+torch_module = importlib.util.module_from_spec(spec)
+sys.modules["torch"] = torch_module
+spec.loader.exec_module(torch_module)
+
+class Adapter:
+    __module__ = {module!r}
+    def __init__(self):
+        self.array = np.arange(4, dtype=np.int32)
+    def __dlpack_device__(self):
+        return self.array.__dlpack_device__()
+    def __dlpack__(self, **kwargs):
+        return self.array.__dlpack__(**kwargs)
+    @property
+    def __array_interface__(self):
+        return self.array.__array_interface__
+
+if {has_data_ptr!r}:
+    Adapter.data_ptr = lambda self: self.array.ctypes.data
+adapter = Adapter()
+if {entry!r} == "from_array_interface":
+    view = StridedMemoryView.from_array_interface(adapter)
+else:
+    view = getattr(StridedMemoryView, {entry!r})(adapter, stream_ptr=-1)
+assert view.ptr == adapter.array.ctypes.data
+np.testing.assert_array_equal(np.from_dlpack(view), adapter.array)
+assert loader.calls == 0
+"""
+    run_python_snippet(code, timeout=child_timeout_sec(), extra_env={"PYTHONFAULTHANDLER": "1"})
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_torch_tensor_type_lookup_is_cached(torch_module):
+    """Distinct candidate types reuse Torch metadata after a protocol-only import."""
+    from cuda_python_test_helpers.subprocess_runner import run_python_snippet
+    from helpers.child_processes import child_timeout_sec
+
+    code = """import sys
+import types
+import numpy as np
+from cuda.core.utils import StridedMemoryView
+
+class Adapter:
+    def __init__(self):
+        self.array = np.arange(4, dtype=np.int32)
+    def data_ptr(self):
+        return self.array.ctypes.data
+    def __dlpack_device__(self):
+        return self.array.__dlpack_device__()
+    def __dlpack__(self, **kwargs):
+        return self.array.__dlpack__(**kwargs)
+
+def import_adapter():
+    adapter = type("Adapter", (Adapter,), {"__module__": "torch_adapter"})()
+    view = StridedMemoryView.from_dlpack(adapter, stream_ptr=-1)
+    np.testing.assert_array_equal(np.from_dlpack(view), adapter.array)
+
+assert "torch" not in sys.modules
+import_adapter()
+assert "torch" not in sys.modules
+import torch
+
+lookups = {"Tensor": 0, "__version__": 0}
+class TrackedTorch(types.ModuleType):
+    def __getattribute__(self, name):
+        if name in lookups:
+            lookups[name] += 1
+        return super().__getattribute__(name)
+
+original_type = type(torch)
+torch.__class__ = TrackedTorch
+try:
+    import_adapter()
+    assert lookups["Tensor"] == 1
+    first_lookups = lookups.copy()
+    for _ in range(2):
+        import_adapter()
+        assert lookups == first_lookups, lookups
+finally:
+    torch.__class__ = original_type
+
+array = torch.arange(4, dtype=torch.int32)
+view = StridedMemoryView.from_dlpack(array, stream_ptr=-1)
+assert view.ptr == array.data_ptr()
+np.testing.assert_array_equal(np.from_dlpack(view), np.arange(4, dtype=np.int32))
+"""
+    run_python_snippet(code, timeout=child_timeout_sec(), extra_env={"PYTHONFAULTHANDLER": "1"})
 
 
 # ---------------------------------------------------------------------------

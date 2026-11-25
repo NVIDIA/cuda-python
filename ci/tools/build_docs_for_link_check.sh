@@ -29,7 +29,7 @@ export CUDA_PYTHON_DOCS_DOMAIN
 
 # The metapackage pins released cuda-core versions. Its dependencies are already
 # installed from local Pixi source packages, so never resolve those pins on PyPI.
-python -m pip install --no-deps "${REPO_ROOT}/cuda_python"
+CUDA_PYTHON_BUILD_MAJOR=13 python -m pip install --no-deps "${REPO_ROOT}/cuda_python"
 python - <<'PY'
 from importlib import import_module
 from importlib.metadata import version

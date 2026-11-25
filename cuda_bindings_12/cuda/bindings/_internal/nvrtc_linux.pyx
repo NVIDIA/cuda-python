@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b382b06daa43bc67abaa1ef39ecee58156ba05220b82cbec693a063fa73f1b27
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=a86fd01987bd6934281500ad99dc4da0ae555b3e1deec8218333f2b98d4ffec0
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport intptr_t
 
 cdef extern from * nogil:
     """
@@ -43,8 +45,6 @@ cdef extern from * nogil:
 cdef extern from "<dlfcn.h>":
     void* _cyb_dlsym "dlsym"(void*, const char*) nogil
     const void * _cyb_RTLD_DEFAULT "RTLD_DEFAULT"
-
-from libc.stdint cimport intptr_t
 
 import threading as _cyb_threading
 
@@ -89,179 +89,47 @@ cdef void* __nvrtcGetPCHCreateStatus = NULL
 cdef void* __nvrtcGetPCHHeapSizeRequired = NULL
 cdef void* __nvrtcSetFlowCallback = NULL
 
+cdef enum: _cyb_nvrtc_n_functions = 24
+cdef void** _cyb_nvrtc_slots[_cyb_nvrtc_n_functions]
+cdef const char* _cyb_nvrtc_names[_cyb_nvrtc_n_functions]
+_cyb_nvrtc_slots[0] = &__nvrtcGetErrorString; _cyb_nvrtc_names[0] = b'nvrtcGetErrorString'
+_cyb_nvrtc_slots[1] = &__nvrtcVersion; _cyb_nvrtc_names[1] = b'nvrtcVersion'
+_cyb_nvrtc_slots[2] = &__nvrtcGetNumSupportedArchs; _cyb_nvrtc_names[2] = b'nvrtcGetNumSupportedArchs'
+_cyb_nvrtc_slots[3] = &__nvrtcGetSupportedArchs; _cyb_nvrtc_names[3] = b'nvrtcGetSupportedArchs'
+_cyb_nvrtc_slots[4] = &__nvrtcCreateProgram; _cyb_nvrtc_names[4] = b'nvrtcCreateProgram'
+_cyb_nvrtc_slots[5] = &__nvrtcDestroyProgram; _cyb_nvrtc_names[5] = b'nvrtcDestroyProgram'
+_cyb_nvrtc_slots[6] = &__nvrtcCompileProgram; _cyb_nvrtc_names[6] = b'nvrtcCompileProgram'
+_cyb_nvrtc_slots[7] = &__nvrtcGetPTXSize; _cyb_nvrtc_names[7] = b'nvrtcGetPTXSize'
+_cyb_nvrtc_slots[8] = &__nvrtcGetPTX; _cyb_nvrtc_names[8] = b'nvrtcGetPTX'
+_cyb_nvrtc_slots[9] = &__nvrtcGetCUBINSize; _cyb_nvrtc_names[9] = b'nvrtcGetCUBINSize'
+_cyb_nvrtc_slots[10] = &__nvrtcGetCUBIN; _cyb_nvrtc_names[10] = b'nvrtcGetCUBIN'
+_cyb_nvrtc_slots[11] = &__nvrtcGetLTOIRSize; _cyb_nvrtc_names[11] = b'nvrtcGetLTOIRSize'
+_cyb_nvrtc_slots[12] = &__nvrtcGetLTOIR; _cyb_nvrtc_names[12] = b'nvrtcGetLTOIR'
+_cyb_nvrtc_slots[13] = &__nvrtcGetOptiXIRSize; _cyb_nvrtc_names[13] = b'nvrtcGetOptiXIRSize'
+_cyb_nvrtc_slots[14] = &__nvrtcGetOptiXIR; _cyb_nvrtc_names[14] = b'nvrtcGetOptiXIR'
+_cyb_nvrtc_slots[15] = &__nvrtcGetProgramLogSize; _cyb_nvrtc_names[15] = b'nvrtcGetProgramLogSize'
+_cyb_nvrtc_slots[16] = &__nvrtcGetProgramLog; _cyb_nvrtc_names[16] = b'nvrtcGetProgramLog'
+_cyb_nvrtc_slots[17] = &__nvrtcAddNameExpression; _cyb_nvrtc_names[17] = b'nvrtcAddNameExpression'
+_cyb_nvrtc_slots[18] = &__nvrtcGetLoweredName; _cyb_nvrtc_names[18] = b'nvrtcGetLoweredName'
+_cyb_nvrtc_slots[19] = &__nvrtcGetPCHHeapSize; _cyb_nvrtc_names[19] = b'nvrtcGetPCHHeapSize'
+_cyb_nvrtc_slots[20] = &__nvrtcSetPCHHeapSize; _cyb_nvrtc_names[20] = b'nvrtcSetPCHHeapSize'
+_cyb_nvrtc_slots[21] = &__nvrtcGetPCHCreateStatus; _cyb_nvrtc_names[21] = b'nvrtcGetPCHCreateStatus'
+_cyb_nvrtc_slots[22] = &__nvrtcGetPCHHeapSizeRequired; _cyb_nvrtc_names[22] = b'nvrtcGetPCHHeapSizeRequired'
+_cyb_nvrtc_slots[23] = &__nvrtcSetFlowCallback; _cyb_nvrtc_names[23] = b'nvrtcSetFlowCallback'
+
 cdef int _init_nvrtc() except -1 nogil:
     global _cyb___py_nvrtc_init
     cdef void* handle = NULL
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_nvrtc_init: return 0
 
-        global __nvrtcGetErrorString
-        __nvrtcGetErrorString = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetErrorString')
-        if __nvrtcGetErrorString == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetErrorString = _cyb_dlsym(handle, 'nvrtcGetErrorString')
-
-        global __nvrtcVersion
-        __nvrtcVersion = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcVersion')
-        if __nvrtcVersion == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcVersion = _cyb_dlsym(handle, 'nvrtcVersion')
-
-        global __nvrtcGetNumSupportedArchs
-        __nvrtcGetNumSupportedArchs = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetNumSupportedArchs')
-        if __nvrtcGetNumSupportedArchs == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetNumSupportedArchs = _cyb_dlsym(handle, 'nvrtcGetNumSupportedArchs')
-
-        global __nvrtcGetSupportedArchs
-        __nvrtcGetSupportedArchs = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetSupportedArchs')
-        if __nvrtcGetSupportedArchs == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetSupportedArchs = _cyb_dlsym(handle, 'nvrtcGetSupportedArchs')
-
-        global __nvrtcCreateProgram
-        __nvrtcCreateProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcCreateProgram')
-        if __nvrtcCreateProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcCreateProgram = _cyb_dlsym(handle, 'nvrtcCreateProgram')
-
-        global __nvrtcDestroyProgram
-        __nvrtcDestroyProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcDestroyProgram')
-        if __nvrtcDestroyProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcDestroyProgram = _cyb_dlsym(handle, 'nvrtcDestroyProgram')
-
-        global __nvrtcCompileProgram
-        __nvrtcCompileProgram = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcCompileProgram')
-        if __nvrtcCompileProgram == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcCompileProgram = _cyb_dlsym(handle, 'nvrtcCompileProgram')
-
-        global __nvrtcGetPTXSize
-        __nvrtcGetPTXSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPTXSize')
-        if __nvrtcGetPTXSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetPTXSize = _cyb_dlsym(handle, 'nvrtcGetPTXSize')
-
-        global __nvrtcGetPTX
-        __nvrtcGetPTX = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPTX')
-        if __nvrtcGetPTX == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetPTX = _cyb_dlsym(handle, 'nvrtcGetPTX')
-
-        global __nvrtcGetCUBINSize
-        __nvrtcGetCUBINSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetCUBINSize')
-        if __nvrtcGetCUBINSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetCUBINSize = _cyb_dlsym(handle, 'nvrtcGetCUBINSize')
-
-        global __nvrtcGetCUBIN
-        __nvrtcGetCUBIN = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetCUBIN')
-        if __nvrtcGetCUBIN == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetCUBIN = _cyb_dlsym(handle, 'nvrtcGetCUBIN')
-
-        global __nvrtcGetLTOIRSize
-        __nvrtcGetLTOIRSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetLTOIRSize')
-        if __nvrtcGetLTOIRSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetLTOIRSize = _cyb_dlsym(handle, 'nvrtcGetLTOIRSize')
-
-        global __nvrtcGetLTOIR
-        __nvrtcGetLTOIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetLTOIR')
-        if __nvrtcGetLTOIR == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetLTOIR = _cyb_dlsym(handle, 'nvrtcGetLTOIR')
-
-        global __nvrtcGetOptiXIRSize
-        __nvrtcGetOptiXIRSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetOptiXIRSize')
-        if __nvrtcGetOptiXIRSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetOptiXIRSize = _cyb_dlsym(handle, 'nvrtcGetOptiXIRSize')
-
-        global __nvrtcGetOptiXIR
-        __nvrtcGetOptiXIR = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetOptiXIR')
-        if __nvrtcGetOptiXIR == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetOptiXIR = _cyb_dlsym(handle, 'nvrtcGetOptiXIR')
-
-        global __nvrtcGetProgramLogSize
-        __nvrtcGetProgramLogSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetProgramLogSize')
-        if __nvrtcGetProgramLogSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetProgramLogSize = _cyb_dlsym(handle, 'nvrtcGetProgramLogSize')
-
-        global __nvrtcGetProgramLog
-        __nvrtcGetProgramLog = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetProgramLog')
-        if __nvrtcGetProgramLog == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetProgramLog = _cyb_dlsym(handle, 'nvrtcGetProgramLog')
-
-        global __nvrtcAddNameExpression
-        __nvrtcAddNameExpression = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcAddNameExpression')
-        if __nvrtcAddNameExpression == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcAddNameExpression = _cyb_dlsym(handle, 'nvrtcAddNameExpression')
-
-        global __nvrtcGetLoweredName
-        __nvrtcGetLoweredName = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetLoweredName')
-        if __nvrtcGetLoweredName == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetLoweredName = _cyb_dlsym(handle, 'nvrtcGetLoweredName')
-
-        global __nvrtcGetPCHHeapSize
-        __nvrtcGetPCHHeapSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPCHHeapSize')
-        if __nvrtcGetPCHHeapSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetPCHHeapSize = _cyb_dlsym(handle, 'nvrtcGetPCHHeapSize')
-
-        global __nvrtcSetPCHHeapSize
-        __nvrtcSetPCHHeapSize = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcSetPCHHeapSize')
-        if __nvrtcSetPCHHeapSize == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcSetPCHHeapSize = _cyb_dlsym(handle, 'nvrtcSetPCHHeapSize')
-
-        global __nvrtcGetPCHCreateStatus
-        __nvrtcGetPCHCreateStatus = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPCHCreateStatus')
-        if __nvrtcGetPCHCreateStatus == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetPCHCreateStatus = _cyb_dlsym(handle, 'nvrtcGetPCHCreateStatus')
-
-        global __nvrtcGetPCHHeapSizeRequired
-        __nvrtcGetPCHHeapSizeRequired = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcGetPCHHeapSizeRequired')
-        if __nvrtcGetPCHHeapSizeRequired == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcGetPCHHeapSizeRequired = _cyb_dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')
-
-        global __nvrtcSetFlowCallback
-        __nvrtcSetFlowCallback = _cyb_dlsym(_cyb_RTLD_DEFAULT, 'nvrtcSetFlowCallback')
-        if __nvrtcSetFlowCallback == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvrtcSetFlowCallback = _cyb_dlsym(handle, 'nvrtcSetFlowCallback')
+        for i in range(_cyb_nvrtc_n_functions):
+            _cyb_nvrtc_slots[i][0] = _cyb_dlsym(_cyb_RTLD_DEFAULT, _cyb_nvrtc_names[i])
+            if _cyb_nvrtc_slots[i][0] == NULL:
+                if handle == NULL:
+                    handle = load_library()
+                _cyb_nvrtc_slots[i][0] = _cyb_dlsym(handle, _cyb_nvrtc_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvrtc_init, 1)
         return 0
@@ -280,77 +148,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_nvrtc()
     cdef dict data = {}
-    global __nvrtcGetErrorString
-    data["__nvrtcGetErrorString"] = <intptr_t>__nvrtcGetErrorString
-
-    global __nvrtcVersion
-    data["__nvrtcVersion"] = <intptr_t>__nvrtcVersion
-
-    global __nvrtcGetNumSupportedArchs
-    data["__nvrtcGetNumSupportedArchs"] = <intptr_t>__nvrtcGetNumSupportedArchs
-
-    global __nvrtcGetSupportedArchs
-    data["__nvrtcGetSupportedArchs"] = <intptr_t>__nvrtcGetSupportedArchs
-
-    global __nvrtcCreateProgram
-    data["__nvrtcCreateProgram"] = <intptr_t>__nvrtcCreateProgram
-
-    global __nvrtcDestroyProgram
-    data["__nvrtcDestroyProgram"] = <intptr_t>__nvrtcDestroyProgram
-
-    global __nvrtcCompileProgram
-    data["__nvrtcCompileProgram"] = <intptr_t>__nvrtcCompileProgram
-
-    global __nvrtcGetPTXSize
-    data["__nvrtcGetPTXSize"] = <intptr_t>__nvrtcGetPTXSize
-
-    global __nvrtcGetPTX
-    data["__nvrtcGetPTX"] = <intptr_t>__nvrtcGetPTX
-
-    global __nvrtcGetCUBINSize
-    data["__nvrtcGetCUBINSize"] = <intptr_t>__nvrtcGetCUBINSize
-
-    global __nvrtcGetCUBIN
-    data["__nvrtcGetCUBIN"] = <intptr_t>__nvrtcGetCUBIN
-
-    global __nvrtcGetLTOIRSize
-    data["__nvrtcGetLTOIRSize"] = <intptr_t>__nvrtcGetLTOIRSize
-
-    global __nvrtcGetLTOIR
-    data["__nvrtcGetLTOIR"] = <intptr_t>__nvrtcGetLTOIR
-
-    global __nvrtcGetOptiXIRSize
-    data["__nvrtcGetOptiXIRSize"] = <intptr_t>__nvrtcGetOptiXIRSize
-
-    global __nvrtcGetOptiXIR
-    data["__nvrtcGetOptiXIR"] = <intptr_t>__nvrtcGetOptiXIR
-
-    global __nvrtcGetProgramLogSize
-    data["__nvrtcGetProgramLogSize"] = <intptr_t>__nvrtcGetProgramLogSize
-
-    global __nvrtcGetProgramLog
-    data["__nvrtcGetProgramLog"] = <intptr_t>__nvrtcGetProgramLog
-
-    global __nvrtcAddNameExpression
-    data["__nvrtcAddNameExpression"] = <intptr_t>__nvrtcAddNameExpression
-
-    global __nvrtcGetLoweredName
-    data["__nvrtcGetLoweredName"] = <intptr_t>__nvrtcGetLoweredName
-
-    global __nvrtcGetPCHHeapSize
-    data["__nvrtcGetPCHHeapSize"] = <intptr_t>__nvrtcGetPCHHeapSize
-
-    global __nvrtcSetPCHHeapSize
-    data["__nvrtcSetPCHHeapSize"] = <intptr_t>__nvrtcSetPCHHeapSize
-
-    global __nvrtcGetPCHCreateStatus
-    data["__nvrtcGetPCHCreateStatus"] = <intptr_t>__nvrtcGetPCHCreateStatus
-
-    global __nvrtcGetPCHHeapSizeRequired
-    data["__nvrtcGetPCHHeapSizeRequired"] = <intptr_t>__nvrtcGetPCHHeapSizeRequired
-
-    global __nvrtcSetFlowCallback
-    data["__nvrtcSetFlowCallback"] = <intptr_t>__nvrtcSetFlowCallback
+    cdef Py_ssize_t i
+    for i in range(_cyb_nvrtc_n_functions):
+        data['__' + _cyb_nvrtc_names[i].decode()] = <intptr_t>_cyb_nvrtc_slots[i][0]
     _cyb_func_ptrs = data
     return data
 
