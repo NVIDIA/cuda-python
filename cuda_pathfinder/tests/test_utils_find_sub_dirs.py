@@ -8,7 +8,6 @@ import pytest
 from cuda.pathfinder._utils.find_sub_dirs import (
     find_sub_dirs,
     find_sub_dirs_all_sitepackages,
-    find_sub_dirs_sys_path,
 )
 
 NONEXISTENT = "NonExistentE12DBF1Fbe948337576B5F1E88f60bb2"
@@ -79,11 +78,6 @@ def test_empty_sub_dirs(test_tree):
     result = find_sub_dirs(parent_paths, ())
     expected = [p for p in parent_paths if Path(p).is_dir()]
     assert sorted(result) == sorted(expected)
-
-
-def test_find_sub_dirs_sys_path_no_math():
-    result = find_sub_dirs_sys_path((NONEXISTENT,))
-    assert result == []
 
 
 def test_find_sub_dirs_all_sitepackages_no_match():
