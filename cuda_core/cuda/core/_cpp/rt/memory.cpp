@@ -164,6 +164,15 @@ struct IpcMemoryPoolBox {
     // The imports this box owns: 0 until it becomes the pool's owner, then
     // one for every import of the pool.
     mutable std::atomic<std::size_t> imports{0};
+
+    // False for a box that found an earlier import's box registered: that
+    // owner took over its import, and this box has nothing to release.
+    // Shared ownership synchronizes the increments with this load.
+    bool
+    owns_pool() const noexcept
+    {
+        return imports.load(std::memory_order_relaxed) > 0;
+    }
 };
 
 const IpcMemoryPoolBox *
@@ -174,10 +183,76 @@ get_ipc_box(const MemoryPoolHandle &h)
         reinterpret_cast<const char *>(p) - offsetof(IpcMemoryPoolBox, resource)
     );
 }
-}  // namespace
+
+// The outcome of dropping every driver reference an owner holds on its pool.
+struct DestroyedImports {
+    std::size_t total = 0;
+    std::size_t failed = 0;
+    CUresult first_failure = CUDA_SUCCESS;
+};
+
+// One cuMemPoolDestroy for each import. Does not report: the caller still has
+// to wake waiting importers first.
+DestroyedImports
+destroy_imports(CUmemoryPool pool, std::size_t imports) noexcept
+{
+    DestroyedImports result;
+    result.total = imports;
+    for (; imports > 0; --imports) {
+        if (CUresult s = DRIVER_CALL(cuMemPoolDestroy, pool); s != CUDA_SUCCESS) {
+            if (result.failed++ == 0) {
+                result.first_failure = s;
+            }
+        }
+    }
+    return result;
+}
+
+void
+report_failed_destroys(CUmemoryPool pool, const DestroyedImports &result) noexcept
+{
+    if (result.failed == 0) {
+        return;
+    }
+    char operation[kOperationNameSize];
+    format_operation(operation, sizeof(operation), "cuMemPoolDestroy", handle_bits(pool));
+    char detail[kErrorMessageSize];
+    std::snprintf(detail, sizeof(detail), "failed %zu of %zu times, first with", result.failed, result.total);
+    report_cuda_error(operation, result.first_failure, result.total > 1 ? detail : nullptr);
+}
 
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
-static ReleasingHandleRegistry<CUmemoryPool, MemoryPoolHandle> ipc_pool_registry;
+ReleasingHandleRegistry<CUmemoryPool, MemoryPoolHandle> ipc_pool_registry;
+
+// The last reference to the pool's owner is gone. The order matters: revoke
+// access once, destroy every import, let waiting importers proceed, and only
+// then report.
+void
+release_owned_ipc_pool(const IpcMemoryPoolBox &box)
+{
+    GILReleaseGuard gil;
+    if (unsigned int delay = g_ipc_pool_release_delay_us.load(std::memory_order_relaxed)) {
+        std::this_thread::sleep_for(std::chrono::microseconds(delay));
+    }
+    clear_mempool_peer_access(box.resource, -1);
+    const DestroyedImports destroyed = destroy_imports(box.resource, box.imports.load(std::memory_order_relaxed));
+    g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
+    // Wake waiting importers before reporting: a report can run user code,
+    // which could import this pool again.
+    ipc_pool_registry.release(box.resource, &box.resource);
+    report_failed_destroys(box.resource, destroyed);
+}
+
+// Deleter of every IpcMemoryPoolBox.
+void
+delete_ipc_pool_box(const IpcMemoryPoolBox *box)
+{
+    if (box->owns_pool()) {
+        release_owned_ipc_pool(*box);
+    }
+    delete box;
+}
+}  // namespace
 
 MemoryPoolHandle
 create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
@@ -185,44 +260,7 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
     // Released before the registry can wait: the owner's deleter may need it.
     GILReleaseGuard gil;
     // Allocate before importing: a failed allocation then has nothing to undo.
-    // clang-format off
-    auto box = std::shared_ptr<IpcMemoryPoolBox>(
-        new IpcMemoryPoolBox{},
-        [](const IpcMemoryPoolBox *b) {
-            // Shared ownership synchronizes the increments with this load.
-            std::size_t imports = b->imports.load(std::memory_order_relaxed);
-            if (imports > 0) {
-                GILReleaseGuard gil;
-                if (unsigned int delay = g_ipc_pool_release_delay_us.load(std::memory_order_relaxed)) {
-                    std::this_thread::sleep_for(std::chrono::microseconds(delay));
-                }
-                clear_mempool_peer_access(b->resource, -1);
-                const std::size_t total = imports;
-                std::size_t failed = 0;
-                CUresult first_failure = CUDA_SUCCESS;
-                for (; imports > 0; --imports) {
-                    if (CUresult s = DRIVER_CALL(cuMemPoolDestroy, b->resource); s != CUDA_SUCCESS) {
-                        if (failed++ == 0) {
-                            first_failure = s;
-                        }
-                    }
-                }
-                g_live_owned_mempools.fetch_sub(1, std::memory_order_relaxed);
-                // Wake waiting importers before reporting: a report can run
-                // user code, which could import this pool again.
-                ipc_pool_registry.release(b->resource, &b->resource);
-                if (failed > 0) {
-                    char operation[kOperationNameSize];
-                    format_operation(operation, sizeof(operation), "cuMemPoolDestroy", handle_bits(b->resource));
-                    char detail[kErrorMessageSize];
-                    std::snprintf(detail, sizeof(detail), "failed %zu of %zu times, first with", failed, total);
-                    report_cuda_error(operation, first_failure, total > 1 ? detail : nullptr);
-                }
-            }
-            delete b;
-        }
-    );
-    // clang-format on
+    auto box = std::shared_ptr<IpcMemoryPoolBox>(new IpcMemoryPoolBox{}, delete_ipc_pool_box);
     auto *handle_ptr = reinterpret_cast<void *>(static_cast<uintptr_t>(fd));
     if (CUDA_SUCCESS !=
         (err = DRIVER_CALL(cuMemPoolImportFromShareableHandle, &box->resource, handle_ptr, handle_type, 0))) {
@@ -242,7 +280,8 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
         pw_cuMemPoolDestroy(box->resource);
         throw;
     }
-    if (owner == h) {
+    const bool became_owner = owner == h;
+    if (became_owner) {
         g_live_owned_mempools.fetch_add(1, std::memory_order_relaxed);
     }
     else {
