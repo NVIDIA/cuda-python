@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=82fe10a6"></script>
+    <script src="../_static/documentation_options.js?v=64fca7ea"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev74';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev86';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -791,6 +791,10 @@
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> now verifies the actual Tensor type before using the
+PyTorch native bridge. Protocol adapters with a <code class="docutils literal notranslate"><span class="pre">torch</span></code>-prefixed module
+name and a <code class="docutils literal notranslate"><span class="pre">data_ptr</span></code> attribute now use their declared data exchange
+protocol instead of failing or being passed to the native Tensor interface.</p></li>
 <li><p>Kernels, <a class="reference internal" href="../generated/cuda.core.Buffer.html#cuda.core.Buffer.fill" title="cuda.core.Buffer.fill"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.fill()</span></code></a> and asynchronous copies now work on
 <a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> buffers on every device that supports the
 pool’s kind of host memory pool, as on <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> memory. In
