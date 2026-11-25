@@ -163,19 +163,22 @@ def test_get_power_management_limit(all_devices, subtests):
             nvml.device_get_power_management_limit(device)
 
 
-# This test is not currently run in any CI job
 def test_set_power_management_limit(all_devices, subtests):
     for device in all_devices:
         with (
             subtests.test(device_index=nvml.device_get_index(device)),
             unsupported_before(device, None),
         ):
+            limit = nvml.device_get_power_management_limit(device)
+            min_limit, max_limit = nvml.device_get_power_management_limit_constraints(device)
+            assert min_limit <= limit <= max_limit
+            # Re-applying the current limit is valid on every device and leaves
+            # the (possibly shared) GPU unchanged.
             try:
-                nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, 10000)
+                nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, limit)
             except nvml.NoPermissionError:
                 pytest.skip("No permission to set power management limit")
-            except nvml.InvalidArgumentError:
-                pytest.skip("Invalid argument when setting power management limit -- probably unsupported")
+            assert nvml.device_get_power_management_limit(device) == limit
 
 
 def test_set_temperature_threshold(all_devices, subtests):
