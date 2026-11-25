@@ -34,6 +34,11 @@ ContextHandle create_current_context_handle_ref(CUcontext ctx, CUdevice device);
 // view is non-owning and is not destroyed independently.
 ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle &h_green_ctx);
 
+// True if h keeps its context alive: a primary context that cuda.core has
+// retained, or a green context's own handle. A handle for any other context
+// is a plain reference that a later lookup may replace with an owning one.
+bool context_handle_is_owning(const ContextHandle &h) noexcept;
+
 // Return the green context dependency associated with a ContextHandle, if any.
 GreenCtxHandle get_context_green_ctx(const ContextHandle &h) noexcept;
 

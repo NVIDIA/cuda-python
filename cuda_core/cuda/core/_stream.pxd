@@ -13,6 +13,7 @@ cdef class Stream:
     cdef:
         StreamHandle _h_stream
         ContextHandle _h_context
+        bint _ctx_borrowed  # _h_context came from cuStreamGetCtx, not from the stream's box
         int _device_id
         int _nonblocking
         int _priority

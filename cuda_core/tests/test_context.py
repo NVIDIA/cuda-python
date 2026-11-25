@@ -181,3 +181,41 @@ def _foreign_primary_context_child(device_id):
 def test_lookup_retains_foreign_primary_context(init_cuda):
     """A Context resolved for a primary context that another owner made current keeps it alive."""
     run_child(_foreign_primary_context_child, init_cuda.device_id)
+
+
+# A real stream is wrapped while its primary context is not current, so the
+# Stream keeps a plain reference to it. Once another owner makes the primary
+# context current, a later lookup through the same Stream must pin it instead of
+# reusing that reference. Releasing the other owner's retain then leaves the
+# context, and the Event recorded on the stream, alive.
+def _borrowed_stream_child(device_id):
+    handle_return(driver.cuInit(0))
+    with assert_no_cuda_warning():
+        primary = handle_return(driver.cuDevicePrimaryCtxRetain(device_id))
+        handle_return(driver.cuCtxSetCurrent(primary))
+        raw_stream = handle_return(driver.cuStreamCreate(driver.CUstream_flags.CU_STREAM_NON_BLOCKING.value))
+        handle_return(driver.cuCtxSetCurrent(None))
+
+        stream = Stream.from_handle(int(raw_stream))
+        # First lookup: the primary context is not current, so it is not pinned.
+        assert stream.context is not None
+        handle_return(driver.cuCtxSetCurrent(primary))
+        event = stream.record()
+        ctx = stream.context
+        handle_return(driver.cuCtxSetCurrent(None))
+        handle_return(driver.cuStreamDestroy(raw_stream))
+        handle_return(driver.cuDevicePrimaryCtxRelease(device_id))
+
+        assert primary_context_active(device_id), (
+            "primary context destroyed while a cuda.core object still refers to it"
+        )
+        event.sync()
+        dev = Device(device_id)
+        dev.set_current(ctx)
+        dev.create_stream().sync()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-5-5")
+def test_borrowed_stream_lookup_retains_primary_context(init_cuda):
+    """A borrowed stream's context lookup pins its primary context once it becomes current."""
+    run_child(_borrowed_stream_child, init_cuda.device_id)
