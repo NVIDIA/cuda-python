@@ -212,6 +212,16 @@ cdef class DeviceMemoryResource(_MemPool):
             A new device memory resource instance with the imported handle. If
             the handle's memory resource is already registered in this process,
             that resource is returned with its original device.
+
+        Raises
+        ------
+        TypeError
+            If the handle refers to a host memory pool, which must be imported
+            with :meth:`PinnedMemoryResource.from_allocation_handle`. The
+            pool's kind is checked with a CUDA 13 build of ``cuda.core`` and a
+            13.2 or later driver. Otherwise it is checked only when the
+            handle's memory resource is already registered in this process.
+            The pool's device is not checked against ``device_id``.
         """
         from .._device import Device
         dev_id = Device(device_id).device_id
@@ -314,6 +324,8 @@ cdef inline _DMR_init(DeviceMemoryResource self, device_id, options):
 
 
 cdef int _DMR_init_imported(_MemPool mr, object dev_id) except? -1:
+    cdef cydriver.CUmemLocation loc
+    _ipc.MP_check_import_location(mr, False, &loc)
     # Runs before the resource is registered: a concurrent import of the same
     # UUID returns it from the registry and must not write to it.
     (<DeviceMemoryResource>mr)._dev_id = dev_id

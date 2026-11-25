@@ -50,6 +50,7 @@ build = [
     "cython>=3.2.5,<3.3",
 ]
 test = [
+    "cuda-pathfinder>=1.5",
     "cython>=3.2.5,<3.3",
     "setuptools>=80.0.0",
     "numpy>=1.21.1",

@@ -157,6 +157,8 @@ def test_cutensor_mg_expected_failure_follows_installed_cutensor_version(
         have_distribution.cache_clear()
 
 
+# For libname=nvcudla:
+# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     "libname",
     supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else supported_nvidia_libs.SUPPORTED_LINUX_SONAMES,

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b2610805a773c0962631e67e0bd215f5b5a613e533637c379ba70c29d1143947
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2022fa996fa6357e91f9c1971d760595ae8ad738d89cc3dee03b869fc43412a3
 from typing import Any, Optional
 import cython
 import ctypes
@@ -4660,20 +4660,12 @@ class cudaDeviceAttr(_FastEnum):
         'CPU\n'
     )
 
-    cudaDevAttrReserved92 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved92
-
-    cudaDevAttrReserved93 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved93
-
-    cudaDevAttrReserved94 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved94
-
 
     cudaDevAttrCooperativeLaunch = (
         cyruntime.cudaDeviceAttr.cudaDevAttrCooperativeLaunch,
         'Device supports launching cooperative kernels via\n'
         ':py:obj:`~.cudaLaunchCooperativeKernel`\n'
     )
-
-    cudaDevAttrReserved96 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved96
 
 
     cudaDevAttrMaxSharedMemoryPerBlockOptin = (
@@ -4799,12 +4791,6 @@ class cudaDeviceAttr(_FastEnum):
         'Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays\n'
     )
 
-    cudaDevAttrReserved122 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved122
-
-    cudaDevAttrReserved123 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved123
-
-    cudaDevAttrReserved124 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved124
-
 
     cudaDevAttrIpcEventSupport = (
         cyruntime.cudaDeviceAttr.cudaDevAttrIpcEventSupport,
@@ -4816,12 +4802,6 @@ class cudaDeviceAttr(_FastEnum):
         cyruntime.cudaDeviceAttr.cudaDevAttrMemSyncDomainCount,
         'Number of memory synchronization domains the device supports.\n'
     )
-
-    cudaDevAttrReserved127 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved127
-
-    cudaDevAttrReserved128 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved128
-
-    cudaDevAttrReserved129 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved129
 
 
     cudaDevAttrNumaConfig = (
@@ -4835,8 +4815,6 @@ class cudaDeviceAttr(_FastEnum):
         cyruntime.cudaDeviceAttr.cudaDevAttrNumaId,
         'NUMA node ID of the GPU memory\n'
     )
-
-    cudaDevAttrReserved132 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved132
 
 
     cudaDevAttrMpsEnabled = (
@@ -4875,8 +4853,6 @@ class cudaDeviceAttr(_FastEnum):
         'The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.\n'
     )
 
-    cudaDevAttrReserved141 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved141
-
 
     cudaDevAttrHostNumaMemoryPoolsSupported = (
         cyruntime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported,
@@ -4896,8 +4872,6 @@ class cudaDeviceAttr(_FastEnum):
         'Device suports HOST location with the :py:obj:`~.cuMemAllocAsync` and\n'
         ':py:obj:`~.cuMemPool` family of APIs\n'
     )
-
-    cudaDevAttrReserved145 = cyruntime.cudaDeviceAttr.cudaDevAttrReserved145
 
 
     cudaDevAttrOnlyPartialHostNativeAtomicSupported = (
@@ -5869,12 +5843,6 @@ class cudaCGScope(_FastEnum):
         'Scope represented by a grid_group\n'
     )
 
-
-    cudaCGScopeReserved = (
-        cyruntime.cudaCGScope.cudaCGScopeReserved,
-        'Reserved\n'
-    )
-
 class cudaKernelFunctionType(_FastEnum):
     """
     CUDA Kernel Function Handle Type
@@ -6052,12 +6020,6 @@ class cudaGraphNodeType(_FastEnum):
     cudaGraphNodeTypeMemcpyBatch = (
         cyruntime.cudaGraphNodeType.cudaGraphNodeTypeMemcpyBatch,
         'Batch Memcpy Node\n'
-    )
-
-
-    cudaGraphNodeTypeReserved16 = (
-        cyruntime.cudaGraphNodeType.cudaGraphNodeTypeReserved16,
-        'Reserved.\n'
     )
 
 
@@ -14261,7 +14223,7 @@ cdef class cudaExternalMemoryHandleDesc:
 
 
     handle : anon_union4
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     size : unsigned long long
@@ -14723,7 +14685,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
 
 
     handle : anon_union5
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     flags : unsigned int
@@ -24371,8 +24333,8 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name` must not be
     NULL. If :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.handle`
     is not NULL, then it must represent a valid shared NT handle that is
-    returned by ID3D12Device::CreateSharedHandle when referring to a
-    ID3D12Heap object. This handle holds a reference to the underlying
+    returned by :py:obj:`~.ID3D12Device.CreateSharedHandle` when referring
+    to a ID3D12Heap object. This handle holds a reference to the underlying
     object. If :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name`
     is not NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a ID3D12Heap object.
@@ -24383,11 +24345,12 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name` must not be
     NULL. If :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.handle`
     is not NULL, then it must represent a valid shared NT handle that is
-    returned by ID3D12Device::CreateSharedHandle when referring to a
-    ID3D12Resource object. This handle holds a reference to the underlying
-    object. If :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name`
-    is not NULL, then it must point to a NULL-terminated array of UTF-16
-    characters that refers to a ID3D12Resource object.
+    returned by :py:obj:`~.ID3D12Device.CreateSharedHandle` when referring
+    to a ID3D12Resource object. This handle holds a reference to the
+    underlying object. If
+    :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name` is not NULL,
+    then it must point to a NULL-terminated array of UTF-16 characters that
+    refers to a ID3D12Resource object.
 
     If :py:obj:`~.cudaExternalMemoryHandleDesc.type` is
     :py:obj:`~.cudaExternalMemoryHandleTypeD3D11Resource`,then exactly one
@@ -24395,8 +24358,8 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name` must not be
     NULL. If :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.handle`
     is   not NULL, then it must represent a valid shared NT handle that is
-    returned by IDXGIResource1::CreateSharedHandle when referring to a
-    ID3D11Resource object. If
+    returned by :py:obj:`~.IDXGIResource1.CreateSharedHandle` when
+    referring to a ID3D11Resource object. If
     :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name` is not NULL,
     then it must point to a NULL-terminated array of UTF-16 characters that
     refers to a ID3D11Resource object.
@@ -24406,8 +24369,8 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.handle` must be
     non-NULL and :py:obj:`~.cudaExternalMemoryHandleDesc.handle.win32.name`
     must be NULL. The handle specified must be a valid shared KMT handle
-    that is returned by IDXGIResource::GetSharedHandle when referring to a
-    ID3D11Resource object.
+    that is returned by :py:obj:`~.IDXGIResource.GetSharedHandle` when
+    referring to a ID3D11Resource object.
 
     If :py:obj:`~.cudaExternalMemoryHandleDesc.type` is
     :py:obj:`~.cudaExternalMemoryHandleTypeNvSciBuf`, then
@@ -24688,8 +24651,9 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     be NULL. If
     :py:obj:`~.cudaExternalSemaphoreHandleDesc.handle.win32.handle` is not
     NULL, then it must represent a valid shared NT handle that is returned
-    by ID3D12Device::CreateSharedHandle when referring to a ID3D12Fence
-    object. This handle holds a reference to the underlying object. If
+    by :py:obj:`~.ID3D12Device.CreateSharedHandle` when referring to a
+    ID3D12Fence object. This handle holds a reference to the underlying
+    object. If
     :py:obj:`~.cudaExternalSemaphoreHandleDesc.handle.win32.name` is not
     NULL, then it must name a valid synchronization object that refers to a
     valid ID3D12Fence object.
@@ -24701,7 +24665,7 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     be NULL. If
     :py:obj:`~.cudaExternalSemaphoreHandleDesc.handle.win32.handle` is not
     NULL, then it must represent a valid shared NT handle that is returned
-    by ID3D11Fence::CreateSharedHandle. If
+    by :py:obj:`~.ID3D11Fence.CreateSharedHandle`. If
     :py:obj:`~.cudaExternalSemaphoreHandleDesc.handle.win32.name` is not
     NULL, then it must name a valid synchronization object that refers to a
     valid ID3D11Fence object.
@@ -24717,8 +24681,8 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     be NULL. If
     :py:obj:`~.cudaExternalSemaphoreHandleDesc.handle.win32.handle` is not
     NULL, then it represent a valid shared NT handle that is returned by
-    IDXGIResource1::CreateSharedHandle when referring to a IDXGIKeyedMutex
-    object.
+    :py:obj:`~.IDXGIResource1.CreateSharedHandle` when referring to a
+    IDXGIKeyedMutex object.
 
     If :py:obj:`~.cudaExternalSemaphoreHandleDesc.type` is
     :py:obj:`~.cudaExternalSemaphoreHandleTypeKeyedMutexKmt`, then
@@ -24726,8 +24690,8 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     non-NULL and
     :py:obj:`~.cudaExternalSemaphoreHandleDesc.handle.win32.name` must be
     NULL. The handle specified must represent a valid KMT handle that is
-    returned by IDXGIResource::GetSharedHandle when referring to a
-    IDXGIKeyedMutex object.
+    returned by :py:obj:`~.IDXGIResource.GetSharedHandle` when referring to
+    a IDXGIKeyedMutex object.
 
     If :py:obj:`~.cudaExternalSemaphoreHandleDesc.type` is
     :py:obj:`~.cudaExternalSemaphoreHandleTypeTimelineSemaphoreFd`, then
@@ -28175,7 +28139,7 @@ def cudaMemcpyWithAttributesAsync(dst, src, size_t size, attr : Optional[cudaMem
 
     For more information regarding the attributes, please refer to
     :py:obj:`~.cudaMemcpyAttributes` and it's usage desciption
-    in::cudaMemcpyBatchAsync
+    :py:obj:`~.in.cudaMemcpyBatchAsync`
 
     Parameters
     ----------
@@ -28230,7 +28194,7 @@ def cudaMemcpy3DWithAttributesAsync(op : Optional[cudaMemcpy3DBatchOp], unsigned
 
     For more information regarding the operation, please refer to
     :py:obj:`~.cudaMemcpy3DBatchOp` and it's usage desciption
-    in::cudaMemcpy3DBatchAsync
+    :py:obj:`~.in.cudaMemcpy3DBatchAsync`
 
     Parameters
     ----------
@@ -30504,9 +30468,9 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     specific device locality domain, applications must set
     :py:obj:`~.cudaMemPoolProps.cudaMemLocation.type` to
     :py:obj:`~.cudaMemLocationTypeDeviceLocalityDomain`,
-    :py:obj:`~.cudaMemPoolProps.cudaMemLocation.localized`.deviceId must
+    :py:obj:`~.cudaMemPoolProps.cudaMemLocation.localized.deviceId` must
     specify the device ID, and
-    :py:obj:`~.cudaMemPoolProps.cudaMemLocation.localized`.localityDomainId
+    :py:obj:`~.cudaMemPoolProps.cudaMemLocation.localized.localityDomainId`
     must specify the locality domain ID. The locality domain ID must be a
     valid locality domain ID for the specified device. See also
     :py:obj:`~.cudaDeviceGetAttribute` with the attribute
@@ -31069,9 +31033,9 @@ def cudaPointerGetAttributes(ptr):
       memory referred to by `ptr` cannot be accessed directly by the host
       then this is NULL.
 
-    - :py:obj:`~.localityDomainOrdinal` is the locality domain ordinal for
-      device allocations localized to a locality domain, or -1 when the
-      allocation is not localized to a locality domain.
+    - localityDomainOrdinal is the locality domain ordinal for device
+      allocations localized to a locality domain, or -1 when the allocation
+      is not localized to a locality domain.
 
     Parameters
     ----------

@@ -3,10 +3,13 @@
 
 """Memory-related test helpers (skip guards and resource factories)."""
 
+import contextlib
+
 import pytest
 
 from cuda.core import Device, DeviceMemoryResource, ManagedMemoryResource, PinnedMemoryResource
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda_python_test_helpers import IS_WINDOWS
 
 # Shareable handle type for VirtualMemoryResource allocations on this platform.
@@ -19,6 +22,19 @@ class UnreleasedMemoryResourceWarning(Warning):
 
 class BaselineMemoryResourceReleasedWarning(Warning):
     """An ``init_cuda`` test released an owned memory pool or VA reservation that existed before it started."""
+
+
+def skip_if_pool_location_query_unsupported():
+    """Skip unless an imported pool's location can be queried.
+
+    That needs a CUDA 13 build of ``cuda.core`` and a 13.2 or later driver
+    (``CU_MEMPOOL_ATTR_LOCATION_TYPE``). Without it, imports skip the check of
+    the pool's kind; keep this in sync with ``MP_location_query_available``.
+    """
+    if BUILD_CUDA_MAJOR < 13:
+        pytest.skip("checking a pool's location requires a CUDA 13 build of cuda.core")
+    if driver_version() < (13, 2, 0):
+        pytest.skip("checking a pool's location requires a 13.2 or later driver")
 
 
 def skip_if_mempool_unsupported(device=None):
@@ -54,13 +70,46 @@ def import_pool_resource(cls, device, alloc_handle):
     """Import the pool shared by ``alloc_handle`` as ``cls``, the class of the exporting resource.
 
     The class must match the exporter: importing a pinned pool as a
-    ``DeviceMemoryResource`` (or the reverse) currently succeeds and yields a
-    mislabeled resource (#3502).
+    ``DeviceMemoryResource`` (or the reverse) raises ``TypeError`` (#3502).
     """
     if cls is PinnedMemoryResource:
         return PinnedMemoryResource.from_allocation_handle(alloc_handle)
     assert cls is DeviceMemoryResource, cls
     return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+
+
+def pool_supported_devices(mr_type, device):
+    """Devices on which an imported pool of ``mr_type`` grants access in this process.
+
+    A pinned (host-NUMA) pool grants device access to every device that supports
+    host NUMA memory pools; a device pool grants access to its own device. Keep
+    this in sync with ``_PMR_grant_device_access``.
+    """
+    if mr_type is PinnedMemoryResource:
+        return [d for d in Device.get_all_devices() if d.properties.host_numa_memory_pools_supported]
+    assert mr_type is DeviceMemoryResource, mr_type
+    return [device]
+
+
+def drain_on_exit(stack, synchronizable):
+    """Make ``stack`` synchronize ``synchronizable`` (a stream or a device) when it closes.
+
+    Closing a buffer imported from a memory pool enqueues a stream-ordered
+    ``cuMemFreeAsync``, and the importer's free must complete before the
+    exporter frees the allocation. Call this before entering the imported
+    buffers on ``stack``: an ExitStack unwinds in reverse, so the sync then runs
+    after they close, also when the body raises.
+    """
+    stack.callback(synchronizable.sync)
+
+
+def enter_imported_pool(stack, cls, device, alloc_handle):
+    """Import the pool like :func:`import_pool_resource`, and register it to close on ``stack``.
+
+    ``stack`` is a :class:`contextlib.ExitStack`. A pool resource is not a
+    context manager, so it is entered through :func:`contextlib.closing`.
+    """
+    return stack.enter_context(contextlib.closing(import_pool_resource(cls, device, alloc_handle)))
 
 
 def pool_access_flags(mr, device):

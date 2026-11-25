@@ -31,6 +31,7 @@ def callableBinary(name):
     return shutil.which(name) is not None
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(True, reason="Always skip!")
 def test_always_skip():
     pass

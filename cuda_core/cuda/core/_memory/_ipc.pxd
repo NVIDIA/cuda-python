@@ -11,8 +11,8 @@ from cuda.core._rt cimport FileDescriptorHandle
 # Holds _MemPool objects imported by this process.  This enables
 # buffer serialization, as buffers can reduce to a pair comprising the memory
 # resource UUID (the key into this registry) and the serialized buffer
-# descriptor.
-cdef object registry
+# descriptor.  Maps ``uuid.UUID.bytes`` to a weak reference of the resource.
+cdef dict registry
 
 
 # The IPC handle type for this platform.  IPC is currently only supported on
@@ -83,6 +83,12 @@ cdef Buffer Buffer_from_ipc_descriptor(cls, object, IPCBufferDescriptor, stream)
 # it. The second argument is the init_arg passed to MP_from_allocation_handle.
 ctypedef int (*MP_import_init_t)(_MemPool, object) except? -1
 
+# Checks the location of an imported pool against the requested class: host=True
+# accepts a HOST or HOST_NUMA pool, host=False a DEVICE, INVISIBLE or
+# DEVICE_LOCALITY_DOMAIN one. Any other location raises TypeError. Returns 1 and
+# stores the location in loc, or returns 0 without checking when the location
+# cannot be queried (a CUDA 12 build or a driver before 13.2).
+cdef int MP_check_import_location(_MemPool, bint host, cydriver.CUmemLocation* loc) except? -1
 cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=*, object init_arg=*)
 cdef _MemPool MP_from_registry(uuid)
 cdef _MemPool MP_register(_MemPool, uuid)

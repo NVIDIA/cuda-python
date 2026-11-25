@@ -14,6 +14,7 @@ from urllib.request import url2pathname
 import pytest
 
 
+# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     ("distribution_name", "expected_source", "expected_version"),
     (

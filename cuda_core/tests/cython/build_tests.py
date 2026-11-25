@@ -105,6 +105,8 @@ def main() -> None:
     # are stable regardless of the invoking cwd.
     os.chdir(script_dir)
     ext_modules = _cythonize_tests(pyx_files)
+    core_include_dir = script_dir.parents[1] / "cuda" / "core" / "_include"
+    build_shared._add_cython_test_include_dirs(ext_modules, core_include_dir)
     # Core's runtime consumer headers require C++17 with either toolchain.
     for extension in ext_modules:
         extension.extra_compile_args.append("/std:c++17" if os.name == "nt" else "-std=c++17")

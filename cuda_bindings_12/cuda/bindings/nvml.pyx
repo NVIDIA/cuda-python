@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=82df971c247cf6ab3e4aed0e3fa58bcfc88508a419b3dcd9f099182445ca41cd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9ee117b62b84a62a8a0110bcfb87436ca6e1e8637a88d8a9e94c654dd7f9e94a
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -127,8 +127,6 @@ class NvLinkUtilizationCountUnits(_cyb_FastEnum):
     NVLINK_COUNTER_UNIT_PACKETS = PACKETS  # backward-compat alias
     BYTES = NVML_NVLINK_COUNTER_UNIT_BYTES
     NVLINK_COUNTER_UNIT_BYTES = BYTES  # backward-compat alias
-    RESERVED = NVML_NVLINK_COUNTER_UNIT_RESERVED
-    NVLINK_COUNTER_UNIT_RESERVED = RESERVED  # backward-compat alias
     COUNT = NVML_NVLINK_COUNTER_UNIT_COUNT
     NVLINK_COUNTER_UNIT_COUNT = COUNT  # backward-compat alias
 
@@ -2132,7 +2130,7 @@ class GpuOperationalEventContextType(_cyb_FastEnum):
     NVML-defined GPU Operational Event context classifications.  These
     values describe the NVML public interpretation of a context payload.
     The original source-defined context type is returned separately in
-    `nvmlEventSetGetContextInfo_v1_t.sourceEventContextType`.
+    ``nvmlEventSetGetContextInfo_v1_t.sourceEventContextType``.
 
     See `nvmlGpuOperationalEventContextType_t`.
     """
@@ -31525,7 +31523,7 @@ cpdef str system_get_driver_version():
     For all products.
     The version identifier is an alphanumeric string. It will not exceed 80
     characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE``.
 
     Returns:
         str: Reference in which to return the version identifier.
@@ -31552,7 +31550,7 @@ cpdef str system_get_nvml_version():
         This query is available in the MPS locality-domain view described in ``MPS
         Locality Domain Device Enumeration``. The version identifier is an alphanumeric
         string. It will not exceed 80 characters in length (including the NULL
-        terminator). See nvmlConstants::NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE.
+        terminator). See ``nvmlConstants.NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE``.
     .. seealso:: `nvmlSystemGetNVMLVersion`
     """
     cdef unsigned int length = 80
@@ -32071,7 +32069,7 @@ cpdef str device_get_name(intptr_t device):
     For all products.
     The name is an alphanumeric string that denotes a particular product, e.g.
     Tesla ™️ C2070. It will not exceed 96 characters in length (including the NULL
-    terminator). See nvmlConstants::NVML_DEVICE_NAME_V2_BUFFER_SIZE.
+    terminator). See ``nvmlConstants.NVML_DEVICE_NAME_V2_BUFFER_SIZE``.
     When used with MIG device handles the API returns MIG device names which can be
     used to identify devices based on their attributes.
 
@@ -32158,7 +32156,7 @@ cpdef str device_get_serial(intptr_t device):
     The serial number is an alphanumeric string that will not exceed 30 characters
     (including the NULL terminator). This number matches the serial number tag that
     is physically attached to the board. See
-    nvmlConstants::NVML_DEVICE_SERIAL_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_SERIAL_BUFFER_SIZE``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -32444,7 +32442,7 @@ cpdef str device_get_uuid(intptr_t device):
     The UUID is a globally unique identifier. It is the only available identifier
     for pre-Fermi-architecture products. It does NOT correspond to any identifier
     printed on the board. It will not exceed 96 characters in length (including the
-    NULL terminator). See nvmlConstants::NVML_DEVICE_UUID_V2_BUFFER_SIZE.
+    NULL terminator). See ``nvmlConstants.NVML_DEVICE_UUID_V2_BUFFER_SIZE``.
     When used with MIG device handles the API returns globally unique UUIDs which
     can be used to identify MIG devices across both GPU and MIG devices. UUIDs are
     immutable for the lifetime of a MIG device.
@@ -32518,7 +32516,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object):
     info, such as aggregate ECC counts. The version of the data structures in this
     memory may change from time to time. It will not exceed 16 characters in length
     (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE``.
     See ``nvmlInforomObject_t`` for details on the available infoROM objects.
 
     Args:
@@ -32546,7 +32544,7 @@ cpdef str device_get_inforom_image_version(intptr_t device):
     the infoROM flashed on the board in contrast to infoROM object version which is
     only an indicator of supported features. Version string will not exceed 16
     characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_INFOROM_VERSION_BUFFER_SIZE``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -34299,7 +34297,7 @@ cpdef str device_get_vbios_version(intptr_t device):
     For all products.
     The VBIOS version may change from time to time. It will not exceed 32
     characters in length (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -36586,7 +36584,7 @@ cpdef object device_get_creatable_vgpus(intptr_t device):
 
 
 cpdef str vgpu_type_get_class(unsigned int vgpu_type_id):
-    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See nvmlConstants::NVML_DEVICE_NAME_BUFFER_SIZE.
+    """Retrieve the class of a vGPU type. It will not exceed 64 characters in length (including the NUL terminator). See ``nvmlConstants.NVML_DEVICE_NAME_BUFFER_SIZE``.
 
     For Kepler ™️ or newer fully supported devices.
 
@@ -36730,7 +36728,7 @@ cpdef str vgpu_type_get_license(unsigned int vgpu_type_id):
     "GRID-Virtual-PC,2.0;GRID-Virtual-WS,2.0;GRID-Virtual-WS-Ext,2.0".
     The total length of the returned string will not exceed 128 characters,
     including the NUL terminator. See
-    nvmlVgpuConstants::NVML_GRID_LICENSE_BUFFER_SIZE.
+    ``nvmlVgpuConstants.NVML_GRID_LICENSE_BUFFER_SIZE``.
     For Kepler ™️ or newer fully supported devices.
 
     Args:
@@ -36878,7 +36876,7 @@ cpdef tuple vgpu_instance_get_vm_id(unsigned int vgpu_instance):
 
     The VM ID is returned as a string, not exceeding 80 characters in length
     (including the NUL terminator). See
-    nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_UUID_BUFFER_SIZE``.
     The format of the VM ID varies by platform, and is indicated by the type
     identifier returned in ``vm_idType``.
     For Kepler ™️ or newer fully supported devices.
@@ -36909,7 +36907,7 @@ cpdef str vgpu_instance_get_uuid(unsigned int vgpu_instance):
     The UUID is a globally unique identifier associated with the vGPU, and is
     returned as a 5-part hexadecimal string, not exceeding 80 characters in length
     (including the NULL terminator). See
-    nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    ``nvmlConstants.NVML_DEVICE_UUID_BUFFER_SIZE``.
     For Kepler ™️ or newer fully supported devices.
 
     Args:
@@ -36935,7 +36933,7 @@ cpdef str vgpu_instance_get_vm_driver_version(unsigned int vgpu_instance):
     The version is returned as an alphanumeric string in the caller-supplied buffer
     ``version``. The length of the version string will not exceed 80 characters in
     length (including the NUL terminator). See
-    nvmlConstants::NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE.
+    ``nvmlConstants.NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE``.
     :func:`vgpu_instance_get_vm_driver_version` may be called at any time for a
     vGPU instance. The guest VM driver version is returned as "Not Available" if no
     NVIDIA driver is installed in the VM, or the VM has not yet booted to the point
@@ -37320,7 +37318,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     The MDEV UUID is a globally unique identifier of the mdev device assigned to
     the VM, and is returned as a 5-part hexadecimal string, not exceeding 80
     characters in length (including the NULL terminator). MDEV UUID is displayed
-    only on KVM platform. See nvmlConstants::NVML_DEVICE_UUID_BUFFER_SIZE.
+    only on KVM platform. See ``nvmlConstants.NVML_DEVICE_UUID_BUFFER_SIZE``.
     For Maxwell ™️ or newer fully supported devices.
 
     Args:
