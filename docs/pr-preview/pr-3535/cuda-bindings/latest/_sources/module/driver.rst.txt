@@ -3,7 +3,7 @@
 
 .. This code was automatically generated with version 13.5.0. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=69ec4d4368180a8a529bad675d1fcc7e44ca944b02b15e35db56241bf2738a9d
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=3e51161ca1957af71e561bff1125d2ff9fb9ad1f74927dedfc1e0bf2d908dd7f
 ------
 driver
 ------
@@ -21,83 +21,83 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st
 .. autoclass:: cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st
 .. autoclass:: cuda.bindings.driver.CUasyncNotificationInfo_st
-.. autoclass:: cuda.bindings.driver.CUdevprop_st
-.. autoclass:: cuda.bindings.driver.CUaccessPolicyWindow_st
-.. autoclass:: cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS_v2_st
-.. autoclass:: cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS_v3_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_v2_st
-.. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_v2_st
-.. autoclass:: cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS
-.. autoclass:: cuda.bindings.driver.CUgraphEdgeData_st
-.. autoclass:: cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUlaunchMemSyncDomainMap_st
-.. autoclass:: cuda.bindings.driver.CUlaunchAttributeValue_union
-.. autoclass:: cuda.bindings.driver.CUlaunchAttribute_st
-.. autoclass:: cuda.bindings.driver.CUlaunchConfig_st
-.. autoclass:: cuda.bindings.driver.CUexecAffinitySmCount_st
-.. autoclass:: cuda.bindings.driver.CUexecAffinityParam_st
-.. autoclass:: cuda.bindings.driver.CUctxCigParam_st
-.. autoclass:: cuda.bindings.driver.CUctxCreateParams_st
 .. autoclass:: cuda.bindings.driver.CUstreamCigParam_st
-.. autoclass:: cuda.bindings.driver.CUstreamCigCaptureParams_st
-.. autoclass:: cuda.bindings.driver.CUlibraryHostUniversalFunctionAndDataTable_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY2D_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_st
+.. autoclass:: cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS_v3_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair_st
+.. autoclass:: cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs_st
+.. autoclass:: cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st
+.. autoclass:: cuda.bindings.driver.CUeglFrame_st
+.. autoclass:: cuda.bindings.driver.CUDA_CHILD_GRAPH_NODE_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_PEER_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_ARRAY_DESCRIPTOR_st
-.. autoclass:: cuda.bindings.driver.CUDA_ARRAY3D_DESCRIPTOR_st
-.. autoclass:: cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStorageInfo_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st
+.. autoclass:: cuda.bindings.driver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st
+.. autoclass:: cuda.bindings.driver.CUexecAffinityParam_st
+.. autoclass:: cuda.bindings.driver.CUlaunchAttributeValue_union
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_st
 .. autoclass:: cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS_st
 .. autoclass:: cuda.bindings.driver.CUDA_RESOURCE_DESC_st
-.. autoclass:: cuda.bindings.driver.CUDA_TEXTURE_DESC_st
-.. autoclass:: cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC_st
-.. autoclass:: cuda.bindings.driver.CUtensorMap_st
-.. autoclass:: cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st
-.. autoclass:: cuda.bindings.driver.CUDA_LAUNCH_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEM_FREE_NODE_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st
-.. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st
+.. autoclass:: cuda.bindings.driver.CUgraphNodeParams_st
+.. autoclass:: cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_ARRAY_DESCRIPTOR_st
+.. autoclass:: cuda.bindings.driver.CUtensorMap_st
+.. autoclass:: cuda.bindings.driver.CUDA_LAUNCH_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_ARRAY_SPARSE_PROPERTIES_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st
+.. autoclass:: cuda.bindings.driver.CUarrayMapInfo_st
+.. autoclass:: cuda.bindings.driver.CUmemAllocationProp_st
+.. autoclass:: cuda.bindings.driver.CUDA_ARRAY3D_DESCRIPTOR_st
+.. autoclass:: cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS_st
+.. autoclass:: cuda.bindings.driver.CUDA_TEXTURE_DESC_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_v2_st
 .. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st
-.. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st
-.. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs_st
+.. autoclass:: cuda.bindings.driver.CUaccessPolicyWindow_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs_st
+.. autoclass:: cuda.bindings.driver.CUexecAffinitySmCount_st
+.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_st
+.. autoclass:: cuda.bindings.driver.CUDA_RESOURCE_VIEW_DESC_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_st
 .. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUmemLocation_st
+.. autoclass:: cuda.bindings.driver.CUmulticastObjectProp_st
 .. autoclass:: cuda.bindings.driver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUctxCigParam_st
+.. autoclass:: cuda.bindings.driver.CUlaunchConfig_st
 .. autoclass:: cuda.bindings.driver.CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_v2_st
 .. autoclass:: cuda.bindings.driver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_EXT_SEM_WAIT_NODE_PARAMS_v2_st
-.. autoclass:: cuda.bindings.driver.CUarrayMapInfo_st
-.. autoclass:: cuda.bindings.driver.CUmemLocation_st
-.. autoclass:: cuda.bindings.driver.CUmemAllocationProp_st
-.. autoclass:: cuda.bindings.driver.CUmulticastObjectProp_st
-.. autoclass:: cuda.bindings.driver.CUmemAccessDesc_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY_NODE_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUgraphExecUpdateResultInfo_st
-.. autoclass:: cuda.bindings.driver.CUmemPoolProps_st
-.. autoclass:: cuda.bindings.driver.CUmemPoolPtrExportData_st
-.. autoclass:: cuda.bindings.driver.CUmemcpyAttributes_st
-.. autoclass:: cuda.bindings.driver.CUoffset3D_st
+.. autoclass:: cuda.bindings.driver.CUlibraryHostUniversalFunctionAndDataTable_st
+.. autoclass:: cuda.bindings.driver.CUstreamCigCaptureParams_st
+.. autoclass:: cuda.bindings.driver.CUmemAccessDesc_st
+.. autoclass:: cuda.bindings.driver.CUdevprop_st
+.. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_v2_st
 .. autoclass:: cuda.bindings.driver.CUextent3D_st
+.. autoclass:: cuda.bindings.driver.CUgraphEdgeData_st
+.. autoclass:: cuda.bindings.driver.CUlaunchMemSyncDomainMap_st
+.. autoclass:: cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS
+.. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st
+.. autoclass:: cuda.bindings.driver.CUctxCreateParams_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY2D_st
+.. autoclass:: cuda.bindings.driver.CUmemPoolProps_st
+.. autoclass:: cuda.bindings.driver.CUDA_GRAPH_INSTANTIATE_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st
+.. autoclass:: cuda.bindings.driver.CUlaunchAttribute_st
 .. autoclass:: cuda.bindings.driver.CUmemcpy3DOperand_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_BATCH_OP_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v1_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEM_ALLOC_NODE_PARAMS_v2_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEM_FREE_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_CHILD_GRAPH_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_EVENT_WAIT_NODE_PARAMS_st
-.. autoclass:: cuda.bindings.driver.CUDA_MEMCPY_BATCH_NODE_PARAMS_V1_st
-.. autoclass:: cuda.bindings.driver.CUDA_FABRIC_CPY_BATCH_NODE_PARAMS_V1_st
-.. autoclass:: cuda.bindings.driver.CUgraphNodeParams_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStoragePerDeviceData_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointCustomStorageInfo_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs_st
-.. autoclass:: cuda.bindings.driver.CUeglFrame_st
+.. autoclass:: cuda.bindings.driver.CUoffset3D_st
+.. autoclass:: cuda.bindings.driver.CUmemPoolPtrExportData_st
+.. autoclass:: cuda.bindings.driver.CUDA_HOST_NODE_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_st
+.. autoclass:: cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS_v2_st
 .. autoclass:: cuda.bindings.driver.CUipcMem_flags
 
     .. autoattribute:: cuda.bindings.driver.CUipcMem_flags.CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS
@@ -3501,12 +3501,6 @@ Data types used by CUDA driver
 
 
         Batch Memcpy Node
-
-
-    .. autoattribute:: cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_RESERVED_16
-
-
-        Reserved
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE
@@ -8226,11 +8220,11 @@ Green context restrictions apply to memory copy operations only when the copy is
 .. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource_st
 .. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUdevResource_st
-.. autoclass:: cuda.bindings.driver.CUdevSmResource
-.. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource
-.. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource
-.. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS
 .. autoclass:: cuda.bindings.driver.CUdevResource
+.. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource
+.. autoclass:: cuda.bindings.driver.CUdevSmResource
 .. autoclass:: cuda.bindings.driver.CUgreenCtxCreate_flags
 
     .. autoattribute:: cuda.bindings.driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_NONE
