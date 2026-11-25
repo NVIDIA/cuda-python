@@ -9,6 +9,11 @@
 Fixes and enhancements
 ----------------------
 
+- ``StridedMemoryView`` now verifies the actual Tensor type before using the
+  PyTorch native bridge. Protocol adapters with a ``torch``-prefixed module
+  name and a ``data_ptr`` attribute now use their declared data exchange
+  protocol instead of failing or being passed to the native Tensor interface.
+
 - Kernels, :meth:`Buffer.fill` and asynchronous copies now work on
   :class:`PinnedMemoryResource` buffers on every device that supports the
   pool's kind of host memory pool, as on ``cudaMallocHost`` memory. In
@@ -39,3 +44,18 @@ Fixes and enhancements
   already registered in the process with its original ``device_id``, instead
   of changing it to the requested device.
   (`#3510 <https://github.com/NVIDIA/cuda-python/issues/3510>`__)
+
+- :meth:`DeviceMemoryResource.from_allocation_handle` now raises
+  ``TypeError`` for the allocation handle of a host memory pool, and
+  :meth:`PinnedMemoryResource.from_allocation_handle` for the handle of a
+  device memory pool. Unless the memory resource was already registered in
+  the importing process, for example by unpickling it, the import used to
+  succeed and return a resource that misreported ``device_id``,
+  ``is_host_accessible`` and ``is_device_accessible``. Code that imported a
+  pool with the class of the other pool kind must now use the exporting
+  resource's class. An imported :class:`PinnedMemoryResource` now also
+  reports the pool's NUMA node as ``numa_id`` instead of 0. The check and
+  the ``numa_id`` lookup need a CUDA 13 build of ``cuda.core`` and a 13.2 or
+  later driver; with a CUDA 12 build or an older driver, imports behave as
+  before.
+  (`#3502 <https://github.com/NVIDIA/cuda-python/issues/3502>`__)
