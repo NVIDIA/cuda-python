@@ -11,6 +11,12 @@ import warnings
 from typing import TYPE_CHECKING, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._utils.found_via import (
+    FOUND_VIA_CONDA,
+    FOUND_VIA_SITE_PACKAGES,
+    FOUND_VIA_SYSTEM_SEARCH,
+    FOUND_VIA_WAS_ALREADY_LOADED_FROM_ELSEWHERE,
+)
 
 if TYPE_CHECKING:
     from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
@@ -142,7 +148,7 @@ if sys.platform == "linux":
                     abs_path_for_dynamic_library(desc.name, handle),
                     True,
                     handle._handle,
-                    "was-already-loaded-from-elsewhere",
+                    FOUND_VIA_WAS_ALREADY_LOADED_FROM_ELSEWHERE,
                 )
         return None
 
@@ -178,17 +184,17 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
         else:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
             assert abs_path
-            return LoadedDL(abs_path, False, handle._handle, "system-search")
+            return LoadedDL(abs_path, False, handle._handle, FOUND_VIA_SYSTEM_SEARCH)
     return None
 
 
 def _preload_nvrtc_builtins(found_path: str, found_via: str | None) -> None:
     # Let Conda packaging provide sibling lookup through RPATH.
-    if found_via == "conda":
+    if found_via == FOUND_VIA_CONDA:
         return
     real_path = os.path.realpath(found_path)
     version = os.path.basename(real_path).removeprefix("libnvrtc.so.").split(".")
-    if found_via == "site-packages":
+    if found_via == FOUND_VIA_SITE_PACKAGES:
         # Retain only the historical 13.0 wheel workaround.
         if version[0] != "13":
             return
@@ -204,7 +210,7 @@ def _preload_nvrtc_builtins(found_path: str, found_via: str | None) -> None:
         major, minor = version[0], version[1]
     sibling = os.path.join(os.path.dirname(real_path), f"libnvrtc-builtins.so.{major}.{minor}")
     if not os.path.isfile(sibling):
-        if found_via != "site-packages":
+        if found_via != FOUND_VIA_SITE_PACKAGES:
             warnings.warn(f"NVRTC builtins sibling not found: {sibling}", RuntimeWarning, stacklevel=2)
         return
     # If preloading fails, NVRTC's own builtins lookup may still succeed.

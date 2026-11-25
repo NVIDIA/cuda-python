@@ -20,6 +20,7 @@ from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.found_via import FOUND_VIA_SITE_PACKAGES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
 
@@ -177,7 +178,7 @@ def find_lib_in_site_packages(ctx: SearchContext) -> FindResult | NotFound:
         for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
             lib_path = _find_lib_file(ctx, abs_dir)
             if lib_path is not None:
-                return FindResult(lib_path, "site-packages")
+                return FindResult(lib_path, FOUND_VIA_SITE_PACKAGES)
         sub_dirs_searched.append(sub_dir)
     missed = NotFound()
     for sub_dir in sub_dirs_searched:

@@ -35,6 +35,12 @@ from cuda.pathfinder._dynamic_libs.search_platform import (
     find_lib_in_site_packages,
 )
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder._utils.found_via import (
+    FOUND_VIA_CONDA,
+    FOUND_VIA_CUDA_PATH,
+    FOUND_VIA_PROGRAM_FILES,
+    FOUND_VIA_SYSTEM_CTK_ROOT,
+)
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 from .._utils.resolve_path import resolve_path
@@ -123,7 +129,7 @@ def derive_ctk_root(resolved_lib_path: str) -> str | None:
 
 def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | NotFound:
     """Find a library under a previously derived CTK root."""
-    return _find_under_anchor_root(ctx, ctk_root, "system-ctk-root")
+    return _find_under_anchor_root(ctx, ctk_root, FOUND_VIA_SYSTEM_CTK_ROOT)
 
 
 # ---------------------------------------------------------------------------
@@ -144,7 +150,7 @@ def find_in_conda(ctx: SearchContext) -> FindResult | NotFound:
     if not conda_prefix:
         return NotFound()
     anchor = ctx.conda_anchor_point(conda_prefix)
-    return _find_under_anchor_root(ctx, anchor, "conda")
+    return _find_under_anchor_root(ctx, anchor, FOUND_VIA_CONDA)
 
 
 def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | NotFound:
@@ -176,7 +182,7 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | NotFound:
     cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return NotFound()
-    return _find_under_anchor_root(ctx, cuda_home, "CUDA_PATH")
+    return _find_under_anchor_root(ctx, cuda_home, FOUND_VIA_CUDA_PATH)
 
 
 def find_in_program_files_roots(ctx: SearchContext) -> FindResult | NotFound:
@@ -186,7 +192,7 @@ def find_in_program_files_roots(ctx: SearchContext) -> FindResult | NotFound:
         for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
-            result = _find_under_anchor_root(ctx, str(resolve_path(root)), "ProgramFiles")
+            result = _find_under_anchor_root(ctx, str(resolve_path(root)), FOUND_VIA_PROGRAM_FILES)
             if result.found:
                 return result
             missed += result

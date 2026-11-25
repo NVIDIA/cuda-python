@@ -8,6 +8,7 @@ from pathlib import Path
 
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.found_via import FOUND_VIA_CONDA, FOUND_VIA_CUDA_PATH, FOUND_VIA_SITE_PACKAGES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 from .._utils.resolve_path import resolve_path
@@ -41,7 +42,7 @@ def locate_file(
         for abs_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split("/"))):
             abs_path = _resolved_if_file(abs_dir, filename)
             if abs_path is not None:
-                return abs_path, "site-packages"
+                return abs_path, FOUND_VIA_SITE_PACKAGES
 
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if conda_prefix:
@@ -49,14 +50,14 @@ def locate_file(
         for rel_path in conda_rel_paths:
             abs_path = _resolved_if_file(anchor / rel_path, filename)
             if abs_path is not None:
-                return abs_path, "conda"
+                return abs_path, FOUND_VIA_CONDA
 
     cuda_home = get_cuda_path_or_home()
     if cuda_home is not None:
         for rel_path in ctk_rel_paths:
             abs_path = _resolved_if_file(Path(cuda_home, rel_path), filename)
             if abs_path is not None:
-                return abs_path, "CUDA_PATH"
+                return abs_path, FOUND_VIA_CUDA_PATH
 
     raise not_found_error(_not_found_message(filename, cuda_home, ctk_rel_paths))
 
