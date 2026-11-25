@@ -54,10 +54,6 @@ def _load_nvidia_dynamic_lib_for_test(libname: str) -> str:
     # code under test rather than the parent test module.
     from cuda.pathfinder import load_nvidia_dynamic_lib
     from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _load_lib_no_cache
-    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-        SUPPORTED_LINUX_SONAMES,
-        SUPPORTED_WINDOWS_DLLS,
-    )
     from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
     loaded_dl_fresh = load_nvidia_dynamic_lib(libname)
@@ -75,8 +71,9 @@ def _load_nvidia_dynamic_lib_for_test(libname: str) -> str:
         raise RuntimeError("loaded_dl_from_cache is not loaded_dl_fresh")
 
     loaded_dl_no_cache = _load_lib_no_cache(libname)
-    supported_libs = SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else SUPPORTED_LINUX_SONAMES
-    if not loaded_dl_no_cache.was_already_loaded_from_elsewhere and libname in supported_libs:
+    desc = LIB_DESCRIPTORS[libname]
+    has_filenames = desc.windows_dlls if IS_WINDOWS else desc.linux_sonames
+    if not loaded_dl_no_cache.was_already_loaded_from_elsewhere and has_filenames:
         raise RuntimeError("not loaded_dl_no_cache.was_already_loaded_from_elsewhere")
     abs_path_no_cache = loaded_dl_no_cache.abs_path
     if not isinstance(abs_path_no_cache, str):

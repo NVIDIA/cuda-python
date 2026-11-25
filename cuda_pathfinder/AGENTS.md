@@ -19,8 +19,8 @@ Windows.
   defines canonical metadata for known libraries.
 - **Registry layers**:
   - `lib_descriptor.py` builds the name-keyed runtime registry from the catalog.
-  - `supported_nvidia_libs.py` derives the name sets and filename tables that
-    the package itself reads from the catalog.
+  - `supported_nvidia_libs.py` derives the library-name sets that the package
+    itself reads from the catalog.
 - **Search pipeline**:
   - `search_steps.py` implements composable find steps (`site-packages`,
     `CONDA_PREFIX`, `CUDA_HOME`/`CUDA_PATH`, canary-assisted CTK root flow).
