@@ -9,6 +9,7 @@ from helpers.contexts import (
     assert_device_operations_use_bound_context,
     assert_no_cuda_warning,
     current_context_handle,
+    primary_context_active,
     use_context,
 )
 
@@ -322,9 +323,6 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
 # the device exists. The tests below therefore check the primary context's state
 # only after their green contexts are destroyed, and run in a fresh child
 # process, because the pytest process already retains the primary context.
-def _primary_active(device_id):
-    _, active = handle_return(driver.cuDevicePrimaryCtxGetState(device_id))
-    return bool(active)
 
 
 # Another owner (here cuda.bindings, standing in for another library) retains the
@@ -347,7 +345,7 @@ def _set_current_returns_foreign_primary_child(device_id):
         dev.set_current(previous)
         green.close()
         handle_return(driver.cuDevicePrimaryCtxRelease(device_id))
-        assert _primary_active(device_id), "primary context destroyed while the previous Context is held"
+        assert primary_context_active(device_id), "primary context destroyed while the previous Context is held"
         dev.create_stream().sync()
 
 
@@ -373,7 +371,7 @@ def _lookup_green_does_not_retain_primary_child(device_id):
         handle_return(driver.cuCtxSetCurrent(None))
         del ctx
         handle_return(driver.cuGreenCtxDestroy(foreign))
-        assert not _primary_active(device_id), "a lookup of a green context kept a primary-context retain"
+        assert not primary_context_active(device_id), "a lookup of a green context kept a primary-context retain"
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-2")

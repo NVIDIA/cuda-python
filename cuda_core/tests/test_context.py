@@ -4,11 +4,10 @@
 import gc
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from helpers.child_processes import child_timeout_sec, run_child
-from helpers.contexts import assert_no_cuda_warning
+from helpers.contexts import assert_no_cuda_warning, primary_context_active
 from helpers.misc import run_in_threads
 
 import cuda.core
@@ -102,88 +101,20 @@ def test_context_dict_key(init_cuda):
 
 
 # ============================================================================
-# Primary-context lifetime across threads (#3533)
+# Primary-context lifetime (#3533)
 # ============================================================================
 
-# Thread A retains the primary context, then thread B retains it too and exits.
-# Thread A then resolves a Context through the context registry (``lookup``),
-# and the main thread uses that object (``use``) once both threads are gone.
-# Each test runs in a fresh child process, so nothing else holds a retain of
-# the primary context: the pytest process does, through fixtures, which would
-# hide the bug.
-#
-# Thread.join() can return before a thread's C++ thread_local destructors run,
-# and they cannot be observed, so the child waits a fixed second after each
-# join. With the fix, the test passes regardless of that timing. Without it,
-# the test fails only if the destructors run within the wait, so a pass on
-# unfixed code is not evidence that the bug is gone.
-
-
-def _primary_active(device_id):
-    _, active = handle_return(driver.cuDevicePrimaryCtxGetState(device_id))
-    return bool(active)
-
-
-def _lookup_foreign_stream_context(dev):
-    return Stream.from_handle(int(driver.CU_STREAM_LEGACY)).context
-
-
-def _use_context(dev, ctx):
-    dev.set_current(ctx)
-    dev.create_stream().sync()
-
-
-def _lookup_default_stream_event(dev):
-    return dev.default_stream.record()
-
-
-def _use_event(dev, event):
-    event.sync()
-
-
-def _primary_context_across_threads_child(device_id, lookup, use):
-    def retain():
-        Device(device_id).set_current()
-
-    # A failed primary-context release is reported as a CUDAWarning, which a
-    # warning filter cannot turn into a failure here (see
-    # assert_no_cuda_warning), so the block asserts that none was issued.
-    with assert_no_cuda_warning():
-        # Each executor runs its work on one thread, whose exit ends the ``with``
-        # block, and result() re-raises any error from that thread.
-        with ThreadPoolExecutor(max_workers=1) as thread_a:
-            thread_a.submit(retain).result()
-            # B must retain the primary context after A: if B registered first
-            # and exited, A would register its own retain and hide the bug.
-            with ThreadPoolExecutor(max_workers=1) as thread_b:
-                thread_b.submit(retain).result()
-            time.sleep(1.0)
-            obj = thread_a.submit(lambda: lookup(Device(device_id))).result()
-        time.sleep(1.0)
-
-        assert _primary_active(device_id), "primary context destroyed while a cuda.core object still refers to it"
-        use(Device(device_id), obj)
-
-
-@pytest.mark.agent_authored(model="claude-opus-5-5")
-@pytest.mark.parametrize(
-    ("lookup", "use"),
-    [
-        pytest.param(_lookup_foreign_stream_context, _use_context, id="foreign-stream-context"),
-        pytest.param(_lookup_default_stream_event, _use_event, id="default-stream-event"),
-    ],
-)
-def test_primary_context_survives_thread_exit(init_cuda, lookup, use):
-    """A Context resolved through the registry keeps the primary context alive after other threads exit."""
-    # The child asserts on the primary context's state and uses the object, so
-    # it exits non-zero (failing the test) if the context was destroyed.
-    run_child(_primary_context_across_threads_child, init_cuda.device_id, lookup, use)
+# Each test runs in a fresh child process, so nothing else holds a retain of the
+# primary context: the pytest process does, through fixtures, which would hide
+# a released or leaked retain.
 
 
 # Several threads retain the primary context concurrently, after which every
 # thread exits and every Context is dropped. cuda.core keeps exactly one retain
 # of the primary context for the rest of the process: the context stays active,
-# and releasing one retain from outside cuda.core leaves no retain behind.
+# and releasing one retain from outside cuda.core leaves no retain behind. This
+# covers the cause of #3533: on releasing code, the primary context is inactive
+# here.
 def _concurrent_primary_retains_child(device_id):
     num_threads = 8
     barrier = threading.Barrier(num_threads)
@@ -201,15 +132,16 @@ def _concurrent_primary_retains_child(device_id):
         assert len({int(ctx.handle) for ctx in contexts}) == 1
         contexts.clear()
         gc.collect()
-        # The workers' thread_local caches can be destroyed after their threads
-        # are joined, and their destruction cannot be observed.
+        # Thread.join() can return before a thread's C++ thread_local
+        # destructors run, and they cannot be observed, so wait a fixed second.
+        # A release at thread exit would make the next check fail.
         time.sleep(1.0)
-        assert _primary_active(device_id), "cuda.core released its primary-context retain"
+        assert primary_context_active(device_id), "cuda.core released its primary-context retain"
 
         # This process has no other retain of the primary context, so one
         # release must leave it inactive: cuda.core held exactly one retain.
         handle_return(driver.cuDevicePrimaryCtxRelease(device_id))
-        assert not _primary_active(device_id), "cuda.core holds more than one primary-context retain"
+        assert not primary_context_active(device_id), "cuda.core holds more than one primary-context retain"
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-2")
@@ -219,48 +151,33 @@ def test_concurrent_set_current_keeps_one_primary_retain(init_cuda):
 
 
 # Another owner (here cuda.bindings, standing in for another library) retains the
-# primary context and makes it current, and cuda.core has not retained it. A
-# Context that cuda.core resolves for it must keep it alive once that owner
-# releases its retain.
-def _lookup_legacy_stream_context():
-    return Stream.from_handle(int(driver.CU_STREAM_LEGACY)).context
-
-
-def _use_foreign_context(device_id, ctx):
-    Device(device_id).set_current(ctx)
-    Device(device_id).create_stream().sync()
-
-
-def _lookup_legacy_stream_event():
-    return Stream.from_handle(int(driver.CU_STREAM_LEGACY)).record()
-
-
-def _use_foreign_event(device_id, event):
-    event.sync()
-
-
-def _foreign_primary_context_child(device_id, lookup, use):
+# primary context and makes it current, and cuda.core has not retained it. An
+# Event recorded on the legacy default stream and that stream's Context, both
+# resolved for the current context, must keep it alive once that owner releases
+# its retain. Both resolve through the same lookup; the first one pins the
+# primary context, and the second finds it registered.
+def _foreign_primary_context_child(device_id):
     handle_return(driver.cuInit(0))
     with assert_no_cuda_warning():
-        assert not _primary_active(device_id)
+        assert not primary_context_active(device_id)
         primary = handle_return(driver.cuDevicePrimaryCtxRetain(device_id))
         handle_return(driver.cuCtxSetCurrent(primary))
-        obj = lookup()
+        legacy = Stream.from_handle(int(driver.CU_STREAM_LEGACY))
+        event = legacy.record()
+        ctx = legacy.context
         handle_return(driver.cuCtxSetCurrent(None))
         handle_return(driver.cuDevicePrimaryCtxRelease(device_id))
 
-        assert _primary_active(device_id), "primary context destroyed while a cuda.core object still refers to it"
-        use(device_id, obj)
+        assert primary_context_active(device_id), (
+            "primary context destroyed while a cuda.core object still refers to it"
+        )
+        event.sync()
+        dev = Device(device_id)
+        dev.set_current(ctx)
+        dev.create_stream().sync()
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-2")
-@pytest.mark.parametrize(
-    ("lookup", "use"),
-    [
-        pytest.param(_lookup_legacy_stream_context, _use_foreign_context, id="legacy-stream-context"),
-        pytest.param(_lookup_legacy_stream_event, _use_foreign_event, id="legacy-stream-event"),
-    ],
-)
-def test_lookup_retains_foreign_primary_context(init_cuda, lookup, use):
+def test_lookup_retains_foreign_primary_context(init_cuda):
     """A Context resolved for a primary context that another owner made current keeps it alive."""
-    run_child(_foreign_primary_context_child, init_cuda.device_id, lookup, use)
+    run_child(_foreign_primary_context_child, init_cuda.device_id)
