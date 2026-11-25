@@ -1,0 +1,11 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+CUDA Python 13.6.0 Release notes
+=================================
+
+Highlights
+----------
+
+* ``cuda-python`` 13.6.0 pulls in ``cuda-bindings`` 13.6.0. See the
+  ``cuda-bindings`` 13.6.0 release notes for the changes.
