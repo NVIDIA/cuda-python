@@ -9,38 +9,22 @@
 Highlights
 ----------
 
+- ``cuda.core`` now requires ``cuda-bindings`` 12.9.8 or newer for CUDA 12, and 13.5.0 or newer
+  for CUDA 13. With an older ``cuda-bindings``, ``import cuda.core`` fails with a message that
+  names the required version. ``pip install 'cuda-core[cu12]'`` or ``pip install 'cuda-core[cu13]'``
+  installs a compatible version. See the :ref:`support policy <cuda-core-bindings-floor>`.
+  (`#2783 <https://github.com/NVIDIA/cuda-python/issues/2783>`__)
+
 - Support for Python 3.10 is dropped (end of life).
 
-Breaking Changes
-----------------
+- :class:`VirtualMemoryResource` buffers can be shared with other processes through POSIX file
+  descriptors or fabric handles.
 
-- ``cuda.core`` now requires a minimum ``cuda-bindings`` version per CUDA major, at build and run
-  time: 12.9.8 for CUDA 12 and 13.5.0 for CUDA 13. See the
-  :ref:`support policy <cuda-core-bindings-floor>`. ``import cuda.core`` with an older
-  ``cuda-bindings`` fails with a message that names the required version and how to install it.
-  ``pip install cuda-core[cu12]`` or ``pip install cuda-core[cu13]`` installs a compatible
-  version. Supported CUDA drivers and CUDA Toolkit libraries are unchanged. Previously
-  ``cuda.core`` accepted any ``cuda-bindings`` of the right major, and an older one produced import
-  errors for missing C functions, silently disabled features, or crashes.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
+- :func:`host_launch` enqueues a Python callable or a compiled host function on a stream in
+  stream order.
 
-- A source build of ``cuda.core`` must use a ``cuda.h`` of the same major.minor as its
-  ``cuda-bindings``. If they differ, the build fails early.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
-
-- With the ``cuda-bindings`` floor in place, whether a feature is available now depends only on
-  the CUDA driver and the ``cuda.core`` build's CUDA major. The checks that also inspected the
-  ``cuda-bindings`` version are gone, and so are their error messages. Error messages that name a
-  minimum now name a driver version. ``cuda.core.system`` always uses NVML through
-  ``cuda-bindings``, so ``cuda.core.system.CUDA_BINDINGS_NVML_IS_COMPATIBLE`` is always ``True``.
-  :mod:`cuda.core.checkpoint` requires the CUDA 13 build of ``cuda.core`` and now says so. That
-  requirement was already in effect, because the CUDA 12 ``cuda-bindings`` lack a type it uses.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
-
-- The C++ layer calls the driver through the entry points ``cuda-bindings`` resolves rather than
-  through its Cython wrappers. As a result, a driver function that the installed driver lacks can
-  no longer surface as ``SystemError`` from a C++ call.
-  (https://github.com/NVIDIA/cuda-python/issues/2783)
+- A new :doc:`error handling <../error_handling>` policy: :class:`CUDAWarning` reports CUDA
+  errors that cannot be raised, and :class:`CUDAOutOfMemoryError` is a :class:`MemoryError`.
 
 New features
 ------------
@@ -72,8 +56,23 @@ New features
   linker. :meth:`Linker.link` also accepts ``"ltoir"`` on nvJitLink 13.3 or
   newer so incremental LTO chains can retain IR until their final link. Direct
   PTX and CUBIN inputs are rejected for this target because they carry no LTOIR
-  and nvJitLink would otherwise silently omit them.
-  (`#2369 <https://github.com/NVIDIA/cuda-python/issues/2369>`__)
+  and nvJitLink would otherwise silently omit them. On nvJitLink versions
+  older than 13.6, incremental links with link-time optimization disable the
+  nvJitLink intermediate cache, which crashed after repeated links on Windows.
+  (`#2369 <https://github.com/NVIDIA/cuda-python/issues/2369>`__,
+  `#3038 <https://github.com/NVIDIA/cuda-python/issues/3038>`__)
+
+- Added the ``priority`` option to :class:`LaunchConfig`, which sets the
+  execution priority of a kernel launch. Lower numbers are higher priorities.
+  The valid range is the device's stream priority range, as for
+  :attr:`StreamOptions.priority`. A nonzero value outside it raises
+  ``ValueError``. The default, ``0``, leaves the stream's priority in effect.
+  (`#2631 <https://github.com/NVIDIA/cuda-python/issues/2631>`__)
+
+- Added the ``cluster_scheduling_policy_preference`` option to
+  :class:`LaunchConfig`: ``"DEFAULT"``, ``"SPREAD"``, or
+  ``"LOAD_BALANCING"``. It requires compute capability 9.0 or newer.
+  (`#2629 <https://github.com/NVIDIA/cuda-python/issues/2629>`__)
 
 - Added the read-only :attr:`ManagedBuffer.last_prefetch_location` property,
   which reports the destination requested by the most recent explicit
@@ -159,6 +158,12 @@ New features
 
 Fixes and enhancements
 ----------------------
+
+- :meth:`utils.StridedMemoryView.from_dlpack` and
+  :meth:`utils.StridedMemoryView.from_array_interface` use the stable C API of
+  PyTorch 2.14 and newer for PyTorch tensors, and no longer cap the supported
+  PyTorch version. PyTorch 2.3 to 2.13 keep the previous path.
+  (`#3033 <https://github.com/NVIDIA/cuda-python/pull/3033>`__)
 
 - Kernels can read and write :class:`PinnedMemoryResource` buffers. The driver
   makes a host memory pool accessible only from the host by default, so a
@@ -296,8 +301,8 @@ Fixes and enhancements
 
 - When a :class:`Device` method has to run in the device's context and the
   caller's context cannot be restored afterwards, the created resource is
-  destroyed and the raised ``CUDAError`` now carries a note (Python 3.11+;
-  appended to the message on 3.10) stating that the caller's context could not
+  destroyed and the raised ``CUDAError`` now carries a note
+  stating that the caller's context could not
   be restored and which context is current. Previously the error named only
   the driver status of the failed ``cuCtxSetCurrent`` call. If the call itself
   failed as well, its error is raised and the restoration failure is the note.
@@ -315,8 +320,7 @@ Fixes and enhancements
   context is current, returning ``None``.
 
 - A failed rollback of a partially embedded child graph node is now attached
-  as a note to the exception that triggered the rollback (reported as
-  :class:`CUDAWarning` on Python 3.10), and a failed ``cuStreamEndCapture``
+  as a note to the exception that triggered the rollback, and a failed ``cuStreamEndCapture``
   made when a still-building :class:`~graph.GraphBuilder` is garbage collected
   is now reported as :class:`CUDAWarning`; both were silent.
 
@@ -447,6 +451,30 @@ Fixes and enhancements
   cuda.core error, please report".
   (`#3202 <https://github.com/NVIDIA/cuda-python/issues/3202>`__)
 
+- A process that made a device current with :meth:`Device.set_current` no
+  longer crashes at interpreter shutdown. The primary context was released
+  from a thread-local destructor after Python had finalized.
+  (`#2743 <https://github.com/NVIDIA/cuda-python/issues/2743>`__)
+
+- :meth:`Buffer.from_ipc_descriptor` no longer deadlocks when two threads
+  import IPC buffers at the same time.
+  (`#2840 <https://github.com/NVIDIA/cuda-python/issues/2840>`__)
+
+- :class:`Linker` passes boolean nvJitLink options as ``1`` or ``0``.
+  Newer nvJitLink versions reject the ``true`` and ``false`` values that it
+  passed before.
+  (`#3254 <https://github.com/NVIDIA/cuda-python/issues/3254>`__)
+
+- :class:`Program` with ``code_type="nvvm"`` now raises :class:`CUDAError`
+  for twelve :class:`ProgramOptions` fields that libNVVM cannot use, such as
+  ``pch`` and ``no_cache``. Before, they were silently ignored.
+  (`#2954 <https://github.com/NVIDIA/cuda-python/issues/2954>`__,
+  `#3289 <https://github.com/NVIDIA/cuda-python/pull/3289>`__)
+
+- A new graph no longer adopts the metadata of a destroyed graph when the
+  driver reuses its handle address. Cleanup of the old graph could
+  invalidate the new one.
+
 Deprecations
 ------------
 
@@ -456,3 +484,14 @@ Deprecations
 
   - ``TimeoutError`` is now ``NvmlTimeoutError``.
   - ``MemoryError`` is now ``NvmlMemoryError``.
+
+Known issues
+------------
+
+- :class:`PinnedMemoryResource` rejects ``HOST_NUMA`` pools on CUDA 12.6 to
+  12.8 drivers, although the driver supports them. This is a regression in 1.2.0.
+  (`#2795 <https://github.com/NVIDIA/cuda-python/issues/2795>`__)
+
+- :meth:`SMResource.split` with ``dry_run=True`` raises when a group requests a nonzero SM
+  count, with a CUDA 13 build on a driver of 13.1 or newer.
+  (`#2765 <https://github.com/NVIDIA/cuda-python/issues/2765>`__)
