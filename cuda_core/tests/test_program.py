@@ -174,8 +174,6 @@ def ptx_code_object():
     return ptx_object_code
 
 
-# For the options31 parameter case:
-# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     "options",
     [
@@ -221,7 +219,7 @@ def ptx_code_object():
         pytest.param(
             ProgramOptions(arch="sm_100", device_float128=True),
             marks=pytest.mark.skipif(
-                Device().compute_capability < (100, 0),
+                Device().compute_capability < (10, 0),
                 reason="device_float128 requires sm_100 or later",
             ),
         ),
