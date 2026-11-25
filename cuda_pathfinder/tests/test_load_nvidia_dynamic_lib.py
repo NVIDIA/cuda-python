@@ -32,14 +32,14 @@ def test_loader_uses_all_available_libnames():
     assert supported_nvidia_libs.ALL_AVAILABLE_LIBNAMES == load_nvidia_dynamic_lib_module.ALL_AVAILABLE_LIBNAMES
 
 
-def test_supported_libnames_linux_sonames_consistency():
-    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
-        sorted(supported_nvidia_libs.SUPPORTED_LINUX_SONAMES_CTK.keys())
-    )
-
-
 _CTK_DESCRIPTORS = tuple(
     desc for desc in load_nvidia_dynamic_lib_module.LIB_DESCRIPTORS.values() if desc.packaged_with == "ctk"
+)
+# Every library that has file names for the platform the tests run on, in catalog order.
+_LIBNAMES_WITH_FILENAMES_HERE = tuple(
+    libname
+    for libname, desc in load_nvidia_dynamic_lib_module.LIB_DESCRIPTORS.items()
+    if (desc.windows_dlls if IS_WINDOWS else desc.linux_sonames)
 )
 
 
@@ -69,12 +69,12 @@ def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency(target
     assert site_packages_libnames <= set(supported_libnames)
 
 
-@pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])
-def test_libname_dict_values_are_unique(dict_name):
-    libname_dict = getattr(supported_nvidia_libs, dict_name)
+@pytest.mark.parametrize("filenames_field", ["linux_sonames", "windows_dlls"])
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_library_filenames_belong_to_one_libname(filenames_field):
     libname_for_value = {}
-    for libname, values in libname_dict.items():
-        for value in values:
+    for libname, desc in load_nvidia_dynamic_lib_module.LIB_DESCRIPTORS.items():
+        for value in getattr(desc, filenames_field):
             prev_libname = libname_for_value.get(value)
             if prev_libname is not None:
                 raise RuntimeError(f"Multiple libnames for {value!r}: {prev_libname}, {libname}")
@@ -149,10 +149,7 @@ def test_cutensor_mg_expected_failure_follows_installed_cutensor_version(
 
 # For libname=nvcudla:
 # This test is not currently run in any CI job
-@pytest.mark.parametrize(
-    "libname",
-    supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else supported_nvidia_libs.SUPPORTED_LINUX_SONAMES,
-)
+@pytest.mark.parametrize("libname", _LIBNAMES_WITH_FILENAMES_HERE)
 def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # Use a fresh Python subprocess for each load to isolate global dynamic
     # loader state and keep the tests aligned with the canary probe model.

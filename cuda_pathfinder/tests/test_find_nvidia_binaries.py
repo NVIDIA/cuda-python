@@ -13,7 +13,6 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import (
     _CUDA13_BIN,
     SITE_PACKAGES_BINDIRS,
     SUPPORTED_BINARIES,
-    SUPPORTED_BINARIES_ALL,
 )
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 
@@ -36,8 +35,7 @@ def test_find_binary_utilities(info_summary_append, utility_name):
 
 
 def test_supported_binaries_consistency():
-    assert set(SUPPORTED_BINARIES).issubset(SUPPORTED_BINARIES_ALL)
-    assert set(SITE_PACKAGES_BINDIRS).issubset(SUPPORTED_BINARIES_ALL)
+    assert set(SITE_PACKAGES_BINDIRS).issubset(SUPPORTED_BINARIES)
 
 
 @pytest.mark.agent_authored(model="claude-opus-5")
