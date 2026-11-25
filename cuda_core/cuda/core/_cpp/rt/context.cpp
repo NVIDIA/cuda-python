@@ -159,6 +159,26 @@ replace_if_upgrade(const ContextHandle &candidate) noexcept
     };
 }
 
+// Box ctx in a new handle, which the caller registers. The deleter erases the
+// box's registry entry if it is still the registered one. It releases nothing:
+// a plain box owns nothing, a green box releases its context through
+// h_green_ctx, and a pinned primary box is never deleted (its retain is
+// deliberately never released).
+ContextHandle
+make_context_handle(CUcontext ctx, GreenCtxHandle h_green_ctx, bool retains_primary)
+{
+    // clang-format off
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox{ctx, std::move(h_green_ctx), retains_primary},
+        [](const ContextBox *b) {
+            context_registry.unregister_handle(b->resource, &b->resource);
+            delete b;
+        }
+    );
+    // clang-format on
+    return ContextHandle(box, &box->resource);
+}
+
 // ----------------------------------------------------------------------------
 // Primary contexts
 //
@@ -276,18 +296,7 @@ pin_primary_context(int device_id, CUcontext expected, CUresult *status)
             release_probe = true;
         }
         else {
-            // clang-format off
-            auto box = std::shared_ptr<const ContextBox>(
-                new ContextBox{ctx, {}, true},
-                [](const ContextBox *b) {
-                    // Unreachable while the table pins the box. The retain is
-                    // deliberately not released.
-                    context_registry.unregister_handle(b->resource, &b->resource);
-                    delete b;
-                }
-            );
-            // clang-format on
-            h = ContextHandle(box, &box->resource);
+            h = make_context_handle(ctx, {}, true);
             publish_pinned_primary_context(idx, h);
         }
     }
@@ -388,16 +397,7 @@ resolve_context_handle(CUcontext ctx, GreenCtxHandle h_green_ctx, Adopt &&adopt)
             return registered;
         }
     }
-    // clang-format off
-    auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, std::move(h_green_ctx)},
-        [](const ContextBox *b) {
-            context_registry.unregister_handle(b->resource, &b->resource);
-            delete b;
-        }
-    );
-    // clang-format on
-    ContextHandle candidate(box, &box->resource);
+    ContextHandle candidate = make_context_handle(ctx, std::move(h_green_ctx), false);
     // A losing candidate is dropped by the caller, outside the registry's lock;
     // its deleter's ownership-checked erase is then a no-op.
     return context_registry.insert_or_get(ctx, candidate, replace_if_upgrade(candidate));
