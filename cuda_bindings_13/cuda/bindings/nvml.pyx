@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9ee117b62b84a62a8a0110bcfb87436ca6e1e8637a88d8a9e94c654dd7f9e94a
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=ff7d21ec5bb874cde23f472c16a4d9b23f6e51e2fdba9b28be92894e73bbc1ec
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -54,6 +54,14 @@ cdef inline intptr_t _cyb_array_ptr(object arr) except? 0:
     ptr = <intptr_t>view.buf
     _cyb_cpython.PyBuffer_Release(&view)
     return ptr
+
+cdef Py_ssize_t _cyb_check_same_length(bint is_set, Py_ssize_t count, Py_ssize_t length, name, names) except -1:
+    if is_set and length != count:
+        raise ValueError(
+            f"{name} must have the same length as the others of ({names}), "
+            f"which have {count} elements, got {length}"
+        )
+    return length
 
 cdef _cyb_from_buffer(buffer, size, lowpp_type):
     cdef _cyb_cpython.Py_buffer view
@@ -31665,7 +31673,7 @@ cpdef object system_get_topology_gpu_set(unsigned int cpu_number):
     with nogil:
         __status__ = nvmlSystemGetTopologyGpuSet(cpu_number, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *device_array_ptr = <intptr_t *>(_device_array_alloc_.data)
     cdef object device_array = _device_array_alloc_[:count[0]]
     if count[0] != 0:
@@ -31851,7 +31859,7 @@ cpdef object unit_get_devices(intptr_t unit):
     with nogil:
         __status__ = nvmlUnitGetDevices(<Unit>unit, <unsigned int*>device_count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _devices_alloc_ = _cyb_view.array(shape=(max(device_count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _devices_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>device_count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *devices_ptr = <intptr_t *>(_devices_alloc_.data)
     cdef object devices = _devices_alloc_[:device_count[0]]
     if device_count[0] != 0:
@@ -32238,7 +32246,7 @@ cpdef object device_get_memory_affinity(intptr_t device, unsigned int node_set_s
         device.
     .. seealso:: `nvmlDeviceGetMemoryAffinity`
     """
-    cdef _cyb_view.array _node_set_alloc_ = _cyb_view.array(shape=(max(node_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef _cyb_view.array _node_set_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>node_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
     cdef unsigned long *node_set_ptr = <unsigned long *>(_node_set_alloc_.data)
     cdef object node_set = _node_set_alloc_[:node_set_size]
     with nogil:
@@ -32269,7 +32277,7 @@ cpdef object device_get_cpu_affinity_within_scope(intptr_t device, unsigned int 
         device.
     .. seealso:: `nvmlDeviceGetCpuAffinityWithinScope`
     """
-    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
     cdef unsigned long *cpu_set_ptr = <unsigned long *>(_cpu_set_alloc_.data)
     cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
@@ -32299,7 +32307,7 @@ cpdef object device_get_cpu_affinity(intptr_t device, unsigned int cpu_set_size)
         Domain Device Enumeration``.
     .. seealso:: `nvmlDeviceGetCpuAffinity`
     """
-    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
+    cdef _cyb_view.array _cpu_set_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>cpu_set_size, 1),), itemsize=sizeof(unsigned long), format="L", mode="c")
     cdef unsigned long *cpu_set_ptr = <unsigned long *>(_cpu_set_alloc_.data)
     cdef object cpu_set = _cpu_set_alloc_[:cpu_set_size]
     with nogil:
@@ -32398,7 +32406,7 @@ cpdef object device_get_topology_nearest_gpus(intptr_t device, int level):
     with nogil:
         __status__ = nvmlDeviceGetTopologyNearestGpus(<Device>device, <_GpuTopologyLevel>level, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _device_array_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>count[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *device_array_ptr = <intptr_t *>(_device_array_alloc_.data)
     cdef object device_array = _device_array_alloc_[:count[0]]
     if count[0] != 0:
@@ -33025,7 +33033,7 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetSupportedMemoryClocks(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(_clocks_m_hz_alloc_.data)
     cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
     if count[0] != 0:
@@ -33054,7 +33062,7 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
     with nogil:
         __status__ = nvmlDeviceGetSupportedGraphicsClocks(<Device>device, memory_clock_m_hz, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef _cyb_view.array _clocks_m_hz_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *clocks_m_hz_ptr = <unsigned int *>(_clocks_m_hz_alloc_.data)
     cdef object clocks_m_hz = _clocks_m_hz_alloc_[:count[0]]
     if count[0] != 0:
@@ -35124,7 +35132,7 @@ cpdef object device_get_accounting_pids(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetAccountingPids(<Device>device, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *pids_ptr = <unsigned int *>(_pids_alloc_.data)
     cdef object pids = _pids_alloc_[:count[0]]
     if count[0] != 0:
@@ -35177,7 +35185,7 @@ cpdef object device_get_retired_pages(intptr_t device, int cause):
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
     cdef unsigned long long *addresses_ptr = <unsigned long long *>(_addresses_alloc_.data)
     cdef object addresses = _addresses_alloc_[:page_count[0]]
     if page_count[0] != 0:
@@ -35213,10 +35221,10 @@ cpdef tuple device_get_retired_pages_v2(intptr_t device, int cause):
     with nogil:
         __status__ = nvmlDeviceGetRetiredPages_v2(<Device>device, <_PageRetirementCause>cause, <unsigned int*>page_count, NULL, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef _cyb_view.array _addresses_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
     cdef unsigned long long *addresses_ptr = <unsigned long long *>(_addresses_alloc_.data)
     cdef object addresses = _addresses_alloc_[:page_count[0]]
-    cdef _cyb_view.array _timestamps_alloc_ = _cyb_view.array(shape=(max(page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
+    cdef _cyb_view.array _timestamps_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>page_count[0], 1),), itemsize=sizeof(unsigned long long), format="Q", mode="c")
     cdef unsigned long long *timestamps_ptr = <unsigned long long *>(_timestamps_alloc_.data)
     cdef object timestamps = _timestamps_alloc_[:page_count[0]]
     if not (page_count[0] == 0):
@@ -36308,6 +36316,38 @@ cpdef device_discover_gpus(pci_info):
     check_status(__status__)
 
 
+cpdef device_clear_field_values(intptr_t device, values):
+    """Clear values for a list of fields for a device. This API allows multiple fields to be cleared at once.
+
+
+    Args:
+        device (intptr_t): The device handle of the GPU to request field
+            values for.
+        values (object): Array of ``len(values)`` structures to hold field
+            values. Each value's fieldId must be populated prior to this
+            call.
+
+    .. seealso:: `nvmlDeviceClearFieldValues`
+    """
+    cdef FieldValue _values_obj_ = _cast_field_values(values)
+    cdef nvmlFieldValue_t* _values_ = <nvmlFieldValue_t*>_values_obj_._get_ptr()
+    cdef Py_ssize_t _values_count_length_ = 0
+    cdef bint _values_count_is_set_ = False
+    if values is not None:
+        _values_count_length_ = _cyb_check_same_length(_values_count_is_set_, _values_count_length_, len(values), "values", "values")
+        _values_count_is_set_ = True
+    cdef int values_count = <int>_values_count_length_
+    if <Py_ssize_t>values_count != _values_count_length_:
+        raise OverflowError(
+            f"The length of (values), {_values_count_length_}, does not fit in 'valuesCount' (a int)"
+        )
+    if values_count == 0:
+        return
+    with nogil:
+        __status__ = nvmlDeviceClearFieldValues(<Device>device, values_count, <nvmlFieldValue_t*>_values_)
+    check_status(__status__)
+
+
 cpdef int device_get_virtualization_mode(intptr_t device) except? -1:
     """This method is used to get the virtualization mode corresponding to the GPU.
 
@@ -36530,7 +36570,7 @@ cpdef object device_get_supported_vgpus(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetSupportedVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
     cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(_vgpu_type_ids_alloc_.data)
     cdef object vgpu_type_ids = _vgpu_type_ids_alloc_[:vgpu_count[0]]
     if vgpu_count[0] != 0:
@@ -36573,7 +36613,7 @@ cpdef object device_get_creatable_vgpus(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetCreatableVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
+    cdef _cyb_view.array _vgpu_type_ids_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuTypeId_t), format="I", mode="c")
     cdef nvmlVgpuTypeId_t *vgpu_type_ids_ptr = <nvmlVgpuTypeId_t *>(_vgpu_type_ids_alloc_.data)
     cdef object vgpu_type_ids = _vgpu_type_ids_alloc_[:vgpu_count[0]]
     if vgpu_count[0] != 0:
@@ -36861,7 +36901,7 @@ cpdef object device_get_active_vgpus(intptr_t device):
     with nogil:
         __status__ = nvmlDeviceGetActiveVgpus(<Device>device, <unsigned int*>vgpu_count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _vgpu_instances_alloc_ = _cyb_view.array(shape=(max(vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuInstance_t), format="I", mode="c")
+    cdef _cyb_view.array _vgpu_instances_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>vgpu_count[0], 1),), itemsize=sizeof(nvmlVgpuInstance_t), format="I", mode="c")
     cdef nvmlVgpuInstance_t *vgpu_instances_ptr = <nvmlVgpuInstance_t *>(_vgpu_instances_alloc_.data)
     cdef object vgpu_instances = _vgpu_instances_alloc_[:vgpu_count[0]]
     if vgpu_count[0] != 0:
@@ -37753,7 +37793,7 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     with nogil:
         __status__ = nvmlVgpuInstanceGetAccountingPids(<nvmlVgpuInstance_t>vgpu_instance, <unsigned int*>count, NULL)
     check_status_size(__status__)
-    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef _cyb_view.array _pids_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>count[0], 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
     cdef unsigned int *pids_ptr = <unsigned int *>(_pids_alloc_.data)
     cdef object pids = _pids_alloc_[:count[0]]
     if count[0] != 0:
@@ -39567,27 +39607,6 @@ cpdef object device_get_field_values(intptr_t device, values):
 
     values_._data = values_._data[:valuesCount]
     return values_
-
-
-cpdef  device_clear_field_values(intptr_t device, values):
-    """Clear values for a list of fields for a device. This API allows multiple fields to be cleared at once.
-
-    Args:
-        device (Device): The device handle of the GPU to request field values for
-        values (FieldValue): FieldValue instance to hold field values. Each value's fieldId must be populated
-            prior to this call
-    """
-    cdef FieldValue values_ = _cast_field_values(values)
-    cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values_._get_ptr()
-    cdef unsigned int valuesCount = len(values)
-
-    # Passing a valuesCount of 0 to nvmlDeviceClearFieldValues returns NVML_INVALID_ARGUMENT
-    if valuesCount == 0:
-        return values_
-
-    with nogil:
-        __status__ = nvmlDeviceClearFieldValues(<Device>device, valuesCount, ptr)
-    check_status(__status__)
 
 
 cpdef object gpu_instance_get_creatable_vgpus(intptr_t gpu_instance):

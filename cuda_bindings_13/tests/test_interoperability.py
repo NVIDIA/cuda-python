@@ -8,9 +8,6 @@ from cuda_python_test_helpers.memory import POOL_SIZE, supports_memory_pools
 import cuda.bindings.runtime as cudart
 from cuda.bindings._v2 import driver
 
-# NULL dependency array: the node has no dependencies.
-NO_DEPS = 0
-
 
 def test_interop_stream():
     # DRV to RT
@@ -52,7 +49,7 @@ def test_interop_graphNode():
     graph = driver.graph_create(0)
 
     # DRV to RT
-    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
+    node = driver.graph_add_empty_node(graph, None)
     (err_rt,) = cudart.cudaGraphDestroyNode(node)
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
@@ -104,7 +101,7 @@ def test_interop_memPool():
 
 def test_interop_graphExec():
     graph = driver.graph_create(0)
-    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
+    node = driver.graph_add_empty_node(graph, None)
 
     # DRV to RT
     graphExec = driver.graph_instantiate(graph, 0)

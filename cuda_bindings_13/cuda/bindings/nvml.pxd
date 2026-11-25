@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1a1a93143a45c1317fad32c5836bb153412cd49748d57bac998f8a9fc00e1bef
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=aaac7896390181ec86b43c291b7d46aa9ba2cb67603d9ce02a7b38856f9b9002
 
 
 
@@ -352,6 +352,7 @@ cpdef device_modify_drain_state(pci_info, int new_state)
 cpdef int device_query_drain_state(pci_info) except? -1
 cpdef device_remove_gpu_v2(pci_info, int gpu_state, int link_state)
 cpdef device_discover_gpus(pci_info)
+cpdef device_clear_field_values(intptr_t device, values)
 cpdef int device_get_virtualization_mode(intptr_t device) except? -1
 cpdef int device_get_host_vgpu_mode(intptr_t device) except? -1
 cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode)

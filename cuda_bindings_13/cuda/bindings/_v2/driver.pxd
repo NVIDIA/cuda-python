@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=4fe2f718eb320e0f8f62a072ac5c763633bdaffb8b0de5d858772c84fc70a3f0
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d04fbba038b242acd39693eac40b62d470f40375379b1fa7886f416a4111cb24
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -214,6 +214,9 @@ cpdef object mem_pool_export_to_shareable_handle(intptr_t pool, int handle_type,
 cpdef object logical_endpoint_export(uint32_t le_id, int handle_type)
 cpdef memcpy_batch_async(object dsts, object srcs, object sizes, object attrs, object attrs_idxs, intptr_t h_stream)
 cpdef int mem_get_handle_for_address_range(uint64_t dptr, size_t size, int handle_type, unsigned long long flags) except? -1
+cpdef intptr_t link_create_v2(options, option_values) except? 0
+cpdef link_destroy(intptr_t state)
+cpdef object mem_get_location_info(uint64_t ptr, size_t size, size_t summary_granularity, size_t sampling_granularity)
 cpdef int thread_exchange_stream_capture_mode(int mode) except? -1
 cpdef list tex_ref_get_border_color(intptr_t h_tex_ref)
 cpdef unsigned int logs_dump_to_file(iterator, bytes path_to_file, unsigned int flags) except? 0
@@ -258,6 +261,7 @@ cpdef device_primary_ctx_release_v2(int dev)
 cpdef device_primary_ctx_set_flags_v2(int dev, unsigned int flags)
 cpdef tuple device_primary_ctx_get_state(int dev)
 cpdef device_primary_ctx_reset_v2(int dev)
+cpdef intptr_t ctx_create_v3(params_array, unsigned int flags, int dev) except? 0
 cpdef intptr_t ctx_create_v4(ctx_create_params, unsigned int flags, int dev) except? 0
 cpdef ctx_destroy_v2(intptr_t ctx)
 cpdef ctx_push_current_v2(intptr_t ctx)
@@ -285,7 +289,7 @@ cpdef int ctx_get_shared_mem_config() except? -1
 cpdef ctx_set_shared_mem_config(int config)
 cpdef intptr_t module_load(fname) except? 0
 cpdef intptr_t module_load_data(image) except? 0
-cpdef intptr_t module_load_data_ex(image, unsigned int num_options, intptr_t options, intptr_t option_values) except? 0
+cpdef intptr_t module_load_data_ex(image, options, option_values) except? 0
 cpdef intptr_t module_load_fat_binary(fat_cubin) except? 0
 cpdef module_unload(intptr_t hmod)
 cpdef int module_get_loading_mode() except? -1
@@ -293,15 +297,13 @@ cpdef intptr_t module_get_function(intptr_t hmod, name) except? 0
 cpdef unsigned int module_get_function_count(intptr_t mod) except? 0
 cpdef object module_enumerate_functions(intptr_t mod)
 cpdef tuple module_get_global_v2(intptr_t hmod, name)
-cpdef intptr_t link_create_v2(unsigned int num_options, intptr_t options, intptr_t option_values) except? 0
-cpdef link_add_data_v2(intptr_t state, int type, intptr_t data, size_t size, name, unsigned int num_options, intptr_t options, intptr_t option_values)
-cpdef link_add_file_v2(intptr_t state, int type, path, unsigned int num_options, intptr_t options, intptr_t option_values)
+cpdef link_add_data_v2(intptr_t state, int type, data, name, options, option_values)
+cpdef link_add_file_v2(intptr_t state, int type, path, options, option_values)
 cpdef bytes link_complete(intptr_t state)
-cpdef link_destroy(intptr_t state)
 cpdef intptr_t module_get_tex_ref(intptr_t hmod, name) except? 0
 cpdef intptr_t module_get_surf_ref(intptr_t hmod, name) except? 0
-cpdef intptr_t library_load_data(code, intptr_t jit_options, intptr_t jit_options_values, unsigned int num_jit_options, intptr_t library_options, intptr_t library_option_values, unsigned int num_library_options) except? 0
-cpdef intptr_t library_load_from_file(file_name, intptr_t jit_options, intptr_t jit_options_values, unsigned int num_jit_options, intptr_t library_options, intptr_t library_option_values, unsigned int num_library_options) except? 0
+cpdef intptr_t library_load_data(code, jit_options, jit_options_values, library_options, library_option_values) except? 0
+cpdef intptr_t library_load_from_file(file_name, jit_options, jit_options_values, library_options, library_option_values) except? 0
 cpdef library_unload(intptr_t library)
 cpdef intptr_t library_get_kernel(intptr_t library, name) except? 0
 cpdef unsigned int library_get_kernel_count(intptr_t lib) except? 0
@@ -388,15 +390,15 @@ cpdef object array_3d_get_descriptor_v2(intptr_t h_array)
 cpdef intptr_t mipmapped_array_create(p_mipmapped_array_desc, unsigned int num_mipmap_levels) except? 0
 cpdef intptr_t mipmapped_array_get_level(intptr_t h_mipmapped_array, unsigned int level) except? 0
 cpdef mipmapped_array_destroy(intptr_t h_mipmapped_array)
-cpdef size_t mem_batch_decompress_async(params_array, size_t count, unsigned int flags, intptr_t stream) except? 0
+cpdef size_t mem_batch_decompress_async(params_array, unsigned int flags, intptr_t stream) except? 0
 cpdef uint64_t mem_address_reserve(size_t size, size_t alignment, uint64_t addr, unsigned long long flags) except? 0
 cpdef mem_address_free(uint64_t ptr, size_t size)
 cpdef uint64_t mem_create(size_t size, prop, unsigned long long flags) except? 0
 cpdef mem_release(uint64_t handle)
 cpdef mem_map(uint64_t ptr, size_t size, size_t offset, uint64_t handle, unsigned long long flags)
-cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream)
+cpdef mem_map_array_async(map_info_list, intptr_t h_stream)
 cpdef mem_unmap(uint64_t ptr, size_t size)
-cpdef mem_set_access(uint64_t ptr, size_t size, desc, size_t count)
+cpdef mem_set_access(uint64_t ptr, size_t size, desc)
 cpdef unsigned long long mem_get_access(location, uint64_t ptr) except? 0
 cpdef uint64_t mem_import_from_shareable_handle(intptr_t os_handle, int sh_handle_type) except? 0
 cpdef size_t mem_get_allocation_granularity(prop, int option) except? 0
@@ -406,7 +408,7 @@ cpdef mem_free_async(uint64_t dptr, intptr_t h_stream)
 cpdef uint64_t mem_alloc_async(size_t bytesize, intptr_t h_stream) except? 0
 cpdef mem_pool_trim_to(intptr_t pool, size_t min_bytes_to_keep)
 cpdef mem_pool_set_attribute(intptr_t pool, int attr, intptr_t value)
-cpdef mem_pool_set_access(intptr_t pool, map, size_t count)
+cpdef mem_pool_set_access(intptr_t pool, map)
 cpdef int mem_pool_get_access(intptr_t mem_pool, location) except? 0
 cpdef intptr_t mem_pool_create(pool_props) except? 0
 cpdef mem_pool_destroy(intptr_t pool)
@@ -434,12 +436,12 @@ cpdef tuple stream_get_ctx_v2(intptr_t h_stream)
 cpdef stream_wait_event(intptr_t h_stream, intptr_t h_event, unsigned int flags)
 cpdef stream_add_callback(intptr_t h_stream, intptr_t callback, intptr_t user_data, unsigned int flags)
 cpdef stream_begin_capture_v2(intptr_t h_stream, int mode)
-cpdef stream_begin_capture_to_graph(intptr_t h_stream, intptr_t h_graph, dependencies, dependency_data, size_t num_dependencies, int mode)
+cpdef stream_begin_capture_to_graph(intptr_t h_stream, intptr_t h_graph, dependencies, dependency_data, int mode)
 cpdef intptr_t stream_end_capture(intptr_t h_stream) except? 0
 cpdef int stream_is_capturing(intptr_t h_stream) except? -1
 cpdef tuple stream_get_capture_info_v2(intptr_t h_stream)
 cpdef tuple stream_get_capture_info_v3(intptr_t h_stream)
-cpdef stream_update_capture_dependencies_v2(intptr_t h_stream, dependencies, dependency_data, size_t num_dependencies, unsigned int flags)
+cpdef stream_update_capture_dependencies_v2(intptr_t h_stream, dependencies, dependency_data, unsigned int flags)
 cpdef stream_attach_mem_async(intptr_t h_stream, uint64_t dptr, size_t length, unsigned int flags)
 cpdef stream_query(intptr_t h_stream)
 cpdef stream_synchronize(intptr_t h_stream)
@@ -459,14 +461,14 @@ cpdef uint64_t external_memory_get_mapped_buffer(intptr_t ext_mem, buffer_desc) 
 cpdef intptr_t external_memory_get_mapped_mipmapped_array(intptr_t ext_mem, mipmap_desc) except? 0
 cpdef destroy_external_memory(intptr_t ext_mem)
 cpdef intptr_t import_external_semaphore(sem_handle_desc) except? 0
-cpdef signal_external_semaphores_async(ext_sem_array, params_array, unsigned int num_ext_sems, intptr_t stream)
-cpdef wait_external_semaphores_async(ext_sem_array, params_array, unsigned int num_ext_sems, intptr_t stream)
+cpdef signal_external_semaphores_async(ext_sem_array, params_array, intptr_t stream)
+cpdef wait_external_semaphores_async(ext_sem_array, params_array, intptr_t stream)
 cpdef destroy_external_semaphore(intptr_t ext_sem)
 cpdef stream_wait_value32_v2(intptr_t stream, uint64_t addr, uint32_t value, unsigned int flags)
 cpdef stream_wait_value64_v2(intptr_t stream, uint64_t addr, uint64_t value, unsigned int flags)
 cpdef stream_write_value32_v2(intptr_t stream, uint64_t addr, uint32_t value, unsigned int flags)
 cpdef stream_write_value64_v2(intptr_t stream, uint64_t addr, uint64_t value, unsigned int flags)
-cpdef stream_batch_mem_op_v2(intptr_t stream, unsigned int count, param_array, unsigned int flags)
+cpdef stream_batch_mem_op_v2(intptr_t stream, param_array, unsigned int flags)
 cpdef int func_get_attribute(int attrib, intptr_t hfunc) except? -1
 cpdef func_set_attribute(intptr_t hfunc, int attrib, int value)
 cpdef func_set_cache_config(intptr_t hfunc, int config)
@@ -478,54 +480,54 @@ cpdef func_load(intptr_t function)
 cpdef launch_kernel(intptr_t f, unsigned int grid_dim_x, unsigned int grid_dim_y, unsigned int grid_dim_z, unsigned int block_dim_x, unsigned int block_dim_y, unsigned int block_dim_z, unsigned int shared_mem_bytes, intptr_t h_stream, kernel_params, intptr_t extra)
 cpdef launch_kernel_ex(config, intptr_t f, kernel_params, intptr_t extra)
 cpdef launch_cooperative_kernel(intptr_t f, unsigned int grid_dim_x, unsigned int grid_dim_y, unsigned int grid_dim_z, unsigned int block_dim_x, unsigned int block_dim_y, unsigned int block_dim_z, unsigned int shared_mem_bytes, intptr_t h_stream, kernel_params)
-cpdef launch_cooperative_kernel_multi_device(launch_params_list, unsigned int num_devices, unsigned int flags)
+cpdef launch_cooperative_kernel_multi_device(launch_params_list, unsigned int flags)
 cpdef launch_host_func(intptr_t h_stream, intptr_t fn, intptr_t user_data)
 cpdef func_set_block_shape(intptr_t hfunc, int x, int y, int z)
 cpdef func_set_shared_size(intptr_t hfunc, unsigned int bytes)
 cpdef param_set_size(intptr_t hfunc, unsigned int numbytes)
 cpdef param_seti(intptr_t hfunc, int offset, unsigned int value)
 cpdef param_setf(intptr_t hfunc, int offset, float value)
-cpdef param_setv(intptr_t hfunc, int offset, intptr_t ptr, unsigned int numbytes)
+cpdef param_setv(intptr_t hfunc, int offset, ptr)
 cpdef launch(intptr_t f)
 cpdef launch_grid(intptr_t f, int grid_width, int grid_height)
 cpdef launch_grid_async(intptr_t f, int grid_width, int grid_height, intptr_t h_stream)
 cpdef param_set_tex_ref(intptr_t hfunc, int texunit, intptr_t h_tex_ref)
 cpdef func_set_shared_mem_config(intptr_t hfunc, int config)
 cpdef intptr_t graph_create(unsigned int flags) except? 0
-cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, node_params) except? 0
 cpdef object graph_kernel_node_get_params_v2(intptr_t h_node)
 cpdef graph_kernel_node_set_params_v2(intptr_t h_node, node_params)
-cpdef intptr_t graph_add_memcpy_node(intptr_t h_graph, dependencies, size_t num_dependencies, copy_params, intptr_t ctx) except? 0
+cpdef intptr_t graph_add_memcpy_node(intptr_t h_graph, dependencies, copy_params, intptr_t ctx) except? 0
 cpdef object graph_memcpy_node_get_params(intptr_t h_node)
 cpdef graph_memcpy_node_set_params(intptr_t h_node, node_params)
-cpdef intptr_t graph_add_memset_node(intptr_t h_graph, dependencies, size_t num_dependencies, memset_params, intptr_t ctx) except? 0
+cpdef intptr_t graph_add_memset_node(intptr_t h_graph, dependencies, memset_params, intptr_t ctx) except? 0
 cpdef object graph_memset_node_get_params(intptr_t h_node)
 cpdef graph_memset_node_set_params(intptr_t h_node, node_params)
-cpdef intptr_t graph_add_host_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_host_node(intptr_t h_graph, dependencies, node_params) except? 0
 cpdef object graph_host_node_get_params(intptr_t h_node)
 cpdef graph_host_node_set_params(intptr_t h_node, node_params)
-cpdef intptr_t graph_add_child_graph_node(intptr_t h_graph, dependencies, size_t num_dependencies, intptr_t child_graph) except? 0
+cpdef intptr_t graph_add_child_graph_node(intptr_t h_graph, dependencies, intptr_t child_graph) except? 0
 cpdef intptr_t graph_child_graph_node_get_graph(intptr_t h_node) except? 0
-cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies, size_t num_dependencies) except? 0
-cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, size_t num_dependencies, intptr_t event) except? 0
+cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies) except? 0
+cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, intptr_t event) except? 0
 cpdef intptr_t graph_event_record_node_get_event(intptr_t h_node) except? 0
 cpdef graph_event_record_node_set_event(intptr_t h_node, intptr_t event)
-cpdef intptr_t graph_add_event_wait_node(intptr_t h_graph, dependencies, size_t num_dependencies, intptr_t event) except? 0
+cpdef intptr_t graph_add_event_wait_node(intptr_t h_graph, dependencies, intptr_t event) except? 0
 cpdef intptr_t graph_event_wait_node_get_event(intptr_t h_node) except? 0
 cpdef graph_event_wait_node_set_event(intptr_t h_node, intptr_t event)
-cpdef intptr_t graph_add_external_semaphores_signal_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_external_semaphores_signal_node(intptr_t h_graph, dependencies, node_params) except? 0
 cpdef object graph_external_semaphores_signal_node_get_params(intptr_t h_node)
 cpdef graph_external_semaphores_signal_node_set_params(intptr_t h_node, node_params)
-cpdef intptr_t graph_add_external_semaphores_wait_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_external_semaphores_wait_node(intptr_t h_graph, dependencies, node_params) except? 0
 cpdef object graph_external_semaphores_wait_node_get_params(intptr_t h_node)
 cpdef graph_external_semaphores_wait_node_set_params(intptr_t h_node, node_params)
-cpdef intptr_t graph_add_batch_mem_op_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_batch_mem_op_node(intptr_t h_graph, dependencies, node_params) except? 0
 cpdef object graph_batch_mem_op_node_get_params(intptr_t h_node)
 cpdef graph_batch_mem_op_node_set_params(intptr_t h_node, node_params)
 cpdef graph_exec_batch_mem_op_node_set_params(intptr_t h_graph_exec, intptr_t h_node, node_params)
-cpdef intptr_t graph_add_mem_alloc_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_mem_alloc_node(intptr_t h_graph, dependencies, node_params) except? 0
 cpdef object graph_mem_alloc_node_get_params(intptr_t h_node)
-cpdef intptr_t graph_add_mem_free_node(intptr_t h_graph, dependencies, size_t num_dependencies, uint64_t dptr) except? 0
+cpdef intptr_t graph_add_mem_free_node(intptr_t h_graph, dependencies, uint64_t dptr) except? 0
 cpdef uint64_t graph_mem_free_node_get_params(intptr_t h_node) except? 0
 cpdef device_graph_mem_trim(int device)
 cpdef device_set_graph_mem_attribute(int device, int attr, intptr_t value)
@@ -537,8 +539,8 @@ cpdef object graph_get_root_nodes(intptr_t h_graph)
 cpdef tuple graph_get_edges_v2(intptr_t h_graph)
 cpdef tuple graph_node_get_dependencies_v2(intptr_t h_node)
 cpdef tuple graph_node_get_dependent_nodes_v2(intptr_t h_node)
-cpdef graph_add_dependencies_v2(intptr_t h_graph, from_, to, edge_data, size_t num_dependencies)
-cpdef graph_remove_dependencies_v2(intptr_t h_graph, from_, to, edge_data, size_t num_dependencies)
+cpdef graph_add_dependencies_v2(intptr_t h_graph, from_, to, edge_data)
+cpdef graph_remove_dependencies_v2(intptr_t h_graph, from_, to, edge_data)
 cpdef graph_destroy_node(intptr_t h_node)
 cpdef intptr_t graph_instantiate_with_flags(intptr_t h_graph, unsigned long long flags) except? 0
 cpdef intptr_t graph_instantiate_with_params(intptr_t h_graph, instantiate_params) except? 0
@@ -568,7 +570,7 @@ cpdef user_object_retain(intptr_t object, unsigned int count)
 cpdef user_object_release(intptr_t object, unsigned int count)
 cpdef graph_retain_user_object(intptr_t graph, intptr_t object, unsigned int count, unsigned int flags)
 cpdef graph_release_user_object(intptr_t graph, intptr_t object, unsigned int count)
-cpdef intptr_t graph_add_node_v2(intptr_t h_graph, dependencies, dependency_data, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_node_v2(intptr_t h_graph, dependencies, dependency_data, node_params) except? 0
 cpdef graph_node_set_params(intptr_t h_node, node_params)
 cpdef graph_exec_node_set_params(intptr_t h_graph_exec, intptr_t h_node, node_params)
 cpdef uint64_t graph_conditional_handle_create(intptr_t h_graph, intptr_t ctx, unsigned int default_launch_value, unsigned int flags) except? 0
@@ -628,8 +630,8 @@ cpdef intptr_t graphics_sub_resource_get_mapped_array(intptr_t resource, unsigne
 cpdef intptr_t graphics_resource_get_mapped_mipmapped_array(intptr_t resource) except? 0
 cpdef tuple graphics_resource_get_mapped_pointer_v2(intptr_t resource)
 cpdef graphics_resource_set_map_flags_v2(intptr_t resource, unsigned int flags)
-cpdef graphics_map_resources(unsigned int count, resources, intptr_t h_stream)
-cpdef graphics_unmap_resources(unsigned int count, resources, intptr_t h_stream)
+cpdef graphics_map_resources(resources, intptr_t h_stream)
+cpdef graphics_unmap_resources(resources, intptr_t h_stream)
 cpdef tuple get_proc_address_v2(symbol, int cuda_version, uint64_t flags)
 cpdef intptr_t get_export_table(p_export_table_id) except? 0
 cpdef intptr_t green_ctx_create(intptr_t desc, int dev, unsigned int flags) except? 0
@@ -639,7 +641,7 @@ cpdef object device_get_dev_resource(int device, int type)
 cpdef object ctx_get_dev_resource(intptr_t h_ctx, int type)
 cpdef object green_ctx_get_dev_resource(intptr_t h_ctx, int type)
 cpdef tuple dev_sm_resource_split_by_count(input, unsigned int flags, unsigned int min_count)
-cpdef intptr_t dev_resource_generate_desc(resources, unsigned int nb_resources) except? 0
+cpdef intptr_t dev_resource_generate_desc(resources) except? 0
 cpdef green_ctx_record_event(intptr_t h_ctx, intptr_t h_event)
 cpdef green_ctx_wait_event(intptr_t h_ctx, intptr_t h_event)
 cpdef intptr_t stream_get_green_ctx(intptr_t h_stream) except? 0
@@ -673,15 +675,15 @@ cpdef intptr_t graphics_vdpau_register_video_surface(VdpVideoSurface vdp_surface
 cpdef intptr_t graphics_vdpau_register_output_surface(VdpOutputSurface vdp_surface, unsigned int flags) except? 0
 cpdef int ctx_get_device_v2(intptr_t ctx) except? -1
 cpdef ctx_synchronize_v2(intptr_t ctx)
-cpdef memcpy_batch_async_v2(intptr_t dsts, intptr_t srcs, intptr_t sizes, size_t count, attrs, intptr_t attrs_idxs, size_t num_attrs, intptr_t h_stream)
-cpdef memcpy_3d_batch_async_v2(size_t num_ops, op_list, unsigned long long flags, intptr_t h_stream)
+cpdef memcpy_batch_async_v2(dsts, srcs, sizes, attrs, attrs_idxs, intptr_t h_stream)
+cpdef memcpy_3d_batch_async_v2(op_list, unsigned long long flags, intptr_t h_stream)
 cpdef intptr_t mem_get_default_mem_pool(location, int type) except? 0
 cpdef intptr_t mem_get_mem_pool(location, int type) except? 0
 cpdef mem_set_mem_pool(location, int type, intptr_t pool)
-cpdef mem_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, prefetch_locs, intptr_t prefetch_loc_idxs, size_t num_prefetch_locs, unsigned long long flags, intptr_t h_stream)
-cpdef mem_discard_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, unsigned long long flags, intptr_t h_stream)
-cpdef mem_discard_and_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, prefetch_locs, intptr_t prefetch_loc_idxs, size_t num_prefetch_locs, unsigned long long flags, intptr_t h_stream)
-cpdef unsigned int device_get_p2p_atomic_capabilities(intptr_t operations, unsigned int count, int src_device, int dst_device) except? 0
+cpdef mem_prefetch_batch_async(dptrs, sizes, prefetch_locs, prefetch_loc_idxs, unsigned long long flags, intptr_t h_stream)
+cpdef mem_discard_batch_async(dptrs, sizes, unsigned long long flags, intptr_t h_stream)
+cpdef mem_discard_and_prefetch_batch_async(dptrs, sizes, prefetch_locs, prefetch_loc_idxs, unsigned long long flags, intptr_t h_stream)
+cpdef object device_get_p2p_atomic_capabilities(operations, int src_device, int dst_device)
 cpdef unsigned long long green_ctx_get_id(intptr_t green_ctx) except? 0
 cpdef multicast_bind_mem_v2(uint64_t mc_handle, int dev, size_t mc_offset, uint64_t mem_handle, size_t mem_offset, size_t size, unsigned long long flags)
 cpdef multicast_bind_addr_v2(uint64_t mc_handle, int dev, size_t mc_offset, uint64_t memptr, size_t size, unsigned long long flags)
@@ -690,7 +692,7 @@ cpdef unsigned int graph_node_get_local_id(intptr_t h_node) except? 0
 cpdef unsigned long long graph_node_get_tools_id(intptr_t h_node) except? 0
 cpdef unsigned int graph_get_id(intptr_t h_graph) except? 0
 cpdef unsigned int graph_exec_get_id(intptr_t h_graph_exec) except? 0
-cpdef tuple dev_sm_resource_split(unsigned int nb_groups, input, unsigned int flags, group_params)
+cpdef tuple dev_sm_resource_split(input, unsigned int flags, group_params)
 cpdef object stream_get_dev_resource(intptr_t h_stream, int type)
 cpdef size_t kernel_get_param_count(intptr_t kernel) except? 0
 cpdef memcpy_with_attributes_async(uint64_t dst, uint64_t src, size_t size, attr, intptr_t h_stream)
@@ -719,8 +721,7 @@ cpdef stream_begin_recapture_to_graph(intptr_t h_stream, int mode, intptr_t h_gr
 cpdef object device_get_fabric_cluster_uuid(int dev)
 cpdef size_t device_get_clique_count(int dev) except? 0
 cpdef object device_get_clique_info(int dev)
-cpdef object mem_get_location_info(uint64_t ptr, size_t size, size_t summary_granularity, size_t sampling_granularity)
-cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data, size_t num_dependencies, node_params) except? 0
+cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data, node_params) except? 0
 cpdef graph_node_set_params_v2(intptr_t h_node, node_params)
 cpdef checkpoint_operation_complete(intptr_t handle)
 cpdef fabric_cpy_batch_async(size_t num_ops, intptr_t op_list, unsigned long long flags, intptr_t h_stream)

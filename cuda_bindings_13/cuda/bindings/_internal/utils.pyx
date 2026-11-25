@@ -84,6 +84,8 @@ cdef int get_resource_ptr(nullable_unique_ptr[vector[ResT]] &in_out_ptr, object 
         in_out_ptr.reset(vec, True)
         for i in range(len(obj)):
             deref(vec)[i] = obj[i]
+    elif obj is None:
+        in_out_ptr.reset(NULL, False)
     else:
         in_out_ptr.reset(<vector[ResT]*><intptr_t>obj, False)
     return 0
@@ -96,7 +98,11 @@ cdef int get_resource_ptrs(nullable_unique_ptr[ vector[PtrT*] ] &in_out_ptr, obj
         # case of exception in the following loop
         in_out_ptr.reset(vec, True)
         for i in range(len(obj)):
-            deref(vec)[i] = <PtrT*><intptr_t>(obj[i])
+            # `PyNumber_Index` (`__index__`) since the elements may be NumPy integers, which the cast does not accept,
+            # and unlike `int()` it rejects floats and strings
+            deref(vec)[i] = <PtrT*><intptr_t>cpython.PyNumber_Index(obj[i])
+    elif obj is None:
+        in_out_ptr.reset(NULL, False)
     else:
         in_out_ptr.reset(<vector[PtrT*]*><intptr_t>obj, False)
     return 0
@@ -108,7 +114,6 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
     cdef vector[intptr_t]* nested_vec = NULL
     cdef vector[vector[ResT]]* nested_res_vec = NULL
     cdef size_t i = 0, length = 0
-    cdef intptr_t addr
 
     if is_nested_sequence(obj):
         length = len(obj)
@@ -140,9 +145,12 @@ cdef int get_nested_resource_ptr(nested_resource[ResT] &in_out_ptr, object obj, 
         length = len(obj)
         nested_vec = new vector[intptr_t](length)
         nested_ptr.reset(nested_vec, True)
-        for i, addr in enumerate(obj):
-            deref(nested_vec)[i] = addr
+        for i, addr_obj in enumerate(obj):
+            deref(nested_vec)[i] = <intptr_t>cpython.PyNumber_Index(addr_obj)
         nested_res_ptr.reset(NULL, False)
+    elif obj is None:
+        nested_res_ptr.reset(NULL, False)
+        nested_ptr.reset(NULL, False)
     else:
         # obj is an int (ResT**)
         nested_res_ptr.reset(NULL, False)

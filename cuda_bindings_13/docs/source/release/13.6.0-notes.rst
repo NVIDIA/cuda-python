@@ -1,0 +1,31 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.6.0 Release notes
+======================================
+
+Changes
+-------
+
+- The modules whose bindings take pointers to arrays now accept more kinds of arguments, and in some places
+  treat them differently:
+
+  - An array of pointers (for example, the ``options`` of ``nvjitlink.create`` or ``nvvm.compile_program``) may
+    contain NumPy integers, which were rejected before. The elements are converted with ``__index__``, so a float
+    or a string is still a ``TypeError``.
+  - ``None`` is accepted for an array of pointers or an array of values, and is passed to the C function as
+    ``NULL``. Before, it was a ``TypeError``. Where the number of elements is a separate argument, as in
+    ``nvjitlink.create``, ``nvvm.compile_program``, ``nvvm.verify_program`` and ``nvfatbin.create``, passing
+    ``None`` together with a nonzero count now reaches the C library as ``NULL``, instead of raising an
+    exception in Python.
+
+- A buffer argument (``bytes``, a NumPy array, ``bytearray``, ...) is now held for the whole call into the C
+  library, and released when the function returns. Before, the buffer was released before the call, so another
+  thread could resize a ``bytearray`` and free its memory during the call. This applies to all the bindings
+  that take a buffer, such as those of ``nvfatbin``, ``nvjitlink``, ``nvvm`` and ``cudla``. The accepted
+  arguments and the errors are unchanged.
+
+- ``nvml.device_clear_field_values`` has some bugfixes: It returns ``None`` for
+  an empty ``values``. Before, it returned the ``FieldValue`` that it built.

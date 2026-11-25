@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.0.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=404e6696c1e11fe6b1854c8b341bfba192fb90689ae0a69b3110c86d7c51ac5f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=da9929d41f6a60686b4540827f3f48541a4d58d81a34e75e18c357672452ead5
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -17,35 +17,53 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
-cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
-    cdef intptr_t ptr
-    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
-    if not readonly:
-        flags |= _cyb_cpython.PyBUF_WRITABLE
-    cdef int status = -1
-    cdef _cyb_cpython.Py_buffer view
-    if buf is None:
-        ptr = 0
-    elif isinstance(buf, int):
-        ptr = <intptr_t>buf
-    else:
+cdef class _cyb_BufferGuard:
+    """Holds an export of a buffer for as long as it lives.
+
+    `buf` is `None` (NULL), a Python `int` (an address, which is not held), or a contiguous buffer.
+    With `wrap_errors`, any failure to get the buffer (or its size, if `size` is not -1) is a `ValueError`.
+    """
+    cdef _cyb_cpython.Py_buffer _view
+    cdef bint _held
+    cdef void* ptr
+    cdef Py_ssize_t nbytes
+
+    def __cinit__(self, buf, Py_ssize_t size, bint readonly, bint wrap_errors):
+        cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+        self._held = False
+        self.ptr = NULL
+        self.nbytes = 0
+        if buf is None:
+            return
+        if isinstance(buf, int):
+            self.ptr = <void*><intptr_t>buf
+            return
+        if not readonly:
+            flags |= _cyb_cpython.PyBUF_WRITABLE
+        adj = "writable " if not readonly else ""
         try:
-            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
+            _cyb_cpython.PyObject_GetBuffer(buf, &self._view, flags)
+            self._held = True
             if size != -1:
-                assert view.len == size
+                assert self._view.len == size
         except Exception as e:
-            adj = "writable " if not readonly else ""
+            if wrap_errors:
+                raise ValueError(
+                    "buf must be None, a Python int representing the pointer "
+                    f"address to a valid buffer, or a contiguous {adj}"
+                    f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
+                ) from e
+            if not isinstance(e, BufferError):
+                raise
             raise ValueError(
-                "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a contiguous {adj}"
-                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
+                f"buf must be a contiguous {adj}buffer (a ctypes object, NumPy array, bytes, ...)"
             ) from e
-        else:
-            ptr = <intptr_t>view.buf
-        finally:
-            if status == 0:
-                _cyb_cpython.PyBuffer_Release(&view)
-    return ptr
+        self.ptr = self._view.buf
+        self.nbytes = self._view.len
+
+    def __dealloc__(self):
+        if self._held:
+            _cyb_cpython.PyBuffer_Release(&self._view)
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
@@ -214,7 +232,8 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
 
     .. seealso:: `nvvmAddModuleToProgram`
     """
-    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, size, readonly=True)
+    cdef _cyb_BufferGuard _buffer_guard_ = _cyb_BufferGuard(buffer, size, True, True)
+    cdef void* _buffer_ = _buffer_guard_.ptr
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -246,7 +265,8 @@ cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
 
     .. seealso:: `nvvmLazyAddModuleToProgram`
     """
-    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, size, readonly=True)
+    cdef _cyb_BufferGuard _buffer_guard_ = _cyb_BufferGuard(buffer, size, True, True)
+    cdef void* _buffer_ = _buffer_guard_.ptr
     if not isinstance(name, str):
         raise TypeError("name must be a Python str")
     cdef bytes _temp_name_ = (<str>name).encode()
@@ -401,7 +421,8 @@ cpdef get_compiled_result(intptr_t prog, buffer):
 
     .. seealso:: `nvvmGetCompiledResult`
     """
-    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
+    cdef _cyb_BufferGuard _buffer_guard_ = _cyb_BufferGuard(buffer, -1, False, True)
+    cdef void* _buffer_ = _buffer_guard_.ptr
     with nogil:
         __status__ = nvvmGetCompiledResult(<Program>prog, <char*>_buffer_)
     check_status(__status__)
@@ -441,7 +462,8 @@ cpdef get_program_log(intptr_t prog, buffer):
 
     .. seealso:: `nvvmGetProgramLog`
     """
-    cdef void* _buffer_ = <void *>_cyb_get_buffer_pointer(buffer, -1, readonly=False)
+    cdef _cyb_BufferGuard _buffer_guard_ = _cyb_BufferGuard(buffer, -1, False, True)
+    cdef void* _buffer_ = _buffer_guard_.ptr
     with nogil:
         __status__ = nvvmGetProgramLog(<Program>prog, <char*>_buffer_)
     check_status(__status__)

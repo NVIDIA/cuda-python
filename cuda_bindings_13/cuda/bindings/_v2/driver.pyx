@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2af9521dd585f1e50ac14dc391ca228747f6a3fa1271cb0504ab3a02e2fe0898
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c5dc3be2938dcd03dd6162bb3dd123a4f223e9b8eb1467c48f84de495cb33a6a
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -20,6 +20,7 @@ from cpython.buffer cimport (
 cimport cpython.memoryview as _cyb_cpython_memoryview
 from cpython.memoryview cimport PyMemoryView_FromMemory as _cyb_PyMemoryView_FromMemory
 from cuda.bindings._internal.utils cimport (
+    get_resource_ptr as _cyb_get_resource_ptr,
     get_resource_ptrs as _cyb_get_resource_ptrs,
     nullable_unique_ptr as _cyb_nullable_unique_ptr,
 )
@@ -41,9 +42,66 @@ from libc.string cimport (
 )
 from libcpp.vector cimport vector as _cyb_vector
 
+cdef extern from * nogil:
+    """
+    static_assert(sizeof(size_t) == sizeof(unsigned long long),
+                  "The SEQ helper handles 'unsigned long long' as 'size_t', which needs the same size");
+    static const int cyb_ull_is_size_t = 1;
+
+    """
+    int _cyb_cyb_ull_is_size_t "cyb_ull_is_size_t"
+
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
 import numpy as _numpy
+
+cdef class _cyb_BufferGuard:
+    """Holds an export of a buffer for as long as it lives.
+
+    `buf` is `None` (NULL), a Python `int` (an address, which is not held), or a contiguous buffer.
+    With `wrap_errors`, any failure to get the buffer (or its size, if `size` is not -1) is a `ValueError`.
+    """
+    cdef _cyb_cpython.Py_buffer _view
+    cdef bint _held
+    cdef void* ptr
+    cdef Py_ssize_t nbytes
+
+    def __cinit__(self, buf, Py_ssize_t size, bint readonly, bint wrap_errors):
+        cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+        self._held = False
+        self.ptr = NULL
+        self.nbytes = 0
+        if buf is None:
+            return
+        if isinstance(buf, int):
+            self.ptr = <void*><intptr_t>buf
+            return
+        if not readonly:
+            flags |= _cyb_cpython.PyBUF_WRITABLE
+        adj = "writable " if not readonly else ""
+        try:
+            _cyb_cpython.PyObject_GetBuffer(buf, &self._view, flags)
+            self._held = True
+            if size != -1:
+                assert self._view.len == size
+        except Exception as e:
+            if wrap_errors:
+                raise ValueError(
+                    "buf must be None, a Python int representing the pointer "
+                    f"address to a valid buffer, or a contiguous {adj}"
+                    f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
+                ) from e
+            if not isinstance(e, BufferError):
+                raise
+            raise ValueError(
+                f"buf must be a contiguous {adj}buffer (a ctypes object, NumPy array, bytes, ...)"
+            ) from e
+        self.ptr = self._view.buf
+        self.nbytes = self._view.len
+
+    def __dealloc__(self):
+        if self._held:
+            _cyb_cpython.PyBuffer_Release(&self._view)
 
 cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
     buffer.buf = <char *>ptr
@@ -65,6 +123,14 @@ cdef inline intptr_t _cyb_array_ptr(object arr) except? 0:
     ptr = <intptr_t>view.buf
     _cyb_cpython.PyBuffer_Release(&view)
     return ptr
+
+cdef Py_ssize_t _cyb_check_same_length(bint is_set, Py_ssize_t count, Py_ssize_t length, name, names) except -1:
+    if is_set and length != count:
+        raise ValueError(
+            f"{name} must have the same length as the others of ({names}), "
+            f"which have {count} elements, got {length}"
+        )
+    return length
 
 cdef _cyb_from_buffer(buffer, size, lowpp_type):
     cdef _cyb_cpython.Py_buffer view
@@ -91,36 +157,6 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
-cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
-    cdef intptr_t ptr
-    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
-    if not readonly:
-        flags |= _cyb_cpython.PyBUF_WRITABLE
-    cdef int status = -1
-    cdef _cyb_cpython.Py_buffer view
-    if buf is None:
-        ptr = 0
-    elif isinstance(buf, int):
-        ptr = <intptr_t>buf
-    else:
-        try:
-            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
-            if size != -1:
-                assert view.len == size
-        except Exception as e:
-            adj = "writable " if not readonly else ""
-            raise ValueError(
-                "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a contiguous {adj}"
-                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
-            ) from e
-        else:
-            ptr = <intptr_t>view.buf
-        finally:
-            if status == 0:
-                _cyb_cpython.PyBuffer_Release(&view)
-    return ptr
-
 
 # <<<< END OF PREAMBLE CONTENT >>>>
 
@@ -130,7 +166,8 @@ from cpython.buffer cimport (Py_buffer, PyObject_GetBuffer, PyBuffer_Release,
                               PyBUF_SIMPLE)
 from libc.string cimport memcpy as c_memcpy, memset
 
-from cpython.mem cimport PyMem_Calloc, PyMem_Free
+from cpython.mem cimport PyMem_Calloc, PyMem_Malloc, PyMem_Free
+from cpython.number cimport PyNumber_Index
 
 from cuda.bindings._internal._fast_enum import FastEnum as _FastEnum
 import ctypes as _ctypes
@@ -10760,215 +10797,262 @@ cdef _get_launch_params_v1_dtype_offsets():
         _cyb_free(pod)
 
 launch_params_v1_dtype = _get_launch_params_v1_dtype_offsets()
+cdef object launch_params_v1_dtype_record = _numpy.dtype((_numpy.record, launch_params_v1_dtype))
 
 cdef class LaunchParams_v1:
-    """Empty-initialize an instance of `CUDA_LAUNCH_PARAMS_v1`.
+    """Empty-initialize an array of `CUDA_LAUNCH_PARAMS_v1`.
+    The resulting object is of length `size` and of dtype `launch_params_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `CUDA_LAUNCH_PARAMS_v1`
     """
     cdef:
-        CUDA_LAUNCH_PARAMS_v1 _data
-        CUDA_LAUNCH_PARAMS_v1 *_ptr
+        readonly object _data
         object _owner
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = &self._data
-        self._owner = None
-        self._readonly = False
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=launch_params_v1_dtype_record)
+        assert self._data.itemsize == sizeof(CUDA_LAUNCH_PARAMS_v1), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUDA_LAUNCH_PARAMS_v1) }"
 
     def __repr__(self):
-        return f"<{__name__}.LaunchParams_v1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.LaunchParams_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.LaunchParams_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef LaunchParams_v1 other_
-        if not isinstance(other, LaunchParams_v1):
+        cdef object self_data = self._data
+        if (not isinstance(other, LaunchParams_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUDA_LAUNCH_PARAMS_v1)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUDA_LAUNCH_PARAMS_v1), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This LaunchParams_v1 instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(CUDA_LAUNCH_PARAMS_v1):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUDA_LAUNCH_PARAMS_v1), view.len)
-                    )
-                _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUDA_LAUNCH_PARAMS_v1))
-                self._ptr = &self._data
-                self._owner = None
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def function(self):
-        """int: """
-        return <intptr_t>(self._ptr[0].function)
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data["function"][0])
+        return self._data["function"]
 
     @function.setter
     def function(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].function = <CUfunction><intptr_t>val
+        self._data["function"] = val
 
     @property
     def grid_dim_x(self):
-        """int: """
-        return self._ptr[0].gridDimX
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["grid_dim_x"][0])
+        return self._data["grid_dim_x"]
 
     @grid_dim_x.setter
     def grid_dim_x(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].gridDimX = val
+        self._data["grid_dim_x"] = val
 
     @property
     def grid_dim_y(self):
-        """int: """
-        return self._ptr[0].gridDimY
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["grid_dim_y"][0])
+        return self._data["grid_dim_y"]
 
     @grid_dim_y.setter
     def grid_dim_y(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].gridDimY = val
+        self._data["grid_dim_y"] = val
 
     @property
     def grid_dim_z(self):
-        """int: """
-        return self._ptr[0].gridDimZ
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["grid_dim_z"][0])
+        return self._data["grid_dim_z"]
 
     @grid_dim_z.setter
     def grid_dim_z(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].gridDimZ = val
+        self._data["grid_dim_z"] = val
 
     @property
     def block_dim_x(self):
-        """int: """
-        return self._ptr[0].blockDimX
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["block_dim_x"][0])
+        return self._data["block_dim_x"]
 
     @block_dim_x.setter
     def block_dim_x(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].blockDimX = val
+        self._data["block_dim_x"] = val
 
     @property
     def block_dim_y(self):
-        """int: """
-        return self._ptr[0].blockDimY
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["block_dim_y"][0])
+        return self._data["block_dim_y"]
 
     @block_dim_y.setter
     def block_dim_y(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].blockDimY = val
+        self._data["block_dim_y"] = val
 
     @property
     def block_dim_z(self):
-        """int: """
-        return self._ptr[0].blockDimZ
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["block_dim_z"][0])
+        return self._data["block_dim_z"]
 
     @block_dim_z.setter
     def block_dim_z(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].blockDimZ = val
+        self._data["block_dim_z"] = val
 
     @property
     def shared_mem_bytes(self):
-        """int: """
-        return self._ptr[0].sharedMemBytes
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["shared_mem_bytes"][0])
+        return self._data["shared_mem_bytes"]
 
     @shared_mem_bytes.setter
     def shared_mem_bytes(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].sharedMemBytes = val
+        self._data["shared_mem_bytes"] = val
 
     @property
     def h_stream(self):
-        """int: """
-        return <intptr_t>(self._ptr[0].hStream)
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data["h_stream"][0])
+        return self._data["h_stream"]
 
     @h_stream.setter
     def h_stream(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].hStream = <CUstream><intptr_t>val
+        self._data["h_stream"] = val
 
     @property
     def kernel_params(self):
-        """int: """
-        return <intptr_t>(self._ptr[0].kernelParams)
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data["kernel_params"][0])
+        return self._data["kernel_params"]
 
     @kernel_params.setter
     def kernel_params(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This LaunchParams_v1 instance is read-only")
-        self._ptr[0].kernelParams = <void**><intptr_t>val
+        self._data["kernel_params"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef LaunchParams_v1 obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = LaunchParams_v1.__new__(LaunchParams_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == launch_params_v1_dtype:
+                obj = LaunchParams_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an LaunchParams_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUDA_LAUNCH_PARAMS_v1), LaunchParams_v1)
+        return LaunchParams_v1.from_data(_numpy.frombuffer(buffer, dtype=launch_params_v1_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an LaunchParams_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `launch_params_v1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `launch_params_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "launch_params_v1_dtype", launch_params_v1_dtype, LaunchParams_v1)
+        cdef LaunchParams_v1 obj = LaunchParams_v1.__new__(LaunchParams_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != launch_params_v1_dtype:
+            raise ValueError("data array must be of dtype launch_params_v1_dtype")
+        obj._data = data.view(dtype=launch_params_v1_dtype_record, type=_numpy.ndarray)
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an LaunchParams_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef LaunchParams_v1 obj = LaunchParams_v1.__new__(LaunchParams_v1)
-        if owner is None:
-            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CUDA_LAUNCH_PARAMS_v1))
-            obj._ptr = &obj._data
-            obj._owner = None
-        else:
-            obj._ptr = <CUDA_LAUNCH_PARAMS_v1 *>ptr
-            obj._owner = owner
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUDA_LAUNCH_PARAMS_v1) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=launch_params_v1_dtype_record)
+        obj._owner = owner
         return obj
 
 
@@ -14769,171 +14853,210 @@ cdef _get_mem_decompress_params_dtype_offsets():
         _cyb_free(pod)
 
 mem_decompress_params_dtype = _get_mem_decompress_params_dtype_offsets()
+cdef object mem_decompress_params_dtype_record = _numpy.dtype((_numpy.record, mem_decompress_params_dtype))
 
 cdef class MemDecompressParams:
-    """Empty-initialize an instance of `CUmemDecompressParams`.
+    """Empty-initialize an array of `CUmemDecompressParams`.
+    The resulting object is of length `size` and of dtype `mem_decompress_params_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `CUmemDecompressParams`
     """
     cdef:
-        CUmemDecompressParams _data
-        CUmemDecompressParams *_ptr
+        readonly object _data
         object _owner
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = &self._data
-        self._owner = None
-        self._readonly = False
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=mem_decompress_params_dtype_record)
+        assert self._data.itemsize == sizeof(CUmemDecompressParams), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUmemDecompressParams) }"
 
     def __repr__(self):
-        return f"<{__name__}.MemDecompressParams object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.MemDecompressParams_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.MemDecompressParams object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef MemDecompressParams other_
-        if not isinstance(other, MemDecompressParams):
+        cdef object self_data = self._data
+        if (not isinstance(other, MemDecompressParams)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUmemDecompressParams)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUmemDecompressParams), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This MemDecompressParams instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(CUmemDecompressParams):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUmemDecompressParams), view.len)
-                    )
-                _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUmemDecompressParams))
-                self._ptr = &self._data
-                self._owner = None
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def src_num_bytes(self):
-        """int: """
-        return self._ptr[0].srcNumBytes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data["src_num_bytes"][0])
+        return self._data["src_num_bytes"]
 
     @src_num_bytes.setter
     def src_num_bytes(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemDecompressParams instance is read-only")
-        self._ptr[0].srcNumBytes = val
+        self._data["src_num_bytes"] = val
 
     @property
     def dst_num_bytes(self):
-        """int: """
-        return self._ptr[0].dstNumBytes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data["dst_num_bytes"][0])
+        return self._data["dst_num_bytes"]
 
     @dst_num_bytes.setter
     def dst_num_bytes(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemDecompressParams instance is read-only")
-        self._ptr[0].dstNumBytes = val
+        self._data["dst_num_bytes"] = val
 
     @property
     def dst_act_bytes(self):
-        """int: """
-        return <intptr_t>(self._ptr[0].dstActBytes)
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data["dst_act_bytes"][0])
+        return self._data["dst_act_bytes"]
 
     @dst_act_bytes.setter
     def dst_act_bytes(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemDecompressParams instance is read-only")
-        self._ptr[0].dstActBytes = <cuuint32_t*><intptr_t>val
+        self._data["dst_act_bytes"] = val
 
     @property
     def src(self):
-        """int: """
-        return <intptr_t>(self._ptr[0].src)
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data["src"][0])
+        return self._data["src"]
 
     @src.setter
     def src(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemDecompressParams instance is read-only")
-        self._ptr[0].src = <void *><intptr_t>val
+        self._data["src"] = val
 
     @property
     def dst(self):
-        """int: """
-        return <intptr_t>(self._ptr[0].dst)
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data["dst"][0])
+        return self._data["dst"]
 
     @dst.setter
     def dst(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemDecompressParams instance is read-only")
-        self._ptr[0].dst = <void *><intptr_t>val
+        self._data["dst"] = val
 
     @property
     def algo(self):
-        """int: """
-        return <int>(self._ptr[0].algo)
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data["algo"][0])
+        return self._data["algo"]
 
     @algo.setter
     def algo(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemDecompressParams instance is read-only")
-        self._ptr[0].algo = <CUmemDecompressAlgorithm><int>val
+        self._data["algo"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef MemDecompressParams obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = MemDecompressParams.__new__(MemDecompressParams)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == mem_decompress_params_dtype:
+                obj = MemDecompressParams.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an MemDecompressParams instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUmemDecompressParams), MemDecompressParams)
+        return MemDecompressParams.from_data(_numpy.frombuffer(buffer, dtype=mem_decompress_params_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an MemDecompressParams instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `mem_decompress_params_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `mem_decompress_params_dtype` holding the data.
         """
-        return _cyb_from_data(data, "mem_decompress_params_dtype", mem_decompress_params_dtype, MemDecompressParams)
+        cdef MemDecompressParams obj = MemDecompressParams.__new__(MemDecompressParams)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != mem_decompress_params_dtype:
+            raise ValueError("data array must be of dtype mem_decompress_params_dtype")
+        obj._data = data.view(dtype=mem_decompress_params_dtype_record, type=_numpy.ndarray)
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an MemDecompressParams instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef MemDecompressParams obj = MemDecompressParams.__new__(MemDecompressParams)
-        if owner is None:
-            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CUmemDecompressParams))
-            obj._ptr = &obj._data
-            obj._owner = None
-        else:
-            obj._ptr = <CUmemDecompressParams *>ptr
-            obj._owner = owner
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUmemDecompressParams) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=mem_decompress_params_dtype_record)
+        obj._owner = owner
         return obj
 
 
@@ -21306,132 +21429,156 @@ cdef _get_external_semaphore_signal_params_v1_dtype_offsets():
         _cyb_free(pod)
 
 external_semaphore_signal_params_v1_dtype = _get_external_semaphore_signal_params_v1_dtype_offsets()
+cdef object external_semaphore_signal_params_v1_dtype_record = _numpy.dtype((_numpy.record, external_semaphore_signal_params_v1_dtype))
 
 cdef class ExternalSemaphoreSignalParams_v1:
-    """Empty-initialize an instance of `CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1`.
+    """Empty-initialize an array of `CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1`.
+    The resulting object is of length `size` and of dtype `external_semaphore_signal_params_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1`
     """
     cdef:
-        CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 _data
-        CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 *_ptr
+        readonly object _data
         object _owner
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = &self._data
-        self._owner = None
-        self._readonly = False
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=external_semaphore_signal_params_v1_dtype_record)
+        assert self._data.itemsize == sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1) }"
 
     def __repr__(self):
-        return f"<{__name__}.ExternalSemaphoreSignalParams_v1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.ExternalSemaphoreSignalParams_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.ExternalSemaphoreSignalParams_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef ExternalSemaphoreSignalParams_v1 other_
-        if not isinstance(other, ExternalSemaphoreSignalParams_v1):
+        cdef object self_data = self._data
+        if (not isinstance(other, ExternalSemaphoreSignalParams_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This ExternalSemaphoreSignalParams_v1 instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1), view.len)
-                    )
-                _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1))
-                self._ptr = &self._data
-                self._owner = None
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def params(self):
-        """_py_anon_pod22: """
-        return _py_anon_pod22.from_ptr(
-            <intptr_t>&(self._ptr[0].params),
-            readonly=self._readonly,
-            owner=self,
-        )
+        """_py_anon_pod22_dtype: """
+        return self._data["params"].view(_numpy.recarray)
 
     @params.setter
     def params(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ExternalSemaphoreSignalParams_v1 instance is read-only")
-        cdef _py_anon_pod22 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].params), <void *>(val_._get_ptr()), sizeof(cuda_bindings_driver__anon_pod22) * 1)
+        self._data["params"] = val
 
     @property
     def flags_(self):
-        """int: """
-        return self._ptr[0].flags
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["flags_"][0])
+        return self._data["flags_"]
 
     @flags_.setter
     def flags_(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ExternalSemaphoreSignalParams_v1 instance is read-only")
-        self._ptr[0].flags = val
+        self._data["flags_"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef ExternalSemaphoreSignalParams_v1 obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = ExternalSemaphoreSignalParams_v1.__new__(ExternalSemaphoreSignalParams_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == external_semaphore_signal_params_v1_dtype:
+                obj = ExternalSemaphoreSignalParams_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an ExternalSemaphoreSignalParams_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1), ExternalSemaphoreSignalParams_v1)
+        return ExternalSemaphoreSignalParams_v1.from_data(_numpy.frombuffer(buffer, dtype=external_semaphore_signal_params_v1_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an ExternalSemaphoreSignalParams_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `external_semaphore_signal_params_v1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `external_semaphore_signal_params_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "external_semaphore_signal_params_v1_dtype", external_semaphore_signal_params_v1_dtype, ExternalSemaphoreSignalParams_v1)
+        cdef ExternalSemaphoreSignalParams_v1 obj = ExternalSemaphoreSignalParams_v1.__new__(ExternalSemaphoreSignalParams_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != external_semaphore_signal_params_v1_dtype:
+            raise ValueError("data array must be of dtype external_semaphore_signal_params_v1_dtype")
+        obj._data = data.view(dtype=external_semaphore_signal_params_v1_dtype_record, type=_numpy.ndarray)
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ExternalSemaphoreSignalParams_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ExternalSemaphoreSignalParams_v1 obj = ExternalSemaphoreSignalParams_v1.__new__(ExternalSemaphoreSignalParams_v1)
-        if owner is None:
-            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1))
-            obj._ptr = &obj._data
-            obj._owner = None
-        else:
-            obj._ptr = <CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1 *>ptr
-            obj._owner = owner
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=external_semaphore_signal_params_v1_dtype_record)
+        obj._owner = owner
         return obj
 
 
@@ -21454,132 +21601,156 @@ cdef _get_external_semaphore_wait_params_v1_dtype_offsets():
         _cyb_free(pod)
 
 external_semaphore_wait_params_v1_dtype = _get_external_semaphore_wait_params_v1_dtype_offsets()
+cdef object external_semaphore_wait_params_v1_dtype_record = _numpy.dtype((_numpy.record, external_semaphore_wait_params_v1_dtype))
 
 cdef class ExternalSemaphoreWaitParams_v1:
-    """Empty-initialize an instance of `CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1`.
+    """Empty-initialize an array of `CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1`.
+    The resulting object is of length `size` and of dtype `external_semaphore_wait_params_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1`
     """
     cdef:
-        CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 _data
-        CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 *_ptr
+        readonly object _data
         object _owner
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = &self._data
-        self._owner = None
-        self._readonly = False
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=external_semaphore_wait_params_v1_dtype_record)
+        assert self._data.itemsize == sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1) }"
 
     def __repr__(self):
-        return f"<{__name__}.ExternalSemaphoreWaitParams_v1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.ExternalSemaphoreWaitParams_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.ExternalSemaphoreWaitParams_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef ExternalSemaphoreWaitParams_v1 other_
-        if not isinstance(other, ExternalSemaphoreWaitParams_v1):
+        cdef object self_data = self._data
+        if (not isinstance(other, ExternalSemaphoreWaitParams_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This ExternalSemaphoreWaitParams_v1 instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1), view.len)
-                    )
-                _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1))
-                self._ptr = &self._data
-                self._owner = None
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def params(self):
-        """_py_anon_pod26: """
-        return _py_anon_pod26.from_ptr(
-            <intptr_t>&(self._ptr[0].params),
-            readonly=self._readonly,
-            owner=self,
-        )
+        """_py_anon_pod26_dtype: """
+        return self._data["params"].view(_numpy.recarray)
 
     @params.setter
     def params(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ExternalSemaphoreWaitParams_v1 instance is read-only")
-        cdef _py_anon_pod26 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].params), <void *>(val_._get_ptr()), sizeof(cuda_bindings_driver__anon_pod26) * 1)
+        self._data["params"] = val
 
     @property
     def flags_(self):
-        """int: """
-        return self._ptr[0].flags
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["flags_"][0])
+        return self._data["flags_"]
 
     @flags_.setter
     def flags_(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This ExternalSemaphoreWaitParams_v1 instance is read-only")
-        self._ptr[0].flags = val
+        self._data["flags_"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef ExternalSemaphoreWaitParams_v1 obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = ExternalSemaphoreWaitParams_v1.__new__(ExternalSemaphoreWaitParams_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == external_semaphore_wait_params_v1_dtype:
+                obj = ExternalSemaphoreWaitParams_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an ExternalSemaphoreWaitParams_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1), ExternalSemaphoreWaitParams_v1)
+        return ExternalSemaphoreWaitParams_v1.from_data(_numpy.frombuffer(buffer, dtype=external_semaphore_wait_params_v1_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an ExternalSemaphoreWaitParams_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `external_semaphore_wait_params_v1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `external_semaphore_wait_params_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "external_semaphore_wait_params_v1_dtype", external_semaphore_wait_params_v1_dtype, ExternalSemaphoreWaitParams_v1)
+        cdef ExternalSemaphoreWaitParams_v1 obj = ExternalSemaphoreWaitParams_v1.__new__(ExternalSemaphoreWaitParams_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != external_semaphore_wait_params_v1_dtype:
+            raise ValueError("data array must be of dtype external_semaphore_wait_params_v1_dtype")
+        obj._data = data.view(dtype=external_semaphore_wait_params_v1_dtype_record, type=_numpy.ndarray)
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an ExternalSemaphoreWaitParams_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef ExternalSemaphoreWaitParams_v1 obj = ExternalSemaphoreWaitParams_v1.__new__(ExternalSemaphoreWaitParams_v1)
-        if owner is None:
-            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1))
-            obj._ptr = &obj._data
-            obj._owner = None
-        else:
-            obj._ptr = <CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1 *>ptr
-            obj._owner = owner
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=external_semaphore_wait_params_v1_dtype_record)
+        obj._owner = owner
         return obj
 
 
@@ -21936,143 +22107,169 @@ cdef _get_mem_location_v1_dtype_offsets():
         _cyb_free(pod)
 
 mem_location_v1_dtype = _get_mem_location_v1_dtype_offsets()
+cdef object mem_location_v1_dtype_record = _numpy.dtype((_numpy.record, mem_location_v1_dtype))
 
 cdef class MemLocation_v1:
-    """Empty-initialize an instance of `CUmemLocation_v1`.
+    """Empty-initialize an array of `CUmemLocation_v1`.
+    The resulting object is of length `size` and of dtype `mem_location_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `CUmemLocation_v1`
     """
     cdef:
-        CUmemLocation_v1 _data
-        CUmemLocation_v1 *_ptr
+        readonly object _data
         object _owner
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = &self._data
-        self._owner = None
-        self._readonly = False
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=mem_location_v1_dtype_record)
+        assert self._data.itemsize == sizeof(CUmemLocation_v1), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUmemLocation_v1) }"
 
     def __repr__(self):
-        return f"<{__name__}.MemLocation_v1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.MemLocation_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.MemLocation_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef MemLocation_v1 other_
-        if not isinstance(other, MemLocation_v1):
+        cdef object self_data = self._data
+        if (not isinstance(other, MemLocation_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUmemLocation_v1)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUmemLocation_v1), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This MemLocation_v1 instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(CUmemLocation_v1):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUmemLocation_v1), view.len)
-                    )
-                _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUmemLocation_v1))
-                self._ptr = &self._data
-                self._owner = None
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
-
-    @property
-    def localized(self):
-        """_py_anon_pod38: """
-        return _py_anon_pod38.from_ptr(
-            <intptr_t>&(self._ptr[0].localized),
-            readonly=self._readonly,
-            owner=self,
-        )
-
-    @localized.setter
-    def localized(self, val):
-        if self._readonly:
-            raise ValueError("This MemLocation_v1 instance is read-only")
-        cdef _py_anon_pod38 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].localized), <void *>(val_._get_ptr()), sizeof(cuda_bindings_driver__anon_pod38) * 1)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def type(self):
-        """int: """
-        return <int>(self._ptr[0].type)
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data["type"][0])
+        return self._data["type"]
 
     @type.setter
     def type(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemLocation_v1 instance is read-only")
-        self._ptr[0].type = <CUmemLocationType><int>val
+        self._data["type"] = val
 
     @property
     def id(self):
-        """int: """
-        return self._ptr[0].id
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data["id"][0])
+        return self._data["id"]
 
     @id.setter
     def id(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemLocation_v1 instance is read-only")
-        self._ptr[0].id = val
+        self._data["id"] = val
+
+    @property
+    def localized(self):
+        """_py_anon_pod38_dtype: """
+        return self._data["localized"].view(_numpy.recarray)
+
+    @localized.setter
+    def localized(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This MemLocation_v1 instance is read-only")
+        self._data["localized"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef MemLocation_v1 obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = MemLocation_v1.__new__(MemLocation_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == mem_location_v1_dtype:
+                obj = MemLocation_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an MemLocation_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUmemLocation_v1), MemLocation_v1)
+        return MemLocation_v1.from_data(_numpy.frombuffer(buffer, dtype=mem_location_v1_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an MemLocation_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `mem_location_v1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `mem_location_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "mem_location_v1_dtype", mem_location_v1_dtype, MemLocation_v1)
+        cdef MemLocation_v1 obj = MemLocation_v1.__new__(MemLocation_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != mem_location_v1_dtype:
+            raise ValueError("data array must be of dtype mem_location_v1_dtype")
+        obj._data = data.view(dtype=mem_location_v1_dtype_record, type=_numpy.ndarray)
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an MemLocation_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef MemLocation_v1 obj = MemLocation_v1.__new__(MemLocation_v1)
-        if owner is None:
-            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CUmemLocation_v1))
-            obj._ptr = &obj._data
-            obj._owner = None
-        else:
-            obj._ptr = <CUmemLocation_v1 *>ptr
-            obj._owner = owner
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUmemLocation_v1) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=mem_location_v1_dtype_record)
+        obj._owner = owner
         return obj
 
 
@@ -24879,159 +25076,180 @@ cdef _get_mem_cpy_attributes_v1_dtype_offsets():
         _cyb_free(pod)
 
 mem_cpy_attributes_v1_dtype = _get_mem_cpy_attributes_v1_dtype_offsets()
+cdef object mem_cpy_attributes_v1_dtype_record = _numpy.dtype((_numpy.record, mem_cpy_attributes_v1_dtype))
 
 cdef class MemCpyAttributes_v1:
-    """Empty-initialize an instance of `CUmemcpyAttributes_v1`.
+    """Empty-initialize an array of `CUmemcpyAttributes_v1`.
+    The resulting object is of length `size` and of dtype `mem_cpy_attributes_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `CUmemcpyAttributes_v1`
     """
     cdef:
-        CUmemcpyAttributes_v1 _data
-        CUmemcpyAttributes_v1 *_ptr
+        readonly object _data
         object _owner
-        bint _readonly
 
-    def __init__(self):
-        self._ptr = &self._data
-        self._owner = None
-        self._readonly = False
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=mem_cpy_attributes_v1_dtype_record)
+        assert self._data.itemsize == sizeof(CUmemcpyAttributes_v1), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUmemcpyAttributes_v1) }"
 
     def __repr__(self):
-        return f"<{__name__}.MemCpyAttributes_v1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.MemCpyAttributes_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.MemCpyAttributes_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef MemCpyAttributes_v1 other_
-        if not isinstance(other, MemCpyAttributes_v1):
+        cdef object self_data = self._data
+        if (not isinstance(other, MemCpyAttributes_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUmemcpyAttributes_v1)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUmemcpyAttributes_v1), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This MemCpyAttributes_v1 instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(CUmemcpyAttributes_v1):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUmemcpyAttributes_v1), view.len)
-                    )
-                _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUmemcpyAttributes_v1))
-                self._ptr = &self._data
-                self._owner = None
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
-
-    @property
-    def src_loc_hint(self):
-        """MemLocation_v1: """
-        return MemLocation_v1.from_ptr(
-            <intptr_t>&(self._ptr[0].srcLocHint),
-            readonly=self._readonly,
-            owner=self,
-        )
-
-    @src_loc_hint.setter
-    def src_loc_hint(self, val):
-        if self._readonly:
-            raise ValueError("This MemCpyAttributes_v1 instance is read-only")
-        cdef MemLocation_v1 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].srcLocHint), <void *>(val_._get_ptr()), sizeof(CUmemLocation) * 1)
-
-    @property
-    def dst_loc_hint(self):
-        """MemLocation_v1: """
-        return MemLocation_v1.from_ptr(
-            <intptr_t>&(self._ptr[0].dstLocHint),
-            readonly=self._readonly,
-            owner=self,
-        )
-
-    @dst_loc_hint.setter
-    def dst_loc_hint(self, val):
-        if self._readonly:
-            raise ValueError("This MemCpyAttributes_v1 instance is read-only")
-        cdef MemLocation_v1 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].dstLocHint), <void *>(val_._get_ptr()), sizeof(CUmemLocation) * 1)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def src_access_order(self):
-        """int: """
-        return <int>(self._ptr[0].srcAccessOrder)
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data["src_access_order"][0])
+        return self._data["src_access_order"]
 
     @src_access_order.setter
     def src_access_order(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemCpyAttributes_v1 instance is read-only")
-        self._ptr[0].srcAccessOrder = <CUmemcpySrcAccessOrder><int>val
+        self._data["src_access_order"] = val
+
+    @property
+    def src_loc_hint(self):
+        """mem_location_v1_dtype: """
+        return self._data["src_loc_hint"].view(_numpy.recarray)
+
+    @src_loc_hint.setter
+    def src_loc_hint(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This MemCpyAttributes_v1 instance is read-only")
+        self._data["src_loc_hint"] = val
+
+    @property
+    def dst_loc_hint(self):
+        """mem_location_v1_dtype: """
+        return self._data["dst_loc_hint"].view(_numpy.recarray)
+
+    @dst_loc_hint.setter
+    def dst_loc_hint(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This MemCpyAttributes_v1 instance is read-only")
+        self._data["dst_loc_hint"] = val
 
     @property
     def flags_(self):
-        """int: """
-        return self._ptr[0].flags
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["flags_"][0])
+        return self._data["flags_"]
 
     @flags_.setter
     def flags_(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemCpyAttributes_v1 instance is read-only")
-        self._ptr[0].flags = val
+        self._data["flags_"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef MemCpyAttributes_v1 obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = MemCpyAttributes_v1.__new__(MemCpyAttributes_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == mem_cpy_attributes_v1_dtype:
+                obj = MemCpyAttributes_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an MemCpyAttributes_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUmemcpyAttributes_v1), MemCpyAttributes_v1)
+        return MemCpyAttributes_v1.from_data(_numpy.frombuffer(buffer, dtype=mem_cpy_attributes_v1_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an MemCpyAttributes_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `mem_cpy_attributes_v1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `mem_cpy_attributes_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "mem_cpy_attributes_v1_dtype", mem_cpy_attributes_v1_dtype, MemCpyAttributes_v1)
+        cdef MemCpyAttributes_v1 obj = MemCpyAttributes_v1.__new__(MemCpyAttributes_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != mem_cpy_attributes_v1_dtype:
+            raise ValueError("data array must be of dtype mem_cpy_attributes_v1_dtype")
+        obj._data = data.view(dtype=mem_cpy_attributes_v1_dtype_record, type=_numpy.ndarray)
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an MemCpyAttributes_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef MemCpyAttributes_v1 obj = MemCpyAttributes_v1.__new__(MemCpyAttributes_v1)
-        if owner is None:
-            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CUmemcpyAttributes_v1))
-            obj._ptr = &obj._data
-            obj._owner = None
-        else:
-            obj._ptr = <CUmemcpyAttributes_v1 *>ptr
-            obj._owner = owner
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUmemcpyAttributes_v1) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=mem_cpy_attributes_v1_dtype_record)
+        obj._owner = owner
         return obj
 
 
@@ -26572,175 +26790,245 @@ cdef _get_mem_cpy3d_batch_op_v1_dtype_offsets():
         _cyb_free(pod)
 
 mem_cpy3d_batch_op_v1_dtype = _get_mem_cpy3d_batch_op_v1_dtype_offsets()
+cdef object mem_cpy3d_batch_op_v1_dtype_record = _numpy.dtype((_numpy.record, mem_cpy3d_batch_op_v1_dtype))
 
 cdef class MemCpy3dBatchOp_v1:
-    """Empty-initialize an instance of `CUDA_MEMCPY3D_BATCH_OP_v1`.
+    """Empty-initialize an array of `CUDA_MEMCPY3D_BATCH_OP_v1`.
+    The resulting object is of length `size` and of dtype `mem_cpy3d_batch_op_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
 
+    Args:
+        size (int): number of structs, default=1.
 
     .. seealso:: `CUDA_MEMCPY3D_BATCH_OP_v1`
     """
     cdef:
-        CUDA_MEMCPY3D_BATCH_OP_v1 _data
-        CUDA_MEMCPY3D_BATCH_OP_v1 *_ptr
+        readonly object _data
         object _owner
-        bint _readonly
+        readonly tuple _src
+        readonly tuple _dst
+        readonly tuple _extent
 
-    def __init__(self):
-        self._ptr = &self._data
-        self._owner = None
-        self._readonly = False
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=mem_cpy3d_batch_op_v1_dtype_record)
+        assert self._data.itemsize == sizeof(CUDA_MEMCPY3D_BATCH_OP_v1), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUDA_MEMCPY3D_BATCH_OP_v1) }"
 
     def __repr__(self):
-        return f"<{__name__}.MemCpy3dBatchOp_v1 object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.MemCpy3dBatchOp_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.MemCpy3dBatchOp_v1 object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return _cyb_array_ptr(self._data)
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef MemCpy3dBatchOp_v1 other_
-        if not isinstance(other, MemCpy3dBatchOp_v1):
+        cdef object self_data = self._data
+        if (not isinstance(other, MemCpy3dBatchOp_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUDA_MEMCPY3D_BATCH_OP_v1)) == 0)
+        return bool((self_data == other._data).all())
 
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(CUDA_MEMCPY3D_BATCH_OP_v1), self._readonly)
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
 
     def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This MemCpy3dBatchOp_v1 instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(CUDA_MEMCPY3D_BATCH_OP_v1):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(CUDA_MEMCPY3D_BATCH_OP_v1), view.len)
-                    )
-                _cyb_memmove(<void*>&self._data, view.buf, sizeof(CUDA_MEMCPY3D_BATCH_OP_v1))
-                self._ptr = &self._data
-                self._owner = None
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
+        _cyb_cpython.PyBuffer_Release(buffer)
 
     @property
     def src(self):
         """MemCpy3dOperand_v1: """
-        return MemCpy3dOperand_v1.from_ptr(
-            <intptr_t>&(self._ptr[0].src),
-            readonly=self._readonly,
-            owner=self,
-        )
+        if self._src is None:
+            src_list = list()
+            src_base = _cyb_array_ptr(self._data)
+            src_offset = mem_cpy3d_batch_op_v1_dtype.fields["src"][1]
+            src_stride = self._data.strides[0]
+            src_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = src_base + i * src_stride + src_offset
+                src_obj = MemCpy3dOperand_v1.from_ptr(addr, owner=self, readonly=src_readonly)
+                src_list.append(src_obj)
+            self._src = tuple(src_list)
+        if self._data.size == 1:
+            return self._src[0]
+        return self._src
 
     @src.setter
     def src(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemCpy3dBatchOp_v1 instance is read-only")
         cdef MemCpy3dOperand_v1 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].src), <void *>(val_._get_ptr()), sizeof(CUmemcpy3DOperand) * 1)
+        if self._data.size != 1:
+            raise ValueError("Assign to the member of one element, e.g. array[i].src = value")
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + mem_cpy3d_batch_op_v1_dtype.fields["src"][1]
+        _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUmemcpy3DOperand) * 1)
 
     @property
     def dst(self):
         """MemCpy3dOperand_v1: """
-        return MemCpy3dOperand_v1.from_ptr(
-            <intptr_t>&(self._ptr[0].dst),
-            readonly=self._readonly,
-            owner=self,
-        )
+        if self._dst is None:
+            dst_list = list()
+            dst_base = _cyb_array_ptr(self._data)
+            dst_offset = mem_cpy3d_batch_op_v1_dtype.fields["dst"][1]
+            dst_stride = self._data.strides[0]
+            dst_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = dst_base + i * dst_stride + dst_offset
+                dst_obj = MemCpy3dOperand_v1.from_ptr(addr, owner=self, readonly=dst_readonly)
+                dst_list.append(dst_obj)
+            self._dst = tuple(dst_list)
+        if self._data.size == 1:
+            return self._dst[0]
+        return self._dst
 
     @dst.setter
     def dst(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemCpy3dBatchOp_v1 instance is read-only")
         cdef MemCpy3dOperand_v1 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].dst), <void *>(val_._get_ptr()), sizeof(CUmemcpy3DOperand) * 1)
+        if self._data.size != 1:
+            raise ValueError("Assign to the member of one element, e.g. array[i].dst = value")
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + mem_cpy3d_batch_op_v1_dtype.fields["dst"][1]
+        _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUmemcpy3DOperand) * 1)
 
     @property
     def extent(self):
         """Extent3D_v1: """
-        return Extent3D_v1.from_ptr(
-            <intptr_t>&(self._ptr[0].extent),
-            readonly=self._readonly,
-            owner=self,
-        )
+        if self._extent is None:
+            extent_list = list()
+            extent_base = _cyb_array_ptr(self._data)
+            extent_offset = mem_cpy3d_batch_op_v1_dtype.fields["extent"][1]
+            extent_stride = self._data.strides[0]
+            extent_readonly = not self._data.flags.writeable
+            for i in range(self._data.size):
+                addr = extent_base + i * extent_stride + extent_offset
+                extent_obj = Extent3D_v1.from_ptr(addr, owner=self, readonly=extent_readonly)
+                extent_list.append(extent_obj)
+            self._extent = tuple(extent_list)
+        if self._data.size == 1:
+            return self._extent[0]
+        return self._extent
 
     @extent.setter
     def extent(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemCpy3dBatchOp_v1 instance is read-only")
         cdef Extent3D_v1 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].extent), <void *>(val_._get_ptr()), sizeof(CUextent3D) * 1)
+        if self._data.size != 1:
+            raise ValueError("Assign to the member of one element, e.g. array[i].extent = value")
+        cdef intptr_t addr = _cyb_array_ptr(self._data) + mem_cpy3d_batch_op_v1_dtype.fields["extent"][1]
+        _cyb_memcpy(<void *>addr, <void *>(val_._get_ptr()), sizeof(CUextent3D) * 1)
 
     @property
     def src_access_order(self):
-        """int: """
-        return <int>(self._ptr[0].srcAccessOrder)
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data["src_access_order"][0])
+        return self._data["src_access_order"]
 
     @src_access_order.setter
     def src_access_order(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemCpy3dBatchOp_v1 instance is read-only")
-        self._ptr[0].srcAccessOrder = <CUmemcpySrcAccessOrder><int>val
+        self._data["src_access_order"] = val
 
     @property
     def flags_(self):
-        """int: """
-        return self._ptr[0].flags
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data["flags_"][0])
+        return self._data["flags_"]
 
     @flags_.setter
     def flags_(self, val):
-        if self._readonly:
+        if not self._data.flags.writeable:
             raise ValueError("This MemCpy3dBatchOp_v1 instance is read-only")
-        self._ptr[0].flags = val
+        self._data["flags_"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef MemCpy3dBatchOp_v1 obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = MemCpy3dBatchOp_v1.__new__(MemCpy3dBatchOp_v1)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == mem_cpy3d_batch_op_v1_dtype:
+                obj = MemCpy3dBatchOp_v1.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_buffer(buffer):
         """Create an MemCpy3dBatchOp_v1 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(CUDA_MEMCPY3D_BATCH_OP_v1), MemCpy3dBatchOp_v1)
+        return MemCpy3dBatchOp_v1.from_data(_numpy.frombuffer(buffer, dtype=mem_cpy3d_batch_op_v1_dtype))
 
     @staticmethod
     def from_data(data):
         """Create an MemCpy3dBatchOp_v1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `mem_cpy3d_batch_op_v1_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `mem_cpy3d_batch_op_v1_dtype` holding the data.
         """
-        return _cyb_from_data(data, "mem_cpy3d_batch_op_v1_dtype", mem_cpy3d_batch_op_v1_dtype, MemCpy3dBatchOp_v1)
+        cdef MemCpy3dBatchOp_v1 obj = MemCpy3dBatchOp_v1.__new__(MemCpy3dBatchOp_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != mem_cpy3d_batch_op_v1_dtype:
+            raise ValueError("data array must be of dtype mem_cpy3d_batch_op_v1_dtype")
+        obj._data = data.view(dtype=mem_cpy3d_batch_op_v1_dtype_record, type=_numpy.ndarray)
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
         """Create an MemCpy3dBatchOp_v1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef MemCpy3dBatchOp_v1 obj = MemCpy3dBatchOp_v1.__new__(MemCpy3dBatchOp_v1)
-        if owner is None:
-            _cyb_memcpy(<void*>&obj._data, <void*>ptr, sizeof(CUDA_MEMCPY3D_BATCH_OP_v1))
-            obj._ptr = &obj._data
-            obj._owner = None
-        else:
-            obj._ptr = <CUDA_MEMCPY3D_BATCH_OP_v1 *>ptr
-            obj._owner = owner
-        obj._readonly = readonly
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUDA_MEMCPY3D_BATCH_OP_v1) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=mem_cpy3d_batch_op_v1_dtype_record)
+        obj._owner = owner
         return obj
 
 
@@ -27680,6 +27968,193 @@ cpdef int mem_get_handle_for_address_range(uint64_t dptr, size_t size, int handl
     return handle
 
 
+# The driver keeps the pointer to the ``option_values`` that is passed to ``cuLinkCreate`` for the life of the
+# ``CUlinkState`` (output options write into it), so it cannot be a temporary. The storage is owned here, keyed
+# by the state, and freed by ``link_destroy``.
+cdef dict _link_option_values = {}
+
+
+cpdef intptr_t link_create_v2(options, option_values) except? 0:
+    """Creates a pending JIT linker invocation.
+
+    If the call is successful, the caller owns the returned ``CUlinkState``, which
+    should eventually be destroyed with :func:`link_destroy`. The device code machine
+    size (32 or 64 bit) will match the calling application.
+    Both linker and compiler options may be specified. Compiler options will be
+    applied to inputs to this linker action which must be compiled from PTX. The
+    options ``CU_JIT_WALL_TIME``, ``CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES``, and
+    ``CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES`` will accumulate data until the
+    ``CUlinkState`` is destroyed.
+    The data passed in via ``cuLinkAddData`` and ``cuLinkAddFile`` will be treated
+    as relocatable (-rdc=true to nvcc) when linking the final cubin during
+    ``cuLinkComplete`` and will have similar consequences as offline relocatable
+    device code linking.
+    The option values are copied, and the copy is kept until the ``CUlinkState`` is
+    destroyed, so ``option_values`` may be a temporary. The buffers that the values
+    point to (for example, a log buffer) are not copied, and must remain valid for
+    the life of the ``CUlinkState``. The values that the driver writes back (for
+    example, the accumulated log sizes) are not returned.
+
+    Args:
+        options (object): Array of linker and compiler options. It must be:
+
+            - a Python sequence of :class:`JitOption`, or
+            - ``None`` for NULL.
+        option_values (object): Array of option values, each cast to void
+            \*, with the same length as ``options``. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+
+    Returns:
+        intptr_t: On success, this will contain a ``CUlinkState`` to
+            specify and complete this action.
+
+    .. note::
+        For LTO-IR input, only LTO-IR compiled with toolkits prior to CUDA 12.0 will be
+        accepted.
+    .. seealso:: `cuLinkCreate_v2`
+    """
+    cdef Py_ssize_t n = 0
+    cdef Py_ssize_t i
+    cdef int option
+    cdef CUjit_option* c_options = NULL
+    cdef void** c_values = NULL
+    cdef CUlinkState state_out
+    cdef CUresult status
+    if (options is None) != (option_values is None):
+        raise ValueError("options and option_values must both be given, or both be None")
+    if options is not None:
+        n = len(options)
+        if len(option_values) != n:
+            raise ValueError(
+                f"options and option_values must have the same length ({n} != {len(option_values)})")
+    if n > 0:
+        c_options = <CUjit_option*>PyMem_Malloc(n * sizeof(CUjit_option))
+        c_values = <void**>PyMem_Malloc(n * sizeof(void*))
+        if c_options == NULL or c_values == NULL:
+            PyMem_Free(c_options)
+            PyMem_Free(c_values)
+            raise MemoryError()
+    try:
+        for i in range(n):
+            option = PyNumber_Index(options[i])
+            c_options[i] = <CUjit_option>option
+            c_values[i] = <void*><intptr_t>PyNumber_Index(option_values[i])
+        with nogil:
+            status = cuLinkCreate(<unsigned int>n, c_options, c_values, &state_out)
+        check_status(status)
+    except:
+        PyMem_Free(c_values)
+        raise
+    finally:
+        PyMem_Free(c_options)
+    if c_values != NULL:
+        _link_option_values[<intptr_t>state_out] = <intptr_t>c_values
+    return <intptr_t>state_out
+
+
+cpdef link_destroy(intptr_t state):
+    """Destroys state for a JIT linker invocation.
+
+    This also releases the copy of the option values that :func:`link_create_v2` made.
+
+    Args:
+        state (intptr_t): State object for the linker invocation.
+
+    .. seealso:: `cuLinkDestroy`
+    """
+    cdef CUresult status
+    cdef intptr_t retained
+    # Take the entry out before destroying: once the driver has destroyed the state, another thread may get
+    # the same handle from ``cuLinkCreate`` and register its own entry under it.
+    retained = _link_option_values.pop(state, 0)
+    with nogil:
+        status = cuLinkDestroy(<CUlinkState>state)
+    if status != 0:
+        # The state still exists, so it still needs its option values
+        if retained != 0:
+            _link_option_values[state] = retained
+        check_status(status)
+    PyMem_Free(<void*>retained)
+
+
+cpdef object mem_get_location_info(uint64_t ptr, size_t size, size_t summary_granularity, size_t sampling_granularity):
+    """Gets residency information for a memory address range.
+
+    Retrieves memory location information for the specified address range starting
+    at ``ptr`` with size ``size``. The API summarizes the location information with
+    a granularity specified by ``summary_granularity``. For each summary region,
+    the API determines the most common location by sampling memory at intervals
+    defined by ``sampling_granularity`` within that region.
+    The location information is returned in the ``location_out`` array, with one
+    entry per summary region. The total number of locations returned will be
+    ceil(size/summary_granularity). The user is expected to allocate the
+    ``location_out`` array with sufficient memory.
+    For example, with an address range of 1GB, a ``summary_granularity`` of 128MB,
+    and a ``sampling_granularity`` of 2MB, the function will:.
+
+    - Divide the 1GB range into 8 summary regions of 128MB each.
+    - Within each 128MB region, sample every 2MB to determine the most common
+      location. If there is a tie a random winner is chosen.
+    - Populate the ``location_out`` array with 8 entries, one for each 128MB region
+      ``summary_granularity`` should be less than or equal to ``size`` and greater
+      than 0. ``sampling_granularity`` should be less than or equal to
+      ``summary_granularity``. If the ``sampling_granularity`` is set to 0, a
+      system dependent value is used as the granularity. In all other cases, the
+      call returns ``CUDA_ERROR_INVALID_VALUE``.
+
+    When the memory is not resident on any processor, the call returns
+    ``CUDA_SUCCESS`` and the returned location type for that interval is
+    ``CU_MEM_LOCATION_TYPE_NONE``.
+    The memory range must refer to one of the following:.
+
+    - Managed memory allocated via ``cuMemAllocManaged``, via
+      ``cuMemAllocFromPool`` from a managed memory pool or declared via managed
+      variables.
+    - System-allocated pageable memory that is not registered via
+      ``cuMemHostRegister``. If the memory range does not refer to one of the
+      above, the call returns ``CUDA_ERROR_INVALID_VALUE``.
+
+    All devices on the system must have non-zero value of device attribute
+    ``CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS``. If not, this call returns
+    ``CUDA_ERROR_NOT_SUPPORTED``.
+
+    Args:
+        ptr (uint64_t): Starting address of the memory range to query.
+        size (size_t): Size in bytes of the memory range to query.
+        summary_granularity (size_t): Granularity in bytes at which to
+            summarize location information.
+        sampling_granularity (size_t): Granularity in bytes at which to
+            sample memory within each summary region.
+
+    Raises :class:`ValueError` if ``size`` or ``summary_granularity`` is 0.
+
+    Returns:
+        MemLocation_v1: Array of ``ceil(size / summary_granularity)`` entries,
+            one per summary region.
+
+    .. seealso:: `cuMemGetLocationInfo`
+    """
+    cdef size_t count
+    cdef MemLocation_v1 location_out_py
+    cdef CUmemLocation *location_out
+    cdef CUresult status
+    if size == 0 or summary_granularity == 0:
+        raise ValueError("size and summary_granularity must be greater than 0")
+    # The driver writes one entry per summary region, ceil(size / summary_granularity), so the
+    # array is allocated to that length (computed so that it can't overflow).
+    count = size // summary_granularity
+    if size % summary_granularity != 0:
+        count += 1
+    location_out_py = MemLocation_v1(count)
+    location_out = <CUmemLocation *><intptr_t>(location_out_py._get_ptr())
+    with nogil:
+        status = cuMemGetLocationInfo(<CUdeviceptr>ptr, size, summary_granularity, sampling_granularity, location_out)
+    check_status(status)
+    return location_out_py
+
+
 cpdef int thread_exchange_stream_capture_mode(int mode) except? -1:
     """Swap the stream capture interaction mode of the calling thread.
 
@@ -28591,6 +29066,139 @@ cpdef device_primary_ctx_reset_v2(int dev):
     check_status(__status__)
 
 
+cpdef intptr_t ctx_create_v3(params_array, unsigned int flags, int dev) except? 0:
+    """Create a CUDA context with execution affinity.
+
+    Creates a new CUDA context with execution affinity and associates it with the
+    calling thread. The ``params_array`` and ``flags`` parameter are described
+    below. The context is created with a usage count of 1 and the caller of
+    ``cuCtxCreate()`` must call ``cuCtxDestroy()`` when done using the context. If
+    a context is already current to the thread, it is supplanted by the newly
+    created context and may be restored by a subsequent call to
+    ``cuCtxPopCurrent()``.
+    The type and the amount of execution resource the context can use is limited by
+    ``params_array`` and ``len(params_array)``. The ``params_array`` is an array of
+    ``CUexecAffinityParam`` and the ``len(params_array)`` describes the size of the
+    array. If two ``CUexecAffinityParam`` in the array have the same type, the
+    latter execution affinity parameter overrides the former execution affinity
+    parameter. The supported execution affinity types are:.
+
+    - ``CU_EXEC_AFFINITY_TYPE_SM_COUNT`` limits the portion of SMs that the context
+      can use. The portion of SMs is specified as the number of SMs via
+      ``CUexecAffinitySmCount``. This limit will be internally rounded up to the
+      next hardware-supported amount. Hence, it is imperative to query the actual
+      execution affinity of the context via ``cuCtxGetExecAffinity`` after context
+      creation. Currently, this attribute is only supported under Volta+ MPS.
+
+    The three LSBs of the ``flags`` parameter can be used to control how the OS
+    thread, which owns the CUDA context at the time of an API call, interacts with
+    the OS scheduler when waiting for results from the GPU. Only one of the
+    scheduling flags can be set when creating a context.
+
+    - ``CU_CTX_SCHED_SPIN``: Instruct CUDA to actively spin when waiting for
+      results from the GPU. This can decrease latency when waiting for the GPU, but
+      may lower the performance of CPU threads if they are performing work in
+      parallel with the CUDA thread.
+    - ``CU_CTX_SCHED_YIELD``: Instruct CUDA to yield its thread when waiting for
+      results from the GPU. This can increase latency when waiting for the GPU, but
+      can increase the performance of CPU threads performing work in parallel with
+      the GPU.
+    - ``CU_CTX_SCHED_BLOCKING_SYNC``: Instruct CUDA to block the CPU thread on a
+      synchronization primitive when waiting for the GPU to finish work.
+    - ``CU_CTX_BLOCKING_SYNC``: Instruct CUDA to block the CPU thread on a
+      synchronization primitive when waiting for the GPU to finish work.
+      Deprecated: This flag was deprecated as of CUDA 4.0 and was replaced with
+      ``CU_CTX_SCHED_BLOCKING_SYNC``.
+    - ``CU_CTX_SCHED_AUTO``: The default value if the ``flags`` parameter is zero,
+      uses a heuristic based on the number of active CUDA contexts in the process
+      ``C`` and the number of logical processors in the system ``P``. If ``C`` >
+      ``P``, then CUDA will yield to other OS threads when waiting for the GPU
+      (``CU_CTX_SCHED_YIELD``), otherwise CUDA will not yield while waiting for
+      results and actively spin on the processor (``CU_CTX_SCHED_SPIN``).
+      Additionally, on Tegra devices, ``CU_CTX_SCHED_AUTO`` uses a heuristic based
+      on the power profile of the platform and may choose
+      ``CU_CTX_SCHED_BLOCKING_SYNC`` for low-powered devices.
+    - ``CU_CTX_MAP_HOST``: Instruct CUDA to support mapped pinned allocations. This
+      flag must be set in order to allocate pinned host memory that is accessible
+      to the GPU.
+    - ``CU_CTX_LMEM_RESIZE_TO_MAX``: Instruct CUDA to not reduce local memory after
+      resizing local memory for a kernel. This can prevent thrashing by local
+      memory allocations when launching many kernels with high local memory usage
+      at the cost of potentially increased memory usage.   Deprecated: This flag is
+      deprecated and the behavior enabled by this flag is now the default and
+      cannot be disabled. Instead, the per-thread stack size can be controlled with
+      :func:`ctx_set_limit`.
+    - ``CU_CTX_COREDUMP_ENABLE``: If GPU coredumps have not been enabled globally
+      with ``cuCoredumpSetAttributeGlobal`` or environment variables, this flag can
+      be set during context creation to instruct CUDA to create a coredump if this
+      context raises an exception during execution. These environment variables are
+      described in the CUDA-GDB user guide under the "GPU core dump support"
+      section. The initial attributes will be taken from the global attributes at
+      the time of context creation. The other attributes that control coredump
+      output can be modified by calling ``cuCoredumpSetAttribute`` from the created
+      context after it becomes current.
+    - ``CU_CTX_USER_COREDUMP_ENABLE``: If user-triggered GPU coredumps have not
+      been enabled globally with ``cuCoredumpSetAttributeGlobal`` or environment
+      variables, this flag can be set during context creation to instruct CUDA to
+      create a coredump if data is written to a certain pipe that is present in the
+      OS space. These environment variables are described in the CUDA-GDB user
+      guide under the "GPU core dump support" section. It is important to note that
+      the pipe name ``must`` be set with ``cuCoredumpSetAttributeGlobal`` before
+      creating the context if this flag is used. Setting this flag implies that
+      ``CU_CTX_COREDUMP_ENABLE`` is set. The initial attributes will be taken from
+      the global attributes at the time of context creation. The other attributes
+      that control coredump output can be modified by calling
+      ``cuCoredumpSetAttribute`` from the created context after it becomes current.
+      Setting this flag on any context creation is equivalent to setting the
+      ``CU_COREDUMP_ENABLE_USER_TRIGGER`` attribute to ``true`` globally.
+
+    Context creation will fail with ``CUDA_ERROR_UNKNOWN`` if the compute mode of
+    the device is ``CU_COMPUTEMODE_PROHIBITED``. The function
+    :func:`device_get_attribute` can be used with
+    ``CU_DEVICE_ATTRIBUTE_COMPUTE_MODE`` to determine the compute mode of the
+    device. The ``nvidia-smi`` tool can be used to set the compute mode for \*
+    devices. Documentation for ``nvidia-smi`` can be obtained by passing a -h
+    option to it.
+
+    Args:
+        params_array (ExecAffinityParam_v1): Execution affinity
+            parameters. It must be:
+
+            - a :class:`ExecAffinityParam_v1`, or
+            - ``None`` for NULL.
+        flags (unsigned int): Context creation flags.
+        dev (int): Device to create context on.
+
+    Returns:
+        intptr_t: Returned context handle of the new context.
+
+    .. seealso:: `cuCtxCreate_v3`
+    """
+    cdef intptr_t _params_array_ptr_ = 0
+    cdef Py_ssize_t _params_array_len_ = 0
+    if params_array is None:
+        pass
+    else:
+        (<ExecAffinityParam_v1?>params_array)
+        _params_array_ptr_ = int(params_array)
+        _params_array_len_ = len(params_array)
+    cdef Py_ssize_t _num_params_length_ = 0
+    cdef bint _num_params_is_set_ = False
+    if params_array is not None:
+        _num_params_length_ = _cyb_check_same_length(_num_params_is_set_, _num_params_length_, _params_array_len_, "params_array", "params_array")
+        _num_params_is_set_ = True
+    cdef int num_params = <int>_num_params_length_
+    if <Py_ssize_t>num_params != _num_params_length_:
+        raise OverflowError(
+            f"The length of (params_array), {_num_params_length_}, does not fit in 'numParams' (a int)"
+        )
+    cdef CUcontext pctx
+    with nogil:
+        __status__ = cuCtxCreate_v3(&pctx, <CUexecAffinityParam*>_params_array_ptr_, num_params, flags, <CUdevice>dev)
+    check_status(__status__)
+    return <intptr_t>pctx
+
+
 cpdef intptr_t ctx_create_v4(ctx_create_params, unsigned int flags, int dev) except? 0:
     """Create a CUDA context.
 
@@ -29407,7 +30015,8 @@ cpdef intptr_t module_load(fname) except? 0:
 
     .. seealso:: `cuModuleLoad`
     """
-    cdef void* _fname_ = <void *>_cyb_get_buffer_pointer(fname, -1, readonly=True)
+    cdef _cyb_BufferGuard _fname_guard_ = _cyb_BufferGuard(fname, -1, True, True)
+    cdef void* _fname_ = _fname_guard_.ptr
     cdef CUmodule module
     with nogil:
         __status__ = cuModuleLoad(&module, <const char*>_fname_)
@@ -29431,7 +30040,8 @@ cpdef intptr_t module_load_data(image) except? 0:
 
     .. seealso:: `cuModuleLoadData`
     """
-    cdef void* _image_ = <void *>_cyb_get_buffer_pointer(image, -1, readonly=True)
+    cdef _cyb_BufferGuard _image_guard_ = _cyb_BufferGuard(image, -1, True, True)
+    cdef void* _image_ = _image_guard_.ptr
     cdef CUmodule module
     with nogil:
         __status__ = cuModuleLoadData(&module, <const void*>_image_)
@@ -29439,7 +30049,7 @@ cpdef intptr_t module_load_data(image) except? 0:
     return <intptr_t>module
 
 
-cpdef intptr_t module_load_data_ex(image, unsigned int num_options, intptr_t options, intptr_t option_values) except? 0:
+cpdef intptr_t module_load_data_ex(image, options, option_values) except? 0:
     """Load a module's data with options.
 
     Takes a pointer ``image`` and loads the corresponding module ``module`` into
@@ -29449,19 +30059,56 @@ cpdef intptr_t module_load_data_ex(image, unsigned int num_options, intptr_t opt
 
     Args:
         image (bytes): Module data to load.
-        num_options (unsigned int): Number of options.
-        options (intptr_t): Options for JIT.
-        option_values (intptr_t): Option values for JIT.
+        options (object): Options for JIT. It must be:
+
+            - a Python sequence of ``JitOption``, or
+            - ``None`` for NULL.
+        option_values (object): Option values for JIT. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
 
     Returns:
         intptr_t: Returned module.
 
     .. seealso:: `cuModuleLoadDataEx`
     """
-    cdef void* _image_ = <void *>_cyb_get_buffer_pointer(image, -1, readonly=True)
+    cdef _cyb_BufferGuard _image_guard_ = _cyb_BufferGuard(image, -1, True, True)
+    cdef void* _image_ = _image_guard_.ptr
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _options_
+    if isinstance(options, int):
+        raise TypeError(
+            "options must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _options_len_ = 0
+    _cyb_get_resource_ptr[int](_options_, options, <int*>NULL)
+    if options is not None:
+        _options_len_ = len(options)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _option_values_
+    if isinstance(option_values, int):
+        raise TypeError(
+            "option_values must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _option_values_len_ = 0
+    _cyb_get_resource_ptrs[void](_option_values_, option_values, <void*>NULL)
+    if option_values is not None:
+        _option_values_len_ = len(option_values)
+    cdef Py_ssize_t _num_options_length_ = 0
+    cdef bint _num_options_is_set_ = False
+    if options is not None:
+        _num_options_length_ = _cyb_check_same_length(_num_options_is_set_, _num_options_length_, _options_len_, "options", "options, option_values")
+        _num_options_is_set_ = True
+    if option_values is not None:
+        _num_options_length_ = _cyb_check_same_length(_num_options_is_set_, _num_options_length_, _option_values_len_, "option_values", "options, option_values")
+        _num_options_is_set_ = True
+    cdef unsigned int num_options = <unsigned int>_num_options_length_
+    if <Py_ssize_t>num_options != _num_options_length_:
+        raise OverflowError(
+            f"The length of (options, option_values), {_num_options_length_}, does not fit in 'numOptions' (a unsigned int)"
+        )
     cdef CUmodule module
     with nogil:
-        __status__ = cuModuleLoadDataEx(&module, <const void*>_image_, num_options, <CUjit_option*>options, <void**>option_values)
+        __status__ = cuModuleLoadDataEx(&module, <const void*>_image_, num_options, <CUjit_option*>(_options_.data()), <void**>(_option_values_.data()))
     check_status(__status__)
     return <intptr_t>module
 
@@ -29486,7 +30133,8 @@ cpdef intptr_t module_load_fat_binary(fat_cubin) except? 0:
 
     .. seealso:: `cuModuleLoadFatBinary`
     """
-    cdef void* _fat_cubin_ = <void *>_cyb_get_buffer_pointer(fat_cubin, -1, readonly=True)
+    cdef _cyb_BufferGuard _fat_cubin_guard_ = _cyb_BufferGuard(fat_cubin, -1, True, True)
+    cdef void* _fat_cubin_ = _fat_cubin_guard_.ptr
     cdef CUmodule module
     with nogil:
         __status__ = cuModuleLoadFatBinary(&module, <const void*>_fat_cubin_)
@@ -29545,7 +30193,8 @@ cpdef intptr_t module_get_function(intptr_t hmod, name) except? 0:
 
     .. seealso:: `cuModuleGetFunction`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
     cdef CUfunction hfunc
     with nogil:
         __status__ = cuModuleGetFunction(&hfunc, <CUmodule>hmod, <const char*>_name_)
@@ -29597,7 +30246,7 @@ cpdef object module_enumerate_functions(intptr_t mod):
     with nogil:
         __status__ = cuModuleGetFunctionCount(&num_functions, <CUmodule>mod)
     check_status(__status__)
-    cdef _cyb_view.array _functions_alloc_ = _cyb_view.array(shape=(max(num_functions, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _functions_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_functions, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *functions_ptr = <intptr_t *>(_functions_alloc_.data)
     cdef object functions = _functions_alloc_[:num_functions]
     if num_functions != 0:
@@ -29626,7 +30275,8 @@ cpdef tuple module_get_global_v2(intptr_t hmod, name):
 
     .. seealso:: `cuModuleGetGlobal_v2`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
     cdef CUdeviceptr dptr
     cdef size_t bytes
     with nogil:
@@ -29635,48 +30285,7 @@ cpdef tuple module_get_global_v2(intptr_t hmod, name):
     return (<uint64_t>dptr, bytes)
 
 
-cpdef intptr_t link_create_v2(unsigned int num_options, intptr_t options, intptr_t option_values) except? 0:
-    """Creates a pending JIT linker invocation.
-
-    If the call is successful, the caller owns the returned ``CUlinkState``, which
-    should eventually be destroyed with ``cuLinkDestroy``. The device code machine
-    size (32 or 64 bit) will match the calling application.
-    Both linker and compiler options may be specified. Compiler options will be
-    applied to inputs to this linker action which must be compiled from PTX. The
-    options ``CU_JIT_WALL_TIME``, ``CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES``, and
-    ``CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES`` will accumulate data until the
-    ``CUlinkState`` is destroyed.
-    The data passed in via ``cuLinkAddData`` and ``cuLinkAddFile`` will be treated
-    as relocatable (-rdc=true to nvcc) when linking the final cubin during
-    ``cuLinkComplete`` and will have similar consequences as offline relocatable
-    device code linking.
-    ``option_values`` must remain valid for the life of the ``CUlinkState`` if
-    output options are used. No other references to inputs are maintained after
-    this call returns.
-
-    Args:
-        num_options (unsigned int): Size of options arrays.
-        options (intptr_t): Array of linker and compiler options.
-        option_values (intptr_t): Array of option values, each cast to
-            void \*.
-
-    Returns:
-        intptr_t: On success, this will contain a ``CUlinkState`` to
-            specify and complete this action.
-
-    .. note::
-        For LTO-IR input, only LTO-IR compiled with toolkits prior to CUDA 12.0 will be
-        accepted.
-    .. seealso:: `cuLinkCreate_v2`
-    """
-    cdef CUlinkState state_out
-    with nogil:
-        __status__ = cuLinkCreate(num_options, <CUjit_option*>options, <void**>option_values, &state_out)
-    check_status(__status__)
-    return <intptr_t>state_out
-
-
-cpdef link_add_data_v2(intptr_t state, int type, intptr_t data, size_t size, name, unsigned int num_options, intptr_t options, intptr_t option_values):
+cpdef link_add_data_v2(intptr_t state, int type, data, name, options, option_values):
     """Add an input to a pending linker invocation.
 
     Ownership of ``data`` is retained by the caller. No reference is retained to
@@ -29689,27 +30298,78 @@ cpdef link_add_data_v2(intptr_t state, int type, intptr_t data, size_t size, nam
     Args:
         state (intptr_t): A pending linker action.
         type (JitInputType): The type of the input data.
-        data (intptr_t): The input data. PTX must be NULL-terminated.
-        size (size_t): The length of the input data.
+        data (bytes): The input data. PTX must be NULL-terminated.
         name (bytes): An optional name for this input in log messages.
-        num_options (unsigned int): Size of options.
-        options (intptr_t): Options to be applied only for this input
-            (overrides options from ``cuLinkCreate``).
-        option_values (intptr_t): Array of option values, each cast to
-            void \*.
+        options (object): Options to be applied only for this input
+            (overrides options from ``cuLinkCreate``). It must be:
+
+            - a Python sequence of ``JitOption``, or
+            - ``None`` for NULL.
+        option_values (object): Array of option values, each cast to void
+            \*. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
 
     .. note::
         For LTO-IR input, only LTO-IR compiled with toolkits prior to CUDA 12.0 will be
         accepted.
     .. seealso:: `cuLinkAddData_v2`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    if isinstance(data, int):
+        raise TypeError("data must be a buffer or None, not an address, since its size is needed")
+    cdef _cyb_BufferGuard _data_guard_ = _cyb_BufferGuard(data, -1, True, False)
+    cdef Py_ssize_t _data_len_ = _data_guard_.nbytes
+    cdef void* _data_ = _data_guard_.ptr
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _options_
+    if isinstance(options, int):
+        raise TypeError(
+            "options must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _options_len_ = 0
+    _cyb_get_resource_ptr[int](_options_, options, <int*>NULL)
+    if options is not None:
+        _options_len_ = len(options)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _option_values_
+    if isinstance(option_values, int):
+        raise TypeError(
+            "option_values must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _option_values_len_ = 0
+    _cyb_get_resource_ptrs[void](_option_values_, option_values, <void*>NULL)
+    if option_values is not None:
+        _option_values_len_ = len(option_values)
+    cdef Py_ssize_t _size_length_ = 0
+    cdef bint _size_is_set_ = False
+    if data is not None:
+        _size_length_ = _cyb_check_same_length(_size_is_set_, _size_length_, _data_len_, "data", "data")
+        _size_is_set_ = True
+    cdef size_t size = <size_t>_size_length_
+    if <Py_ssize_t>size != _size_length_:
+        raise OverflowError(
+            f"The length of (data), {_size_length_}, does not fit in 'size' (a size_t)"
+        )
+    cdef Py_ssize_t _num_options_length_ = 0
+    cdef bint _num_options_is_set_ = False
+    if options is not None:
+        _num_options_length_ = _cyb_check_same_length(_num_options_is_set_, _num_options_length_, _options_len_, "options", "options, option_values")
+        _num_options_is_set_ = True
+    if option_values is not None:
+        _num_options_length_ = _cyb_check_same_length(_num_options_is_set_, _num_options_length_, _option_values_len_, "option_values", "options, option_values")
+        _num_options_is_set_ = True
+    cdef unsigned int num_options = <unsigned int>_num_options_length_
+    if <Py_ssize_t>num_options != _num_options_length_:
+        raise OverflowError(
+            f"The length of (options, option_values), {_num_options_length_}, does not fit in 'numOptions' (a unsigned int)"
+        )
     with nogil:
-        __status__ = cuLinkAddData(<CUlinkState>state, <CUjitInputType>type, <void*>data, size, <const char*>_name_, num_options, <CUjit_option*>options, <void**>option_values)
+        __status__ = cuLinkAddData(<CUlinkState>state, <CUjitInputType>type, <void*>_data_, size, <const char*>_name_, num_options, <CUjit_option*>(_options_.data()), <void**>(_option_values_.data()))
     check_status(__status__)
 
 
-cpdef link_add_file_v2(intptr_t state, int type, path, unsigned int num_options, intptr_t options, intptr_t option_values):
+cpdef link_add_file_v2(intptr_t state, int type, path, options, option_values):
     """Add a file input to a pending linker invocation.
 
     No reference is retained to any inputs after this call returns.
@@ -29724,20 +30384,57 @@ cpdef link_add_file_v2(intptr_t state, int type, path, unsigned int num_options,
         state (intptr_t): A pending linker action.
         type (JitInputType): The type of the input data.
         path (bytes): Path to the input file.
-        num_options (unsigned int): Size of options.
-        options (intptr_t): Options to be applied only for this input
-            (overrides options from ``cuLinkCreate``).
-        option_values (intptr_t): Array of option values, each cast to
-            void \*.
+        options (object): Options to be applied only for this input
+            (overrides options from ``cuLinkCreate``). It must be:
+
+            - a Python sequence of ``JitOption``, or
+            - ``None`` for NULL.
+        option_values (object): Array of option values, each cast to void
+            \*. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
 
     .. note::
         For LTO-IR input, only LTO-IR compiled with toolkits prior to CUDA 12.0 will be
         accepted.
     .. seealso:: `cuLinkAddFile_v2`
     """
-    cdef void* _path_ = <void *>_cyb_get_buffer_pointer(path, -1, readonly=True)
+    cdef _cyb_BufferGuard _path_guard_ = _cyb_BufferGuard(path, -1, True, True)
+    cdef void* _path_ = _path_guard_.ptr
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _options_
+    if isinstance(options, int):
+        raise TypeError(
+            "options must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _options_len_ = 0
+    _cyb_get_resource_ptr[int](_options_, options, <int*>NULL)
+    if options is not None:
+        _options_len_ = len(options)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _option_values_
+    if isinstance(option_values, int):
+        raise TypeError(
+            "option_values must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _option_values_len_ = 0
+    _cyb_get_resource_ptrs[void](_option_values_, option_values, <void*>NULL)
+    if option_values is not None:
+        _option_values_len_ = len(option_values)
+    cdef Py_ssize_t _num_options_length_ = 0
+    cdef bint _num_options_is_set_ = False
+    if options is not None:
+        _num_options_length_ = _cyb_check_same_length(_num_options_is_set_, _num_options_length_, _options_len_, "options", "options, option_values")
+        _num_options_is_set_ = True
+    if option_values is not None:
+        _num_options_length_ = _cyb_check_same_length(_num_options_is_set_, _num_options_length_, _option_values_len_, "option_values", "options, option_values")
+        _num_options_is_set_ = True
+    cdef unsigned int num_options = <unsigned int>_num_options_length_
+    if <Py_ssize_t>num_options != _num_options_length_:
+        raise OverflowError(
+            f"The length of (options, option_values), {_num_options_length_}, does not fit in 'numOptions' (a unsigned int)"
+        )
     with nogil:
-        __status__ = cuLinkAddFile(<CUlinkState>state, <CUjitInputType>type, <const char*>_path_, num_options, <CUjit_option*>options, <void**>option_values)
+        __status__ = cuLinkAddFile(<CUlinkState>state, <CUjitInputType>type, <const char*>_path_, num_options, <CUjit_option*>(_options_.data()), <void**>(_option_values_.data()))
     check_status(__status__)
 
 
@@ -29765,20 +30462,6 @@ cpdef bytes link_complete(intptr_t state):
     return bytes(_cyb_PyMemoryView_FromMemory(<char*>cubin_out, <Py_ssize_t>size_out[0], _cyb_PyBUF_READ))
 
 
-cpdef link_destroy(intptr_t state):
-    """Destroys state for a JIT linker invocation.
-
-
-    Args:
-        state (intptr_t): State object for the linker invocation.
-
-    .. seealso:: `cuLinkDestroy`
-    """
-    with nogil:
-        __status__ = cuLinkDestroy(<CUlinkState>state)
-    check_status(__status__)
-
-
 cpdef intptr_t module_get_tex_ref(intptr_t hmod, name) except? 0:
     """Returns a handle to a texture reference.
 
@@ -29798,7 +30481,8 @@ cpdef intptr_t module_get_tex_ref(intptr_t hmod, name) except? 0:
 
     .. seealso:: `cuModuleGetTexRef`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
     cdef CUtexref p_tex_ref
     with nogil:
         __status__ = cuModuleGetTexRef(&p_tex_ref, <CUmodule>hmod, <const char*>_name_)
@@ -29823,7 +30507,8 @@ cpdef intptr_t module_get_surf_ref(intptr_t hmod, name) except? 0:
 
     .. seealso:: `cuModuleGetSurfRef`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
     cdef CUsurfref p_surf_ref
     with nogil:
         __status__ = cuModuleGetSurfRef(&p_surf_ref, <CUmodule>hmod, <const char*>_name_)
@@ -29831,7 +30516,7 @@ cpdef intptr_t module_get_surf_ref(intptr_t hmod, name) except? 0:
     return <intptr_t>p_surf_ref
 
 
-cpdef intptr_t library_load_data(code, intptr_t jit_options, intptr_t jit_options_values, unsigned int num_jit_options, intptr_t library_options, intptr_t library_option_values, unsigned int num_library_options) except? 0:
+cpdef intptr_t library_load_data(code, jit_options, jit_options_values, library_options, library_option_values) except? 0:
     """Load a library with specified code and options.
 
     Takes a pointer ``code`` and loads the corresponding library ``library`` based
@@ -29853,20 +30538,27 @@ cpdef intptr_t library_load_data(code, intptr_t jit_options, intptr_t jit_option
     compilation.
     Options are passed as an array via ``jit_options`` and any corresponding
     parameters are passed in ``jit_optionsValues``. The number of total JIT options
-    is supplied via ``num_jit_options``. Any outputs will be returned via
+    is supplied via ``len(jit_options)``. Any outputs will be returned via
     ``jit_optionsValues``.
     Library load options are passed as an array via ``library_options`` and any
     corresponding parameters are passed in ``library_option_values``. The number of
-    total library load options is supplied via ``num_library_options``.
+    total library load options is supplied via ``len(library_options)``.
 
     Args:
         code (bytes): Code to load.
-        jit_options (intptr_t): Options for JIT.
-        jit_options_values (intptr_t): Option values for JIT.
-        num_jit_options (unsigned int): Number of options.
-        library_options (intptr_t): Options for loading.
-        library_option_values (intptr_t): Option values for loading.
-        num_library_options (unsigned int): Number of options for loading.
+        jit_options (object): Options for JIT. It must be:
+
+            - a Python sequence of ``JitOption``, or
+            - ``None`` for NULL.
+        jit_options_values (object): Option values for JIT. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        library_options (object): Options for loading. It must be a Python sequence of ``LibraryOption``, or ``None`` (NULL) if ``library_option_values`` is also ``None``.
+        library_option_values (object): Option values for loading. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
 
     Returns:
         intptr_t: Returned library.
@@ -29876,15 +30568,75 @@ cpdef intptr_t library_load_data(code, intptr_t jit_options, intptr_t jit_option
         managed variables this call is expected to return ``CUDA_ERROR_NOT_SUPPORTED``.
     .. seealso:: `cuLibraryLoadData`
     """
-    cdef void* _code_ = <void *>_cyb_get_buffer_pointer(code, -1, readonly=True)
+    cdef _cyb_BufferGuard _code_guard_ = _cyb_BufferGuard(code, -1, True, True)
+    cdef void* _code_ = _code_guard_.ptr
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _jit_options_
+    if isinstance(jit_options, int):
+        raise TypeError(
+            "jit_options must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _jit_options_len_ = 0
+    _cyb_get_resource_ptr[int](_jit_options_, jit_options, <int*>NULL)
+    if jit_options is not None:
+        _jit_options_len_ = len(jit_options)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _jit_options_values_
+    if isinstance(jit_options_values, int):
+        raise TypeError(
+            "jit_options_values must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _jit_options_values_len_ = 0
+    _cyb_get_resource_ptrs[void](_jit_options_values_, jit_options_values, <void*>NULL)
+    if jit_options_values is not None:
+        _jit_options_values_len_ = len(jit_options_values)
+    if isinstance(library_options, int):
+        raise TypeError("library_options must be a sequence of the elements or None, not an address")
+    if library_options is None and library_option_values is not None:
+        raise ValueError("library_options cannot be None when library_option_values is given")
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _library_options_
+    _cyb_get_resource_ptr[int](_library_options_, library_options, <int*>NULL)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _library_option_values_
+    if isinstance(library_option_values, int):
+        raise TypeError(
+            "library_option_values must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _library_option_values_len_ = 0
+    _cyb_get_resource_ptrs[void](_library_option_values_, library_option_values, <void*>NULL)
+    if library_option_values is not None:
+        _library_option_values_len_ = len(library_option_values)
+    cdef Py_ssize_t _num_jit_options_length_ = 0
+    cdef bint _num_jit_options_is_set_ = False
+    if jit_options is not None:
+        _num_jit_options_length_ = _cyb_check_same_length(_num_jit_options_is_set_, _num_jit_options_length_, _jit_options_len_, "jit_options", "jit_options, jit_options_values")
+        _num_jit_options_is_set_ = True
+    if jit_options_values is not None:
+        _num_jit_options_length_ = _cyb_check_same_length(_num_jit_options_is_set_, _num_jit_options_length_, _jit_options_values_len_, "jit_options_values", "jit_options, jit_options_values")
+        _num_jit_options_is_set_ = True
+    cdef unsigned int num_jit_options = <unsigned int>_num_jit_options_length_
+    if <Py_ssize_t>num_jit_options != _num_jit_options_length_:
+        raise OverflowError(
+            f"The length of (jit_options, jit_options_values), {_num_jit_options_length_}, does not fit in 'numJitOptions' (a unsigned int)"
+        )
+    cdef Py_ssize_t _num_library_options_length_ = 0
+    cdef bint _num_library_options_is_set_ = False
+    if library_options is not None:
+        _num_library_options_length_ = _cyb_check_same_length(_num_library_options_is_set_, _num_library_options_length_, len(library_options), "library_options", "library_options, library_option_values")
+        _num_library_options_is_set_ = True
+    if library_option_values is not None:
+        _num_library_options_length_ = _cyb_check_same_length(_num_library_options_is_set_, _num_library_options_length_, _library_option_values_len_, "library_option_values", "library_options, library_option_values")
+        _num_library_options_is_set_ = True
+    cdef unsigned int num_library_options = <unsigned int>_num_library_options_length_
+    if <Py_ssize_t>num_library_options != _num_library_options_length_:
+        raise OverflowError(
+            f"The length of (library_options, library_option_values), {_num_library_options_length_}, does not fit in 'numLibraryOptions' (a unsigned int)"
+        )
     cdef CUlibrary library
     with nogil:
-        __status__ = cuLibraryLoadData(&library, <const void*>_code_, <CUjit_option*>jit_options, <void**>jit_options_values, num_jit_options, <CUlibraryOption*>library_options, <void**>library_option_values, num_library_options)
+        __status__ = cuLibraryLoadData(&library, <const void*>_code_, <CUjit_option*>(_jit_options_.data()), <void**>(_jit_options_values_.data()), num_jit_options, <CUlibraryOption*>(_library_options_.data()), <void**>(_library_option_values_.data()), num_library_options)
     check_status(__status__)
     return <intptr_t>library
 
 
-cpdef intptr_t library_load_from_file(file_name, intptr_t jit_options, intptr_t jit_options_values, unsigned int num_jit_options, intptr_t library_options, intptr_t library_option_values, unsigned int num_library_options) except? 0:
+cpdef intptr_t library_load_from_file(file_name, jit_options, jit_options_values, library_options, library_option_values) except? 0:
     """Load a library with specified file and options.
 
     Takes a pointer ``code`` and loads the corresponding library ``library`` based
@@ -29906,20 +30658,27 @@ cpdef intptr_t library_load_from_file(file_name, intptr_t jit_options, intptr_t 
     code when doing separate compilation.
     Options are passed as an array via ``jit_options`` and any corresponding
     parameters are passed in ``jit_optionsValues``. The number of total options is
-    supplied via ``num_jit_options``. Any outputs will be returned via
+    supplied via ``len(jit_options)``. Any outputs will be returned via
     ``jit_optionsValues``.
     Library load options are passed as an array via ``library_options`` and any
     corresponding parameters are passed in ``library_option_values``. The number of
-    total library load options is supplied via ``num_library_options``.
+    total library load options is supplied via ``len(library_options)``.
 
     Args:
         file_name (bytes): File to load from.
-        jit_options (intptr_t): Options for JIT.
-        jit_options_values (intptr_t): Option values for JIT.
-        num_jit_options (unsigned int): Number of options.
-        library_options (intptr_t): Options for loading.
-        library_option_values (intptr_t): Option values for loading.
-        num_library_options (unsigned int): Number of options for loading.
+        jit_options (object): Options for JIT. It must be:
+
+            - a Python sequence of ``JitOption``, or
+            - ``None`` for NULL.
+        jit_options_values (object): Option values for JIT. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        library_options (object): Options for loading. It must be a Python sequence of ``LibraryOption``, or ``None`` (NULL) if ``library_option_values`` is also ``None``.
+        library_option_values (object): Option values for loading. It must be:
+
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
 
     Returns:
         intptr_t: Returned library.
@@ -29929,10 +30688,70 @@ cpdef intptr_t library_load_from_file(file_name, intptr_t jit_options, intptr_t 
         managed variables this call is expected to return ``CUDA_ERROR_NOT_SUPPORTED``.
     .. seealso:: `cuLibraryLoadFromFile`
     """
-    cdef void* _file_name_ = <void *>_cyb_get_buffer_pointer(file_name, -1, readonly=True)
+    cdef _cyb_BufferGuard _file_name_guard_ = _cyb_BufferGuard(file_name, -1, True, True)
+    cdef void* _file_name_ = _file_name_guard_.ptr
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _jit_options_
+    if isinstance(jit_options, int):
+        raise TypeError(
+            "jit_options must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _jit_options_len_ = 0
+    _cyb_get_resource_ptr[int](_jit_options_, jit_options, <int*>NULL)
+    if jit_options is not None:
+        _jit_options_len_ = len(jit_options)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _jit_options_values_
+    if isinstance(jit_options_values, int):
+        raise TypeError(
+            "jit_options_values must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _jit_options_values_len_ = 0
+    _cyb_get_resource_ptrs[void](_jit_options_values_, jit_options_values, <void*>NULL)
+    if jit_options_values is not None:
+        _jit_options_values_len_ = len(jit_options_values)
+    if isinstance(library_options, int):
+        raise TypeError("library_options must be a sequence of the elements or None, not an address")
+    if library_options is None and library_option_values is not None:
+        raise ValueError("library_options cannot be None when library_option_values is given")
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _library_options_
+    _cyb_get_resource_ptr[int](_library_options_, library_options, <int*>NULL)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _library_option_values_
+    if isinstance(library_option_values, int):
+        raise TypeError(
+            "library_option_values must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _library_option_values_len_ = 0
+    _cyb_get_resource_ptrs[void](_library_option_values_, library_option_values, <void*>NULL)
+    if library_option_values is not None:
+        _library_option_values_len_ = len(library_option_values)
+    cdef Py_ssize_t _num_jit_options_length_ = 0
+    cdef bint _num_jit_options_is_set_ = False
+    if jit_options is not None:
+        _num_jit_options_length_ = _cyb_check_same_length(_num_jit_options_is_set_, _num_jit_options_length_, _jit_options_len_, "jit_options", "jit_options, jit_options_values")
+        _num_jit_options_is_set_ = True
+    if jit_options_values is not None:
+        _num_jit_options_length_ = _cyb_check_same_length(_num_jit_options_is_set_, _num_jit_options_length_, _jit_options_values_len_, "jit_options_values", "jit_options, jit_options_values")
+        _num_jit_options_is_set_ = True
+    cdef unsigned int num_jit_options = <unsigned int>_num_jit_options_length_
+    if <Py_ssize_t>num_jit_options != _num_jit_options_length_:
+        raise OverflowError(
+            f"The length of (jit_options, jit_options_values), {_num_jit_options_length_}, does not fit in 'numJitOptions' (a unsigned int)"
+        )
+    cdef Py_ssize_t _num_library_options_length_ = 0
+    cdef bint _num_library_options_is_set_ = False
+    if library_options is not None:
+        _num_library_options_length_ = _cyb_check_same_length(_num_library_options_is_set_, _num_library_options_length_, len(library_options), "library_options", "library_options, library_option_values")
+        _num_library_options_is_set_ = True
+    if library_option_values is not None:
+        _num_library_options_length_ = _cyb_check_same_length(_num_library_options_is_set_, _num_library_options_length_, _library_option_values_len_, "library_option_values", "library_options, library_option_values")
+        _num_library_options_is_set_ = True
+    cdef unsigned int num_library_options = <unsigned int>_num_library_options_length_
+    if <Py_ssize_t>num_library_options != _num_library_options_length_:
+        raise OverflowError(
+            f"The length of (library_options, library_option_values), {_num_library_options_length_}, does not fit in 'numLibraryOptions' (a unsigned int)"
+        )
     cdef CUlibrary library
     with nogil:
-        __status__ = cuLibraryLoadFromFile(&library, <const char*>_file_name_, <CUjit_option*>jit_options, <void**>jit_options_values, num_jit_options, <CUlibraryOption*>library_options, <void**>library_option_values, num_library_options)
+        __status__ = cuLibraryLoadFromFile(&library, <const char*>_file_name_, <CUjit_option*>(_jit_options_.data()), <void**>(_jit_options_values_.data()), num_jit_options, <CUlibraryOption*>(_library_options_.data()), <void**>(_library_option_values_.data()), num_library_options)
     check_status(__status__)
     return <intptr_t>library
 
@@ -29968,7 +30787,8 @@ cpdef intptr_t library_get_kernel(intptr_t library, name) except? 0:
 
     .. seealso:: `cuLibraryGetKernel`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
     cdef CUkernel p_kernel
     with nogil:
         __status__ = cuLibraryGetKernel(&p_kernel, <CUlibrary>library, <const char*>_name_)
@@ -30015,7 +30835,7 @@ cpdef object library_enumerate_kernels(intptr_t lib):
     with nogil:
         __status__ = cuLibraryGetKernelCount(&num_kernels, <CUlibrary>lib)
     check_status(__status__)
-    cdef _cyb_view.array _kernels_alloc_ = _cyb_view.array(shape=(max(num_kernels, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _kernels_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_kernels, 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *kernels_ptr = <intptr_t *>(_kernels_alloc_.data)
     cdef object kernels = _kernels_alloc_[:num_kernels]
     if num_kernels != 0:
@@ -30112,7 +30932,8 @@ cpdef tuple library_get_global(intptr_t library, name):
 
     .. seealso:: `cuLibraryGetGlobal`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
     cdef CUdeviceptr dptr
     cdef size_t bytes
     with nogil:
@@ -30143,7 +30964,8 @@ cpdef tuple library_get_managed(intptr_t library, name):
 
     .. seealso:: `cuLibraryGetManaged`
     """
-    cdef void* _name_ = <void *>_cyb_get_buffer_pointer(name, -1, readonly=True)
+    cdef _cyb_BufferGuard _name_guard_ = _cyb_BufferGuard(name, -1, True, True)
+    cdef void* _name_ = _name_guard_.ptr
     cdef CUdeviceptr dptr
     cdef size_t bytes
     with nogil:
@@ -30171,7 +30993,8 @@ cpdef intptr_t library_get_unified_function(intptr_t library, symbol) except? 0:
 
     .. seealso:: `cuLibraryGetUnifiedFunction`
     """
-    cdef void* _symbol_ = <void *>_cyb_get_buffer_pointer(symbol, -1, readonly=True)
+    cdef _cyb_BufferGuard _symbol_guard_ = _cyb_BufferGuard(symbol, -1, True, True)
+    cdef void* _symbol_ = _symbol_guard_.ptr
     cdef void* fptr
     with nogil:
         __status__ = cuLibraryGetUnifiedFunction(&fptr, <CUlibrary>library, <const char*>_symbol_)
@@ -30643,7 +31466,8 @@ cpdef mem_free_host(p):
 
     .. seealso:: `cuMemFreeHost`
     """
-    cdef void* _p_ = <void *>_cyb_get_buffer_pointer(p, -1, readonly=False)
+    cdef _cyb_BufferGuard _p_guard_ = _cyb_BufferGuard(p, -1, False, True)
+    cdef void* _p_ = _p_guard_.ptr
     with nogil:
         __status__ = cuMemFreeHost(<void*>_p_)
     check_status(__status__)
@@ -30949,7 +31773,8 @@ cpdef int device_get_by_pci_bus_id(pci_bus_id) except? -1:
 
     .. seealso:: `cuDeviceGetByPCIBusId`
     """
-    cdef void* _pci_bus_id_ = <void *>_cyb_get_buffer_pointer(pci_bus_id, -1, readonly=True)
+    cdef _cyb_BufferGuard _pci_bus_id_guard_ = _cyb_BufferGuard(pci_bus_id, -1, True, True)
+    cdef void* _pci_bus_id_ = _pci_bus_id_guard_.ptr
     cdef CUdevice dev
     with nogil:
         __status__ = cuDeviceGetByPCIBusId(&dev, <const char*>_pci_bus_id_)
@@ -31231,7 +32056,8 @@ cpdef mem_host_register_v2(p, size_t bytesize, unsigned int flags):
 
     .. seealso:: `cuMemHostRegister_v2`
     """
-    cdef void* _p_ = <void *>_cyb_get_buffer_pointer(p, -1, readonly=False)
+    cdef _cyb_BufferGuard _p_guard_ = _cyb_BufferGuard(p, -1, False, True)
+    cdef void* _p_ = _p_guard_.ptr
     with nogil:
         __status__ = cuMemHostRegister(<void*>_p_, bytesize, flags)
     check_status(__status__)
@@ -31249,7 +32075,8 @@ cpdef mem_host_unregister(p):
 
     .. seealso:: `cuMemHostUnregister`
     """
-    cdef void* _p_ = <void *>_cyb_get_buffer_pointer(p, -1, readonly=False)
+    cdef _cyb_BufferGuard _p_guard_ = _cyb_BufferGuard(p, -1, False, True)
+    cdef void* _p_ = _p_guard_.ptr
     with nogil:
         __status__ = cuMemHostUnregister(<void*>_p_)
     check_status(__status__)
@@ -31314,7 +32141,8 @@ cpdef memcpy_htod_v2(uint64_t dst_device, src_host, size_t byte_count):
 
     .. seealso:: `cuMemcpyHtoD_v2`
     """
-    cdef void* _src_host_ = <void *>_cyb_get_buffer_pointer(src_host, -1, readonly=True)
+    cdef _cyb_BufferGuard _src_host_guard_ = _cyb_BufferGuard(src_host, -1, True, True)
+    cdef void* _src_host_ = _src_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyHtoD(<CUdeviceptr>dst_device, <const void*>_src_host_, byte_count)
     check_status(__status__)
@@ -31334,7 +32162,8 @@ cpdef memcpy_dtoh_v2(dst_host, uint64_t src_device, size_t byte_count):
 
     .. seealso:: `cuMemcpyDtoH_v2`
     """
-    cdef void* _dst_host_ = <void *>_cyb_get_buffer_pointer(dst_host, -1, readonly=False)
+    cdef _cyb_BufferGuard _dst_host_guard_ = _cyb_BufferGuard(dst_host, -1, False, True)
+    cdef void* _dst_host_ = _dst_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyDtoH(<void*>_dst_host_, <CUdeviceptr>src_device, byte_count)
     check_status(__status__)
@@ -31419,7 +32248,8 @@ cpdef memcpy_htoa_v2(intptr_t dst_array, size_t dst_offset, src_host, size_t byt
 
     .. seealso:: `cuMemcpyHtoA_v2`
     """
-    cdef void* _src_host_ = <void *>_cyb_get_buffer_pointer(src_host, -1, readonly=True)
+    cdef _cyb_BufferGuard _src_host_guard_ = _cyb_BufferGuard(src_host, -1, True, True)
+    cdef void* _src_host_ = _src_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyHtoA(<CUarray>dst_array, dst_offset, <const void*>_src_host_, byte_count)
     check_status(__status__)
@@ -31441,7 +32271,8 @@ cpdef memcpy_atoh_v2(dst_host, intptr_t src_array, size_t src_offset, size_t byt
 
     .. seealso:: `cuMemcpyAtoH_v2`
     """
-    cdef void* _dst_host_ = <void *>_cyb_get_buffer_pointer(dst_host, -1, readonly=False)
+    cdef _cyb_BufferGuard _dst_host_guard_ = _cyb_BufferGuard(dst_host, -1, False, True)
+    cdef void* _dst_host_ = _dst_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyAtoH(<void*>_dst_host_, <CUarray>src_array, src_offset, byte_count)
     check_status(__status__)
@@ -31808,7 +32639,8 @@ cpdef memcpy_htod_async_v2(uint64_t dst_device, src_host, size_t byte_count, int
 
     .. seealso:: `cuMemcpyHtoDAsync_v2`
     """
-    cdef void* _src_host_ = <void *>_cyb_get_buffer_pointer(src_host, -1, readonly=True)
+    cdef _cyb_BufferGuard _src_host_guard_ = _cyb_BufferGuard(src_host, -1, True, True)
+    cdef void* _src_host_ = _src_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyHtoDAsync(<CUdeviceptr>dst_device, <const void*>_src_host_, byte_count, <CUstream>h_stream)
     check_status(__status__)
@@ -31829,7 +32661,8 @@ cpdef memcpy_dtoh_async_v2(dst_host, uint64_t src_device, size_t byte_count, int
 
     .. seealso:: `cuMemcpyDtoHAsync_v2`
     """
-    cdef void* _dst_host_ = <void *>_cyb_get_buffer_pointer(dst_host, -1, readonly=False)
+    cdef _cyb_BufferGuard _dst_host_guard_ = _cyb_BufferGuard(dst_host, -1, False, True)
+    cdef void* _dst_host_ = _dst_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyDtoHAsync(<void*>_dst_host_, <CUdeviceptr>src_device, byte_count, <CUstream>h_stream)
     check_status(__status__)
@@ -31872,7 +32705,8 @@ cpdef memcpy_htoa_async_v2(intptr_t dst_array, size_t dst_offset, src_host, size
 
     .. seealso:: `cuMemcpyHtoAAsync_v2`
     """
-    cdef void* _src_host_ = <void *>_cyb_get_buffer_pointer(src_host, -1, readonly=True)
+    cdef _cyb_BufferGuard _src_host_guard_ = _cyb_BufferGuard(src_host, -1, True, True)
+    cdef void* _src_host_ = _src_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyHtoAAsync(<CUarray>dst_array, dst_offset, <const void*>_src_host_, byte_count, <CUstream>h_stream)
     check_status(__status__)
@@ -31895,7 +32729,8 @@ cpdef memcpy_atoh_async_v2(dst_host, intptr_t src_array, size_t src_offset, size
 
     .. seealso:: `cuMemcpyAtoHAsync_v2`
     """
-    cdef void* _dst_host_ = <void *>_cyb_get_buffer_pointer(dst_host, -1, readonly=False)
+    cdef _cyb_BufferGuard _dst_host_guard_ = _cyb_BufferGuard(dst_host, -1, False, True)
+    cdef void* _dst_host_ = _dst_host_guard_.ptr
     with nogil:
         __status__ = cuMemcpyAtoHAsync(<void*>_dst_host_, <CUarray>src_array, src_offset, byte_count, <CUstream>h_stream)
     check_status(__status__)
@@ -32836,16 +33671,16 @@ cpdef mipmapped_array_destroy(intptr_t h_mipmapped_array):
     check_status(__status__)
 
 
-cpdef size_t mem_batch_decompress_async(params_array, size_t count, unsigned int flags, intptr_t stream) except? 0:
-    """Submit a batch of ``count`` independent decompression operations.
+cpdef size_t mem_batch_decompress_async(params_array, unsigned int flags, intptr_t stream) except? 0:
+    """Submit a batch of ``len(params_array)`` independent decompression operations.
 
-    Each of the ``count`` decompression operations is described by a single entry
-    in the ``params_array`` array. Once the batch has been submitted, the function
-    will return, and decompression will happen asynchronously w.r.t. the CPU. To
-    the work completion tracking mechanisms in the CUDA driver, the batch will be
-    considered a single unit of work and processed according to stream semantics,
-    i.e., it is not possible to query the completion of individual decompression
-    operations within a batch.
+    Each of the ``len(params_array)`` decompression operations is described by a
+    single entry in the ``params_array`` array. Once the batch has been submitted,
+    the function will return, and decompression will happen asynchronously w.r.t.
+    the CPU. To the work completion tracking mechanisms in the CUDA driver, the
+    batch will be considered a single unit of work and processed according to
+    stream semantics, i.e., it is not possible to query the completion of
+    individual decompression operations within a batch.
     The memory pointed to by each of ``CUmemDecompressParams.src``,
     ``CUmemDecompressParams.dst``, and ``CUmemDecompressParams.dstActBytes``, must
     be capable of usage with the hardware decompress feature. That is, for each of
@@ -32864,9 +33699,11 @@ cpdef size_t mem_batch_decompress_async(params_array, size_t count, unsigned int
       how to ensure this, see the documentation for the allocator of interest.
 
     Args:
-        params_array (intptr_t): The array of structures describing the
-            independent decompression operations.
-        count (size_t): The number of entries in ``params_array`` array.
+        params_array (MemDecompressParams): The array of structures
+            describing the independent decompression operations. It must be:
+
+            - a :class:`MemDecompressParams`, or
+            - ``None`` for NULL.
         flags (unsigned int): Must be 0.
         stream (intptr_t): The stream where the work will be enqueued.
 
@@ -32882,7 +33719,24 @@ cpdef size_t mem_batch_decompress_async(params_array, size_t count, unsigned int
 
     .. seealso:: `cuMemBatchDecompressAsync`
     """
-    cdef intptr_t _params_array_ptr_ = 0 if params_array is None else int(params_array)
+    cdef intptr_t _params_array_ptr_ = 0
+    cdef Py_ssize_t _params_array_len_ = 0
+    if params_array is None:
+        pass
+    else:
+        (<MemDecompressParams?>params_array)
+        _params_array_ptr_ = int(params_array)
+        _params_array_len_ = len(params_array)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if params_array is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _params_array_len_, "params_array", "params_array")
+        _count_is_set_ = True
+    cdef size_t count = <size_t>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (params_array), {_count_length_}, does not fit in 'count' (a size_t)"
+        )
     cdef size_t error_index
     with nogil:
         __status__ = cuMemBatchDecompressAsync(<CUmemDecompressParams*>_params_array_ptr_, count, flags, &error_index, <CUstream>stream)
@@ -33090,13 +33944,13 @@ cpdef mem_map(uint64_t ptr, size_t size, size_t offset, uint64_t handle, unsigne
     check_status(__status__)
 
 
-cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream):
+cpdef mem_map_array_async(map_info_list, intptr_t h_stream):
     """Maps or unmaps subregions of sparse CUDA arrays and sparse CUDA mipmapped arrays.
 
     Performs map or unmap operations on subregions of sparse CUDA arrays and sparse
     CUDA mipmapped arrays. Each operation is specified by a ``CUarrayMapInfo``
-    entry in the ``map_info_list`` array of size ``count``. The structure
-    ``CUarrayMapInfo`` is defined as follow:.
+    entry in the ``map_info_list`` array of size ``len(map_info_list)``. The
+    structure ``CUarrayMapInfo`` is defined as follow:.
     \*\*View CUDA Toolkit Documentation for a C++ code example*\*.
     where ``CUarrayMapInfo.resourceType`` specifies the type of resource to be
     operated on. If ``CUarrayMapInfo.resourceType`` is set to
@@ -33185,15 +34039,33 @@ cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream):
     be set to zero.
 
     Args:
-        map_info_list (intptr_t): List of ``CUarrayMapInfo``.
-        count (unsigned int): Count of ``CUarrayMapInfo`` in
-            ``map_info_list``.
+        map_info_list (ArrayMapInfo_v1): List of ``CUarrayMapInfo``. It must be:
+
+            - a :class:`ArrayMapInfo_v1`, or
+            - ``None`` for NULL.
         h_stream (intptr_t): Stream identifier for the stream to use for
             map or unmap operations.
 
     .. seealso:: `cuMemMapArrayAsync`
     """
-    cdef intptr_t _map_info_list_ptr_ = 0 if map_info_list is None else int(map_info_list)
+    cdef intptr_t _map_info_list_ptr_ = 0
+    cdef Py_ssize_t _map_info_list_len_ = 0
+    if map_info_list is None:
+        pass
+    else:
+        (<ArrayMapInfo_v1?>map_info_list)
+        _map_info_list_ptr_ = int(map_info_list)
+        _map_info_list_len_ = len(map_info_list)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if map_info_list is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _map_info_list_len_, "map_info_list", "map_info_list")
+        _count_is_set_ = True
+    cdef unsigned int count = <unsigned int>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (map_info_list), {_count_length_}, does not fit in 'count' (a unsigned int)"
+        )
     with nogil:
         __status__ = cuMemMapArrayAsync(<CUarrayMapInfo*>_map_info_list_ptr_, count, <CUstream>h_stream)
     check_status(__status__)
@@ -33223,12 +34095,12 @@ cpdef mem_unmap(uint64_t ptr, size_t size):
     check_status(__status__)
 
 
-cpdef mem_set_access(uint64_t ptr, size_t size, desc, size_t count):
+cpdef mem_set_access(uint64_t ptr, size_t size, desc):
     """Set the access flags for each location specified in ``desc`` for the given virtual address range.
 
     Given the virtual address range via ``ptr`` and ``size``, and the locations in
-    the array given by ``desc`` and ``count``, set the access flags for the target
-    locations. The range must be a fully mapped address range containing all
+    the array given by ``desc`` and ``len(desc)``, set the access flags for the
+    target locations. The range must be a fully mapped address range containing all
     allocations created by ``cuMemMap`` / ``cuMemCreate``. Users cannot specify
     ``CU_MEM_LOCATION_TYPE_HOST_NUMA`` accessibility for allocations created on
     with other location types. Note: When ``CUmemAccessDesc.CUmemLocation.type`` is
@@ -33244,13 +34116,32 @@ cpdef mem_set_access(uint64_t ptr, size_t size, desc, size_t count):
     Args:
         ptr (uint64_t): Starting address for the virtual address range.
         size (size_t): Length of the virtual address range.
-        desc (intptr_t): Array of ``CUmemAccessDesc`` that describe how to
-            change the.
-        count (size_t): Number of ``CUmemAccessDesc`` in ``desc``.
+        desc (MemAccessDesc_v1): Array of ``CUmemAccessDesc`` that
+            describe how to change the. It must be:
+
+            - a :class:`MemAccessDesc_v1`, or
+            - ``None`` for NULL.
 
     .. seealso:: `cuMemSetAccess`
     """
-    cdef intptr_t _desc_ptr_ = 0 if desc is None else int(desc)
+    cdef intptr_t _desc_ptr_ = 0
+    cdef Py_ssize_t _desc_len_ = 0
+    if desc is None:
+        pass
+    else:
+        (<MemAccessDesc_v1?>desc)
+        _desc_ptr_ = int(desc)
+        _desc_len_ = len(desc)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if desc is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _desc_len_, "desc", "desc")
+        _count_is_set_ = True
+    cdef size_t count = <size_t>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (desc), {_count_length_}, does not fit in 'count' (a size_t)"
+        )
     with nogil:
         __status__ = cuMemSetAccess(<CUdeviceptr>ptr, size, <const CUmemAccessDesc*>_desc_ptr_, count)
     check_status(__status__)
@@ -33513,19 +34404,38 @@ cpdef mem_pool_set_attribute(intptr_t pool, int attr, intptr_t value):
     check_status(__status__)
 
 
-cpdef mem_pool_set_access(intptr_t pool, map, size_t count):
+cpdef mem_pool_set_access(intptr_t pool, map):
     """Controls visibility of pools between devices.
 
 
     Args:
         pool (intptr_t): The pool being modified.
-        map (intptr_t): Array of access descriptors. Each descriptor
-            instructs the access to enable for a single gpu.
-        count (size_t): Number of descriptors in the map array.
+        map (MemAccessDesc_v1): Array of access descriptors. Each
+            descriptor instructs the access to enable for a single gpu. It must be:
+
+            - a :class:`MemAccessDesc_v1`, or
+            - ``None`` for NULL.
 
     .. seealso:: `cuMemPoolSetAccess`
     """
-    cdef intptr_t _map_ptr_ = 0 if map is None else int(map)
+    cdef intptr_t _map_ptr_ = 0
+    cdef Py_ssize_t _map_len_ = 0
+    if map is None:
+        pass
+    else:
+        (<MemAccessDesc_v1?>map)
+        _map_ptr_ = int(map)
+        _map_len_ = len(map)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if map is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _map_len_, "map", "map")
+        _count_is_set_ = True
+    cdef size_t count = <size_t>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (map), {_count_length_}, does not fit in 'count' (a size_t)"
+        )
     with nogil:
         __status__ = cuMemPoolSetAccess(<CUmemoryPool>pool, <const CUmemAccessDesc*>_map_ptr_, count)
     check_status(__status__)
@@ -34289,7 +35199,8 @@ cpdef pointer_set_attribute(value, int attribute, uint64_t ptr):
 
     .. seealso:: `cuPointerSetAttribute`
     """
-    cdef void* _value_ = <void *>_cyb_get_buffer_pointer(value, -1, readonly=True)
+    cdef _cyb_BufferGuard _value_guard_ = _cyb_BufferGuard(value, -1, True, True)
+    cdef void* _value_ = _value_guard_.ptr
     with nogil:
         __status__ = cuPointerSetAttribute(<const void*>_value_, <CUpointer_attribute>attribute, <CUdeviceptr>ptr)
     check_status(__status__)
@@ -34668,7 +35579,7 @@ cpdef stream_begin_capture_v2(intptr_t h_stream, int mode):
     check_status(__status__)
 
 
-cpdef stream_begin_capture_to_graph(intptr_t h_stream, intptr_t h_graph, dependencies, dependency_data, size_t num_dependencies, int mode):
+cpdef stream_begin_capture_to_graph(intptr_t h_stream, intptr_t h_graph, dependencies, dependency_data, int mode):
     """Begins graph capture on a stream to an existing graph.
 
     Begin graph capture on ``h_stream``, placing new nodes into an existing graph.
@@ -34687,13 +35598,15 @@ cpdef stream_begin_capture_to_graph(intptr_t h_stream, intptr_t h_graph, depende
         h_stream (intptr_t): Stream in which to initiate capture.
         h_graph (intptr_t): Graph to capture into.
         dependencies (object): Dependencies of the first node captured in
-            the stream. Can be NULL if num_dependencies is 0. It can be:
+            the stream. Can be NULL if ``len(dependencies)`` is 0. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        dependency_data (intptr_t): Optional array of data associated with
-            each dependency.
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        dependency_data (GraphEdgeData): Optional array of data associated
+            with each dependency. It must be:
+
+            - a :class:`GraphEdgeData`, or
+            - ``None`` for NULL.
         mode (StreamCaptureMode): Controls the interaction of this capture
             sequence with other API calls that are potentially unsafe. For
             more details see ``cuThreadExchangeStreamCaptureMode``.
@@ -34705,8 +35618,35 @@ cpdef stream_begin_capture_to_graph(intptr_t h_stream, intptr_t h_graph, depende
     .. seealso:: `cuStreamBeginCaptureToGraph`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
-    cdef intptr_t _dependency_data_ptr_ = 0 if dependency_data is None else int(dependency_data)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef intptr_t _dependency_data_ptr_ = 0
+    cdef Py_ssize_t _dependency_data_len_ = 0
+    if dependency_data is None:
+        pass
+    else:
+        (<GraphEdgeData?>dependency_data)
+        _dependency_data_ptr_ = int(dependency_data)
+        _dependency_data_len_ = len(dependency_data)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    if dependency_data is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependency_data_len_, "dependency_data", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies, dependency_data), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     with nogil:
         __status__ = cuStreamBeginCaptureToGraph(<CUstream>h_stream, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), <const CUgraphEdgeData*>_dependency_data_ptr_, num_dependencies, <CUstreamCaptureMode>mode)
     check_status(__status__)
@@ -34898,7 +35838,7 @@ cpdef tuple stream_get_capture_info_v3(intptr_t h_stream):
     return (<int>capture_status_out, id_out, <intptr_t>graph_out, (_numpy.empty(0, dtype=_numpy.intp) if num_dependencies_out[0] == 0 or dependencies_out == NULL else _numpy.frombuffer(_cyb_PyMemoryView_FromMemory(<char*>dependencies_out, <Py_ssize_t>(num_dependencies_out[0] * sizeof(CUgraphNode)), _cyb_PyBUF_READ), dtype=_numpy.intp)), (_numpy.empty(0, dtype=graph_edge_data_dtype) if num_dependencies_out[0] == 0 or edge_data_out == NULL else _numpy.frombuffer(_cyb_PyMemoryView_FromMemory(<char*>edge_data_out, <Py_ssize_t>(num_dependencies_out[0] * sizeof(CUgraphEdgeData)), _cyb_PyBUF_READ), dtype=graph_edge_data_dtype)))
 
 
-cpdef stream_update_capture_dependencies_v2(intptr_t h_stream, dependencies, dependency_data, size_t num_dependencies, unsigned int flags):
+cpdef stream_update_capture_dependencies_v2(intptr_t h_stream, dependencies, dependency_data, unsigned int flags):
     """Update the set of dependencies in a capturing stream.
 
     Modifies the dependency set of a capturing stream. The dependency set is the
@@ -34915,20 +35855,49 @@ cpdef stream_update_capture_dependencies_v2(intptr_t h_stream, dependencies, dep
 
     Args:
         h_stream (intptr_t): The stream to update.
-        dependencies (object): The set of dependencies to add. It can be:
+        dependencies (object): The set of dependencies to add. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        dependency_data (intptr_t): Optional array of data associated with
-            each dependency.
-        num_dependencies (size_t): The size of the dependencies array.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        dependency_data (GraphEdgeData): Optional array of data associated
+            with each dependency. It must be:
+
+            - a :class:`GraphEdgeData`, or
+            - ``None`` for NULL.
         flags (unsigned int): See above.
 
     .. seealso:: `cuStreamUpdateCaptureDependencies_v2`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
-    cdef intptr_t _dependency_data_ptr_ = 0 if dependency_data is None else int(dependency_data)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef intptr_t _dependency_data_ptr_ = 0
+    cdef Py_ssize_t _dependency_data_len_ = 0
+    if dependency_data is None:
+        pass
+    else:
+        (<GraphEdgeData?>dependency_data)
+        _dependency_data_ptr_ = int(dependency_data)
+        _dependency_data_len_ = len(dependency_data)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    if dependency_data is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependency_data_len_, "dependency_data", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies, dependency_data), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     with nogil:
         __status__ = cuStreamUpdateCaptureDependencies(<CUstream>h_stream, <CUgraphNode*>(_dependencies_.data()), <const CUgraphEdgeData*>_dependency_data_ptr_, num_dependencies, flags)
     check_status(__status__)
@@ -35650,7 +36619,7 @@ cpdef intptr_t import_external_semaphore(sem_handle_desc) except? 0:
     return <intptr_t>ext_sem_out
 
 
-cpdef signal_external_semaphores_async(ext_sem_array, params_array, unsigned int num_ext_sems, intptr_t stream):
+cpdef signal_external_semaphores_async(ext_sem_array, params_array, intptr_t stream):
     """Signals a set of external semaphore objects.
 
     Enqueues a signal operation on a set of externally allocated semaphore object
@@ -35724,25 +36693,55 @@ cpdef signal_external_semaphores_async(ext_sem_array, params_array, unsigned int
     ``CUDA_EXTERNAL_SEMAPHORE_PARAMS.params.keyedmutex.key``.
 
     Args:
-        ext_sem_array (object): Set of external semaphores to be signaled. It can be:
+        ext_sem_array (object): Set of external semaphores to be signaled. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        params_array (intptr_t): Array of semaphore parameters.
-        num_ext_sems (unsigned int): Number of semaphores to signal.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        params_array (ExternalSemaphoreSignalParams_v1): Array of
+            semaphore parameters. It must be:
+
+            - a :class:`ExternalSemaphoreSignalParams_v1`, or
+            - ``None`` for NULL.
         stream (intptr_t): Stream to enqueue the signal operations in.
 
     .. seealso:: `cuSignalExternalSemaphoresAsync`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _ext_sem_array_
+    if isinstance(ext_sem_array, int):
+        raise TypeError(
+            "ext_sem_array must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _ext_sem_array_len_ = 0
     _cyb_get_resource_ptrs[void](_ext_sem_array_, ext_sem_array, <void*>NULL)
-    cdef intptr_t _params_array_ptr_ = 0 if params_array is None else int(params_array)
+    if ext_sem_array is not None:
+        _ext_sem_array_len_ = len(ext_sem_array)
+    cdef intptr_t _params_array_ptr_ = 0
+    cdef Py_ssize_t _params_array_len_ = 0
+    if params_array is None:
+        pass
+    else:
+        (<ExternalSemaphoreSignalParams_v1?>params_array)
+        _params_array_ptr_ = int(params_array)
+        _params_array_len_ = len(params_array)
+    cdef Py_ssize_t _num_ext_sems_length_ = 0
+    cdef bint _num_ext_sems_is_set_ = False
+    if ext_sem_array is not None:
+        _num_ext_sems_length_ = _cyb_check_same_length(_num_ext_sems_is_set_, _num_ext_sems_length_, _ext_sem_array_len_, "ext_sem_array", "ext_sem_array, params_array")
+        _num_ext_sems_is_set_ = True
+    if params_array is not None:
+        _num_ext_sems_length_ = _cyb_check_same_length(_num_ext_sems_is_set_, _num_ext_sems_length_, _params_array_len_, "params_array", "ext_sem_array, params_array")
+        _num_ext_sems_is_set_ = True
+    cdef unsigned int num_ext_sems = <unsigned int>_num_ext_sems_length_
+    if <Py_ssize_t>num_ext_sems != _num_ext_sems_length_:
+        raise OverflowError(
+            f"The length of (ext_sem_array, params_array), {_num_ext_sems_length_}, does not fit in 'numExtSems' (a unsigned int)"
+        )
     with nogil:
         __status__ = cuSignalExternalSemaphoresAsync(<const CUexternalSemaphore*>(_ext_sem_array_.data()), <const CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS*>_params_array_ptr_, num_ext_sems, <CUstream>stream)
     check_status(__status__)
 
 
-cpdef wait_external_semaphores_async(ext_sem_array, params_array, unsigned int num_ext_sems, intptr_t stream):
+cpdef wait_external_semaphores_async(ext_sem_array, params_array, intptr_t stream):
     """Waits on a set of external semaphore objects.
 
     Enqueues a wait operation on a set of externally allocated semaphore object in
@@ -35795,19 +36794,49 @@ cpdef wait_external_semaphores_async(ext_sem_array, params_array, unsigned int n
     elapses. The windows INFINITE macro must be used to specify infinite timeout.
 
     Args:
-        ext_sem_array (object): External semaphores to be waited on. It can be:
+        ext_sem_array (object): External semaphores to be waited on. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        params_array (intptr_t): Array of semaphore parameters.
-        num_ext_sems (unsigned int): Number of semaphores to wait on.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        params_array (ExternalSemaphoreWaitParams_v1): Array of semaphore
+            parameters. It must be:
+
+            - a :class:`ExternalSemaphoreWaitParams_v1`, or
+            - ``None`` for NULL.
         stream (intptr_t): Stream to enqueue the wait operations in.
 
     .. seealso:: `cuWaitExternalSemaphoresAsync`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _ext_sem_array_
+    if isinstance(ext_sem_array, int):
+        raise TypeError(
+            "ext_sem_array must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _ext_sem_array_len_ = 0
     _cyb_get_resource_ptrs[void](_ext_sem_array_, ext_sem_array, <void*>NULL)
-    cdef intptr_t _params_array_ptr_ = 0 if params_array is None else int(params_array)
+    if ext_sem_array is not None:
+        _ext_sem_array_len_ = len(ext_sem_array)
+    cdef intptr_t _params_array_ptr_ = 0
+    cdef Py_ssize_t _params_array_len_ = 0
+    if params_array is None:
+        pass
+    else:
+        (<ExternalSemaphoreWaitParams_v1?>params_array)
+        _params_array_ptr_ = int(params_array)
+        _params_array_len_ = len(params_array)
+    cdef Py_ssize_t _num_ext_sems_length_ = 0
+    cdef bint _num_ext_sems_is_set_ = False
+    if ext_sem_array is not None:
+        _num_ext_sems_length_ = _cyb_check_same_length(_num_ext_sems_is_set_, _num_ext_sems_length_, _ext_sem_array_len_, "ext_sem_array", "ext_sem_array, params_array")
+        _num_ext_sems_is_set_ = True
+    if params_array is not None:
+        _num_ext_sems_length_ = _cyb_check_same_length(_num_ext_sems_is_set_, _num_ext_sems_length_, _params_array_len_, "params_array", "ext_sem_array, params_array")
+        _num_ext_sems_is_set_ = True
+    cdef unsigned int num_ext_sems = <unsigned int>_num_ext_sems_length_
+    if <Py_ssize_t>num_ext_sems != _num_ext_sems_length_:
+        raise OverflowError(
+            f"The length of (ext_sem_array, params_array), {_num_ext_sems_length_}, does not fit in 'numExtSems' (a unsigned int)"
+        )
     with nogil:
         __status__ = cuWaitExternalSemaphoresAsync(<const CUexternalSemaphore*>(_ext_sem_array_.data()), <const CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS*>_params_array_ptr_, num_ext_sems, <CUstream>stream)
     check_status(__status__)
@@ -35941,7 +36970,7 @@ cpdef stream_write_value64_v2(intptr_t stream, uint64_t addr, uint64_t value, un
     check_status(__status__)
 
 
-cpdef stream_batch_mem_op_v2(intptr_t stream, unsigned int count, param_array, unsigned int flags):
+cpdef stream_batch_mem_op_v2(intptr_t stream, param_array, unsigned int flags):
     """Batch operations to synchronize the stream via memory operations.
 
     This is a batch version of ``cuStreamWaitValue32()`` and
@@ -35957,10 +36986,11 @@ cpdef stream_batch_mem_op_v2(intptr_t stream, unsigned int count, param_array, u
 
     Args:
         stream (intptr_t): The stream to enqueue the operations in.
-        count (unsigned int): The number of operations in the array. Must
-            be less than 256.
-        param_array (intptr_t): The types and parameters of the individual
-            operations.
+        param_array (StreamBatchMemOpParams_v1): The types and parameters
+            of the individual operations. It must be:
+
+            - a :class:`StreamBatchMemOpParams_v1`, or
+            - ``None`` for NULL.
         flags (unsigned int): Reserved for future expansion; must be 0.
 
     .. note::
@@ -35971,7 +37001,24 @@ cpdef stream_batch_mem_op_v2(intptr_t stream, unsigned int count, param_array, u
         does not serialize them in an improper order.
     .. seealso:: `cuStreamBatchMemOp_v2`
     """
-    cdef intptr_t _param_array_ptr_ = 0 if param_array is None else int(param_array)
+    cdef intptr_t _param_array_ptr_ = 0
+    cdef Py_ssize_t _param_array_len_ = 0
+    if param_array is None:
+        pass
+    else:
+        (<StreamBatchMemOpParams_v1?>param_array)
+        _param_array_ptr_ = int(param_array)
+        _param_array_len_ = len(param_array)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if param_array is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _param_array_len_, "param_array", "param_array")
+        _count_is_set_ = True
+    cdef unsigned int count = <unsigned int>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (param_array), {_count_length_}, does not fit in 'count' (a unsigned int)"
+        )
     with nogil:
         __status__ = cuStreamBatchMemOp(<CUstream>stream, count, <CUstreamBatchMemOpParams*>_param_array_ptr_, flags)
     check_status(__status__)
@@ -36583,14 +37630,14 @@ cpdef launch_cooperative_kernel(intptr_t f, unsigned int grid_dim_x, unsigned in
     check_status(__status__)
 
 
-cpdef launch_cooperative_kernel_multi_device(launch_params_list, unsigned int num_devices, unsigned int flags):
+cpdef launch_cooperative_kernel_multi_device(launch_params_list, unsigned int flags):
     """Launches CUDA functions on multiple devices where thread blocks can cooperate and synchronize as they execute.
 
     [Deprecated].
     Invokes kernels as specified in the ``launch_params_list`` array where each
     element of the array specifies all the parameters required to perform a single
     kernel launch. These kernels can cooperate and synchronize as they execute. The
-    size of the array is specified by ``num_devices``.
+    size of the array is specified by ``len(launch_params_list)``.
     No two kernels can be launched on the same device. All the devices targeted by
     this multi-device launch must be identical. All devices must have a non-zero
     value for the device attribute
@@ -36680,15 +37727,33 @@ cpdef launch_cooperative_kernel_multi_device(launch_params_list, unsigned int nu
     ``CUDA_ERROR_INVALID_IMAGE``.
 
     Args:
-        launch_params_list (intptr_t): List of launch parameters, one per
-            device.
-        num_devices (unsigned int): Size of the ``launch_params_list``
-            array.
+        launch_params_list (LaunchParams_v1): List of launch parameters,
+            one per device. It must be:
+
+            - a :class:`LaunchParams_v1`, or
+            - ``None`` for NULL.
         flags (unsigned int): Flags to control launch behavior.
 
     .. seealso:: `cuLaunchCooperativeKernelMultiDevice`
     """
-    cdef intptr_t _launch_params_list_ptr_ = 0 if launch_params_list is None else int(launch_params_list)
+    cdef intptr_t _launch_params_list_ptr_ = 0
+    cdef Py_ssize_t _launch_params_list_len_ = 0
+    if launch_params_list is None:
+        pass
+    else:
+        (<LaunchParams_v1?>launch_params_list)
+        _launch_params_list_ptr_ = int(launch_params_list)
+        _launch_params_list_len_ = len(launch_params_list)
+    cdef Py_ssize_t _num_devices_length_ = 0
+    cdef bint _num_devices_is_set_ = False
+    if launch_params_list is not None:
+        _num_devices_length_ = _cyb_check_same_length(_num_devices_is_set_, _num_devices_length_, _launch_params_list_len_, "launch_params_list", "launch_params_list")
+        _num_devices_is_set_ = True
+    cdef unsigned int num_devices = <unsigned int>_num_devices_length_
+    if <Py_ssize_t>num_devices != _num_devices_length_:
+        raise OverflowError(
+            f"The length of (launch_params_list), {_num_devices_length_}, does not fit in 'numDevices' (a unsigned int)"
+        )
     with nogil:
         __status__ = cuLaunchCooperativeKernelMultiDevice(<CUDA_LAUNCH_PARAMS*>_launch_params_list_ptr_, num_devices, flags)
     check_status(__status__)
@@ -36838,24 +37903,38 @@ cpdef param_setf(intptr_t hfunc, int offset, float value):
     check_status(__status__)
 
 
-cpdef param_setv(intptr_t hfunc, int offset, intptr_t ptr, unsigned int numbytes):
+cpdef param_setv(intptr_t hfunc, int offset, ptr):
     """Adds arbitrary data to the function's argument list.
 
     [Deprecated].
-    Copies an arbitrary amount of data (specified in ``numbytes``) from ``ptr``
-    into the parameter space of the kernel corresponding to ``hfunc``. ``offset``
-    is a byte offset.
+    Copies an arbitrary amount of data (specified in ``memoryview(ptr).nbytes``)
+    from ``ptr`` into the parameter space of the kernel corresponding to ``hfunc``.
+    ``offset`` is a byte offset.
 
     Args:
         hfunc (intptr_t): Kernel to add data to.
         offset (int): Offset to add data to argument list.
-        ptr (intptr_t): Pointer to arbitrary data.
-        numbytes (unsigned int): Size of data to copy in bytes.
+        ptr (bytes): Pointer to arbitrary data.
 
     .. seealso:: `cuParamSetv`
     """
+    if isinstance(ptr, int):
+        raise TypeError("ptr must be a buffer or None, not an address, since its size is needed")
+    cdef _cyb_BufferGuard _ptr_guard_ = _cyb_BufferGuard(ptr, -1, True, False)
+    cdef Py_ssize_t _ptr_len_ = _ptr_guard_.nbytes
+    cdef void* _ptr_ = _ptr_guard_.ptr
+    cdef Py_ssize_t _numbytes_length_ = 0
+    cdef bint _numbytes_is_set_ = False
+    if ptr is not None:
+        _numbytes_length_ = _cyb_check_same_length(_numbytes_is_set_, _numbytes_length_, _ptr_len_, "ptr", "ptr")
+        _numbytes_is_set_ = True
+    cdef unsigned int numbytes = <unsigned int>_numbytes_length_
+    if <Py_ssize_t>numbytes != _numbytes_length_:
+        raise OverflowError(
+            f"The length of (ptr), {_numbytes_length_}, does not fit in 'numbytes' (a unsigned int)"
+        )
     with nogil:
-        __status__ = cuParamSetv(<CUfunction>hfunc, offset, <void*>ptr, numbytes)
+        __status__ = cuParamSetv(<CUfunction>hfunc, offset, <void*>_ptr_, numbytes)
     check_status(__status__)
 
 
@@ -37028,12 +38107,12 @@ cpdef intptr_t graph_create(unsigned int flags) except? 0:
     return <intptr_t>ph_graph
 
 
-cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, node_params) except? 0:
     """Creates a kernel execution node and adds it to a graph.
 
     Creates a new kernel execution node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and arguments
-    specified in ``node_params``. It is possible for ``num_dependencies`` to be 0,
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and arguments
+    specified in ``node_params``. It is possible for ``len(dependencies)`` to be 0,
     in which case the node will be placed at the root of the graph.
     ``dependencies`` may not have any duplicate entries. A handle to the new node
     will be returned in ``ph_graph_node``.
@@ -37077,11 +38156,10 @@ cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, size_t n
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         node_params (intptr_t): Parameters for the GPU execution node.
 
     Returns:
@@ -37097,8 +38175,25 @@ cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, size_t n
     .. seealso:: `cuGraphAddKernelNode_v2`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddKernelNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <const CUDA_KERNEL_NODE_PARAMS*>_node_params_ptr_)
@@ -37157,14 +38252,14 @@ cpdef graph_kernel_node_set_params_v2(intptr_t h_node, node_params):
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_memcpy_node(intptr_t h_graph, dependencies, size_t num_dependencies, copy_params, intptr_t ctx) except? 0:
+cpdef intptr_t graph_add_memcpy_node(intptr_t h_graph, dependencies, copy_params, intptr_t ctx) except? 0:
     """Creates a memcpy node and adds it to a graph.
 
-    Creates a new memcpy node and adds it to ``h_graph`` with ``num_dependencies``
+    Creates a new memcpy node and adds it to ``h_graph`` with ``len(dependencies)``
     dependencies specified via ``dependencies``. It is possible for
-    ``num_dependencies`` to be 0, in which case the node will be placed at the root
-    of the graph. ``dependencies`` may not have any duplicate entries. A handle to
-    the new node will be returned in ``ph_graph_node``.
+    ``len(dependencies)`` to be 0, in which case the node will be placed at the
+    root of the graph. ``dependencies`` may not have any duplicate entries. A
+    handle to the new node will be returned in ``ph_graph_node``.
     When the graph is launched, the node will perform the memcpy described by
     ``copy_params``. See ``cuMemcpy3D()`` for a description of the structure and
     its restrictions.
@@ -37178,11 +38273,10 @@ cpdef intptr_t graph_add_memcpy_node(intptr_t h_graph, dependencies, size_t num_
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         copy_params (intptr_t): Parameters for the memory copy.
         ctx (intptr_t): Context on which to run the node.
 
@@ -37195,8 +38289,25 @@ cpdef intptr_t graph_add_memcpy_node(intptr_t h_graph, dependencies, size_t num_
     .. seealso:: `cuGraphAddMemcpyNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _copy_params_ptr_ = 0 if copy_params is None else int(copy_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddMemcpyNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <const CUDA_MEMCPY3D*>_copy_params_ptr_, <CUcontext>ctx)
@@ -37248,24 +38359,23 @@ cpdef graph_memcpy_node_set_params(intptr_t h_node, node_params):
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_memset_node(intptr_t h_graph, dependencies, size_t num_dependencies, memset_params, intptr_t ctx) except? 0:
+cpdef intptr_t graph_add_memset_node(intptr_t h_graph, dependencies, memset_params, intptr_t ctx) except? 0:
     """Creates a memset node and adds it to a graph.
 
-    Creates a new memset node and adds it to ``h_graph`` with ``num_dependencies``
+    Creates a new memset node and adds it to ``h_graph`` with ``len(dependencies)``
     dependencies specified via ``dependencies``. It is possible for
-    ``num_dependencies`` to be 0, in which case the node will be placed at the root
-    of the graph. ``dependencies`` may not have any duplicate entries. A handle to
-    the new node will be returned in ``ph_graph_node``.
+    ``len(dependencies)`` to be 0, in which case the node will be placed at the
+    root of the graph. ``dependencies`` may not have any duplicate entries. A
+    handle to the new node will be returned in ``ph_graph_node``.
     The element size must be 1, 2, or 4 bytes. When the graph is launched, the node
     will perform the memset described by ``memset_params``.
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         memset_params (intptr_t): Parameters for the memory set.
         ctx (intptr_t): Context on which to run the node.
 
@@ -37278,8 +38388,25 @@ cpdef intptr_t graph_add_memset_node(intptr_t h_graph, dependencies, size_t num_
     .. seealso:: `cuGraphAddMemsetNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _memset_params_ptr_ = 0 if memset_params is None else int(memset_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddMemsetNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <const CUDA_MEMSET_NODE_PARAMS*>_memset_params_ptr_, <CUcontext>ctx)
@@ -37331,12 +38458,12 @@ cpdef graph_memset_node_set_params(intptr_t h_node, node_params):
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_host_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_host_node(intptr_t h_graph, dependencies, node_params) except? 0:
     """Creates a host execution node and adds it to a graph.
 
     Creates a new CPU execution node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and arguments
-    specified in ``node_params``. It is possible for ``num_dependencies`` to be 0,
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and arguments
+    specified in ``node_params``. It is possible for ``len(dependencies)`` to be 0,
     in which case the node will be placed at the root of the graph.
     ``dependencies`` may not have any duplicate entries. A handle to the new node
     will be returned in ``ph_graph_node``.
@@ -37345,11 +38472,10 @@ cpdef intptr_t graph_add_host_node(intptr_t h_graph, dependencies, size_t num_de
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         node_params (intptr_t): Parameters for the host node.
 
     Returns:
@@ -37361,8 +38487,25 @@ cpdef intptr_t graph_add_host_node(intptr_t h_graph, dependencies, size_t num_de
     .. seealso:: `cuGraphAddHostNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddHostNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <const CUDA_HOST_NODE_PARAMS*>_node_params_ptr_)
@@ -37414,12 +38557,12 @@ cpdef graph_host_node_set_params(intptr_t h_node, node_params):
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_child_graph_node(intptr_t h_graph, dependencies, size_t num_dependencies, intptr_t child_graph) except? 0:
+cpdef intptr_t graph_add_child_graph_node(intptr_t h_graph, dependencies, intptr_t child_graph) except? 0:
     """Creates a child graph node and adds it to a graph.
 
     Creates a new node which executes an embedded graph, and adds it to ``h_graph``
-    with ``num_dependencies`` dependencies specified via ``dependencies``. It is
-    possible for ``num_dependencies`` to be 0, in which case the node will be
+    with ``len(dependencies)`` dependencies specified via ``dependencies``. It is
+    possible for ``len(dependencies)`` to be 0, in which case the node will be
     placed at the root of the graph. ``dependencies`` may not have any duplicate
     entries. A handle to the new node will be returned in ``ph_graph_node``.
     If ``child_graph`` contains allocation nodes, free nodes, or conditional nodes,
@@ -37429,11 +38572,10 @@ cpdef intptr_t graph_add_child_graph_node(intptr_t h_graph, dependencies, size_t
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         child_graph (intptr_t): The graph to clone into this node.
 
     Returns:
@@ -37445,7 +38587,24 @@ cpdef intptr_t graph_add_child_graph_node(intptr_t h_graph, dependencies, size_t
     .. seealso:: `cuGraphAddChildGraphNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddChildGraphNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <CUgraph>child_graph)
@@ -37480,12 +38639,12 @@ cpdef intptr_t graph_child_graph_node_get_graph(intptr_t h_node) except? 0:
     return <intptr_t>ph_graph
 
 
-cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies, size_t num_dependencies) except? 0:
+cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies) except? 0:
     """Creates an empty node and adds it to a graph.
 
     Creates a new node which performs no operation, and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies``. It is
-    possible for ``num_dependencies`` to be 0, in which case the node will be
+    ``len(dependencies)`` dependencies specified via ``dependencies``. It is
+    possible for ``len(dependencies)`` to be 0, in which case the node will be
     placed at the root of the graph. ``dependencies`` may not have any duplicate
     entries. A handle to the new node will be returned in ``ph_graph_node``.
     An empty node performs no operation during execution, but can be used for
@@ -37495,11 +38654,10 @@ cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies, size_t num_d
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
 
     Returns:
         intptr_t: Returns newly created node.
@@ -37510,7 +38668,24 @@ cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies, size_t num_d
     .. seealso:: `cuGraphAddEmptyNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddEmptyNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies)
@@ -37518,12 +38693,12 @@ cpdef intptr_t graph_add_empty_node(intptr_t h_graph, dependencies, size_t num_d
     return <intptr_t>ph_graph_node
 
 
-cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, size_t num_dependencies, intptr_t event) except? 0:
+cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, intptr_t event) except? 0:
     """Creates an event record node and adds it to a graph.
 
     Creates a new event record node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and event
-    specified in ``event``. It is possible for ``num_dependencies`` to be 0, in
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and event
+    specified in ``event``. It is possible for ``len(dependencies)`` to be 0, in
     which case the node will be placed at the root of the graph. ``dependencies``
     may not have any duplicate entries. A handle to the new node will be returned
     in ``ph_graph_node``.
@@ -37532,11 +38707,10 @@ cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, size_
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         event (intptr_t): Event for the node.
 
     Returns:
@@ -37548,7 +38722,24 @@ cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, size_
     .. seealso:: `cuGraphAddEventRecordNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddEventRecordNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <CUevent>event)
@@ -37600,12 +38791,12 @@ cpdef graph_event_record_node_set_event(intptr_t h_node, intptr_t event):
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_event_wait_node(intptr_t h_graph, dependencies, size_t num_dependencies, intptr_t event) except? 0:
+cpdef intptr_t graph_add_event_wait_node(intptr_t h_graph, dependencies, intptr_t event) except? 0:
     """Creates an event wait node and adds it to a graph.
 
     Creates a new event wait node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and event
-    specified in ``event``. It is possible for ``num_dependencies`` to be 0, in
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and event
+    specified in ``event``. It is possible for ``len(dependencies)`` to be 0, in
     which case the node will be placed at the root of the graph. ``dependencies``
     may not have any duplicate entries. A handle to the new node will be returned
     in ``ph_graph_node``.
@@ -37615,11 +38806,10 @@ cpdef intptr_t graph_add_event_wait_node(intptr_t h_graph, dependencies, size_t 
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         event (intptr_t): Event for the node.
 
     Returns:
@@ -37631,7 +38821,24 @@ cpdef intptr_t graph_add_event_wait_node(intptr_t h_graph, dependencies, size_t 
     .. seealso:: `cuGraphAddEventWaitNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddEventWaitNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <CUevent>event)
@@ -37681,12 +38888,12 @@ cpdef graph_event_wait_node_set_event(intptr_t h_node, intptr_t event):
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_external_semaphores_signal_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_external_semaphores_signal_node(intptr_t h_graph, dependencies, node_params) except? 0:
     """Creates an external semaphore signal node and adds it to a graph.
 
     Creates a new external semaphore signal node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and arguments
-    specified in ``node_params``. It is possible for ``num_dependencies`` to be 0,
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and arguments
+    specified in ``node_params``. It is possible for ``len(dependencies)`` to be 0,
     in which case the node will be placed at the root of the graph.
     ``dependencies`` may not have any duplicate entries. A handle to the new node
     will be returned in ``ph_graph_node``.
@@ -37696,11 +38903,10 @@ cpdef intptr_t graph_add_external_semaphores_signal_node(intptr_t h_graph, depen
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         node_params (intptr_t): Parameters for the node.
 
     Returns:
@@ -37712,8 +38918,25 @@ cpdef intptr_t graph_add_external_semaphores_signal_node(intptr_t h_graph, depen
     .. seealso:: `cuGraphAddExternalSemaphoresSignalNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddExternalSemaphoresSignalNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <const CUDA_EXT_SEM_SIGNAL_NODE_PARAMS*>_node_params_ptr_)
@@ -37772,12 +38995,12 @@ cpdef graph_external_semaphores_signal_node_set_params(intptr_t h_node, node_par
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_external_semaphores_wait_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_external_semaphores_wait_node(intptr_t h_graph, dependencies, node_params) except? 0:
     """Creates an external semaphore wait node and adds it to a graph.
 
     Creates a new external semaphore wait node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and arguments
-    specified in ``node_params``. It is possible for ``num_dependencies`` to be 0,
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and arguments
+    specified in ``node_params``. It is possible for ``len(dependencies)`` to be 0,
     in which case the node will be placed at the root of the graph.
     ``dependencies`` may not have any duplicate entries. A handle to the new node
     will be returned in ``ph_graph_node``.
@@ -37787,11 +39010,10 @@ cpdef intptr_t graph_add_external_semaphores_wait_node(intptr_t h_graph, depende
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         node_params (intptr_t): Parameters for the node.
 
     Returns:
@@ -37803,8 +39025,25 @@ cpdef intptr_t graph_add_external_semaphores_wait_node(intptr_t h_graph, depende
     .. seealso:: `cuGraphAddExternalSemaphoresWaitNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddExternalSemaphoresWaitNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <const CUDA_EXT_SEM_WAIT_NODE_PARAMS*>_node_params_ptr_)
@@ -37863,12 +39102,12 @@ cpdef graph_external_semaphores_wait_node_set_params(intptr_t h_node, node_param
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_batch_mem_op_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_batch_mem_op_node(intptr_t h_graph, dependencies, node_params) except? 0:
     """Creates a batch memory operation node and adds it to a graph.
 
     Creates a new batch memory operation node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and arguments
-    specified in ``node_params``. It is possible for ``num_dependencies`` to be 0,
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and arguments
+    specified in ``node_params``. It is possible for ``len(dependencies)`` to be 0,
     in which case the node will be placed at the root of the graph.
     ``dependencies`` may not have any duplicate entries. A handle to the new node
     will be returned in ``ph_graph_node``.
@@ -37877,11 +39116,10 @@ cpdef intptr_t graph_add_batch_mem_op_node(intptr_t h_graph, dependencies, size_
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         node_params (intptr_t): Parameters for the node.
 
     Returns:
@@ -37899,8 +39137,25 @@ cpdef intptr_t graph_add_batch_mem_op_node(intptr_t h_graph, dependencies, size_
     .. seealso:: `cuGraphAddBatchMemOpNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddBatchMemOpNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <const CUDA_BATCH_MEM_OP_NODE_PARAMS*>_node_params_ptr_)
@@ -37996,12 +39251,12 @@ cpdef graph_exec_batch_mem_op_node_set_params(intptr_t h_graph_exec, intptr_t h_
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_mem_alloc_node(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_mem_alloc_node(intptr_t h_graph, dependencies, node_params) except? 0:
     """Creates an allocation node and adds it to a graph.
 
     Creates a new allocation node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and arguments
-    specified in ``node_params``. It is possible for ``num_dependencies`` to be 0,
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and arguments
+    specified in ``node_params``. It is possible for ``len(dependencies)`` to be 0,
     in which case the node will be placed at the root of the graph.
     ``dependencies`` may not have any duplicate entries. A handle to the new node
     will be returned in ``ph_graph_node``.
@@ -38040,11 +39295,10 @@ cpdef intptr_t graph_add_mem_alloc_node(intptr_t h_graph, dependencies, size_t n
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         node_params (intptr_t): Parameters for the node.
 
     Returns:
@@ -38056,8 +39310,25 @@ cpdef intptr_t graph_add_mem_alloc_node(intptr_t h_graph, dependencies, size_t n
     .. seealso:: `cuGraphAddMemAllocNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddMemAllocNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <CUDA_MEM_ALLOC_NODE_PARAMS*>_node_params_ptr_)
@@ -38092,12 +39363,12 @@ cpdef object graph_mem_alloc_node_get_params(intptr_t h_node):
     return params_out_py
 
 
-cpdef intptr_t graph_add_mem_free_node(intptr_t h_graph, dependencies, size_t num_dependencies, uint64_t dptr) except? 0:
+cpdef intptr_t graph_add_mem_free_node(intptr_t h_graph, dependencies, uint64_t dptr) except? 0:
     """Creates a memory free node and adds it to a graph.
 
     Creates a new memory free node and adds it to ``h_graph`` with
-    ``num_dependencies`` dependencies specified via ``dependencies`` and arguments
-    specified in ``nodeParams``. It is possible for ``num_dependencies`` to be 0,
+    ``len(dependencies)`` dependencies specified via ``dependencies`` and arguments
+    specified in ``nodeParams``. It is possible for ``len(dependencies)`` to be 0,
     in which case the node will be placed at the root of the graph.
     ``dependencies`` may not have any duplicate entries. A handle to the new node
     will be returned in ``ph_graph_node``.
@@ -38119,11 +39390,10 @@ cpdef intptr_t graph_add_mem_free_node(intptr_t h_graph, dependencies, size_t nu
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        num_dependencies (size_t): Number of dependencies.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         dptr (uint64_t): Address of memory to free.
 
     Returns:
@@ -38135,7 +39405,24 @@ cpdef intptr_t graph_add_mem_free_node(intptr_t h_graph, dependencies, size_t nu
     .. seealso:: `cuGraphAddMemFreeNode`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddMemFreeNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), num_dependencies, <CUdeviceptr>dptr)
@@ -38299,7 +39586,7 @@ cpdef object graph_get_nodes(intptr_t h_graph):
     with nogil:
         __status__ = cuGraphGetNodes(<CUgraph>h_graph, NULL, <size_t*>num_nodes)
     check_status_size(__status__)
-    cdef _cyb_view.array _nodes_alloc_ = _cyb_view.array(shape=(max(num_nodes[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _nodes_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_nodes[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *nodes_ptr = <intptr_t *>(_nodes_alloc_.data)
     cdef object nodes = _nodes_alloc_[:num_nodes[0]]
     if num_nodes[0] != 0:
@@ -38331,7 +39618,7 @@ cpdef object graph_get_root_nodes(intptr_t h_graph):
     with nogil:
         __status__ = cuGraphGetRootNodes(<CUgraph>h_graph, NULL, <size_t*>num_root_nodes)
     check_status_size(__status__)
-    cdef _cyb_view.array _root_nodes_alloc_ = _cyb_view.array(shape=(max(num_root_nodes[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _root_nodes_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_root_nodes[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *root_nodes_ptr = <intptr_t *>(_root_nodes_alloc_.data)
     cdef object root_nodes = _root_nodes_alloc_[:num_root_nodes[0]]
     if num_root_nodes[0] != 0:
@@ -38345,17 +39632,17 @@ cpdef tuple graph_get_edges_v2(intptr_t h_graph):
     """Returns a graph's dependency edges.
 
     Returns a list of ``h_graph's`` dependency edges. Edges are returned via
-    corresponding indices in ``from``, ``to`` and ``edge_data``; that is, the node
-    in ``to``\[i] has a dependency on the node in ``from``\[i] with data
-    ``edge_data``\[i]. ``from`` and ``to`` may both be NULL, in which case this
+    corresponding indices in ``from_``, ``to`` and ``edge_data``; that is, the node
+    in ``to``\[i] has a dependency on the node in ``from_``\[i] with data
+    ``edge_data``\[i]. ``from_`` and ``to`` may both be NULL, in which case this
     function only returns the number of edges in ``num_edges``. Otherwise,
     ``num_edges`` entries will be filled in. If ``num_edges`` is higher than the
-    actual number of edges, the remaining entries in ``from`` and ``to`` will be
+    actual number of edges, the remaining entries in ``from_`` and ``to`` will be
     set to NULL, and the number of edges actually returned will be written to
     ``num_edges``. ``edge_data`` may alone be NULL, in which case the edges must
     all have default (zeroed) edge data. Attempting a lossy query via NULL
     ``edge_data`` will result in ``CUDA_ERROR_LOSSY_QUERY``. If ``edge_data`` is
-    non-NULL then ``from`` and ``to`` must be as well.
+    non-NULL then ``from_`` and ``to`` must be as well.
 
     Args:
         h_graph (intptr_t): Graph to get the edges from.
@@ -38372,10 +39659,10 @@ cpdef tuple graph_get_edges_v2(intptr_t h_graph):
     with nogil:
         __status__ = cuGraphGetEdges(<CUgraph>h_graph, NULL, NULL, NULL, <size_t*>num_edges)
     check_status_size(__status__)
-    cdef _cyb_view.array _from__alloc_ = _cyb_view.array(shape=(max(num_edges[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _from__alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_edges[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *from__ptr = <intptr_t *>(_from__alloc_.data)
     cdef object from_ = _from__alloc_[:num_edges[0]]
-    cdef _cyb_view.array _to_alloc_ = _cyb_view.array(shape=(max(num_edges[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _to_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_edges[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *to_ptr = <intptr_t *>(_to_alloc_.data)
     cdef object to = _to_alloc_[:num_edges[0]]
     cdef GraphEdgeData edge_data = GraphEdgeData(num_edges[0])
@@ -38415,7 +39702,7 @@ cpdef tuple graph_node_get_dependencies_v2(intptr_t h_node):
     with nogil:
         __status__ = cuGraphNodeGetDependencies(<CUgraphNode>h_node, NULL, NULL, <size_t*>num_dependencies)
     check_status_size(__status__)
-    cdef _cyb_view.array _dependencies_alloc_ = _cyb_view.array(shape=(max(num_dependencies[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _dependencies_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_dependencies[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *dependencies_ptr = <intptr_t *>(_dependencies_alloc_.data)
     cdef object dependencies = _dependencies_alloc_[:num_dependencies[0]]
     cdef GraphEdgeData edge_data = GraphEdgeData(num_dependencies[0])
@@ -38456,7 +39743,7 @@ cpdef tuple graph_node_get_dependent_nodes_v2(intptr_t h_node):
     with nogil:
         __status__ = cuGraphNodeGetDependentNodes(<CUgraphNode>h_node, NULL, NULL, <size_t*>num_dependent_nodes)
     check_status_size(__status__)
-    cdef _cyb_view.array _dependent_nodes_alloc_ = _cyb_view.array(shape=(max(num_dependent_nodes[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
+    cdef _cyb_view.array _dependent_nodes_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>num_dependent_nodes[0], 1),), itemsize=sizeof(intptr_t), format="q", mode="c")
     cdef intptr_t *dependent_nodes_ptr = <intptr_t *>(_dependent_nodes_alloc_.data)
     cdef object dependent_nodes = _dependent_nodes_alloc_[:num_dependent_nodes[0]]
     cdef GraphEdgeData edge_data = GraphEdgeData(num_dependent_nodes[0])
@@ -38468,49 +39755,87 @@ cpdef tuple graph_node_get_dependent_nodes_v2(intptr_t h_node):
     return (dependent_nodes[:num_dependent_nodes[0]], edge_data[:num_dependent_nodes[0]])
 
 
-cpdef graph_add_dependencies_v2(intptr_t h_graph, from_, to, edge_data, size_t num_dependencies):
+cpdef graph_add_dependencies_v2(intptr_t h_graph, from_, to, edge_data):
     """Adds dependency edges to a graph.
 
-    The number of dependencies to be added is defined by ``num_dependencies``
-    Elements in ``from`` and ``to`` at corresponding indices define a dependency.
-    Each node in ``from`` and ``to`` must belong to ``h_graph``.
-    If ``num_dependencies`` is 0, elements in ``from`` and ``to`` will be ignored.
+    The number of dependencies to be added is defined by ``len(from_)`` Elements in
+    ``from_`` and ``to`` at corresponding indices define a dependency. Each node in
+    ``from_`` and ``to`` must belong to ``h_graph``.
+    If ``len(from_)`` is 0, elements in ``from_`` and ``to`` will be ignored.
     Specifying an existing dependency will return an error.
 
     Args:
         h_graph (intptr_t): Graph to which dependencies are added.
-        from_ (object): Array of nodes that provide the dependencies. It can be:
+        from_ (object): Array of nodes that provide the dependencies. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        to (object): Array of dependent nodes. It can be:
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        to (object): Array of dependent nodes. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        edge_data (intptr_t): Optional array of edge data. If NULL,
-            default (zeroed) edge data is assumed.
-        num_dependencies (size_t): Number of dependencies to be added.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        edge_data (GraphEdgeData): Optional array of edge data. If NULL,
+            default (zeroed) edge data is assumed. It must be:
+
+            - a :class:`GraphEdgeData`, or
+            - ``None`` for NULL.
 
     .. seealso:: `cuGraphAddDependencies_v2`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _from__
+    if isinstance(from_, int):
+        raise TypeError(
+            "from_ must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _from__len_ = 0
     _cyb_get_resource_ptrs[void](_from__, from_, <void*>NULL)
+    if from_ is not None:
+        _from__len_ = len(from_)
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _to_
+    if isinstance(to, int):
+        raise TypeError(
+            "to must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _to_len_ = 0
     _cyb_get_resource_ptrs[void](_to_, to, <void*>NULL)
-    cdef intptr_t _edge_data_ptr_ = 0 if edge_data is None else int(edge_data)
+    if to is not None:
+        _to_len_ = len(to)
+    cdef intptr_t _edge_data_ptr_ = 0
+    cdef Py_ssize_t _edge_data_len_ = 0
+    if edge_data is None:
+        pass
+    else:
+        (<GraphEdgeData?>edge_data)
+        _edge_data_ptr_ = int(edge_data)
+        _edge_data_len_ = len(edge_data)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if from_ is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _from__len_, "from_", "from_, to, edge_data")
+        _num_dependencies_is_set_ = True
+    if to is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _to_len_, "to", "from_, to, edge_data")
+        _num_dependencies_is_set_ = True
+    if edge_data is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _edge_data_len_, "edge_data", "from_, to, edge_data")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (from_, to, edge_data), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     with nogil:
         __status__ = cuGraphAddDependencies(<CUgraph>h_graph, <const CUgraphNode*>(_from__.data()), <const CUgraphNode*>(_to_.data()), <const CUgraphEdgeData*>_edge_data_ptr_, num_dependencies)
     check_status(__status__)
 
 
-cpdef graph_remove_dependencies_v2(intptr_t h_graph, from_, to, edge_data, size_t num_dependencies):
+cpdef graph_remove_dependencies_v2(intptr_t h_graph, from_, to, edge_data):
     """Removes dependency edges from a graph.
 
-    The number of ``dependencies`` to be removed is defined by
-    ``num_dependencies``. Elements in ``from`` and ``to`` at corresponding indices
-    define a dependency. Each node in ``from`` and ``to`` must belong to
-    ``h_graph``.
-    If ``num_dependencies`` is 0, elements in ``from`` and ``to`` will be ignored.
+    The number of ``dependencies`` to be removed is defined by ``len(from_)``.
+    Elements in ``from_`` and ``to`` at corresponding indices define a dependency.
+    Each node in ``from_`` and ``to`` must belong to ``h_graph``.
+    If ``len(from_)`` is 0, elements in ``from_`` and ``to`` will be ignored.
     Specifying an edge that does not exist in the graph, with data matching
     ``edge_data``, results in an error. ``edge_data`` is nullable, which is
     equivalent to passing default (zeroed) data for each edge.
@@ -38519,25 +39844,64 @@ cpdef graph_remove_dependencies_v2(intptr_t h_graph, from_, to, edge_data, size_
 
     Args:
         h_graph (intptr_t): Graph from which to remove dependencies.
-        from_ (object): Array of nodes that provide the dependencies. It can be:
+        from_ (object): Array of nodes that provide the dependencies. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        to (object): Array of dependent nodes. It can be:
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        to (object): Array of dependent nodes. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        edge_data (intptr_t): Optional array of edge data. If NULL, edge
-            data is assumed to be default (zeroed).
-        num_dependencies (size_t): Number of dependencies to be removed.
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        edge_data (GraphEdgeData): Optional array of edge data. If NULL,
+            edge data is assumed to be default (zeroed). It must be:
+
+            - a :class:`GraphEdgeData`, or
+            - ``None`` for NULL.
 
     .. seealso:: `cuGraphRemoveDependencies_v2`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _from__
+    if isinstance(from_, int):
+        raise TypeError(
+            "from_ must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _from__len_ = 0
     _cyb_get_resource_ptrs[void](_from__, from_, <void*>NULL)
+    if from_ is not None:
+        _from__len_ = len(from_)
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _to_
+    if isinstance(to, int):
+        raise TypeError(
+            "to must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _to_len_ = 0
     _cyb_get_resource_ptrs[void](_to_, to, <void*>NULL)
-    cdef intptr_t _edge_data_ptr_ = 0 if edge_data is None else int(edge_data)
+    if to is not None:
+        _to_len_ = len(to)
+    cdef intptr_t _edge_data_ptr_ = 0
+    cdef Py_ssize_t _edge_data_len_ = 0
+    if edge_data is None:
+        pass
+    else:
+        (<GraphEdgeData?>edge_data)
+        _edge_data_ptr_ = int(edge_data)
+        _edge_data_len_ = len(edge_data)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if from_ is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _from__len_, "from_", "from_, to, edge_data")
+        _num_dependencies_is_set_ = True
+    if to is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _to_len_, "to", "from_, to, edge_data")
+        _num_dependencies_is_set_ = True
+    if edge_data is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _edge_data_len_, "edge_data", "from_, to, edge_data")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (from_, to, edge_data), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     with nogil:
         __status__ = cuGraphRemoveDependencies(<CUgraph>h_graph, <const CUgraphNode*>(_from__.data()), <const CUgraphNode*>(_to_.data()), <const CUgraphEdgeData*>_edge_data_ptr_, num_dependencies)
     check_status(__status__)
@@ -39374,7 +40738,8 @@ cpdef graph_debug_dot_print(intptr_t h_graph, path, unsigned int flags):
 
     .. seealso:: `cuGraphDebugDotPrint`
     """
-    cdef void* _path_ = <void *>_cyb_get_buffer_pointer(path, -1, readonly=True)
+    cdef _cyb_BufferGuard _path_guard_ = _cyb_BufferGuard(path, -1, True, True)
+    cdef void* _path_ = _path_guard_.ptr
     with nogil:
         __status__ = cuGraphDebugDotPrint(<CUgraph>h_graph, <const char*>_path_, flags)
     check_status(__status__)
@@ -39410,7 +40775,8 @@ cpdef intptr_t user_object_create(ptr, intptr_t destroy, unsigned int initial_re
 
     .. seealso:: `cuUserObjectCreate`
     """
-    cdef void* _ptr_ = <void *>_cyb_get_buffer_pointer(ptr, -1, readonly=False)
+    cdef _cyb_BufferGuard _ptr_guard_ = _cyb_BufferGuard(ptr, -1, False, True)
+    cdef void* _ptr_ = _ptr_guard_.ptr
     cdef CUuserObject object_out
     with nogil:
         __status__ = cuUserObjectCreate(&object_out, <void*>_ptr_, <CUhostFn>destroy, initial_refcount, flags)
@@ -39505,13 +40871,14 @@ cpdef graph_release_user_object(intptr_t graph, intptr_t object, unsigned int co
     check_status(__status__)
 
 
-cpdef intptr_t graph_add_node_v2(intptr_t h_graph, dependencies, dependency_data, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_node_v2(intptr_t h_graph, dependencies, dependency_data, node_params) except? 0:
     """Adds a node of arbitrary type to a graph.
 
     Creates a new node in ``h_graph`` described by ``node_params`` with
-    ``num_dependencies`` dependencies specified via ``dependencies``.
-    ``num_dependencies`` may be 0. ``dependencies`` may be null if
-    ``num_dependencies`` is 0. ``dependencies`` may not have any duplicate entries.
+    ``len(dependencies)`` dependencies specified via ``dependencies``.
+    ``len(dependencies)`` may be 0. ``dependencies`` may be null if
+    ``len(dependencies)`` is 0. ``dependencies`` may not have any duplicate
+    entries.
     ``node_params`` is a tagged union. The node type should be specified in the
     ``typename`` field, and type-specific parameters in the corresponding union
     member. All unused bytes - that is, ``reserved0`` and all bytes past the
@@ -39523,14 +40890,16 @@ cpdef intptr_t graph_add_node_v2(intptr_t h_graph, dependencies, dependency_data
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        dependency_data (intptr_t): Optional edge data for the
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        dependency_data (GraphEdgeData): Optional edge data for the
             dependencies. If NULL, the data is assumed to be default
-            (zeroed) for all dependencies.
-        num_dependencies (size_t): Number of dependencies.
+            (zeroed) for all dependencies. It must be:
+
+            - a :class:`GraphEdgeData`, or
+            - ``None`` for NULL.
         node_params (intptr_t): Specification of the node.
 
     Returns:
@@ -39539,9 +40908,36 @@ cpdef intptr_t graph_add_node_v2(intptr_t h_graph, dependencies, dependency_data
     .. seealso:: `cuGraphAddNode_v2`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
-    cdef intptr_t _dependency_data_ptr_ = 0 if dependency_data is None else int(dependency_data)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef intptr_t _dependency_data_ptr_ = 0
+    cdef Py_ssize_t _dependency_data_len_ = 0
+    if dependency_data is None:
+        pass
+    else:
+        (<GraphEdgeData?>dependency_data)
+        _dependency_data_ptr_ = int(dependency_data)
+        _dependency_data_len_ = len(dependency_data)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    if dependency_data is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependency_data_len_, "dependency_data", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies, dependency_data), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddNode(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), <const CUgraphEdgeData*>_dependency_data_ptr_, num_dependencies, <CUgraphNodeParams*>_node_params_ptr_)
@@ -41727,10 +43123,11 @@ cpdef graphics_resource_set_map_flags_v2(intptr_t resource, unsigned int flags):
     check_status(__status__)
 
 
-cpdef graphics_map_resources(unsigned int count, resources, intptr_t h_stream):
+cpdef graphics_map_resources(resources, intptr_t h_stream):
     """Map graphics resources for access by CUDA.
 
-    Maps the ``count`` graphics resources in ``resources`` for access by CUDA.
+    Maps the ``len(resources)`` graphics resources in ``resources`` for access by
+    CUDA.
     The resources in ``resources`` may be accessed by CUDA until they are unmapped.
     The graphics API from which ``resources`` were registered should not access any
     resources while they are mapped by CUDA. If an application does so, the results
@@ -41744,26 +43141,42 @@ cpdef graphics_map_resources(unsigned int count, resources, intptr_t h_stream):
     returned.
 
     Args:
-        count (unsigned int): Number of resources to map.
-        resources (object): Resources to map for CUDA usage. It can be:
+        resources (object): Resources to map for CUDA usage. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         h_stream (intptr_t): Stream with which to synchronize.
 
     .. seealso:: `cuGraphicsMapResources`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _resources_
+    if isinstance(resources, int):
+        raise TypeError(
+            "resources must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _resources_len_ = 0
     _cyb_get_resource_ptrs[void](_resources_, resources, <void*>NULL)
+    if resources is not None:
+        _resources_len_ = len(resources)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if resources is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _resources_len_, "resources", "resources")
+        _count_is_set_ = True
+    cdef unsigned int count = <unsigned int>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (resources), {_count_length_}, does not fit in 'count' (a unsigned int)"
+        )
     with nogil:
         __status__ = cuGraphicsMapResources(count, <CUgraphicsResource*>(_resources_.data()), <CUstream>h_stream)
     check_status(__status__)
 
 
-cpdef graphics_unmap_resources(unsigned int count, resources, intptr_t h_stream):
+cpdef graphics_unmap_resources(resources, intptr_t h_stream):
     """Unmap graphics resources.
 
-    Unmaps the ``count`` graphics resources in ``resources``.
+    Unmaps the ``len(resources)`` graphics resources in ``resources``.
     Once unmapped, the resources in ``resources`` may not be accessed by CUDA until
     they are mapped again.
     This function provides the synchronization guarantee that any CUDA work issued
@@ -41774,17 +43187,33 @@ cpdef graphics_unmap_resources(unsigned int count, resources, intptr_t h_stream)
     presently mapped for access by CUDA then ``CUDA_ERROR_NOT_MAPPED`` is returned.
 
     Args:
-        count (unsigned int): Number of resources to unmap.
-        resources (object): Resources to unmap. It can be:
+        resources (object): Resources to unmap. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
         h_stream (intptr_t): Stream with which to synchronize.
 
     .. seealso:: `cuGraphicsUnmapResources`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _resources_
+    if isinstance(resources, int):
+        raise TypeError(
+            "resources must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _resources_len_ = 0
     _cyb_get_resource_ptrs[void](_resources_, resources, <void*>NULL)
+    if resources is not None:
+        _resources_len_ = len(resources)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if resources is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _resources_len_, "resources", "resources")
+        _count_is_set_ = True
+    cdef unsigned int count = <unsigned int>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (resources), {_count_length_}, does not fit in 'count' (a unsigned int)"
+        )
     with nogil:
         __status__ = cuGraphicsUnmapResources(count, <CUgraphicsResource*>(_resources_.data()), <CUstream>h_stream)
     check_status(__status__)
@@ -41854,7 +43283,8 @@ cpdef tuple get_proc_address_v2(symbol, int cuda_version, uint64_t flags):
 
     .. seealso:: `cuGetProcAddress_v2`
     """
-    cdef void* _symbol_ = <void *>_cyb_get_buffer_pointer(symbol, -1, readonly=True)
+    cdef _cyb_BufferGuard _symbol_guard_ = _cyb_BufferGuard(symbol, -1, True, True)
+    cdef void* _symbol_ = _symbol_guard_.ptr
     cdef void* pfn
     cdef CUdriverProcAddressQueryResult symbol_status
     with nogil:
@@ -42139,7 +43569,7 @@ cpdef tuple dev_sm_resource_split_by_count(input, unsigned int flags, unsigned i
     return (result[:nb_groups[0]], remainder_py)
 
 
-cpdef intptr_t dev_resource_generate_desc(resources, unsigned int nb_resources) except? 0:
+cpdef intptr_t dev_resource_generate_desc(resources) except? 0:
     """Generate a resource descriptor.
 
     Generates a single resource descriptor with the set of resources specified in
@@ -42150,7 +43580,7 @@ cpdef intptr_t dev_resource_generate_desc(resources, unsigned int nb_resources) 
 
     - A valid output pointer for the ``ph_desc`` descriptor as well as a valid
       array of ``resources`` pointers, with the array size passed in
-      ``nb_resources``. If multiple resources are provided in ``resources``, the
+      ``len(resources)``. If multiple resources are provided in ``resources``, the
       device they came from must be the same, otherwise
       CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned. If multiple resources
       are provided in ``resources`` and they are of type
@@ -42164,17 +43594,35 @@ cpdef intptr_t dev_resource_generate_desc(resources, unsigned int nb_resources) 
     Note: The API is not supported on 32-bit platforms.
 
     Args:
-        resources (intptr_t): Array of resources to be included in the
-            descriptor.
-        nb_resources (unsigned int): Number of resources passed in
-            ``resources``.
+        resources (DevResource_v1): Array of resources to be included in
+            the descriptor. It must be:
+
+            - a :class:`DevResource_v1`, or
+            - ``None`` for NULL.
 
     Returns:
         intptr_t: Output descriptor.
 
     .. seealso:: `cuDevResourceGenerateDesc`
     """
-    cdef intptr_t _resources_ptr_ = 0 if resources is None else int(resources)
+    cdef intptr_t _resources_ptr_ = 0
+    cdef Py_ssize_t _resources_len_ = 0
+    if resources is None:
+        pass
+    else:
+        (<DevResource_v1?>resources)
+        _resources_ptr_ = int(resources)
+        _resources_len_ = len(resources)
+    cdef Py_ssize_t _nb_resources_length_ = 0
+    cdef bint _nb_resources_is_set_ = False
+    if resources is not None:
+        _nb_resources_length_ = _cyb_check_same_length(_nb_resources_is_set_, _nb_resources_length_, _resources_len_, "resources", "resources")
+        _nb_resources_is_set_ = True
+    cdef unsigned int nb_resources = <unsigned int>_nb_resources_length_
+    if <Py_ssize_t>nb_resources != _nb_resources_length_:
+        raise OverflowError(
+            f"The length of (resources), {_nb_resources_length_}, does not fit in 'nbResources' (a unsigned int)"
+        )
     cdef CUdevResourceDesc ph_desc
     with nogil:
         __status__ = cuDevResourceGenerateDesc(&ph_desc, <CUdevResource*>_resources_ptr_, nb_resources)
@@ -43166,7 +44614,7 @@ cpdef ctx_synchronize_v2(intptr_t ctx):
     check_status(__status__)
 
 
-cpdef memcpy_batch_async_v2(intptr_t dsts, intptr_t srcs, intptr_t sizes, size_t count, attrs, intptr_t attrs_idxs, size_t num_attrs, intptr_t h_stream):
+cpdef memcpy_batch_async_v2(dsts, srcs, sizes, attrs, attrs_idxs, intptr_t h_stream):
     """Performs a batch of memory copies asynchronously.
 
     Performs a batch of memory copies. The batch as a whole executes in stream
@@ -43175,21 +44623,21 @@ cpdef memcpy_batch_async_v2(intptr_t dsts, intptr_t srcs, intptr_t sizes, size_t
     CUDA arrays, please see ``cuMemcpy3DBatchAsync``.
     Performs memory copies from source buffers specified in ``srcs`` to destination
     buffers specified in ``dsts``. The size of each copy is specified in ``sizes``.
-    All three arrays must be of the same length as specified by ``count``. Since
-    there are no ordering guarantees for copies within a batch, specifying any
-    dependent copies within a batch will result in undefined behavior.
+    All three arrays must be of the same length as specified by ``len(dsts)``.
+    Since there are no ordering guarantees for copies within a batch, specifying
+    any dependent copies within a batch will result in undefined behavior.
     Every copy in the batch has to be associated with a set of attributes specified
     in the ``attrs`` array. Each entry in this array can apply to more than one
     copy. This can be done by specifying in the ``attrs_idxs`` array, the index of
     the first copy that the corresponding entry in the ``attrs`` array applies to.
     Both ``attrs`` and ``attrs_idxs`` must be of the same length as specified by
-    ``num_attrs``. For example, if a batch has 10 copies listed in dst/src/sizes,
+    ``len(attrs)``. For example, if a batch has 10 copies listed in dst/src/sizes,
     the first 6 of which have one set of attributes and the remaining 4 another,
-    then ``num_attrs`` will be 2, ``attrs_idxs`` will be {0, 6} and ``attrs`` will
+    then ``len(attrs)`` will be 2, ``attrs_idxs`` will be {0, 6} and ``attrs`` will
     contains the two sets of attributes. Note that the first entry in
     ``attrs_idxs`` must always be 0. Also, each entry must be greater than the
-    previous entry and the last entry should be less than ``count``. Furthermore,
-    ``num_attrs`` must be lesser than or equal to ``count``.
+    previous entry and the last entry should be less than ``len(dsts)``.
+    Furthermore, ``len(attrs)`` must be lesser than or equal to ``len(dsts)``.
     The ``CUmemcpyAttributes.srcAccessOrder`` indicates the source access ordering
     to be observed for copies associated with the attribute. If the source access
     order is set to ``CU_MEMCPY_SRC_ACCESS_ORDER_STREAM``, then the source will be
@@ -43225,30 +44673,115 @@ cpdef memcpy_batch_async_v2(intptr_t dsts, intptr_t srcs, intptr_t sizes, size_t
     platform and other parameters of the copy.
 
     Args:
-        dsts (intptr_t): Array of destination pointers.
-        srcs (intptr_t): Array of memcpy source pointers.
-        sizes (intptr_t): Array of sizes for memcpy operations.
-        count (size_t): Size of ``dsts``, ``srcs`` and ``sizes`` arrays.
-        attrs (intptr_t): Array of memcpy attributes.
-        attrs_idxs (intptr_t): Array of indices to specify which copies
-            each entry in the ``attrs`` array applies to. The attributes
+        dsts (object): Array of destination pointers. It must be:
+
+            - a Python sequence of ``unsigned long long``, or
+            - ``None`` for NULL.
+        srcs (object): Array of memcpy source pointers. It must be:
+
+            - a Python sequence of ``unsigned long long``, or
+            - ``None`` for NULL.
+        sizes (object): Array of sizes for memcpy operations. It must be:
+
+            - a Python sequence of ``size_t``, or
+            - ``None`` for NULL.
+        attrs (MemCpyAttributes_v1): Array of memcpy attributes. It must be:
+
+            - a :class:`MemCpyAttributes_v1`, or
+            - ``None`` for NULL.
+        attrs_idxs (object): Array of indices to specify which copies each
+            entry in the ``attrs`` array applies to. The attributes
             specified in attrs[k] will be applied to copies starting from
             attrs_idxs[k] through attrs_idxs[k+1] - 1. Also
-            attrs[num_attrs-1] will apply to copies starting from
-            attrs_idxs[num_attrs-1] through count - 1.
-        num_attrs (size_t): Size of ``attrs`` and ``attrs_idxs`` arrays.
+            attrs[``len(attrs)``-1] will apply to copies starting from
+            attrs_idxs[``len(attrs)``-1] through ``len(dsts)`` - 1. It must be:
+
+            - a Python sequence of ``size_t``, or
+            - ``None`` for NULL.
         h_stream (intptr_t): The stream to enqueue the operations in. Must
             not be legacy NULL stream.
 
     .. seealso:: `cuMemcpyBatchAsync_v2`
     """
-    cdef intptr_t _attrs_ptr_ = 0 if attrs is None else int(attrs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _dsts_
+    if isinstance(dsts, int):
+        raise TypeError(
+            "dsts must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dsts_len_ = 0
+    _cyb_get_resource_ptr[size_t](_dsts_, dsts, <size_t*>NULL)
+    if dsts is not None:
+        _dsts_len_ = len(dsts)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _srcs_
+    if isinstance(srcs, int):
+        raise TypeError(
+            "srcs must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _srcs_len_ = 0
+    _cyb_get_resource_ptr[size_t](_srcs_, srcs, <size_t*>NULL)
+    if srcs is not None:
+        _srcs_len_ = len(srcs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _sizes_
+    if isinstance(sizes, int):
+        raise TypeError(
+            "sizes must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _sizes_len_ = 0
+    _cyb_get_resource_ptr[size_t](_sizes_, sizes, <size_t*>NULL)
+    if sizes is not None:
+        _sizes_len_ = len(sizes)
+    cdef intptr_t _attrs_ptr_ = 0
+    cdef Py_ssize_t _attrs_len_ = 0
+    if attrs is None:
+        pass
+    else:
+        (<MemCpyAttributes_v1?>attrs)
+        _attrs_ptr_ = int(attrs)
+        _attrs_len_ = len(attrs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _attrs_idxs_
+    if isinstance(attrs_idxs, int):
+        raise TypeError(
+            "attrs_idxs must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _attrs_idxs_len_ = 0
+    _cyb_get_resource_ptr[size_t](_attrs_idxs_, attrs_idxs, <size_t*>NULL)
+    if attrs_idxs is not None:
+        _attrs_idxs_len_ = len(attrs_idxs)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if dsts is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _dsts_len_, "dsts", "dsts, srcs, sizes")
+        _count_is_set_ = True
+    if srcs is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _srcs_len_, "srcs", "dsts, srcs, sizes")
+        _count_is_set_ = True
+    if sizes is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _sizes_len_, "sizes", "dsts, srcs, sizes")
+        _count_is_set_ = True
+    cdef size_t count = <size_t>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (dsts, srcs, sizes), {_count_length_}, does not fit in 'count' (a size_t)"
+        )
+    cdef Py_ssize_t _num_attrs_length_ = 0
+    cdef bint _num_attrs_is_set_ = False
+    if attrs is not None:
+        _num_attrs_length_ = _cyb_check_same_length(_num_attrs_is_set_, _num_attrs_length_, _attrs_len_, "attrs", "attrs, attrs_idxs")
+        _num_attrs_is_set_ = True
+    if attrs_idxs is not None:
+        _num_attrs_length_ = _cyb_check_same_length(_num_attrs_is_set_, _num_attrs_length_, _attrs_idxs_len_, "attrs_idxs", "attrs, attrs_idxs")
+        _num_attrs_is_set_ = True
+    cdef size_t num_attrs = <size_t>_num_attrs_length_
+    if <Py_ssize_t>num_attrs != _num_attrs_length_:
+        raise OverflowError(
+            f"The length of (attrs, attrs_idxs), {_num_attrs_length_}, does not fit in 'numAttrs' (a size_t)"
+        )
     with nogil:
-        __status__ = cuMemcpyBatchAsync(<CUdeviceptr*>dsts, <CUdeviceptr*>srcs, <size_t*>sizes, count, <CUmemcpyAttributes*>_attrs_ptr_, <size_t*>attrs_idxs, num_attrs, <CUstream>h_stream)
+        __status__ = cuMemcpyBatchAsync(<CUdeviceptr*>(_dsts_.data()), <CUdeviceptr*>(_srcs_.data()), <size_t*>(_sizes_.data()), count, <CUmemcpyAttributes*>_attrs_ptr_, <size_t*>(_attrs_idxs_.data()), num_attrs, <CUstream>h_stream)
     check_status(__status__)
 
 
-cpdef memcpy_3d_batch_async_v2(size_t num_ops, op_list, unsigned long long flags, intptr_t h_stream):
+cpdef memcpy_3d_batch_async_v2(op_list, unsigned long long flags, intptr_t h_stream):
     """Performs a batch of 3D memory copies asynchronously.
 
     Performs a batch of memory copies. The batch as a whole executes in stream
@@ -43256,8 +44789,8 @@ cpdef memcpy_3d_batch_async_v2(size_t num_ops, op_list, unsigned long long flags
     order. Note that this means specifying any dependent copies within a batch will
     result in undefined behavior.
     Performs memory copies as specified in the ``op_list`` array. The length of
-    this array is specified in ``num_ops``. Each entry in this array describes a
-    copy operation. This includes among other things, the source and destination
+    this array is specified in ``len(op_list)``. Each entry in this array describes
+    a copy operation. This includes among other things, the source and destination
     operands for the copy as specified in ``CUDA_MEMCPY3D_BATCH_OP.src`` and
     ``CUDA_MEMCPY3D_BATCH_OP.dst`` respectively. The source and destination
     operands of a copy can either be a pointer or a CUDA array. The width, height
@@ -43316,9 +44849,11 @@ cpdef memcpy_3d_batch_async_v2(size_t num_ops, op_list, unsigned long long flags
     platform and other parameters of the copy.
 
     Args:
-        num_ops (size_t): Total number of memcpy operations.
-        op_list (intptr_t): Array of size ``num_ops`` containing the
-            actual memcpy operations.
+        op_list (MemCpy3dBatchOp_v1): Array of size ``len(op_list)``
+            containing the actual memcpy operations. It must be:
+
+            - a :class:`MemCpy3dBatchOp_v1`, or
+            - ``None`` for NULL.
         flags (unsigned long long): Flags for future use, must be zero
             now.
         h_stream (intptr_t): The stream to enqueue the operations in. Must
@@ -43326,7 +44861,24 @@ cpdef memcpy_3d_batch_async_v2(size_t num_ops, op_list, unsigned long long flags
 
     .. seealso:: `cuMemcpy3DBatchAsync_v2`
     """
-    cdef intptr_t _op_list_ptr_ = 0 if op_list is None else int(op_list)
+    cdef intptr_t _op_list_ptr_ = 0
+    cdef Py_ssize_t _op_list_len_ = 0
+    if op_list is None:
+        pass
+    else:
+        (<MemCpy3dBatchOp_v1?>op_list)
+        _op_list_ptr_ = int(op_list)
+        _op_list_len_ = len(op_list)
+    cdef Py_ssize_t _num_ops_length_ = 0
+    cdef bint _num_ops_is_set_ = False
+    if op_list is not None:
+        _num_ops_length_ = _cyb_check_same_length(_num_ops_is_set_, _num_ops_length_, _op_list_len_, "op_list", "op_list")
+        _num_ops_is_set_ = True
+    cdef size_t num_ops = <size_t>_num_ops_length_
+    if <Py_ssize_t>num_ops != _num_ops_length_:
+        raise OverflowError(
+            f"The length of (op_list), {_num_ops_length_}, does not fit in 'numOps' (a size_t)"
+        )
     with nogil:
         __status__ = cuMemcpy3DBatchAsync(num_ops, <CUDA_MEMCPY3D_BATCH_OP*>_op_list_ptr_, flags, <CUstream>h_stream)
     check_status(__status__)
@@ -43446,7 +44998,7 @@ cpdef mem_set_mem_pool(location, int type, intptr_t pool):
     check_status(__status__)
 
 
-cpdef mem_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, prefetch_locs, intptr_t prefetch_loc_idxs, size_t num_prefetch_locs, unsigned long long flags, intptr_t h_stream):
+cpdef mem_prefetch_batch_async(dptrs, sizes, prefetch_locs, prefetch_loc_idxs, unsigned long long flags, intptr_t h_stream):
     """Performs a batch of memory prefetches asynchronously.
 
     Performs a batch of memory prefetches. The batch as a whole executes in stream
@@ -43457,40 +45009,51 @@ cpdef mem_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, pre
     The semantics of the individual prefetch operations are as described in
     ``cuMemPrefetchAsync``.
     Performs memory prefetch on address ranges specified in ``dptrs`` and
-    ``sizes``. Both arrays must be of the same length as specified by ``count``.
-    Each memory range specified must refer to managed memory allocated via
-    ``cuMemAllocManaged`` or declared via managed variables or it may also refer to
-    system-allocated memory when all devices have a non-zero value for
-    ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS``. The prefetch location for every
-    operation in the batch is specified in the ``prefetch_locs`` array. Each entry
-    in this array can apply to more than one operation. This can be done by
+    ``sizes``. Both arrays must be of the same length as specified by
+    ``len(dptrs)``. Each memory range specified must refer to managed memory
+    allocated via ``cuMemAllocManaged`` or declared via managed variables or it may
+    also refer to system-allocated memory when all devices have a non-zero value
+    for ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS``. The prefetch location for
+    every operation in the batch is specified in the ``prefetch_locs`` array. Each
+    entry in this array can apply to more than one operation. This can be done by
     specifying in the ``prefetch_loc_idxs`` array, the index of the first prefetch
     operation that the corresponding entry in the ``prefetch_locs`` array applies
     to. Both ``prefetch_locs`` and ``prefetch_loc_idxs`` must be of the same length
-    as specified by ``num_prefetch_locs``. For example, if a batch has 10
+    as specified by ``len(prefetch_locs)``. For example, if a batch has 10
     prefetches listed in dptrs/sizes, the first 4 of which are to be prefetched to
     one location and the remaining 6 are to be prefetched to another, then
-    ``num_prefetch_locs`` will be 2, ``prefetch_loc_idxs`` will be {0, 4} and
+    ``len(prefetch_locs)`` will be 2, ``prefetch_loc_idxs`` will be {0, 4} and
     ``prefetch_locs`` will contain the two locations. Note the first entry in
     ``prefetch_loc_idxs`` must always be 0. Also, each entry must be greater than
-    the previous entry and the last entry should be less than ``count``.
-    Furthermore, ``num_prefetch_locs`` must be lesser than or equal to ``count``.
+    the previous entry and the last entry should be less than ``len(dptrs)``.
+    Furthermore, ``len(prefetch_locs)`` must be lesser than or equal to
+    ``len(dptrs)``.
 
     Args:
-        dptrs (intptr_t): Array of pointers to be prefetched.
-        sizes (intptr_t): Array of sizes for memory prefetch operations.
-        count (size_t): Size of ``dptrs`` and ``sizes`` arrays.
-        prefetch_locs (intptr_t): Array of locations to prefetch to.
-        prefetch_loc_idxs (intptr_t): Array of indices to specify which
+        dptrs (object): Array of pointers to be prefetched. It must be:
+
+            - a Python sequence of ``unsigned long long``, or
+            - ``None`` for NULL.
+        sizes (object): Array of sizes for memory prefetch operations. It must be:
+
+            - a Python sequence of ``size_t``, or
+            - ``None`` for NULL.
+        prefetch_locs (MemLocation_v1): Array of locations to prefetch to. It must be:
+
+            - a :class:`MemLocation_v1`, or
+            - ``None`` for NULL.
+        prefetch_loc_idxs (object): Array of indices to specify which
             operands each entry in the ``prefetch_locs`` array applies to.
             The locations specified in prefetch_locs[k] will be applied to
             copies starting from prefetch_loc_idxs[k] through
             prefetch_loc_idxs[k+1] - 1. Also
-            prefetch_locs[num_prefetch_locs - 1] will apply to prefetches
-            starting from prefetch_loc_idxs[num_prefetch_locs - 1] through
-            count - 1.
-        num_prefetch_locs (size_t): Size of ``prefetch_locs`` and
-            ``prefetch_loc_idxs`` arrays.
+            prefetch_locs[``len(prefetch_locs)`` - 1] will apply to
+            prefetches starting from
+            prefetch_loc_idxs[``len(prefetch_locs)`` - 1] through
+            ``len(dptrs)`` - 1. It must be:
+
+            - a Python sequence of ``size_t``, or
+            - ``None`` for NULL.
         flags (unsigned long long): Flags reserved for future use. Must be
             zero.
         h_stream (intptr_t): The stream to enqueue the operations in. Must
@@ -43498,13 +45061,73 @@ cpdef mem_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, pre
 
     .. seealso:: `cuMemPrefetchBatchAsync`
     """
-    cdef intptr_t _prefetch_locs_ptr_ = 0 if prefetch_locs is None else int(prefetch_locs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _dptrs_
+    if isinstance(dptrs, int):
+        raise TypeError(
+            "dptrs must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dptrs_len_ = 0
+    _cyb_get_resource_ptr[size_t](_dptrs_, dptrs, <size_t*>NULL)
+    if dptrs is not None:
+        _dptrs_len_ = len(dptrs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _sizes_
+    if isinstance(sizes, int):
+        raise TypeError(
+            "sizes must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _sizes_len_ = 0
+    _cyb_get_resource_ptr[size_t](_sizes_, sizes, <size_t*>NULL)
+    if sizes is not None:
+        _sizes_len_ = len(sizes)
+    cdef intptr_t _prefetch_locs_ptr_ = 0
+    cdef Py_ssize_t _prefetch_locs_len_ = 0
+    if prefetch_locs is None:
+        pass
+    else:
+        (<MemLocation_v1?>prefetch_locs)
+        _prefetch_locs_ptr_ = int(prefetch_locs)
+        _prefetch_locs_len_ = len(prefetch_locs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _prefetch_loc_idxs_
+    if isinstance(prefetch_loc_idxs, int):
+        raise TypeError(
+            "prefetch_loc_idxs must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _prefetch_loc_idxs_len_ = 0
+    _cyb_get_resource_ptr[size_t](_prefetch_loc_idxs_, prefetch_loc_idxs, <size_t*>NULL)
+    if prefetch_loc_idxs is not None:
+        _prefetch_loc_idxs_len_ = len(prefetch_loc_idxs)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if dptrs is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _dptrs_len_, "dptrs", "dptrs, sizes")
+        _count_is_set_ = True
+    if sizes is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _sizes_len_, "sizes", "dptrs, sizes")
+        _count_is_set_ = True
+    cdef size_t count = <size_t>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (dptrs, sizes), {_count_length_}, does not fit in 'count' (a size_t)"
+        )
+    cdef Py_ssize_t _num_prefetch_locs_length_ = 0
+    cdef bint _num_prefetch_locs_is_set_ = False
+    if prefetch_locs is not None:
+        _num_prefetch_locs_length_ = _cyb_check_same_length(_num_prefetch_locs_is_set_, _num_prefetch_locs_length_, _prefetch_locs_len_, "prefetch_locs", "prefetch_locs, prefetch_loc_idxs")
+        _num_prefetch_locs_is_set_ = True
+    if prefetch_loc_idxs is not None:
+        _num_prefetch_locs_length_ = _cyb_check_same_length(_num_prefetch_locs_is_set_, _num_prefetch_locs_length_, _prefetch_loc_idxs_len_, "prefetch_loc_idxs", "prefetch_locs, prefetch_loc_idxs")
+        _num_prefetch_locs_is_set_ = True
+    cdef size_t num_prefetch_locs = <size_t>_num_prefetch_locs_length_
+    if <Py_ssize_t>num_prefetch_locs != _num_prefetch_locs_length_:
+        raise OverflowError(
+            f"The length of (prefetch_locs, prefetch_loc_idxs), {_num_prefetch_locs_length_}, does not fit in 'numPrefetchLocs' (a size_t)"
+        )
     with nogil:
-        __status__ = cuMemPrefetchBatchAsync(<CUdeviceptr*>dptrs, <size_t*>sizes, count, <CUmemLocation*>_prefetch_locs_ptr_, <size_t*>prefetch_loc_idxs, num_prefetch_locs, flags, <CUstream>h_stream)
+        __status__ = cuMemPrefetchBatchAsync(<CUdeviceptr*>(_dptrs_.data()), <size_t*>(_sizes_.data()), count, <CUmemLocation*>_prefetch_locs_ptr_, <size_t*>(_prefetch_loc_idxs_.data()), num_prefetch_locs, flags, <CUstream>h_stream)
     check_status(__status__)
 
 
-cpdef mem_discard_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, unsigned long long flags, intptr_t h_stream):
+cpdef mem_discard_batch_async(dptrs, sizes, unsigned long long flags, intptr_t h_stream):
     """Performs a batch of memory discards asynchronously.
 
     Performs a batch of memory discards. The batch as a whole executes in stream
@@ -43522,16 +45145,21 @@ cpdef mem_discard_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, unsi
     writes or prefetches to any part of the memory range that occur simultaneously
     with the discard operation result in undefined behavior.
     Performs memory discard on address ranges specified in ``dptrs`` and ``sizes``.
-    Both arrays must be of the same length as specified by ``count``. Each memory
-    range specified must refer to managed memory allocated via
+    Both arrays must be of the same length as specified by ``len(dptrs)``. Each
+    memory range specified must refer to managed memory allocated via
     ``cuMemAllocManaged`` or declared via managed variables or it may also refer to
     system-allocated memory when all devices have a non-zero value for
     ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS``.
 
     Args:
-        dptrs (intptr_t): Array of pointers to be discarded.
-        sizes (intptr_t): Array of sizes for memory discard operations.
-        count (size_t): Size of ``dptrs`` and ``sizes`` arrays.
+        dptrs (object): Array of pointers to be discarded. It must be:
+
+            - a Python sequence of ``unsigned long long``, or
+            - ``None`` for NULL.
+        sizes (object): Array of sizes for memory discard operations. It must be:
+
+            - a Python sequence of ``size_t``, or
+            - ``None`` for NULL.
         flags (unsigned long long): Flags reserved for future use. Must be
             zero.
         h_stream (intptr_t): The stream to enqueue the operations in. Must
@@ -43539,12 +45167,43 @@ cpdef mem_discard_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, unsi
 
     .. seealso:: `cuMemDiscardBatchAsync`
     """
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _dptrs_
+    if isinstance(dptrs, int):
+        raise TypeError(
+            "dptrs must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dptrs_len_ = 0
+    _cyb_get_resource_ptr[size_t](_dptrs_, dptrs, <size_t*>NULL)
+    if dptrs is not None:
+        _dptrs_len_ = len(dptrs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _sizes_
+    if isinstance(sizes, int):
+        raise TypeError(
+            "sizes must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _sizes_len_ = 0
+    _cyb_get_resource_ptr[size_t](_sizes_, sizes, <size_t*>NULL)
+    if sizes is not None:
+        _sizes_len_ = len(sizes)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if dptrs is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _dptrs_len_, "dptrs", "dptrs, sizes")
+        _count_is_set_ = True
+    if sizes is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _sizes_len_, "sizes", "dptrs, sizes")
+        _count_is_set_ = True
+    cdef size_t count = <size_t>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (dptrs, sizes), {_count_length_}, does not fit in 'count' (a size_t)"
+        )
     with nogil:
-        __status__ = cuMemDiscardBatchAsync(<CUdeviceptr*>dptrs, <size_t*>sizes, count, flags, <CUstream>h_stream)
+        __status__ = cuMemDiscardBatchAsync(<CUdeviceptr*>(_dptrs_.data()), <size_t*>(_sizes_.data()), count, flags, <CUstream>h_stream)
     check_status(__status__)
 
 
-cpdef mem_discard_and_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_t count, prefetch_locs, intptr_t prefetch_loc_idxs, size_t num_prefetch_locs, unsigned long long flags, intptr_t h_stream):
+cpdef mem_discard_and_prefetch_batch_async(dptrs, sizes, prefetch_locs, prefetch_loc_idxs, unsigned long long flags, intptr_t h_stream):
     """Performs a batch of memory discards and prefetches asynchronously.
 
     Performs a batch of memory discards followed by prefetches. The batch as a
@@ -43562,40 +45221,50 @@ cpdef mem_discard_and_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_
     operation result in undefined behavior.
     Performs memory discard and prefetch on address ranges specified in ``dptrs``
     and ``sizes``. Both arrays must be of the same length as specified by
-    ``count``. Each memory range specified must refer to managed memory allocated
-    via ``cuMemAllocManaged`` or declared via managed variables or it may also
-    refer to system-allocated memory when all devices have a non-zero value for
-    ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS``. Every operation in the batch
-    has to be associated with a valid location to prefetch the address range to and
-    specified in the ``prefetch_locs`` array. Each entry in this array can apply to
-    more than one operation. This can be done by specifying in the
+    ``len(dptrs)``. Each memory range specified must refer to managed memory
+    allocated via ``cuMemAllocManaged`` or declared via managed variables or it may
+    also refer to system-allocated memory when all devices have a non-zero value
+    for ``CU_DEVICE_ATTRIBUTE_PAGEABLE_MEMORY_ACCESS``. Every operation in the
+    batch has to be associated with a valid location to prefetch the address range
+    to and specified in the ``prefetch_locs`` array. Each entry in this array can
+    apply to more than one operation. This can be done by specifying in the
     ``prefetch_loc_idxs`` array, the index of the first operation that the
     corresponding entry in the ``prefetch_locs`` array applies to. Both
     ``prefetch_locs`` and ``prefetch_loc_idxs`` must be of the same length as
-    specified by ``num_prefetch_locs``. For example, if a batch has 10 operations
+    specified by ``len(prefetch_locs)``. For example, if a batch has 10 operations
     listed in dptrs/sizes, the first 6 of which are to be prefetched to one
     location and the remaining 4 are to be prefetched to another, then
-    ``num_prefetch_locs`` will be 2, ``prefetch_loc_idxs`` will be {0, 6} and
+    ``len(prefetch_locs)`` will be 2, ``prefetch_loc_idxs`` will be {0, 6} and
     ``prefetch_locs`` will contain the two set of locations. Note the first entry
     in ``prefetch_loc_idxs`` must always be 0. Also, each entry must be greater
-    than the previous entry and the last entry should be less than ``count``.
-    Furthermore, ``num_prefetch_locs`` must be lesser than or equal to ``count``.
+    than the previous entry and the last entry should be less than ``len(dptrs)``.
+    Furthermore, ``len(prefetch_locs)`` must be lesser than or equal to
+    ``len(dptrs)``.
 
     Args:
-        dptrs (intptr_t): Array of pointers to be discarded.
-        sizes (intptr_t): Array of sizes for memory discard operations.
-        count (size_t): Size of ``dptrs`` and ``sizes`` arrays.
-        prefetch_locs (intptr_t): Array of locations to prefetch to.
-        prefetch_loc_idxs (intptr_t): Array of indices to specify which
+        dptrs (object): Array of pointers to be discarded. It must be:
+
+            - a Python sequence of ``unsigned long long``, or
+            - ``None`` for NULL.
+        sizes (object): Array of sizes for memory discard operations. It must be:
+
+            - a Python sequence of ``size_t``, or
+            - ``None`` for NULL.
+        prefetch_locs (MemLocation_v1): Array of locations to prefetch to. It must be:
+
+            - a :class:`MemLocation_v1`, or
+            - ``None`` for NULL.
+        prefetch_loc_idxs (object): Array of indices to specify which
             operands each entry in the ``prefetch_locs`` array applies to.
             The locations specified in prefetch_locs[k] will be applied to
             operations starting from prefetch_loc_idxs[k] through
             prefetch_loc_idxs[k+1] - 1. Also
-            prefetch_locs[num_prefetch_locs - 1] will apply to copies
-            starting from prefetch_loc_idxs[num_prefetch_locs - 1] through
-            count - 1.
-        num_prefetch_locs (size_t): Size of ``prefetch_locs`` and
-            ``prefetch_loc_idxs`` arrays.
+            prefetch_locs[``len(prefetch_locs)`` - 1] will apply to copies
+            starting from prefetch_loc_idxs[``len(prefetch_locs)`` - 1]
+            through ``len(dptrs)`` - 1. It must be:
+
+            - a Python sequence of ``size_t``, or
+            - ``None`` for NULL.
         flags (unsigned long long): Flags reserved for future use. Must be
             zero.
         h_stream (intptr_t): The stream to enqueue the operations in. Must
@@ -43603,30 +45272,91 @@ cpdef mem_discard_and_prefetch_batch_async(intptr_t dptrs, intptr_t sizes, size_
 
     .. seealso:: `cuMemDiscardAndPrefetchBatchAsync`
     """
-    cdef intptr_t _prefetch_locs_ptr_ = 0 if prefetch_locs is None else int(prefetch_locs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _dptrs_
+    if isinstance(dptrs, int):
+        raise TypeError(
+            "dptrs must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dptrs_len_ = 0
+    _cyb_get_resource_ptr[size_t](_dptrs_, dptrs, <size_t*>NULL)
+    if dptrs is not None:
+        _dptrs_len_ = len(dptrs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _sizes_
+    if isinstance(sizes, int):
+        raise TypeError(
+            "sizes must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _sizes_len_ = 0
+    _cyb_get_resource_ptr[size_t](_sizes_, sizes, <size_t*>NULL)
+    if sizes is not None:
+        _sizes_len_ = len(sizes)
+    cdef intptr_t _prefetch_locs_ptr_ = 0
+    cdef Py_ssize_t _prefetch_locs_len_ = 0
+    if prefetch_locs is None:
+        pass
+    else:
+        (<MemLocation_v1?>prefetch_locs)
+        _prefetch_locs_ptr_ = int(prefetch_locs)
+        _prefetch_locs_len_ = len(prefetch_locs)
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[size_t] ] _prefetch_loc_idxs_
+    if isinstance(prefetch_loc_idxs, int):
+        raise TypeError(
+            "prefetch_loc_idxs must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _prefetch_loc_idxs_len_ = 0
+    _cyb_get_resource_ptr[size_t](_prefetch_loc_idxs_, prefetch_loc_idxs, <size_t*>NULL)
+    if prefetch_loc_idxs is not None:
+        _prefetch_loc_idxs_len_ = len(prefetch_loc_idxs)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if dptrs is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _dptrs_len_, "dptrs", "dptrs, sizes")
+        _count_is_set_ = True
+    if sizes is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _sizes_len_, "sizes", "dptrs, sizes")
+        _count_is_set_ = True
+    cdef size_t count = <size_t>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (dptrs, sizes), {_count_length_}, does not fit in 'count' (a size_t)"
+        )
+    cdef Py_ssize_t _num_prefetch_locs_length_ = 0
+    cdef bint _num_prefetch_locs_is_set_ = False
+    if prefetch_locs is not None:
+        _num_prefetch_locs_length_ = _cyb_check_same_length(_num_prefetch_locs_is_set_, _num_prefetch_locs_length_, _prefetch_locs_len_, "prefetch_locs", "prefetch_locs, prefetch_loc_idxs")
+        _num_prefetch_locs_is_set_ = True
+    if prefetch_loc_idxs is not None:
+        _num_prefetch_locs_length_ = _cyb_check_same_length(_num_prefetch_locs_is_set_, _num_prefetch_locs_length_, _prefetch_loc_idxs_len_, "prefetch_loc_idxs", "prefetch_locs, prefetch_loc_idxs")
+        _num_prefetch_locs_is_set_ = True
+    cdef size_t num_prefetch_locs = <size_t>_num_prefetch_locs_length_
+    if <Py_ssize_t>num_prefetch_locs != _num_prefetch_locs_length_:
+        raise OverflowError(
+            f"The length of (prefetch_locs, prefetch_loc_idxs), {_num_prefetch_locs_length_}, does not fit in 'numPrefetchLocs' (a size_t)"
+        )
     with nogil:
-        __status__ = cuMemDiscardAndPrefetchBatchAsync(<CUdeviceptr*>dptrs, <size_t*>sizes, count, <CUmemLocation*>_prefetch_locs_ptr_, <size_t*>prefetch_loc_idxs, num_prefetch_locs, flags, <CUstream>h_stream)
+        __status__ = cuMemDiscardAndPrefetchBatchAsync(<CUdeviceptr*>(_dptrs_.data()), <size_t*>(_sizes_.data()), count, <CUmemLocation*>_prefetch_locs_ptr_, <size_t*>(_prefetch_loc_idxs_.data()), num_prefetch_locs, flags, <CUstream>h_stream)
     check_status(__status__)
 
 
-cpdef unsigned int device_get_p2p_atomic_capabilities(intptr_t operations, unsigned int count, int src_device, int dst_device) except? 0:
+cpdef object device_get_p2p_atomic_capabilities(operations, int src_device, int dst_device):
     """Queries details about atomic operations supported between two devices.
 
     Returns in ``*capabilities`` the details about requested atomic ``*operations``
     over the the link between ``src_device`` and ``dst_device``. The allocated size
-    of ``*operations`` and ``*capabilities`` must be ``count``.
+    of ``*operations`` and ``*capabilities`` must be ``len(operations)``.
     For each ``CUatomicOperation`` in ``*operations``, the corresponding result in
     ``*capabilities`` will be a bitmask indicating which of
     ``CUatomicOperationCapability`` the link supports natively.
     Returns ``CUDA_ERROR_INVALID_DEVICE`` if ``src_device`` or ``dst_device`` are
     not valid or if they represent the same device.
     Returns ``CUDA_ERROR_INVALID_VALUE`` if ``*capabilities`` or ``*operations`` is
-    NULL, if ``count`` is 0, or if any of ``*operations`` is not valid.
+    NULL, if ``len(operations)`` is 0, or if any of ``*operations`` is not valid.
 
     Args:
-        operations (intptr_t): Requested operations.
-        count (unsigned int): Count of requested operations and size of
-            capabilities.
+        operations (object): Requested operations. It must be:
+
+            - a Python sequence of ``AtomicOperation``, or
+            - ``None`` for NULL.
         src_device (int): The source device of the target link.
         dst_device (int): The destination device of the target link.
 
@@ -43636,9 +45366,30 @@ cpdef unsigned int device_get_p2p_atomic_capabilities(intptr_t operations, unsig
 
     .. seealso:: `cuDeviceGetP2PAtomicCapabilities`
     """
-    cdef unsigned int capabilities
+    cdef _cyb_nullable_unique_ptr[ _cyb_vector[int] ] _operations_
+    if isinstance(operations, int):
+        raise TypeError(
+            "operations must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _operations_len_ = 0
+    _cyb_get_resource_ptr[int](_operations_, operations, <int*>NULL)
+    if operations is not None:
+        _operations_len_ = len(operations)
+    cdef Py_ssize_t _count_length_ = 0
+    cdef bint _count_is_set_ = False
+    if operations is not None:
+        _count_length_ = _cyb_check_same_length(_count_is_set_, _count_length_, _operations_len_, "operations", "operations")
+        _count_is_set_ = True
+    cdef unsigned int count = <unsigned int>_count_length_
+    if <Py_ssize_t>count != _count_length_:
+        raise OverflowError(
+            f"The length of (operations), {_count_length_}, does not fit in 'count' (a unsigned int)"
+        )
+    cdef _cyb_view.array _capabilities_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>count, 1),), itemsize=sizeof(unsigned int), format="I", mode="c")
+    cdef unsigned int *capabilities_ptr = <unsigned int *>(_capabilities_alloc_.data)
+    cdef object capabilities = _capabilities_alloc_[:count]
     with nogil:
-        __status__ = cuDeviceGetP2PAtomicCapabilities(&capabilities, <const CUatomicOperation*>operations, count, <CUdevice>src_device, <CUdevice>dst_device)
+        __status__ = cuDeviceGetP2PAtomicCapabilities(capabilities_ptr, <const CUatomicOperation*>(_operations_.data()), count, <CUdevice>src_device, <CUdevice>dst_device)
     check_status(__status__)
     return capabilities
 
@@ -43917,20 +45668,20 @@ cpdef unsigned int graph_exec_get_id(intptr_t h_graph_exec) except? 0:
     return graph_id
 
 
-cpdef tuple dev_sm_resource_split(unsigned int nb_groups, input, unsigned int flags, group_params):
+cpdef tuple dev_sm_resource_split(input, unsigned int flags, group_params):
     """Splits a ``CU_DEV_RESOURCE_TYPE_SM`` resource into structured groups.
 
     This API will split a resource of ``CU_DEV_RESOURCE_TYPE_SM`` into
-    ``nb_groups`` structured device resource groups (the ``result`` array), as well
-    as an optional ``remainder``, according to a set of requirements specified in
-    the ``group_params`` array. The term “structured” is a trait that specifies the
-    ``result`` has SMs that are co-scheduled together. This co-scheduling can be
-    specified via the ``coscheduledSmCount`` field of the ``group_params``
-    structure, while the ``smCount`` will specify how many SMs are required in
-    total for that result. The remainder is always “unstructured”, it does not have
-    any set guarantees with respect to co-scheduling and those properties will need
-    to either be queried via the occupancy set of APIs or further split into
-    structured groups by this API.
+    ``len(group_params)`` structured device resource groups (the ``result`` array),
+    as well as an optional ``remainder``, according to a set of requirements
+    specified in the ``group_params`` array. The term “structured” is a trait that
+    specifies the ``result`` has SMs that are co-scheduled together. This
+    co-scheduling can be specified via the ``coscheduledSmCount`` field of the
+    ``group_params`` structure, while the ``smCount`` will specify how many SMs are
+    required in total for that result. The remainder is always “unstructured”, it
+    does not have any set guarantees with respect to co-scheduling and those
+    properties will need to either be queried via the occupancy set of APIs or
+    further split into structured groups by this API.
     The API has a discovery mode for use cases where it is difficult to know ahead
     of time what the SM count should be. Discovery happens when the ``smCount``
     field of a given ``group_params`` array entry is set to 0 - the smCount will be
@@ -43940,22 +45691,22 @@ cpdef tuple dev_sm_resource_split(unsigned int nb_groups, input, unsigned int fl
     useful in situations where the smCount will end up being zero, which is an
     invalid value to create a result entry with, but allowed for discovery purposes
     when the ``result`` is NULL.
-    The ``group_params`` array is evaluated from index 0 to ``nb_groups`` - 1. For
-    each index in the ``group_params`` array, the API will evaluate which SMs may
-    be a good fit based on constraints and assign those SMs to ``result``. This
-    evaluation order is important to consider when using discovery mode, as it
+    The ``group_params`` array is evaluated from index 0 to ``len(group_params)`` -
+    1. For each index in the ``group_params`` array, the API will evaluate which
+    SMs may be a good fit based on constraints and assign those SMs to ``result``.
+    This evaluation order is important to consider when using discovery mode, as it
     helps discover the remaining SMs.
     For a valid call:.
 
-    - ``result`` should point to a ``CUdevResource`` array of size ``nb_groups``,
-      or alternatively, may be NULL, if the developer wishes for only the
-      group_params entries to be updated.
+    - ``result`` should point to a ``CUdevResource`` array of size
+      ``len(group_params)``, or alternatively, may be NULL, if the developer wishes
+      for only the group_params entries to be updated.
     - ``input`` should be a valid ``CU_DEV_RESOURCE_TYPE_SM`` resource that
       originates from querying the green context, device context, or device.
     - The ``remainder`` group may be NULL.
     - There are no API ``flags`` at this time, so the value passed in should be 0.
-    - A ``CU_DEV_SM_RESOURCE_GROUP_PARAMS`` array of size ``nb_groups``. Each entry
-      must be zero-initialized.
+    - A ``CU_DEV_SM_RESOURCE_GROUP_PARAMS`` array of size ``len(group_params)``.
+      Each entry must be zero-initialized.
     - ``smCount:`` must be either 0 or in the range of [2,inputSmCount] where
       inputSmCount is the amount of SMs the ``input`` resource has. ``smCount``
       must be a multiple of 2, as well as a multiple of ``coscheduledSmCount`` if
@@ -44023,14 +45774,16 @@ cpdef tuple dev_sm_resource_split(unsigned int nb_groups, input, unsigned int fl
     recommended to accomplish this with a single call wherever possible.
 
     Args:
-        nb_groups (unsigned int): Specifies the number of groups in
-            ``result`` and ``group_params``.
         input (intptr_t): Input SM resource to be split. Must be a valid
             ``CU_DEV_RESOURCE_TYPE_SM`` resource.
         flags (unsigned int): Flags specifying how the API should behave.
             The value should be 0 for now.
-        group_params (intptr_t): Description of how the SMs should be
-            split and assigned to the corresponding result entry.
+        group_params (DevSmResourceGroupParams): Description of how the
+            SMs should be split and assigned to the corresponding result
+            entry. It must be:
+
+            - a :class:`DevSmResourceGroupParams`, or
+            - ``None`` for NULL.
 
     Returns:
         A 2-tuple containing:
@@ -44042,7 +45795,24 @@ cpdef tuple dev_sm_resource_split(unsigned int nb_groups, input, unsigned int fl
     .. seealso:: `cuDevSmResourceSplit`
     """
     cdef intptr_t _input_ptr_ = 0 if input is None else int(input)
-    cdef intptr_t _group_params_ptr_ = 0 if group_params is None else int(group_params)
+    cdef intptr_t _group_params_ptr_ = 0
+    cdef Py_ssize_t _group_params_len_ = 0
+    if group_params is None:
+        pass
+    else:
+        (<DevSmResourceGroupParams?>group_params)
+        _group_params_ptr_ = int(group_params)
+        _group_params_len_ = len(group_params)
+    cdef Py_ssize_t _nb_groups_length_ = 0
+    cdef bint _nb_groups_is_set_ = False
+    if group_params is not None:
+        _nb_groups_length_ = _cyb_check_same_length(_nb_groups_is_set_, _nb_groups_length_, _group_params_len_, "group_params", "group_params")
+        _nb_groups_is_set_ = True
+    cdef unsigned int nb_groups = <unsigned int>_nb_groups_length_
+    if <Py_ssize_t>nb_groups != _nb_groups_length_:
+        raise OverflowError(
+            f"The length of (group_params), {_nb_groups_length_}, does not fit in 'nbGroups' (a unsigned int)"
+        )
     cdef DevResource_v1 result = DevResource_v1(nb_groups)
     cdef CUdevResource_v1 *result_ptr = <CUdevResource_v1 *><intptr_t>(result._get_ptr())
     cdef DevResource_v1 remainder_py = DevResource_v1()
@@ -44734,7 +46504,8 @@ cpdef logical_endpoint_import(uint32_t le_id, handle, int handle_type):
 
     .. seealso:: `cuLogicalEndpointImport`
     """
-    cdef void* _handle_ = <void *>_cyb_get_buffer_pointer(handle, -1, readonly=True)
+    cdef _cyb_BufferGuard _handle_guard_ = _cyb_BufferGuard(handle, -1, True, True)
+    cdef void* _handle_ = _handle_guard_.ptr
     with nogil:
         __status__ = cuLogicalEndpointImport(<CUlogicalEndpointId>le_id, <const void*>_handle_, <CUlogicalEndpointIpcHandleType>handle_type)
     check_status(__status__)
@@ -44909,76 +46680,14 @@ cpdef object device_get_clique_info(int dev):
     return clique_info[:_count_count_[0]]
 
 
-cpdef object mem_get_location_info(uint64_t ptr, size_t size, size_t summary_granularity, size_t sampling_granularity):
-    """Gets residency information for a memory address range.
-
-    Retrieves memory location information for the specified address range starting
-    at ``ptr`` with size ``size``. The API summarizes the location information with
-    a granularity specified by ``summary_granularity``. For each summary region,
-    the API determines the most common location by sampling memory at intervals
-    defined by ``sampling_granularity`` within that region.
-    The location information is returned in the ``location_out`` array, with one
-    entry per summary region. The total number of locations returned will be
-    ceil(size/summary_granularity). The user is expected to allocate the
-    ``location_out`` array with sufficient memory.
-    For example, with an address range of 1GB, a ``summary_granularity`` of 128MB,
-    and a ``sampling_granularity`` of 2MB, the function will:.
-
-    - Divide the 1GB range into 8 summary regions of 128MB each.
-    - Within each 128MB region, sample every 2MB to determine the most common
-      location. If there is a tie a random winner is chosen.
-    - Populate the ``location_out`` array with 8 entries, one for each 128MB region
-      ``summary_granularity`` should be less than or equal to ``size`` and greater
-      than 0. ``sampling_granularity`` should be less than or equal to
-      ``summary_granularity``. If the ``sampling_granularity`` is set to 0, a
-      system dependent value is used as the granularity. In all other cases, the
-      call returns ``CUDA_ERROR_INVALID_VALUE``.
-
-    When the memory is not resident on any processor, the call returns
-    ``CUDA_SUCCESS`` and the returned location type for that interval is
-    ``CU_MEM_LOCATION_TYPE_NONE``.
-    The memory range must refer to one of the following:.
-
-    - Managed memory allocated via ``cuMemAllocManaged``, via
-      ``cuMemAllocFromPool`` from a managed memory pool or declared via managed
-      variables.
-    - System-allocated pageable memory that is not registered via
-      ``cuMemHostRegister``. If the memory range does not refer to one of the
-      above, the call returns ``CUDA_ERROR_INVALID_VALUE``.
-
-    All devices on the system must have non-zero value of device attribute
-    ``CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS``. If not, this call returns
-    ``CUDA_ERROR_NOT_SUPPORTED``.
-
-    Args:
-        ptr (uint64_t): Starting address of the memory range to query.
-        size (size_t): Size in bytes of the memory range to query.
-        summary_granularity (size_t): Granularity in bytes at which to
-            summarize location information.
-        sampling_granularity (size_t): Granularity in bytes at which to
-            sample memory within each summary region.
-
-    Returns:
-        CUmemLocation_v1: Array to store location information, one entry
-            per summary region.
-
-    .. seealso:: `cuMemGetLocationInfo`
-    """
-    cdef MemLocation_v1 location_out_py = MemLocation_v1()
-    cdef CUmemLocation *location_out = <CUmemLocation *><intptr_t>(location_out_py._get_ptr())
-    with nogil:
-        __status__ = cuMemGetLocationInfo(<CUdeviceptr>ptr, size, summary_granularity, sampling_granularity, location_out)
-    check_status(__status__)
-    return location_out_py
-
-
-cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data, size_t num_dependencies, node_params) except? 0:
+cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data, node_params) except? 0:
     """Adds a node of arbitrary type to a graph.
 
     Creates a new node in ``h_graph`` described by ``node_params`` with
-    ``num_dependencies`` dependencies specified via ``dependencies``.
-    ``num_dependencies`` may be 0. ``dependencies`` may be null if
-    ``num_dependencies`` is 0. ``dependencies`` may not have any duplicate entries.
+    ``len(dependencies)`` dependencies specified via ``dependencies``.
+    ``len(dependencies)`` may be 0. ``dependencies`` may be null if
+    ``len(dependencies)`` is 0. ``dependencies`` may not have any duplicate
+    entries.
     ``node_params`` is a tagged union. The node type should be specified in the
     ``typename`` field, and type-specific parameters in the corresponding union
     member. All unused bytes - that is, ``reserved0`` and all bytes past the
@@ -44994,14 +46703,16 @@ cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data
 
     Args:
         h_graph (intptr_t): Graph to which to add the node.
-        dependencies (object): Dependencies of the node. It can be:
+        dependencies (object): Dependencies of the node. It must be:
 
-            - an :class:`int` as the pointer address to the array, or
-            - a Python sequence of :class:`int`\s (as pointer addresses).
-        dependency_data (intptr_t): Optional edge data for the
+            - a Python sequence of :class:`int`\s (as pointer addresses), or
+            - ``None`` for NULL.
+        dependency_data (GraphEdgeData): Optional edge data for the
             dependencies. If NULL, the data is assumed to be default
-            (zeroed) for all dependencies.
-        num_dependencies (size_t): Number of dependencies.
+            (zeroed) for all dependencies. It must be:
+
+            - a :class:`GraphEdgeData`, or
+            - ``None`` for NULL.
         node_params (intptr_t): Specification of the node.
 
     Returns:
@@ -45010,9 +46721,36 @@ cpdef intptr_t graph_add_node_v3(intptr_t h_graph, dependencies, dependency_data
     .. seealso:: `cuGraphAddNode_v3`
     """
     cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_
+    if isinstance(dependencies, int):
+        raise TypeError(
+            "dependencies must be a sequence of the elements or None, not an address, since its length is needed"
+        )
+    cdef Py_ssize_t _dependencies_len_ = 0
     _cyb_get_resource_ptrs[void](_dependencies_, dependencies, <void*>NULL)
-    cdef intptr_t _dependency_data_ptr_ = 0 if dependency_data is None else int(dependency_data)
+    if dependencies is not None:
+        _dependencies_len_ = len(dependencies)
+    cdef intptr_t _dependency_data_ptr_ = 0
+    cdef Py_ssize_t _dependency_data_len_ = 0
+    if dependency_data is None:
+        pass
+    else:
+        (<GraphEdgeData?>dependency_data)
+        _dependency_data_ptr_ = int(dependency_data)
+        _dependency_data_len_ = len(dependency_data)
     cdef intptr_t _node_params_ptr_ = 0 if node_params is None else int(node_params)
+    cdef Py_ssize_t _num_dependencies_length_ = 0
+    cdef bint _num_dependencies_is_set_ = False
+    if dependencies is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependencies_len_, "dependencies", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    if dependency_data is not None:
+        _num_dependencies_length_ = _cyb_check_same_length(_num_dependencies_is_set_, _num_dependencies_length_, _dependency_data_len_, "dependency_data", "dependencies, dependency_data")
+        _num_dependencies_is_set_ = True
+    cdef size_t num_dependencies = <size_t>_num_dependencies_length_
+    if <Py_ssize_t>num_dependencies != _num_dependencies_length_:
+        raise OverflowError(
+            f"The length of (dependencies, dependency_data), {_num_dependencies_length_}, does not fit in 'numDependencies' (a size_t)"
+        )
     cdef CUgraphNode ph_graph_node
     with nogil:
         __status__ = cuGraphAddNode_v3(&ph_graph_node, <CUgraph>h_graph, <const CUgraphNode*>(_dependencies_.data()), <const CUgraphEdgeData*>_dependency_data_ptr_, num_dependencies, <CUgraphNodeParams*>_node_params_ptr_)

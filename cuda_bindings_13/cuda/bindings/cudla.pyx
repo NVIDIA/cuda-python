@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated across versions from 1.5.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2ddc08b7839e06f87dbb946eab7b3db85897fa051767efd3b966d681dbde4550
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1425f5433d2ea6477fce8e73d86a3fe48ae5388085703dd7e1030ba2ab5732bf
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -36,6 +36,54 @@ from libc.string cimport (
 from cuda.bindings._internal._fast_enum import FastEnum as _cyb_FastEnum
 
 import numpy as _numpy
+
+cdef class _cyb_BufferGuard:
+    """Holds an export of a buffer for as long as it lives.
+
+    `buf` is `None` (NULL), a Python `int` (an address, which is not held), or a contiguous buffer.
+    With `wrap_errors`, any failure to get the buffer (or its size, if `size` is not -1) is a `ValueError`.
+    """
+    cdef _cyb_cpython.Py_buffer _view
+    cdef bint _held
+    cdef void* ptr
+    cdef Py_ssize_t nbytes
+
+    def __cinit__(self, buf, Py_ssize_t size, bint readonly, bint wrap_errors):
+        cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
+        self._held = False
+        self.ptr = NULL
+        self.nbytes = 0
+        if buf is None:
+            return
+        if isinstance(buf, int):
+            self.ptr = <void*><intptr_t>buf
+            return
+        if not readonly:
+            flags |= _cyb_cpython.PyBUF_WRITABLE
+        adj = "writable " if not readonly else ""
+        try:
+            _cyb_cpython.PyObject_GetBuffer(buf, &self._view, flags)
+            self._held = True
+            if size != -1:
+                assert self._view.len == size
+        except Exception as e:
+            if wrap_errors:
+                raise ValueError(
+                    "buf must be None, a Python int representing the pointer "
+                    f"address to a valid buffer, or a contiguous {adj}"
+                    f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
+                ) from e
+            if not isinstance(e, BufferError):
+                raise
+            raise ValueError(
+                f"buf must be a contiguous {adj}buffer (a ctypes object, NumPy array, bytes, ...)"
+            ) from e
+        self.ptr = self._view.buf
+        self.nbytes = self._view.len
+
+    def __dealloc__(self):
+        if self._held:
+            _cyb_cpython.PyBuffer_Release(&self._view)
 
 cdef _cyb___getbuffer(object self, _cyb_cpython.Py_buffer *buffer, void *ptr, int size, bint readonly):
     buffer.buf = <char *>ptr
@@ -74,36 +122,6 @@ cdef _cyb_from_data(data, dtype_name, expected_dtype, lowpp_type):
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
     return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
-
-cdef intptr_t _cyb_get_buffer_pointer(buf, Py_ssize_t size, readonly=True) except?-1:
-    cdef intptr_t ptr
-    cdef int flags = _cyb_cpython.PyBUF_ANY_CONTIGUOUS
-    if not readonly:
-        flags |= _cyb_cpython.PyBUF_WRITABLE
-    cdef int status = -1
-    cdef _cyb_cpython.Py_buffer view
-    if buf is None:
-        ptr = 0
-    elif isinstance(buf, int):
-        ptr = <intptr_t>buf
-    else:
-        try:
-            status = _cyb_cpython.PyObject_GetBuffer(buf, &view, flags)
-            if size != -1:
-                assert view.len == size
-        except Exception as e:
-            adj = "writable " if not readonly else ""
-            raise ValueError(
-                "buf must be None, a Python int representing the pointer "
-                f"address to a valid buffer, or a contiguous {adj}"
-                f"buffer (a ctypes object, NumPy array, bytes, ...), of size {size}"
-            ) from e
-        else:
-            ptr = <intptr_t>view.buf
-        finally:
-            if status == 0:
-                _cyb_cpython.PyBuffer_Release(&view)
-    return ptr
 
 
 # <<<< END OF PREAMBLE CONTENT >>>>
@@ -1834,7 +1852,8 @@ cpdef intptr_t mem_register(intptr_t dev_handle, intptr_t ptr, size_t size, uint
 
 
 cpdef intptr_t module_load_from_memory(intptr_t dev_handle, p_module, size_t module_size, uint32_t flags) except *:
-    cdef void* _p_module_ = <void *>_cyb_get_buffer_pointer(p_module, module_size, readonly=True)
+    cdef _cyb_BufferGuard _p_module_guard_ = _cyb_BufferGuard(p_module, module_size, True, True)
+    cdef void* _p_module_ = _p_module_guard_.ptr
     cdef Module h_module
     with nogil:
         __status__ = cudlaModuleLoadFromMemory(<const DevHandle>dev_handle, <const uint8_t* const>_p_module_, <const size_t>module_size, &h_module, <const uint32_t>flags)
