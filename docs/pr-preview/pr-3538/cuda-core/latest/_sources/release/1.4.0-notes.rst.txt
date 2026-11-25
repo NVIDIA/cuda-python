@@ -55,19 +55,28 @@ Fixes and enhancements
   before.
   (`#3502 <https://github.com/NVIDIA/cuda-python/issues/3502>`__)
 
-- A :class:`Context`, :class:`Stream` or :class:`Event` no longer fails with
+- ``cuda.core`` again retains each device's primary context at most once per
+  process and never releases it, as the CUDA runtime does and as
+  ``cuda.core`` did before 0.6.0. Since 0.6.0 it released its retains when
+  the last object holding them was released, so the driver could destroy a
+  primary context that the application still used. In particular, a
+  :class:`Context`, :class:`Stream` or :class:`Event` could fail with
   ``CUDA_ERROR_CONTEXT_IS_DESTROYED`` after other threads that used the same
-  device exit. Each thread that called :meth:`Device.set_current` retained
+  device exited: each thread that called :meth:`Device.set_current` retained
   the primary context separately, and a thread's exit could leave later
   lookups, such as :meth:`Stream.from_handle` or recording an event on
-  :attr:`Device.default_stream`, with a :class:`Context` that held no
-  retain. Once the last retaining thread exited, the driver destroyed the
-  primary context while the application still used it. All threads now
-  share one retain per primary context, which ``cuda.core`` releases when
-  the last object holding it is released. A :class:`Context` obtained for a
-  context that ``cuda.core`` had not retained at that time, for example one
-  made current by another library, still holds no retain and stays valid
-  only as long as the context's owner keeps it alive.
+  :attr:`Device.default_stream`, with a :class:`Context` that held no retain.
+  (`#3533 <https://github.com/NVIDIA/cuda-python/issues/3533>`__)
+
+- A :class:`Context` that ``cuda.core`` resolves for the calling thread's
+  current context now also keeps a primary context alive that another
+  library made current, for example the context of
+  ``Stream.from_handle(...)`` for a default stream, or the previous context
+  returned by :meth:`Device.set_current`. A :class:`Context` resolved for a
+  context that is not current at the time, for example the context of
+  another context's stream or a graph node's update context, still holds no
+  retain if ``cuda.core`` has not retained that primary context, and stays
+  valid only as long as the context's owner keeps it alive.
   (`#3533 <https://github.com/NVIDIA/cuda-python/issues/3533>`__)
 
 - :meth:`Device.create_context` no longer returns a context with
@@ -75,8 +84,4 @@ Fixes and enhancements
   address of an earlier context for which the application still holds a
   :class:`Context` that ``cuda.core`` did not create, for example the
   previous context returned by :meth:`Device.set_current`.
-  (`#3533 <https://github.com/NVIDIA/cuda-python/issues/3533>`__)
-
-- ``cuDevicePrimaryCtxRelease`` failures are now reported as a
-  :class:`CUDAWarning` instead of being ignored.
   (`#3533 <https://github.com/NVIDIA/cuda-python/issues/3533>`__)

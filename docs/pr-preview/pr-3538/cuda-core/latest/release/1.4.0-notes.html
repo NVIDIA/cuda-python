@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=1a40da45"></script>
+    <script src="../_static/documentation_options.js?v=82fe10a6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev60';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev74';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -833,28 +833,33 @@ the <code class="docutils literal notranslate"><span class="pre">numa_id</span><
 later driver; with a CUDA 12 build or an older driver, imports behave as
 before.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3502">#3502</a>)</p></li>
-<li><p>A <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a>, <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> no longer fails with
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> again retains each device’s primary context at most once per
+process and never releases it, as the CUDA runtime does and as
+<code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> did before 0.6.0. Since 0.6.0 it released its retains when
+the last object holding them was released, so the driver could destroy a
+primary context that the application still used. In particular, a
+<a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a>, <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> or <a class="reference internal" href="../generated/cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> could fail with
 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_CONTEXT_IS_DESTROYED</span></code> after other threads that used the same
-device exit. Each thread that called <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a> retained
+device exited: each thread that called <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a> retained
 the primary context separately, and a thread’s exit could leave later
 lookups, such as <a class="reference internal" href="../generated/cuda.core.Stream.html#cuda.core.Stream.from_handle" title="cuda.core.Stream.from_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Stream.from_handle()</span></code></a> or recording an event on
-<a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.default_stream" title="cuda.core.Device.default_stream"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.default_stream</span></code></a>, with a <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> that held no
-retain. Once the last retaining thread exited, the driver destroyed the
-primary context while the application still used it. All threads now
-share one retain per primary context, which <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> releases when
-the last object holding it is released. A <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> obtained for a
-context that <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> had not retained at that time, for example one
-made current by another library, still holds no retain and stays valid
-only as long as the context’s owner keeps it alive.
+<a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.default_stream" title="cuda.core.Device.default_stream"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.default_stream</span></code></a>, with a <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> that held no retain.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3533">#3533</a>)</p></li>
+<li><p>A <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> that <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> resolves for the calling thread’s
+current context now also keeps a primary context alive that another
+library made current, for example the context of
+<code class="docutils literal notranslate"><span class="pre">Stream.from_handle(...)</span></code> for a default stream, or the previous context
+returned by <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a>. A <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> resolved for a
+context that is not current at the time, for example the context of
+another context’s stream or a graph node’s update context, still holds no
+retain if <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> has not retained that primary context, and stays
+valid only as long as the context’s owner keeps it alive.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3533">#3533</a>)</p></li>
 <li><p><a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.create_context" title="cuda.core.Device.create_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.create_context()</span></code></a> no longer returns a context with
 <code class="docutils literal notranslate"><span class="pre">is_green</span> <span class="pre">==</span> <span class="pre">False</span></code> that is already destroyed when the driver reuses the
 address of an earlier context for which the application still holds a
 <a class="reference internal" href="../generated/cuda.core.Context.html#cuda.core.Context" title="cuda.core.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a> that <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> did not create, for example the
 previous context returned by <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a>.
-(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3533">#3533</a>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cuDevicePrimaryCtxRelease</span></code> failures are now reported as a
-<a class="reference internal" href="../generated/cuda.core.CUDAWarning.html#cuda.core.CUDAWarning" title="cuda.core.CUDAWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUDAWarning</span></code></a> instead of being ignored.
 (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/3533">#3533</a>)</p></li>
 </ul>
 </section>
