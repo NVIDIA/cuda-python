@@ -28,6 +28,9 @@ Windows.
 - **Load orchestration**:
   - `load_nvidia_dynamic_lib.py` coordinates find/load phases, dependency
     loading, driver-lib fast path, and cache semantics.
+- **Static and bitcode libraries**:
+  - `_static_libs/locate_file.py` holds the one search that
+    `find_static_lib.py` and `find_bitcode_lib.py` share.
 - **Process isolation helper**:
   - `cuda/pathfinder/_utils/spawned_process_runner.py` is used where process
     global dynamic loader state would otherwise leak across tests.
@@ -43,6 +46,9 @@ Windows.
   - unknown name -> `DynamicLibUnknownError`
   - known but unsupported on this OS -> `DynamicLibNotAvailableError`
   - known/supported but not found/loadable -> `DynamicLibNotFoundError`
+- **Spell `found_via` labels once**: use the constants in
+  `cuda/pathfinder/_utils/found_via.py`. Do not type the label strings
+  anywhere else; they are public and the Linux loader branches on them.
 - **Do not hardcode host assumptions**: avoid baking in machine-local paths,
   shell-specific quoting, or environment assumptions.
 - **Prefer focused abstractions**: if a change is platform-specific, route it

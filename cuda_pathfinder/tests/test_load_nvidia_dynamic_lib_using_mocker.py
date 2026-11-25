@@ -148,7 +148,7 @@ def test_cupti_not_found_raises_error(mocker):
     if IS_WINDOWS:
         pytest.skip("Windows support for cupti not yet implemented")
 
-    # Mock all search paths to return None
+    # Make every search step miss
     def _run_find_steps_disabled(ctx, steps):
         return NotFound()
 
