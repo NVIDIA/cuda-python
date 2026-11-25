@@ -342,6 +342,16 @@ class ReleasingHandleRegistry {
         return h;
     }
 
+    // Return the live handle registered under key, or an empty handle. Unlike
+    // get_or_create(), it never waits for a release in flight, so a caller that
+    // gets nothing goes on to get_or_create().
+    Handle
+    find_live(const Key &key)
+    {
+        std::unique_lock lock(mutex_);
+        return find(lock, key).owner;
+    }
+
     // Called by an owner's deleter after its last driver call on the resource:
     // erase key's entry if it belongs to the handle that pointed to resource,
     // and wake the importers waiting for it.

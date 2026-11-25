@@ -497,6 +497,12 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         // on it while holding the GIL would deadlock with a holder that needs
         // the GIL back (#2840).
         GILReleaseGuard gil;
+        // A repeat import keeps the cached mapping's deallocation stream, so
+        // return it before one is resolved for this call: resolving may pin a
+        // primary context or report a failure for a stream that is never used.
+        if (DevicePtrHandle cached = ipc_ptr_cache.find_live(key)) {
+            return cached;
+        }
         // Allocate before taking the mutex: a failed allocation then cannot run
         // a deleter under it. The box owns nothing until it holds an import.
         auto box =
@@ -506,9 +512,10 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         // Resolve the deallocation stream before the mutex is taken: for a
         // default-stream token it looks up the current context, which may pin a
         // primary context and report a failure (get_current_context).
-        // Only a fresh import uses it, so a failure is kept for that path, and
-        // a cached import is returned as before. May throw std::bad_alloc;
-        // nothing has been imported yet.
+        // Only a fresh import uses it, so a failure is kept for that path. An
+        // import that was cached by a concurrent call since the lookup above
+        // still resolves it, and gets the cached mapping. May throw
+        // std::bad_alloc; nothing has been imported yet.
         DeallocationStream ds;
         const CUresult status_before = err;
         const bool ds_ok = make_deallocation_stream(h_stream, ds);
