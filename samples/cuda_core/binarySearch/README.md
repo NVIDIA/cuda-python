@@ -57,7 +57,7 @@ diverge on present values). Results are verified against
 - CUDA Toolkit 13.0 or newer
 - Python 3.11 or newer
 - `cuda-cccl` (>=1.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
 
 If the CUDA toolkit is not on your `PATH`, set `CUDA_HOME` so that
@@ -79,7 +79,7 @@ pip install -r requirements.txt
 The `requirements.txt` installs:
 
 - `cuda-cccl` (>=1.0.0) - ships the `cuda.compute` module
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
 - `numpy` (>=1.24.0)
 

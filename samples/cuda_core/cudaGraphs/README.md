@@ -66,10 +66,9 @@ place without paying the cost of rebuilding the executable graph.
 
 ### Software
 
-- CUDA Toolkit 13.0 or newer (matches `cuda-python` 13.x)
+- CUDA Toolkit 13.0 or newer
 - Python 3.11 or newer
-- `cuda-python` (>=13.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
 
 ## Installation
@@ -83,8 +82,7 @@ pip install -r requirements.txt
 
 The `requirements.txt` installs:
 
-- `cuda-python` (>=13.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 - `cupy-cuda13x` (>=14.0.0)
 
 ## How to Run

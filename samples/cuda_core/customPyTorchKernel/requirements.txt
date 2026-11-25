@@ -5,6 +5,5 @@
 # CUDA-enabled torch from PyTorch's wheel index first (see README.md):
 #   pip install torch --index-url https://download.pytorch.org/whl/cu128
 
-cuda-python>=13.0.0
-cuda-core>=1.0.0
+cuda-core[cu13]>=1.0.0
 torch>=2.0.0

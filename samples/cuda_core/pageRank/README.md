@@ -1,23 +1,5 @@
 # Sample: PageRank Algorithm (Python)
 
-> **Known issue — version-pinned sample.** Unlike the other samples in this
-> repository, this sample is pinned to `cuda-core<1.0.0`. The reason is that
-> `cudf-cu13` transitively requires `numba-cuda<0.29.0`, and every
-> `numba-cuda` release in that range pins `cuda-core<1.0.0`. Installing this
-> sample's `requirements.txt` into a shared environment will downgrade
-> `cuda-core` and break the other samples (which use the 1.0 API).
->
-> The recommended workflow is one of:
->
-> - Install this sample's requirements in a **dedicated virtual
->   environment**, or
-> - Re-run the other samples' `pip install -r requirements.txt` afterwards
->   to upgrade `cuda-core` back to 1.0.
->
-> This sample will be re-aligned with the rest of the repository
-> (`cuda-core>=1.0.0`) once `cudf-cu13` ships a release that lifts its
-> `numba-cuda` upper bound.
-
 ## Description
 
 Demonstrates GPU-accelerated PageRank computation for graph analysis using RAPIDS cuGraph, with cuda.core for device, stream, and GPU timing. This sample focuses on cuda.core integration with high-level libraries (cuGraph/cuDF); for custom kernel programming (Program, LaunchConfig, launch), see the blockwiseSum sample.

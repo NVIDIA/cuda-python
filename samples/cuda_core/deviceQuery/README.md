@@ -99,10 +99,9 @@ The sample has two output modes:
 
 ### Software:
 
-- CUDA Toolkit 13.0 or newer (recommended; matches `cuda-python` 13.x)
+- CUDA Toolkit 13.0 or newer (recommended)
 - Python 3.11 or newer
-- `cuda-python` package (>=13.0.0)
-- `cuda-core` package (>=1.0.0)
+- `cuda-core[cu13]` package (>=1.0.0)
 
 ## Installation
 
@@ -114,8 +113,7 @@ pip install -r requirements.txt
 ```
 
 The requirements.txt installs:
-- `cuda-python` (>=13.0.0)
-- `cuda-core` (>=1.0.0)
+- `cuda-core[cu13]` (>=1.0.0)
 
 ## How to Run
 

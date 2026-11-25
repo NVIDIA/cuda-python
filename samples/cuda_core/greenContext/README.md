@@ -94,7 +94,7 @@ partition. The reference row lets you separate those two effects:
 - NVIDIA driver >= 12.4
 - CUDA Toolkit 13.0 or newer.
 - Python 3.11 or newer.
-- `cuda-core` (`>=1.0.0`)
+- `cuda-core[cu13]` (`>=1.0.0`)
 
 ## Installation
 
