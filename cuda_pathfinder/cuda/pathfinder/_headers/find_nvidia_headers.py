@@ -23,6 +23,13 @@ from cuda.pathfinder._headers.header_descriptor import (
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.found_via import (
+    FOUND_VIA_CONDA,
+    FOUND_VIA_CUDA_PATH,
+    FOUND_VIA_SITE_PACKAGES,
+    FOUND_VIA_SUPPORTED_INSTALL_DIR,
+    FOUND_VIA_SYSTEM_CTK_ROOT,
+)
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 from .._utils.resolve_path import resolve_path
@@ -87,7 +94,7 @@ def find_in_site_packages(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
         hdr_dir: str  # help mypy
         for hdr_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
             if _joined_isfile(hdr_dir, desc.header_basename):
-                return LocatedHeaderDir(abs_path=hdr_dir, found_via="site-packages")
+                return LocatedHeaderDir(abs_path=hdr_dir, found_via=FOUND_VIA_SITE_PACKAGES)
     return None
 
 
@@ -101,7 +108,7 @@ def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
         return None
     found_header_path = _locate_in_anchor_layout(desc, anchor_point)
     if found_header_path:
-        return LocatedHeaderDir(abs_path=found_header_path, found_via="conda")
+        return LocatedHeaderDir(abs_path=found_header_path, found_via=FOUND_VIA_CONDA)
     return None
 
 
@@ -124,7 +131,7 @@ def find_in_cuda_path(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
         return None
     result = _locate_in_anchor_layout(desc, cuda_home)
     if result is not None:
-        return LocatedHeaderDir(abs_path=result, found_via="CUDA_PATH")
+        return LocatedHeaderDir(abs_path=result, found_via=FOUND_VIA_CUDA_PATH)
     return None
 
 
@@ -146,7 +153,7 @@ def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
         return None
     result = _locate_in_anchor_layout(desc, ctk_root)
     if result is not None:
-        return LocatedHeaderDir(abs_path=result, found_via="system-ctk-root")
+        return LocatedHeaderDir(abs_path=result, found_via=FOUND_VIA_SYSTEM_CTK_ROOT)
     return None
 
 
@@ -155,7 +162,7 @@ def find_in_system_install_dirs(desc: HeaderDescriptor) -> LocatedHeaderDir | No
     for pattern in system_install_dir_patterns(desc):
         for hdr_dir in sorted(glob.glob(pattern), key=numeric_aware_path_sort_key, reverse=True):
             if _joined_isfile(hdr_dir, desc.header_basename):
-                return LocatedHeaderDir(abs_path=hdr_dir, found_via="supported_install_dir")
+                return LocatedHeaderDir(abs_path=hdr_dir, found_via=FOUND_VIA_SUPPORTED_INSTALL_DIR)
     return None
 
 

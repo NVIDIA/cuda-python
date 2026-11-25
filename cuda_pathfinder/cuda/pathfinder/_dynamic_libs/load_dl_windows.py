@@ -12,6 +12,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._utils.found_via import FOUND_VIA_SYSTEM_SEARCH, FOUND_VIA_WAS_ALREADY_LOADED_FROM_ELSEWHERE
 
 if TYPE_CHECKING:
     from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
@@ -129,7 +130,9 @@ def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | No
                 # Match load_with_abs_path(): lazy component DLLs need the directory
                 # of the module that is actually loaded, regardless of how it arrived.
                 add_dll_directory(abs_path)
-            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
+            return LoadedDL(
+                abs_path, True, ctypes_handle_to_unsigned_int(handle), FOUND_VIA_WAS_ALREADY_LOADED_FROM_ELSEWHERE
+            )
     return None
 
 
@@ -153,7 +156,7 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
             abs_path = abs_path_for_dynamic_library(desc.name, handle)
-            return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle), "system-search")
+            return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle), FOUND_VIA_SYSTEM_SEARCH)
 
     return None
 
