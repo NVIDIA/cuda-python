@@ -16,7 +16,12 @@ namespace cuda_core::rt {
 // Context handle functions
 // ============================================================================
 
-// Function to create a non-owning context handle (references existing context).
+// Return a handle for an existing context: the registered handle if there is
+// one. A primary context that is the calling thread's current context is
+// retained and pinned for the life of the process (see get_primary_context).
+// Any other context gets a handle that does not keep it alive. May call the
+// driver and report a failure, which acquires the GIL: do not call it while
+// holding a C++ lock.
 ContextHandle create_context_handle_ref(CUcontext ctx);
 
 // Create a context handle for the CUcontext view of the provided green context.
@@ -35,12 +40,14 @@ GreenCtxHandle create_green_ctx_handle(
 // Create a non-owning green context handle.
 GreenCtxHandle create_green_ctx_handle_ref(CUgreenCtx ctx);
 
-// Get handle to the primary context for a device (with thread-local caching)
-// Returns empty handle on error (caller must check)
+// Get handle to the primary context for a device (with thread-local caching).
+// cuda.core retains each primary context at most once per process and never
+// releases it. Returns empty handle on error (caller must check)
 ContextHandle get_primary_context(int device_id);
 
-// Get handle to the current CUDA context
-// Returns empty handle if no context is current (caller must check)
+// Get handle to the current CUDA context, as create_context_handle_ref does;
+// the same rules apply. Returns empty handle if no context is current (caller
+// must check)
 ContextHandle get_current_context();
 
 // Synchronize the provided context. Releases the GIL around the driver call.

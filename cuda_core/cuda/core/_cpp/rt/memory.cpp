@@ -680,6 +680,18 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         // clang-format on
         DevicePtrHandle h(box, &box->resource);
 
+        // Resolve the deallocation stream before the mutex is taken: for a
+        // default-stream token it looks up the current context, which may pin a
+        // primary context and report a failure (create_context_handle_ref).
+        // Only a fresh import uses it, so a failure is kept for that path, and
+        // a cached import is returned as before. May throw std::bad_alloc;
+        // nothing has been imported yet.
+        DeallocationStream ds;
+        const CUresult status_before = err;
+        const bool ds_ok = make_deallocation_stream(h_stream, ds);
+        const CUresult ds_status = err;
+        err = status_before;
+
         // The factory runs under the cache's mutex, which makes lookup, import
         // and registration one step: two threads cannot import the same
         // descriptor twice. Nothing under the mutex may acquire the GIL, so a
@@ -711,20 +723,14 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                 // with the raw call (a pw_ report would acquire the GIL) before
                 // the mutex is released, or a concurrent import would share the
                 // mapping this free unmaps.
-                bool recorded;
-                try {
-                    recorded = make_deallocation_stream(h_stream, box->deallocation);
-                }
-                catch (...) {
-                    discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
-                    discarded = ptr;
-                    throw;
-                }
-                if (!recorded) {
+                if (!ds_ok) {
+                    err = ds_status;
                     discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
                     discarded = ptr;
                     return {};
                 }
+                // Moves two handles; no deleter runs under the mutex.
+                box->deallocation = std::move(ds);
                 box->resource = ptr;
                 return h;
             });

@@ -1309,6 +1309,11 @@ class Device:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&prev_ctx))
                 if prev_ctx != NULL:
                     HANDLE_RETURN(cydriver.cuCtxGetDevice(&prev_dev))
+                    # Resolve the previous context while it is still current:
+                    # only then is a primary context that cuda.core has not
+                    # retained yet pinned, so that the returned Context keeps
+                    # it alive.
+                    h_context = create_context_handle_ref(prev_ctx)
                 # cuCtxSetCurrent replaces the top of the thread's context stack
                 # in one driver call (or binds ctx when nothing is current), so
                 # a failure leaves the previous context current instead of
@@ -1320,8 +1325,7 @@ class Device:
             if prev_ctx != NULL:
                 if prev_owned is not None and as_cu(prev_owned._h_context) == prev_ctx:
                     return prev_owned
-                return Context._from_handle(
-                    Context, create_context_handle_ref(prev_ctx), <int>prev_dev)
+                return Context._from_handle(Context, h_context, <int>prev_dev)
         else:
             # use primary ctx
             h_context = get_primary_context(self._device_id)

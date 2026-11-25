@@ -50,8 +50,9 @@ thread may have dropped its own copy, leaving the last reference to that Box
 inside the call. `context_registry` uses
 this to keep one owning Box per live context (#3533): a Box that holds a
 primary-context retain or the owning green-context handle replaces a plain
-one, and nothing replaces an owning one. `get_primary_context()` therefore
-shares one retaining Box per primary context across all threads.
+one, and nothing replaces an owning one. A primary context's retaining Box is
+pinned for the life of the process (`pin_primary_context()` in `context.cpp`),
+so all threads share it and its retain is never released.
 
 ### Imports that wait for an in-flight release
 

@@ -4,10 +4,17 @@
 
 import numpy as np
 import pytest
-from helpers.contexts import assert_device_operations_use_bound_context, current_context_handle, use_context
+from helpers.child_processes import run_child
+from helpers.contexts import (
+    assert_device_operations_use_bound_context,
+    assert_no_cuda_warning,
+    current_context_handle,
+    use_context,
+)
 
 from cuda.core import (
     ContextOptions,
+    Device,
     DeviceResources,
     LaunchConfig,
     LegacyPinnedMemoryResource,
@@ -15,6 +22,7 @@ from cuda.core import (
     ProgramOptions,
     SMResource,
     SMResourceOptions,
+    Stream,
     WorkqueueResource,
     WorkqueueResourceOptions,
     launch,
@@ -305,6 +313,70 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
         assert green.resources.sm.sm_count == groups[0].sm_count
     finally:
         green.close()
+
+
+# The driver holds a retain of the primary context while any green context of
+# the device exists. The tests below therefore check the primary context's state
+# only after their green contexts are destroyed, and run in a fresh child
+# process, because the pytest process already retains the primary context.
+def _primary_active(device_id):
+    _, active = handle_return(driver.cuDevicePrimaryCtxGetState(device_id))
+    return bool(active)
+
+
+# Another owner (here cuda.bindings, standing in for another library) retains the
+# primary context and makes it current, and cuda.core has not retained it.
+# Device.set_current(green) then returns the previous context, which must keep
+# the primary context alive once that owner releases its retain.
+def _set_current_returns_foreign_primary_child(device_id):
+    handle_return(driver.cuInit(0))
+    dev = Device(device_id)
+    with assert_no_cuda_warning():
+        groups, _ = dev.resources.sm.split(SMResourceOptions(count=None))
+        green = dev.create_context(ContextOptions(resources=[groups[0]]))
+
+        primary = handle_return(driver.cuDevicePrimaryCtxRetain(device_id))
+        handle_return(driver.cuCtxSetCurrent(primary))
+        previous = dev.set_current(green)
+        assert not previous.is_green
+        assert int(previous.handle) == int(primary)
+
+        dev.set_current(previous)
+        green.close()
+        handle_return(driver.cuDevicePrimaryCtxRelease(device_id))
+        assert _primary_active(device_id), "primary context destroyed while the previous Context is held"
+        dev.create_stream().sync()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_set_current_previous_context_retains_foreign_primary(init_cuda, green_ctx):
+    """The previous Context returned by Device.set_current(green) keeps a foreign primary context alive."""
+    # green_ctx skips the test where green contexts cannot be created.
+    run_child(_set_current_returns_foreign_primary_child, init_cuda.device_id)
+
+
+# A plain lookup of a context that is current but is not a primary context must
+# not keep a retain of the device's primary context.
+def _lookup_green_does_not_retain_primary_child(device_id):
+    handle_return(driver.cuInit(0))
+    with assert_no_cuda_warning():
+        res = handle_return(driver.cuDeviceGetDevResource(device_id, driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM))
+        desc = handle_return(driver.cuDevResourceGenerateDesc([res], 1))
+        flags = driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
+        foreign = handle_return(driver.cuGreenCtxCreate(desc, device_id, flags))
+        handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+        ctx = Stream.from_handle(int(driver.CU_STREAM_LEGACY)).context
+        assert not ctx.is_green
+        handle_return(driver.cuCtxSetCurrent(None))
+        del ctx
+        handle_return(driver.cuGreenCtxDestroy(foreign))
+        assert not _primary_active(device_id), "a lookup of a green context kept a primary-context retain"
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_green_context_lookup_does_not_retain_primary(init_cuda, green_ctx):
+    """Looking up a current green context leaves no primary-context retain behind."""
+    run_child(_lookup_green_does_not_retain_primary_child, init_cuda.device_id)
 
 
 # ---------------------------------------------------------------------------
