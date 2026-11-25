@@ -9,13 +9,11 @@
 #include "error.hpp"
 #include "internal.hpp"
 #include <atomic>
-#include <chrono>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
-#include <thread>
 #include <utility>
 #ifndef _WIN32
 #include <unistd.h>
@@ -40,16 +38,7 @@ struct MemoryPoolBox {
 // Read by the test suite to gate the per-test gc.collect(); atomic for
 // free-threaded builds.
 std::atomic<long long> g_live_owned_mempools{0};
-
-// See set_ipc_pool_release_delay_for_testing.
-std::atomic<unsigned int> g_ipc_pool_release_delay_us{0};
 }  // namespace
-
-void
-set_ipc_pool_release_delay_for_testing(unsigned int microseconds) noexcept
-{
-    g_ipc_pool_release_delay_us.store(microseconds, std::memory_order_relaxed);
-}
 
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
@@ -193,9 +182,6 @@ create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type)
             std::size_t imports = b->imports.load(std::memory_order_relaxed);
             if (imports > 0) {
                 GILReleaseGuard gil;
-                if (unsigned int delay = g_ipc_pool_release_delay_us.load(std::memory_order_relaxed)) {
-                    std::this_thread::sleep_for(std::chrono::microseconds(delay));
-                }
                 clear_mempool_peer_access(b->resource, -1);
                 const std::size_t total = imports;
                 std::size_t failed = 0;

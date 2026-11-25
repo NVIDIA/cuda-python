@@ -8,9 +8,10 @@ cannot be raised are reported as CUDAWarning; a failure to restore the caller's
 context is raised (or reported) with an explanation rather than swallowed or
 turned into a process abort; and a secondary failure that occurs while an
 exception is being raised is attached to that exception as a note. Restoration
-failures are injected with the handle layer's test hook, which leaves the target
-context current exactly as a real ``cuCtxSetCurrent`` failure would, so every
-test here restores the context stack itself.
+failures are injected through a test wrapper around the C++ layer's
+``cuCtxSetCurrent`` (see ``cuda.core._utils._testing``), which leaves the target
+context current exactly as a real failure would, so every test here restores the
+context stack itself.
 """
 
 import ctypes
@@ -29,11 +30,8 @@ from cuda.core import (
     LegacyPinnedMemoryResource,
 )
 from cuda.core._memory._synchronous_memory_resource import _SynchronousMemoryResource
-from cuda.core._rt import (
-    _attach_rollback_failure_for_testing,
-    _set_context_restore_fault_for_testing,
-)
 from cuda.core._stream import default_stream
+from cuda.core._utils._testing import attach_rollback_failure_for_testing, set_context_restore_fault
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.graph import GraphDefinition
@@ -62,11 +60,11 @@ def no_context_with_restore_fault(status=INVALID_CONTEXT):
     """
     previous = handle_return(driver.cuCtxPopCurrent())
     assert current_context_handle() == 0
-    _set_context_restore_fault_for_testing(status)
+    set_context_restore_fault(status)
     try:
         yield
     finally:
-        _set_context_restore_fault_for_testing(0)
+        set_context_restore_fault(0)
         handle_return(driver.cuCtxSetCurrent(driver.CUcontext(0)))
         handle_return(driver.cuCtxPushCurrent(previous))
 
@@ -140,14 +138,14 @@ def test_failed_call_raises_its_own_error_with_the_restore_failure_attached(init
 @thread_unsafe_context_fault
 @pytest.mark.agent_authored(model="claude-fable-5-1")
 def test_unused_restore_fault_does_not_fire_without_a_context_switch(init_cuda):
-    """The hook only affects restorations; a call in the current context never restores."""
+    """The fault only affects restorations; a call in the current context never restores."""
     dev = init_cuda
-    _set_context_restore_fault_for_testing(INVALID_CONTEXT)
+    set_context_restore_fault(INVALID_CONTEXT)
     try:
         stream = dev.create_stream()
         stream.close()
     finally:
-        _set_context_restore_fault_for_testing(0)
+        set_context_restore_fault(0)
 
 
 @thread_unsafe_context_fault
@@ -184,13 +182,13 @@ def test_independent_cleanup_failures_are_reported_separately(mempool_device):
         with warnings.catch_warnings(record=True) as records:
             warnings.simplefilter("default", CUDAWarning)
             for buf in buffers:
-                _set_context_restore_fault_for_testing(INVALID_CONTEXT)
+                set_context_restore_fault(INVALID_CONTEXT)
                 buf.close()
                 # The failed restoration left the device's context current; clear it
                 # so the next release also has to switch and fail the same way.
                 handle_return(driver.cuCtxSetCurrent(driver.CUcontext(0)))
     finally:
-        _set_context_restore_fault_for_testing(0)
+        set_context_restore_fault(0)
         handle_return(driver.cuCtxSetCurrent(driver.CUcontext(0)))
         handle_return(driver.cuCtxPushCurrent(previous))
     messages = [str(record.message) for record in records if issubclass(record.category, CUDAWarning)]
@@ -268,13 +266,13 @@ def test_memset_update_keeps_new_owners_alive_when_context_cannot_be_restored(de
     # Updating from another device's context switches to the node's context and
     # must switch back; make that restoration fail.
     other_dev.set_current()
-    _set_context_restore_fault_for_testing(INVALID_CONTEXT)
+    set_context_restore_fault(INVALID_CONTEXT)
     try:
         with pytest.raises(CUDAError) as excinfo:
             node.update(dst=replacement, value=0x22)
         assert "could not be restored" in error_text(excinfo.value)
     finally:
-        _set_context_restore_fault_for_testing(0)
+        set_context_restore_fault(0)
         node_dev.set_current()
 
     def as_bytes(buffer):
@@ -304,9 +302,9 @@ def test_rollback_failure_is_attached_to_the_propagating_exception():
             raise RuntimeError("primary failure")
         except RuntimeError:
             with assert_no_cuda_warning():
-                _attach_rollback_failure_for_testing(INVALID_VALUE)
+                attach_rollback_failure_for_testing(INVALID_VALUE)
             with assert_no_cuda_warning():
-                _attach_rollback_failure_for_testing(DEINITIALIZED)
+                attach_rollback_failure_for_testing(DEINITIALIZED)
             raise
     exc = excinfo.value
     assert str(exc) == "primary failure"
@@ -314,4 +312,4 @@ def test_rollback_failure_is_attached_to_the_propagating_exception():
     assert "cuTestOperation failed while testing: CUDA_ERROR_INVALID_VALUE" in exc.__notes__[0]
     # With no exception being handled there is nothing to attach to.
     with pytest.warns(CUDAWarning, match="cuTestOperation failed while testing"):
-        _attach_rollback_failure_for_testing(INVALID_VALUE)
+        attach_rollback_failure_for_testing(INVALID_VALUE)

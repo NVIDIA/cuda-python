@@ -398,7 +398,8 @@ as a generic error) leaves the detail behind, and a later error on the same
 thread with the same status code picks it up. `enter_context` clears stale
 detail at the next context-scoped operation. Issue #2760 removes this
 thread-local state in favor of explicit status returns. Tests inject restoration failures with
-`set_context_restore_fault_for_testing()`.
+`cuda.core._utils._testing.set_context_restore_fault()`, which arms a test
+wrapper around the function table's `cuCtxSetCurrent` entry.
 
 ### Reporting from non-propagating paths
 

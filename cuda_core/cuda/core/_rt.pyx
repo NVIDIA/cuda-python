@@ -57,15 +57,9 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const char* operation, long code) noexcept nogil
     void attach_rollback_failure "cuda_core::rt::attach_rollback_failure" (
         const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
-    # Alias for calls made from this module: calling the pxd-declared name here
-    # would make Cython emit a conflicting static prototype for it.
-    void _attach_rollback_failure_local "cuda_core::rt::attach_rollback_failure" (
-        const char* operation, cydriver.CUresult status, const char* detail) noexcept nogil
     const char* take_last_error_detail "cuda_core::rt::take_last_error_detail" (
         cydriver.CUresult status) noexcept nogil
     void clear_last_error_detail "cuda_core::rt::clear_last_error_detail" () noexcept nogil
-    void set_context_restore_fault_for_testing "cuda_core::rt::set_context_restore_fault_for_testing" (
-        cydriver.CUresult status) noexcept nogil
 
     # Context handles
     ContextHandle create_context_handle_ref "cuda_core::rt::create_context_handle_ref" (
@@ -194,8 +188,6 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const VaReservationHandle& h) noexcept nogil
     long long live_owned_mempool_count "cuda_core::rt::live_owned_mempool_count" () noexcept nogil
     long long live_va_reservation_count "cuda_core::rt::live_va_reservation_count" () noexcept nogil
-    void set_ipc_pool_release_delay_for_testing "cuda_core::rt::set_ipc_pool_release_delay_for_testing" (
-        unsigned int microseconds) noexcept nogil
     VaMappingHandle create_va_mapping_handle "cuda_core::rt::create_va_mapping_handle" (
         cydriver.CUdeviceptr ptr, const MemAllocationHandle& h_alloc,
         const VaReservationHandle& h_res) except+ nogil
@@ -347,34 +339,3 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
 
 
 initialize_deferred_cleanup()
-
-
-def _set_context_restore_fault_for_testing(int status):
-    """Make the next context restoration on this thread fail with ``status``.
-
-    Test hook for the context save/restore paths in the handle layer. The
-    injected failure leaves the target context current, exactly as a failing
-    ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
-    """
-    set_context_restore_fault_for_testing(<cydriver.CUresult>status)
-
-
-def _set_ipc_pool_release_delay_for_testing(unsigned int microseconds):
-    """Delay the release of an imported pool's owner by ``microseconds``.
-
-    Test hook: once the owner's last reference is released, it sleeps before it
-    revokes access and destroys the pool's imports, so that a re-import can be
-    made to race the release. 0 disables the delay.
-    """
-    set_ipc_pool_release_delay_for_testing(microseconds)
-
-
-def _attach_rollback_failure_for_testing(int status):
-    """Attach a failed CUDA call to the exception being handled, or report it.
-
-    Test hook for ``attach_rollback_failure()``. Called inside an ``except``
-    block it adds a note to the exception being handled (Python 3.11+); anywhere
-    else it emits a ``CUDAWarning``.
-    """
-    _attach_rollback_failure_local(
-        b"cuTestOperation", <cydriver.CUresult>status, b"failed while testing")

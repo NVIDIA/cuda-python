@@ -159,6 +159,9 @@ the literal floor.
   call-site consistency.
 - Prefer explicit error propagation over silent fallback paths.
 - If you change public behavior, update tests and docs under `docs/source/`.
+- Do not add test-only hooks (`*_for_testing` functions, test-only globals,
+  parameters, or branches) to production code; see "Keep test hooks out of
+  production code" in `tests/AGENTS.md` for the alternatives.
 
 ## Concurrency and free-threading
 
@@ -282,7 +285,7 @@ below are for contributors. Reviewers and agents should flag violations.
   bug (#1489, #2417), not a policy choice: `noexcept` helpers must not
   allocate, or must catch what they call.
 - **Testing**: inject restoration failures with
-  `cuda.core._rt._set_context_restore_fault_for_testing`; assert
+  `cuda.core._utils._testing.set_context_restore_fault`; assert
   reports with `pytest.warns(CUDAWarning)` or `warnings.catch_warnings`, never
   by matching stderr text.
 

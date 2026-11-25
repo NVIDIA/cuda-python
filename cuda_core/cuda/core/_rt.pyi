@@ -49,25 +49,3 @@ PreparedAttachmentDeleter: TypeAlias = Incomplete
 PreparedChildGraphUpdateState: TypeAlias = Incomplete
 PreparedExecAttachmentState: TypeAlias = Incomplete
 PreparedExecAttachmentDeleter: TypeAlias = Incomplete
-
-def _set_context_restore_fault_for_testing(status: int):
-    """Make the next context restoration on this thread fail with ``status``.
-
-    Test hook for the context save/restore paths in the handle layer. The
-    injected failure leaves the target context current, exactly as a failing
-    ``cuCtxSetCurrent`` would, so callers must restore the context themselves.
-    """
-def _set_ipc_pool_release_delay_for_testing(microseconds: int):
-    """Delay the release of an imported pool's owner by ``microseconds``.
-
-    Test hook: once the owner's last reference is released, it sleeps before it
-    revokes access and destroys the pool's imports, so that a re-import can be
-    made to race the release. 0 disables the delay.
-    """
-def _attach_rollback_failure_for_testing(status: int):
-    """Attach a failed CUDA call to the exception being handled, or report it.
-
-    Test hook for ``attach_rollback_failure()``. Called inside an ``except``
-    block it adds a note to the exception being handled (Python 3.11+); anywhere
-    else it emits a ``CUDAWarning``.
-    """
