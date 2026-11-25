@@ -628,9 +628,11 @@ class TestResolveInTrustedDirs:
         monkeypatch.chdir(evil_cwd)
 
         # A trusted dir with no binary returns None, never the CWD copy.
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(empty)]) is None
+        assert binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [str(empty)]) is None
         # When a trusted dir holds it, that path wins regardless of CWD.
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(empty), str(trusted)]) == trusted_nvcc
+        assert (
+            binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [str(empty), str(trusted)]) == trusted_nvcc
+        )
 
     def test_first_trusted_dir_wins(self, tmp_path):
         first = tmp_path / "a"
@@ -639,18 +641,18 @@ class TestResolveInTrustedDirs:
         second.mkdir()
         first_nvcc = self._make_executable(first, "nvcc")
         self._make_executable(second, "nvcc")
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(first), str(second)]) == first_nvcc
+        assert binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [str(first), str(second)]) == first_nvcc
 
     def test_duplicate_dirs_skipped(self, tmp_path):
         present = tmp_path / "p"
         present.mkdir()
         nvcc = self._make_executable(present, "nvcc")
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(present), str(present)]) == nvcc
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", []) is None
+        assert binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [str(present), str(present)]) == nvcc
+        assert binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), []) is None
 
     def test_empty_dir_asserts(self):
         with pytest.raises(AssertionError):
-            binary_finder_module._resolve_in_trusted_dirs("nvcc", [""])
+            binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [""])
 
     @pytest.mark.skipif(binary_finder_module.IS_WINDOWS, reason="POSIX execute-bit semantics")
     def test_non_executable_file_rejected_on_posix(self, tmp_path):
@@ -660,9 +662,9 @@ class TestResolveInTrustedDirs:
         with open(path, "w", encoding="utf-8") as handle:
             handle.write("")
         os.chmod(path, 0o644)
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(directory)]) is None
+        assert binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [str(directory)]) is None
         os.chmod(path, 0o700)
-        assert binary_finder_module._resolve_in_trusted_dirs("nvcc", [str(directory)]) == path
+        assert binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [str(directory)]) == path
 
 
 @pytest.mark.usefixtures("clear_find_binary_cache")
@@ -684,7 +686,7 @@ def test_caching_per_utility():
         assert nvdisasm1 != nvcc1
 
 
-def test_resolve_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mocker):
+def test_resolve_names_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mocker):
     """A match found under a relative search dir must be absolutized.
 
     ``find_nvidia_binary_utility`` documents an absolute, separator-resolved
@@ -702,7 +704,7 @@ def test_resolve_in_trusted_dirs_returns_absolute_path(tmp_path, monkeypatch, mo
 
     # Anchor CWD so relative candidates have a deterministic resolved path.
     monkeypatch.chdir(tmp_path)
-    result = binary_finder_module._resolve_in_trusted_dirs("nvcc", [rel_dir])
+    result = binary_finder_module._resolve_names_in_trusted_dirs(("nvcc",), [rel_dir])
 
     assert os.path.isabs(result)
     assert result == str((tmp_path / candidate).resolve())
