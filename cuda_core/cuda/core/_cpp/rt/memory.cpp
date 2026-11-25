@@ -673,6 +673,79 @@ struct ExportDataKeyHash {
 // handle (nvbug 5570902).
 static ReleasingHandleRegistry<ExportDataKey, DevicePtrHandle, ExportDataKeyHash> ipc_ptr_cache;
 
+namespace {
+// Deleter of the box behind a cached IPC import. The box is allocated before
+// the import, so it may never have held one: a box whose import failed, or
+// that found an earlier import in the cache, has nothing to free.
+struct DeleteIpcPtrBox {
+    MemoryPoolHandle h_pool;  // keeps the pool alive until the mapping is freed
+    ExportDataKey key;
+
+    static bool
+    holds_import(const DevicePtrBox &box) noexcept
+    {
+        return box.resource != 0;
+    }
+
+    void
+    operator()(DevicePtrBox *box) const
+    {
+        if (holds_import(*box)) {
+            free_import(*box);
+        }
+        delete box;
+    }
+
+   private:
+    void
+    free_import(const DevicePtrBox &box) const
+    {
+        GILReleaseGuard gil;
+        const DeallocationStream &stream = box.deallocation;
+        // Release the entry once the mapping is freed, and before reporting:
+        // a report can run user code.
+        cleanup_in_context(
+            deallocation_context(stream),
+            "cuMemFreeAsync",
+            handle_bits(box.resource),
+            [&]() noexcept { return DRIVER_CALL(cuMemFreeAsync, box.resource, as_cu(stream.h_stream)); },
+            [&]() noexcept { ipc_ptr_cache.release(key, &box.resource); }
+        );
+    }
+};
+
+// An import that was discarded under the cache's mutex because no
+// deallocation stream could be recorded for it. Nothing under that mutex may
+// acquire the GIL, so the discard uses the raw p_ call and keeps its status;
+// report() runs after the mutex is released (see DESIGN.md).
+struct DiscardedIpcImport {
+    CUdeviceptr ptr = 0;
+    CUresult status = CUDA_SUCCESS;
+
+    static DiscardedIpcImport
+    discard(CUdeviceptr ptr, const StreamHandle &h_stream) noexcept
+    {
+        return {ptr, p_cuMemFreeAsync(ptr, as_cu(h_stream))};  // raw: under the cache's mutex
+    }
+
+    void
+    report() const noexcept
+    {
+        if (status == CUDA_SUCCESS) {
+            return;
+        }
+        char operation[kOperationNameSize];
+        format_operation(operation, sizeof(operation), "cuMemFreeAsync", ptr);
+        report_cuda_error(
+            operation,
+            status,
+            "failed while discarding an IPC import that could not record a "
+            "deallocation stream; the mapping leaked"
+        );
+    }
+};
+}  // namespace
+
 DevicePtrHandle
 deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream)
 {
@@ -697,47 +770,15 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
         GILReleaseGuard gil;
         // Allocate before taking the mutex: a failed allocation then cannot run
         // a deleter under it. The box owns nothing until it holds an import.
-        // clang-format off
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{0, DeallocationStream{}},
-            [h_pool, key](DevicePtrBox *b) {
-                if (b->resource != 0) {
-                    GILReleaseGuard gil;
-                    const DeallocationStream& stream = b->deallocation;
-                    // Release the entry once the mapping is freed, and before
-                    // reporting: a report can run user code.
-                    cleanup_in_context(
-                        deallocation_context(stream), "cuMemFreeAsync", handle_bits(b->resource),
-                        [&]() noexcept {
-                            return DRIVER_CALL(cuMemFreeAsync, b->resource, as_cu(stream.h_stream));
-                        },
-                        [&]() noexcept { ipc_ptr_cache.release(key, &b->resource); });
-                }
-                delete b;
-            }
-        );
-        // clang-format on
+        auto box =
+            std::shared_ptr<DevicePtrBox>(new DevicePtrBox{0, DeallocationStream{}}, DeleteIpcPtrBox{h_pool, key});
         DevicePtrHandle h(box, &box->resource);
 
         // The factory runs under the cache's mutex, which makes lookup, import
         // and registration one step: two threads cannot import the same
-        // descriptor twice. Nothing under the mutex may acquire the GIL, so a
-        // failed discard is reported only after the lock is released (see
-        // DESIGN.md).
-        CUresult discard_status = CUDA_SUCCESS;
-        CUdeviceptr discarded = 0;
-        auto report_failed_discard = [&]() noexcept {
-            if (discard_status != CUDA_SUCCESS) {
-                char operation[kOperationNameSize];
-                format_operation(operation, sizeof(operation), "cuMemFreeAsync", discarded);
-                report_cuda_error(
-                    operation,
-                    discard_status,
-                    "failed while discarding an IPC import that could not record a "
-                    "deallocation stream; the mapping leaked"
-                );
-            }
-        };
+        // descriptor twice. It therefore calls the driver through the raw p_
+        // pointers only, and hands a failed discard out to be reported here.
+        DiscardedIpcImport discarded;
         DevicePtrHandle imported;
         try {
             imported = ipc_ptr_cache.get_or_create(key, [&]() -> DevicePtrHandle {
@@ -746,22 +787,19 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
                     (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {  // raw: under the cache's mutex
                     return {};
                 }
-                // No deallocation stream could be recorded: discard the import
-                // with the raw call (a pw_ report would acquire the GIL) before
-                // the mutex is released, or a concurrent import would share the
-                // mapping this free unmaps.
-                bool recorded;
+                // Without a recorded deallocation stream the import is
+                // discarded before the mutex is released, or a concurrent
+                // import would share the mapping this free unmaps.
+                bool recorded = false;
                 try {
                     recorded = make_deallocation_stream(h_stream, box->deallocation);
                 }
                 catch (...) {
-                    discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
-                    discarded = ptr;
+                    discarded = DiscardedIpcImport::discard(ptr, h_stream);
                     throw;
                 }
                 if (!recorded) {
-                    discard_status = p_cuMemFreeAsync(ptr, as_cu(h_stream));  // raw: under the cache's mutex
-                    discarded = ptr;
+                    discarded = DiscardedIpcImport::discard(ptr, h_stream);
                     return {};
                 }
                 box->resource = ptr;
@@ -769,14 +807,13 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
             });
         }
         catch (...) {
-            report_failed_discard();
+            discarded.report();
             throw;
         }
-        if (imported) {
-            return imported;
+        if (!imported) {
+            discarded.report();
         }
-        report_failed_discard();
-        return {};
+        return imported;
     }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
