@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from cuda_python_test_helpers.subprocess_runner import run_python_snippet
 
 from cuda.bindings import driver, runtime
 from cuda.bindings._internal.utils import get_c_compiler
@@ -197,8 +198,26 @@ def test_check_nvvm_compiler_options_arch_detection():
     assert check_nvvm_compiler_options(["-arch=compute_99999"]) is False
 
 
-# This test is not currently run in any CI job
+@pytest.mark.agent_authored(model="claude-opus-5-5")
 def test_check_nvvm_compiler_options_no_libnvvm():
-    if _libnvvm_available:
-        pytest.skip("libNVVM is available; this test targets the fallback path")
-    assert check_nvvm_compiler_options(["-arch=compute_90"]) is False
+    # The NVVM function table is process-global and filled in only once, so
+    # simulate a missing libNVVM in a fresh interpreter.
+    result = run_python_snippet(
+        """
+import cuda.bindings._internal.nvvm as nvvm_internal
+from cuda.bindings.utils import check_nvvm_compiler_options
+from cuda.pathfinder import DynamicLibNotFoundError
+
+calls = []
+
+
+def load_nvidia_dynamic_lib(libname):
+    calls.append(libname)
+    raise DynamicLibNotFoundError(f"simulated: {libname} not found")
+
+
+nvvm_internal.load_nvidia_dynamic_lib = load_nvidia_dynamic_lib
+print(check_nvvm_compiler_options(["-arch=compute_90"]), calls)
+"""
+    )
+    assert result.stdout.strip() == "False ['nvvm']"

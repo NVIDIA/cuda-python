@@ -1,0 +1,14 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.6.0 Release notes
+======================================
+
+Behavior changes
+----------------
+
+- ``cuda.bindings.utils.check_nvvm_compiler_options()`` now returns ``False`` when libNVVM
+  cannot be found. Previously it raised ``cuda.pathfinder.DynamicLibNotFoundError``.
+  (`Issue #3565 <https://github.com/NVIDIA/cuda-python/issues/3565>`_)
