@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 import pytest
+from local_helpers import quote_for_shell
 
 import cuda.pathfinder._static_libs.find_static_lib as find_static_lib_module
 from cuda.pathfinder._static_libs.find_static_lib import (
@@ -14,7 +15,6 @@ from cuda.pathfinder._static_libs.find_static_lib import (
     locate_static_lib,
 )
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
-from cuda.pathfinder._utils.platform_aware import quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_STATIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")

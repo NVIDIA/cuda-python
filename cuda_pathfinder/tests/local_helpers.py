@@ -7,6 +7,8 @@ import re
 
 from packaging.version import Version
 
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+
 
 @functools.cache
 def have_distribution(name_pattern: str, *, minimum_version: str | None = None) -> bool:
@@ -18,3 +20,14 @@ def have_distribution(name_pattern: str, *, minimum_version: str | None = None) 
         for dist in importlib.metadata.distributions()
         if "Name" in dist.metadata
     )
+
+
+def quote_for_shell(s: str) -> str:
+    if IS_WINDOWS:
+        from subprocess import list2cmdline
+
+        return list2cmdline([s])
+    else:
+        import shlex
+
+        return shlex.quote(s)
