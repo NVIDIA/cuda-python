@@ -26,6 +26,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_driver_lib_no_cache,
     _load_lib_no_cache,
 )
+from cuda.pathfinder._dynamic_libs.search_steps import NotFound
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND, parse_dynamic_lib_subprocess_payload
 from cuda.pathfinder._utils import driver_info
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
@@ -111,7 +112,7 @@ def test_load_lib_no_cache_dispatches_to_driver_path(libname, mocker):
 def test_load_lib_no_cache_does_not_dispatch_ctk_lib_to_driver_path(mocker):
     """Ensure regular CTK libs don't take the driver shortcut."""
     mock_driver = mocker.patch(f"{_MODULE}._load_driver_lib_no_cache")
-    mocker.patch(f"{_MODULE}.run_find_steps", return_value=None)
+    mocker.patch(f"{_MODULE}.run_find_steps", return_value=NotFound())
     mocker.patch(f"{_LOADER_MODULE}.check_if_already_loaded_from_elsewhere", return_value=None)
     mocker.patch(f"{_MODULE}.load_dependencies")
     mocker.patch(
