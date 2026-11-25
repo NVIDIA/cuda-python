@@ -247,7 +247,7 @@ repos:
         pass_filenames: false
         require_serial: true
         additional_dependencies:
-          - Cython==3.3.1
+          - Cython==3.3.2
 
 
 default_language_version:
