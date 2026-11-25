@@ -32,8 +32,9 @@ Windows.
   - `_static_libs/locate_file.py` holds the one search that
     `find_static_lib.py` and `find_bitcode_lib.py` share.
 - **Process isolation helper**:
-  - `cuda/pathfinder/_utils/spawned_process_runner.py` is used where process
-    global dynamic loader state would otherwise leak across tests.
+  - `cuda/pathfinder/_dynamic_libs/dynamic_lib_subprocess.py` runs in a fresh
+    Python process: for the CTK-root canary probe, and for tests where process
+    global dynamic loader state would otherwise leak.
 
 ## Editing guidance
 
