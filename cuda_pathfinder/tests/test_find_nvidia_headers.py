@@ -23,12 +23,11 @@ from conftest import skip_if_missing_libnvcudla_so
 from packaging.requirements import Requirement
 from packaging.version import Version
 
+import cuda.pathfinder._dynamic_libs.canary_probe as canary_probe_module
 import cuda.pathfinder._headers.find_nvidia_headers as find_nvidia_headers_module
 import cuda.pathfinder._headers.header_descriptor as header_descriptor_module
 from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, locate_nvidia_header_directory
-from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
-    _resolve_system_loaded_abs_path_in_subprocess,
-)
+from cuda.pathfinder._dynamic_libs.canary_probe import _resolve_system_loaded_abs_path_in_subprocess
 from cuda.pathfinder._headers.header_descriptor import HEADER_DESCRIPTORS, system_install_dir_patterns
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
@@ -395,7 +394,7 @@ def test_locate_ctk_headers_uses_canary_fallback_when_cuda_home_unset(tmp_path, 
     monkeypatch.delenv("CUDA_PATH", raising=False)
     mocker.patch.object(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", return_value=[])
     probe = mocker.patch.object(
-        find_nvidia_headers_module,
+        canary_probe_module,
         "_resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_cudart_canary_abs_path(ctk_root),
     )
@@ -420,7 +419,7 @@ def test_locate_ctk_headers_cuda_home_takes_priority_over_canary(tmp_path, monke
     monkeypatch.delenv("CUDA_PATH", raising=False)
     mocker.patch.object(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", return_value=[])
     probe = mocker.patch.object(
-        find_nvidia_headers_module,
+        canary_probe_module,
         "_resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_cudart_canary_abs_path(canary_root),
     )
@@ -440,7 +439,7 @@ def test_locate_ctk_headers_canary_miss_paths_are_non_fatal(monkeypatch, mocker)
     monkeypatch.delenv("CUDA_PATH", raising=False)
     mocker.patch.object(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", return_value=[])
     mocker.patch.object(
-        find_nvidia_headers_module,
+        canary_probe_module,
         "_resolve_system_loaded_abs_path_in_subprocess",
         return_value=None,
     )
@@ -456,7 +455,7 @@ def test_locate_ctk_headers_canary_probe_errors_are_not_masked(monkeypatch, mock
     monkeypatch.delenv("CUDA_PATH", raising=False)
     mocker.patch.object(find_nvidia_headers_module, "find_sub_dirs_all_sitepackages", return_value=[])
     mocker.patch.object(
-        find_nvidia_headers_module,
+        canary_probe_module,
         "_resolve_system_loaded_abs_path_in_subprocess",
         side_effect=RuntimeError("canary probe failed"),
     )

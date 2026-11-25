@@ -10,10 +10,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
-    _resolve_system_loaded_abs_path_in_subprocess,
-)
-from cuda.pathfinder._dynamic_libs.search_steps import derive_ctk_root
+from cuda.pathfinder._dynamic_libs.canary_probe import resolve_ctk_root_via_canary
 from cuda.pathfinder._headers.header_descriptor import (
     HEADER_DESCRIPTORS,
     platform_include_subdirs,
@@ -145,10 +142,7 @@ def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """
     if not desc.use_ctk_root_canary:
         return None
-    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess(CTK_ROOT_CANARY_ANCHOR_LIBNAMES[0])
-    if canary_abs_path is None:
-        return None
-    ctk_root = derive_ctk_root(canary_abs_path)
+    ctk_root = resolve_ctk_root_via_canary(CTK_ROOT_CANARY_ANCHOR_LIBNAMES[0])
     if ctk_root is None:
         return None
     result = _locate_in_anchor_layout(desc, ctk_root)

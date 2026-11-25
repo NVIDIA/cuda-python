@@ -7,16 +7,15 @@ import pytest
 
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_mod
 from cuda.pathfinder._dynamic_libs import search_steps as steps_mod
+from cuda.pathfinder._dynamic_libs.canary_probe import _resolve_system_loaded_abs_path_in_subprocess
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
-from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
-    _load_lib_no_cache,
-    _resolve_system_loaded_abs_path_in_subprocess,
-)
+from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _load_lib_no_cache
 from cuda.pathfinder._dynamic_libs.search_platform import search_context, windows_search_context
 from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS, NotFound
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
+_PROBE_MODULE = "cuda.pathfinder._dynamic_libs.canary_probe"
 _STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
 
 
@@ -126,7 +125,7 @@ def test_cupti_found_in_conda(tmp_path, mocker, monkeypatch):
     mocker.patch(f"{_MODULE}.load_dependencies")
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
     mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=None)
-    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
+    mocker.patch(f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     mocker.patch.object(
         load_mod.LOADER,
         "load_with_abs_path",
@@ -158,7 +157,7 @@ def test_cupti_not_found_raises_error(mocker):
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
     mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=None)
     mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=None,
     )
 
