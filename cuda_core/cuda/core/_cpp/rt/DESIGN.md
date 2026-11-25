@@ -347,18 +347,21 @@ behaved this way; #1368 released the retain when the last handle dropped, which
   runs and its retain is never given back. The table is read without a lock:
   pinning publishes a new immutable snapshot under the table's mutex, and old
   snapshots are leaked, so a reader never sees freed memory. There is no
-  per-thread cache, so a thread's exit has no effect on primary contexts.
+  per-thread cache, so a thread's exit has no effect on primary contexts. The
+  mutex and the snapshot pointer are constant-initialized globals, not
+  function-local statics, so no static-initialization guard is involved (see
+  "Static Initialization and Deadlock Hazards").
 - `create_context_handle_ref()`, `create_current_context_handle_ref()` and
   `get_current_context()` pin a primary context that another library made
   current: when `ctx` is the calling thread's current context and its device's
   active primary context, it is retained and pinned. All three go through
   `resolve_context_handle()`; the last two are for callers that already know
-  what is current, so it is not queried again. Only the current context is examined, because its device is the only
-  one that can be queried without switching contexts. An inactive primary
-  context is never retained, because that would create it. When the active
-  primary context turns out to be another one, the retain taken to find out is
-  given back. That release cannot destroy a context, because it was active
-  without that retain.
+  what is current, so it is not queried again. Only the current context is
+  examined, because its device is the only one that can be queried without
+  switching contexts. An inactive primary context is never retained, because
+  that would create it. When the active primary context turns out to be
+  another one, the retain taken to find out is given back. That release cannot
+  destroy a context, because it was active without that retain.
 - A context that is not current at the time of the lookup, such as another
   context's stream or a graph node's update context, gets a plain handle that
   does not keep it alive.
@@ -366,6 +369,10 @@ behaved this way; #1368 released the retain when the last handle dropped, which
   raw `p_` pointers after `ensure_fn_table()` (see "The GIL is the outermost
   lock"). Giving back a probe retain can report a failure through Python, so it
   runs after the mutex is released.
+- Cython code gets a primary context through `Context_get_primary_handle()`
+  (a `ContextHandle`) or `Context_primary()` (a `Context`) in `_context.pyx`,
+  not by calling `get_primary_context()` directly. Both drain
+  `get_last_error()` and raise on failure, so every caller fails the same way.
 
 ### Static Initialization and Deadlock Hazards
 
