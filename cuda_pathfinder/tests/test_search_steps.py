@@ -261,7 +261,7 @@ def test_windows_pe_matches_arch_rejects_malformed_file(tmp_path):
 
 
 class TestFindInSitePackages:
-    def test_returns_none_when_no_rel_dirs(self):
+    def test_misses_when_no_rel_dirs(self):
         desc = _make_desc(site_packages_linux=(), site_packages_windows=WindowsSearchDirs())
         result = find_in_site_packages(_ctx(desc))
         assert isinstance(result, NotFound)
@@ -579,11 +579,11 @@ class TestFindInSitePackages:
 
 
 class TestFindInConda:
-    def test_returns_none_without_conda_prefix(self, mocker):
+    def test_misses_without_conda_prefix(self, mocker):
         mocker.patch.dict(os.environ, {}, clear=True)
         assert isinstance(find_in_conda(_ctx()), NotFound)
 
-    def test_returns_none_with_empty_conda_prefix(self, mocker):
+    def test_misses_with_empty_conda_prefix(self, mocker):
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": ""})
         assert isinstance(find_in_conda(_ctx()), NotFound)
 
@@ -671,7 +671,7 @@ class TestFindInConda:
 
 
 class TestFindInCudaHome:
-    def test_returns_none_without_env_var(self, mocker):
+    def test_misses_without_env_var(self, mocker):
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=None)
         assert isinstance(find_in_cuda_path(_ctx()), NotFound)
 
@@ -1077,3 +1077,46 @@ class TestAnchorRelDirs:
         assert isinstance(result, FindResult)
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
+
+
+# ---------------------------------------------------------------------------
+# What a miss reports
+# ---------------------------------------------------------------------------
+
+
+class TestMissReports:
+    @pytest.mark.agent_authored(model="claude-fable-5-2")
+    def test_product_root_miss_reports_each_directory_searched(self, mocker, tmp_path):
+        desc = LIB_DESCRIPTORS["nccl"]
+        lib_dirs = []
+        for rel_dir in desc.install_root_env_rel_dirs_linux[:2]:
+            lib_dir = tmp_path / rel_dir
+            lib_dir.mkdir(parents=True)
+            (lib_dir / "unrelated.txt").touch()
+            lib_dirs.append(lib_dir)
+        mocker.patch.dict(os.environ, {"NCCL_HOME": str(tmp_path)})
+
+        result = find_in_install_root_env_vars(_ctx(desc))
+
+        searched = " or ".join(desc.linux_sonames)
+        assert result == NotFound(
+            (f"No such file: {searched}",) * 2,
+            tuple(line for lib_dir in lib_dirs for line in (f'  listdir("{lib_dir.resolve()}"):', "    unrelated.txt")),
+        )
+
+    @pytest.mark.agent_authored(model="claude-fable-5-2")
+    def test_program_files_miss_reports_each_root_searched(self, mocker, tmp_path):
+        bin_dirs = []
+        for version in ("v9.10", "v9.9"):  # newest first: the order the roots are searched in
+            bin_dir = tmp_path / "NVIDIA" / "CUDNN" / version / "bin"
+            bin_dir.mkdir(parents=True)
+            (bin_dir / "unrelated.txt").touch()
+            bin_dirs.append(bin_dir)
+        mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
+
+        result = find_in_program_files_roots(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch="x64"))
+
+        assert result == NotFound(
+            ("No x64-compatible PE file: known cudnn DLL",) * 2,
+            tuple(line for bin_dir in bin_dirs for line in (f'  listdir("{bin_dir.resolve()}"):', "    unrelated.txt")),
+        )
