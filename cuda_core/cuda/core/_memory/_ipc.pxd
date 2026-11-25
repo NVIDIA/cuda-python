@@ -11,8 +11,8 @@ from cuda.core._rt cimport FileDescriptorHandle
 # Holds _MemPool objects imported by this process.  This enables
 # buffer serialization, as buffers can reduce to a pair comprising the memory
 # resource UUID (the key into this registry) and the serialized buffer
-# descriptor.
-cdef object registry
+# descriptor.  Maps ``uuid.UUID.bytes`` to a weak reference of the resource.
+cdef dict registry
 
 
 # The IPC handle type for this platform.  IPC is currently only supported on

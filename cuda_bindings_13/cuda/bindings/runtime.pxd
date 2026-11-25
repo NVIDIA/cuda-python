@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=f7815f74450649f1f92d38d1872bb0512933337e5fa309d462896ce1507577cd
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6033637722f3ab3bb9c1c175ffc777396ea8fb18e7acfa7952e0b2da7aa0d375
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -2393,7 +2393,7 @@ cdef class cudaExternalMemoryHandleDesc:
 
 
     handle : anon_union4
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     size : unsigned long long
@@ -2558,7 +2558,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
 
 
     handle : anon_union5
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     flags : unsigned int

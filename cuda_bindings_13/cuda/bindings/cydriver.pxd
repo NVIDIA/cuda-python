@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8a46dfdd68219b4a7117e7934ac83710287f47e9481442445ae9fbb888df019e
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e2dd61eb0d1396da070ce7005ceeec0edfa64b8f6f71c6f0a932c69a8b26169d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -723,7 +723,6 @@ cdef extern from 'cuda.h':
         CU_GRAPH_NODE_TYPE_BATCH_MEM_OP
         CU_GRAPH_NODE_TYPE_CONDITIONAL
         CU_GRAPH_NODE_TYPE_MEMCPY_BATCH
-        CU_GRAPH_NODE_TYPE_RESERVED_16
         CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE
         CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH
     ctypedef CUgraphNodeType_enum CUgraphNodeType

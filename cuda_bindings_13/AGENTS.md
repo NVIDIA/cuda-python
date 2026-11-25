@@ -46,7 +46,7 @@ subpackage in the `cuda-python` monorepo.
 
 - **Primary tests**: `pytest tests/`
 - **Cython tests**:
-  - build: `tests/cython/build_tests.sh` (or platform equivalent)
+  - build: `python tests/cython/build_tests.py`
   - run: `pytest tests/cython/`
 - **Samples**: run pytest-based sample coverage in `tests/example_tests/`;
   sample sources and instructions live in `../samples/cuda_bindings/`.

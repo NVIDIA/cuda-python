@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=264def9594c0d23752f232304eca179db14162c9d952745a939811278d336c50
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b3b6c204bf4086f2ac6a36f4d08293d7c5d675e41e957ae542067f13e667ebae
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -3285,7 +3285,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
 
 
     handle : anon_union6
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     size : unsigned long long
@@ -3438,7 +3438,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
 
 
     handle : anon_union7
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     flags : unsigned int
@@ -4062,7 +4062,7 @@ cdef class CUarrayMapInfo_st:
 
 
     offset : unsigned long long
-        Offset within mip tail  Offset within the memory
+        Offset within the memory
 
 
     deviceBitMask : unsigned int
@@ -9274,7 +9274,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_
 
 
     handle : anon_union6
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     size : unsigned long long
@@ -9304,7 +9304,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1)
 
 
     handle : anon_union6
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     size : unsigned long long
@@ -9440,7 +9440,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1(CUDA_EXTERNAL_SEMAPHORE_HANDLE
 
 
     handle : anon_union7
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     flags : unsigned int
@@ -9466,7 +9466,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DE
 
 
     handle : anon_union7
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     flags : unsigned int
@@ -9823,7 +9823,7 @@ cdef class CUarrayMapInfo_v1(CUarrayMapInfo_st):
 
 
     offset : unsigned long long
-        Offset within mip tail  Offset within the memory
+        Offset within the memory
 
 
     deviceBitMask : unsigned int
@@ -9878,7 +9878,7 @@ cdef class CUarrayMapInfo(CUarrayMapInfo_v1):
 
 
     offset : unsigned long long
-        Offset within mip tail  Offset within the memory
+        Offset within the memory
 
 
     deviceBitMask : unsigned int
