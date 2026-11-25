@@ -129,6 +129,9 @@ markers = [
 # Basic settings
 python_version = "3.11"
 explicit_package_bases = true
+# Resolve `cuda.pathfinder` imports from this directory whatever the working
+# directory is. Without it the package's own imports are typed as `Any`.
+mypy_path = "$MYPY_CONFIG_FILE_DIR"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

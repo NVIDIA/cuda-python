@@ -244,4 +244,5 @@ def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | No
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
     if desc.name == "nvrtc":
         _preload_nvrtc_builtins(found_path, found_via)
-    return LoadedDL(found_path, False, handle._handle, found_via)
+    # `found_via` is None when a caller omits it, but `LoadedDL` declares it as `str`.
+    return LoadedDL(found_path, False, handle._handle, found_via)  # type: ignore[arg-type]
