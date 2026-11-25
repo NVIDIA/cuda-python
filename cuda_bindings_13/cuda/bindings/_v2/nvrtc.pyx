@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fff85c453c84fc538b768c24c857213e2dbe1ffb80a2a2e2838019d7e7d1630d
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8ad84b49c2cbb566576d460ae436469e20537c0c227fcfae0b9db7d262b2203e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -592,7 +592,7 @@ cpdef object get_supported_archs():
     with nogil:
         __status__ = nvrtcGetNumSupportedArchs(&numArchs)
     check_status(__status__)
-    cdef _cyb_view.array _supported_archs_alloc_ = _cyb_view.array(shape=(max(numArchs, 1),), itemsize=sizeof(int), format="i", mode="c")
+    cdef _cyb_view.array _supported_archs_alloc_ = _cyb_view.array(shape=(max(<Py_ssize_t>numArchs, 1),), itemsize=sizeof(int), format="i", mode="c")
     cdef int *supported_archs_ptr = <int *>(_supported_archs_alloc_.data)
     cdef object supported_archs = _supported_archs_alloc_[:numArchs]
     if numArchs != 0:

@@ -21,9 +21,6 @@ from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda.bindings._v2 import driver
 from cuda_python_test_helpers import driver_version_less_than
 
-# NULL dependency array: the node has no dependencies.
-NO_DEPS = 0
-
 
 def supportsCudaAPI(name):
     return name in dir(driver)
@@ -31,12 +28,6 @@ def supportsCudaAPI(name):
 
 def callableBinary(name):
     return shutil.which(name) is not None
-
-
-def node_array(nodes):
-    # Build a C array of graph node handles; the caller passes
-    # ctypes.addressof(array) and must keep the array alive during the call.
-    return (ctypes.c_void_p * len(nodes))(*nodes)
 
 
 # This test is not currently run in any CI job
@@ -96,7 +87,7 @@ def test_graph_add_node_v3_returns_the_node():
     graph = driver.graph_create(0)
     params = driver.GraphNodeParams()
     params.type = driver.GraphNodeType.EMPTY
-    node = driver.graph_add_node_v3(graph, NO_DEPS, None, 0, params)
+    node = driver.graph_add_node_v3(graph, None, None, params)
     assert isinstance(node, int) and node != 0
     driver.graph_destroy(graph)
 
@@ -154,7 +145,7 @@ _JIT_PTX = b""".version 7.5
 
 
 def _load_ptx_with_log_options(ptx):
-    # Returns (module-or-exception, info_log, error_log, error_log_size) for a load using the JIT log options.
+    # Returns (module-or-exception, info_log, error_log) for a load using the JIT log options.
     option_keys = [
         driver.JitOption.INFO_LOG_BUFFER,
         driver.JitOption.INFO_LOG_BUFFER_SIZE_BYTES,
@@ -162,22 +153,19 @@ def _load_ptx_with_log_options(ptx):
         driver.JitOption.ERROR_LOG_BUFFER_SIZE_BYTES,
         driver.JitOption.LOG_VERBOSE,
     ]
-    keys = (ctypes.c_int * len(option_keys))(*[int(k) for k in option_keys])
     info_log = ctypes.create_string_buffer(1024)
     error_log = ctypes.create_string_buffer(1024)
-    values = (ctypes.c_void_p * len(option_keys))(
-        ctypes.addressof(info_log), len(info_log), ctypes.addressof(error_log), len(error_log), 1
-    )
+    values = [ctypes.addressof(info_log), len(info_log), ctypes.addressof(error_log), len(error_log), 1]
     try:
-        result = driver.module_load_data_ex(ptx, len(option_keys), ctypes.addressof(keys), ctypes.addressof(values))
+        result = driver.module_load_data_ex(ptx, option_keys, values)
     except driver.DriverError as e:
         result = e
-    return result, info_log.value, error_log.value, values[3]
+    return result, info_log.value, error_log.value
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_cuda_cuModuleLoadDataEx():
-    mod, _, error_log, _ = _load_ptx_with_log_options(_JIT_PTX)
+    mod, _, error_log = _load_ptx_with_log_options(_JIT_PTX)
     assert not isinstance(mod, Exception), mod
     try:
         assert error_log == b""
@@ -188,13 +176,12 @@ def test_cuda_cuModuleLoadDataEx():
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 def test_cuda_cuModuleLoadDataEx_error_log():
-    # The JIT writes its diagnostics into the caller's buffer, and updates the size option value to the
-    # number of bytes written.
+    # The JIT writes its diagnostics into the caller's buffer. The size option value that the JIT updates is
+    # not returned, since the option values are copied into a temporary.
     bad_ptx = b".version 7.5\n.target sm_75\nbogus\n\0"
-    result, _, error_log, error_log_size = _load_ptx_with_log_options(bad_ptx)
+    result, _, error_log = _load_ptx_with_log_options(bad_ptx)
     assert isinstance(result, driver.InvalidPtxError)
     assert b"syntax error" in error_log
-    assert 0 < error_log_size <= 1024
 
 
 def test_cuda_repr():
@@ -462,13 +449,12 @@ def test_cuda_graphMem_attr(device):
     params.bytesize = allocSize
 
     try:
-        allocNode = driver.graph_add_mem_alloc_node(graph, NO_DEPS, 0, params)
+        allocNode = driver.graph_add_mem_alloc_node(graph, None, params)
     except driver.OutOfMemoryError:
         driver.graph_destroy(graph)
         driver.stream_destroy_v2(stream)
         xfail_graph_mempool_oom()
-    deps = node_array([allocNode])
-    freeNode = driver.graph_add_mem_free_node(graph, ctypes.addressof(deps), 1, params.dptr)
+    freeNode = driver.graph_add_mem_free_node(graph, [allocNode], params.dptr)
 
     graphExec = driver.graph_instantiate(graph, 0)
 
@@ -775,7 +761,7 @@ def test_graph_poly():
     memsetParams.memset.height = 1
     memsetParams.memset.dst = device
     memsetParams.memset.value = 1
-    node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, memsetParams)
+    node = driver.graph_add_node_v2(graph, None, None, memsetParams)
     nodes += [node]
 
     # Memcpy
@@ -789,7 +775,7 @@ def test_graph_poly():
     memcpyParams.memcpy.copy_params.width_in_bytes = size
     memcpyParams.memcpy.copy_params.height = 1
     memcpyParams.memcpy.copy_params.depth = 1
-    node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, memcpyParams)
+    node = driver.graph_add_node_v2(graph, None, None, memcpyParams)
     nodes += [node]
 
     # Instantiate, execute, validate
@@ -865,7 +851,7 @@ def test_conditional(ctx):
 
     # ph_graph_out is a pointer to an array of `size` graphs filled in by the driver
     assert params.conditional.ph_graph_out == 0
-    node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, params)
+    node = driver.graph_add_node_v2(graph, None, None, params)
 
     assert params.conditional.ph_graph_out != 0
     assert ctypes.c_void_p.from_address(params.conditional.ph_graph_out).value != 0
@@ -1000,7 +986,7 @@ def test_cuGraphExecGetId(device, ctx):
     graph = driver.graph_create(0)
 
     # Add an empty node to make the graph valid
-    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
+    node = driver.graph_add_empty_node(graph, None)
 
     graphExec = driver.graph_instantiate(graph, 0)
 
@@ -1010,7 +996,7 @@ def test_cuGraphExecGetId(device, ctx):
 
     # Create another graph exec and verify it has a different ID
     graph2 = driver.graph_create(0)
-    node2 = driver.graph_add_empty_node(graph2, NO_DEPS, 0)
+    node2 = driver.graph_add_empty_node(graph2, None)
     graphExec2 = driver.graph_instantiate(graph2, 0)
     graph_exec_id2 = driver.graph_exec_get_id(graphExec2)
     assert graph_exec_id2 != graph_exec_id
@@ -1030,12 +1016,10 @@ def test_cuGraphGetEdges_edgeData_outlives_call(device, ctx):
     # readable after the call and after subsequent allocations.
     graph = driver.graph_create(0)
     try:
-        n0 = driver.graph_add_empty_node(graph, NO_DEPS, 0)
-        # A raw address of an array of handles is accepted ...
-        deps = node_array([n0])
-        n1 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 1)
-        # ... as is a sequence of handles.
-        n2 = driver.graph_add_empty_node(graph, [n0, n1], 2)
+        n0 = driver.graph_add_empty_node(graph, None)
+        # The dependencies are a sequence of handles, whose length is the number of dependencies.
+        n1 = driver.graph_add_empty_node(graph, [n0])
+        n2 = driver.graph_add_empty_node(graph, [n0, n1])
 
         from_nodes, to_nodes, edge_data = driver.graph_get_edges_v2(graph)
         num_edges = len(edge_data)
@@ -1063,8 +1047,8 @@ def test_cuGraphNodeGetDependencies_edgeData_outlives_call(device, ctx):
     # Companion regression test for #1804 covering the dependency-query path.
     graph = driver.graph_create(0)
     try:
-        n0 = driver.graph_add_empty_node(graph, [], 0)
-        n1 = driver.graph_add_empty_node(graph, [n0], 1)
+        n0 = driver.graph_add_empty_node(graph, [])
+        n1 = driver.graph_add_empty_node(graph, [n0])
 
         dependencies, edge_data = driver.graph_node_get_dependencies_v2(n1)
         num_deps = len(edge_data)
@@ -1100,13 +1084,10 @@ def test_cuGraphNodeGetLocalId(device, ctx):
     graph = driver.graph_create(0)
 
     # Add multiple nodes
-    node1 = driver.graph_add_empty_node(graph, NO_DEPS, 0)
+    node1 = driver.graph_add_empty_node(graph, None)
 
-    deps = node_array([node1])
-    node2 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 1)
-
-    deps = node_array([node1, node2])
-    node3 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 2)
+    node2 = driver.graph_add_empty_node(graph, [node1])
+    node3 = driver.graph_add_empty_node(graph, [node1, node2])
 
     # Get local IDs for each node
     node_id1 = driver.graph_node_get_local_id(node1)
@@ -1135,7 +1116,7 @@ def test_cuGraphNodeGetToolsId(device, ctx):
     """Test cuGraphNodeGetToolsId - get node tools ID."""
     graph = driver.graph_create(0)
 
-    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
+    node = driver.graph_add_empty_node(graph, None)
 
     tools_node_id = driver.graph_node_get_tools_id(node)
     assert isinstance(tools_node_id, int)
@@ -1143,8 +1124,7 @@ def test_cuGraphNodeGetToolsId(device, ctx):
     assert tools_node_id >= 0
 
     # Add another node and verify it has a different tools ID
-    deps = node_array([node])
-    node2 = driver.graph_add_empty_node(graph, ctypes.addressof(deps), 1)
+    node2 = driver.graph_add_empty_node(graph, [node])
     tools_node_id2 = driver.graph_node_get_tools_id(node2)
     assert tools_node_id2 != tools_node_id
 
@@ -1159,7 +1139,7 @@ def test_cuGraphNodeGetContainingGraph(device, ctx):
     """Test cuGraphNodeGetContainingGraph - get graph containing a node."""
     graph = driver.graph_create(0)
 
-    node = driver.graph_add_empty_node(graph, NO_DEPS, 0)
+    node = driver.graph_add_empty_node(graph, None)
 
     # Get the containing graph
     containing_graph = driver.graph_node_get_containing_graph(node)
@@ -1169,13 +1149,13 @@ def test_cuGraphNodeGetContainingGraph(device, ctx):
     # Test with a child graph node
     # Create a child graph node
     child_graph = driver.graph_create(0)
-    child_node = driver.graph_add_empty_node(child_graph, NO_DEPS, 0)
+    child_node = driver.graph_add_empty_node(child_graph, None)
 
     # Add child graph node to parent graph
     childGraphNodeParams = driver.GraphNodeParams()
     childGraphNodeParams.type = driver.GraphNodeType.GRAPH
     childGraphNodeParams.graph.graph = child_graph
-    child_graph_node = driver.graph_add_node_v2(graph, NO_DEPS, None, 0, childGraphNodeParams)
+    child_graph_node = driver.graph_add_node_v2(graph, None, None, childGraphNodeParams)
 
     # Get containing graph for the child graph node
     containing_graph_for_child = driver.graph_node_get_containing_graph(child_graph_node)
@@ -1220,7 +1200,7 @@ def test_cuDevSmResourceSplit(device, ctx):
     group_params[0].sm_count = 4
     group_params[0].coscheduled_sm_count = 2
 
-    res, rem = driver.dev_sm_resource_split(nb_groups, resource_in, 0, group_params)
+    res, rem = driver.dev_sm_resource_split(resource_in, 0, group_params)
     assert len(res) == nb_groups
     assert isinstance(rem, driver.DevResource_v1)
 
@@ -1239,7 +1219,7 @@ def test_cuDevSmResourceSplit(device, ctx):
 
     # This may succeed or fail depending on device SM count, but should handle gracefully
     try:
-        res, rem = driver.dev_sm_resource_split(nb_groups, resource_in, 0, group_params)
+        res, rem = driver.dev_sm_resource_split(resource_in, 0, group_params)
     except (driver.InvalidResourceConfigurationError, driver.InvalidValueError):
         # If it fails, it should be due to insufficient resources, not a binding error
         pass
@@ -1253,7 +1233,7 @@ def test_cuDevSmResourceSplit(device, ctx):
 
     # If it fails, it should be a valid CUDA error, not a Python binding error
     with contextlib.suppress(driver.InvalidValueError, driver.InvalidResourceConfigurationError):
-        driver.dev_sm_resource_split(nb_groups, resource_in, 0, None)
+        driver.dev_sm_resource_split(resource_in, 0, None)
 
 
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")

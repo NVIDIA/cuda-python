@@ -144,6 +144,7 @@ ctypedef fused ResT:
     int
     int32_t
     int64_t
+    size_t
     char
     float
     double
