@@ -7,8 +7,9 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
-from helpers.child_processes import run_child
+from helpers.child_processes import child_timeout_sec, run_child
 from helpers.contexts import assert_no_cuda_warning
+from helpers.misc import run_in_threads
 
 import cuda.core
 from cuda.bindings import driver
@@ -186,22 +187,22 @@ def test_primary_context_survives_thread_exit(init_cuda, lookup, use):
 def _concurrent_primary_retains_child(device_id):
     num_threads = 8
     barrier = threading.Barrier(num_threads)
+    contexts = []
 
-    def worker(_):
+    def worker():
         dev = Device(device_id)
         barrier.wait()
         dev.set_current()
-        return dev.context
+        contexts.append(dev.context)
 
     with assert_no_cuda_warning():
-        # The workers block on the barrier, so each runs on its own thread.
-        with ThreadPoolExecutor(max_workers=num_threads) as pool:
-            contexts = list(pool.map(worker, range(num_threads)))
+        run_in_threads([worker] * num_threads, barrier=barrier, timeout=child_timeout_sec())
+        assert len(contexts) == num_threads
         assert len({int(ctx.handle) for ctx in contexts}) == 1
-        del contexts
+        contexts.clear()
         gc.collect()
-        # The workers' thread_local caches are destroyed after the pool's
-        # threads are joined, and their destruction cannot be observed.
+        # The workers' thread_local caches can be destroyed after their threads
+        # are joined, and their destruction cannot be observed.
         time.sleep(1.0)
         assert _primary_active(device_id), "cuda.core released its primary-context retain"
 
