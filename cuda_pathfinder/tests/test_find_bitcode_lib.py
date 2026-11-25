@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 import cuda.pathfinder._static_libs.find_bitcode_lib as find_bitcode_lib_module
+import cuda.pathfinder._static_libs.locate_file as locate_file_module
 from cuda.pathfinder._static_libs.find_bitcode_lib import (
     SUPPORTED_BITCODE_LIBS,
     BitcodeLibNotFoundError,
@@ -111,7 +112,7 @@ def test_locate_bitcode_lib_search_order(monkeypatch, tmp_path, libname):
         return []
 
     monkeypatch.setattr(
-        find_bitcode_lib_module,
+        locate_file_module,
         "find_sub_dirs_all_sitepackages",
         find_expected_sub_dir,
     )
@@ -147,9 +148,9 @@ def test_locate_bitcode_lib_returns_resolved_path_for_relative_root(monkeypatch,
     root = Path("relative-root")
     if source == "site-packages":
         lib_dir = root / Path(info["site_packages_dirs"][0])
-        monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [str(lib_dir)])
+        monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [str(lib_dir)])
     else:
-        monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+        monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
         if source == "conda":
             monkeypatch.setenv("CONDA_PREFIX", str(root))
             lib_dir = _conda_anchor(root) / Path(info["rel_path"])
@@ -178,7 +179,7 @@ def test_locate_bitcode_lib_preserves_symlink_parent(monkeypatch, tmp_path):
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
     monkeypatch.setenv("CUDA_HOME", "alias/..")
-    monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+    monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
 
     real_root = tmp_path / "real"
     (real_root / "child").mkdir(parents=True)
@@ -202,7 +203,7 @@ def test_locate_bitcode_lib_preserves_symlink_parent(monkeypatch, tmp_path):
 def test_locate_bitcode_lib_resolves_symlinked_file(monkeypatch, tmp_path):
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
-    monkeypatch.setattr(find_bitcode_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+    monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
     root = tmp_path / "toolkit"
     monkeypatch.setenv("CUDA_HOME", str(root))
     info = _bitcode_lib_info("device")
@@ -227,7 +228,7 @@ def test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing(m
     extra_file.write_text("placeholder", encoding="utf-8")
 
     monkeypatch.setattr(
-        find_bitcode_lib_module,
+        locate_file_module,
         "find_sub_dirs_all_sitepackages",
         lambda _sub_dir: [],
     )
@@ -248,7 +249,7 @@ def test_find_bitcode_lib_not_found_error_includes_cuda_home_directory_listing(m
 @pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
 def test_find_bitcode_lib_not_found_error_without_cuda_home(monkeypatch):
     monkeypatch.setattr(
-        find_bitcode_lib_module,
+        locate_file_module,
         "find_sub_dirs_all_sitepackages",
         lambda _sub_dir: [],
     )
