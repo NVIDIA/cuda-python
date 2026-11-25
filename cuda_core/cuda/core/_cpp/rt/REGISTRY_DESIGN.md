@@ -15,7 +15,8 @@ together to map a raw driver handle all the way back to the original
 Python object. Both use weak references so they
 do not prevent cleanup. Entries are removed either explicitly (via
 `destroy()` or a Box destructor) or implicitly when the weak reference
-expires.
+expires. The one exception is a primary context's Box, which a separate table
+pins for the life of the process (see "Removing and replacing entries").
 
 ## Level 1: Driver Handle -> Resource Handle (C++)
 
