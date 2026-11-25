@@ -25,6 +25,10 @@ cdef class Context:
     cpdef close(self)
 
 
+cdef int Context_get_primary_handle(int device_id, ContextHandle* h_context) except -1
+cdef Context Context_primary(int device_id)
+
+
 cdef inline int Context_check_open(Context self) except -1:
     if not self._h_context:
         raise RuntimeError("Context has been closed")

@@ -12,7 +12,7 @@ from libcpp.vector cimport vector
 
 import threading
 
-from cuda.core._context cimport Context, Context_check_open
+from cuda.core._context cimport Context, Context_check_open, Context_primary
 from cuda.core._context import ContextOptions
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._event cimport Event as cyEvent
@@ -24,7 +24,6 @@ from cuda.core._rt cimport (
     create_current_context_handle_ref,
     create_green_ctx_handle,
     context_synchronize,
-    get_primary_context,
     get_last_error,
     as_cu,
 )
@@ -1292,6 +1291,7 @@ class Device:
         cdef cydriver.CUcontext prev_ctx, curr_ctx
         cdef cydriver.CUdevice prev_dev
         cdef Context prev_owned = None
+        cdef Context primary
 
         if ctx is not None:
             Context_check_open(ctx)
@@ -1328,16 +1328,11 @@ class Device:
                 return Context._from_handle(Context, h_context, <int>prev_dev)
         else:
             # use primary ctx
-            h_context = get_primary_context(self._device_id)
-            if h_context.get() == NULL:
-                HANDLE_RETURN(get_last_error())
-                raise RuntimeError(
-                    f"Failed to retain the primary context for device {self._device_id}"
-                )
+            primary = Context_primary(self._device_id)
             with nogil:
-                HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(h_context)))
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(primary._h_context)))
             self._has_inited = True
-            self._context = Context._from_handle(Context, h_context, self._device_id)  # Store owning context
+            self._context = primary  # Store owning context
 
     def create_context(self, options: ContextOptions | None = None) -> Context:
         """Create a new :obj:`~_context.Context` object.

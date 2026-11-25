@@ -7,14 +7,11 @@ from __future__ import annotations
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._context cimport Context
+from cuda.core._context cimport Context, Context_primary
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._rt cimport (
-    ContextHandle,
     create_context_bound_legacy_stream,
     deviceptr_alloc_raw,
-    get_last_error,
-    get_primary_context,
 )
 from cuda.core._stream cimport Stream, Stream_accept, Stream_is_default_token
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
@@ -41,13 +38,8 @@ class _SynchronousMemoryResource(MemoryResource):
         self._context = context
 
     def _resolve_context(self) -> Context:
-        cdef ContextHandle h_context
         if self._context is None:
-            h_context = get_primary_context(self._device_id)
-            if not h_context:
-                HANDLE_RETURN(get_last_error())
-            self._context = Context._from_handle(
-                Context, h_context, self._device_id)
+            self._context = Context_primary(self._device_id)
         return self._context
 
     def allocate(
