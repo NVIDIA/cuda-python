@@ -71,7 +71,7 @@ def _find_windows_compute_sanitizer(ctk_root: str) -> str | None:
 
 
 def _resolve_ctk_root_via_canary() -> str | None:
-    from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import resolve_ctk_root_via_canary
+    from cuda.pathfinder._dynamic_libs.canary_probe import resolve_ctk_root_via_canary
 
     ctk_root: str | None = resolve_ctk_root_via_canary(CTK_ROOT_CANARY_ANCHOR_LIBNAMES[0])
     return ctk_root

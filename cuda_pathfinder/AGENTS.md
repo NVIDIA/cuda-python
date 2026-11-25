@@ -28,6 +28,9 @@ Windows.
 - **Load orchestration**:
   - `load_nvidia_dynamic_lib.py` coordinates find/load phases, dependency
     loading, driver-lib fast path, and cache semantics.
+- **CTK-root canary probe**:
+  - `canary_probe.py` finds the CUDA Toolkit root by loading a canary library
+    in a fresh Python process. Library, header and binary discovery share it.
 - **Static and bitcode libraries**:
   - `_static_libs/locate_file.py` holds the one search that
     `find_static_lib.py` and `find_bitcode_lib.py` share.

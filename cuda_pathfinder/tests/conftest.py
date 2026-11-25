@@ -36,11 +36,9 @@ def skip_if_missing_libnvcudla_so(libname: str, *, timeout: float) -> None:
         return
     # Keep the import inside the helper so unrelated import issues do not fail
     # pytest collection for the whole test suite.
-    from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
+    from cuda.pathfinder._dynamic_libs.canary_probe import _resolve_system_loaded_abs_path_in_subprocess
 
-    canary_abs_path = load_nvidia_dynamic_lib_module._resolve_system_loaded_abs_path_in_subprocess(
-        "nvcudla", timeout=timeout
-    )
+    canary_abs_path = _resolve_system_loaded_abs_path_in_subprocess("nvcudla", timeout=timeout)
     if canary_abs_path is not None:
         return
     pytest.skip("libnvcudla.so is not loadable via canary subprocess on this host.")
