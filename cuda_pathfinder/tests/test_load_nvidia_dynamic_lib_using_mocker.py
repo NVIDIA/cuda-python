@@ -274,3 +274,18 @@ def test_cupti_search_order_conda_before_cuda_home(tmp_path, mocker, monkeypatch
     result = _load_lib_no_cache("cupti")
     assert result.found_via == "conda"
     assert result.abs_path == str(conda_cupti_lib)
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_already_loaded_library_is_returned_without_searching_the_disk(mocker):
+    """An unreadable search location must not break a library that is already loaded."""
+    already_loaded = _make_loaded_dl("/opt/elsewhere/libcublas.so.13", "was-already-loaded-from-elsewhere")
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=already_loaded)
+    mocker.patch(f"{_MODULE}.load_dependencies")
+    unreadable = mocker.patch(
+        "cuda.pathfinder._dynamic_libs.search_platform.find_sub_dirs_all_sitepackages",
+        side_effect=PermissionError("site-packages is not readable"),
+    )
+
+    assert _load_lib_no_cache("cublas") is already_loaded
+    unreadable.assert_not_called()

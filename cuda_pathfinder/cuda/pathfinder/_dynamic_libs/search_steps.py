@@ -259,7 +259,7 @@ def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
 # Step sequences per strategy
 # ---------------------------------------------------------------------------
 
-#: Find steps that run before the already-loaded check and system search.
+#: Find steps that run after the already-loaded check and before system search.
 EARLY_FIND_STEPS: tuple[FindStep, ...] = (find_in_site_packages, find_in_conda)
 
 #: Find steps that run after system search fails.
