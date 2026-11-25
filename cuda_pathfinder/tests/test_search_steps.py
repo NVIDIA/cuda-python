@@ -955,6 +955,11 @@ class TestRunFindSteps:
     def test_empty_steps(self):
         assert run_find_steps(_ctx(), ()) == NotFound()
 
+    @pytest.mark.agent_authored(model="claude-fable-5-2")
+    def test_both_result_types_say_whether_they_found_something(self):
+        assert FindResult("/lib/libfoo.so", "conda").found is True
+        assert NotFound(("No such file: libfoo.so",)).found is False
+
     def test_skips_misses_returns_later_hit(self):
         hit = FindResult("/later/lib.so", "step-c")
         result = run_find_steps(_ctx(), (lambda _: NotFound(), lambda _: hit))
