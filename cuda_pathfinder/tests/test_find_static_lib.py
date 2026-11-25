@@ -8,6 +8,7 @@ import pytest
 from local_helpers import quote_for_shell
 
 import cuda.pathfinder._static_libs.find_static_lib as find_static_lib_module
+import cuda.pathfinder._static_libs.locate_file as locate_file_module
 from cuda.pathfinder._static_libs.find_static_lib import (
     SUPPORTED_STATIC_LIBS,
     StaticLibNotFoundError,
@@ -93,7 +94,7 @@ def test_locate_static_lib_search_order(monkeypatch, tmp_path):
     cuda_home_path = _make_static_lib_file(cuda_home_lib_dir, filename)
 
     monkeypatch.setattr(
-        find_static_lib_module,
+        locate_file_module,
         "find_sub_dirs_all_sitepackages",
         lambda _sub_dir: [str(site_packages_lib_dir)],
     )
@@ -128,9 +129,9 @@ def test_locate_static_lib_returns_resolved_path_for_relative_root(monkeypatch, 
     root = Path("relative-root")
     if source == "site-packages":
         lib_dir = root / Path(CUDADEVRT_INFO["site_packages_dirs"][0])
-        monkeypatch.setattr(find_static_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [str(lib_dir)])
+        monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [str(lib_dir)])
     else:
-        monkeypatch.setattr(find_static_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+        monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
         if source == "conda":
             monkeypatch.setenv("CONDA_PREFIX", str(root))
             lib_dir = _conda_anchor(root) / Path(CUDADEVRT_INFO["conda_rel_paths"][0])
@@ -159,7 +160,7 @@ def test_locate_static_lib_preserves_symlink_parent(monkeypatch, tmp_path):
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
     monkeypatch.setenv("CUDA_HOME", "alias/..")
-    monkeypatch.setattr(find_static_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+    monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
 
     real_root = tmp_path / "real"
     (real_root / "child").mkdir(parents=True)
@@ -182,7 +183,7 @@ def test_locate_static_lib_preserves_symlink_parent(monkeypatch, tmp_path):
 def test_locate_static_lib_resolves_symlinked_file(monkeypatch, tmp_path):
     monkeypatch.delenv("CONDA_PREFIX", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
-    monkeypatch.setattr(find_static_lib_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+    monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
     root = tmp_path / "toolkit"
     monkeypatch.setenv("CUDA_HOME", str(root))
     info = CUDADEVRT_INFO
@@ -211,7 +212,7 @@ def test_locate_static_lib_conda_rel_path_fallback(monkeypatch, tmp_path):
     conda_path = _make_static_lib_file(conda_lib_dir, filename)
 
     monkeypatch.setattr(
-        find_static_lib_module,
+        locate_file_module,
         "find_sub_dirs_all_sitepackages",
         lambda _sub_dir: [],
     )
@@ -271,7 +272,7 @@ def test_find_static_lib_not_found_error_includes_cuda_home_directory_listing(mo
     extra_file.write_text("placeholder", encoding="utf-8")
 
     monkeypatch.setattr(
-        find_static_lib_module,
+        locate_file_module,
         "find_sub_dirs_all_sitepackages",
         lambda _sub_dir: [],
     )
@@ -294,7 +295,7 @@ def test_find_static_lib_not_found_error_without_cuda_home(monkeypatch):
     filename = CUDADEVRT_INFO["filename"]
 
     monkeypatch.setattr(
-        find_static_lib_module,
+        locate_file_module,
         "find_sub_dirs_all_sitepackages",
         lambda _sub_dir: [],
     )
