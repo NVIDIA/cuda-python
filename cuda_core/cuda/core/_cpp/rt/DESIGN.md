@@ -125,8 +125,8 @@ cuda/core/
     ├── internal.hpp         # Registry, cleanup wrappers, deferred-cleanup item (namespace detail)
     ├── py_report.cpp, py_deferred_cleanup.cpp        # Python-coupled bodies
     ├── host_launch.cpp      # The stream-side host function launch record
-    └── context.cpp, stream.cpp, event.cpp, memory.cpp, program.cpp,
-        graph.cpp, graph_exec.cpp, texture.cpp        # One resource family per file
+    └── context.cpp, stream.cpp, event.cpp, memory.cpp, memory_pool.cpp,
+        program.cpp, graph.cpp, graph_exec.cpp, texture.cpp  # One resource family per file
 ```
 
 ### Build Implications
