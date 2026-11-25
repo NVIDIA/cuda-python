@@ -178,7 +178,11 @@ def test_set_power_management_limit(all_devices, subtests):
                 nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, limit)
             except nvml.NoPermissionError:
                 pytest.skip("No permission to set power management limit")
-            assert nvml.device_get_power_management_limit(device) == limit
+            try:
+                assert nvml.device_get_power_management_limit(device) == limit
+            finally:
+                # Put the original limit back even if the readback fails or differs.
+                nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, limit)
 
 
 def test_set_temperature_threshold(all_devices, subtests):
