@@ -156,7 +156,7 @@ def _try_ctk_root_canary(ctx: SearchContext) -> FindResult | NotFound:
         if ctk_root is None:
             continue
         result = find_via_ctk_root(ctx, ctk_root)
-        if isinstance(result, FindResult):
+        if result.found:
             return result
         missed += result
     return missed
@@ -180,7 +180,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         return loaded
 
     # Phase 3: Load from found path, or fall back to system search + late find.
-    if isinstance(early, FindResult):
+    if early.found:
         return LOADER.load_with_abs_path(desc, early.abs_path, early.found_via)
 
     loaded = LOADER.load_with_system_search(desc)
@@ -188,13 +188,13 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         return loaded
 
     late = run_find_steps(ctx, LATE_FIND_STEPS)
-    if isinstance(late, FindResult):
+    if late.found:
         return LOADER.load_with_abs_path(desc, late.abs_path, late.found_via)
 
     missed = early + late
     if desc.ctk_root_canary_anchor_libnames:
         canary = _try_ctk_root_canary(ctx)
-        if isinstance(canary, FindResult):
+        if canary.found:
             return LOADER.load_with_abs_path(desc, canary.abs_path, canary.found_via)
         missed += canary
 
