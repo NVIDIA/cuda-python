@@ -26,7 +26,6 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     LATE_FIND_STEPS,
     FindResult,
     SearchContext,
-    _find_lib_dir_using_anchor,
     find_in_conda,
     find_in_cuda_path,
     find_in_install_root_env_vars,
@@ -90,10 +89,6 @@ def _write_pe(path, machine):
 
 
 class TestSearchContext:
-    def test_libname_delegates_to_descriptor(self):
-        ctx = _ctx(_make_desc(name="nvrtc"))
-        assert ctx.libname == "nvrtc"
-
     def test_lib_searched_for_linux(self):
         ctx = SearchContext(LIB_DESCRIPTORS["cublas"], platform=LinuxSearchPlatform())
         assert ctx.lib_searched_for == "libcublas.so.13 or libcublas.so.12"
@@ -1060,48 +1055,6 @@ class TestAnchorRelDirs:
             )
         )
         assert WindowsSearchPlatform(target_arch="x64").anchor_rel_dirs(desc) == ("bin/x64", "bin")
-
-    def test_find_lib_dir_uses_descriptor_linux(self, tmp_path):
-        (tmp_path / "nvvm" / "lib64").mkdir(parents=True)
-
-        desc = _make_desc(name="nvvm", anchor_rel_dirs_linux=("nvvm/lib64",))
-        result = _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), str(tmp_path))
-        assert result is not None
-        assert result.endswith(os.path.join("nvvm", "lib64"))
-
-    def test_find_lib_dir_uses_descriptor_windows(self, tmp_path):
-        (tmp_path / "nvvm" / "bin").mkdir(parents=True)
-
-        desc = _make_desc(
-            name="nvvm",
-            anchor_rel_dirs_windows=WindowsSearchDirs(
-                x64=("nvvm/bin/x64", "nvvm/bin"),
-                arm64=("nvvm/bin/arm64", "nvvm/bin"),
-            ),
-        )
-        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="x64"), str(tmp_path))
-        assert result is not None
-        assert result.endswith(os.path.join("nvvm", "bin"))
-
-    @pytest.mark.agent_authored(model="gpt-5")
-    def test_find_lib_dir_windows_arm64_uses_arm64_anchor(self, tmp_path):
-        (tmp_path / "bin" / "x64").mkdir(parents=True)
-        (tmp_path / "bin" / "arm64").mkdir(parents=True)
-
-        desc = _make_desc(
-            name="cudart",
-            anchor_rel_dirs_windows=WindowsSearchDirs(
-                x64=("bin/x64", "bin"),
-                arm64=("bin/arm64",),
-            ),
-        )
-        result = _find_lib_dir_using_anchor(desc, WindowsSearchPlatform(target_arch="arm64"), str(tmp_path))
-        assert result is not None
-        assert result.endswith(os.path.join("bin", "arm64"))
-
-    def test_find_lib_dir_returns_none_when_no_match(self, tmp_path):
-        desc = _make_desc(anchor_rel_dirs_linux=("nonexistent",))
-        assert _find_lib_dir_using_anchor(desc, LinuxSearchPlatform(), str(tmp_path)) is None
 
     def test_nvvm_cuda_home_linux(self, mocker, tmp_path):
         """End-to-end: find_in_cuda_path resolves nvvm under its custom subdir."""

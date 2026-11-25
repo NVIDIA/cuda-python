@@ -45,10 +45,6 @@ def find_sub_dirs(parent_dirs: Sequence[str], sub_dirs: Sequence[str]) -> list[s
     return find_sub_dirs_cached(tuple(parent_dirs), tuple(sub_dirs))
 
 
-def find_sub_dirs_sys_path(sub_dirs: Sequence[str]) -> list[str]:
-    return find_sub_dirs(sys.path, sub_dirs)
-
-
 def find_sub_dirs_all_sitepackages(sub_dirs: Sequence[str]) -> list[str]:
     parent_dirs = list(site.getsitepackages())
     if site.ENABLE_USER_SITE:
