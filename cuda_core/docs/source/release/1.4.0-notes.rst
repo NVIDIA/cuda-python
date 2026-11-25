@@ -9,6 +9,11 @@
 Fixes and enhancements
 ----------------------
 
+- ``StridedMemoryView`` now verifies the actual Tensor type before using the
+  PyTorch native bridge. Protocol adapters with a ``torch``-prefixed module
+  name and a ``data_ptr`` attribute now use their declared data exchange
+  protocol instead of failing or being passed to the native Tensor interface.
+
 - Kernels, :meth:`Buffer.fill` and asynchronous copies now work on
   :class:`PinnedMemoryResource` buffers on every device that supports the
   pool's kind of host memory pool, as on ``cudaMallocHost`` memory. In
