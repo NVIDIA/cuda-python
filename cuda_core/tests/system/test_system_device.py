@@ -129,7 +129,6 @@ def test_affinity(subtests):
                 assert isinstance(affinity, list)
 
 
-# This test is not currently run in any CI job
 def test_numa_node_id(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):
