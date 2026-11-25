@@ -26,9 +26,9 @@ current operating system. Platform differences are resolved up front into the
 import glob
 import os
 from collections.abc import Callable, Iterator
-from dataclasses import dataclass
 
 from cuda.pathfinder._dynamic_libs.search_platform import (
+    FindResult,
     NotFound,
     SearchContext,
     find_lib_in_dir,
@@ -38,19 +38,6 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
 from .._utils.resolve_path import resolve_path
-
-# ---------------------------------------------------------------------------
-# Data types
-# ---------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class FindResult:
-    """A library file located on disk (not yet loaded)."""
-
-    abs_path: str
-    found_via: str
-
 
 #: Type alias for a find step callable.
 FindStep = Callable[[SearchContext], FindResult | NotFound]
@@ -73,10 +60,10 @@ def _find_under_root(
     """Resolve *rel_dirs* under *root*, then find the requested library."""
     missed = NotFound()
     for lib_dir in _iter_lib_dirs(root, rel_dirs):
-        found = find_lib_in_dir(ctx, lib_dir)
-        if not isinstance(found, NotFound):
-            return FindResult(found, found_via)
-        missed += found
+        result = find_lib_in_dir(ctx, lib_dir, found_via)
+        if result.found:
+            return result
+        missed += result
     return missed
 
 
@@ -148,10 +135,7 @@ def find_in_site_packages(ctx: SearchContext) -> FindResult | NotFound:
     """Search pip wheel install locations."""
     if not ctx.site_packages_rel_dirs:
         return NotFound()
-    found = find_lib_in_site_packages(ctx)
-    if isinstance(found, NotFound):
-        return found
-    return FindResult(found, "site-packages")
+    return find_lib_in_site_packages(ctx)
 
 
 def find_in_conda(ctx: SearchContext) -> FindResult | NotFound:
@@ -172,7 +156,7 @@ def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | NotFound:
         if not root:
             continue
         result = _find_under_root(ctx, root, rel_dirs, env_var)
-        if isinstance(result, FindResult):
+        if result.found:
             return result
         missed += result
     return missed
@@ -203,7 +187,7 @@ def find_in_program_files_roots(ctx: SearchContext) -> FindResult | NotFound:
             if not os.path.isdir(root):
                 continue
             result = _find_under_anchor_root(ctx, str(resolve_path(root)), "ProgramFiles")
-            if isinstance(result, FindResult):
+            if result.found:
                 return result
             missed += result
     return missed
@@ -234,7 +218,7 @@ def run_find_steps(ctx: SearchContext, steps: tuple[FindStep, ...]) -> FindResul
     missed = NotFound()
     for step in steps:
         result = step(ctx)
-        if isinstance(result, FindResult):
+        if result.found:
             return result
         missed += result
     return missed
