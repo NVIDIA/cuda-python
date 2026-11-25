@@ -84,19 +84,19 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
     ctx = search_context(desc)
 
-    # Phase 1: Try to find the library file on disk (pip wheels, conda).
-    early = run_find_steps(ctx, EARLY_FIND_STEPS)
-
-    # Phase 2: Cross-cutting — already-loaded check and dependency loading.
+    # Step 0: already loaded by another component? Then skip the search.
+    # Dependencies are loaded either way.
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
 
-    # Phase 3: Load from found path, or fall back to system search + late find.
+    # Steps 1-2: pip wheels, then conda.
+    early = run_find_steps(ctx, EARLY_FIND_STEPS)
     if early.found:
         return LOADER.load_with_abs_path(desc, early.abs_path, early.found_via)
 
+    # Step 3: the OS loader's own search, then the fallback locations.
     loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
         return loaded
