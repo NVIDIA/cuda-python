@@ -130,7 +130,7 @@ the literal floor.
 
 - **Primary tests**: `pytest tests/`
 - **Cython tests**:
-  - build: `tests/cython/build_tests.sh` (or platform equivalent)
+  - build: `python tests/cython/build_tests.py`
   - run: `pytest tests/cython/`
 - **Samples**: validate affected samples in `../samples/cuda_core/` when changing user
   workflows or public APIs.

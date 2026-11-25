@@ -113,6 +113,7 @@ def _round_trip(mode, owner_uuid, payload):
         return result
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_export_shape(vmm_fabric_device):
     device = vmm_fabric_device
@@ -173,6 +174,7 @@ def test_descriptor_pickle_and_validation():
             descriptor.from_handles(handles, sizes, size=size)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.parametrize("mode", ["queue", "pipe", "argument", "pool"])
 @pytest.mark.parametrize("send_buffer", [False, True], ids=["descriptor", "buffer"])
 @pytest.mark.thread_unsafe(reason="counts process-global file descriptors")
@@ -192,6 +194,7 @@ def test_cross_process(vmm_fabric_device, mode, send_buffer):
         assert len(os.listdir("/proc/self/fd")) == before
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_second_gpu_and_wrong_owner(vmm_fabric_device_x2):
     owner, peer = vmm_fabric_device_x2
@@ -236,6 +239,7 @@ def test_handle_type_mismatch(vmm_ipc_device):
 
 
 # Fixed patterns: a random first byte of 0x01 would read as the driver's own handle type and take another error path.
+# This test is not currently run in any CI job
 @pytest.mark.parametrize("handle", [bytes(64), b"\xff" * 64], ids=["zero", "ones"])
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_garbage(vmm_fabric_device, handle):
@@ -248,6 +252,7 @@ def test_garbage(vmm_fabric_device, handle):
         _check_import_error(info.value)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_stale_descriptor(vmm_fabric_device):
     device = vmm_fabric_device
@@ -259,6 +264,7 @@ def test_stale_descriptor(vmm_fabric_device):
     _check_import_error(info.value)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_reexport_imported_derivatives(vmm_fabric_device):
     device = vmm_fabric_device
@@ -276,6 +282,7 @@ def test_reexport_imported_derivatives(vmm_fabric_device):
                 pickle.dumps(imported)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_buffer_pickle(vmm_fabric_device):
     device = vmm_fabric_device
@@ -303,6 +310,7 @@ def _child_stale_queue(queue, ready, outgoing):
     outgoing.close()
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_queued_buffer_does_not_pin(vmm_fabric_device):
     device = vmm_fabric_device
@@ -342,6 +350,7 @@ def test_queued_buffer_does_not_pin(vmm_fabric_device):
             assert _read(fresh) == b"\x58" * 16
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="Fabric IPC requires Linux")
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_unsupported_fabric_construction(init_cuda):

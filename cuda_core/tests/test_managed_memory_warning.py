@@ -65,6 +65,7 @@ def test_default_pool_error_without_concurrent_access(device_without_concurrent_
         raise
 
 
+# This test is not currently run in any CI job
 @requires_cuda_13
 def test_warning_emitted(device_without_concurrent_managed_access):
     """ManagedMemoryResource emits a warning when concurrent managed access is unsupported."""
@@ -85,6 +86,7 @@ def test_warning_emitted(device_without_concurrent_managed_access):
     mr.close()
 
 
+# This test is not currently run in any CI job
 @requires_cuda_13
 def test_warning_emitted_only_once(device_without_concurrent_managed_access):
     """Warning fires only once even when multiple ManagedMemoryResources are created."""

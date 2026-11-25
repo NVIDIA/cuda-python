@@ -81,6 +81,7 @@ def test_get_handle_by_uuidv(all_devices, subtests):
             assert new_handle == device
 
 
+# This test is not currently run in any CI job
 def test_get_nv_link_supported_bw_modes(all_devices, subtests):
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):
@@ -119,6 +120,7 @@ def test_device_get_unrepairable_memory_flag(all_devices, subtests):
             assert isinstance(status, int)
 
 
+# This test is not currently run in any CI job
 def test_device_vgpu_get_heterogeneous_mode(all_devices, subtests):
     for device in all_devices:
         with subtests.test(device_index=nvml.device_get_index(device)):
@@ -138,6 +140,7 @@ def test_read_prm_counters(all_devices, subtests):
             assert len(read_counters) == 5
 
 
+# This test is not currently run in any CI job
 @pytest.mark.thread_unsafe(reason="API appears to be thread-unsafe (2026-06)")
 def test_read_write_prm(all_devices, subtests):
     for device in all_devices:
@@ -160,6 +163,7 @@ def test_get_power_management_limit(all_devices, subtests):
             nvml.device_get_power_management_limit(device)
 
 
+# This test is not currently run in any CI job
 def test_set_power_management_limit(all_devices, subtests):
     for device in all_devices:
         with (
@@ -241,6 +245,7 @@ def _check_vgpu_type_id_list(type_ids):
         assert ids == []
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_supported_vgpus_no_namerror(all_devices, subtests):
     """device_get_supported_vgpus must not raise a NameError, whether or not
@@ -253,6 +258,7 @@ def test_device_get_supported_vgpus_no_namerror(all_devices, subtests):
             _check_vgpu_type_id_list(vgpu_type_ids)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_creatable_vgpus_no_namerror(all_devices, subtests):
     """device_get_creatable_vgpus must not raise a NameError, whether or not
@@ -265,6 +271,7 @@ def test_device_get_creatable_vgpus_no_namerror(all_devices, subtests):
             _check_vgpu_type_id_list(vgpu_type_ids)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_active_vgpus_no_namerror(all_devices, subtests):
     """device_get_active_vgpus must not raise a NameError, whether or not
@@ -298,6 +305,7 @@ def _require_mig_enabled(device):
         pytest.skip(f"MIG is not enabled on device {device}")
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_gpu_instances_empty_result(all_devices, subtests):
     """device_get_gpu_instances must not raise ValueError: Invalid shape in
@@ -331,6 +339,7 @@ def test_device_get_gpu_instances_empty_result(all_devices, subtests):
                     assert len(set(handles)) == len(handles)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_gpu_instance_get_compute_instances_empty_result(all_devices, subtests):
     """gpu_instance_get_compute_instances must not raise ValueError: Invalid
@@ -378,6 +387,7 @@ def test_gpu_instance_get_compute_instances_empty_result(all_devices, subtests):
                     assert len(set(handles)) == len(handles)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_vgpu_utilization_sized_array(all_devices, subtests):
     """device_get_vgpu_utilization must return an array sized to the real
@@ -413,6 +423,7 @@ def test_device_get_vgpu_utilization_sized_array(all_devices, subtests):
                 assert len(set(vgpu_instances)) == len(vgpu_instances)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5")
 def test_device_get_vgpu_process_utilization_returns_array(all_devices, subtests):
     """device_get_vgpu_process_utilization must return a correctly-sized array

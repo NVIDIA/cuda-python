@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=b6bb1391c9ef913b529c0c3c664a9f335c2025ea9034e6e075e3543fff79038f
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=68806ae09c0689496070f681fad1b81c68d93dcecde7cc944658e5d0785e7806
 
 
 
@@ -26,8 +26,8 @@ ctypedef CUfileHandle_t Handle
 ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
-ctypedef CUfileFSOps_t FSOps
 ctypedef CUfileDrvProps_t DrvProps
+ctypedef CUfileFSOps_t FSOps
 
 
 ###############################################################################

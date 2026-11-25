@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=e99438cba367ec2bee3420a771067ba7d33770c5c4cb189b770f59d56e8ace8c
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=fe9c4110e9554534d458e075b5f06db2cce063086d7803738d8c6cf8d95b2312
 from typing import Any, Optional
 import cython
 import ctypes
@@ -17028,7 +17028,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
 
 
     handle : anon_union5
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     size : unsigned long long
@@ -17450,7 +17450,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
 
 
     handle : anon_union6
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     flags : unsigned int
@@ -19140,7 +19140,7 @@ cdef class CUarrayMapInfo_st:
 
 
     offset : unsigned long long
-        Offset within mip tail  Offset within the memory
+        Offset within the memory
 
 
     deviceBitMask : unsigned int
@@ -32190,21 +32190,22 @@ def cuMemGetHandleForAddressRange(dptr, size_t size, handleType not None : CUmem
     size.
 
     When requesting
-    CUmemRangeHandleType::CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD, users are
-    expected to query for dma_buf support for the platform by using
-    :py:obj:`~.CU_DEVICE_ATTRIBUTE_DMA_BUF_SUPPORTED` device attribute
-    before calling this API. The `handle` will be interpreted as a pointer
-    to an integer to store the dma_buf file descriptor. Users must ensure
-    the entire address range is backed and mapped when the address range is
-    allocated by :py:obj:`~.cuMemAddressReserve`. All the physical
-    allocations backing the address range must be resident on the same
-    device and have identical allocation properties. Users are also
+    :py:obj:`~.CUmemRangeHandleType.CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD`,
+    users are expected to query for dma_buf support for the platform by
+    using :py:obj:`~.CU_DEVICE_ATTRIBUTE_DMA_BUF_SUPPORTED` device
+    attribute before calling this API. The `handle` will be interpreted as
+    a pointer to an integer to store the dma_buf file descriptor. Users
+    must ensure the entire address range is backed and mapped when the
+    address range is allocated by :py:obj:`~.cuMemAddressReserve`. All the
+    physical allocations backing the address range must be resident on the
+    same device and have identical allocation properties. Users are also
     expected to retrieve a new handle every time the underlying physical
     allocation(s) corresponding to a previously queried VA range are
     changed.
 
-    For CUmemRangeHandleType::CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD, users
-    may set flags to
+    For
+    :py:obj:`~.CUmemRangeHandleType.CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD`,
+    users may set flags to
     :py:obj:`~.CU_MEM_RANGE_FLAG_DMA_BUF_MAPPING_TYPE_PCIE`. Which when set
     on a supported platform, will give a DMA_BUF handle mapped via PCIE
     BAR1 or will return an error otherwise.
@@ -32221,9 +32222,10 @@ def cuMemGetHandleForAddressRange(dptr, size_t size, handleType not None : CUmem
         output parameter)
     flags : unsigned long long
         When requesting
-        CUmemRangeHandleType::CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD the value
-        could be :py:obj:`~.CU_MEM_RANGE_FLAG_DMA_BUF_MAPPING_TYPE_PCIE`,
-        otherwise 0.
+        :py:obj:`~.CUmemRangeHandleType.CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD`
+        the value could be
+        :py:obj:`~.CU_MEM_RANGE_FLAG_DMA_BUF_MAPPING_TYPE_PCIE`, otherwise
+        0.
 
     Returns
     -------
@@ -37558,8 +37560,9 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
     be NULL. If
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` is not
     NULL, then it must represent a valid shared NT handle that is returned
-    by ID3D12Device::CreateSharedHandle when referring to a ID3D12Heap
-    object. This handle holds a reference to the underlying object. If
+    by :py:obj:`~.ID3D12Device.CreateSharedHandle` when referring to a
+    ID3D12Heap object. This handle holds a reference to the underlying
+    object. If
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` is not
     NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a ID3D12Heap object.
@@ -37571,8 +37574,9 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
     not be NULL. If
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` is not
     NULL, then it must represent a valid shared NT handle that is returned
-    by ID3D12Device::CreateSharedHandle when referring to a ID3D12Resource
-    object. This handle holds a reference to the underlying object. If
+    by :py:obj:`~.ID3D12Device.CreateSharedHandle` when referring to a
+    ID3D12Resource object. This handle holds a reference to the underlying
+    object. If
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` is not
     NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a ID3D12Resource object.
@@ -37581,8 +37585,8 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE`, then
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` must
     represent a valid shared NT handle that is returned by
-    IDXGIResource1::CreateSharedHandle when referring to a ID3D11Resource
-    object. If
+    :py:obj:`~.IDXGIResource1.CreateSharedHandle` when referring to a
+    ID3D11Resource object. If
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` is not
     NULL, then it must point to a NULL-terminated array of UTF-16
     characters that refers to a ID3D11Resource object.
@@ -37591,8 +37595,8 @@ def cuImportExternalMemory(memHandleDesc : Optional[CUDA_EXTERNAL_MEMORY_HANDLE_
     :py:obj:`~.CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE_KMT`, then
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle` must
     represent a valid shared KMT handle that is returned by
-    IDXGIResource::GetSharedHandle when referring to a ID3D11Resource
-    object and
+    :py:obj:`~.IDXGIResource.GetSharedHandle` when referring to a
+    ID3D11Resource object and
     :py:obj:`~.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name` must be
     NULL.
 
@@ -37880,9 +37884,9 @@ def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_H
     not be NULL. If
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle` is
     not NULL, then it must represent a valid shared NT handle that is
-    returned by ID3D12Device::CreateSharedHandle when referring to a
-    ID3D12Fence object. This handle holds a reference to the underlying
-    object. If
+    returned by :py:obj:`~.ID3D12Device.CreateSharedHandle` when referring
+    to a ID3D12Fence object. This handle holds a reference to the
+    underlying object. If
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object that refers
     to a valid ID3D12Fence object.
@@ -37891,7 +37895,7 @@ def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_H
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_FENCE`, then
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`
     represents a valid shared NT handle that is returned by
-    ID3D11Fence::CreateSharedHandle. If
+    :py:obj:`~.ID3D11Fence.CreateSharedHandle`. If
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object that refers
     to a valid ID3D11Fence object.
@@ -37904,8 +37908,8 @@ def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_H
     :py:obj:`~.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX`, then
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`
     represents a valid shared NT handle that is returned by
-    IDXGIResource1::CreateSharedHandle when referring to a IDXGIKeyedMutex
-    object. If
+    :py:obj:`~.IDXGIResource1.CreateSharedHandle` when referring to a
+    IDXGIKeyedMutex object. If
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` is
     not NULL, then it must name a valid synchronization object that refers
     to a valid IDXGIKeyedMutex object.
@@ -37915,8 +37919,8 @@ def cuImportExternalSemaphore(semHandleDesc : Optional[CUDA_EXTERNAL_SEMAPHORE_H
     then
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`
     represents a valid shared KMT handle that is returned by
-    IDXGIResource::GetSharedHandle when referring to a IDXGIKeyedMutex
-    object and
+    :py:obj:`~.IDXGIResource.GetSharedHandle` when referring to a
+    IDXGIKeyedMutex object and
     :py:obj:`~.CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name` must
     be NULL.
 
@@ -49556,14 +49560,14 @@ def cuCoredumpGetAttribute(attrib not None : CUcoredumpSettings):
     - :py:obj:`~.CU_COREDUMP_FILE`: String of up to 1023 characters that
       defines the location where any coredumps generated by this context
       will be written. The default value is
-      :py:obj:`~.core`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is the
+      :py:obj:`~.core.cuda.HOSTNAME.PID` where :py:obj:`~.HOSTNAME` is the
       host name of the machine running the CUDA applications and
       :py:obj:`~.PID` is the process ID of the CUDA application.
 
     - :py:obj:`~.CU_COREDUMP_PIPE`: String of up to 1023 characters that
       defines the name of the pipe that will be monitored if user-triggered
       coredumps are enabled. The default value is
-      :py:obj:`~.corepipe`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is
+      :py:obj:`~.corepipe.cuda.HOSTNAME.PID` where :py:obj:`~.HOSTNAME` is
       the host name of the machine running the CUDA application and
       :py:obj:`~.PID` is the process ID of the CUDA application.
 
@@ -49669,14 +49673,14 @@ def cuCoredumpGetAttributeGlobal(attrib not None : CUcoredumpSettings):
     - :py:obj:`~.CU_COREDUMP_FILE`: String of up to 1023 characters that
       defines the location where any coredumps generated by this context
       will be written. The default value is
-      :py:obj:`~.core`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is the
+      :py:obj:`~.core.cuda.HOSTNAME.PID` where :py:obj:`~.HOSTNAME` is the
       host name of the machine running the CUDA applications and
       :py:obj:`~.PID` is the process ID of the CUDA application.
 
     - :py:obj:`~.CU_COREDUMP_PIPE`: String of up to 1023 characters that
       defines the name of the pipe that will be monitored if user-triggered
       coredumps are enabled. The default value is
-      :py:obj:`~.corepipe`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is
+      :py:obj:`~.corepipe.cuda.HOSTNAME.PID` where :py:obj:`~.HOSTNAME` is
       the host name of the machine running the CUDA application and
       :py:obj:`~.PID` is the process ID of the CUDA application.
 
@@ -49796,7 +49800,7 @@ def cuCoredumpSetAttribute(attrib not None : CUcoredumpSettings, value):
     - :py:obj:`~.CU_COREDUMP_FILE`: String of up to 1023 characters that
       defines the location where any coredumps generated by this context
       will be written. The default value is
-      :py:obj:`~.core`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is the
+      :py:obj:`~.core.cuda.HOSTNAME.PID` where :py:obj:`~.HOSTNAME` is the
       host name of the machine running the CUDA applications and
       :py:obj:`~.PID` is the process ID of the CUDA application.
 
@@ -49910,7 +49914,7 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
     - :py:obj:`~.CU_COREDUMP_FILE`: String of up to 1023 characters that
       defines the location where any coredumps generated by this context
       will be written. The default value is
-      :py:obj:`~.core`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is the
+      :py:obj:`~.core.cuda.HOSTNAME.PID` where :py:obj:`~.HOSTNAME` is the
       host name of the machine running the CUDA applications and
       :py:obj:`~.PID` is the process ID of the CUDA application.
 
@@ -49919,7 +49923,7 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
       coredumps are enabled. This value may not be changed after
       :py:obj:`~.CU_COREDUMP_ENABLE_USER_TRIGGER` is set to
       :py:obj:`~.true`. The default value is
-      :py:obj:`~.corepipe`.cuda.HOSTNAME.PID where :py:obj:`~.HOSTNAME` is
+      :py:obj:`~.corepipe.cuda.HOSTNAME.PID` where :py:obj:`~.HOSTNAME` is
       the host name of the machine running the CUDA application and
       :py:obj:`~.PID` is the process ID of the CUDA application.
 

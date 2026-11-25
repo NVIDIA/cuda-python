@@ -747,6 +747,7 @@ class TestTensorMapIm2colWide:
                 pytest.skip("Im2col-wide unsupported on this driver/GPU combination")
             raise
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_3d(self, dev, skip_if_no_im2col_wide):
         # 3D tensor: batch=1, width=32, channels=64
         buf = dev.allocate(1 * 32 * 64 * 4, stream=dev.default_stream)
@@ -761,6 +762,7 @@ class TestTensorMapIm2colWide:
         )
         assert desc is not None
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_4d(self, dev, skip_if_no_im2col_wide):
         # NHWC layout: N=1, H=8, W=8, C=64
         # Wide mode only uses scalar W corners, even with higher rank
@@ -776,6 +778,7 @@ class TestTensorMapIm2colWide:
         )
         assert desc is not None
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_5d(self, dev, skip_if_no_im2col_wide):
         # NDHWC layout: N=1, D=4, H=8, W=8, C=64
         # Max rank boundary — verifies all 5 dim/stride slots are filled
@@ -791,6 +794,7 @@ class TestTensorMapIm2colWide:
         )
         assert desc is not None
 
+    # This test is not currently run in any CI job
     def test_from_im2col_wide_rank_validation(self, dev, skip_if_no_im2col_wide):
         buf = dev.allocate(1024 * 4, stream=dev.default_stream)
         with pytest.raises(ValueError, match="Im2col-wide tensor rank must be between 3 and 5"):

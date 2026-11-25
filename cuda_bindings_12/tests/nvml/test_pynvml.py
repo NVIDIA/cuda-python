@@ -40,6 +40,7 @@ def test_system_get_driver_version(nvml_init):
     assert tuple(int(x) for x in vsn.split(".")[:2]) > (0, 0)
 
 
+# This test is not currently run in any CI job
 def test_device_get_attributes(mig_handles):
     # nvmlDeviceGetAttributes requires MIG device handle
 

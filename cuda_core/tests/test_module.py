@@ -662,6 +662,7 @@ def test_occupancy_max_potential_block_size_constant(get_saxpy_kernel_cubin, blo
         kernel.occupancy.max_potential_block_size(invalid_dsmem, block_size_limit)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(numba is None, reason="Test requires numba to be installed")
 @pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 277, 0])
 def test_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel_cubin, block_size_limit):

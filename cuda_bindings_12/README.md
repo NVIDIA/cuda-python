@@ -31,12 +31,11 @@ and pip 25.1 or newer:
 ```console
 cd cuda_bindings_12
 python -m pip install -v -e . --group test
-tests/cython/build_tests.sh
+python tests/cython/build_tests.py
 python -m pytest tests/ tests/cython/
 ```
 
-Use `build_tests.bat` on Windows. Free-threaded Python also needs the
-`test-ft` dependency group.
+Free-threaded Python also needs the `test-ft` dependency group.
 
 Versions follow reachable `v12.*` tags through standard `setuptools-scm`.
 Source builds need the matching tag and the history connecting it to the
@@ -69,8 +68,9 @@ To run these tests:
 
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/12.9.7/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
-1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
-2. Run the `build_tests` script located in `tests/cython` appropriate to your platform. This will both cythonize the tests and build them.
+1. Set `CUDA_PATH` or `CUDA_HOME` to the CUDA Toolkit installation path.
+   If both are set, `CUDA_PATH` takes precedence.
+2. Run `python tests/cython/build_tests.py` to cythonize and build the tests.
 
 To run these tests:
 * `python -m pytest tests/cython/` against editable installations

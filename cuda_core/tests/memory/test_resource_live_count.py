@@ -17,11 +17,11 @@ it constructs. They are ``thread_unsafe`` because the counters are process-globa
 """
 
 import gc
-import threading
 
 import pytest
 from helpers.constants import POOL_SIZE
 from helpers.memory import VMM_HANDLE_TYPE, skip_if_mempool_unsupported
+from helpers.misc import run_in_threads
 
 from cuda.core import (
     DeviceMemoryResource,
@@ -115,25 +115,15 @@ def test_concurrent_owned_pool_construct_and_drop_returns_to_start(init_cuda):
     before = _live_owned_mempool_count()
     n_threads = 4
     n_per_thread = 10
-    # An exception in a worker only kills that thread, which would leave the
-    # count balanced and the test passing; collect them and fail explicitly.
-    errors = []
 
     def worker():
-        try:
-            init_cuda.set_current()
-            for _ in range(n_per_thread):
-                mr = _owned_pool(init_cuda)
-                del mr
-        except Exception as e:
-            errors.append(e)
+        init_cuda.set_current()
+        for _ in range(n_per_thread):
+            mr = _owned_pool(init_cuda)
+            del mr
 
-    threads = [threading.Thread(target=worker) for _ in range(n_threads)]
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
-    assert not errors, f"worker thread(s) raised: {errors!r}"
+    # A worker that raised would leave the count balanced; this fails the test instead.
+    run_in_threads([worker] * n_threads)
     # Let any deferred deallocation settle.
     gc.collect()
     assert _live_owned_mempool_count() == before

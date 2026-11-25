@@ -15,6 +15,7 @@ import multiprocessing as mp
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.logging import TimestampedLogger
+from helpers.memory import drain_on_exit
 
 from cuda.core import Buffer, Device
 
@@ -37,22 +38,24 @@ def child_main(log, queue):
     buffer_desc1 = queue.get()
     buffer_desc2 = queue.get()
 
-    # Import the same buffer twice - should return same handle due to cache
-    buffer1 = Buffer.from_ipc_descriptor(mr, buffer_desc1, stream=device.default_stream)
-    buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc2, stream=device.default_stream)
+    # The closes below are the sequence under test; the stack repeats them as
+    # no-ops, and releases the first import if the second fails.
+    with contextlib.ExitStack() as stack:
+        drain_on_exit(stack, device)
+        # Import the same buffer twice - should return same handle due to cache
+        buffer1 = stack.enter_context(Buffer.from_ipc_descriptor(mr, buffer_desc1, stream=device.default_stream))
+        buffer2 = stack.enter_context(Buffer.from_ipc_descriptor(mr, buffer_desc2, stream=device.default_stream))
 
-    log(f"buffer1.handle = {buffer1.handle}")
-    log(f"buffer2.handle = {buffer2.handle}")
-    log(f"same handle: {buffer1.handle == buffer2.handle}")
+        log(f"buffer1.handle = {buffer1.handle}")
+        log(f"buffer2.handle = {buffer2.handle}")
+        log(f"same handle: {buffer1.handle == buffer2.handle}")
 
-    # Close both - should not crash
-    buffer1.close()
-    log("buffer1 closed")
+        # Close both - should not crash
+        buffer1.close()
+        log("buffer1 closed")
 
-    buffer2.close()
-    log("buffer2 closed")
-
-    device.sync()
+        buffer2.close()
+        log("buffer2 closed")
     log("done")
 
 

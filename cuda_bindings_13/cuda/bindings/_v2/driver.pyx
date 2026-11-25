@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.0 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=458291ffe3c940aeb35a9f0715a0fc125913a680017fa109e99dba45829412db
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=2af9521dd585f1e50ac14dc391ca228747f6a3fa1271cb0504ab3a02e2fe0898
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -291,12 +291,12 @@ class StreamBatchMemOpType(_cyb_FastEnum):
     WAIT_VALUE_64 = (cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_WAIT_VALUE_64, 'Represents a `cuStreamWaitValue64` operation')
     WRITE_VALUE_64 = (cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_WRITE_VALUE_64, 'Represents a `cuStreamWriteValue64` operation')
     BARRIER = (cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_BARRIER, 'Insert a memory barrier of the specified type')
-    ATOMIC_REDUCTION = (cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_ATOMIC_REDUCTION, 'Perform a atomic reduction. See `CUstreamBatchMemOpParams.atomicReduction`')
+    ATOMIC_REDUCTION = (cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_ATOMIC_REDUCTION, 'Perform a atomic reduction. See ``CUstreamBatchMemOpParams.atomicReduction``')
     FLUSH_REMOTE_WRITES = (cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES, 'This has the same effect as `CU_STREAM_WAIT_VALUE_FLUSH`, but as a standalone operation.')
 
 class StreamMemoryBarrierFlags(_cyb_FastEnum):
     """
-    Flags for `CUstreamBatchMemOpParams.memoryBarrier`
+    Flags for ``CUstreamBatchMemOpParams.memoryBarrier``
 
     See `CUstreamMemoryBarrier_flags`.
     """
@@ -542,7 +542,7 @@ class DeviceAttribute(_cyb_FastEnum):
     MAX_BLOCKS_PER_MULTIPROCESSOR = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_BLOCKS_PER_MULTIPROCESSOR, 'Maximum number of blocks per multiprocessor')
     GENERIC_COMPRESSION_SUPPORTED = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED, 'Device supports compression of memory')
     MAX_PERSISTING_L2_CACHE_SIZE = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_PERSISTING_L2_CACHE_SIZE, 'Maximum L2 persisting lines capacity setting in bytes.')
-    MAX_ACCESS_POLICY_WINDOW_SIZE = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE, 'Maximum value of `CUaccessPolicyWindow.num_bytes`.')
+    MAX_ACCESS_POLICY_WINDOW_SIZE = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX_ACCESS_POLICY_WINDOW_SIZE, 'Maximum value of ``CUaccessPolicyWindow.num_bytes``.')
     GPU_DIRECT_RDMA_WITH_CUDA_VMM_SUPPORTED = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_GPU_DIRECT_RDMA_WITH_CUDA_VMM_SUPPORTED, 'Device supports specifying the GPUDirect RDMA flag with `cuMemCreate`')
     RESERVED_SHARED_MEMORY_PER_BLOCK = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_RESERVED_SHARED_MEMORY_PER_BLOCK, 'Shared memory reserved by CUDA driver per block in bytes')
     SPARSE_CUDA_ARRAY_SUPPORTED = (cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_SPARSE_CUDA_ARRAY_SUPPORTED, 'Device supports sparse CUDA arrays and sparse CUDA mipmapped arrays')
@@ -959,7 +959,6 @@ class GraphNodeType(_cyb_FastEnum):
     BATCH_MEM_OP = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_BATCH_MEM_OP, 'Batch MemOp Node See `cuStreamBatchMemOp` and `CUstreamBatchMemOpType` for what these nodes can do.')
     CONDITIONAL = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_CONDITIONAL, 'Conditional Node                                         May be used to implement a conditional execution path or loop                                         inside of a graph. The graph(s) contained within the body of the conditional node                                         can be selectively executed or iterated upon based on the value of a conditional                                         variable.                                          Handles must be created in advance of creating the node                                         using `cuGraphConditionalHandleCreate`.                                          The following restrictions apply to graphs which contain conditional nodes:                                          The graph cannot be used in a child node.                                          Only one instantiation of the graph may exist at any point in time.                                          The graph cannot be cloned.                                          To set the control value, supply a default value when creating the handle and/or                                         call `cudaGraphSetConditional` from device code.')
     MEMCPY_BATCH = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_MEMCPY_BATCH, 'Batch Memcpy Node')
-    RESERVED_16 = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_RESERVED_16, 'Reserved')
     EXTERNAL_ENGINE = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_EXTERNAL_ENGINE, 'Reserved for External Engine node')
     FABRIC_CPY_BATCH = (cydriver.CUgraphNodeType_enum.CU_GRAPH_NODE_TYPE_FABRIC_CPY_BATCH, 'Fabric copy batch node')
 
@@ -1038,22 +1037,22 @@ class LaunchAttributeID(_cyb_FastEnum):
     See `CUlaunchAttributeID`.
     """
     IGNORE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_IGNORE, 'Ignored entry, for convenient composition')
-    ACCESS_POLICY_WINDOW = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW, 'Valid for streams, graph nodes, launches. See `CUlaunchAttributeValue.accessPolicyWindow`.')
-    COOPERATIVE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_COOPERATIVE, 'Valid for graph nodes, launches. See `CUlaunchAttributeValue.cooperative`.')
-    SYNCHRONIZATION_POLICY = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY, 'Valid for streams. See `CUlaunchAttributeValue.syncPolicy`.')
-    CLUSTER_DIMENSION = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION, 'Valid for graph nodes, launches. See `CUlaunchAttributeValue.clusterDim`.')
-    CLUSTER_SCHEDULING_POLICY_PREFERENCE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, 'Valid for graph nodes, launches. See `CUlaunchAttributeValue.clusterSchedulingPolicyPreference`.')
-    PROGRAMMATIC_STREAM_SERIALIZATION = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, "Valid for launches. Setting `CUlaunchAttributeValue.programmaticStreamSerializationAllowed` to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).")
-    PROGRAMMATIC_EVENT = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT, "Valid for launches. Set `CUlaunchAttributeValue.programmaticEvent` to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX launchdep.release or CUDA builtin function cudaTriggerProgrammaticLaunchCompletion(). A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling `cuEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, `cuEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks.   The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the `CU_EVENT_DISABLE_TIMING` flag set).")
-    PRIORITY = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PRIORITY, 'Valid for streams, graph nodes, launches. See `CUlaunchAttributeValue.priority`.')
-    MEM_SYNC_DOMAIN_MAP = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP, 'Valid for streams, graph nodes, launches. See `CUlaunchAttributeValue.memSyncDomainMap`.')
-    MEM_SYNC_DOMAIN = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN, 'Valid for streams, graph nodes, launches. See `CUlaunchAttributeValue.memSyncDomain`.')
-    PREFERRED_CLUSTER_DIMENSION = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION, 'Valid for graph nodes, launches. Set `CUlaunchAttributeValue.preferredClusterDim` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with `CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible.   Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks.   This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than `maxBlocksPerCluster`, if it is set in the kernel\'s `__launch_bounds__`. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.')
-    LAUNCH_COMPLETION_EVENT = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT, 'Valid for launches. Set `CUlaunchAttributeValue.launchCompletionEvent` to record the event.   Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock.   A launch completion event is nominally similar to a programmatic event with `triggerAtBlockStart` set except that it is not visible to `cudaGridDependencySynchronize()` and can be used with compute capability less than 9.0.   The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the `CU_EVENT_DISABLE_TIMING` flag set).')
-    DEVICE_UPDATABLE_KERNEL_NODE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE, "Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error.   `CUlaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable` can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via `CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see `cudaGraphKernelNodeUpdatesApply`.   Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via `cuGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via `cuGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to `cuGraphExecUpdate`.   If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with `cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.")
-    PREFERRED_SHARED_MEMORY_CARVEOUT = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT, 'Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting `CUlaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals the CUDA driver to set the shared memory carveout preference, in percent of the total shared memory for that kernel launch. This attribute takes precedence over `CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT`. This is only a hint, and the CUDA driver can choose a different configuration if required for the launch.')
-    NVLINK_UTIL_CENTRIC_SCHEDULING = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_NVLINK_UTIL_CENTRIC_SCHEDULING, "Valid for streams, graph nodes, launches. This attribute is a hint to the CUDA runtime that the launch should attempt to make the kernel maximize its NVLINK utilization.     When possible to honor this hint, CUDA will assume each block in the grid launch will carry out an even amount of NVLINK traffic, and make a best-effort attempt to adjust the kernel launch based on that assumption.   This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application.   Valid values for `CUlaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).")
-    PORTABLE_CLUSTER_SIZE_MODE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE, 'Valid for graph nodes, launches. This controls whether the kernel launch is allowed to use a non-portable cluster size. Valid values for `CUlaunchAttributeValue.portableClusterSizeMode` are described in `CUlaunchAttributePortableClusterMode`. Any other value will return `CUDA_ERROR_INVALID_VALUE`')
+    ACCESS_POLICY_WINDOW = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW, 'Valid for streams, graph nodes, launches. See ``CUlaunchAttributeValue.accessPolicyWindow``.')
+    COOPERATIVE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_COOPERATIVE, 'Valid for graph nodes, launches. See ``CUlaunchAttributeValue.cooperative``.')
+    SYNCHRONIZATION_POLICY = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY, 'Valid for streams. See ``CUlaunchAttributeValue.syncPolicy``.')
+    CLUSTER_DIMENSION = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION, 'Valid for graph nodes, launches. See ``CUlaunchAttributeValue.clusterDim``.')
+    CLUSTER_SCHEDULING_POLICY_PREFERENCE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, 'Valid for graph nodes, launches. See ``CUlaunchAttributeValue.clusterSchedulingPolicyPreference``.')
+    PROGRAMMATIC_STREAM_SERIALIZATION = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, "Valid for launches. Setting ``CUlaunchAttributeValue.programmaticStreamSerializationAllowed`` to non-0 signals that the kernel will use programmatic means to resolve its stream dependency, so that the CUDA runtime should opportunistically allow the grid's execution to overlap with the previous kernel in the stream, if that kernel requests the overlap. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions).")
+    PROGRAMMATIC_EVENT = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT, "Valid for launches. Set ``CUlaunchAttributeValue.programmaticEvent`` to record the event. Event recorded through this launch attribute is guaranteed to only trigger after all block in the associated kernel trigger the event. A block can trigger the event through PTX launchdep.release or CUDA builtin function cudaTriggerProgrammaticLaunchCompletion(). A trigger can also be inserted at the beginning of each block's execution if triggerAtBlockStart is set to non-0. The dependent launches can choose to wait on the dependency using the programmatic sync (cudaGridDependencySynchronize() or equivalent PTX instructions). Note that dependents (including the CPU thread calling `cuEventSynchronize()`) are not guaranteed to observe the release precisely when it is released. For example, `cuEventSynchronize()` may only observe the event trigger long after the associated kernel has completed. This recording type is primarily meant for establishing programmatic dependency between device tasks. Note also this type of dependency allows, but does not guarantee, concurrent execution of tasks.   The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the `CU_EVENT_DISABLE_TIMING` flag set).")
+    PRIORITY = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PRIORITY, 'Valid for streams, graph nodes, launches. See ``CUlaunchAttributeValue.priority``.')
+    MEM_SYNC_DOMAIN_MAP = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP, 'Valid for streams, graph nodes, launches. See ``CUlaunchAttributeValue.memSyncDomainMap``.')
+    MEM_SYNC_DOMAIN = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN, 'Valid for streams, graph nodes, launches. See ``CUlaunchAttributeValue.memSyncDomain``.')
+    PREFERRED_CLUSTER_DIMENSION = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PREFERRED_CLUSTER_DIMENSION, 'Valid for graph nodes, launches. Set ``CUlaunchAttributeValue.preferredClusterDim`` to allow the kernel launch to specify a preferred substitute cluster dimension. Blocks may be grouped according to either the dimensions specified with this attribute (grouped into a "preferred substitute cluster"), or the one specified with `CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION` attribute (grouped into a "regular cluster"). The cluster dimensions of a "preferred substitute cluster" shall be an integer multiple greater than zero of the regular cluster dimensions. The device will attempt - on a best-effort basis - to group thread blocks into preferred clusters over grouping them into regular clusters. When it deems necessary (primarily when the device temporarily runs out of physical resources to launch the larger preferred clusters), the device may switch to launch the regular clusters instead to attempt to utilize as much of the physical device resources as possible.   Each type of cluster will have its enumeration / coordinate setup as if the grid consists solely of its type of cluster. For example, if the preferred substitute cluster dimensions double the regular cluster dimensions, there might be simultaneously a regular cluster indexed at (1,0,0), and a preferred cluster indexed at (1,0,0). In this example, the preferred substitute cluster (1,0,0) replaces regular clusters (2,0,0) and (3,0,0) and groups their blocks.   This attribute will only take effect when a regular cluster dimension has been specified. The preferred substitute cluster dimension must be an integer multiple greater than zero of the regular cluster dimension and must divide the grid. It must also be no more than `maxBlocksPerCluster`, if it is set in the kernel\'s `__launch_bounds__`. Otherwise it must be less than the maximum value the driver can support. Otherwise, setting this attribute to a value physically unable to fit on any particular device is permitted.')
+    LAUNCH_COMPLETION_EVENT = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT, 'Valid for launches. Set ``CUlaunchAttributeValue.launchCompletionEvent`` to record the event.   Nominally, the event is triggered once all blocks of the kernel have begun execution. Currently this is a best effort. If a kernel B has a launch completion dependency on a kernel A, B may wait until A is complete. Alternatively, blocks of B may begin before all blocks of A have begun, for example if B can claim execution resources unavailable to A (e.g. they run on different GPUs) or if B is a higher priority than A. Exercise caution if such an ordering inversion could lead to deadlock.   A launch completion event is nominally similar to a programmatic event with `triggerAtBlockStart` set except that it is not visible to `cudaGridDependencySynchronize()` and can be used with compute capability less than 9.0.   The event supplied must not be an interprocess or interop event. The event must disable timing (i.e. must be created with the `CU_EVENT_DISABLE_TIMING` flag set).')
+    DEVICE_UPDATABLE_KERNEL_NODE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE, "Valid for graph nodes, launches. This attribute is graphs-only, and passing it to a launch in a non-capturing stream will result in an error.   ``CUlaunchAttributeValue.deviceUpdatableKernelNode.deviceUpdatable`` can only be set to 0 or 1. Setting the field to 1 indicates that the corresponding kernel node should be device-updatable. On success, a handle will be returned via ``CUlaunchAttributeValue.deviceUpdatableKernelNode.devNode`` which can be passed to the various device-side update functions to update the node's kernel parameters from within another kernel. For more information on the types of device updates that can be made, as well as the relevant limitations thereof, see `cudaGraphKernelNodeUpdatesApply`.   Nodes which are device-updatable have additional restrictions compared to regular kernel nodes. Firstly, device-updatable nodes cannot be removed from their graph via `cuGraphDestroyNode`. Additionally, once opted-in to this functionality, a node cannot opt out, and any attempt to set the deviceUpdatable attribute to 0 will result in an error. Device-updatable kernel nodes also cannot have their attributes copied to/from another kernel node via `cuGraphKernelNodeCopyAttributes`. Graphs containing one or more device-updatable nodes also do not allow multiple instantiation, and neither the graph nor its instantiated version can be passed to `cuGraphExecUpdate`.   If a graph contains device-updatable nodes and updates those nodes from the device from within the graph, the graph must be uploaded with `cuGraphUpload` before it is launched. For such a graph, if host-side executable graph updates are made to the device-updatable nodes, the graph must be uploaded before it is launched again.")
+    PREFERRED_SHARED_MEMORY_CARVEOUT = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT, 'Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting ``CUlaunchAttributeValue.sharedMemCarveout`` to a percentage between 0-100 signals the CUDA driver to set the shared memory carveout preference, in percent of the total shared memory for that kernel launch. This attribute takes precedence over `CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT`. This is only a hint, and the CUDA driver can choose a different configuration if required for the launch.')
+    NVLINK_UTIL_CENTRIC_SCHEDULING = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_NVLINK_UTIL_CENTRIC_SCHEDULING, "Valid for streams, graph nodes, launches. This attribute is a hint to the CUDA runtime that the launch should attempt to make the kernel maximize its NVLINK utilization.     When possible to honor this hint, CUDA will assume each block in the grid launch will carry out an even amount of NVLINK traffic, and make a best-effort attempt to adjust the kernel launch based on that assumption.   This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application.   Valid values for ``CUlaunchAttributeValue.nvlinkUtilCentricScheduling`` are 0 (disabled) and 1 (enabled).")
+    PORTABLE_CLUSTER_SIZE_MODE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE, 'Valid for graph nodes, launches. This controls whether the kernel launch is allowed to use a non-portable cluster size. Valid values for ``CUlaunchAttributeValue.portableClusterSizeMode`` are described in `CUlaunchAttributePortableClusterMode`. Any other value will return `CUDA_ERROR_INVALID_VALUE`')
     SHARED_MEMORY_MODE = (cydriver.CUlaunchAttributeID_enum.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE, "Valid for graph nodes, launches. This controls a kernel's use of non-portable or oversized shared memory configurations.")
 
 class StreamCaptureStatus(_cyb_FastEnum):
@@ -2039,7 +2038,7 @@ class AtomicOperationCapability(_cyb_FastEnum):
 class StreamAtomicReductionOpType(_cyb_FastEnum):
     """
     Atomic reduction operation types for
-    `CUstreamBatchMemOpParams`::atomicReduction::reductionOp
+    ``CUstreamBatchMemOpParams.atomicReduction.reductionOp``
 
     See `CUstreamAtomicReductionOpType`.
     """
@@ -2050,7 +2049,7 @@ class StreamAtomicReductionOpType(_cyb_FastEnum):
 class StreamAtomicReductionDataType(_cyb_FastEnum):
     """
     Atomic reduction data types for
-    `CUstreamBatchMemOpParams`::atomicReduction::dataType
+    ``CUstreamBatchMemOpParams.atomicReduction.dataType``
 
     See `CUstreamAtomicReductionDataType`.
     """
@@ -2066,7 +2065,7 @@ class DevSmResourceGroupFlags(_cyb_FastEnum):
     DEFAULT = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT
     BACKFILL = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL
     LOCALITY_DOMAIN_ID = (cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID, 'The SMs must be located on a specific locality domain, specified by localityDomainId')
-    LOCALITY_DOMAIN_SUPPLEMENTAL_SMS = (cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS, 'Modifier to `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID` which allows selection of SMs in the locality domain exceeding the `CUdevice_attribute`::CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT')
+    LOCALITY_DOMAIN_SUPPLEMENTAL_SMS = (cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS, 'Modifier to `CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID` which allows selection of SMs in the locality domain exceeding the ``CUdevice_attribute.CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT``')
 
 class DevSmResourceSplitByCountFlags(_cyb_FastEnum):
     """
@@ -32957,22 +32956,21 @@ cpdef uint64_t mem_create(size_t size, prop, unsigned long long flags) except? 0
     ``cuMemGetAllocationGranularity`` with the ``CU_MEM_ALLOC_GRANULARITY_MINIMUM``
     flag. To create a CPU allocation that doesn't target any specific NUMA nodes,
     applications must set ``CUmemAllocationProp.CUmemLocation.type`` to
-    ``CU_MEM_LOCATION_TYPE_HOST``. ``CUmemAllocationProp``::CUmemLocation::id is
+    ``CU_MEM_LOCATION_TYPE_HOST``. ``CUmemAllocationProp.CUmemLocation.id`` is
     ignored for HOST allocations. HOST allocations are not IPC capable and
     ``CUmemAllocationProp.requestedHandleTypes`` must be 0, any other value will
     result in ``CUDA_ERROR_INVALID_VALUE``. To create a CPU allocation targeting a
     specific host NUMA node, applications must set
     ``CUmemAllocationProp.CUmemLocation.type`` to
-    ``CU_MEM_LOCATION_TYPE_HOST_NUMA`` and
-    ``CUmemAllocationProp``::CUmemLocation::id must specify the NUMA ID of the CPU.
-    On systems where NUMA is not available
-    ``CUmemAllocationProp``::CUmemLocation::id must be set to 0. Specifying
+    ``CU_MEM_LOCATION_TYPE_HOST_NUMA`` and ``CUmemAllocationProp.CUmemLocation.id``
+    must specify the NUMA ID of the CPU. On systems where NUMA is not available
+    ``CUmemAllocationProp.CUmemLocation.id`` must be set to 0. Specifying
     ``CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT`` as the ``CUmemLocation.type`` will
     result in ``CUDA_ERROR_INVALID_VALUE``. Specifying
     ``CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN`` as the ``CUmemLocation.type``
     will localize the allocation to the specified locality domain.
-    ``CUmemAllocationProp``::CUmemLocation::localized.deviceId must specify the
-    device ID. ``CUmemAllocationProp``::CUmemLocation::localized.localityDomainId
+    ``CUmemAllocationProp.CUmemLocation.localized.deviceId`` must specify the
+    device ID. ``CUmemAllocationProp.CUmemLocation.localized.localityDomainId``
     must specify the locality domain ID. The locality domain ID must be a valid
     locality domain ID for the specified device. See also ``cuDeviceGetAttribute``
     with the attribute ``CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT``.
@@ -33102,7 +33100,7 @@ cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream):
     \*\*View CUDA Toolkit Documentation for a C++ code example*\*.
     where ``CUarrayMapInfo.resourceType`` specifies the type of resource to be
     operated on. If ``CUarrayMapInfo.resourceType`` is set to
-    ``CUresourcetype``::CU_RESOURCE_TYPE_ARRAY then
+    ``CUresourcetype.CU_RESOURCE_TYPE_ARRAY`` then
     ``CUarrayMapInfo.resource.array`` must be set to a valid sparse CUDA array
     handle. The CUDA array must be either a 2D, 2D layered or 3D CUDA array and
     must have been allocated using ``cuArrayCreate`` or ``cuArray3DCreate`` with
@@ -33110,7 +33108,7 @@ cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream):
     arrays obtained using ``cuMipmappedArrayGetLevel``,
     ``CUDA_ERROR_INVALID_VALUE`` will be returned. If
     ``CUarrayMapInfo.resourceType`` is set to
-    ``CUresourcetype``::CU_RESOURCE_TYPE_MIPMAPPED_ARRAY then
+    ``CUresourcetype.CU_RESOURCE_TYPE_MIPMAPPED_ARRAY`` then
     ``CUarrayMapInfo.resource.mipmap`` must be set to a valid sparse CUDA mipmapped
     array handle. The CUDA mipmapped array must be either a 2D, 2D layered or 3D
     CUDA mipmapped array and must have been allocated using
@@ -33120,14 +33118,14 @@ cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream):
     resource. ``CUarraySparseSubresourceType_enum`` is defined as:.
     \*\*View CUDA Toolkit Documentation for a C++ code example*\*.
     where
-    ``CUarraySparseSubresourceType``::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
+    ``CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL``
     indicates a sparse-miplevel which spans at least one tile in every dimension.
     The remaining miplevels which are too small to span at least one tile in any
     dimension constitute the mip tail region as indicated by
-    ``CUarraySparseSubresourceType``::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
+    ``CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL``
     subresource type.
     If ``CUarrayMapInfo.subresourceType`` is set to
-    ``CUarraySparseSubresourceType``::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL
+    ``CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL``
     then ``CUarrayMapInfo.subresource.sparseLevel`` struct must contain valid array
     subregion offsets and extents. The
     ``CUarrayMapInfo.subresource.sparseLevel.offsetX``,
@@ -33149,7 +33147,7 @@ cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream):
     obtained by calling ``cuArrayGetSparseProperties`` and
     ``cuMipmappedArrayGetSparseProperties``.
     If ``CUarrayMapInfo.subresourceType`` is set to
-    ``CUarraySparseSubresourceType``::CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL then
+    ``CUarraySparseSubresourceType.CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL`` then
     ``CUarrayMapInfo.subresource.miptail`` struct must contain valid mip tail
     offset in ``CUarrayMapInfo.subresource.miptail.offset`` and size in
     ``CUarrayMapInfo.subresource.miptail.size``. Both, mip tail offset and mip tail
@@ -33167,20 +33165,20 @@ cpdef mem_map_array_async(map_info_list, unsigned int count, intptr_t h_stream):
     ``CUmemOperationType`` is defined as:.
     \*\*View CUDA Toolkit Documentation for a C++ code example*\*.
     If ``CUarrayMapInfo.memOperationType`` is set to
-    ``CUmemOperationType``::CU_MEM_OPERATION_TYPE_MAP then the subresource will be
+    ``CUmemOperationType.CU_MEM_OPERATION_TYPE_MAP`` then the subresource will be
     mapped onto the tile pool memory specified by ``CUarrayMapInfo.memHandle`` at
     offset ``CUarrayMapInfo.offset``. The tile pool allocation has to be created by
     specifying the ``CU_MEM_CREATE_USAGE_TILE_POOL`` flag when calling
     ``cuMemCreate``. Also, ``CUarrayMapInfo.memHandleType`` must be set to
-    ``CUmemHandleType``::CU_MEM_HANDLE_TYPE_GENERIC.
+    ``CUmemHandleType.CU_MEM_HANDLE_TYPE_GENERIC``.
     If ``CUarrayMapInfo.memOperationType`` is set to
-    ``CUmemOperationType``::CU_MEM_OPERATION_TYPE_UNMAP then an unmapping operation
+    ``CUmemOperationType.CU_MEM_OPERATION_TYPE_UNMAP`` then an unmapping operation
     is performed. ``CUarrayMapInfo.memHandle`` must be NULL.
     ``CUarrayMapInfo.deviceBitMask`` specifies the list of devices that must map or
     unmap physical memory. Currently, this mask must have exactly one bit set, and
     the corresponding device must match the device associated with the stream. If
     ``CUarrayMapInfo.memOperationType`` is set to
-    ``CUmemOperationType``::CU_MEM_OPERATION_TYPE_MAP, the device must also match
+    ``CUmemOperationType.CU_MEM_OPERATION_TYPE_MAP``, the device must also match
     the device associated with the tile pool memory allocation as specified by
     ``CUarrayMapInfo.memHandle``.
     ``CUarrayMapInfo.flags`` and ``CUarrayMapInfo.reserved``\[] are unused and must
@@ -33233,9 +33231,9 @@ cpdef mem_set_access(uint64_t ptr, size_t size, desc, size_t count):
     locations. The range must be a fully mapped address range containing all
     allocations created by ``cuMemMap`` / ``cuMemCreate``. Users cannot specify
     ``CU_MEM_LOCATION_TYPE_HOST_NUMA`` accessibility for allocations created on
-    with other location types. Note: When ``CUmemAccessDesc``::CUmemLocation::type
-    is ``CU_MEM_LOCATION_TYPE_HOST_NUMA``, ``CUmemAccessDesc``::CUmemLocation::id
-    is ignored. When setting the access flags for a virtual address range mapping a
+    with other location types. Note: When ``CUmemAccessDesc.CUmemLocation.type`` is
+    ``CU_MEM_LOCATION_TYPE_HOST_NUMA``, ``CUmemAccessDesc.CUmemLocation.id`` is
+    ignored. When setting the access flags for a virtual address range mapping a
     multicast object, ``ptr`` and ``size`` must be aligned to the value returned by
     ``cuMulticastGetGranularity`` with the flag
     ``CU_MULTICAST_MINIMUM_GRANULARITY``. For best performance however, it is
@@ -33562,24 +33560,24 @@ cpdef intptr_t mem_pool_create(pool_props) except? 0:
     ``pool_props`` determines the properties of the pool such as the backing device
     and IPC capabilities.
     To create a memory pool for HOST memory not targeting a specific NUMA node,
-    applications must set set ``CUmemPoolProps``::CUmemLocation::type to
-    ``CU_MEM_LOCATION_TYPE_HOST``. ``CUmemPoolProps``::CUmemLocation::id is ignored
+    applications must set set ``CUmemPoolProps.CUmemLocation.type`` to
+    ``CU_MEM_LOCATION_TYPE_HOST``. ``CUmemPoolProps.CUmemLocation.id`` is ignored
     for such pools. Pools created with the type ``CU_MEM_LOCATION_TYPE_HOST`` are
     not IPC capable and ``CUmemPoolProps.handleTypes`` must be 0, any other values
     will result in ``CUDA_ERROR_INVALID_VALUE``. To create a memory pool targeting
     a specific host NUMA node, applications must set
-    ``CUmemPoolProps``::CUmemLocation::type to ``CU_MEM_LOCATION_TYPE_HOST_NUMA``
-    and ``CUmemPoolProps``::CUmemLocation::id must specify the NUMA ID of the host
-    memory node. Specifying ``CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT`` as the
-    ``CUmemPoolProps``::CUmemLocation::type will result in
+    ``CUmemPoolProps.CUmemLocation.type`` to ``CU_MEM_LOCATION_TYPE_HOST_NUMA`` and
+    ``CUmemPoolProps.CUmemLocation.id`` must specify the NUMA ID of the host memory
+    node. Specifying ``CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT`` as the
+    ``CUmemPoolProps.CUmemLocation.type`` will result in
     ``CUDA_ERROR_INVALID_VALUE``. To create a memory pool targeting a specific
     device locality domain, applications must set
-    ``CUmemPoolProps``::CUmemLocation::type to
+    ``CUmemPoolProps.CUmemLocation.type`` to
     ``CU_MEM_LOCATION_TYPE_DEVICE_LOCALITY_DOMAIN``,
-    ``CUmemPoolProps``::CUmemLocation::localized.deviceId must specify the device
-    ID, and ``CUmemPoolProps``::CUmemLocation::localized.localityDomainId must
-    specify the locality domain ID. The locality domain ID must be a valid locality
-    domain ID for the specified device. See also ``cuDeviceGetAttribute`` with the
+    ``CUmemPoolProps.CUmemLocation.localized.deviceId`` must specify the device ID,
+    and ``CUmemPoolProps.CUmemLocation.localized.localityDomainId`` must specify
+    the locality domain ID. The locality domain ID must be a valid locality domain
+    ID for the specified device. See also ``cuDeviceGetAttribute`` with the
     attribute ``CU_DEVICE_ATTRIBUTE_LOCALITY_DOMAIN_COUNT``.
     By default, the pool's memory will be accessible from the device it is
     allocated on. In the case of pools created with
@@ -33604,10 +33602,10 @@ cpdef intptr_t mem_pool_create(pool_props) except? 0:
     following command: ``mknod /dev/nvidia-caps-imex-channels/channel0 c <major
     number> 0``.
     To create a managed memory pool, applications must set
-    ``CUmemPoolProps``::CUmemAllocationType to CU_MEM_ALLOCATION_TYPE_MANAGED.
-    ``CUmemPoolProps``::CUmemAllocationHandleType must also be set to
+    ``CUmemPoolProps.CUmemAllocationType`` to CU_MEM_ALLOCATION_TYPE_MANAGED.
+    ``CUmemPoolProps.CUmemAllocationHandleType`` must also be set to
     CU_MEM_HANDLE_TYPE_NONE since IPC is not supported. For managed memory pools,
-    ``CUmemPoolProps``::CUmemLocation will be treated as the preferred location for
+    ``CUmemPoolProps.CUmemLocation`` will be treated as the preferred location for
     all allocations created from the pool. An application can also set
     CU_MEM_LOCATION_TYPE_NONE to indicate no preferred location.
     ``CUmemPoolProps.maxSize`` must be set to zero for managed memory pools.
@@ -35364,7 +35362,7 @@ cpdef intptr_t import_external_memory(mem_handle_desc) except? 0:
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name`` must not be NULL. If
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle`` is not NULL, then it
     must represent a valid shared NT handle that is returned by
-    ID3D12Device::CreateSharedHandle when referring to a ID3D12Heap object. This
+    ``ID3D12Device.CreateSharedHandle`` when referring to a ID3D12Heap object. This
     handle holds a reference to the underlying object. If
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name`` is not NULL, then it
     must point to a NULL-terminated array of UTF-16 characters that refers to a
@@ -35375,7 +35373,7 @@ cpdef intptr_t import_external_memory(mem_handle_desc) except? 0:
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name`` must not be NULL. If
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle`` is not NULL, then it
     must represent a valid shared NT handle that is returned by
-    ID3D12Device::CreateSharedHandle when referring to a ID3D12Resource object.
+    ``ID3D12Device.CreateSharedHandle`` when referring to a ID3D12Resource object.
     This handle holds a reference to the underlying object. If
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name`` is not NULL, then it
     must point to a NULL-terminated array of UTF-16 characters that refers to a
@@ -35383,7 +35381,7 @@ cpdef intptr_t import_external_memory(mem_handle_desc) except? 0:
     If ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type`` is
     ``CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE``, then
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle`` must represent a valid
-    shared NT handle that is returned by IDXGIResource1::CreateSharedHandle when
+    shared NT handle that is returned by ``IDXGIResource1.CreateSharedHandle`` when
     referring to a ID3D11Resource object. If
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name`` is not NULL, then it
     must point to a NULL-terminated array of UTF-16 characters that refers to a
@@ -35391,7 +35389,7 @@ cpdef intptr_t import_external_memory(mem_handle_desc) except? 0:
     If ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type`` is
     ``CU_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_RESOURCE_KMT``, then
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.handle`` must represent a valid
-    shared KMT handle that is returned by IDXGIResource::GetSharedHandle when
+    shared KMT handle that is returned by ``IDXGIResource.GetSharedHandle`` when
     referring to a ID3D11Resource object and
     ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle.win32.name`` must be NULL.
     If ``CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type`` is
@@ -35501,7 +35499,7 @@ cpdef intptr_t external_memory_get_mapped_mipmapped_array(intptr_t ext_mem, mipm
     ``cuMipmappedArrayCreate``. Note that if the mipmapped array is bound as a
     color target in the graphics API, then the flag
     ``CUDA_ARRAY3D_COLOR_ATTACHMENT`` must be specified in
-    ``CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC``::arrayDesc::Flags.
+    ``CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC.arrayDesc.Flags``.
     ``CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC.numLevels`` specifies the total
     number of levels in the mipmap chain.
     If ``ext_mem`` was imported from a handle of type
@@ -35589,15 +35587,15 @@ cpdef intptr_t import_external_semaphore(sem_handle_desc) except? 0:
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name`` must not be NULL. If
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`` is not NULL, then
     it must represent a valid shared NT handle that is returned by
-    ID3D12Device::CreateSharedHandle when referring to a ID3D12Fence object. This
-    handle holds a reference to the underlying object. If
+    ``ID3D12Device.CreateSharedHandle`` when referring to a ID3D12Fence object.
+    This handle holds a reference to the underlying object. If
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name`` is not NULL, then it
     must name a valid synchronization object that refers to a valid ID3D12Fence
     object.
     If ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type`` is
     ``CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_FENCE``, then
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`` represents a valid
-    shared NT handle that is returned by ID3D11Fence::CreateSharedHandle. If
+    shared NT handle that is returned by ``ID3D11Fence.CreateSharedHandle``. If
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name`` is not NULL, then it
     must name a valid synchronization object that refers to a valid ID3D11Fence
     object.
@@ -35607,7 +35605,7 @@ cpdef intptr_t import_external_semaphore(sem_handle_desc) except? 0:
     NvSciSyncObj.
     ``CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX``, then
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`` represents a valid
-    shared NT handle that is returned by IDXGIResource1::CreateSharedHandle when
+    shared NT handle that is returned by ``IDXGIResource1.CreateSharedHandle`` when
     referring to a IDXGIKeyedMutex object. If
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name`` is not NULL, then it
     must name a valid synchronization object that refers to a valid IDXGIKeyedMutex
@@ -35615,7 +35613,7 @@ cpdef intptr_t import_external_semaphore(sem_handle_desc) except? 0:
     If ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type`` is
     ``CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX_KMT``, then
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.handle`` represents a valid
-    shared KMT handle that is returned by IDXGIResource::GetSharedHandle when
+    shared KMT handle that is returned by ``IDXGIResource.GetSharedHandle`` when
     referring to a IDXGIKeyedMutex object and
     ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.handle.win32.name`` must be NULL.
     If ``CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC.type`` is
@@ -35723,7 +35721,7 @@ cpdef signal_external_semaphores_async(ext_sem_array, params_array, unsigned int
     ``CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX``,
     ``CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX_KMT`` then the keyed
     mutex will be released with the key specified in
-    ``CUDA_EXTERNAL_SEMAPHORE_PARAMS``::params::keyedmutex::key.
+    ``CUDA_EXTERNAL_SEMAPHORE_PARAMS.params.keyedmutex.key``.
 
     Args:
         ext_sem_array (object): Set of external semaphores to be signaled. It can be:
@@ -43275,10 +43273,10 @@ cpdef memcpy_3d_batch_async_v2(size_t num_ops, op_list, unsigned long long flags
     the copy should begin. The ``CUmemcpy3DOperand.op.ptr.rowLength`` field
     specifies the length of each row in elements and must either be zero or be
     greater than or equal to the width of the copy specified in
-    ``CUDA_MEMCPY3D_BATCH_OP``::extent::width. The
+    ``CUDA_MEMCPY3D_BATCH_OP.extent.width``. The
     ``CUmemcpy3DOperand.op.ptr.layerHeight`` field specifies the height of each
     layer and must either be zero or be greater than or equal to the height of the
-    copy specified in ``CUDA_MEMCPY3D_BATCH_OP``::extent::height. When either of
+    copy specified in ``CUDA_MEMCPY3D_BATCH_OP.extent.height``. When either of
     these values is zero, that aspect of the operand is considered to be tightly
     packed according to the copy extent. For managed memory pointers on devices
     where ``CU_DEVICE_ATTRIBUTE_CONCURRENT_MANAGED_ACCESS`` is true or
@@ -43995,8 +43993,8 @@ cpdef tuple dev_sm_resource_split(unsigned int nb_groups, input, unsigned int fl
       partition should be localized to the specified ``localityDomainId``.
     - ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_SUPPLEMENTAL_SMS:`` Modifier
       to ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID`` which allows selection
-      of SMs in the locality domain exceeding the ``CUdevice_attribute``::CU_DE
-      VICE_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT.
+      of SMs in the locality domain exceeding the ``CUdevice_attribute.CU_DEVIC
+      E_ATTRIBUTE_LOCALITY_DOMAIN_MULTIPROCESSOR_COUNT``.
     - ``localityDomainId:`` Specifies the locality domain that the partitioned
       SMs must be located on. Only valid when
       ``CU_DEV_SM_RESOURCE_GROUP_LOCALITY_DOMAIN_ID`` is set in flags. The
@@ -44110,7 +44108,7 @@ cpdef memcpy_with_attributes_async(uint64_t dst, uint64_t src, size_t size, attr
     bytes to copy. ``attr`` specifies the attributes for the copy and ``h_stream``
     specifies the stream to enqueue the operation in.
     For more information regarding the attributes, please refer to
-    ``CUmemcpyAttributes`` and it's usage desciption in::cuMemcpyBatchAsync.
+    ``CUmemcpyAttributes`` and it's usage description in ``cuMemcpyBatchAsync``.
 
     Args:
         dst (uint64_t): Destination device pointer.
@@ -44133,7 +44131,8 @@ cpdef memcpy_3d_with_attributes_async(op, unsigned long long flags, intptr_t h_s
     Performs the copy operation specified in ``op``. ``flags`` specifies the flags
     for the copy and ``h_stream`` specifies the stream to enqueue the operation in.
     For more information regarding the operation, please refer to
-    ``CUDA_MEMCPY3D_BATCH_OP`` and it's usage desciption in::cuMemcpy3DBatchAsync.
+    ``CUDA_MEMCPY3D_BATCH_OP`` and it's usage description in
+    ``cuMemcpy3DBatchAsync``.
 
     Args:
         op (intptr_t): Operation to perform.

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=c3b2b4bee74608c9147b08755b19a90a61411b964f48c4067832acf1eeaa1096
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=d33ef737bf2d5ef2c79553ea842dbbaa16d6dc024d99ed76962c5596907b983e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -1509,191 +1509,6 @@ cdef class IOVec:
         return obj
 
 
-cdef _get_descr_dtype_offsets():
-    cdef CUfileDescr_t *pod = <CUfileDescr_t *>_cyb_calloc(1, sizeof(CUfileDescr_t))
-    if pod == NULL:
-        raise MemoryError("Error allocating CUfileDescr_t")
-    try:
-        return _numpy.dtype({
-            'names': ['type', 'handle', 'fs_ops'],
-            'formats': [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
-            'offsets': [
-                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
-                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
-                (<intptr_t>&(pod.fs_ops)) - (<intptr_t>pod),
-            ],
-            'itemsize': sizeof(CUfileDescr_t),
-        })
-    finally:
-        _cyb_free(pod)
-
-descr_dtype = _get_descr_dtype_offsets()
-cdef object descr_dtype_record = _numpy.dtype((_numpy.record, descr_dtype))
-
-cdef class Descr:
-    """Empty-initialize an array of `CUfileDescr_t`.
-    The resulting object is of length `size` and of dtype `descr_dtype`.
-    If default-constructed, the instance represents a single struct.
-
-    Args:
-        size (int): number of structs, default=1.
-
-    .. seealso:: `CUfileDescr_t`
-    """
-    cdef:
-        readonly object _data
-        object _owner
-
-    def __init__(self, size=1):
-        self._data = _numpy.zeros(size, dtype=descr_dtype_record)
-        assert self._data.itemsize == sizeof(CUfileDescr_t), \
-            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileDescr_t) }"
-
-    def __repr__(self):
-        if self._data.size > 1:
-            return f"<{__name__}.Descr_Array_{self._data.size} object at {hex(id(self))}>"
-        else:
-            return f"<{__name__}.Descr object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return _cyb_array_ptr(self._data)
-
-    cdef intptr_t _get_ptr(self):
-        return _cyb_array_ptr(self._data)
-
-    def __int__(self):
-        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
-            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
-                            "C-contiguous array. To get the pointer address of a "
-                            "non-contiguous array, use .ptr")
-        return _cyb_array_ptr(self._data)
-
-    def __len__(self):
-        return self._data.size
-
-    def __eq__(self, other):
-        cdef object self_data = self._data
-        if (not isinstance(other, Descr)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
-            return False
-        return bool((self_data == other._data).all())
-
-    def __getbuffer__(self, Py_buffer *buffer, int flags):
-        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
-
-    def __releasebuffer__(self, Py_buffer *buffer):
-        _cyb_cpython.PyBuffer_Release(buffer)
-
-    @property
-    def type(self):
-        """Union[~_numpy.int32, int]: """
-        if self._data.size == 1:
-            return int(self._data["type"][0])
-        return self._data["type"]
-
-    @type.setter
-    def type(self, val):
-        if not self._data.flags.writeable:
-            raise ValueError("This Descr instance is read-only")
-        self._data["type"] = val
-
-    @property
-    def handle(self):
-        """_py_anon_pod1_dtype: """
-        return self._data["handle"].view(_numpy.recarray)
-
-    @handle.setter
-    def handle(self, val):
-        if not self._data.flags.writeable:
-            raise ValueError("This Descr instance is read-only")
-        self._data["handle"] = val
-
-    @property
-    def fs_ops(self):
-        """Union[~_numpy.intp, int]: """
-        if self._data.size == 1:
-            return int(self._data["fs_ops"][0])
-        return self._data["fs_ops"]
-
-    @fs_ops.setter
-    def fs_ops(self, val):
-        if not self._data.flags.writeable:
-            raise ValueError("This Descr instance is read-only")
-        self._data["fs_ops"] = val
-
-    def __getitem__(self, key):
-        cdef ssize_t key_
-        cdef ssize_t size
-        cdef Descr obj
-        if isinstance(key, int):
-            key_ = key
-            size = self._data.size
-            if key_ >= size or key_ <= -(size+1):
-                raise IndexError("index is out of bounds")
-            if key_ < 0:
-                key_ += size
-            obj = Descr.__new__(Descr)
-            obj._data = self._data[key_:key_+1]
-            obj._owner = self._owner
-            return obj
-        out = self._data[key]
-        if isinstance(out, _numpy.ndarray):
-            if out.dtype == descr_dtype:
-                obj = Descr.from_data(out)
-                obj._owner = self._owner
-                return obj
-            if out.dtype.names is not None:
-                return out.view(_numpy.recarray)
-        return out
-
-    def __setitem__(self, key, val):
-        self._data[key] = val
-
-    @staticmethod
-    def from_buffer(buffer):
-        """Create an Descr instance with the memory from the given buffer."""
-        return Descr.from_data(_numpy.frombuffer(buffer, dtype=descr_dtype))
-
-    @staticmethod
-    def from_data(data):
-        """Create an Descr instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a 1D array of dtype `descr_dtype` holding the data.
-        """
-        cdef Descr obj = Descr.__new__(Descr)
-        if not isinstance(data, _numpy.ndarray):
-            raise TypeError("data argument must be a NumPy ndarray")
-        if data.ndim != 1:
-            raise ValueError("data array must be 1D")
-        if data.dtype != descr_dtype:
-            raise ValueError("data array must be of dtype descr_dtype")
-        obj._data = data.view(dtype=descr_dtype_record, type=_numpy.ndarray)
-        return obj
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
-        """Create an Descr instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            size (int): number of structs, default=1.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-            owner (object): object that owns the memory at *ptr*.  A strong reference is
-                kept so the backing storage outlives this wrapper.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef Descr obj = Descr.__new__(Descr)
-        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
-        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
-            <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
-        obj._data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype_record)
-        obj._owner = owner
-        return obj
-
-
 cdef _get__py_anon_pod2_dtype_offsets():
     cdef cuda_bindings_cufile__anon_pod2 *pod = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod2))
     if pod == NULL:
@@ -2743,6 +2558,191 @@ cdef class StatsLevel1:
             obj._owns_ptr = False
             obj._owner = owner
         obj._readonly = readonly
+        return obj
+
+
+cdef _get_descr_dtype_offsets():
+    cdef CUfileDescr_t *pod = <CUfileDescr_t *>_cyb_calloc(1, sizeof(CUfileDescr_t))
+    if pod == NULL:
+        raise MemoryError("Error allocating CUfileDescr_t")
+    try:
+        return _numpy.dtype({
+            'names': ['type', 'handle', 'fs_ops'],
+            'formats': [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
+            'offsets': [
+                (<intptr_t>&(pod.type)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.handle)) - (<intptr_t>pod),
+                (<intptr_t>&(pod.fs_ops)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(CUfileDescr_t),
+        })
+    finally:
+        _cyb_free(pod)
+
+descr_dtype = _get_descr_dtype_offsets()
+cdef object descr_dtype_record = _numpy.dtype((_numpy.record, descr_dtype))
+
+cdef class Descr:
+    """Empty-initialize an array of `CUfileDescr_t`.
+    The resulting object is of length `size` and of dtype `descr_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+    .. seealso:: `CUfileDescr_t`
+    """
+    cdef:
+        readonly object _data
+        object _owner
+
+    def __init__(self, size=1):
+        self._data = _numpy.zeros(size, dtype=descr_dtype_record)
+        assert self._data.itemsize == sizeof(CUfileDescr_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileDescr_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.Descr_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.Descr object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return _cyb_array_ptr(self._data)
+
+    cdef intptr_t _get_ptr(self):
+        return _cyb_array_ptr(self._data)
+
+    def __int__(self):
+        if self._data.size > 1 and not self._data.flags["C_CONTIGUOUS"]:
+            raise TypeError("int() argument must be a bytes-like object of size 1, or a "
+                            "C-contiguous array. To get the pointer address of a "
+                            "non-contiguous array, use .ptr")
+        return _cyb_array_ptr(self._data)
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, Descr)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    def __getbuffer__(self, Py_buffer *buffer, int flags):
+        _cyb_cpython.PyObject_GetBuffer(self._data, buffer, flags)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        _cyb_cpython.PyBuffer_Release(buffer)
+
+    @property
+    def type(self):
+        """Union[~_numpy.int32, int]: """
+        if self._data.size == 1:
+            return int(self._data["type"][0])
+        return self._data["type"]
+
+    @type.setter
+    def type(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This Descr instance is read-only")
+        self._data["type"] = val
+
+    @property
+    def handle(self):
+        """_py_anon_pod1_dtype: """
+        return self._data["handle"].view(_numpy.recarray)
+
+    @handle.setter
+    def handle(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This Descr instance is read-only")
+        self._data["handle"] = val
+
+    @property
+    def fs_ops(self):
+        """Union[~_numpy.intp, int]: """
+        if self._data.size == 1:
+            return int(self._data["fs_ops"][0])
+        return self._data["fs_ops"]
+
+    @fs_ops.setter
+    def fs_ops(self, val):
+        if not self._data.flags.writeable:
+            raise ValueError("This Descr instance is read-only")
+        self._data["fs_ops"] = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        cdef Descr obj
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            obj = Descr.__new__(Descr)
+            obj._data = self._data[key_:key_+1]
+            obj._owner = self._owner
+            return obj
+        out = self._data[key]
+        if isinstance(out, _numpy.ndarray):
+            if out.dtype == descr_dtype:
+                obj = Descr.from_data(out)
+                obj._owner = self._owner
+                return obj
+            if out.dtype.names is not None:
+                return out.view(_numpy.recarray)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an Descr instance with the memory from the given buffer."""
+        return Descr.from_data(_numpy.frombuffer(buffer, dtype=descr_dtype))
+
+    @staticmethod
+    def from_data(data):
+        """Create an Descr instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `descr_dtype` holding the data.
+        """
+        cdef Descr obj = Descr.__new__(Descr)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != descr_dtype:
+            raise ValueError("data array must be of dtype descr_dtype")
+        obj._data = data.view(dtype=descr_dtype_record, type=_numpy.ndarray)
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False, object owner=None):
+        """Create an Descr instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+            owner (object): object that owns the memory at *ptr*.  A strong reference is
+                kept so the backing storage outlives this wrapper.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef Descr obj = Descr.__new__(Descr)
+        cdef flag = _cyb_cpython_buffer.PyBUF_READ if readonly else _cyb_cpython_buffer.PyBUF_WRITE
+        cdef object buf = _cyb_cpython_memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
+        obj._data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype_record)
+        obj._owner = owner
         return obj
 
 

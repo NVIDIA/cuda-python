@@ -17,12 +17,14 @@ which the parent's join timeout catches.
 """
 
 import contextlib
+import functools
 import multiprocessing as mp
 import threading
 import time
 
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.misc import run_in_threads
 
 from cuda.core import Buffer, Device
 
@@ -45,36 +47,26 @@ def child_main(queue):
     nbytes = queue.get()
 
     barrier = threading.Barrier(THREADS)
-    errors = []
     iterations = [0] * THREADS
 
     def worker(index):
         Device().set_current()
         stream = Device().create_stream()
         local = Device().memory_resource.allocate(nbytes, stream=stream)
-        barrier.wait()
-        deadline = time.monotonic() + DURATION_SEC
         try:
-            while time.monotonic() < deadline and not errors:
-                buffer = Buffer.from_ipc_descriptor(mr, descriptor, stream=stream)
-                local.copy_from(buffer, stream=stream)
-                stream.sync()
-                buffer.close()
+            barrier.wait()
+            deadline = time.monotonic() + DURATION_SEC
+            # A failing worker aborts the barrier, which stops the others early.
+            while time.monotonic() < deadline and not barrier.broken:
+                with Buffer.from_ipc_descriptor(mr, descriptor, stream=stream) as buffer:
+                    local.copy_from(buffer, stream=stream)
+                    stream.sync()
                 iterations[index] += 1
-        except Exception as e:
-            errors.append(e)
         finally:
             local.close(stream)
             stream.sync()
 
-    threads = [threading.Thread(target=worker, args=(i,)) for i in range(THREADS)]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
-
-    if errors:
-        raise errors[0]
+    run_in_threads([functools.partial(worker, i) for i in range(THREADS)], barrier=barrier)
     assert all(iterations), iterations
     device.sync()
 

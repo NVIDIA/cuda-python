@@ -21,6 +21,7 @@ import threading
 
 import pytest
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.misc import run_in_threads
 
 from cuda.core import Buffer, Device
 
@@ -50,13 +51,11 @@ def child_main(queue):
         barrier.wait()
         Buffer.from_ipc_descriptor(mr, descriptor, stream=device.default_stream).close()
 
-    threads = [threading.Thread(target=importer) for _ in range(THREADS)]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
-
-    device.sync()
+    try:
+        run_in_threads([importer] * THREADS, barrier=barrier)
+    finally:
+        # Drain the imported frees before the exporter frees its allocation.
+        device.sync()
 
 
 class TestIpcConcurrentImport:
