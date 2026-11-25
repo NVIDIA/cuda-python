@@ -85,17 +85,25 @@ cdef inline bint _torch_version_check():
 
 cdef object _get_torch_tensor_type():
     global _torch_tensor_type
+    cdef object tensor_type
     with cython.critical_section(_torch_type_cache):
-        if _torch_tensor_type is None:
-            torch = sys.modules.get("torch")
-            tensor_type = getattr(torch, "Tensor", None)
-            if tensor_type is None:
-                # Torch may be imported after an earlier protocol-only call.
-                return None
-            _torch_tensor_type = tensor_type
-        if not _torch_version_check():
+        tensor_type = _torch_tensor_type
+    if tensor_type is None:
+        torch = sys.modules.get("torch")
+        tensor_type = getattr(torch, "Tensor", None)
+        if tensor_type is None:
+            # Torch may be imported after an earlier protocol-only call.
             return None
-        return _torch_tensor_type
+        # The critical section only protects the check-and-set of the
+        # cached global; the Python-level lookups above run outside it.
+        with cython.critical_section(_torch_type_cache):
+            if _torch_tensor_type is None:
+                _torch_tensor_type = tensor_type
+            else:
+                tensor_type = _torch_tensor_type
+    if not _torch_version_check():
+        return None
+    return tensor_type
 
 
 cdef inline bint _is_torch_tensor(object obj):
