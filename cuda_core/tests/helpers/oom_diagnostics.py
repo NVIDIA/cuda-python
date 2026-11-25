@@ -20,12 +20,22 @@ MCDM), and WSL. There is no OS-specific branch and no external process
 (``nvidia-smi``, NVML): see the PR #2458 review for why the previous version's
 ``nvidia-smi -q`` dump was dropped.
 
-Capture is latched once per session, on the first failing OOM. A failing run
-can report ~190 of these, all descending from one earlier event, and
-re-running the probes on each would add noticeable time and bury the log. The
-report is written via ``terminalreporter`` rather than ``print()`` so it
+Capture is latched once per session, on the first failing OOM whose probe
+finds a current context. A failing run can report ~190 of these, all
+descending from one earlier event, and re-running the probes on each would add
+noticeable time and bury the log. The first OOM often surfaces in a teardown,
+after ``init_cuda`` has popped the test's context; such an OOM gets a one-line
+note and the full report waits for the next OOM that has a context. The
+diagnostics never change the current context themselves. The probes measure
+process-wide state, which in practice is still exhausted a few tests later.
+
+The report is written via ``terminalreporter`` rather than ``print()`` so it
 survives the stdout redirection these runs use, and ``pytest_terminal_summary``
 points at the artifact from the end of the run, where it is actually noticed.
+The artifact is named after the ``--junitxml`` file and written beside it when
+one is given, which is the directory CI uploads; it is written when captured,
+so it survives a later crash that keeps pytest from writing the JUnit file or
+the summary.
 """
 
 import os
@@ -177,10 +187,7 @@ def probe_basics():
     snapshot = ProbeSnapshot()
 
     ctx_ok, ctx_err, ctx_values = _call(driver.cuCtxGetCurrent)
-    # cuCtxGetCurrent succeeds even with no bound context: it returns a null
-    # CUcontext, not None, so "no context" has to be checked via int(), not
-    # an identity check against None.
-    snapshot.has_context = bool(ctx_ok and ctx_values and ctx_values[0] is not None and int(ctx_values[0]) != 0)
+    snapshot.has_context = ctx_ok and _is_context(ctx_values)
     if not ctx_ok:
         snapshot.context_error = ctx_err
     if not snapshot.has_context:
@@ -223,8 +230,17 @@ def probe_basics():
     return snapshot, dev
 
 
+def _is_context(ctx_values):
+    # cuCtxGetCurrent succeeds even with no bound context and returns a null
+    # CUcontext rather than None.
+    return bool(ctx_values and ctx_values[0] is not None and int(ctx_values[0]) != 0)
+
+
 def run_probe():
     """Run the OOM reason checker once and return its :class:`ProbeSnapshot`.
+
+    The probe runs in the current context and never makes one current: with
+    no current context it stops at step 1 and ``has_context`` is false.
 
     Ordered from cheapest/most-general to most-specific so a probe that
     already answers the question skips the more expensive ones after it:
@@ -360,7 +376,7 @@ def format_probe_log(snapshot: ProbeSnapshot) -> str:
     lines = ["--- direct driver probe (bypasses cuda.core's error reporting) ---"]
 
     if not snapshot.has_context:
-        suffix = f" <raised {snapshot.context_error}>" if snapshot.context_error else " (no context)"
+        suffix = f" <failed: {snapshot.context_error}>" if snapshot.context_error else " (no context)"
         lines.append(f"cuCtxGetCurrent(){suffix}")
         return "\n".join(lines)
     lines.append("cuCtxGetCurrent() -> ok")
@@ -421,14 +437,36 @@ def format_probe_log(snapshot: ProbeSnapshot) -> str:
     return "\n".join(lines)
 
 
-class OomDiagnosticsRecorder:
-    """Captures the OOM reason checker the first time a CUDA OOM is seen, and only then."""
+def artifact_path(config):
+    """Where the report goes: ``<junit stem>-oom-diagnostics.txt`` beside ``--junitxml``.
 
-    def __init__(self, filename=DEFAULT_FILENAME):
-        self._filename = filename
+    CI uploads the JUnit directory as an artifact, and each pytest invocation
+    (for example ``tests/`` and ``tests/cython``) writes its own JUnit file, so
+    the derived names cannot collide. Without ``--junitxml`` the report goes to
+    the rootdir as ``DEFAULT_FILENAME``. The JUnit path is resolved the way
+    pytest's junitxml plugin resolves it, except that a relative path is
+    anchored at the invocation directory, not the current one: a test may have
+    changed directory by the time an OOM is captured.
+    """
+    xmlpath = getattr(config.option, "xmlpath", None)
+    if not xmlpath:
+        return pathlib.Path(config.rootpath) / DEFAULT_FILENAME
+    expanded = pathlib.Path(os.path.expanduser(os.path.expandvars(xmlpath)))
+    junit = pathlib.Path(os.path.normpath(config.invocation_params.dir / expanded))
+    return junit.with_name(f"{junit.stem}-oom-diagnostics.txt")
+
+
+class OomDiagnosticsRecorder:
+    """Captures the OOM reason checker on the first CUDA OOM with a current context, and only then.
+
+    An earlier OOM without a context gets a one-line note, once.
+    """
+
+    def __init__(self):
         self._lock = threading.Lock()
         self._captured = False
         self._nodeid = None
+        self._skipped_nodeid = None
         self._artifact_path = None
         self._artifact_written = False
 
@@ -440,6 +478,11 @@ class OomDiagnosticsRecorder:
     def nodeid(self):
         """Node id of the test that triggered capture, or None."""
         return self._nodeid
+
+    @property
+    def skipped_nodeid(self):
+        """Node id of the first OOM that was not probed for lack of a context, or None."""
+        return self._skipped_nodeid
 
     @property
     def artifact_path(self):
@@ -454,14 +497,18 @@ class OomDiagnosticsRecorder:
     def matches(exc_text):
         return OOM_MARKER in exc_text
 
-    def build_report(self, nodeid, phase, exc_text, snapshot=None):
+    def build_report(self, nodeid, phase, exc_text, snapshot=None, skipped_nodeid=None):
         if snapshot is None:
             snapshot = run_probe()
         verdict = classify(snapshot)
+        if skipped_nodeid is None:
+            title = "first CUDA_ERROR_OUT_OF_MEMORY of this session"
+        else:
+            title = f"first CUDA_ERROR_OUT_OF_MEMORY with a current context (first OOM: {skipped_nodeid})"
         return "\n".join(
             [
                 _BANNER,
-                "cuda_core OOM reason checker: first CUDA_ERROR_OUT_OF_MEMORY of this session",
+                f"cuda_core OOM reason checker: {title}",
                 _BANNER,
                 f"test:      {nodeid}",
                 f"phase:     {phase}",
@@ -478,28 +525,43 @@ class OomDiagnosticsRecorder:
             ]
         )
 
-    def capture(self, nodeid, phase, exc_text, directory, snapshot=None):
-        """Build and persist the report. Returns None if already captured.
+    def capture(self, nodeid, phase, exc_text, path, snapshot=None):
+        """Probe, then build and persist the report at ``path``.
+
+        Returns the text to emit, or None if nothing is emitted. Without a
+        current context the probe cannot run: the first such OOM yields a
+        one-line note and capture stays armed for a later OOM.
 
         ``snapshot`` lets callers (mainly tests) skip the live driver probe;
-        production callers leave it unset so :meth:`build_report` runs
-        :func:`run_probe`.
+        production callers leave it unset so :func:`run_probe` runs.
         """
+        # Held throughout so concurrent test threads do not probe in parallel.
         with self._lock:
             if self._captured:
                 return None
-            self._captured = True
+            if snapshot is None:
+                snapshot = run_probe()
+            if not snapshot.has_context:
+                if self._skipped_nodeid is not None:
+                    return None
+                self._skipped_nodeid = nodeid
+                reason = f"cuCtxGetCurrent failed: {snapshot.context_error}" if snapshot.context_error else "no context"
+                return (
+                    f"cuda_core OOM reason checker: {OOM_MARKER} in the {phase} of {nodeid} ({reason}); "
+                    "probing at the next one with a current context"
+                )
 
-        report = self.build_report(nodeid, phase, exc_text, snapshot=snapshot)
-        destination = pathlib.Path(directory) / self._filename
-        self._nodeid = nodeid
-        self._artifact_path = destination
-        try:
-            destination.write_text(report, encoding="utf-8")
-            self._artifact_written = True
-            return f"{report}\n(diagnostics also written to {destination})"
-        except OSError as exc:
-            return f"{report}\n(could not write {destination}: {exc!r})"
+            self._captured = True
+            self._nodeid = nodeid
+            self._artifact_path = path
+            report = self.build_report(nodeid, phase, exc_text, snapshot=snapshot, skipped_nodeid=self._skipped_nodeid)
+            try:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(report, encoding="utf-8")
+                self._artifact_written = True
+                return f"{report}\n(diagnostics also written to {path})"
+            except OSError as exc:
+                return f"{report}\n(could not write {path}: {exc!r})"
 
 
 _default_recorder = OomDiagnosticsRecorder()
@@ -524,7 +586,7 @@ def record_if_oom(item, call, report, recorder=None, snapshot=None):
     if not recorder.matches(exc_text):
         return None
 
-    text = recorder.capture(item.nodeid, call.when, exc_text, item.config.rootpath, snapshot=snapshot)
+    text = recorder.capture(item.nodeid, call.when, exc_text, artifact_path(item.config), snapshot=snapshot)
     if text is None:
         return None
 
@@ -548,11 +610,16 @@ def report_terminal_summary(terminalreporter, recorder=None):
     if recorder is None:
         recorder = _default_recorder
 
-    if not recorder.captured:
+    if recorder.captured:
+        verb = "written to" if recorder.artifact_written else "could NOT be written to"
+        first = "" if recorder.skipped_nodeid is None else f"first CUDA OOM at {recorder.skipped_nodeid}; "
+        line = f"{first}probed CUDA OOM at {recorder.nodeid}; diagnostics {verb} {recorder.artifact_path}"
+    elif recorder.skipped_nodeid is not None:
+        line = (
+            f"first CUDA OOM at {recorder.skipped_nodeid}; no later CUDA OOM had a current context, so none was probed"
+        )
+    else:
         return None
-
-    verb = "written to" if recorder.artifact_written else "could NOT be written to"
-    line = f"first CUDA OOM at {recorder.nodeid}; diagnostics {verb} {recorder.artifact_path}"
     terminalreporter.write_sep("=", "cuda_core OOM diagnostics", red=True)
     terminalreporter.write_line(line)
     return line

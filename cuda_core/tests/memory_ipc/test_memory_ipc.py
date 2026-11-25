@@ -9,6 +9,7 @@ from helpers.buffers import PatternGen, prefix_view
 from helpers.child_processes import child_timeout_sec, kill_subprocesses
 from helpers.constants import POOL_SIZE
 from helpers.memory import (
+    drain_on_exit,
     import_pool_resource,
     is_pool_resource,
     pool_access_flags,
@@ -87,14 +88,14 @@ class TestIpcMempool:
         device.set_current()
         if is_pool_resource(mr):
             assert mr.is_mapped
-        buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        assert buffer.is_mapped
         stream = device.default_stream
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        pgen.verify_buffer(buffer, seed=False)
-        pgen.fill_buffer(buffer, seed=True)
-        buffer.close()
-        stream.sync()
+        with ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            buffer = stack.enter_context(queue.get(timeout=CHILD_TIMEOUT_SEC))
+            assert buffer.is_mapped
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.verify_buffer(buffer, seed=False)
+            pgen.fill_buffer(buffer, seed=True)
 
 
 class TestIPCMempoolMultiple:
@@ -142,17 +143,16 @@ class TestIPCMempoolMultiple:
         # Note: passing the mr registers it so that buffers can be passed
         # directly.
         device.set_current()
-        buffer1 = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        buffer2 = queue.get(timeout=CHILD_TIMEOUT_SEC)
         stream = device.default_stream
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        if seed == 1:
-            pgen.fill_buffer(buffer1, seed=1)
-        elif seed == 2:
-            pgen.fill_buffer(buffer2, seed=2)
-        buffer1.close()
-        buffer2.close()
-        stream.sync()
+        with ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            buffer1 = stack.enter_context(queue.get(timeout=CHILD_TIMEOUT_SEC))
+            buffer2 = stack.enter_context(queue.get(timeout=CHILD_TIMEOUT_SEC))
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            if seed == 1:
+                pgen.fill_buffer(buffer1, seed=1)
+            elif seed == 2:
+                pgen.fill_buffer(buffer2, seed=2)
 
 
 class TestIPCSharedAllocationHandleAndBufferDescriptors:
@@ -206,11 +206,11 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         mr = _import_token(device, token)
         buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
         stream = device.default_stream
-        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor, stream=stream)
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        pgen.fill_buffer(buffer, seed=seed)
-        buffer.close()
-        stream.sync()
+        with ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            buffer = stack.enter_context(Buffer.from_ipc_descriptor(mr, buffer_descriptor, stream=stream))
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.fill_buffer(buffer, seed=seed)
 
 
 class TestIPCSharedAllocationHandleAndBufferObjects:
@@ -264,12 +264,12 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         _import_token(device, token)
 
         # Now get buffers.
-        buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
         stream = device.default_stream
-        pgen = PatternGen(device, NBYTES, stream=stream)
-        pgen.fill_buffer(buffer, seed=seed)
-        buffer.close()
-        stream.sync()
+        with ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            buffer = stack.enter_context(queue.get(timeout=CHILD_TIMEOUT_SEC))
+            pgen = PatternGen(device, NBYTES, stream=stream)
+            pgen.fill_buffer(buffer, seed=seed)
 
 
 class TestIpcImportedBufferDeviceAccess:
@@ -312,11 +312,11 @@ class TestIpcImportedBufferDeviceAccess:
 
     def child_main(self, device, mr, queue):
         device.set_current()
-        buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
         stream = device.default_stream
-        prefix_view(buffer, NBYTES).fill(self.FILL_VALUE, stream=stream)
-        buffer.close()
-        stream.sync()
+        with ExitStack() as stack:
+            drain_on_exit(stack, stream)
+            buffer = stack.enter_context(queue.get(timeout=CHILD_TIMEOUT_SEC))
+            prefix_view(buffer, NBYTES).fill(self.FILL_VALUE, stream=stream)
 
 
 def _pinned_pool_access(mr):
@@ -418,9 +418,13 @@ class TestIpcImportedPinnedBufferOnSecondDevice:
             PatternGen(dev1, NBYTES, stream=stream).verify_buffer(buffer, value=self.FILL_VALUE)
 
     def child_main(self, buffer):
-        device = Device(1)
-        device.set_current()
-        stream = device.default_stream
-        prefix_view(buffer, NBYTES).fill(self.FILL_VALUE, stream=stream)
-        stream.sync()
-        buffer.close()
+        with ExitStack() as stack:
+            # Unpickling bound the buffer's free to the default stream of device
+            # 0, current at the time, so drain device 0, not the stream used here.
+            drain_on_exit(stack, Device(0))
+            stack.enter_context(buffer)
+            device = Device(1)
+            device.set_current()
+            stream = device.default_stream
+            prefix_view(buffer, NBYTES).fill(self.FILL_VALUE, stream=stream)
+            stream.sync()

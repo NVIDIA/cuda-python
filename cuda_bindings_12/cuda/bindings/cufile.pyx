@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # This code was automatically generated with version 12.9.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5c0f0ede5957fb7cbd597e6b23620fecb7128a0740b00a6313f8a4b1c79846f3
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=865a4efd24ea9f23c4d6f195b4930ba426924724e91ce087bad87a6ecc43507d
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -615,6 +615,153 @@ cdef class IOEvents:
         return obj
 
 
+cdef _get__py_anon_pod2_dtype_offsets():
+    cdef cuda_bindings_cufile__anon_pod2 *pod = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod2))
+    if pod == NULL:
+        raise MemoryError("Error allocating cuda_bindings_cufile__anon_pod2")
+    try:
+        return _numpy.dtype({
+            'names': ['batch'],
+            'formats': [_py_anon_pod3_dtype],
+            'offsets': [
+                (<intptr_t>&(pod.batch)) - (<intptr_t>pod),
+            ],
+            'itemsize': sizeof(cuda_bindings_cufile__anon_pod2),
+        })
+    finally:
+        _cyb_free(pod)
+
+_py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
+
+cdef class _py_anon_pod2:
+    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod2`.
+
+
+    .. seealso:: `cuda_bindings_cufile__anon_pod2`
+    """
+    cdef:
+        cuda_bindings_cufile__anon_pod2 *_ptr
+        object _owner
+        bint _owns_ptr
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod2))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating _py_anon_pod2")
+        self._owns_ptr = True
+        self._owner = None
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef cuda_bindings_cufile__anon_pod2 *ptr
+        if self._owns_ptr and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            _cyb_free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef _py_anon_pod2 other_
+        if not isinstance(other, _py_anon_pod2):
+            return False
+        other_ = other
+        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_cufile__anon_pod2)) == 0)
+
+    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
+        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_cufile__anon_pod2), self._readonly)
+
+    def __releasebuffer__(self, Py_buffer *buffer):
+        pass
+
+    def __setitem__(self, key, val):
+        cdef _cyb_Py_buffer view
+        if key == 0:
+            if self._readonly:
+                raise ValueError("This _py_anon_pod2 instance is read-only")
+            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
+            try:
+                if <size_t>view.len < sizeof(cuda_bindings_cufile__anon_pod2):
+                    raise ValueError(
+                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_cufile__anon_pod2), view.len)
+                    )
+                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(cuda_bindings_cufile__anon_pod2))
+                self._readonly = view.readonly != 0
+            finally:
+                _cyb_PyBuffer_Release(&view)
+        else:
+            setattr(self, key, val)
+
+    @property
+    def batch(self):
+        """_py_anon_pod3: """
+        return _py_anon_pod3.from_ptr(
+            <intptr_t>&(self._ptr[0].batch),
+            readonly=self._readonly,
+            owner=self,
+        )
+
+    @batch.setter
+    def batch(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod2 instance is read-only")
+        cdef _py_anon_pod3 val_ = val
+        _cyb_memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(cuda_bindings_cufile__anon_pod3) * 1)
+
+    @staticmethod
+    def from_buffer(buffer):
+        """Create an _py_anon_pod2 instance with the memory from the given buffer."""
+        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_cufile__anon_pod2), _py_anon_pod2)
+
+    @staticmethod
+    def from_data(data):
+        """Create an _py_anon_pod2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
+        """
+        return _cyb_from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an _py_anon_pod2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
+        if owner is None:
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod2))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod2")
+            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_cufile__anon_pod2))
+            obj._owns_ptr = True
+            obj._owner = None
+        else:
+            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>ptr
+            obj._owns_ptr = False
+            obj._owner = owner
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_descr_dtype_offsets():
     cdef CUfileDescr_t *pod = <CUfileDescr_t *>_cyb_calloc(1, sizeof(CUfileDescr_t))
     if pod == NULL:
@@ -797,153 +944,6 @@ cdef class Descr:
             <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
         obj._data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype_record)
         obj._owner = owner
-        return obj
-
-
-cdef _get__py_anon_pod2_dtype_offsets():
-    cdef cuda_bindings_cufile__anon_pod2 *pod = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod2))
-    if pod == NULL:
-        raise MemoryError("Error allocating cuda_bindings_cufile__anon_pod2")
-    try:
-        return _numpy.dtype({
-            'names': ['batch'],
-            'formats': [_py_anon_pod3_dtype],
-            'offsets': [
-                (<intptr_t>&(pod.batch)) - (<intptr_t>pod),
-            ],
-            'itemsize': sizeof(cuda_bindings_cufile__anon_pod2),
-        })
-    finally:
-        _cyb_free(pod)
-
-_py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
-
-cdef class _py_anon_pod2:
-    """Empty-initialize an instance of `cuda_bindings_cufile__anon_pod2`.
-
-
-    .. seealso:: `cuda_bindings_cufile__anon_pod2`
-    """
-    cdef:
-        cuda_bindings_cufile__anon_pod2 *_ptr
-        object _owner
-        bint _owns_ptr
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_calloc(1, sizeof(cuda_bindings_cufile__anon_pod2))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating _py_anon_pod2")
-        self._owns_ptr = True
-        self._owner = None
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef cuda_bindings_cufile__anon_pod2 *ptr
-        if self._owns_ptr and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            _cyb_free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef _py_anon_pod2 other_
-        if not isinstance(other, _py_anon_pod2):
-            return False
-        other_ = other
-        return (_cyb_memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(cuda_bindings_cufile__anon_pod2)) == 0)
-
-    def __getbuffer__(self, _cyb_cpython.Py_buffer *buffer, int flags):
-        _cyb___getbuffer(self, buffer, <void *>self._ptr, sizeof(cuda_bindings_cufile__anon_pod2), self._readonly)
-
-    def __releasebuffer__(self, Py_buffer *buffer):
-        pass
-
-    def __setitem__(self, key, val):
-        cdef _cyb_Py_buffer view
-        if key == 0:
-            if self._readonly:
-                raise ValueError("This _py_anon_pod2 instance is read-only")
-            _cyb_PyObject_GetBuffer(val, &view, _cyb_PyBUF_SIMPLE)
-            try:
-                if <size_t>view.len < sizeof(cuda_bindings_cufile__anon_pod2):
-                    raise ValueError(
-                        "source buffer too small: expected at least %d bytes, got %d" % (sizeof(cuda_bindings_cufile__anon_pod2), view.len)
-                    )
-                _cyb_memmove(<void*>self._ptr, view.buf, sizeof(cuda_bindings_cufile__anon_pod2))
-                self._readonly = view.readonly != 0
-            finally:
-                _cyb_PyBuffer_Release(&view)
-        else:
-            setattr(self, key, val)
-
-    @property
-    def batch(self):
-        """_py_anon_pod3: """
-        return _py_anon_pod3.from_ptr(
-            <intptr_t>&(self._ptr[0].batch),
-            readonly=self._readonly,
-            owner=self,
-        )
-
-    @batch.setter
-    def batch(self, val):
-        if self._readonly:
-            raise ValueError("This _py_anon_pod2 instance is read-only")
-        cdef _py_anon_pod3 val_ = val
-        _cyb_memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(cuda_bindings_cufile__anon_pod3) * 1)
-
-    @staticmethod
-    def from_buffer(buffer):
-        """Create an _py_anon_pod2 instance with the memory from the given buffer."""
-        return _cyb_from_buffer(buffer, sizeof(cuda_bindings_cufile__anon_pod2), _py_anon_pod2)
-
-    @staticmethod
-    def from_data(data):
-        """Create an _py_anon_pod2 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
-        """
-        return _cyb_from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an _py_anon_pod2 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
-        if owner is None:
-            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>_cyb_malloc(sizeof(cuda_bindings_cufile__anon_pod2))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating _py_anon_pod2")
-            _cyb_memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(cuda_bindings_cufile__anon_pod2))
-            obj._owns_ptr = True
-            obj._owner = None
-        else:
-            obj._ptr = <cuda_bindings_cufile__anon_pod2 *>ptr
-            obj._owns_ptr = False
-            obj._owner = owner
-        obj._readonly = readonly
         return obj
 
 

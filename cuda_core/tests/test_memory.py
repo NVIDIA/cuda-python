@@ -3,6 +3,7 @@
 
 import concurrent.futures
 import ctypes
+import functools
 import gc
 import multiprocessing as mp
 import sys
@@ -44,6 +45,7 @@ from helpers.memory import (
     skip_if_managed_mempool_unsupported,
     skip_if_pinned_memory_unsupported,
 )
+from helpers.misc import run_in_threads
 from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import (
@@ -1739,30 +1741,22 @@ def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
     device = _vmm_device_or_skip()
     mr = _vmm_resource(device)
     nthreads = 4
-    errors = []
 
     def work(buf, i, gate):
-        try:
-            gate.wait()
-            for j in range(6):
-                mr.modify_allocation(buf, (i * 8 + j + 2) * 2 * MIB).close()
-        except BaseException as exc:  # pragma: no cover - surfaced below
-            errors.append(exc)
+        gate.wait()
+        for j in range(6):
+            mr.modify_allocation(buf, (i * 8 + j + 2) * 2 * MIB).close()
 
     with assert_no_cuda_warning():
         for _ in range(8):
             root = mr.allocate(2 * MIB)
             alias = mr.modify_allocation(root, 8 * MIB)
             gate = threading.Barrier(nthreads)
-            threads = [threading.Thread(target=work, args=(root if i % 2 else alias, i, gate)) for i in range(nthreads)]
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join(timeout=CHILD_TIMEOUT_SEC)
-            assert not any(t.is_alive() for t in threads), "a grow thread did not finish"
+            targets = [functools.partial(work, root if i % 2 else alias, i, gate) for i in range(nthreads)]
+            # A failure or timeout leaves the buffers open: a stuck thread may still use them.
+            run_in_threads(targets, barrier=gate, timeout=CHILD_TIMEOUT_SEC)
             alias.close()
             root.close()
-    assert errors == []
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")

@@ -112,6 +112,9 @@ class TestEventIpc:
         prefix_view(buffer, NBYTES).copy_from(twos, stream=stream2)
         log("signaling parent")
         q_out.put(None)
+        # Free the imported buffer after the copy; the sync drains both before
+        # the exporter frees its allocation.
+        buffer.close(stream2)
         log("waiting")
         stream2.sync()
         log("done")
