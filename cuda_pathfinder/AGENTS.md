@@ -46,6 +46,9 @@ Windows.
   - unknown name -> `DynamicLibUnknownError`
   - known but unsupported on this OS -> `DynamicLibNotAvailableError`
   - known/supported but not found/loadable -> `DynamicLibNotFoundError`
+- **Spell `found_via` labels once**: use the constants in
+  `cuda/pathfinder/_utils/found_via.py`. Do not type the label strings
+  anywhere else; they are public and the Linux loader branches on them.
 - **Do not hardcode host assumptions**: avoid baking in machine-local paths,
   shell-specific quoting, or environment assumptions.
 - **Prefer focused abstractions**: if a change is platform-specific, route it
