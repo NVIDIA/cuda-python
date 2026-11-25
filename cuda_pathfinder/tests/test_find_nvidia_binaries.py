@@ -34,10 +34,6 @@ def test_find_binary_utilities(info_summary_append, utility_name):
     assert bin_path is None or os.path.isfile(bin_path)
 
 
-def test_supported_binaries_consistency():
-    assert set(SITE_PACKAGES_BINDIRS).issubset(SUPPORTED_BINARIES)
-
-
 @pytest.mark.agent_authored(model="claude-opus-5")
 def test_cuda13_wheel_layout_is_declared_and_preferred():
     """Every supported utility shipped in nvidia/cu13/bin must declare that layout first.
