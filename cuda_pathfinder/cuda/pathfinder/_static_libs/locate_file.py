@@ -58,7 +58,7 @@ def locate_file(
 
 
 def not_found_message(filename: str, ctk_rel_paths: tuple[str, ...]) -> str:
-    """Explain a :func:`locate_file` miss by describing the last place it searched."""
+    """Explain a :func:`locate_file` miss by describing the first ``CUDA_PATH`` directory it tried."""
     cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
         return f'Failure finding "{filename}": CUDA_HOME/CUDA_PATH not set\n'
