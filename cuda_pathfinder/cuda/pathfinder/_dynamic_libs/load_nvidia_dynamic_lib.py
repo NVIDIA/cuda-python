@@ -49,11 +49,6 @@ _ALL_KNOWN_LIBNAMES: frozenset[str] = frozenset(LIB_DESCRIPTORS)
 _PLATFORM_NAME = "Windows" if IS_WINDOWS else "Linux"
 _CANARY_PROBE_TIMEOUT_SECONDS = 10.0
 
-# Driver libraries: shipped with the NVIDIA display driver, always on the
-# system linker path.  These skip all CTK search steps (site-packages,
-# conda, CUDA_PATH, canary) and go straight to system search.
-_DRIVER_ONLY_LIBNAMES = frozenset(name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver")
-
 
 def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
     """Load an NVIDIA driver library (system-search only).
@@ -165,7 +160,9 @@ def _try_ctk_root_canary(ctx: SearchContext) -> FindResult | NotFound:
 def _load_lib_no_cache(libname: str) -> LoadedDL:
     desc = LIB_DESCRIPTORS[libname]
 
-    if libname in _DRIVER_ONLY_LIBNAMES:
+    # Driver libraries ship with the NVIDIA display driver and are always on the
+    # system linker path, so they skip every CTK search step.
+    if desc.packaged_with == "driver":
         return _load_driver_lib_no_cache(desc)
 
     ctx = search_context(desc)
