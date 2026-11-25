@@ -324,9 +324,10 @@ displaced handle only after it has unlocked, and a caller drops a losing
 candidate outside the lock (REGISTRY_DESIGN.md).
 
 Resolving a context handle can call the driver and report a failure, so
-`create_context_handle_ref()`, `get_current_context()` and everything that calls
-them, such as `make_deallocation_stream()` for a default-stream token, must not
-run while a C++ lock is held (see "Primary contexts"). `deviceptr_import_ipc`
+`create_context_handle_ref()`, `create_current_context_handle_ref()`,
+`get_current_context()` and everything that calls them, such as
+`make_deallocation_stream()` for a default-stream token, must not run while a
+C++ lock is held (see "Primary contexts"). `deviceptr_import_ipc`
 resolves its deallocation stream before it takes the IPC pointer cache's mutex
 for this reason.
 
@@ -346,10 +347,12 @@ behaved this way; #1368 released the retain when the last handle dropped, which
   runs and its retain is never given back. The per-thread cache is only a fast
   path in front of the table's mutex, and its destruction at thread exit drops
   references, nothing more.
-- `create_context_handle_ref()` and `get_current_context()` pin a primary
-  context that another library made current: when `ctx` is the calling thread's
-  current context and its device's active primary context, it is retained and
-  pinned. Only the current context is examined, because its device is the only
+- `create_context_handle_ref()`, `create_current_context_handle_ref()` and
+  `get_current_context()` pin a primary context that another library made
+  current: when `ctx` is the calling thread's current context and its device's
+  active primary context, it is retained and pinned. All three go through
+  `resolve_context_handle()`; the last two are for callers that already know
+  what is current, so it is not queried again. Only the current context is examined, because its device is the only
   one that can be queried without switching contexts. An inactive primary
   context is never retained, because that would create it. When the active
   primary context turns out to be another one, the retain taken to find out is

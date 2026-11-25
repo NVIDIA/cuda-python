@@ -24,6 +24,11 @@ namespace cuda_core::rt {
 // holding a C++ lock.
 ContextHandle create_context_handle_ref(CUcontext ctx);
 
+// As create_context_handle_ref, for a caller that knows that ctx is the calling
+// thread's current context and that its device is `device`, so that neither is
+// queried again.
+ContextHandle create_current_context_handle_ref(CUcontext ctx, CUdevice device);
+
 // Create a context handle for the CUcontext view of the provided green context.
 // The returned ContextHandle keeps the green context alive, but the CUcontext
 // view is non-owning and is not destroyed independently.

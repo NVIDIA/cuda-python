@@ -209,6 +209,8 @@ cdef void clear_last_error_detail() noexcept nogil
 
 # Context handles
 cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except+ nogil
+cdef ContextHandle create_current_context_handle_ref(
+    cydriver.CUcontext ctx, cydriver.CUdevice device) except+ nogil
 cdef ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) except+ nogil
 cdef GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept nogil
 cdef GreenCtxHandle create_green_ctx_handle(

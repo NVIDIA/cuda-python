@@ -21,7 +21,7 @@ from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._rt cimport (
     ContextHandle,
     GreenCtxHandle,
-    create_context_handle_ref,
+    create_current_context_handle_ref,
     create_green_ctx_handle,
     context_synchronize,
     get_primary_context,
@@ -1313,7 +1313,7 @@ class Device:
                     # only then is a primary context that cuda.core has not
                     # retained yet pinned, so that the returned Context keeps
                     # it alive.
-                    h_context = create_context_handle_ref(prev_ctx)
+                    h_context = create_current_context_handle_ref(prev_ctx, prev_dev)
                 # cuCtxSetCurrent replaces the top of the thread's context stack
                 # in one driver call (or binds ctx when nothing is current), so
                 # a failure leaves the previous context current instead of

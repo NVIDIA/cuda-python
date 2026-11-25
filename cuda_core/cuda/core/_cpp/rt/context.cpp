@@ -265,47 +265,73 @@ pin_primary_context(int device_id, CUcontext expected, CUresult *status)
     // context, so a live entry under it is a plain box or a stale one: replace
     // it. Registering after the unlock keeps a displaced box's deleter out of
     // primary_context_mutex. A lookup that misses the registry in between finds
-    // the box in the table (see adopt_current_primary_context).
+    // the box in the table (see resolve_context_handle).
     context_registry.insert_or_get(as_cu(h), h, [](const ContextHandle &) noexcept { return true; });
     return h;
 }
 
-// If ctx is the calling thread's current context and the primary context of
-// its device, pin it and return the pinned handle; otherwise return an empty
-// handle. Only the current context is examined, because its device can be
-// queried without switching contexts, which a lookup must not do.
+// A lookup falls back to a handle that holds no retain, and its callers do not
+// check for an error, so each failure while adopting a primary context is
+// reported.
+constexpr const char *adopt_failure_detail = "failed while looking up the current context";
+
+// ctx is the calling thread's current context, on `device`. If it is that
+// device's primary context, pin it and return the pinned handle; otherwise
+// return an empty handle.
 ContextHandle
-adopt_current_primary_context(CUcontext ctx)
+adopt_primary_context(CUcontext ctx, CUdevice device)
 {
-    // The lookup falls back to a handle that holds no retain, and its callers do
-    // not check for an error, so each failure is reported.
-    constexpr const char *detail = "failed while looking up the current context";
+    CUresult status = CUDA_SUCCESS;
+    ContextHandle h = pin_primary_context(static_cast<int>(device), ctx, &status);
+    if (status != CUDA_SUCCESS) {
+        report_cuda_error("cuDevicePrimaryCtxRetain", status, adopt_failure_detail);
+    }
+    return h;
+}
+
+// ctx is the calling thread's current context: query its device and adopt it.
+ContextHandle
+adopt_current_context(CUcontext ctx)
+{
+    GILReleaseGuard gil;
+    CUdevice device = 0;
+    CUresult status = DRIVER_CALL(cuCtxGetDevice, &device);
+    if (status != CUDA_SUCCESS) {
+        report_cuda_error("cuCtxGetDevice", status, adopt_failure_detail);
+        return {};
+    }
+    return adopt_primary_context(ctx, device);
+}
+
+// Adopt ctx if it is the calling thread's current context. Only the current
+// context is examined, because its device can be queried without switching
+// contexts, which a lookup must not do.
+ContextHandle
+adopt_if_current(CUcontext ctx)
+{
     GILReleaseGuard gil;
     CUcontext current = nullptr;
     CUresult status = DRIVER_CALL(cuCtxGetCurrent, &current);
     if (status != CUDA_SUCCESS) {
-        report_cuda_error("cuCtxGetCurrent", status, detail);
+        report_cuda_error("cuCtxGetCurrent", status, adopt_failure_detail);
         return {};
     }
     if (current != ctx) {
         return {};
     }
-    CUdevice device = 0;
-    status = DRIVER_CALL(cuCtxGetDevice, &device);
-    if (status != CUDA_SUCCESS) {
-        report_cuda_error("cuCtxGetDevice", status, detail);
-        return {};
-    }
-    ContextHandle h = pin_primary_context(device, ctx, &status);
-    if (status != CUDA_SUCCESS) {
-        report_cuda_error("cuDevicePrimaryCtxRetain", status, detail);
-    }
-    return h;
+    return adopt_current_context(ctx);
 }
 
-// Create a context handle reference, with optional green context as source.
+// Return the handle for ctx, with an optional owning green context as source.
+//
+// adopt() returns the pinned handle if ctx is a primary context that cuda.core
+// has not retained yet, for example one made current by another library, and
+// an empty handle otherwise. It runs only for a plain lookup (no h_green_ctx)
+// that finds no owning entry, so callers that know what is current pass what
+// they know instead of querying the driver again.
+template <typename Adopt>
 ContextHandle
-create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
+resolve_context_handle(CUcontext ctx, GreenCtxHandle h_green_ctx, Adopt &&adopt)
 {
     if (!ctx) {
         return {};
@@ -318,10 +344,9 @@ create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
         return registered;
     }
     if (!h_green_ctx) {
-        // A primary context that cuda.core has not retained yet, for example one
-        // made current by another library: pin it, so that the handle keeps it
-        // alive like every other primary-context handle.
-        if (ContextHandle h = adopt_current_primary_context(ctx)) {
+        // Pin a primary context, so that the handle keeps it alive like every
+        // other primary-context handle.
+        if (ContextHandle h = adopt()) {
             return h;
         }
         if (registered) {
@@ -347,7 +372,13 @@ create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
 ContextHandle
 create_context_handle_ref(CUcontext ctx)
 {
-    return create_context_handle_ref(ctx, {});
+    return resolve_context_handle(ctx, {}, [ctx] { return adopt_if_current(ctx); });
+}
+
+ContextHandle
+create_current_context_handle_ref(CUcontext ctx, CUdevice device)
+{
+    return resolve_context_handle(ctx, {}, [ctx, device] { return adopt_primary_context(ctx, device); });
 }
 
 ContextHandle
@@ -362,7 +393,7 @@ create_context_handle_from_green_ctx(const GreenCtxHandle &h_green_ctx)
         return {};
     }
 
-    return create_context_handle_ref(ctx, h_green_ctx);
+    return resolve_context_handle(ctx, h_green_ctx, [] { return ContextHandle{}; });
 }
 
 GreenCtxHandle
@@ -448,7 +479,7 @@ get_current_context()
     if (!ctx) {
         return {};  // No current context (not an error)
     }
-    return create_context_handle_ref(ctx);
+    return resolve_context_handle(ctx, {}, [ctx] { return adopt_current_context(ctx); });
 }
 
 }  // namespace cuda_core::rt
