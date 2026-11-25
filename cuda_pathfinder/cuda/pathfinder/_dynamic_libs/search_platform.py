@@ -14,7 +14,7 @@ import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import PurePath
-from typing import NoReturn
+from typing import ClassVar, Literal, NoReturn
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
@@ -25,11 +25,22 @@ from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows
 
 
 @dataclass(frozen=True, slots=True)
+class FindResult:
+    """A library file located on disk (not yet loaded)."""
+
+    abs_path: str
+    found_via: str
+    #: Lets callers ask ``result.found`` of either result type.
+    found: ClassVar[Literal[True]] = True
+
+
+@dataclass(frozen=True, slots=True)
 class NotFound:
     """Why a search missed: the text for the final not-found error."""
 
     error_messages: tuple[str, ...] = ()
     attachments: tuple[str, ...] = ()
+    found: ClassVar[Literal[False]] = False
 
     def __add__(self, other: NotFound) -> NotFound:
         return NotFound(self.error_messages + other.error_messages, self.attachments + other.attachments)
@@ -159,14 +170,14 @@ def _find_lib_file(ctx: SearchContext, dirpath: str) -> str | None:
     return _find_descriptor_dll_under_dir(dirpath, ctx.desc, ctx.pe_arch_to_check)
 
 
-def find_lib_in_site_packages(ctx: SearchContext) -> str | NotFound:
+def find_lib_in_site_packages(ctx: SearchContext) -> FindResult | NotFound:
     sub_dirs_searched: list[tuple[str, ...]] = []
     for rel_dir in ctx.site_packages_rel_dirs:
         sub_dir = PurePath(rel_dir).parts
         for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
             lib_path = _find_lib_file(ctx, abs_dir)
             if lib_path is not None:
-                return lib_path
+                return FindResult(lib_path, "site-packages")
         sub_dirs_searched.append(sub_dir)
     missed = NotFound()
     for sub_dir in sub_dirs_searched:
@@ -174,10 +185,10 @@ def find_lib_in_site_packages(ctx: SearchContext) -> str | NotFound:
     return missed
 
 
-def find_lib_in_dir(ctx: SearchContext, lib_dir: str) -> str | NotFound:
+def find_lib_in_dir(ctx: SearchContext, lib_dir: str, found_via: str) -> FindResult | NotFound:
     lib_path = _find_lib_file(ctx, lib_dir)
     if lib_path is not None:
-        return lib_path
+        return FindResult(lib_path, found_via)
     if ctx.pe_arch_to_check is None:
         error_message = f"No such file: {ctx.lib_searched_for}"
     else:
