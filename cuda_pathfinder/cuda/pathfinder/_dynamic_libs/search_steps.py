@@ -5,7 +5,11 @@
 
 Each find step is a callable with signature::
 
-    (SearchContext) -> FindResult | None
+    (SearchContext) -> FindResult | NotFound
+
+A step returns a :class:`FindResult` for a hit. For a miss it returns a
+:class:`NotFound` that carries what the final error message should say, which
+is nothing when the step did not apply.
 
 Find steps locate a library file on disk without loading it.  The
 orchestrator in :mod:`load_nvidia_dynamic_lib` handles loading, the
@@ -25,6 +29,7 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 
 from cuda.pathfinder._dynamic_libs.search_platform import (
+    NotFound,
     SearchContext,
     find_lib_in_dir,
     find_lib_in_site_packages,
@@ -39,7 +44,7 @@ from .._utils.resolve_path import resolve_path
 # ---------------------------------------------------------------------------
 
 
-@dataclass
+@dataclass(frozen=True)
 class FindResult:
     """A library file located on disk (not yet loaded)."""
 
@@ -48,7 +53,7 @@ class FindResult:
 
 
 #: Type alias for a find step callable.
-FindStep = Callable[[SearchContext], FindResult | None]
+FindStep = Callable[[SearchContext], FindResult | NotFound]
 
 
 def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
@@ -64,16 +69,18 @@ def _find_under_root(
     root: str,
     rel_dirs: tuple[str, ...],
     found_via: str,
-) -> FindResult | None:
+) -> FindResult | NotFound:
     """Resolve *rel_dirs* under *root*, then find the requested library."""
+    missed = NotFound()
     for lib_dir in _iter_lib_dirs(root, rel_dirs):
-        abs_path = find_lib_in_dir(ctx, lib_dir)
-        if abs_path is not None:
-            return FindResult(abs_path, found_via)
-    return None
+        found = find_lib_in_dir(ctx, lib_dir)
+        if not isinstance(found, NotFound):
+            return FindResult(found, found_via)
+        missed += found
+    return missed
 
 
-def _find_under_anchor_root(ctx: SearchContext, root: str, found_via: str) -> FindResult | None:
+def _find_under_anchor_root(ctx: SearchContext, root: str, found_via: str) -> FindResult | NotFound:
     """Resolve the descriptor's general anchors under *root*."""
     return _find_under_root(ctx, root, ctx.anchor_rel_dirs, found_via)
 
@@ -127,7 +134,7 @@ def derive_ctk_root(resolved_lib_path: str) -> str | None:
     return _derive_ctk_root_windows(resolved_lib_path)
 
 
-def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
+def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | NotFound:
     """Find a library under a previously derived CTK root."""
     return _find_under_anchor_root(ctx, ctk_root, "system-ctk-root")
 
@@ -137,39 +144,41 @@ def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
 # ---------------------------------------------------------------------------
 
 
-def find_in_site_packages(ctx: SearchContext) -> FindResult | None:
+def find_in_site_packages(ctx: SearchContext) -> FindResult | NotFound:
     """Search pip wheel install locations."""
     if not ctx.site_packages_rel_dirs:
-        return None
-    abs_path = find_lib_in_site_packages(ctx)
-    if abs_path is not None:
-        return FindResult(abs_path, "site-packages")
-    return None
+        return NotFound()
+    found = find_lib_in_site_packages(ctx)
+    if isinstance(found, NotFound):
+        return found
+    return FindResult(found, "site-packages")
 
 
-def find_in_conda(ctx: SearchContext) -> FindResult | None:
+def find_in_conda(ctx: SearchContext) -> FindResult | NotFound:
     """Search ``$CONDA_PREFIX``."""
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
-        return None
+        return NotFound()
     anchor = ctx.conda_anchor_point(conda_prefix)
     return _find_under_anchor_root(ctx, anchor, "conda")
 
 
-def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | None:
+def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | NotFound:
     """Search installation roots named by descriptor-specific environment variables."""
     rel_dirs = ctx.install_root_env_rel_dirs
+    missed = NotFound()
     for env_var in ctx.install_root_env_vars:
         root = os.environ.get(env_var)
         if not root:
             continue
         result = _find_under_root(ctx, root, rel_dirs, env_var)
-        if result is not None:
+        if isinstance(result, FindResult):
             return result
-    return None
+        missed += result
+    return missed
 
 
-def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
+def find_in_cuda_path(ctx: SearchContext) -> FindResult | NotFound:
     """Search ``$CUDA_PATH`` / ``$CUDA_HOME`` as fallback toolkit roots.
 
     This step runs after native system search on both platforms. On Windows,
@@ -182,20 +191,22 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
     """
     cuda_home = get_cuda_path_or_home()
     if cuda_home is None:
-        return None
+        return NotFound()
     return _find_under_anchor_root(ctx, cuda_home, "CUDA_PATH")
 
 
-def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
+def find_in_program_files_roots(ctx: SearchContext) -> FindResult | NotFound:
     """Search descriptor-configured installation roots under Program Files."""
+    missed = NotFound()
     for root_glob in ctx.program_files_root_globs():
         for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
             result = _find_under_anchor_root(ctx, str(resolve_path(root)), "ProgramFiles")
-            if result is not None:
+            if isinstance(result, FindResult):
                 return result
-    return None
+            missed += result
+    return missed
 
 
 # ---------------------------------------------------------------------------
@@ -218,10 +229,12 @@ LATE_FIND_STEPS: tuple[FindStep, ...] = (
 # ---------------------------------------------------------------------------
 
 
-def run_find_steps(ctx: SearchContext, steps: tuple[FindStep, ...]) -> FindResult | None:
-    """Run find steps in order, returning the first hit."""
+def run_find_steps(ctx: SearchContext, steps: tuple[FindStep, ...]) -> FindResult | NotFound:
+    """Run find steps in order, returning the first hit or else every step's miss combined."""
+    missed = NotFound()
     for step in steps:
         result = step(ctx)
-        if result is not None:
+        if isinstance(result, FindResult):
             return result
-    return None
+        missed += result
+    return missed

@@ -22,6 +22,8 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
 )
 from cuda.pathfinder._dynamic_libs.search_platform import search_context, windows_search_context
 from cuda.pathfinder._dynamic_libs.search_steps import (
+    FindResult,
+    NotFound,
     SearchContext,
     _derive_ctk_root_linux,
     _derive_ctk_root_windows,
@@ -188,7 +190,7 @@ def test_try_via_ctk_root_finds_nvvm(tmp_path):
     nvvm_lib = _create_nvvm_in_ctk(ctk_root)
 
     result = find_via_ctk_root(_ctx("nvvm"), str(ctk_root))
-    assert result is not None
+    assert isinstance(result, FindResult)
     assert result.abs_path == str(nvvm_lib)
     assert result.found_via == "system-ctk-root"
 
@@ -197,7 +199,7 @@ def test_try_via_ctk_root_returns_none_when_dir_missing(tmp_path):
     ctk_root = tmp_path / "cuda-13"
     ctk_root.mkdir()
 
-    assert find_via_ctk_root(_ctx("nvvm"), str(ctk_root)) is None
+    assert isinstance(find_via_ctk_root(_ctx("nvvm"), str(ctk_root)), NotFound)
 
 
 def test_try_via_ctk_root_regular_lib(tmp_path):
@@ -205,7 +207,7 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
     cudart_lib = _create_cudart_in_ctk(ctk_root)
 
     result = find_via_ctk_root(_ctx("cudart"), str(ctk_root))
-    assert result is not None
+    assert isinstance(result, FindResult)
     assert result.abs_path == str(cudart_lib)
     assert result.found_via == "system-ctk-root"
 
@@ -223,7 +225,7 @@ def test_try_via_ctk_root_windows_arm64_prefers_arch_dir(tmp_path):
 
     ctx = windows_search_context(LIB_DESCRIPTORS["cudart"], "arm64")
     result = find_via_ctk_root(ctx, str(ctk_root))
-    assert result is not None
+    assert isinstance(result, FindResult)
     assert result.abs_path == str(arm64_lib)
     assert result.found_via == "system-ctk-root"
 
@@ -373,14 +375,14 @@ def test_canary_finds_nvvm(tmp_path, mocker):
     )
     parent_system_loader = mocker.patch.object(load_mod.LOADER, "load_with_system_search")
 
-    assert _try_ctk_root_canary(_ctx("nvvm")) == str(nvvm_lib)
+    assert _try_ctk_root_canary(_ctx("nvvm")) == FindResult(str(nvvm_lib), "system-ctk-root")
     probe.assert_called_once_with("cudart")
     parent_system_loader.assert_not_called()
 
 
 def test_canary_returns_none_when_subprocess_probe_fails(mocker):
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    assert _try_ctk_root_canary(_ctx("nvvm")) is None
+    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
 
 
 def test_canary_returns_none_when_ctk_root_unrecognized(mocker):
@@ -388,7 +390,7 @@ def test_canary_returns_none_when_ctk_root_unrecognized(mocker):
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value="/weird/path/libcudart.so.13",
     )
-    assert _try_ctk_root_canary(_ctx("nvvm")) is None
+    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
 
 
 def test_canary_returns_none_when_nvvm_not_in_ctk_root(tmp_path, mocker):
@@ -400,12 +402,12 @@ def test_canary_returns_none_when_nvvm_not_in_ctk_root(tmp_path, mocker):
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(ctk_root),
     )
-    assert _try_ctk_root_canary(_ctx("nvvm")) is None
+    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
 
 
 def test_canary_skips_when_abs_path_none(mocker):
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    assert _try_ctk_root_canary(_ctx("nvvm")) is None
+    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
 
 
 # ---------------------------------------------------------------------------
@@ -454,7 +456,7 @@ def _isolate_load_cascade(mocker):
     # system-search, CUDA_HOME and canary behavior.
     def _run_find_steps_with_early_disabled(ctx, steps):
         if steps is load_mod.EARLY_FIND_STEPS:
-            return None
+            return NotFound()
         return steps_mod.run_find_steps(ctx, steps)
 
     mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_with_early_disabled)

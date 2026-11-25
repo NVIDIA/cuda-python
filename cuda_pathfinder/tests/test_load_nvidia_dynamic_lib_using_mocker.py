@@ -13,7 +13,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
 )
 from cuda.pathfinder._dynamic_libs.search_platform import search_context, windows_search_context
-from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS
+from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS, NotFound
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
@@ -150,7 +150,7 @@ def test_cupti_not_found_raises_error(mocker):
 
     # Mock all search paths to return None
     def _run_find_steps_disabled(ctx, steps):
-        return None
+        return NotFound()
 
     mocker.patch(f"{_MODULE}.run_find_steps", side_effect=_run_find_steps_disabled)
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
