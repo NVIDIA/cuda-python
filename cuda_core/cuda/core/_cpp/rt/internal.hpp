@@ -13,6 +13,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <thread>
 #include <type_traits>
 #include <unordered_map>
@@ -269,11 +270,13 @@ class ReleasingHandleRegistry {
     get_or_create(const Key &key, Factory &&create)
     {
         std::unique_lock lock(mutex_);
-        for (auto it = map_.find(key); it != map_.end(); it = map_.find(key)) {
-            if (Handle h = it->second.handle.lock()) {
-                return h;
-            }
-            released_.wait(lock);
+        Lookup found;
+        released_.wait(lock, [&] {
+            found = find(lock, key);
+            return found.state != State::Releasing;
+        });
+        if (found.state == State::Live) {
+            return found.owner;
         }
         // Insert before creating, so a failed insertion has nothing to undo.
         auto it = map_.try_emplace(key).first;
@@ -315,6 +318,39 @@ class ReleasingHandleRegistry {
         std::weak_ptr<typename Handle::element_type> handle;
         const typename Handle::element_type *resource = nullptr;
     };
+
+    // What is registered under a key. An entry outlives its owner's last
+    // reference, so an entry whose owner has expired is a release in flight.
+    enum class State {
+        Vacant,     // no entry: the caller may create an owner
+        Live,       // an owner holds the resource
+        Releasing,  // the owner's deleter has not called release() yet
+    };
+
+    struct Lookup {
+        State state = State::Vacant;
+        Handle owner;  // set only when state is Live
+    };
+
+    // Takes the caller's lock as proof that it holds mutex_, and checks it.
+    [[nodiscard]] Lookup
+    find(const std::unique_lock<std::mutex> &held, const Key &key) const
+    {
+        if (!held.owns_lock() || held.mutex() != &mutex_) {
+            throw std::runtime_error(
+                "internal cuda.core error, please report: registry lookup without the registry's lock"
+            );
+        }
+        auto it = map_.find(key);
+        if (it == map_.end()) {
+            return {State::Vacant, {}};
+        }
+        Handle owner = it->second.handle.lock();
+        if (!owner) {
+            return {State::Releasing, {}};
+        }
+        return {State::Live, std::move(owner)};
+    }
 
     std::mutex mutex_;
     std::condition_variable released_;
