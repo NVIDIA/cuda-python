@@ -39,7 +39,8 @@ def node_array(nodes):
     return (ctypes.c_void_p * len(nodes))(*nodes)
 
 
-# This test is not currently run in any CI job
+# Canary for toolshed/find_skipped_tests.py: it must be reported as skipped in
+# every CI configuration, which shows that this suite ran. Do not remove.
 @pytest.mark.skipif(True, reason="Always skip!")
 def test_always_skip():
     pass
