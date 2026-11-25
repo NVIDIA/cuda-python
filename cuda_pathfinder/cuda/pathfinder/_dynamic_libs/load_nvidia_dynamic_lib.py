@@ -129,11 +129,6 @@ def _resolve_system_loaded_abs_path_in_subprocess(
     return None
 
 
-def _loadable_via_canary_subprocess(libname: str, *, timeout: float = _CANARY_PROBE_TIMEOUT_SECONDS) -> bool:
-    """Return True if the canary subprocess can resolve ``libname`` via system search."""
-    return _resolve_system_loaded_abs_path_in_subprocess(libname, timeout=timeout) is not None
-
-
 def resolve_ctk_root_via_canary(canary_libname: str) -> str | None:
     """Resolve the CUDA Toolkit root from a system-loadable canary library.
 
