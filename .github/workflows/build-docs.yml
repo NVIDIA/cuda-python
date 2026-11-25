@@ -353,7 +353,12 @@ jobs:
 
       - name: Remove shared files from release docs
         if: ${{ inputs.is-release }}
-        run: bash .ci-control/ci/tools/remove_shared_release_docs.sh artifacts/docs
+        run: |
+          # Main deployments own these paths at each component root.
+          for root in artifacts/docs artifacts/docs/cuda-{bindings,core,pathfinder}; do
+            rm -rf -- "$root/latest"
+            rm -f -- "$root"/{nv-versions.json,versions.json,objects.inv}
+          done
 
       # Check links and anchors in the rendered HTML built above.
       # Links in authored Markdown and reST files are checked separately by the
