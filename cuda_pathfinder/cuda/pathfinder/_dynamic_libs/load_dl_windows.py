@@ -185,4 +185,5 @@ def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | No
         error_code = kernel32.GetLastError()
         raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
 
-    return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), found_via)
+    # `found_via` is None when a caller omits it, but `LoadedDL` declares it as `str`.
+    return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), found_via)  # type: ignore[arg-type]
