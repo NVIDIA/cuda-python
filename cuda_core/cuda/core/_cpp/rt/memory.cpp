@@ -682,7 +682,7 @@ deviceptr_import_ipc(const MemoryPoolHandle &h_pool, const void *export_data, co
 
         // Resolve the deallocation stream before the mutex is taken: for a
         // default-stream token it looks up the current context, which may pin a
-        // primary context and report a failure (create_context_handle_ref).
+        // primary context and report a failure (get_current_context).
         // Only a fresh import uses it, so a failure is kept for that path, and
         // a cached import is returned as before. May throw std::bad_alloc;
         // nothing has been imported yet.
