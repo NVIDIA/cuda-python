@@ -18,6 +18,7 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import (
     load_dependencies,
 )
 from cuda.pathfinder._dynamic_libs.platform_loader import LOADER
+from cuda.pathfinder._dynamic_libs.search_platform import search_context
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
     LATE_FIND_STEPS,
@@ -163,7 +164,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     if libname in _DRIVER_ONLY_LIBNAMES:
         return _load_driver_lib_no_cache(desc)
 
-    ctx = SearchContext(desc)
+    ctx = search_context(desc)
 
     # An already-loaded library bypasses the wheel and conda search.
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)

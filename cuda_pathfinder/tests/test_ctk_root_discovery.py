@@ -20,7 +20,7 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _try_ctk_root_canary,
     resolve_ctk_root_via_canary,
 )
-from cuda.pathfinder._dynamic_libs.search_platform import WindowsSearchPlatform
+from cuda.pathfinder._dynamic_libs.search_platform import search_context, windows_search_context
 from cuda.pathfinder._dynamic_libs.search_steps import (
     SearchContext,
     _derive_ctk_root_linux,
@@ -42,7 +42,7 @@ _PACKAGE_ROOT = DYNAMIC_LIB_SUBPROCESS_CWD
 
 
 def _ctx(libname: str = "nvvm") -> SearchContext:
-    return SearchContext(LIB_DESCRIPTORS[libname])
+    return search_context(LIB_DESCRIPTORS[libname])
 
 
 @pytest.fixture(autouse=True)
@@ -221,7 +221,7 @@ def test_try_via_ctk_root_windows_arm64_prefers_arch_dir(tmp_path):
     arm64_lib = arm64_dir / "cudart64_13.dll"
     arm64_lib.write_bytes(b"fake")
 
-    ctx = SearchContext(LIB_DESCRIPTORS["cudart"], platform=WindowsSearchPlatform(target_arch="arm64"))
+    ctx = windows_search_context(LIB_DESCRIPTORS["cudart"], "arm64")
     result = find_via_ctk_root(ctx, str(ctk_root))
     assert result is not None
     assert result.abs_path == str(arm64_lib)
