@@ -12,8 +12,8 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
     _resolve_system_loaded_abs_path_in_subprocess,
 )
-from cuda.pathfinder._dynamic_libs.search_platform import WindowsSearchPlatform
-from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS, SearchContext
+from cuda.pathfinder._dynamic_libs.search_platform import search_context, windows_search_context
+from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
@@ -65,8 +65,8 @@ def test_cudnn_arm64_archive_layout_reaches_loader(tmp_path, mocker, monkeypatch
     mocker.patch("cuda.pathfinder._dynamic_libs.search_platform.windows_pe_matches_arch", return_value=True)
 
     desc = load_mod.LIB_DESCRIPTORS["cudnn"]
-    ctx = SearchContext(desc, platform=WindowsSearchPlatform(target_arch="arm64"))
-    mocker.patch(f"{_MODULE}.SearchContext", return_value=ctx)
+    ctx = windows_search_context(desc, "arm64")
+    mocker.patch(f"{_MODULE}.search_context", return_value=ctx)
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
 
     def _load_dependency(name):
@@ -175,7 +175,7 @@ def test_cupti_not_found_raises_error(mocker):
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mocker, monkeypatch, preferred_source):
     desc = load_mod.LIB_DESCRIPTORS["cublasLt"]
-    platform = steps_mod.PLATFORM
+    search_inputs = search_context(desc)
     filename = desc.windows_dlls[0] if IS_WINDOWS else desc.linux_sonames[0]
 
     def create_library(root, relative_dir):
@@ -185,19 +185,19 @@ def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mock
         return path
 
     cuda_root = tmp_path / "toolkit"
-    create_library(cuda_root, platform.anchor_rel_dirs(desc)[0])
+    create_library(cuda_root, search_inputs.anchor_rel_dirs[0])
     mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=str(cuda_root))
 
     conda_root = tmp_path / "conda"
-    conda_anchor = Path(platform.conda_anchor_point(str(conda_root)))
-    conda_path = create_library(conda_anchor, platform.anchor_rel_dirs(desc)[0])
+    conda_anchor = Path(search_inputs.conda_anchor_point(str(conda_root)))
+    conda_path = create_library(conda_anchor, search_inputs.anchor_rel_dirs[0])
     if preferred_source == "system-search":
         monkeypatch.delenv("CONDA_PREFIX", raising=False)
     else:
         monkeypatch.setenv("CONDA_PREFIX", str(conda_root))
 
     wheel_root = tmp_path / "wheels"
-    wheel_path = create_library(wheel_root, platform.site_packages_rel_dirs(desc)[0])
+    wheel_path = create_library(wheel_root, search_inputs.site_packages_rel_dirs[0])
 
     def find_wheel_dirs(sub_dirs):
         directory = wheel_root.joinpath(*sub_dirs)

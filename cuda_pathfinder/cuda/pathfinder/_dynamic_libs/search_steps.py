@@ -15,19 +15,20 @@ Step sequences are defined per search strategy so that adding a new
 step or strategy only requires adding a function and a tuple entry.
 
 This module is intentionally platform-agnostic: it does not branch on the
-current operating system. Platform differences are routed through the
-:data:`~cuda.pathfinder._dynamic_libs.search_platform.PLATFORM` instance.
+current operating system. Platform differences are resolved up front into the
+:class:`~cuda.pathfinder._dynamic_libs.search_platform.SearchContext`.
 """
 
 import glob
 import os
 from collections.abc import Callable, Iterator
-from dataclasses import dataclass, field
-from typing import NoReturn, cast
+from dataclasses import dataclass
 
-from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
-from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-from cuda.pathfinder._dynamic_libs.search_platform import PLATFORM, SearchPlatform
+from cuda.pathfinder._dynamic_libs.search_platform import (
+    SearchContext,
+    find_lib_in_dir,
+    find_lib_in_site_packages,
+)
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.path_sort import numeric_aware_path_sort_key
 
@@ -46,25 +47,6 @@ class FindResult:
     found_via: str
 
 
-@dataclass
-class SearchContext:
-    """Mutable state accumulated during the search cascade."""
-
-    desc: LibDescriptor
-    platform: SearchPlatform = PLATFORM
-    error_messages: list[str] = field(default_factory=list)
-    attachments: list[str] = field(default_factory=list)
-
-    @property
-    def lib_searched_for(self) -> str:
-        return cast(str, self.platform.lib_searched_for(self.desc))
-
-    def raise_not_found(self) -> NoReturn:
-        err = ", ".join(self.error_messages)
-        att = "\n".join(self.attachments)
-        raise DynamicLibNotFoundError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
-
-
 #: Type alias for a find step callable.
 FindStep = Callable[[SearchContext], FindResult | None]
 
@@ -77,21 +59,6 @@ def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
                 yield str(resolve_path(dirname))
 
 
-def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
-    """Find a library file in a resolved lib directory."""
-    if lib_dir is None:
-        return None
-    return cast(
-        str | None,
-        ctx.platform.find_in_lib_dir(
-            lib_dir,
-            ctx.desc,
-            ctx.error_messages,
-            ctx.attachments,
-        ),
-    )
-
-
 def _find_under_root(
     ctx: SearchContext,
     root: str,
@@ -100,7 +67,7 @@ def _find_under_root(
 ) -> FindResult | None:
     """Resolve *rel_dirs* under *root*, then find the requested library."""
     for lib_dir in _iter_lib_dirs(root, rel_dirs):
-        abs_path = _find_using_lib_dir(ctx, lib_dir)
+        abs_path = find_lib_in_dir(ctx, lib_dir)
         if abs_path is not None:
             return FindResult(abs_path, found_via)
     return None
@@ -108,7 +75,7 @@ def _find_under_root(
 
 def _find_under_anchor_root(ctx: SearchContext, root: str, found_via: str) -> FindResult | None:
     """Resolve the descriptor's general anchors under *root*."""
-    return _find_under_root(ctx, root, ctx.platform.anchor_rel_dirs(ctx.desc), found_via)
+    return _find_under_root(ctx, root, ctx.anchor_rel_dirs, found_via)
 
 
 def _derive_ctk_root_linux(resolved_lib_path: str) -> str | None:
@@ -172,15 +139,9 @@ def find_via_ctk_root(ctx: SearchContext, ctk_root: str) -> FindResult | None:
 
 def find_in_site_packages(ctx: SearchContext) -> FindResult | None:
     """Search pip wheel install locations."""
-    rel_dirs = ctx.platform.site_packages_rel_dirs(ctx.desc)
-    if not rel_dirs:
+    if not ctx.site_packages_rel_dirs:
         return None
-    abs_path = ctx.platform.find_in_site_packages(
-        rel_dirs,
-        ctx.desc,
-        ctx.error_messages,
-        ctx.attachments,
-    )
+    abs_path = find_lib_in_site_packages(ctx)
     if abs_path is not None:
         return FindResult(abs_path, "site-packages")
     return None
@@ -191,14 +152,14 @@ def find_in_conda(ctx: SearchContext) -> FindResult | None:
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
-    anchor = ctx.platform.conda_anchor_point(conda_prefix)
+    anchor = ctx.conda_anchor_point(conda_prefix)
     return _find_under_anchor_root(ctx, anchor, "conda")
 
 
 def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | None:
     """Search installation roots named by descriptor-specific environment variables."""
-    rel_dirs = ctx.platform.install_root_env_rel_dirs(ctx.desc)
-    for env_var in ctx.platform.install_root_env_vars(ctx.desc):
+    rel_dirs = ctx.install_root_env_rel_dirs
+    for env_var in ctx.install_root_env_vars:
         root = os.environ.get(env_var)
         if not root:
             continue
@@ -227,7 +188,7 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | None:
 
 def find_in_program_files_roots(ctx: SearchContext) -> FindResult | None:
     """Search descriptor-configured installation roots under Program Files."""
-    for root_glob in ctx.platform.program_files_root_globs(ctx.desc):
+    for root_glob in ctx.program_files_root_globs():
         for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
