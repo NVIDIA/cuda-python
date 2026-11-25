@@ -199,7 +199,7 @@ def test_try_via_ctk_root_finds_nvvm(tmp_path):
     assert result.found_via == "system-ctk-root"
 
 
-def test_try_via_ctk_root_returns_none_when_dir_missing(tmp_path):
+def test_try_via_ctk_root_misses_when_dir_missing(tmp_path):
     ctk_root = tmp_path / "cuda-13"
     ctk_root.mkdir()
 
@@ -384,12 +384,12 @@ def test_canary_finds_nvvm(tmp_path, mocker):
     parent_system_loader.assert_not_called()
 
 
-def test_canary_returns_none_when_subprocess_probe_fails(mocker):
+def test_canary_misses_when_subprocess_probe_fails(mocker):
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
 
 
-def test_canary_returns_none_when_ctk_root_unrecognized(mocker):
+def test_canary_misses_when_ctk_root_unrecognized(mocker):
     mocker.patch(
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value="/weird/path/libcudart.so.13",
@@ -397,7 +397,7 @@ def test_canary_returns_none_when_ctk_root_unrecognized(mocker):
     assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
 
 
-def test_canary_returns_none_when_nvvm_not_in_ctk_root(tmp_path, mocker):
+def test_canary_misses_when_nvvm_not_in_ctk_root(tmp_path, mocker):
     ctk_root = tmp_path / "cuda-13"
     # Create only the canary lib dir, not nvvm
     _create_cudart_in_ctk(ctk_root)
