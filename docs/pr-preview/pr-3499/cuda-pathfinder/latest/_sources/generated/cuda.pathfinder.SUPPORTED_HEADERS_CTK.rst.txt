@@ -1,6 +1,0 @@
-﻿cuda.pathfinder.SUPPORTED\_HEADERS\_CTK
-=======================================
-
-.. currentmodule:: cuda.pathfinder
-
-.. autodata:: SUPPORTED_HEADERS_CTK

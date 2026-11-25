@@ -1,6 +1,0 @@
-﻿cuda.core.system.MemoryError
-============================
-
-.. currentmodule:: cuda.core.system
-
-.. autoexception:: MemoryError
