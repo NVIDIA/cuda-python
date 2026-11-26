@@ -143,8 +143,9 @@ def _without_location_query():
     _memory_pool.driver_version = lambda: (13, 1, 0)
 
 
-# A node that the tests cannot confuse with the default of 0. Without a location
-# query nothing checks it against the pool.
+# A node that the tests cannot confuse with the pool's actual node or with
+# Cython's zero initialization. Without a location query nothing checks it
+# against the pool.
 CLAIMED_NUMA_ID = 7
 
 
@@ -154,7 +155,8 @@ def child_import_with_numa_id_without_location_query(alloc_handle):
 
     # A raw file descriptor carries no UUID, so each import is a separate resource.
     omitted = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
-    assert omitted.numa_id == 0
+    with pytest.raises(RuntimeError, match="NUMA node .* is not known"):
+        _ = omitted.numa_id
     given = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=CLAIMED_NUMA_ID)
     assert given.numa_id == CLAIMED_NUMA_ID
     given.close()
@@ -173,9 +175,8 @@ def child_reduce_imported_resource(alloc_handle):
     _without_location_query()
     Device().set_current()
 
-    # The node of this import is unknown, so a third process must not be told 0.
+    # The node of this import is unknown, so a third process must not be told a node.
     unknown = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
-    assert unknown.numa_id == 0
     assert _deep_reduce_pinned_memory_resource(unknown)[1][1] is None
 
     known = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=CLAIMED_NUMA_ID)
@@ -256,7 +257,8 @@ def child_import_without_location_query(mr_type, alloc_handle, descriptor):
         mr = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
         if mr_type is PinnedMemoryResource:
             # Without the location query the pool's node is unknown (see numa_id).
-            assert mr.numa_id == 0
+            with pytest.raises(RuntimeError, match="NUMA node .* is not known"):
+                _ = mr.numa_id
         buffer = stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
         buffer.fill(7, stream=stream)
 

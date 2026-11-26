@@ -166,7 +166,9 @@ class PinnedMemoryResource(_MemPool):
             driver when possible (a CUDA 13 build of ``cuda.core`` and a 13.2
             or later driver); otherwise this value is the imported resource's
             :attr:`numa_id`. Unpickling a resource passes the exporter's node
-            automatically. Must be >= 0 if given.
+            automatically if it was known. If the node comes from neither the
+            driver nor this argument, the import succeeds but :attr:`numa_id`
+            raises ``RuntimeError``. Must be >= 0 if given.
 
         Returns
         -------
@@ -199,12 +201,17 @@ class PinnedMemoryResource(_MemPool):
     def numa_id(self) -> int:
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
 
-        For a resource imported with :meth:`from_allocation_handle`, this is the
-        pool's node if the pool's location can be queried (a CUDA 13 build of
-        ``cuda.core`` and a 13.2 or later driver), if the caller passed
-        ``numa_id`` to :meth:`from_allocation_handle`, or if the resource was
-        unpickled from a resource whose node was known. Otherwise it is 0, which
-        is not known to be the pool's node.
+        For a resource imported with :meth:`from_allocation_handle`, the node
+        comes from the driver if the pool's location can be queried (a CUDA 13
+        build of ``cuda.core`` and a 13.2 or later driver), otherwise from the
+        ``numa_id`` argument of :meth:`from_allocation_handle`, which unpickling
+        passes automatically if the exporter's node was known.
+
+        Raises
+        ------
+        RuntimeError
+            If the resource was imported and none of these sources gave the
+            pool's node.
         """
     @property
     def is_device_accessible(self) -> bool:

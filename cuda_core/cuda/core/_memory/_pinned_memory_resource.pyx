@@ -220,7 +220,9 @@ cdef class PinnedMemoryResource(_MemPool):
             driver when possible (a CUDA 13 build of ``cuda.core`` and a 13.2
             or later driver); otherwise this value is the imported resource's
             :attr:`numa_id`. Unpickling a resource passes the exporter's node
-            automatically. Must be >= 0 if given.
+            automatically if it was known. If the node comes from neither the
+            driver nor this argument, the import succeeds but :attr:`numa_id`
+            raises ``RuntimeError``. Must be >= 0 if given.
 
         Returns
         -------
@@ -277,13 +279,23 @@ cdef class PinnedMemoryResource(_MemPool):
     def numa_id(self) -> int:
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
 
-        For a resource imported with :meth:`from_allocation_handle`, this is the
-        pool's node if the pool's location can be queried (a CUDA 13 build of
-        ``cuda.core`` and a 13.2 or later driver), if the caller passed
-        ``numa_id`` to :meth:`from_allocation_handle`, or if the resource was
-        unpickled from a resource whose node was known. Otherwise it is 0, which
-        is not known to be the pool's node.
+        For a resource imported with :meth:`from_allocation_handle`, the node
+        comes from the driver if the pool's location can be queried (a CUDA 13
+        build of ``cuda.core`` and a 13.2 or later driver), otherwise from the
+        ``numa_id`` argument of :meth:`from_allocation_handle`, which unpickling
+        passes automatically if the exporter's node was known.
+
+        Raises
+        ------
+        RuntimeError
+            If the resource was imported and none of these sources gave the
+            pool's node.
         """
+        if not self._numa_id_known:
+            raise RuntimeError(
+                "The NUMA node of this imported memory pool is not known in this "
+                "process. Pass numa_id to PinnedMemoryResource.from_allocation_handle "
+                "to name the node the exporting process placed the pool on.")
         return self._numa_id
 
     @property
@@ -402,7 +414,7 @@ cdef int _PMR_init_imported(_MemPool mr, object numa_id) except? -1:
     # IPC-enabled pinned pools created by cuda.core are always placed on a host
     # NUMA node. Without a location query (a CUDA 12 build or a driver before
     # 13.2), the pool's kind is not checked and the node is the one the caller
-    # passed, if any. Otherwise it is unknown and numa_id keeps its default.
+    # passed, if any. Otherwise it is unknown and the numa_id property raises.
     cdef bint host_numa = True
     if _ipc.MP_check_import_location(self, True, &loc):
         host_numa = loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
@@ -421,7 +433,7 @@ def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:
     alloc_handle = pmr.allocation_handle
     # NUMA node IDs are the same in every process on the host, so the node needs
     # no translation as a device ordinal does. An unknown node is not sent, so
-    # that the importer does not mistake the default 0 for the pool's node.
+    # that the importer does not mistake a placeholder for the pool's node.
     return pmr.from_allocation_handle, (alloc_handle, pmr._numa_id if pmr._numa_id_known else None)
 
 

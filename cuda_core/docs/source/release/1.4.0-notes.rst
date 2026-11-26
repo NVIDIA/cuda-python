@@ -65,8 +65,9 @@ Fixes and enhancements
   driver before 13.2, where the pool's node cannot be queried. Unpickling a
   resource now carries the node, and
   :meth:`PinnedMemoryResource.from_allocation_handle` accepts an optional
-  ``numa_id`` argument for a raw allocation handle. Without it, an import that
-  cannot query the node still reports 0, which is not known to be the pool's
-  node. ``from_allocation_handle`` raises ``ValueError`` for a negative
-  ``numa_id`` or one that differs from the pool's known node.
+  ``numa_id`` argument for a raw allocation handle. ``from_allocation_handle``
+  raises ``ValueError`` for a negative ``numa_id`` or one that differs from the
+  pool's known node. When the node can be neither queried nor taken from the
+  argument, :attr:`PinnedMemoryResource.numa_id` now raises ``RuntimeError``
+  instead of returning 0, which was not known to be the pool's node.
   (`#3508 <https://github.com/NVIDIA/cuda-python/issues/3508>`__)
