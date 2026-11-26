@@ -103,3 +103,11 @@ def get_cuda_path_or_home() -> str | None:
 
     # Return the first (highest priority) set variable
     return next(iter(set_vars.values()))
+
+
+def get_conda_prefix() -> str | None:
+    """Return ``$CONDA_PREFIX``, or ``None`` if it is unset or empty.
+
+    Not cached: every call reads the environment.
+    """
+    return os.environ.get("CONDA_PREFIX") or None

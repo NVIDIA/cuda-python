@@ -3,10 +3,9 @@
 
 """Search shared by the static-library and bitcode-library finders."""
 
-import os
 from pathlib import Path
 
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder._utils.env_vars import get_conda_prefix, get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.found_via import FOUND_VIA_CONDA, FOUND_VIA_CUDA_PATH, FOUND_VIA_SITE_PACKAGES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
@@ -44,8 +43,8 @@ def locate_file(
             if abs_path is not None:
                 return abs_path, FOUND_VIA_SITE_PACKAGES
 
-    conda_prefix = os.environ.get("CONDA_PREFIX")
-    if conda_prefix:
+    conda_prefix = get_conda_prefix()
+    if conda_prefix is not None:
         anchor = Path(conda_prefix, "Library") if IS_WINDOWS else Path(conda_prefix)
         for rel_path in conda_rel_paths:
             abs_path = _resolved_if_file(anchor / rel_path, filename)

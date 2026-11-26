@@ -10,6 +10,7 @@ import pytest
 
 from cuda.pathfinder._utils.env_vars import (
     _paths_differ,
+    get_conda_prefix,
     get_cuda_path_or_home,
 )
 
@@ -248,3 +249,13 @@ def test_caching_behavior(monkeypatch, tmp_path):
     get_cuda_path_or_home.cache_clear()
     result3 = get_cuda_path_or_home()
     assert pathlib.Path(result3) == second_dir
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_get_conda_prefix_treats_empty_as_unset(monkeypatch):
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    assert get_conda_prefix() is None
+    monkeypatch.setenv("CONDA_PREFIX", "")
+    assert get_conda_prefix() is None
+    monkeypatch.setenv("CONDA_PREFIX", "/opt/conda")
+    assert get_conda_prefix() == "/opt/conda"
