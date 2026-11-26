@@ -43,23 +43,10 @@ def test_exact_match(test_tree):
     assert result == expected
 
 
-def test_single_wildcard(test_tree):
-    parent_paths = test_tree["parent_paths"]
-    base = test_tree["base"]
-    result = find_sub_dirs(parent_paths, ("nvidia", "*", "lib"))
-    expected = [
-        str(base / "sys1" / "nvidia" / "bar" / "lib"),
-        str(base / "sys1" / "nvidia" / "foo" / "lib"),
-    ]
-    assert sorted(result) == sorted(expected)
-
-
-def test_double_wildcard(test_tree):
-    parent_paths = test_tree["parent_paths"]
-    base = test_tree["base"]
-    result = find_sub_dirs(parent_paths, ("nvidia", "*", "nvvm", "lib64"))
-    expected = [str(base / "sys2" / "nvidia" / "baz" / "nvvm" / "lib64")]
-    assert result == expected
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_sub_dir_parts_are_literal_names(test_tree):
+    """No part is a pattern: ``*`` matches only a directory that is really named ``*``."""
+    assert find_sub_dirs(test_tree["parent_paths"], ("nvidia", "*", "lib")) == []
 
 
 def test_no_match(test_tree):
@@ -69,7 +56,7 @@ def test_no_match(test_tree):
 
 
 def test_empty_parent_paths():
-    result = find_sub_dirs((), ("nvidia", "*", "lib"))
+    result = find_sub_dirs((), ("nvidia", "foo", "lib"))
     assert result == []
 
 
