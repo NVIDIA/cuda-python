@@ -22,6 +22,8 @@ from cuda.pathfinder._dynamic_libs.search_platform import search_context
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
     LATE_FIND_STEPS,
+    FindResult,
+    NotFound,
     SearchContext,
     derive_ctk_root,
     find_via_ctk_root,
@@ -146,16 +148,18 @@ def resolve_ctk_root_via_canary(canary_libname: str) -> str | None:
     return ctk_root
 
 
-def _try_ctk_root_canary(ctx: SearchContext) -> str | None:
+def _try_ctk_root_canary(ctx: SearchContext) -> FindResult | NotFound:
     """Try CTK-root canary fallback for descriptor-configured libraries."""
+    missed = NotFound()
     for canary_libname in ctx.desc.ctk_root_canary_anchor_libnames:
         ctk_root = resolve_ctk_root_via_canary(canary_libname)
         if ctk_root is None:
             continue
-        find = find_via_ctk_root(ctx, ctk_root)
-        if find is not None:
-            return str(find.abs_path)
-    return None
+        result = find_via_ctk_root(ctx, ctk_root)
+        if result.found:
+            return result
+        missed += result
+    return missed
 
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
@@ -168,30 +172,32 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
     # An already-loaded library bypasses the wheel and conda search.
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
-    find = run_find_steps(ctx, EARLY_FIND_STEPS) if loaded is None else None
+    early = run_find_steps(ctx, EARLY_FIND_STEPS) if loaded is None else NotFound()
 
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded
 
     # Phase 3: Load from found path, or fall back to system search + late find.
-    if find is not None:
-        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
+    if early.found:
+        return LOADER.load_with_abs_path(desc, early.abs_path, early.found_via)
 
     loaded = LOADER.load_with_system_search(desc)
     if loaded is not None:
         return loaded
 
-    find = run_find_steps(ctx, LATE_FIND_STEPS)
-    if find is not None:
-        return LOADER.load_with_abs_path(desc, find.abs_path, find.found_via)
+    late = run_find_steps(ctx, LATE_FIND_STEPS)
+    if late.found:
+        return LOADER.load_with_abs_path(desc, late.abs_path, late.found_via)
 
+    missed = early + late
     if desc.ctk_root_canary_anchor_libnames:
-        canary_abs_path = _try_ctk_root_canary(ctx)
-        if canary_abs_path is not None:
-            return LOADER.load_with_abs_path(desc, canary_abs_path, "system-ctk-root")
+        canary = _try_ctk_root_canary(ctx)
+        if canary.found:
+            return LOADER.load_with_abs_path(desc, canary.abs_path, canary.found_via)
+        missed += canary
 
-    ctx.raise_not_found()
+    ctx.raise_not_found(missed)
 
 
 @functools.cache

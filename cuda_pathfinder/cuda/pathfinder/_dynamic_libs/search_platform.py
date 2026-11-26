@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import os
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import PurePath
-from typing import NoReturn
+from typing import ClassVar, Literal, NoReturn
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
@@ -22,6 +22,28 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dl
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_pe_matches_arch, windows_python_arch
+
+
+@dataclass(frozen=True, slots=True)
+class FindResult:
+    """A library file located on disk (not yet loaded)."""
+
+    abs_path: str
+    found_via: str
+    #: Lets callers ask ``result.found`` of either result type.
+    found: ClassVar[Literal[True]] = True
+
+
+@dataclass(frozen=True, slots=True)
+class NotFound:
+    """Why a search missed: the text for the final not-found error."""
+
+    error_messages: tuple[str, ...] = ()
+    attachments: tuple[str, ...] = ()
+    found: ClassVar[Literal[False]] = False
+
+    def __add__(self, other: NotFound) -> NotFound:
+        return NotFound(self.error_messages + other.error_messages, self.attachments + other.attachments)
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,8 +69,6 @@ class SearchContext:
     program_files_rel_globs: tuple[str, ...]
     #: Windows architecture that a candidate DLL must match; ``None`` means no check.
     pe_arch_to_check: str | None
-    error_messages: list[str] = field(default_factory=list)
-    attachments: list[str] = field(default_factory=list)
 
     def conda_anchor_point(self, conda_prefix: str) -> str:
         return os.path.join(conda_prefix, *self.conda_anchor_parts)
@@ -59,9 +79,9 @@ class SearchContext:
             return ()
         return tuple(os.path.join(program_files, rel_glob) for rel_glob in self.program_files_rel_globs)
 
-    def raise_not_found(self) -> NoReturn:
-        err = ", ".join(self.error_messages)
-        att = "\n".join(self.attachments)
+    def raise_not_found(self, missed: NotFound) -> NoReturn:
+        err = ", ".join(missed.error_messages)
+        att = "\n".join(missed.attachments)
         raise DynamicLibNotFoundError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
 
 
@@ -105,14 +125,15 @@ def search_context(desc: LibDescriptor) -> SearchContext:
     return linux_search_context(desc)
 
 
-def _no_such_file_in_sub_dirs(
-    sub_dirs: Sequence[str], file_description: str, error_messages: list[str], attachments: list[str]
-) -> None:
-    error_messages.append(f"No such file: {file_description}")
+def _listdir_attachment(dirpath: str) -> tuple[str, ...]:
+    return (f'  listdir("{dirpath}"):', *(f"    {node}" for node in sorted(os.listdir(dirpath))))
+
+
+def _no_such_file_in_sub_dirs(sub_dirs: Sequence[str], file_description: str) -> NotFound:
+    attachments: tuple[str, ...] = ()
     for sub_dir in find_sub_dirs_all_sitepackages(sub_dirs):
-        attachments.append(f'  listdir("{sub_dir}"):')
-        for node in sorted(os.listdir(sub_dir)):
-            attachments.append(f"    {node}")
+        attachments += _listdir_attachment(sub_dir)
+    return NotFound((f"No such file: {file_description}",), attachments)
 
 
 def _find_descriptor_so_under_dir(dirpath: str, desc: LibDescriptor) -> str | None:
@@ -149,32 +170,31 @@ def _find_lib_file(ctx: SearchContext, dirpath: str) -> str | None:
     return _find_descriptor_dll_under_dir(dirpath, ctx.desc, ctx.pe_arch_to_check)
 
 
-def find_lib_in_site_packages(ctx: SearchContext) -> str | None:
+def find_lib_in_site_packages(ctx: SearchContext) -> FindResult | NotFound:
     sub_dirs_searched: list[tuple[str, ...]] = []
     for rel_dir in ctx.site_packages_rel_dirs:
         sub_dir = PurePath(rel_dir).parts
         for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
             lib_path = _find_lib_file(ctx, abs_dir)
             if lib_path is not None:
-                return lib_path
+                return FindResult(lib_path, "site-packages")
         sub_dirs_searched.append(sub_dir)
+    missed = NotFound()
     for sub_dir in sub_dirs_searched:
-        _no_such_file_in_sub_dirs(sub_dir, ctx.lib_searched_for, ctx.error_messages, ctx.attachments)
-    return None
+        missed += _no_such_file_in_sub_dirs(sub_dir, ctx.lib_searched_for)
+    return missed
 
 
-def find_lib_in_dir(ctx: SearchContext, lib_dir: str) -> str | None:
+def find_lib_in_dir(ctx: SearchContext, lib_dir: str, found_via: str) -> FindResult | NotFound:
     lib_path = _find_lib_file(ctx, lib_dir)
     if lib_path is not None:
-        return lib_path
+        return FindResult(lib_path, found_via)
     if ctx.pe_arch_to_check is None:
-        ctx.error_messages.append(f"No such file: {ctx.lib_searched_for}")
+        error_message = f"No such file: {ctx.lib_searched_for}"
     else:
-        ctx.error_messages.append(f"No {ctx.pe_arch_to_check}-compatible PE file: {ctx.lib_searched_for}")
-    ctx.attachments.append(f'  listdir("{lib_dir}"):')
+        error_message = f"No {ctx.pe_arch_to_check}-compatible PE file: {ctx.lib_searched_for}"
     if not os.path.isdir(lib_dir):
-        ctx.attachments.append("    DIRECTORY DOES NOT EXIST")
+        attachments: tuple[str, ...] = (f'  listdir("{lib_dir}"):', "    DIRECTORY DOES NOT EXIST")
     else:
-        for node in sorted(os.listdir(lib_dir)):
-            ctx.attachments.append(f"    {node}")
-    return None
+        attachments = _listdir_attachment(lib_dir)
+    return NotFound((error_message,), attachments)
