@@ -267,3 +267,21 @@ def test_find_bitcode_lib_not_found_error_without_cuda_home(monkeypatch):
 def test_find_bitcode_lib_invalid_name():
     with pytest.raises(ValueError, match="Unknown bitcode library"):
         find_bitcode_lib_module.locate_bitcode_lib("invalid")
+
+
+@pytest.mark.usefixtures("clear_find_bitcode_lib_cache")
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_not_found_error_describes_the_root_that_was_searched(monkeypatch, tmp_path):
+    """The error names the CUDA root the search read, even if a second read would differ."""
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+    monkeypatch.setattr(locate_file_module, "find_sub_dirs_all_sitepackages", lambda _sub_dir: [])
+    searched_root = tmp_path / "searched"
+    other_root = tmp_path / "other"
+    roots = iter([str(searched_root), str(other_root)])
+    monkeypatch.setattr(locate_file_module, "get_cuda_path_or_home", lambda: next(roots))
+
+    with pytest.raises(BitcodeLibNotFoundError) as exc_info:
+        locate_bitcode_lib("device")
+
+    assert str(searched_root) in str(exc_info.value)
+    assert str(other_root) not in str(exc_info.value)
