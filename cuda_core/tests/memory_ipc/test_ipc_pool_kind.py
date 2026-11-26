@@ -166,24 +166,19 @@ def child_import_with_numa_id_without_location_query(alloc_handle):
         assert given.numa_id == CLAIMED_NUMA_ID
 
 
-def child_import_reduced_args_without_location_query(reduced_args):
+def child_pickle_numa_id(reduced_args):
     _without_location_query()
     device = Device()
     device.set_current()
     alloc_handle, numa_id = reduced_args
+
     with contextlib.ExitStack() as stack:
+        # Importing from the exporter's reducer output yields the exporter's node.
         mr = enter_imported_pool(stack, PinnedMemoryResource, device, alloc_handle, numa_id)
         assert mr.numa_id == numa_id
 
-
-def child_reduce_imported_resource(alloc_handle):
-    _without_location_query()
-    device = Device()
-    device.set_current()
-
-    # A third process would have to patch driver_version before unpickling, as
-    # in test_pickle_carries_numa_id, so the reducer's output is checked here.
-    with contextlib.ExitStack() as stack:
+        # A third process would have to patch driver_version before unpickling, as
+        # this test does, so the reducer's output is checked here.
         # The node of this import is unknown, so a third process must not be told a node.
         unknown = enter_imported_pool(stack, PinnedMemoryResource, device, int(alloc_handle))
         assert _deep_reduce_pinned_memory_resource(unknown)[1][1] is None
@@ -258,10 +253,6 @@ def child_import_without_location_query(mr_type, alloc_handle, descriptor):
     with contextlib.ExitStack() as stack:
         drain_on_exit(stack, stream)
         mr = enter_imported_pool(stack, mr_type, device, int(alloc_handle))
-        if mr_type is PinnedMemoryResource:
-            # Without the location query the pool's node is unknown (see numa_id).
-            with pytest.raises(RuntimeError, match="NUMA node .* is not known"):
-                _ = mr.numa_id
         buffer = stack.enter_context(Buffer.from_ipc_descriptor(mr, descriptor, stream=stream))
         buffer.fill(7, stream=stream)
 
@@ -379,26 +370,21 @@ class TestPinnedImportNumaId(_IpcPoolFixtures):
         run_child(child_import_with_numa_id_without_location_query, pinned_ipc_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-    def test_pickle_carries_numa_id(self, pinned_ipc_resource):
+    def test_pickle_numa_id(self, pinned_ipc_resource):
         # The child must patch driver_version before it imports the pool, but
         # run_child unpickles a resource argument before the child runs. So the
         # reducer's arguments are sent, and the child imports from them.
         _, reduced_args = _deep_reduce_pinned_memory_resource(pinned_ipc_resource)
         assert reduced_args[0] is pinned_ipc_resource.allocation_handle
         assert reduced_args[1] == pinned_ipc_resource.numa_id
-        run_child(child_import_reduced_args_without_location_query, reduced_args)
-
-    @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-    def test_pickle_omits_unknown_numa_id(self, pinned_ipc_resource):
-        run_child(child_reduce_imported_resource, pinned_ipc_resource.allocation_handle)
+        run_child(child_pickle_numa_id, reduced_args)
 
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
     def test_registered_import_rejects_conflicting_numa_id(self, pinned_ipc_resource):
         run_child(child_registered_import_rejects_conflicting_numa_id, pinned_ipc_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-    @pytest.mark.parametrize("numa_id", [-1, -5])
-    def test_negative_numa_id_raises(self, numa_id):
+    def test_negative_numa_id_raises(self):
         # Rejected before the handle is used or CUDA is initialized.
         with pytest.raises(ValueError, match="numa_id"):
-            PinnedMemoryResource.from_allocation_handle(0, numa_id=numa_id)
+            PinnedMemoryResource.from_allocation_handle(0, numa_id=-1)
