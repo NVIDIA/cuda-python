@@ -28,6 +28,9 @@ Windows.
 - **Load orchestration**:
   - `load_nvidia_dynamic_lib.py` coordinates find/load phases, dependency
     loading, driver-lib fast path, and cache semantics.
+- **Static and bitcode libraries**:
+  - `_static_libs/locate_file.py` holds the one search that
+    `find_static_lib.py` and `find_bitcode_lib.py` share.
 - **Process isolation helper**:
   - `cuda/pathfinder/_utils/spawned_process_runner.py` is used where process
     global dynamic loader state would otherwise leak across tests.

@@ -2,17 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import NoReturn, TypedDict
+from typing import TypedDict
 
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
-from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._static_libs.locate_file import locate_file
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_python_arch
-
-from .._utils.resolve_path import resolve_path
 
 
 class StaticLibNotFoundError(RuntimeError):
@@ -65,76 +61,6 @@ _SUPPORTED_STATIC_LIBS_INFO: dict[str, _StaticLibInfo] = {
 SUPPORTED_STATIC_LIBS: tuple[str, ...] = tuple(sorted(_SUPPORTED_STATIC_LIBS_INFO.keys()))
 
 
-def _no_such_file_in_dir(directory: Path, filename: str, error_messages: list[str], attachments: list[str]) -> None:
-    error_messages.append(f"No such file: {directory / filename}")
-    if directory.is_dir():
-        attachments.append(f'  listdir("{directory}"):')
-        for node in sorted(node_path.name for node_path in directory.iterdir()):
-            attachments.append(f"    {node}")
-    else:
-        attachments.append(f'  Directory does not exist: "{directory}"')
-
-
-class _FindStaticLib:
-    def __init__(self, name: str) -> None:
-        if name not in _SUPPORTED_STATIC_LIBS_INFO:
-            raise ValueError(f"Unknown static library: '{name}'. Supported: {', '.join(SUPPORTED_STATIC_LIBS)}")
-        self.name: str = name
-        self.config: _StaticLibInfo = _SUPPORTED_STATIC_LIBS_INFO[name]
-        self.filename: str = self.config["filename"]
-        self.ctk_rel_paths: tuple[str, ...] = self.config["ctk_rel_paths"]
-        self.conda_rel_paths: tuple[str, ...] = self.config["conda_rel_paths"]
-        self.site_packages_dirs: tuple[str, ...] = self.config["site_packages_dirs"]
-        self.error_messages: list[str] = []
-        self.attachments: list[str] = []
-
-    def try_site_packages(self) -> Path | None:
-        for rel_dir in self.site_packages_dirs:
-            sub_dir = tuple(rel_dir.split("/"))
-            for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
-                file_path = Path(abs_dir, self.filename)
-                if file_path.is_file():
-                    return resolve_path(file_path)
-        return None
-
-    def try_with_conda_prefix(self) -> Path | None:
-        conda_prefix = os.environ.get("CONDA_PREFIX")
-        if not conda_prefix:
-            return None
-
-        anchor = Path(conda_prefix, "Library") if IS_WINDOWS else Path(conda_prefix)
-        for rel_path in self.conda_rel_paths:
-            file_path = anchor / rel_path / self.filename
-            if file_path.is_file():
-                return resolve_path(file_path)
-        return None
-
-    def try_with_cuda_home(self) -> Path | None:
-        cuda_home = get_cuda_path_or_home()
-        if cuda_home is None:
-            self.error_messages.append("CUDA_HOME/CUDA_PATH not set")
-            return None
-
-        anchor = Path(cuda_home)
-        for rel_path in self.ctk_rel_paths:
-            file_path = anchor / rel_path / self.filename
-            if file_path.is_file():
-                return resolve_path(file_path)
-
-        _no_such_file_in_dir(
-            anchor / self.ctk_rel_paths[0],
-            self.filename,
-            self.error_messages,
-            self.attachments,
-        )
-        return None
-
-    def raise_not_found_error(self) -> NoReturn:
-        err = ", ".join(self.error_messages) if self.error_messages else "No search paths available"
-        att = "\n".join(self.attachments) if self.attachments else ""
-        raise StaticLibNotFoundError(f'Failure finding "{self.filename}": {err}\n{att}')
-
-
 def locate_static_lib(name: str) -> LocatedStaticLib:
     """Locate a static library by name, returning its resolved absolute path.
 
@@ -142,36 +68,19 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
         ValueError: If ``name`` is not a supported static library.
         StaticLibNotFoundError: If the static library cannot be found.
     """
-    finder = _FindStaticLib(name)
+    if name not in _SUPPORTED_STATIC_LIBS_INFO:
+        raise ValueError(f"Unknown static library: '{name}'. Supported: {', '.join(SUPPORTED_STATIC_LIBS)}")
+    info = _SUPPORTED_STATIC_LIBS_INFO[name]
+    filename = info["filename"]
 
-    abs_path = finder.try_site_packages()
-    if abs_path is not None:
-        return LocatedStaticLib(
-            name=name,
-            abs_path=str(abs_path),
-            filename=finder.filename,
-            found_via="site-packages",
-        )
-
-    abs_path = finder.try_with_conda_prefix()
-    if abs_path is not None:
-        return LocatedStaticLib(
-            name=name,
-            abs_path=str(abs_path),
-            filename=finder.filename,
-            found_via="conda",
-        )
-
-    abs_path = finder.try_with_cuda_home()
-    if abs_path is not None:
-        return LocatedStaticLib(
-            name=name,
-            abs_path=str(abs_path),
-            filename=finder.filename,
-            found_via="CUDA_PATH",
-        )
-
-    finder.raise_not_found_error()
+    abs_path, found_via = locate_file(
+        filename,
+        site_packages_dirs=info["site_packages_dirs"],
+        conda_rel_paths=info["conda_rel_paths"],
+        ctk_rel_paths=info["ctk_rel_paths"],
+        not_found_error=StaticLibNotFoundError,
+    )
+    return LocatedStaticLib(name=name, abs_path=abs_path, filename=filename, found_via=found_via)
 
 
 @functools.cache
