@@ -17,7 +17,7 @@ from .._utils.resolve_path import resolve_path
 def _resolved_if_file(directory: Path | str, filename: str) -> str | None:
     file_path = Path(directory, filename)
     if file_path.is_file():
-        return str(resolve_path(file_path))
+        return resolve_path(file_path)
     return None
 
 

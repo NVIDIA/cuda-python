@@ -54,7 +54,7 @@ def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
     for rel_path in rel_dirs:
         for dirname in sorted(glob.glob(os.path.join(root, rel_path))):
             if os.path.isdir(dirname):
-                yield str(resolve_path(dirname))
+                yield resolve_path(dirname)
 
 
 def _find_under_root(
@@ -192,7 +192,7 @@ def find_in_program_files_roots(ctx: SearchContext) -> FindResult | NotFound:
         for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
             if not os.path.isdir(root):
                 continue
-            result = _find_under_anchor_root(ctx, str(resolve_path(root)), FOUND_VIA_PROGRAM_FILES)
+            result = _find_under_anchor_root(ctx, resolve_path(root), FOUND_VIA_PROGRAM_FILES)
             if result.found:
                 return result
             missed += result

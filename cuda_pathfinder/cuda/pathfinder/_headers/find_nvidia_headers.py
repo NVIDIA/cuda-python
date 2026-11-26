@@ -58,7 +58,7 @@ HeaderFindStep = Callable[["HeaderDescriptor"], LocatedHeaderDir | None]
 
 def _abs_norm(path: str | None) -> str | None:
     if path:
-        return str(resolve_path(path))
+        return resolve_path(path)
     return None
 
 
