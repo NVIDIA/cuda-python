@@ -16,15 +16,3 @@ else:
 # These describe the Python process ABI, not the Windows host architecture.
 IS_WINDOWS_X64 = _WINDOWS_PYTHON_ARCH == "x64"
 IS_WINDOWS_ARM64 = _WINDOWS_PYTHON_ARCH == "arm64"
-
-
-def quote_for_shell(s: str) -> str:
-    if IS_WINDOWS:
-        # This is a relatively heavy import; keep pathfinder lean if possible.
-        from subprocess import list2cmdline
-
-        return list2cmdline([s])
-    else:
-        import shlex
-
-        return shlex.quote(s)

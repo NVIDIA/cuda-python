@@ -12,7 +12,7 @@ from child_load_nvidia_dynamic_lib_helper import (
     run_load_nvidia_dynamic_lib_in_subprocess,
 )
 from conftest import skip_if_missing_libnvcudla_so
-from local_helpers import have_distribution
+from local_helpers import have_distribution, quote_for_shell
 
 from cuda.pathfinder import DynamicLibNotAvailableError, DynamicLibUnknownError, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib_module
@@ -21,7 +21,7 @@ from cuda.pathfinder._dynamic_libs.subprocess_protocol import (
     STATUS_NOT_FOUND,
     parse_dynamic_lib_subprocess_payload,
 )
-from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
