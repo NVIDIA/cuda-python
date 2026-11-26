@@ -9,9 +9,11 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import warnings
 
 import pytest
+from helpers.misc import run_in_threads
 
 from cuda.bindings._internal.utils import FunctionNotFoundError
 from cuda.core import _linker
@@ -19,6 +21,7 @@ from cuda.core._device import Device
 from cuda.core._module import Kernel, ObjectCode
 from cuda.core._program import Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, handle_return, nvrtc
+from cuda.core._utils.version import binding_version
 from cuda.core.typing import CompilerBackendType, PCHStatusType
 from cuda.pathfinder import DynamicLibNotFoundError
 
@@ -66,6 +69,17 @@ nvrtc_pch_available = pytest.mark.skipif(
 bundled_headers_available = pytest.mark.skipif(
     (_get_nvrtc_version_for_tests() or 0) < 13300,
     reason="use_bundled_headers requires NVRTC >= 13.3",
+)
+
+# The option tests check that cuda.core encodes each ProgramOptions field as a
+# flag that NVRTC accepts. One pass on a current NVRTC proves the encoding, and
+# an older NVRTC rejects flags that it predates. Run them only when NVRTC is at
+# least the CUDA version of the installed cuda-bindings, so that the gate moves
+# with cuda-bindings releases and needs no per-option version table.
+_bindings_major, _bindings_minor, _ = binding_version()
+nvrtc_at_bindings_version = pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < _bindings_major * 1000 + _bindings_minor * 100,
+    reason=f"NVRTC option tests require NVRTC >= {_bindings_major}.{_bindings_minor} (the cuda-bindings version)",
 )
 
 
@@ -160,6 +174,8 @@ def ptx_code_object():
     return ptx_object_code
 
 
+# For the options31 parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.parametrize(
     "options",
     [
@@ -211,13 +227,7 @@ def ptx_code_object():
         ),
         ProgramOptions(frandom_seed="12345"),
         ProgramOptions(ofast_compile="min"),
-        pytest.param(
-            ProgramOptions(pch=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
+        ProgramOptions(pch=True),
         # TODO: pch_dir requires actual PCH directory to exist - needs integration test
         # pytest.param(
         #     ProgramOptions(pch_dir="/tmp/pch"),
@@ -226,29 +236,12 @@ def ptx_code_object():
         #         reason="PCH requires NVRTC >= 12.8",
         #     ),
         # ),
-        pytest.param(
-            ProgramOptions(pch_verbose=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
-        pytest.param(
-            ProgramOptions(pch_messages=False),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
-        pytest.param(
-            ProgramOptions(instantiate_templates_in_pch=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
+        ProgramOptions(pch_verbose=True),
+        ProgramOptions(pch_messages=False),
+        ProgramOptions(instantiate_templates_in_pch=True),
     ],
 )
+@nvrtc_at_bindings_version
 def test_cpp_program_with_various_options(init_cuda, options):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++", options)
@@ -1183,27 +1176,21 @@ def test_nvrtc_debug_falls_back_when_tmp_not_writable(init_cuda, monkeypatch):
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
 def test_nvrtc_debug_concurrent_compile_uses_unique_temp_files(init_cuda):
     """Same kernel compiled concurrently gets distinct mkstemp paths (issue #2422)."""
-    import os
-    import threading
-    from concurrent.futures import ThreadPoolExecutor
-
     code = 'extern "C" __global__ void matmul() {}'
     n = 2
     barrier = threading.Barrier(n)
+    progs = []
+    names = []
 
     def _compile_one():
         Device().set_current()
         barrier.wait()
         prog = Program(code, "c++", ProgramOptions(debug=True, arch="sm_80"))
-        name = prog.compile("ptx").name
-        return prog, name
+        progs.append(prog)
+        names.append(prog.compile("ptx").name)
 
-    with ThreadPoolExecutor(max_workers=n) as pool:
-        futures = [pool.submit(_compile_one) for _ in range(n)]
-        results = [fut.result() for fut in futures]
-
-    progs, names = zip(*results)
     try:
+        run_in_threads([_compile_one] * n, barrier=barrier)
         assert len(set(names)) == n
         for name in names:
             assert os.path.isfile(name)
@@ -1274,6 +1261,7 @@ def test_nvrtc_debug_keeps_file_the_caller_named(init_cuda, tmp_path, debug):
 
 
 @pytest.mark.agent_authored(model="cursor-grok-4.6")
+@pytest.mark.thread_unsafe(reason="concurrent cuda-gdb sessions on one GPU hang with CUDA_ERROR_INVALID_CONTEXT")
 def test_cuda_gdb_shows_nvrtc_debug_source_lines(init_cuda):
     import pathlib
 
@@ -1368,6 +1356,18 @@ def test_program_options_bad_define_macro_nested_list_invalid_element():
         {"split_compile": 2},
         {"fdevice_syntax_only": True},
         {"minimal": True},
+        {"no_cache": True},
+        {"fdevice_time_trace": "trace.json"},
+        {"device_float128": True},
+        {"frandom_seed": "1"},
+        {"ofast_compile": "0"},
+        {"pch": True},
+        {"create_pch": "out.pch"},
+        {"use_pch": "in.pch"},
+        {"pch_dir": "pch-cache"},
+        {"pch_verbose": False},
+        {"pch_messages": False},
+        {"instantiate_templates_in_pch": False},
     ],
     ids=lambda kw: next(iter(kw)),
 )

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from ._envvar import envvar_bool
 from ._nvvm_utils import check_nvvm_compiler_options

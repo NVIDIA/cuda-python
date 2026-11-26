@@ -1,10 +1,18 @@
 # Build the documentation
 
-1. Ensure the version is included in the [`versions.json`](./versions.json).
-2. Build the docs with `./build_docs.sh`.
-3. The html artifacts should be available under both `./build/html/latest` and `./build/html/<version>`.
+1. Build the docs with `./build_docs.sh`.
+2. The html artifacts should be available under both `./build/html/latest` and
+   `./build/html/<version>`.
 
-Alternatively, we can build all the docs at once by running [`./build_all_docs.sh`](./build_all_docs.sh).
+A local build does not require a version-selector entry. Add the version to
+[`nv-versions.json`](./nv-versions.json) on `main` only after the package is
+published and its versioned documentation is deployed.
+
+[`./build_all_docs.sh`](./build_all_docs.sh) builds the metapackage, current
+CUDA 13 bindings, Core, and Pathfinder documentation together. It does not
+build the [CUDA 12 maintenance documentation](../../cuda_bindings_12/docs/README.md).
+Build that separately in its own environment: both bindings roots install the
+same `cuda-bindings` distribution and `cuda.bindings` namespace.
 
 When building the docs, some (but not all) of the urls can be rendered/examined locally by setting the environment
 variable `CUDA_PYTHON_DOMAIN` as follows:
@@ -19,5 +27,5 @@ ssh -L 1234:localhost:1234 username@hostname
 ```
 Then browse the built docs by visiting `http://localhost:1234/` on a local machine.
 
-To publish the docs with the built version, it is important to note that the html files of older versions
-should be kept intact, in order for the version selection (through `versions.json`) to work.
+Keep older versioned HTML pages intact so existing version-selector entries
+continue to work.

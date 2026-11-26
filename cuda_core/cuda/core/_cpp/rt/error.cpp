@@ -27,9 +27,13 @@ namespace {
 // Thread-local detail attached to the next raised CUDAError with a matching
 // status (see take_last_error_detail()). Written only by propagating helpers.
 // The taken copy stays valid until the next take on the same thread.
-thread_local char last_error_detail[512] = {0};
-thread_local char taken_error_detail[512] = {0};
+thread_local char last_error_detail[kErrorMessageSize] = {0};
+thread_local char taken_error_detail[kErrorMessageSize] = {0};
 thread_local CUresult last_error_detail_status = CUDA_SUCCESS;
+
+// The restore-failure cause is a short fixed phrase plus an error name. Keeping
+// it well below kErrorMessageSize lets the compiler prove the final message fits.
+constexpr std::size_t kCauseSize = 128;
 }  // namespace
 
 namespace detail {
@@ -66,7 +70,7 @@ format_operation(char *buffer, size_t size, const char *operation, unsigned long
 void
 report_status_code(const char *operation, long code) noexcept
 {
-    char message[256];
+    char message[kErrorMessageSize];
     std::snprintf(message, sizeof(message), "%s failed (status %ld)", operation, code);
     report_message(message);
 }
@@ -80,7 +84,7 @@ report_cuda_error(const char *operation, CUresult status, const char *detail) no
     if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
         return;
     }
-    char message[512];
+    char message[kErrorMessageSize];
     format_cuda_error(message, sizeof(message), operation, status, detail);
     report_message(message);
 }
@@ -122,7 +126,7 @@ note_context_not_restored(CUcontext previous, CUresult operation_status, CUresul
     if (DRIVER_CALL(cuCtxGetCurrent, &current) != CUDA_SUCCESS) {
         current = nullptr;
     }
-    char cause[128] = {0};
+    char cause[kCauseSize] = {0};
     if (operation_status != CUDA_SUCCESS) {
         const char *error_name = nullptr;
         if (DRIVER_CALL(cuGetErrorName, restore_status, &error_name) == CUDA_SUCCESS) {

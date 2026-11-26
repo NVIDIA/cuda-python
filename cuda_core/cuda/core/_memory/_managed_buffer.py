@@ -276,7 +276,8 @@ class ManagedBuffer(Buffer):
             target.add(loc)
         for loc in target:
             spec = _coerce_location(loc)
-            assert spec is not None
+            if spec is None:
+                raise RuntimeError(f"internal cuda.core error, please report: no location spec for {loc!r}")
             if spec.kind not in ("device", "host"):
                 raise ValueError(f"advise {_SET_ACCESSED_BY.name} does not support location_type='{spec.kind}'")
         current = set(_query_accessed_by(self))

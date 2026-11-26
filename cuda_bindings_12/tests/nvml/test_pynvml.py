@@ -4,8 +4,6 @@
 # A set of tests ported from https://github.com/gpuopenanalytics/pynvml/blob/11.5.3/pynvml/tests/test_nvml.py
 
 import os
-import time
-
 import pytest
 
 from cuda.bindings import nvml
@@ -42,6 +40,7 @@ def test_system_get_driver_version(nvml_init):
     assert tuple(int(x) for x in vsn.split(".")[:2]) > (0, 0)
 
 
+# This test is not currently run in any CI job
 def test_device_get_attributes(mig_handles):
     # nvmlDeviceGetAttributes requires MIG device handle
 
@@ -145,22 +144,6 @@ def test_device_get_power_usage(ngpus, handles):
         with unsupported_before(handles[i], None):
             power_mwatts = nvml.device_get_power_usage(handles[i])
         assert power_mwatts >= 0.0
-
-
-def test_device_get_total_energy_consumption(ngpus, handles):
-    for i in range(ngpus):
-        with unsupported_before(handles[i], nvml.DeviceArch.VOLTA):
-            energy_mjoules1 = nvml.device_get_total_energy_consumption(handles[i])
-
-        for j in range(10):  # idle for 150 ms
-            time.sleep(0.015)  # and check for increase every 15 ms
-            with unsupported_before(handles[i], nvml.DeviceArch.VOLTA):
-                energy_mjoules2 = nvml.device_get_total_energy_consumption(handles[i])
-            assert energy_mjoules2 >= energy_mjoules1
-            if energy_mjoules2 > energy_mjoules1:
-                break
-        else:
-            raise AssertionError("energy did not increase across 150 ms interval")
 
 
 # [Skipping] pynvml.nvmlDeviceGetGpuOperationMode

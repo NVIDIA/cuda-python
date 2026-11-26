@@ -122,7 +122,8 @@ cdef class ManagedMemoryResource(_MemPool):
             (``prefetch``, ``discard``, ``discard_prefetch``).
         """
         MP_check_open(self)
-        assert isinstance(stream, Stream), "Only Stream is supported for managed memory allocations"
+        if not isinstance(stream, Stream):
+            raise TypeError(f"Only Stream is supported for managed memory allocations, got {type(stream).__name__}")
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)

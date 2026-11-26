@@ -30,7 +30,12 @@ from helpers.contexts import assert_no_cuda_warning
 from cuda.bindings import driver
 from cuda.core import Buffer, Device, MemoryResource, VirtualMemoryResource, VirtualMemoryResourceOptions
 from cuda.core._dlpack import DLDeviceType
-from cuda.core._memory._ipc import IPCAllocationHandle, IPCBufferDescriptor, VirtualMemoryFdBufferDescriptor
+from cuda.core._memory._ipc import (
+    IPCAllocationHandle,
+    IPCBufferDescriptor,
+    VirtualMemoryFabricBufferDescriptor,
+    VirtualMemoryFdBufferDescriptor,
+)
 from cuda.core._memory._virtual_memory_resource import VirtualMemoryBuffer
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.utils import StridedMemoryView
@@ -103,19 +108,16 @@ def _settled_open_fds():
 
 
 def _has_note(exc, text):
-    """Whether ``text`` is in one of the exception's notes, or in its message on Python 3.10."""
-    return any(text in note for note in getattr(exc, "__notes__", ())) or text in str(exc)
+    """Whether ``text`` is in one of the exception's notes"""
+    return any(text in note for note in getattr(exc, "__notes__", ()))
 
 
 def _forge(desc, **fields):
     """A copy of ``desc`` with some fields replaced, as a hostile or buggy peer could send."""
-    fields.setdefault("handle_type", desc._handle_type)
     fields.setdefault("chunk_sizes", desc._chunk_sizes)
     fields.setdefault("handles", desc._handles)
     fields.setdefault("size", desc.size)
-    return VirtualMemoryFdBufferDescriptor._from_exports(
-        fields["handle_type"], fields["chunk_sizes"], fields["handles"], fields["size"]
-    )
+    return VirtualMemoryFdBufferDescriptor._from_exports(fields["chunk_sizes"], fields["handles"], fields["size"])
 
 
 class _SharedStub(MemoryResource):
@@ -177,17 +179,26 @@ class _ReportingQueue(multiprocessing.queues.Queue):
     ("options", "expected"),
     [
         pytest.param({"handle_type": "posix_fd"}, True, id="posix_fd"),
+        pytest.param({"handle_type": "fabric"}, True, id="fabric"),
         pytest.param({"handle_type": None}, False, id="none"),
-        pytest.param({"handle_type": "fabric"}, False, id="fabric"),
         pytest.param({"handle_type": "win32_kmt"}, False, id="win32_kmt"),
         pytest.param({"location_type": "host", "handle_type": None}, False, id="host"),
         pytest.param(
             {"location_type": "host_numa", "numa_id": 0, "handle_type": "posix_fd"}, False, id="host_numa-posix_fd"
         ),
+        pytest.param(
+            {"location_type": "host_numa", "numa_id": 0, "handle_type": "fabric"}, False, id="host_numa-fabric"
+        ),
     ],
 )
 def test_is_ipc_enabled(vmm_ipc_device, options, expected):
-    """Only POSIX file descriptors on device memory have a transport; host-located memory is not shared yet."""
+    """POSIX fd and fabric device memory have transports; host-located memory is not shared yet."""
+    if (
+        options.get("location_type", "device") == "device"
+        and options.get("handle_type") == "fabric"
+        and not vmm_ipc_device.properties.handle_type_fabric_supported
+    ):
+        pytest.skip("Device does not support fabric handles")
     mr = VirtualMemoryResource(vmm_ipc_device, config=VirtualMemoryResourceOptions(**options))
     assert mr.is_ipc_enabled is expected
 
@@ -353,9 +364,9 @@ class TestDescriptorValidation:
         with mr.allocate(1) as buf:
             gran = buf.size
             desc = buf.ipc_descriptor
-            fabric = int(driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_FABRIC)
+            fabric = VirtualMemoryFabricBufferDescriptor.from_handles([bytes(64)], [gran])
             cases = [
-                (_forge(desc, handle_type=fabric), ValueError, "handle type does not match"),
+                (fabric, ValueError, "handle type does not match"),
                 (_forge(desc, chunk_sizes=(gran, gran)), ValueError, "malformed"),
                 (_forge(desc, chunk_sizes=(0,), size=0), ValueError, "positive multiple"),
                 (_forge(desc, chunk_sizes=(gran + 1,)), ValueError, "positive multiple"),

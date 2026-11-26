@@ -7,11 +7,13 @@
 #include "types.hpp"
 #include "driver_api.hpp"
 #include "error.hpp"
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <thread>
 #include <type_traits>
 #include <unordered_map>
@@ -38,7 +40,7 @@ handle_bits(const T &value) noexcept
     if constexpr (std::is_pointer_v<U>) {
         using P = std::remove_cv_t<std::remove_pointer_t<U>>;
         if constexpr (std::is_pointer_v<P>) {
-            return value ? handle_bits(*value) : 0ull;
+            return value ? handle_bits(*value) : 0ULL;
         }
         else {
             return static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(value));
@@ -48,20 +50,21 @@ handle_bits(const T &value) noexcept
         return static_cast<unsigned long long>(value);
     }
     else {
-        return 0ull;
+        return 0ULL;
     }
 }
 
 // Store a stream and any state needed to preserve deallocation ordering.
 struct DeallocationStream {
     StreamHandle h_stream;
-    std::thread::id ptds_tid{};
+    std::thread::id ptds_tid;
 };
 
 // Implemented in stream.cpp
 ContextHandle deallocation_context(const DeallocationStream &stream) noexcept;
-// Implemented in stream.cpp
-bool make_deallocation_stream(const StreamHandle &h, DeallocationStream &out) noexcept;
+// Implemented in stream.cpp. Not noexcept: binding a default-stream token
+// allocates. May throw std::bad_alloc.
+bool make_deallocation_stream(const StreamHandle &h, DeallocationStream &out);
 
 // Implemented in virtual_memory.cpp. Synchronize the stream a VMM buffer
 // recorded before its mappings are released. Skips the sync, with a report
@@ -109,7 +112,7 @@ class WarnOnFailure {
         if (status == CUDA_SUCCESS || status == CUDA_ERROR_DEINITIALIZED) {
             return;
         }
-        char operation[160];
+        char operation[kOperationNameSize];
         format_operation(operation, sizeof(operation), operation_, handle);
         report_cuda_error(operation, status);
     }
@@ -119,7 +122,7 @@ class WarnOnFailure {
     report(Status status, unsigned long long handle) const noexcept
     {
         if (static_cast<long>(status) != 0) {
-            char operation[160];
+            char operation[kOperationNameSize];
             format_operation(operation, sizeof(operation), operation_, handle);
             report_status_code(operation, static_cast<long>(status));
         }
@@ -181,21 +184,20 @@ class HandleRegistry {
     void
     register_handle(const Key &key, const Handle &h)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         map_[key] = h;
     }
 
     void
     unregister_handle(const Key &key) noexcept
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         map_.erase(key);
     }
-
     Handle
     lookup(const Key &key)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
             if (auto h = it->second.lock()) {
@@ -210,7 +212,7 @@ class HandleRegistry {
     Handle
     get_or_create(const Key &key, Factory &&create)
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
             if (Handle h = it->second.lock()) {
@@ -226,10 +228,13 @@ class HandleRegistry {
         return h;
     }
 
+    // MSVC's std::unordered_map allocates in its default constructor, so an
+    // allocation failure here terminates. Running out of memory is fatal either way.
     MapType
+    // NOLINTNEXTLINE(bugprone-exception-escape)
     drain() noexcept
     {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         MapType extracted;
         extracted.swap(map_);
         return extracted;
@@ -238,6 +243,118 @@ class HandleRegistry {
    private:
     std::mutex mutex_;
     MapType map_;
+};
+
+// ============================================================================
+// Handle registry that waits for in-flight releases
+//
+// Like HandleRegistry, but an entry outlives its handle's last reference: only
+// the owner's deleter removes it, by calling release() once its cleanup is
+// done. get_or_create() waits while the entry under its key has expired, so a
+// new owner is never created while the previous owner is still releasing the
+// resource. Used where the driver hands the same resource to repeat imports
+// (IPC pools and IPC pointers), so a new owner and an old owner's cleanup
+// would act on one driver resource. See REGISTRY_DESIGN.md.
+// ============================================================================
+
+template <typename Key, typename Handle, typename Hash = std::hash<Key>>
+class ReleasingHandleRegistry {
+   public:
+    // Return the live handle registered under key, waiting first while the
+    // previous owner's release is in flight. Otherwise register and return the
+    // handle that create() returns; an empty handle is returned unregistered.
+    // create() runs under the registry's mutex, so it must not acquire the GIL
+    // or release a handle whose deleter calls release().
+    template <typename Factory>
+    Handle
+    get_or_create(const Key &key, Factory &&create)
+    {
+        std::unique_lock lock(mutex_);
+        Lookup found;
+        released_.wait(lock, [&] {
+            found = find(lock, key);
+            return found.state != State::Releasing;
+        });
+        if (found.state == State::Live) {
+            return found.owner;
+        }
+        // Insert before creating, so a failed insertion has nothing to undo.
+        auto it = map_.try_emplace(key).first;
+        Handle h;
+        try {
+            h = create();
+        }
+        catch (...) {
+            map_.erase(it);
+            throw;
+        }
+        if (h) {
+            it->second = Entry{h, h.get()};
+        }
+        else {
+            map_.erase(it);
+        }
+        return h;
+    }
+
+    // Called by an owner's deleter after its last driver call on the resource:
+    // erase key's entry if it belongs to the handle that pointed to resource,
+    // and wake the importers waiting for it.
+    void
+    release(const Key &key, const typename Handle::element_type *resource) noexcept
+    {
+        {
+            std::scoped_lock lock(mutex_);
+            auto it = map_.find(key);
+            if (it != map_.end() && it->second.resource == resource) {
+                map_.erase(it);
+            }
+        }
+        released_.notify_all();
+    }
+
+   private:
+    struct Entry {
+        std::weak_ptr<typename Handle::element_type> handle;
+        const typename Handle::element_type *resource = nullptr;
+    };
+
+    // What is registered under a key. An entry outlives its owner's last
+    // reference, so an entry whose owner has expired is a release in flight.
+    enum class State {
+        Vacant,     // no entry: the caller may create an owner
+        Live,       // an owner holds the resource
+        Releasing,  // the owner's deleter has not called release() yet
+    };
+
+    struct Lookup {
+        State state = State::Vacant;
+        Handle owner;  // set only when state is Live
+    };
+
+    // Takes the caller's lock as proof that it holds mutex_, and checks it.
+    [[nodiscard]] Lookup
+    find(const std::unique_lock<std::mutex> &held, const Key &key) const
+    {
+        if (!held.owns_lock() || held.mutex() != &mutex_) {
+            throw std::runtime_error(
+                "internal cuda.core error, please report: registry lookup without the registry's lock"
+            );
+        }
+        auto it = map_.find(key);
+        if (it == map_.end()) {
+            return {State::Vacant, {}};
+        }
+        Handle owner = it->second.handle.lock();
+        if (!owner) {
+            return {State::Releasing, {}};
+        }
+        return {State::Live, std::move(owner)};
+    }
+
+    std::mutex mutex_;
+    std::condition_variable released_;
+    std::unordered_map<Key, Entry, Hash> map_;
 };
 
 }  // namespace cuda_core::rt::detail

@@ -6,7 +6,9 @@ from typing import Iterable
 
 from cuda.core._device import Device
 from cuda.core._memory._buffer import Buffer, MemoryResource
-from cuda.core._memory._ipc import VirtualMemoryFdBufferDescriptor
+from cuda.core._memory._ipc import (VirtualMemoryFabricBufferDescriptor,
+                                    VirtualMemoryFdBufferDescriptor,
+                                    _VirtualMemoryDescriptor)
 from cuda.core._stream import Stream
 from cuda.core._utils.cuda_utils import driver
 from cuda.core.graph import GraphBuilder
@@ -18,7 +20,7 @@ from cuda.core.typing import (DevicePointerType, VirtualMemoryAccessType,
 
 __all__ = ['VirtualMemoryBuffer', 'VirtualMemoryResource', 'VirtualMemoryResourceOptions']
 _HOST_LOCATION_TYPES = frozenset({VirtualMemoryLocationType.HOST, VirtualMemoryLocationType.HOST_NUMA, VirtualMemoryLocationType.HOST_NUMA_CURRENT})
-_IPC_HANDLE_TYPES = frozenset({VirtualMemoryHandleType.POSIX_FD}) if platform.system() == 'Linux' else frozenset()
+_IPC_HANDLE_TYPES = frozenset({VirtualMemoryHandleType.POSIX_FD, VirtualMemoryHandleType.FABRIC}) if platform.system() == 'Linux' else frozenset()
 
 @dataclass
 class VirtualMemoryResourceOptions:
@@ -28,18 +30,30 @@ class VirtualMemoryResourceOptions:
     Attributes
     ----------
     allocation_type: :obj:`~_memory.VirtualMemoryAllocationType` | str
-        Controls the type of allocation.
+        Controls the type of allocation. Only ``"pinned"`` is supported;
+        use :class:`ManagedMemoryResource` for managed memory.
     location_type: :obj:`~_memory.VirtualMemoryLocationType` | str
         Controls the location of the allocation. ``"host_numa"`` requires
         ``numa_id``. ``"host_numa_current"`` is rejected because the driver
         does not accept it for physical allocations.
-    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str
+    handle_type: :obj:`~_memory.VirtualMemoryHandleType` | str | None
         Export handle type for the physical allocation, and the switch for
         sharing buffers with other processes (see
-        :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` on
-        Linux if you plan to import/export the allocation. Use `None` if you
-        don't need an exportable handle. ``location_type="host"`` requires
-        `None`.
+        :attr:`VirtualMemoryResource.is_ipc_enabled`). Use ``"posix_fd"`` or
+        ``"fabric"`` on Linux if you plan to import/export the allocation.
+        Fabric handles work with plain ``pickle`` and pin nothing: keep the
+        exporting buffer alive until every importer has imported it. Sharing
+        is supported on one node; multi-node sharing is untested. Fabric needs
+        an NVLink fabric and an accessible IMEX channel
+        (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
+        ``RuntimeError`` if the device reports no fabric handle support. A
+        device can report support while the allocation is refused, because
+        the attribute does not check for an NVLink fabric and older drivers
+        do not check for an IMEX channel; the allocation then fails with a
+        driver error that says so.
+        Use `None` if you don't need an exportable handle. The default is
+        `None` on Windows and ``"posix_fd"`` otherwise.
+        ``location_type="host"`` requires `None`.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
     granularity: :obj:`~_memory.VirtualMemoryGranularityType` | str
@@ -64,7 +78,7 @@ class VirtualMemoryResourceOptions:
     """
     allocation_type: VirtualMemoryAllocationType = VirtualMemoryAllocationType.PINNED
     location_type: VirtualMemoryLocationType = VirtualMemoryLocationType.DEVICE
-    handle_type: VirtualMemoryHandleType = VirtualMemoryHandleType.POSIX_FD
+    handle_type: VirtualMemoryHandleType | str | None = field(default_factory=lambda: None if platform.system() == 'Windows' else VirtualMemoryHandleType.POSIX_FD)
     granularity: VirtualMemoryGranularityType = VirtualMemoryGranularityType.RECOMMENDED
     gpu_direct_rdma: bool = False
     addr_hint: int | None = 0
@@ -92,7 +106,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _location_type_to_driver(spec: VirtualMemoryLocationType) -> int: ...
     @staticmethod
-    def _handle_type_to_driver(spec: VirtualMemoryHandleType | None) -> int: ...
+    def _handle_type_to_driver(spec: VirtualMemoryHandleType | str | None) -> int: ...
     @staticmethod
     def _granularity_to_driver(spec: VirtualMemoryGranularityType) -> int: ...
 
@@ -107,10 +121,15 @@ class VirtualMemoryBuffer(Buffer):
     freed when the last buffer that maps it closes.
     """
     @property
-    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor:
+    def ipc_descriptor(self) -> VirtualMemoryFdBufferDescriptor | VirtualMemoryFabricBufferDescriptor:
         """A new descriptor for sharing this buffer with other processes.
 
-        Every access exports the physical allocations that back the buffer
+        The descriptor type follows the resource's ``handle_type``. Fabric
+        descriptors carry plain bytes and pin nothing: keep the exporting
+        buffer alive until every importer has imported it. Plain ``pickle``
+        works for fabric descriptors and buffers.
+
+        For ``"posix_fd"``, every access exports the physical allocations
         again and returns a new descriptor that owns one file descriptor per
         allocation; the file descriptors close when the descriptor is
         released. Keep the descriptor in a variable while you use its
@@ -184,8 +203,9 @@ class VirtualMemoryResource(MemoryResource):
         A shared buffer's descriptor comes from the exporting process and is not trusted:
         :meth:`Buffer.from_ipc_descriptor` checks what it can, and the driver rejects a size that
         does not match the exported allocation. Unpickling a shared buffer performs a live import,
-        so unpickle buffers only from a trusted principal. A descriptor pins the physical memory
-        while it exists; release it when the receiver has imported it.
+        so unpickle buffers only from a trusted principal. A POSIX fd descriptor pins the physical
+        memory while it exists; release it when the receiver has imported it. Fabric descriptors
+        pin nothing; keep the exporting buffer alive until every importer has imported it.
 
     Notes
     -----
@@ -200,7 +220,7 @@ class VirtualMemoryResource(MemoryResource):
     :meth:`Buffer.set_deallocation_stream`.
 
     Buffers can be shared with other processes when ``config.handle_type``
-    is ``"posix_fd"`` (Linux), the only handle type cuda.core shares today;
+    is ``"posix_fd"`` or ``"fabric"`` on Linux;
     ``handle_type`` is the switch and :attr:`is_ipc_enabled` the query. The
     rules that follow describe POSIX file descriptors.
     :attr:`Buffer.ipc_descriptor` exports the physical allocations that back
@@ -217,8 +237,22 @@ class VirtualMemoryResource(MemoryResource):
     ``VirtualMemoryFdBufferDescriptor.from_fds()``. The importing resource
     maps the memory for its device and the devices in its ``peers`` option,
     with its own access options. A descriptor pins the physical memory while
-    it exists, in every process that holds one, and nothing else does. A
-    buffer that contains imported memory (an import, or anything
+    it exists, in every process that holds one, and nothing else does.
+    Fabric descriptors carry one opaque 64-byte handle per allocation and work
+    with plain ``pickle``; they pin nothing, so the exporter must keep the
+    buffer alive until every importer has imported it. Rebuild handles sent
+    through a transport of your own with
+    ``VirtualMemoryFabricBufferDescriptor.from_handles()``. Fabric sharing is
+    supported on one node; multi-node sharing is untested. It requires a device
+    on an NVLink fabric and an accessible IMEX channel
+    (``/dev/nvidia-caps-imex-channels/channel*``); construction raises
+    ``RuntimeError`` when the device reports no fabric handle support. A device
+    can report support while the allocation is refused, because the attribute
+    does not check for an NVLink fabric and older drivers do not check for an
+    IMEX channel; the allocation then fails with a driver error that says so.
+    Fabric-handle sharing was validated on NVIDIA internal hardware and is not
+    covered by the project's CI in this release.
+    A buffer that contains imported memory (an import, or anything
     :meth:`modify_allocation` derived from one) cannot be exported again;
     forward the descriptor it came from, or copy into a buffer you own.
     """
@@ -282,8 +316,8 @@ class VirtualMemoryResource(MemoryResource):
             Configuration for the new physical memory chunk only. Existing
             chunks keep the access they were created with, and the resource's
             own configuration is unchanged. It must name the resource's
-            ``location_type`` and ``handle_type`` and passes the same checks
-            as the constructor.
+            ``location_type``, ``handle_type``, and ``numa_id`` and pass the
+            same checks as the constructor.
             When ``buf`` already covers ``new_size`` there is no new chunk, so
             ``config`` has no effect. This method never changes the access of
             memory that is already mapped.
@@ -300,8 +334,8 @@ class VirtualMemoryResource(MemoryResource):
         TypeError
             If ``buf`` did not come from this resource.
         ValueError
-            If ``config`` names a different location or handle type than the
-            resource, or the constructor would reject it.
+            If ``config`` names a different location type, handle type, or
+            ``numa_id`` than the resource, or the constructor would reject it.
         RuntimeError
             If ``buf`` is closed, or ``config`` requests GPUDirect RDMA on a
             device without support.
@@ -347,15 +381,15 @@ class VirtualMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether buffers of this resource can be shared with other processes.
 
-        True when ``config.handle_type`` is ``"posix_fd"`` on Linux and the
-        memory lives on a device; ``handle_type`` is the only switch, there is
+        True when ``config.handle_type`` is ``"posix_fd"`` or ``"fabric"`` on
+        Linux and the memory lives on a device; ``handle_type`` is the only switch, there is
         no separate option. With ``handle_type=None`` the allocations cannot
-        be exported, Win32 KMT handles are not transported by cuda.core, and
-        fabric handles are not supported yet. Host-located virtual memory
-        (``location_type`` ``"host"``, ``"host_numa"``, or
+        be exported, and Win32 KMT handles are not transported by cuda.core.
+        This is a configuration query and makes no driver call. Host-located
+        virtual memory (``location_type`` ``"host"``, ``"host_numa"``, or
         ``"host_numa_current"``) is not shared yet.
         """
-    def _import_ipc_buffer(self, desc: VirtualMemoryFdBufferDescriptor, stream) -> VirtualMemoryBuffer:
+    def _import_ipc_buffer(self, desc: _VirtualMemoryDescriptor, stream) -> VirtualMemoryBuffer:
         """Import a buffer that another process exported; see :meth:`Buffer.from_ipc_descriptor`.
 
         Every exported allocation is imported with this resource's handle

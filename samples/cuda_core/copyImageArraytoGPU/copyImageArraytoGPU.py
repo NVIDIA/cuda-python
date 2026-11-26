@@ -196,8 +196,8 @@ def main():
     dev = Device()  # Get default CUDA device (GPU 0)
     dev.set_current()  # Make this device the active one
 
-    if not dev.properties.memory_pools_supported:
-        print("PinnedMemoryResource requires CUDA memory pools, which are not supported on this device. Waiving.")
+    if not (dev.properties.memory_pools_supported and dev.properties.host_memory_pools_supported):
+        print("PinnedMemoryResource requires device and host memory pools; waiving this sample.")
         sys.exit(EXIT_WAIVED)
 
     stream = dev.create_stream()  # Create stream for async operations

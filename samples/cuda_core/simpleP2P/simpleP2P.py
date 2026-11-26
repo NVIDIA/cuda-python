@@ -45,7 +45,6 @@ try:
         Program,
         ProgramOptions,
         launch,
-        system,
     )
 except ImportError as e:
     print(f"Error: Required package not found: {e}")
@@ -99,7 +98,8 @@ def run(num_elements=1024 * 1024 * 16):
 
     # Check for multiple GPUs
     print("\nChecking for multiple GPUs...")
-    num_devices = system.get_num_devices()
+    # CUDA's device count honors CUDA_VISIBLE_DEVICES; system.get_num_devices() counts every GPU NVML sees.
+    num_devices = len(Device.get_all_devices())
     print(f"CUDA-capable device count: {num_devices}")
 
     if num_devices < 2:
@@ -151,6 +151,18 @@ def run(num_elements=1024 * 1024 * 16):
     dev1 = devices[gpuid[1]]
 
     print(f"\nUsing GPU{gpuid[0]} ({dev0.name}) and GPU{gpuid[1]} ({dev1.name})")
+
+    # The buffers below are allocated from the device and host memory pools, so
+    # that peer access can be granted with cuMemPoolSetAccess. Configurations
+    # without memory pools (for example devices in TCC mode) cannot run this
+    # sample, so waive instead of failing while allocating.
+    for device, label in ((dev0, f"GPU{gpuid[0]}"), (dev1, f"GPU{gpuid[1]}")):
+        if not device.properties.memory_pools_supported:
+            print(f"\nDeviceMemoryResource requires CUDA memory pools, which are not supported on {label}. Waiving.")
+            return EXIT_WAIVED
+        if not device.properties.host_memory_pools_supported:
+            print(f"\nPinnedMemoryResource requires host memory pools, which are not supported on {label}. Waiving.")
+            return EXIT_WAIVED
 
     # Allocate buffers with P2P access
     buf_size = num_elements * np.dtype(np.float32).itemsize

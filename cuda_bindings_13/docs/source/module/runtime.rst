@@ -1,9 +1,9 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. This code was automatically generated with version 13.4.1. Do not modify it directly.
+.. This code was automatically generated with version 13.5.0. Do not modify it directly.
 
-.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=408acc02ad695c94ce3060966b62863084ed3f1ac77da7e731e37b3cf7cf9b27
+.. CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=609b0f80fb01a107f11d12f710ca97a2001ebbc8765b1affbff9101e3b784165
 -------
 runtime
 -------
@@ -15,72 +15,73 @@ Data types used by CUDA Runtime
 
 .. autoclass:: cuda.bindings.runtime.cudaChannelFormatDesc
 .. autoclass:: cuda.bindings.runtime.cudaArraySparseProperties
-.. autoclass:: cuda.bindings.runtime.cudaArrayMemoryRequirements
-.. autoclass:: cuda.bindings.runtime.cudaPitchedPtr
-.. autoclass:: cuda.bindings.runtime.cudaExtent
-.. autoclass:: cuda.bindings.runtime.cudaPos
-.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DParms
-.. autoclass:: cuda.bindings.runtime.cudaMemcpyNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DPeerParms
-.. autoclass:: cuda.bindings.runtime.cudaMemsetParams
-.. autoclass:: cuda.bindings.runtime.cudaMemsetParamsV2
-.. autoclass:: cuda.bindings.runtime.cudaAccessPolicyWindow
-.. autoclass:: cuda.bindings.runtime.cudaHostNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaHostNodeParamsV2
-.. autoclass:: cuda.bindings.runtime.cudaResourceDesc
-.. autoclass:: cuda.bindings.runtime.cudaResourceViewDesc
-.. autoclass:: cuda.bindings.runtime.cudaPointerAttributes
-.. autoclass:: cuda.bindings.runtime.cudaFuncAttributes
-.. autoclass:: cuda.bindings.runtime.cudaMemLocation
-.. autoclass:: cuda.bindings.runtime.cudaMemAccessDesc
-.. autoclass:: cuda.bindings.runtime.cudaMemPoolProps
+.. autoclass:: cuda.bindings.runtime.cudaTextureDesc
+.. autoclass:: cuda.bindings.runtime.cudaGraphInstantiateParams_st
 .. autoclass:: cuda.bindings.runtime.cudaMemPoolPtrExportData
-.. autoclass:: cuda.bindings.runtime.cudaMemAllocNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaMemAllocNodeParamsV2
-.. autoclass:: cuda.bindings.runtime.cudaMemFreeNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaMemcpyAttributes
-.. autoclass:: cuda.bindings.runtime.cudaOffset3D
-.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DOperand
-.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DBatchOp
-.. autoclass:: cuda.bindings.runtime.CUuuid_st
-.. autoclass:: cuda.bindings.runtime.cudaDeviceProp
-.. autoclass:: cuda.bindings.runtime.cudaIpcEventHandle_st
-.. autoclass:: cuda.bindings.runtime.cudaIpcMemHandle_st
-.. autoclass:: cuda.bindings.runtime.cudaMemFabricHandle_st
-.. autoclass:: cuda.bindings.runtime.cudaExternalMemoryHandleDesc
-.. autoclass:: cuda.bindings.runtime.cudaExternalMemoryBufferDesc
-.. autoclass:: cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc
-.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc
-.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalParams
-.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitParams
-.. autoclass:: cuda.bindings.runtime.cudaDevSmResource
-.. autoclass:: cuda.bindings.runtime.cudaDevWorkqueueConfigResource
+.. autoclass:: cuda.bindings.runtime.cudaGraphExecUpdateResultInfo_st
+.. autoclass:: cuda.bindings.runtime.cudaGraphEdgeData_st
+.. autoclass:: cuda.bindings.runtime.cudaLaunchAttribute_st
+.. autoclass:: cuda.bindings.runtime.cudaEglFrame_st
+.. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc_st
+.. autoclass:: cuda.bindings.runtime.cudaArrayMemoryRequirements
+.. autoclass:: cuda.bindings.runtime.cudaLaunchMemSyncDomainMap_st
+.. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationInfo
+.. autoclass:: cuda.bindings.runtime.cudaChildGraphNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeValue
+.. autoclass:: cuda.bindings.runtime.cudaFuncAttributes
+.. autoclass:: cuda.bindings.runtime.cudaEventRecordNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaDevWorkqueueResource
-.. autoclass:: cuda.bindings.runtime.cudaDevSmResourceGroupParams_st
+.. autoclass:: cuda.bindings.runtime.cudaConditionalNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaGraphKernelNodeUpdate
+.. autoclass:: cuda.bindings.runtime.cudaGraphNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaMemPoolProps
+.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParamsV2
+.. autoclass:: cuda.bindings.runtime.cudaMemAccessDesc
+.. autoclass:: cuda.bindings.runtime.cudaIpcEventHandle_st
+.. autoclass:: cuda.bindings.runtime.cudaMemAllocNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaMemFreeNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaMemLocation
+.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DBatchOp
+.. autoclass:: cuda.bindings.runtime.cudaMemAllocNodeParamsV2
 .. autoclass:: cuda.bindings.runtime.cudaDevResource_st
+.. autoclass:: cuda.bindings.runtime.cudaMemcpyAttributes
+.. autoclass:: cuda.bindings.runtime.cudaResourceViewDesc
+.. autoclass:: cuda.bindings.runtime.cudaEventWaitNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DOperand
+.. autoclass:: cuda.bindings.runtime.cudaKernelNodeParamsV2
 .. autoclass:: cuda.bindings.runtime.cudalibraryHostUniversalFunctionAndDataTable
 .. autoclass:: cuda.bindings.runtime.cudaKernelNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaKernelNodeParamsV2
-.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParamsV2
+.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaDevWorkqueueConfigResource
+.. autoclass:: cuda.bindings.runtime.CUuuid_st
+.. autoclass:: cuda.bindings.runtime.cudaPointerAttributes
+.. autoclass:: cuda.bindings.runtime.cudaIpcMemHandle_st
+.. autoclass:: cuda.bindings.runtime.cudaOffset3D
+.. autoclass:: cuda.bindings.runtime.cudaMemcpyBatchNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaDevSmResourceGroupParams_st
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParamsV2
-.. autoclass:: cuda.bindings.runtime.cudaConditionalNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaChildGraphNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaEventRecordNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaEventWaitNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaGraphNodeParams
-.. autoclass:: cuda.bindings.runtime.cudaGraphEdgeData_st
-.. autoclass:: cuda.bindings.runtime.cudaGraphInstantiateParams_st
-.. autoclass:: cuda.bindings.runtime.cudaGraphExecUpdateResultInfo_st
-.. autoclass:: cuda.bindings.runtime.cudaGraphKernelNodeUpdate
-.. autoclass:: cuda.bindings.runtime.cudaLaunchMemSyncDomainMap_st
-.. autoclass:: cuda.bindings.runtime.cudaLaunchAttributeValue
-.. autoclass:: cuda.bindings.runtime.cudaLaunchAttribute_st
-.. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationInfo
-.. autoclass:: cuda.bindings.runtime.cudaTextureDesc
-.. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc_st
-.. autoclass:: cuda.bindings.runtime.cudaEglFrame_st
+.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitParams
+.. autoclass:: cuda.bindings.runtime.cudaExternalMemoryMipmappedArrayDesc
+.. autoclass:: cuda.bindings.runtime.cudaDevSmResource
+.. autoclass:: cuda.bindings.runtime.cudaMemFabricHandle_st
+.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc
+.. autoclass:: cuda.bindings.runtime.cudaExternalMemoryBufferDesc
+.. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalParams
+.. autoclass:: cuda.bindings.runtime.cudaDeviceProp
+.. autoclass:: cuda.bindings.runtime.cudaExternalMemoryHandleDesc
+.. autoclass:: cuda.bindings.runtime.cudaResourceDesc
+.. autoclass:: cuda.bindings.runtime.cudaHostNodeParamsV2
+.. autoclass:: cuda.bindings.runtime.cudaHostNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaAccessPolicyWindow
+.. autoclass:: cuda.bindings.runtime.cudaMemsetParamsV2
+.. autoclass:: cuda.bindings.runtime.cudaMemsetParams
+.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DPeerParms
+.. autoclass:: cuda.bindings.runtime.cudaMemcpyNodeParams
+.. autoclass:: cuda.bindings.runtime.cudaMemcpy3DParms
+.. autoclass:: cuda.bindings.runtime.cudaPos
+.. autoclass:: cuda.bindings.runtime.cudaExtent
+.. autoclass:: cuda.bindings.runtime.cudaPitchedPtr
 .. autoclass:: cuda.bindings.runtime.cudaError_t
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaSuccess
@@ -2622,22 +2623,10 @@ Data types used by CUDA Runtime
         Device can access host registered memory at the same virtual address as the CPU
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved92
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved93
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved94
-
-
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCooperativeLaunch
 
 
         Device supports launching cooperative kernels via :py:obj:`~.cudaLaunchCooperativeKernel`
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved96
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin
@@ -2754,15 +2743,6 @@ Data types used by CUDA Runtime
         Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved122
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved123
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved124
-
-
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrIpcEventSupport
 
 
@@ -2775,15 +2755,6 @@ Data types used by CUDA Runtime
         Number of memory synchronization domains the device supports.
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved127
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved128
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved129
-
-
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrNumaConfig
 
 
@@ -2794,9 +2765,6 @@ Data types used by CUDA Runtime
 
 
         NUMA node ID of the GPU memory
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved132
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMpsEnabled
@@ -2835,9 +2803,6 @@ Data types used by CUDA Runtime
         The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved141
-
-
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostNumaMemoryPoolsSupported
 
 
@@ -2854,9 +2819,6 @@ Data types used by CUDA Runtime
 
 
         Device suports HOST location with the :py:obj:`~.cuMemAllocAsync` and :py:obj:`~.cuMemPool` family of APIs
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved145
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported
@@ -2893,6 +2855,12 @@ Data types used by CUDA Runtime
 
 
         Number of multiprocessors on each locality domain
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrTensorMapLargeTensorMinSize
+
+
+        Smallest tensor size in bytes at which TMA descriptors are treated as "large" (BASE_128KB OOB mode). tensors >= this threshold are eligible for the tensormap.replace.assume_large PTX modifier. Returns INT_MAX on devices without this distinction where assume_large is a no-op.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax
@@ -3393,13 +3361,19 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill
 
 
-        Treats constraints as a hint, ignoring them if necessary to reach the requested smCount. Lets smCount be a non-multiple of coscheduledSmCount, filling the difference between SM count and already assigned co-scheduled groupings with other SMs. When used with cudaDevSmResourceGroupLocalityDomainId, backfill fills up to the requested smCount using the target locality domain first, then SMs not attributed to any locality domain, then SMs from other locality domains. If no SMs can be found in the requested locality domain, cudaErrorInvalidResourceConfiguration is returned.
+        Treats constraints as a hint, ignoring them if necessary to reach the requested smCount. Lets smCount be a non-multiple of coscheduledSmCount, filling the difference between SM count and already assigned co-scheduled groupings with other SMs. When used with cudaDevSmResourceGroupLocalityDomainId, backfill fills up to the requested smCount using the target locality domain first, then SMs not attributed to any locality domain, then SMs from other locality domains. If no SMs can be found in the requested locality domain, cudaErrorInvalidResourceConfiguration is returned. When used with ``cudaDevSmResourceGroupLocalityDomainNonPortableId``, backfill follows the same behavior after first consuming all SMs from the target locality domain.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainId
 
 
         The SMs must be located on a specific locality domain, specified by localityDomainId
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupLocalityDomainSupplementalSms
+
+
+        Modifier to ``cudaDevSmResourceGroupLocalityDomainId`` which allows selection of SMs in the locality domain exceeding the :py:obj:`~.cudaDeviceAttr.cudaDevAttrLocalityDomainMultiprocessorCount`.
 
 .. autoclass:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags
 
@@ -3669,12 +3643,6 @@ Data types used by CUDA Runtime
 
         Scope represented by a grid_group
 
-
-    .. autoattribute:: cuda.bindings.runtime.cudaCGScope.cudaCGScopeReserved
-
-
-        Reserved
-
 .. autoclass:: cuda.bindings.runtime.cudaKernelFunctionType
 
     .. autoattribute:: cuda.bindings.runtime.cudaKernelFunctionType.cudaKernelFunctionTypeUnspecified
@@ -3834,10 +3802,16 @@ Data types used by CUDA Runtime
                                            call :py:obj:`~.cudaGraphSetConditional` from device code.
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeReserved16
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeMemcpyBatch
 
 
-        Reserved.
+        Batch Memcpy Node
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeExternalEngine
+
+
+        Reserved for External Engine node
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaGraphNodeType.cudaGraphNodeTypeCount
@@ -4099,6 +4073,12 @@ Data types used by CUDA Runtime
 
 
         Adds :py:obj:`~.cudaConditionalNodeParams` to output
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaGraphDebugDotFlags.cudaGraphDebugDotFlagsMemcpyBatchNodeParams
+
+
+        Adds batch memcpy node parameters to the output
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphInstantiateFlags
 
@@ -5425,6 +5405,10 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaNvSciSyncAttrWait
 
     When /p flags of :py:obj:`~.cudaDeviceGetNvSciSyncAttributes` is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cudaDeviceGetNvSciSyncAttributes`.
+
+.. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroupLocalityDomainIdAny
+
+    Special value for localityDomainId when cudaDevSmResourceSplit is called with cudaDevSmResourceGroupLocalityDomainId. Selects SMs from the union of all available locality domains in the input SM resource. See also: cudaDevSmResourceGroupLocalityDomainId for the set of SMs in a single locality domain.
 
 .. autoattribute:: cuda.bindings.runtime.cudaGraphKernelNodePortDefault
 

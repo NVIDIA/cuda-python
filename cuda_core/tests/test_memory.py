@@ -1,13 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import concurrent.futures
 import ctypes
+import functools
 import gc
 import multiprocessing as mp
 import sys
 import textwrap
 import threading
 import warnings
+from contextlib import closing
 
 from cuda.bindings import driver
 
@@ -37,9 +40,12 @@ from helpers.memory import (
     VMM_HANDLE_TYPE,
     create_managed_memory_resource_or_skip,
     create_pinned_memory_resource_or_xfail,
-    skip_if_managed_memory_unsupported,
+    skip_if_host_numa_pinned_memory_unsupported,
+    skip_if_managed_allocation_unsupported,
+    skip_if_managed_mempool_unsupported,
     skip_if_pinned_memory_unsupported,
 )
+from helpers.misc import run_in_threads
 from helpers.nanosleep_kernel import NanosleepKernel
 
 from cuda.core import (
@@ -50,6 +56,7 @@ from cuda.core import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
+    LaunchConfig,
     LegacyPinnedMemoryResource,
     ManagedBuffer,
     ManagedMemoryResource,
@@ -57,16 +64,19 @@ from cuda.core import (
     MemoryResource,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
+    Program,
+    ProgramOptions,
     StreamOptions,
     VirtualMemoryBuffer,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
+    launch,
 )
 from cuda.core._dlpack import DLDeviceType
 from cuda.core._memory._ipc import IPCBufferDescriptor
 from cuda.core._stream import default_stream
 from cuda.core._utils.cuda_utils import CUDAError, handle_return
-from cuda.core._utils.version import driver_version
+from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
 from cuda.core.typing import (
     ManagedMemoryLocationType,
     VirtualMemoryAccessType,
@@ -76,7 +86,7 @@ from cuda.core.typing import (
     VirtualMemoryLocationType,
 )
 from cuda.core.utils import StridedMemoryView
-from cuda_python_test_helpers import IS_WINDOWS
+from cuda_python_test_helpers import IS_WINDOWS, IS_WSL
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 
@@ -1117,7 +1127,7 @@ def test_buffer_dlpack_failure_clean_up(init_cuda):
 def test_managed_buffer_dlpack_roundtrip_device_type(init_cuda):
     """Verify that a managed Buffer round-trips through DLPack with kDLCUDAManaged."""
     device = init_cuda
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_allocation_unsupported(device)
     mr = DummyUnifiedMemoryResource(device)
     buf = mr.allocate(size=1024)
 
@@ -1140,16 +1150,37 @@ def test_managed_memory_resource_buffer_dlpack_device_type(init_cuda):
     make_tma_descriptor) accept the buffer.
     """
     device = init_cuda
-    skip_if_managed_memory_unsupported(device)
-    mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
-    buf = mr.allocate(1024, stream=device.default_stream)
+    skip_if_managed_mempool_unsupported(device)
+    options = ManagedMemoryResourceOptions(preferred_location=device.device_id)
+    with closing(create_managed_memory_resource_or_skip(options)) as mr:
+        buf = mr.allocate(1024, stream=device.default_stream)
 
-    assert mr.is_managed
-    assert buf.is_managed
-    assert buf.__dlpack_device__() == (DLDeviceType.kDLCUDAManaged, 0)
+        assert mr.is_managed
+        assert buf.is_managed
+        assert buf.__dlpack_device__() == (DLDeviceType.kDLCUDAManaged, 0)
 
-    view = StridedMemoryView.from_any_interface(buf, stream_ptr=-1)
-    assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
+        view = StridedMemoryView.from_any_interface(buf, stream_ptr=-1)
+        assert view.__dlpack_device__() == (int(DLDeviceType.kDLCUDAManaged), 0)
+        buf.close()
+        device.sync()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_managed_memory_resource_allocate_rejects_graph_builder(init_cuda):
+    device = init_cuda
+    skip_if_managed_mempool_unsupported(device)
+    mr = None
+    gb = None
+    try:
+        mr = create_managed_memory_resource_or_skip(ManagedMemoryResourceOptions(preferred_location=device.device_id))
+        gb = device.create_graph_builder()
+        with pytest.raises(TypeError, match="Only Stream is supported .*got GraphBuilder"):
+            mr.allocate(64, stream=gb)
+    finally:
+        if gb is not None:
+            gb.close()
+        if mr is not None:
+            mr.close()
 
 
 @pytest.mark.parametrize("mr_kind", ["device", "pinned"])
@@ -1223,6 +1254,48 @@ def test_pinned_memory_resource_initialization(init_cuda):
     buffer.close()
 
 
+@thread_unsafe_on_windows
+@pytest.mark.human_reviewed
+@pytest.mark.parametrize("pool", ["current", "new", "new_numa"])
+def test_pinned_memory_resource_kernel_access(init_cuda, pool):
+    """A kernel on the current device reads and writes PinnedMemoryResource buffers (#3205)."""
+    device = init_cuda
+    skip_if_pinned_memory_unsupported(device)
+    if pool == "current":
+        options = None
+    elif pool == "new":
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE)
+    else:
+        numa_id = device.properties.host_numa_id
+        if numa_id < 0 or not device.properties.host_numa_memory_pools_supported:
+            pytest.skip("Device does not support host NUMA memory pools")
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, numa_id=numa_id)
+
+    code = r"""
+    extern "C" __global__ void double_plus_one(int* data, size_t n) {
+        size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+        if (i < n) data[i] = data[i] * 2 + 1;
+    }
+    """
+    kernel = (
+        Program(code, "c++", ProgramOptions(arch=f"sm_{device.arch}")).compile("cubin").get_kernel("double_plus_one")
+    )
+
+    n = 1024
+    mr = create_pinned_memory_resource_or_xfail(options, xfail_device=device)
+    buffer = _allocate_pinned_buffer_or_xfail(mr, n * ctypes.sizeof(ctypes.c_int), device=device)
+    stream = device.default_stream
+    stream.sync()
+    data = (ctypes.c_int * n).from_address(int(buffer.handle))
+    data[:] = range(n)
+
+    launch(stream, LaunchConfig(grid=(n + 255) // 256, block=256), kernel, buffer, ctypes.c_size_t(n))
+    stream.sync()
+    assert data[:] == [2 * i + 1 for i in range(n)]
+    buffer.close()
+    mr.close()
+
+
 @pytest.mark.agent_authored(model="cursor-grok-4.5")
 def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
     """allocate() must fail on devices without host memory pool support (see #2486)."""
@@ -1248,7 +1321,7 @@ def test_pinned_memory_resource_rejects_unsupported_host_pool(init_cuda):
 
 def test_managed_memory_resource_initialization(init_cuda):
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
@@ -1399,6 +1472,9 @@ def test_vmm_allocator_basic_allocation(init_cuda, use_device_object, handle_typ
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
+@pytest.mark.skipif(
+    IS_WSL, reason="GPUDirect RDMA is not supported on WSL, but some drivers report the capability there"
+)
 def test_vmm_allocator_policy_configuration(init_cuda):
     """Test VMM allocator with different policy configurations.
 
@@ -1665,30 +1741,22 @@ def test_vmm_concurrent_grows_of_aliased_buffers_are_memory_safe(init_cuda):
     device = _vmm_device_or_skip()
     mr = _vmm_resource(device)
     nthreads = 4
-    errors = []
 
     def work(buf, i, gate):
-        try:
-            gate.wait()
-            for j in range(6):
-                mr.modify_allocation(buf, (i * 8 + j + 2) * 2 * MIB).close()
-        except BaseException as exc:  # pragma: no cover - surfaced below
-            errors.append(exc)
+        gate.wait()
+        for j in range(6):
+            mr.modify_allocation(buf, (i * 8 + j + 2) * 2 * MIB).close()
 
     with assert_no_cuda_warning():
         for _ in range(8):
             root = mr.allocate(2 * MIB)
             alias = mr.modify_allocation(root, 8 * MIB)
             gate = threading.Barrier(nthreads)
-            threads = [threading.Thread(target=work, args=(root if i % 2 else alias, i, gate)) for i in range(nthreads)]
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join(timeout=CHILD_TIMEOUT_SEC)
-            assert not any(t.is_alive() for t in threads), "a grow thread did not finish"
+            targets = [functools.partial(work, root if i % 2 else alias, i, gate) for i in range(nthreads)]
+            # A failure or timeout leaves the buffers open: a stuck thread may still use them.
+            run_in_threads(targets, barrier=gate, timeout=CHILD_TIMEOUT_SEC)
             alias.close()
             root.close()
-    assert errors == []
 
 
 @pytest.mark.agent_authored(model="claude-fable-5-1")
@@ -1749,7 +1817,11 @@ def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
     buf = mr.allocate(4096)
     try:
         with pytest.raises(ValueError, match="handle_type=None"):
-            mr.modify_allocation(buf, 2 * buf.size, config=VirtualMemoryResourceOptions(location_type="host"))
+            mr.modify_allocation(
+                buf,
+                2 * buf.size,
+                config=VirtualMemoryResourceOptions(location_type="host", handle_type=VirtualMemoryHandleType.POSIX_FD),
+            )
     finally:
         buf.close()
 
@@ -2379,55 +2451,55 @@ def test_pinned_memory_resource_with_options(init_cuda):
 
 def test_managed_memory_resource_with_options(init_cuda):
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
     # Test basic pool creation
     options = ManagedMemoryResourceOptions()
-    mr = create_managed_memory_resource_or_skip(options)
-    assert mr.is_device_accessible
-    assert mr.is_host_accessible
-    assert not mr.is_ipc_enabled
+    with closing(create_managed_memory_resource_or_skip(options)) as mr:
+        assert mr.is_device_accessible
+        assert mr.is_host_accessible
+        assert not mr.is_ipc_enabled
 
-    # Test allocation and deallocation
-    buffer1 = mr.allocate(1024, stream=device.default_stream)
-    assert buffer1.handle != 0
-    assert buffer1.size == 1024
-    assert buffer1.memory_resource == mr
-    buffer1.close()
+        # Test allocation and deallocation
+        buffer1 = mr.allocate(1024, stream=device.default_stream)
+        assert buffer1.handle != 0
+        assert buffer1.size == 1024
+        assert buffer1.memory_resource == mr
+        buffer1.close()
 
-    # Test multiple allocations
-    buffer1 = mr.allocate(1024, stream=device.default_stream)
-    buffer2 = mr.allocate(2048, stream=device.default_stream)
-    assert buffer1.handle != buffer2.handle
-    assert buffer1.size == 1024
-    assert buffer2.size == 2048
-    buffer1.close()
-    buffer2.close()
+        # Test multiple allocations
+        buffer1 = mr.allocate(1024, stream=device.default_stream)
+        buffer2 = mr.allocate(2048, stream=device.default_stream)
+        assert buffer1.handle != buffer2.handle
+        assert buffer1.size == 1024
+        assert buffer2.size == 2048
+        buffer1.close()
+        buffer2.close()
 
-    # Test stream-based allocation
-    stream = device.create_stream()
-    buffer = mr.allocate(1024, stream=stream)
-    assert buffer.handle != 0
-    buffer.close(stream)
+        # Test stream-based allocation
+        stream = device.create_stream()
+        buffer = mr.allocate(1024, stream=stream)
+        assert buffer.handle != 0
+        buffer.close(stream)
 
-    # Test memory copying between buffers from same pool
-    stream = device.create_stream()
-    src_buffer = mr.allocate(64, stream=stream)
-    dst_buffer = mr.allocate(64, stream=stream)
-    src_buffer.copy_to(dst_buffer, stream=stream)
-    device.sync()
-    dst_buffer.close()
-    src_buffer.close()
-    # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
-    device.sync()
+        # Test memory copying between buffers from same pool
+        stream = device.create_stream()
+        src_buffer = mr.allocate(64, stream=stream)
+        dst_buffer = mr.allocate(64, stream=stream)
+        src_buffer.copy_to(dst_buffer, stream=stream)
+        device.sync()
+        dst_buffer.close()
+        src_buffer.close()
+        # TODO(seberg): 2026-06: mr close may be unsafe with incomplete `buf.close()`
+        device.sync()
 
 
 def test_managed_memory_resource_preferred_location_default(init_cuda):
     """preferred_location property returns None when no preference is set."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     mr = create_managed_memory_resource_or_skip()
@@ -2437,44 +2509,44 @@ def test_managed_memory_resource_preferred_location_default(init_cuda):
 def test_managed_memory_resource_preferred_location_device(init_cuda):
     """preferred_location returns ("device", ordinal) for device preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     # Legacy style
     opts = ManagedMemoryResourceOptions(preferred_location=device.device_id)
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("device", device.device_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("device", device.device_id)
 
     # Explicit style
     opts = ManagedMemoryResourceOptions(
         preferred_location=device.device_id,
         preferred_location_type=ManagedMemoryLocationType.DEVICE,
     )
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("device", device.device_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("device", device.device_id)
 
 
 def test_managed_memory_resource_preferred_location_host(init_cuda):
     """preferred_location returns ("host", None) for host preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     # Legacy style
     opts = ManagedMemoryResourceOptions(preferred_location=-1)
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host", None)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host", None)
 
     # Explicit style
     opts = ManagedMemoryResourceOptions(preferred_location_type="host")
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host", None)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host", None)
 
 
 def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
     """preferred_location returns ("host_numa", id) for NUMA preference."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
+    skip_if_managed_mempool_unsupported(device)
     device.set_current()
 
     numa_id = device.properties.host_numa_id
@@ -2483,22 +2555,22 @@ def test_managed_memory_resource_preferred_location_host_numa(init_cuda):
 
     # Auto-resolved from current device
     opts = ManagedMemoryResourceOptions(preferred_location_type="host_numa")
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host_numa", numa_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host_numa", numa_id)
 
     # Explicit NUMA node ID
     opts = ManagedMemoryResourceOptions(
         preferred_location=numa_id,
         preferred_location_type="host_numa",
     )
-    mr = create_managed_memory_resource_or_skip(opts)
-    assert mr.preferred_location == ("host_numa", numa_id)
+    with closing(create_managed_memory_resource_or_skip(opts)) as mr:
+        assert mr.preferred_location == ("host_numa", numa_id)
 
 
+@pytest.mark.skipif(BUILD_CUDA_MAJOR < 13, reason="ManagedMemoryResource requires CUDA 13.0 or later")
 def test_managed_memory_resource_preferred_location_validation(init_cuda):
     """Invalid preferred_location combinations raise errors."""
     device = Device()
-    skip_if_managed_memory_unsupported(device)
     device.set_current()
 
     # Invalid preferred_location_type
@@ -2552,12 +2624,12 @@ def test_managed_memory_resource_preferred_location_validation(init_cuda):
 
 
 @pytest.mark.thread_unsafe(reason="Uses mock.")
+@pytest.mark.skipif(BUILD_CUDA_MAJOR < 13, reason="ManagedMemoryResource requires CUDA 13.0 or later")
 def test_managed_memory_resource_host_numa_auto_resolve_failure(init_cuda):
     """host_numa with None raises RuntimeError when NUMA ID cannot be determined."""
     from unittest.mock import MagicMock, patch
 
     device = Device()
-    skip_if_managed_memory_unsupported(device)
     device.set_current()
 
     mock_dev = MagicMock()
@@ -2601,7 +2673,7 @@ def test_pinned_mempool_ipc_basic(init_cuda):
     """Test basic IPC functionality for PinnedMemoryResource."""
     device = init_cuda
 
-    skip_if_pinned_memory_unsupported(device)
+    skip_if_host_numa_pinned_memory_unsupported(device)
 
     if platform.system() == "Windows":
         pytest.skip("IPC not implemented for Windows")
@@ -2690,7 +2762,7 @@ def test_pinned_mr_numa_id_default_no_ipc(init_cuda):
 def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
     """numa_id is derived from the current device when IPC is enabled."""
     device = Device()
-    skip_if_pinned_memory_unsupported(device)
+    skip_if_host_numa_pinned_memory_unsupported(device)
 
     if platform.system() == "Windows":
         pytest.skip("IPC not implemented for Windows")
@@ -2698,8 +2770,6 @@ def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     expected_numa_id = device.properties.host_numa_id
-    if expected_numa_id < 0:
-        pytest.skip("System does not support NUMA")
 
     mr = create_pinned_memory_resource_or_xfail(
         PinnedMemoryResourceOptions(ipc_enabled=True, max_size=POOL_SIZE), xfail_device=device
@@ -2711,11 +2781,9 @@ def test_pinned_mr_numa_id_default_with_ipc(init_cuda):
 def test_pinned_mr_numa_id_explicit(init_cuda):
     """Explicit numa_id is used regardless of ipc_enabled."""
     device = Device()
-    skip_if_pinned_memory_unsupported(device)
+    skip_if_host_numa_pinned_memory_unsupported(device)
 
     host_numa_id = device.properties.host_numa_id
-    if host_numa_id < 0:
-        pytest.skip("System does not support NUMA")
 
     mr = create_pinned_memory_resource_or_xfail(
         PinnedMemoryResourceOptions(numa_id=host_numa_id, max_size=POOL_SIZE), xfail_device=device
@@ -2750,6 +2818,8 @@ def test_pinned_mr_numa_id_negative_error(init_cuda):
         PinnedMemoryResource(PinnedMemoryResourceOptions(numa_id=-42))
 
 
+# For ManagedMR with ipc_enabled=True (all property names):
+# This test is not currently run in any CI job
 @pytest.mark.parametrize("ipc_enabled", [True, False])
 @pytest.mark.parametrize(
     "property_name,expected_type",
@@ -2774,7 +2844,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     # ManagedMemoryResource does not support IPC
     if MR is ManagedMemoryResource and ipc_enabled:
@@ -2801,35 +2871,279 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         mr = create_managed_memory_resource_or_skip(options)
         assert not mr.is_ipc_enabled
 
-    # Get the property value
-    value = getattr(mr.attributes, property_name)
+    with closing(mr):
+        # Get the property value
+        value = getattr(mr.attributes, property_name)
 
-    # Test type
-    assert isinstance(value, expected_type), f"{property_name} should return {expected_type}, got {type(value)}"
+        # Test type
+        assert isinstance(value, expected_type), f"{property_name} should return {expected_type}, got {type(value)}"
 
-    # Test value constraints
-    if expected_type is int:
-        assert value >= 0, f"{property_name} should be non-negative"
+        # Test value constraints
+        if expected_type is int:
+            assert value >= 0, f"{property_name} should be non-negative"
 
-    # Test memory usage properties with actual allocations
-    if property_name in ["reserved_mem_current", "used_mem_current"]:
-        # Allocate some memory and check if values increase
-        initial_value = value
-        buffer = None
-        try:
-            buffer = mr.allocate(1024, stream=device.default_stream)
-            new_value = getattr(mr.attributes, property_name)
-            assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
-        finally:
-            if buffer is not None:
-                buffer.close()
+        # Test memory usage properties with actual allocations
+        if property_name in ["reserved_mem_current", "used_mem_current"]:
+            # Allocate some memory and check if values increase
+            initial_value = value
+            buffer = None
+            try:
+                buffer = mr.allocate(1024, stream=device.default_stream)
+                new_value = getattr(mr.attributes, property_name)
+                assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
+            finally:
+                if buffer is not None:
+                    buffer.close()
 
-    # Test high watermark properties
-    if property_name in ["reserved_mem_high", "used_mem_high"]:
-        # High watermark should never be less than current
-        current_prop = property_name.replace("_high", "_current")
-        current_value = getattr(mr.attributes, current_prop)
-        assert value >= current_value, f"{property_name} should be >= {current_prop}"
+        # Test high watermark properties
+        if property_name in ["reserved_mem_high", "used_mem_high"]:
+            # High watermark should never be less than current
+            current_prop = property_name.replace("_high", "_current")
+            current_value = getattr(mr.attributes, current_prop)
+            assert value >= current_value, f"{property_name} should be >= {current_prop}"
+        device.sync()
+
+
+def _create_owned_pool_or_skip(memory_resource_factory, device):
+    MR, MRops = memory_resource_factory
+    if MR is DeviceMemoryResource:
+        if not device.properties.memory_pools_supported:
+            pytest.skip("Device does not support mempool operations")
+        return MR(device, options=MRops(max_size=POOL_SIZE))
+    if MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+        return MR(options=MRops(max_size=POOL_SIZE))
+    skip_if_managed_mempool_unsupported(device)
+    return create_managed_memory_resource_or_skip(options=MRops())
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_attributes_set(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    attributes = mr.attributes
+    try:
+        for name in (
+            "reuse_follow_event_dependencies",
+            "reuse_allow_opportunistic",
+            "reuse_allow_internal_dependencies",
+        ):
+            for flag in (False, True):
+                setattr(attributes, name, flag)
+                assert getattr(attributes, name) is flag
+
+        attributes.release_threshold = 1 << 20
+        assert attributes.release_threshold == 1 << 20
+        attributes.release_threshold = 0
+        assert attributes.release_threshold == 0
+        for value in (-1, 2**64):
+            with pytest.raises(OverflowError):
+                attributes.release_threshold = value
+
+        for name in ("reserved_mem_high", "used_mem_high"):
+            with pytest.raises(AttributeError, match=f"'{name}' may only be set to zero"):
+                setattr(attributes, name, 1)
+        for name in ("reserved_mem_current", "used_mem_current"):
+            with pytest.raises(AttributeError):
+                setattr(attributes, name, 0)
+    finally:
+        mr.close()
+
+
+class _IntSubclass(int):
+    pass
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize(
+    "make_value",
+    [
+        pytest.param(lambda: True, id="bool"),
+        pytest.param(lambda: _IntSubclass(4096), id="int-subclass"),
+        pytest.param(lambda: np.uint64(4096), id="np-uint64"),
+    ],
+)
+def test_mempool_release_threshold_accepts_index_types(memory_resource_factory, make_value):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        value = make_value()
+        mr.attributes.release_threshold = value
+        assert mr.attributes.release_threshold == int(value)
+    finally:
+        mr.close()
+
+
+@pytest.mark.thread_unsafe(reason="CUDA legacy-default-stream mempool teardown/sync race (gh-3350)")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize("kind", ["reserved", "used"])
+def test_mempool_watermark_reset(memory_resource_factory, kind):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    high, current = f"{kind}_mem_high", f"{kind}_mem_current"
+    try:
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        # Return the freed memory so that the reserved watermark is above the
+        # current value too.
+        mr.trim()
+        assert getattr(mr.attributes, high) >= POOL_SIZE // 2
+        assert getattr(mr.attributes, current) < POOL_SIZE // 2
+
+        setattr(mr.attributes, high, 0)
+        assert getattr(mr.attributes, high) == getattr(mr.attributes, current)
+    finally:
+        mr.close()
+
+
+@pytest.mark.thread_unsafe(reason="CUDA legacy-default-stream mempool teardown/sync race (gh-3350)")
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_mempool_trim(memory_resource_factory):
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+    try:
+        # Keep freed memory reserved so that only trim() returns it.
+        mr.attributes.release_threshold = 2**64 - 1
+        buffer = mr.allocate(POOL_SIZE // 2, stream=device.default_stream)
+        buffer.close()
+        device.sync()
+        reserved = mr.attributes.reserved_mem_current
+        assert reserved > 0
+
+        mr.trim(min_bytes_to_keep=reserved)
+        assert mr.attributes.reserved_mem_current == reserved
+
+        mr.trim()
+        assert mr.attributes.reserved_mem_current == 0
+    finally:
+        mr.close()
+
+    with pytest.raises(RuntimeError, match="has been closed"):
+        mr.trim()
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize(
+    ("mode", "caller"),
+    # A thread-local capture does not restrict other threads, so pairing it
+    # with other_thread would pass without relaxed mode.
+    [("global", "same_thread"), ("global", "other_thread"), ("thread_local", "same_thread")],
+)
+def test_mempool_calls_during_capture_keep_capture_valid(memory_resource_factory, mode, caller):
+    """Pool attribute reads, writes and trim() run in relaxed capture mode.
+
+    The driver refuses these calls, and invalidates the capture, while a
+    global-mode capture is active on any thread or a thread-local one on the
+    calling thread.
+    """
+    device = Device()
+    device.set_current()
+    mr = _create_owned_pool_or_skip(memory_resource_factory, device)
+
+    def use_pool():
+        device.set_current()
+        attributes = mr.attributes
+        attributes.release_threshold = attributes.release_threshold
+        attributes.reuse_allow_opportunistic = attributes.reuse_allow_opportunistic
+        attributes.used_mem_high = 0
+        mr.trim()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    try:
+        if caller == "same_thread":
+            use_pool()
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(use_pool).result()
+    finally:
+        # Raises if a pool call invalidated the capture.
+        gb.end_building()
+        gb.close()
+        mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize(
+    ("mode", "caller"),
+    # A thread-local capture does not restrict other threads, so pairing it
+    # with other_thread would pass without relaxed mode.
+    [("global", "same_thread"), ("global", "other_thread"), ("thread_local", "same_thread")],
+)
+def test_pmr_construction_during_capture_keeps_capture_valid(init_cuda, mode, caller):
+    """PinnedMemoryResource() without options does not invalidate a capture on another thread.
+
+    Since #3405 construction calls cuMemPoolSetAccess, which the driver refuses
+    while a global-mode capture is active on any thread or a thread-local one on
+    the calling thread. The fix runs that call in relaxed capture mode (#3451).
+    """
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+    device.set_current()
+
+    mr = None
+
+    def construct():
+        device.set_current()
+        nonlocal mr
+        mr = PinnedMemoryResource()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    try:
+        if caller == "same_thread":
+            construct()
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                pool.submit(construct).result()
+    finally:
+        # Raises if construction invalidated the capture.
+        gb.end_building()
+        gb.close()
+        if mr is not None:
+            mr.close()
+
+
+@pytest.mark.agent_authored(model="claude-sonnet-4-6")
+@pytest.mark.thread_unsafe(reason="a global-mode capture affects every thread")
+@pytest.mark.parametrize("mode", ["global", "thread_local"])
+def test_pmr_construction_restores_capture_mode(init_cuda, mode):
+    """After construction the calling thread is back in its previous capture mode.
+
+    PinnedMemoryResource() switches the thread to relaxed mode around its
+    cuMemPoolSetAccess call (#3451) and must not leave it there.
+    """
+
+    def thread_capture_mode():
+        # Exchange the mode with relaxed twice to read without changing it.
+        relaxed = driver.CUstreamCaptureMode.CU_STREAM_CAPTURE_MODE_RELAXED
+        err, current = driver.cuThreadExchangeStreamCaptureMode(relaxed)
+        assert err == driver.CUresult.CUDA_SUCCESS
+        err, _ = driver.cuThreadExchangeStreamCaptureMode(current)
+        assert err == driver.CUresult.CUDA_SUCCESS
+        return current
+
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+    device.set_current()
+
+    gb = device.create_graph_builder().begin_building(mode=mode)
+    mr = None
+    try:
+        before = thread_capture_mode()
+        mr = PinnedMemoryResource()
+        assert thread_capture_mode() == before
+    finally:
+        # Raises if construction invalidated the capture.
+        gb.end_building()
+        gb.close()
+        if mr is not None:
+            mr.close()
 
 
 def test_mempool_attributes_repr(memory_resource_factory):
@@ -2842,7 +3156,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     device.set_current()
 
@@ -2853,16 +3167,18 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is ManagedMemoryResource:
         mr = create_managed_memory_resource_or_skip(options=ManagedMemoryResourceOptions())
 
-    buffer1 = mr.allocate(64, stream=device.default_stream)
-    buffer2 = mr.allocate(64, stream=device.default_stream)
-    buffer1.close()
-    assert re.match(
-        r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
-        r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
-        r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
-        str(mr.attributes),
-    )
-    buffer2.close()
+    with closing(mr):
+        buffer1 = mr.allocate(64, stream=device.default_stream)
+        buffer2 = mr.allocate(64, stream=device.default_stream)
+        buffer1.close()
+        assert re.match(
+            r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
+            r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
+            r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
+            str(mr.attributes),
+        )
+        buffer2.close()
+        device.sync()
 
 
 def test_mempool_attributes_ownership(memory_resource_factory):
@@ -2875,7 +3191,7 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         skip_if_pinned_memory_unsupported(device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
 
     # Skip if IPC mempool is not supported on this platform/device (only relevant for DeviceMemoryResource)
     if MR is DeviceMemoryResource and not supports_ipc_mempool(device):
@@ -2958,17 +3274,20 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         skip_if_pinned_memory_unsupported(device)
         mr = create_pinned_memory_resource_or_xfail(xfail_device=device)
     elif MR is ManagedMemoryResource:
-        skip_if_managed_memory_unsupported(device)
+        skip_if_managed_mempool_unsupported(device)
         mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))
     else:
         assert MR is DeviceMemoryResource
         mr = MR(device)
 
-    buffer = mr.allocate(0, stream=device.default_stream)
-    device.sync()
-    assert buffer.handle >= 0
-    assert buffer.size == 0
-    assert buffer.device_id == mr.device_id
+    with closing(mr):
+        buffer = mr.allocate(0, stream=device.default_stream)
+        device.sync()
+        assert buffer.handle >= 0
+        assert buffer.size == 0
+        assert buffer.device_id == mr.device_id
+        buffer.close()
+        device.sync()
 
 
 def test_strided_memory_view_not_in_top_level_namespace():
@@ -3167,6 +3486,19 @@ def test_vmm_options_spec_validators_raise(method, spec, match):
         fn(spec)
 
 
+@pytest.mark.parametrize("system", ["Linux", "Windows"])
+@pytest.mark.thread_unsafe(reason="patches platform.system")
+def test_vmm_options_default_handle_type(monkeypatch, system):
+    monkeypatch.setattr(platform, "system", lambda: system)
+    options = VirtualMemoryResourceOptions()
+    expected = None if system == "Windows" else VirtualMemoryHandleType.POSIX_FD
+    assert options.handle_type == expected
+    assert VirtualMemoryResourceOptions(handle_type="win32_kmt").handle_type == "win32_kmt"
+    assert VirtualMemoryResourceOptions(handle_type=None).handle_type is None
+    with pytest.raises(ValueError):
+        VirtualMemoryResourceOptions(allocation_type=VirtualMemoryAllocationType.MANAGED)
+
+
 def test_vmm_options_handle_type_win32_raises():
     """_handle_type_to_driver raises NotImplementedError for 'win32'."""
     with pytest.raises(NotImplementedError, match="win32 is currently not supported"):
@@ -3189,17 +3521,19 @@ def test_vmm_host_location_types_report_host_accessible(init_cuda, location_type
     deciding the resource is not bound to a device, so is_host_accessible must
     agree; otherwise a NUMA-located resource claims to be neither host- nor
     device-accessible. The driver rejects an exportable handle type for HOST
-    memory only, so the default handle type is rejected at construction for
-    "host" and accepted for "host_numa".
+    memory only, so an exportable default handle type is rejected at
+    construction for "host" and accepted for "host_numa". The Windows
+    default, None, is accepted for both location types.
     """
     device = Device()
     device.set_current()
     numa = {"numa_id": 0} if location_type == "host_numa" else {}
-    if location_type == "host":
+    config = VirtualMemoryResourceOptions(location_type=location_type, **numa)
+    if location_type == "host" and config.handle_type is not None:
         with pytest.raises(ValueError, match="handle_type=None"):
-            VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type))
+            VirtualMemoryResource(device, config=config)
     else:
-        VirtualMemoryResource(device, config=VirtualMemoryResourceOptions(location_type=location_type, **numa))
+        VirtualMemoryResource(device, config=config)
     mr = VirtualMemoryResource(
         device, config=VirtualMemoryResourceOptions(location_type=location_type, handle_type=None, **numa)
     )

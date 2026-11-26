@@ -125,8 +125,8 @@ cuda/core/
     ├── internal.hpp         # Registry, cleanup wrappers, deferred-cleanup item (namespace detail)
     ├── py_report.cpp, py_deferred_cleanup.cpp        # Python-coupled bodies
     ├── host_launch.cpp      # The stream-side host function launch record
-    └── context.cpp, stream.cpp, event.cpp, memory.cpp, program.cpp,
-        graph.cpp, graph_exec.cpp, texture.cpp        # One resource family per file
+    └── context.cpp, stream.cpp, event.cpp, memory.cpp, memory_pool.cpp,
+        program.cpp, graph.cpp, graph_exec.cpp, texture.cpp  # One resource family per file
 ```
 
 ### Build Implications
@@ -305,17 +305,18 @@ one-time function-table fill (`ensure_fn_table()`). Neither may run while a
 C++ lock is held.
 
 **The GIL is the outermost lock.** Code that holds a C++ lock (a registry's
-mutex, `ipc_import_mutex`, any `std::mutex`) must not acquire or reacquire the
+mutex, any `std::mutex`) must not acquire or reacquire the
 GIL while the lock is held: no `report_*` or `pw_*` calls, no
 `GILAcquireGuard`, and no `GILReleaseGuard` whose destructor runs inside the
 locked region. Code that needs a C++ lock and may run with the GIL held
 releases the GIL first (`GILReleaseGuard` before `lock_guard`). Otherwise a
 thread blocked on the lock while holding the GIL deadlocks with the lock holder
 waiting for the GIL (#2840). Collect statuses under the lock and report after it
-is released, as `deviceptr_import_ipc` does: `cleanup_in_context` takes an
-`after_cleanup` hook that runs once the cleanup is done and before anything that
-may run user code, and the deleter passes one that unlocks its
-`std::unique_lock`. The registries store `weak_ptr`s,
+is released, as `deviceptr_import_ipc` does for a discarded import. A deleter
+that must update shared state before user code can run does so in
+`cleanup_in_context`'s `after_cleanup` hook, which runs once the cleanup is done
+and before anything that may run user code; the IPC pointer deleter releases its
+registry entry there. The registries store `weak_ptr`s,
 so erasing an entry under a registry lock never runs a deleter.
 
 ### Static Initialization and Deadlock Hazards

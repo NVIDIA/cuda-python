@@ -47,6 +47,7 @@ cdef object _tensor_bridge = None
 # Cache: type(obj) -> True/False for the torch tensor check.
 # Once a type is seen, we never re-check.
 cdef dict _torch_type_cache = {}
+cdef object _torch_tensor_type = None
 # Tri-state: None = not checked, True/False = result of version check
 cdef object _torch_version_ok = None
 
@@ -82,14 +83,33 @@ cdef inline bint _torch_version_check():
     return <bint>_torch_version_ok
 
 
+cdef object _get_torch_tensor_type():
+    global _torch_tensor_type
+    with cython.critical_section(_torch_type_cache):
+        if _torch_tensor_type is None:
+            torch = sys.modules.get("torch")
+            tensor_type = getattr(torch, "Tensor", None)
+            if tensor_type is None:
+                # Torch may be imported after an earlier protocol-only call.
+                return None
+            _torch_tensor_type = tensor_type
+        if not _torch_version_check():
+            return None
+        return _torch_tensor_type
+
+
 cdef inline bint _is_torch_tensor(object obj):
     cdef type tp = type(obj)
     cdef object cached = _torch_type_cache.get(tp)
     if cached is not None:
         return <bint>cached
     cdef str mod = tp.__module__ or ""
-    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr") \
-        and _torch_version_check()
+    cdef object tensor_type
+    cdef bint result = mod.startswith("torch") and hasattr(obj, "data_ptr")
+    if result:
+        tensor_type = _get_torch_tensor_type()
+        # The bridge requires a real Tensor, not just Tensor-like attributes.
+        result = tensor_type is not None and issubclass(tp, tensor_type)
     _torch_type_cache[tp] = result  # setdefault not needed for bools
     return result
 
@@ -570,12 +590,18 @@ cdef class StridedMemoryView:
         """
         Returns Buffer instance with the underlying data.
         If the SMV was created from a Buffer, it will return the same Buffer instance.
+        If the SMV was imported via DLPack, it will return a new instance owned by this view.
         Otherwise, it will create a new instance with owner set to the exporting object.
         """
         cdef object buffer
         if self._buffer is None:
             if isinstance(self.exporting_obj, Buffer):
                 buffer = self.exporting_obj
+            elif self.dl_tensor != NULL:
+                # This view holds the consumed capsule and calls its deleter in
+                # __dealloc__; the exporting object need not keep the memory alive.
+                # Not cached: a cached Buffer owned by self would form a cycle.
+                return Buffer.from_handle(self.ptr, 0, owner=self)
             else:
                 buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
             if self._buffer is None:
@@ -689,6 +715,10 @@ cdef inline int _smv_dtype_numpy_to_dlpack(object dtype_obj, DLDataType* out_dty
         if bits not in (64, 128):
             raise BufferError(f"Unsupported complex dtype: {np_dtype}")
         code = <uint8_t>kDLComplex
+    elif np_dtype.type is bfloat16:
+        # ml_dtypes bfloat16 has kind "V", so the kind chain cannot reach it;
+        # the byte-order check above has already run for it.
+        code = <uint8_t>kDLBfloat
     else:
         raise BufferError(f"Unsupported dtype for DLPack export: {np_dtype}")
 
@@ -1044,14 +1074,17 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         stream_ptr = int(stream_ptr)
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
-        assert device_id == 0
+        if device_id != 0:
+            raise ValueError(f"__dlpack_device__() reported device_id {device_id} for a kDLCPU tensor; expected 0")
         device_id = -1
         if stream_ptr is None:
             raise BufferError("stream=None is ambiguous with view()")
         elif stream_ptr == -1:
             stream_ptr = None
     elif dldevice == _kDLCUDA:
-        assert device_id >= 0
+        if device_id < 0:
+            raise ValueError(
+                f"__dlpack_device__() reported device_id {device_id} for a kDLCUDA tensor; expected 0 or more")
         is_device_accessible = True
         # no need to check other stream values, it's a pass-through
         if stream_ptr is None:
@@ -1094,7 +1127,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
         is_readonly = False
         used_name = DLPACK_TENSOR_USED_NAME
     else:
-        assert False
+        raise ValueError(f"__dlpack__() returned {capsule!r}, not an unconsumed DLPack capsule")
 
     cpython.PyCapsule_SetName(capsule, used_name)
 
@@ -1218,7 +1251,9 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
         if stream is not None:
             producer_s = <intptr_t>(stream)
             consumer_s = <intptr_t>(stream_ptr)
-            assert producer_s > 0
+            if producer_s <= 0:
+                raise ValueError(
+                    f"__cuda_array_interface__ reported stream {stream}; expected None or a positive stream handle")
             # establish stream order
             if producer_s != consumer_s:
                 with nogil:

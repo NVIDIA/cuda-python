@@ -97,6 +97,13 @@ class KernelAttributes:
     @property
     def cluster_scheduling_policy_preference(self) -> int:
         """int : The block scheduling policy of a function."""
+    @property
+    def device_node_update_supported(self) -> bool:
+        """bool : Whether this kernel can be the target of device-side graph node updates.
+
+        Requires CUDA 13 build and CUDA driver 13.3+.
+        This attribute is read-only.
+        """
 
 class KernelOccupancy:
     """This class offers methods to query occupancy metrics that help determine optimal

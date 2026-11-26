@@ -184,7 +184,10 @@ MemoryPoolHandle get_device_mempool(int device_id);
 
 // Create an owning memory pool handle from an IPC import.
 // The file descriptor is NOT owned by this handle (caller manages FD separately).
-// When the last reference is released, cuMemPoolDestroy is called automatically.
+// Repeat imports of one pool share one handle, because access settings belong to
+// the pool rather than to an import (#3510). When the last reference is released,
+// access is revoked and cuMemPoolDestroy is called once for every import. An
+// import that races that release waits until it is done.
 // Returns empty handle on error (caller must check).
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type);
 
@@ -229,7 +232,9 @@ DevicePtrHandle deviceptr_create_mapped_graphics(
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
-// Note: Does not yet implement reference counting for nvbug 5570902.
+// Repeat imports of one descriptor share one handle, because the driver's first
+// free of an imported pointer unmaps every import of it (nvbug 5570902). An
+// import that races the release of the last handle waits until the free is done.
 // On error, returns empty handle and sets thread-local error (use get_last_error()).
 DevicePtrHandle deviceptr_import_ipc(
     const MemoryPoolHandle &h_pool, const void *export_data, const StreamHandle &h_stream
@@ -243,7 +248,8 @@ StreamHandle deallocation_stream(const DevicePtrHandle &h) noexcept;
 // Set the deallocation stream for a device pointer handle.
 // Returns CUDA_ERROR_INVALID_CONTEXT when a default-stream token cannot be
 // bound because no CUDA context is current.
-CUresult set_deallocation_stream(const DevicePtrHandle &h, const StreamHandle &h_stream) noexcept;
+// May throw std::bad_alloc.
+CUresult set_deallocation_stream(const DevicePtrHandle &h, const StreamHandle &h_stream);
 
 // ============================================================================
 // Virtual memory management (VMM_DESIGN.md)
@@ -302,6 +308,11 @@ size_t va_reservation_size(const VaReservationHandle &h) noexcept;
 // conftest.py reads these to gate the per-test gc.collect().
 long long live_owned_mempool_count() noexcept;
 long long live_va_reservation_count() noexcept;
+
+// Test hook: the owner of an imported pool sleeps this long after its last
+// reference is released and before it revokes access, so that a re-import can
+// be made to race the release. 0 (the default) disables the delay.
+void set_ipc_pool_release_delay_for_testing(unsigned int microseconds) noexcept;
 
 // Map the whole allocation at ptr inside the reservation via cuMemMap and
 // apply the allocation's access descriptors. The mapping structurally depends

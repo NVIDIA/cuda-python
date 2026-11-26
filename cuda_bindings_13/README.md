@@ -20,7 +20,9 @@ Debuggable builds are not supported on Windows.
 
 ## Testing
 
-Testing dependencies can be installed using the `[test]` optional dependency identifier. For example, `pip install -v -e .[test]`.
+Run the commands below from `cuda_bindings_13/`, in an environment containing
+the CUDA 13 bindings. With pip 25.1 or newer, install the package and its
+`test` dependency group with `python -m pip install -v -e . --group test`.
 
 Multiple testing options are available:
 
@@ -42,7 +44,7 @@ To run these tests:
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [Installing from Source](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
 1. Setup environment variable `CUDA_PATH` (or `CUDA_HOME`) with the path to the CUDA Toolkit installation. Note: If both are set, `CUDA_PATH` takes precedence.
-2. Run the `build_tests` script located in `tests/cython` appropriate to your platform. This will both cythonize the tests and build them.
+2. Run `python tests/cython/build_tests.py` to cythonize and build the tests.
 
 To run these tests:
 * `python -m pytest tests/cython/` against editable installations

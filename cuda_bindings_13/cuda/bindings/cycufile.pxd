@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=0f9f241649c57abeccbf6b668c54cbeaa1c2fa990ff783bfc114b617a7773aba
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=47f01a641b766a62e7d01b7b4093fc4a4ec910d0dfeadd8df762a74309a4ea1e
 
 
 # <<<< PREAMBLE CONTENT >>>>
@@ -114,6 +114,7 @@ cdef extern from 'cufile.h':
         CU_FILE_NVME_P2P_SUPPORTED
         CU_FILE_SCATEFS_SUPPORTED
         CU_FILE_VIRTIOFS_SUPPORTED
+        CU_FILE_PANFS_SUPPORTED
         CU_FILE_MAX_TARGET_TYPES
 
 cdef extern from 'cufile.h':
@@ -242,14 +243,6 @@ cdef extern from 'cufile.h':
         char* desc_str
 
 cdef extern from 'cufile.h':
-    ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
-        char* (*fs_type)(const void*)
-        int (*getRDMADeviceList)(const void*, sockaddr_t**)
-        int (*getRDMADevicePriority)(const void*, char*, size_t, loff_t, const sockaddr_t*)
-        ssize_t (*read)(const void*, char*, size_t, loff_t, const cufileRDMAInfo_t*)
-        ssize_t (*write)(const void*, const char*, size_t, loff_t, const cufileRDMAInfo_t*)
-
-cdef extern from 'cufile.h':
     ctypedef union cuda_bindings_cufile__anon_pod1 "std::remove_all_extents<decltype(((CUfileDescr_t*)0)->handle)>::type":
         int fd
         void* handle
@@ -321,10 +314,12 @@ cdef extern from 'cufile.h':
         unsigned int max_batch_io_timeout_msecs
 
 cdef extern from 'cufile.h':
-    ctypedef struct CUfileDescr_t 'CUfileDescr_t':
-        CUfileFileHandleType type
-        cuda_bindings_cufile__anon_pod1 handle
-        CUfileFSOps_t* fs_ops
+    ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
+        char* (*fs_type)(const void*)
+        int (*getRDMADeviceList)(const void*, sockaddr_t**)
+        int (*getRDMADevicePriority)(const void*, char*, size_t, loff_t, const sockaddr_t*)
+        ssize_t (*read)(const void*, char*, size_t, loff_t, const cufileRDMAInfo_t*)
+        ssize_t (*write)(const void*, const char*, size_t, loff_t, const cufileRDMAInfo_t*)
 
 cdef extern from 'cufile.h':
     ctypedef union cuda_bindings_cufile__anon_pod2 "std::remove_all_extents<decltype(((CUfileIOParams_t*)0)->u)>::type":
@@ -387,6 +382,12 @@ cdef extern from 'cufile.h':
         uint64_t writev_ops_per_sec
         uint64_t readv_lat_sum_us
         uint64_t writev_lat_sum_us
+
+cdef extern from 'cufile.h':
+    ctypedef struct CUfileDescr_t 'CUfileDescr_t':
+        CUfileFileHandleType type
+        cuda_bindings_cufile__anon_pod1 handle
+        CUfileFSOps_t* fs_ops
 
 cdef extern from 'cufile.h':
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':

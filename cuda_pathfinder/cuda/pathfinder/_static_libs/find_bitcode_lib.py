@@ -11,6 +11,8 @@ from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
+from .._utils.resolve_path import resolve_path
+
 
 class BitcodeLibNotFoundError(RuntimeError):
     """Raised when a bitcode library cannot be found."""
@@ -95,7 +97,7 @@ class _FindBitcodeLib:
             for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
                 file_path = Path(abs_dir, self.filename)
                 if file_path.is_file():
-                    return file_path
+                    return resolve_path(file_path)
         return None
 
     def try_with_conda_prefix(self) -> Path | None:
@@ -106,7 +108,7 @@ class _FindBitcodeLib:
         anchor = Path(conda_prefix, "Library") if IS_WINDOWS else Path(conda_prefix)
         file_path = anchor / self.rel_path / self.filename
         if file_path.is_file():
-            return file_path
+            return resolve_path(file_path)
         return None
 
     def try_with_cuda_home(self) -> Path | None:
@@ -118,7 +120,7 @@ class _FindBitcodeLib:
         anchor = Path(cuda_home)
         file_path = anchor / self.rel_path / self.filename
         if file_path.is_file():
-            return file_path
+            return resolve_path(file_path)
 
         _no_such_file_in_dir(
             anchor / self.rel_path,
@@ -135,7 +137,7 @@ class _FindBitcodeLib:
 
 
 def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
-    """Locate a bitcode library by name.
+    """Locate a bitcode library by name, returning its resolved absolute path.
 
     Raises:
         ValueError: If ``name`` is not a supported bitcode library.
@@ -175,7 +177,7 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
 
 @functools.cache
 def find_bitcode_lib(name: str) -> str:
-    """Find the absolute path to a bitcode library.
+    """Find the resolved absolute path to a bitcode library.
 
     Raises:
         ValueError: If ``name`` is not a supported bitcode library.

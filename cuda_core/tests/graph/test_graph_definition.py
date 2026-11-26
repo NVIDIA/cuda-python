@@ -689,6 +689,8 @@ def test_node_type_preserved_by_pred_succ(node_spec):
         assert matched[0] is node
 
 
+# For node_spec values empty and host_callback_cfunc:
+# This test is not currently run in any CI job
 def test_node_attrs(node_spec):
     """Type-specific attributes have expected values after construction."""
     spec, g, node, expected_attrs = node_spec
@@ -702,6 +704,8 @@ def test_node_attrs(node_spec):
             assert actual == expected, f"{spec.name}.{attr}: expected {expected}, got {actual}"
 
 
+# For node_spec values empty and host_callback_cfunc:
+# This test is not currently run in any CI job
 def test_node_attrs_preserved_by_nodes(node_spec):
     """Type-specific attributes survive round-trip through graph_definition.nodes()."""
     spec, g, node, expected_attrs = node_spec
@@ -811,6 +815,34 @@ def test_graphdef_handle_valid(init_cuda):
     assert int(sample_graphdef.handle) != 0
 
 
+def test_graph_identity_attributes(init_cuda):
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
+
+    definition = GraphDefinition()
+    node = definition.empty()
+    other = definition.empty()
+    graph = definition.instantiate()
+
+    try:
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 1, 0):
+            with pytest.raises(NotImplementedError):
+                _ = definition.id
+            with pytest.raises(NotImplementedError):
+                _ = graph.id
+            with pytest.raises(NotImplementedError):
+                _ = node.local_id
+            with pytest.raises(NotImplementedError):
+                _ = node.tools_id
+            return
+        assert isinstance(definition.id, int)
+        assert isinstance(graph.id, int)
+        assert node.graph == definition
+        assert node.local_id != other.local_id
+        assert node.tools_id != other.tools_id
+    finally:
+        graph.close()
+
+
 def test_graphdef_entry_is_virtual(init_cuda):
     """Internal entry node is virtual (no pred/succ, type is None)."""
     sample_graphdef = GraphDefinition()
@@ -894,11 +926,17 @@ def test_alloc_peer_access(mempool_device_x2):
     assert d1.device_id in node.peer_access
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-5.6-sol")
 def test_alloc_memory_type_host(init_cuda):
     """HOST graph alloc nodes reconstruct memory_type from the driver, not the Python argument."""
     skip_if_mempool_unsupported()
     from cuda.core._utils.cuda_utils import CUDAError
+    from cuda.core._utils.version import driver_version
+
+    # CUDA 12 rejects HOST pool properties before graph support is checked.
+    if driver_version() < (13, 0, 0):
+        pytest.skip("CUDA drivers before 13.0 reject HOST allocation properties")
 
     g = GraphDefinition()
     try:

@@ -10,7 +10,7 @@ preview = ["pixi-build"]
 [workspace.build-variants]
 python = ["3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
-cuda-version = ["12.*", "13.4.*"]
+cuda-version = ["12.*", "13.5.*"]
 
 [feature.test.dependencies]
 cuda-core = { path = "." }
@@ -134,15 +134,18 @@ cuda-crt-dev_win-64 = "*"
 # For finding headers when building the Cython tests
 [feature.cython-tests.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+CUDA_PATH = "$CONDA_PREFIX/targets/x86_64-linux"
 
 [feature.cython-tests.target.linux-aarch64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
+CUDA_PATH = "$CONDA_PREFIX/targets/sbsa-linux"
 
 [feature.cython-tests.target.win-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/Library"
+CUDA_PATH = "$CONDA_PREFIX/Library"
 
 [feature.cu13.dependencies]
-cuda-version = "13.4.*"
+cuda-version = "13.5.*"
 
 [feature.cu12.dependencies]
 cuda-version = "12.*"
@@ -270,6 +273,7 @@ cython = ">=3.2.5,<3.3"
 cuda-nvrtc-dev = "*"
 cuda-bindings = "*"
 dlpack = "*"
+clang-tools = "==22.1.8"
 
 [package.target.linux-64.host-dependencies]
 cuda-cudart-dev_linux-64 = "*"
@@ -293,8 +297,8 @@ numpy = "*"
 cuda-bindings = "*"
 cuda-pathfinder = "*"
 
-[target.linux.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
+[tasks.build-cython-tests]
+cmd = 'python "$PIXI_PROJECT_ROOT/tests/cython/build_tests.py"'
 
 [target.linux.tasks.docs-build]
 cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh"]
@@ -313,13 +317,10 @@ cmd = ["$PIXI_PROJECT_ROOT/docs/build_docs.sh", "latest-only"]
 env = { SPHINXOPTS = "-v -j 1 -d build/.doctrees" }
 default-environment = "docs"
 
-[target.win-64.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
-
 [target.linux.tasks.test]
 cmd = [
     "pytest",
-    "$PIXI_PROJECT_ROOT",
+    "$PIXI_PROJECT_ROOT/tests",
     "--override-ini",
     "norecursedirs=\"\"", # include cython tests (ignore by default config)
 ]
@@ -328,7 +329,7 @@ depends-on = [{ task = "build-cython-tests" }]
 [target.win-64.tasks.test]
 cmd = [
     "pytest",
-    "$PIXI_PROJECT_ROOT",
+    "$PIXI_PROJECT_ROOT/tests",
     "--override-ini",
     "norecursedirs=\"\"",  # include cython tests (ignore by default config)
 ]

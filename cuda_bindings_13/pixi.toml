@@ -10,7 +10,7 @@ preview = ["pixi-build"]
 [workspace.build-variants]
 python = ["3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 # Keep source-package metadata aligned with the consuming environment's CUDA major.
-cuda-version = ["12.*", "13.4.*"]
+cuda-version = ["12.*", "13.5.*"]
 
 [feature.test.dependencies]
 cuda-bindings = { path = "." }
@@ -28,7 +28,8 @@ cuda-python-test-helpers = { path = "../cuda_python_test_helpers", editable = tr
 
 # Keep this dependency set aligned with cuda_python/docs/environment-docs.yml.
 [feature.docs.dependencies]
-cuda-bindings = "13.2.*"
+# Document the checkout's API, including modules absent from published packages.
+cuda-bindings = { path = "." }
 python = "3.12.*"
 cython = ">=3.2.5,<3.3"
 enum_tools = "*"
@@ -67,18 +68,21 @@ cuda-crt-dev_win-64 = "*"
 # For finding headers when building the Cython tests
 [feature.cython-tests.target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+CUDA_PATH = "$CONDA_PREFIX/targets/x86_64-linux"
 
 [feature.cython-tests.target.linux-aarch64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
+CUDA_PATH = "$CONDA_PREFIX/targets/sbsa-linux"
 
 [feature.cython-tests.target.win-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/Library"
+CUDA_PATH = "$CONDA_PREFIX/Library"
 
 [feature.cu12.dependencies]
 cuda-version = "12.*"
 
 [feature.cu13.dependencies]
-cuda-version = "13.4.*"
+cuda-version = "13.5.*"
 
 [environments]
 default = { features = ["test", "cython-tests"], solve-group = "default" }
@@ -151,11 +155,8 @@ libnvfatbin = "*"
 [package.target.linux.run-dependencies]
 libcufile = "*"
 
-[target.linux.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
-
-[target.win-64.tasks.build-cython-tests]
-cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.bat"]
+[tasks.build-cython-tests]
+cmd = 'python "$PIXI_PROJECT_ROOT/tests/cython/build_tests.py"'
 
 [target.linux.tasks.test]
 cmd = [

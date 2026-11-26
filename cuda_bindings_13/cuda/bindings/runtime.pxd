@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# This code was automatically generated with version 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=9aed2c4f6e06c8af7d8e05b8da369992de701809a2165dc6bd0cc05e135934f5
+# This code was automatically generated with version 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=6033637722f3ab3bb9c1c175ffc777396ea8fb18e7acfa7952e0b2da7aa0d375
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
@@ -2393,7 +2393,7 @@ cdef class cudaExternalMemoryHandleDesc:
 
 
     handle : anon_union4
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     size : unsigned long long
@@ -2558,7 +2558,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
 
 
     handle : anon_union5
-
+        Valid NT handle. Must be NULL if 'name' is non-NULL
 
 
     flags : unsigned int
@@ -3413,6 +3413,83 @@ cdef class cudaConditionalNodeParams:
     cdef cudaExecutionContext_t _ctx
 
 
+cdef class cudaMemcpyBatchNodeParams:
+    """
+    CUDA Batch Memcpy Node Parameters
+
+    Attributes
+    ----------
+
+    count : size_t
+        Size of `dsts`, `srcs` and `sizes` arrays. This field cannot be
+        updated in an instantiated graph.
+
+
+    dsts : Any
+        Array of destination pointers. This field can be updated in an
+        instantiated graph.
+
+
+    srcs : Any
+        Array of source pointers. This field can be updated in an
+        instantiated graph.
+
+
+    sizes : size_t
+        Array of sizes for memcpy operations. This field can be updated in
+        an instantiated graph. A size of 0 disables the individual copy
+        operation.
+
+
+    attrs : cudaMemcpyAttributes
+        Array of memcpy attributes. This field cannot be updated in an
+        instantiated graph.
+
+
+    attrsIdxs : size_t
+        Array of indices specifying which copies each entry in `attrs`
+        applies to. The array contents cannot be updated in an instantiated
+        graph.
+
+
+    numAttrs : size_t
+        Size of `attrs` and `attrsIdxs` arrays. The array contents cannot
+        be updated in an instantiated graph.
+
+
+    ctx : cudaExecutionContext_t
+        Preferred CUDA Execution Context to use for the copies. This field
+        cannot be updated in an instantiated graph.
+
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef object _owner
+    cdef cyruntime.cudaMemcpyBatchNodeParams _pvt_val
+    cdef cyruntime.cudaMemcpyBatchNodeParams* _pvt_ptr
+
+    cdef _HelperKernelParams _cydsts
+
+
+    cdef _HelperKernelParams _cysrcs
+
+
+    cdef _HelperInputVoidPtr _cysizes
+
+
+    cdef size_t _attrs_length
+    cdef cyruntime.cudaMemcpyAttributes* _attrs
+
+
+    cdef _HelperInputVoidPtr _cyattrsIdxs
+
+
+    cdef cudaExecutionContext_t _ctx
+
+
 cdef class cudaChildGraphNodeParams:
     """
     Child graph node parameters
@@ -3556,6 +3633,10 @@ cdef class cudaGraphNodeParams:
         Conditional node parameters.
 
 
+    memcpyBatch : cudaMemcpyBatchNodeParams
+        Batch memcpy node parameters.
+
+
     Methods
     -------
     getPtr()
@@ -3599,6 +3680,9 @@ cdef class cudaGraphNodeParams:
 
 
     cdef cudaConditionalNodeParams _conditional
+
+
+    cdef cudaMemcpyBatchNodeParams _memcpyBatch
 
 
 cdef class cudaGraphEdgeData_st:

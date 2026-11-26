@@ -335,7 +335,7 @@ class TestFindInSitePackages:
     def test_windows_exact_names_reject_cudnn_sidecar(self, mocker, tmp_path):
         bin_dir = tmp_path / "nvidia" / "cudnn" / "bin"
         bin_dir.mkdir(parents=True)
-        (bin_dir / "cudnn_adv64_9.dll").touch()
+        _write_pe(bin_dir / "cudnn_adv64_9.dll", windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
 
         mocker.patch(
             f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
@@ -470,6 +470,41 @@ class TestFindInSitePackages:
         result = find_in_site_packages(_ctx(desc, platform=platform))
 
         assert result is None
+
+    @pytest.mark.parametrize(
+        ("target_arch", "wheel_arch", "expected_source"),
+        (
+            ("x64", "x64", "site-packages"),
+            ("arm64", "arm64", "site-packages"),
+            ("arm64", "x64", "CUDNN_PATH"),
+        ),
+    )
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_cudnn_wheel_architecture_and_archive_fallback(
+        self, mocker, tmp_path, target_arch, wheel_arch, expected_source
+    ):
+        wheel_dir = tmp_path / "nvidia" / "cudnn" / "bin"
+        wheel_dir.mkdir(parents=True)
+        cudnn_dll = wheel_dir / "cudnn64_9.dll"
+        _write_pe(cudnn_dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH[wheel_arch])
+
+        archive_root = tmp_path / "archive"
+        archive_dll = archive_root / "bin" / target_arch / "cudnn64_9.dll"
+        archive_dll.parent.mkdir(parents=True)
+        _write_pe(archive_dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH[target_arch])
+        mocker.patch.dict(os.environ, {"CUDNN_PATH": str(archive_root)})
+
+        _patch_site_packages_search(mocker, tmp_path)
+        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
+
+        desc = LIB_DESCRIPTORS["cudnn"]
+        result = run_find_steps(
+            _ctx(desc, platform=WindowsSearchPlatform(target_arch=target_arch)),
+            (find_in_site_packages, find_in_install_root_env_vars),
+        )
+
+        expected_dll = cudnn_dll if expected_source == "site-packages" else archive_dll
+        assert result == FindResult(str(expected_dll), expected_source)
 
     def test_not_found_appends_error(self, mocker, tmp_path):
         empty_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
@@ -661,6 +696,29 @@ class TestFindInCudaHome:
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
 
+    @pytest.mark.skipif(os.name == "nt", reason="POSIX symlink parent traversal")
+    @pytest.mark.agent_authored(model="gpt-6")
+    def test_symlink_parent_root_selects_correct_library(self, mocker, tmp_path):
+        sdk = tmp_path / "installed" / "sdk"
+        (sdk / "leaf").mkdir(parents=True)
+        lib_dir = sdk / "lib64"
+        lib_dir.mkdir()
+        selected_library = lib_dir / "libcudart.so"
+        selected_library.touch()
+        alias = tmp_path / "alias"
+        alias.symlink_to(sdk / "leaf", target_is_directory=True)
+
+        wrong_lib_dir = tmp_path / "lib64"
+        wrong_lib_dir.mkdir()
+        (wrong_lib_dir / "libcudart.so").touch()
+        mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(alias / ".."))
+
+        result = find_in_cuda_path(_ctx(platform=LinuxSearchPlatform()))
+
+        assert result is not None
+        assert result.found_via == "CUDA_PATH"
+        assert os.path.samefile(result.abs_path, selected_library)
+
     def test_found_windows(self, mocker, tmp_path):
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()
@@ -787,7 +845,7 @@ class TestWindowsInstallRoots:
         bin_dir = tmp_path / archive_bin_rel_dir
         bin_dir.mkdir(parents=True)
         dll = bin_dir / "cudnn64_9.dll"
-        dll.touch()
+        _write_pe(dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH[target_arch])
         mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
 
         result = find_in_install_root_env_vars(
@@ -808,7 +866,7 @@ class TestWindowsInstallRoots:
     def test_cudnn_path_does_not_cross_architectures(self, mocker, tmp_path, target_arch, other_arch_bin_rel_dir):
         bin_dir = tmp_path / other_arch_bin_rel_dir
         bin_dir.mkdir(parents=True)
-        (bin_dir / "cudnn64_9.dll").touch()
+        _write_pe(bin_dir / "cudnn64_9.dll", windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH[target_arch])
         mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
 
         result = find_in_install_root_env_vars(
@@ -822,9 +880,9 @@ class TestWindowsInstallRoots:
         bin_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.24" / "bin"
         x64_bin_dir = bin_dir / "x64"
         x64_bin_dir.mkdir(parents=True)
-        (x64_bin_dir / "cudnn_adv64_9.dll").touch()
+        _write_pe(x64_bin_dir / "cudnn_adv64_9.dll", windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
         dll = bin_dir / "cudnn64_9.dll"
-        dll.touch()
+        _write_pe(dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
         mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
 
         result = find_in_program_files_roots(
@@ -839,9 +897,9 @@ class TestWindowsInstallRoots:
         newer_dir = tmp_path / "NVIDIA" / "CUDNN" / "v9.10" / "bin"
         older_dir.mkdir(parents=True)
         newer_dir.mkdir(parents=True)
-        (older_dir / "cudnn64_9.dll").touch()
+        _write_pe(older_dir / "cudnn64_9.dll", windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
         newer_dll = newer_dir / "cudnn64_9.dll"
-        newer_dll.touch()
+        _write_pe(newer_dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
         mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
 
         result = find_in_program_files_roots(
@@ -861,7 +919,7 @@ class TestWindowsInstallRoots:
             program_files_root / "NVIDIA" / "CUDNN" / "v9.25" / "bin" / "arm64",
         ):
             bin_dir.mkdir(parents=True)
-            (bin_dir / "cudnn64_9.dll").touch()
+            _write_pe(bin_dir / "cudnn64_9.dll", windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["arm64"])
         mocker.patch.dict(
             os.environ,
             {
@@ -876,7 +934,7 @@ class TestWindowsInstallRoots:
         assert find_in_conda(ctx) is None
         assert find_in_cuda_path(ctx) is None
         assert find_in_program_files_roots(ctx) is None
-        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ()
+        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ("nvidia/cudnn/bin",)
 
 
 # ---------------------------------------------------------------------------

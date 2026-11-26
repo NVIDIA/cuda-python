@@ -12,14 +12,17 @@ from cuda.core._memory._memory_pool cimport (
     MP_check_open,
     MP_init_create_pool,
     MP_init_current_pool,
+    MP_set_access,
 )
 from cuda.core._memory cimport _ipc
 from cuda.core._memory._ipc cimport IPCAllocationHandle
+from cuda.core._memory._location cimport cumemlocation_from_id
 from cuda.core._stream cimport Stream, Stream_accept
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
+from libcpp.vector cimport vector
 
 from dataclasses import dataclass
 import multiprocessing
@@ -99,6 +102,16 @@ cdef class PinnedMemoryResource(_MemPool):
     is unsupported and stream-ordered allocation is not needed, use
     :class:`LegacyPinnedMemoryResource`.
 
+    The driver makes a host memory pool accessible only from the host by
+    default, so the resource grants read and write access to the pool to every
+    device that supports this kind of host memory pool (host NUMA memory pools
+    if the pool is placed on a NUMA node), as ``cudaMallocHost`` does. Access
+    is per process, so a resource imported with :meth:`from_allocation_handle`,
+    including by unpickling, makes the same grant in the importing process.
+    Without options, the grant applies to the driver's current pool, which the
+    whole process shares. Construction without options does not affect a CUDA
+    graph capture in progress on any thread.
+
     To create an IPC-Enabled memory resource (MR) that is capable of sharing
     allocations between processes, specify ``ipc_enabled=True`` in the initializer
     option. When IPC is enabled and ``numa_id`` is not specified, the NUMA node
@@ -141,13 +154,7 @@ cdef class PinnedMemoryResource(_MemPool):
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         cdef Stream s = Stream_accept(stream)
         device = s.device
-        cdef bint supported = (
-            device.properties.host_numa_memory_pools_supported
-            if self._numa_id >= 0
-            else device.properties.host_memory_pools_supported
-        )
-
-        if not supported:
+        if not _host_pool_supported(device, self._numa_id >= 0):
             raise RuntimeError(
                 f"CUDA device {device.device_id} does not support the requested "
                 "host memory pool for PinnedMemoryResource. Use "
@@ -196,7 +203,9 @@ cdef class PinnedMemoryResource(_MemPool):
         """Create a host-pinned memory resource from an allocation handle.
 
         Construct a new `PinnedMemoryResource` instance that imports a memory
-        pool from a shareable handle. The memory pool is marked as owned.
+        pool from a shareable handle. The memory pool is marked as owned. Every
+        device in this process that supports pools at the pool's host location
+        is granted read and write access to the imported pool.
 
         Parameters
         ----------
@@ -208,6 +217,15 @@ cdef class PinnedMemoryResource(_MemPool):
         Returns
         -------
             A new host-pinned memory resource instance with the imported handle.
+
+        Raises
+        ------
+        TypeError
+            If the handle refers to a device memory pool, which must be
+            imported with :meth:`DeviceMemoryResource.from_allocation_handle`.
+            The pool's kind is checked with a CUDA 13 build of ``cuda.core``
+            and a 13.2 or later driver. Otherwise it is checked only when the
+            handle's memory resource is already registered in this process.
         """
         # cuMemPoolImportFromShareableHandle requires CUDA to be initialized, but in
         # a child process CUDA may not be initialized yet. For DeviceMemoryResource,
@@ -216,9 +234,8 @@ cdef class PinnedMemoryResource(_MemPool):
         # not device-specific it is unlikelt the case.
         HANDLE_RETURN(cydriver.cuInit(0))
 
-        cdef PinnedMemoryResource mr = <PinnedMemoryResource>(
-            _ipc.MP_from_allocation_handle(cls, alloc_handle))
-        return mr
+        return <PinnedMemoryResource>(
+            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported))
 
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
@@ -239,18 +256,32 @@ cdef class PinnedMemoryResource(_MemPool):
 
     @property
     def numa_id(self) -> int:
-        """The host NUMA node ID used for pool placement, or -1 for OS-managed placement."""
+        """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
+
+        For a resource imported with :meth:`from_allocation_handle`, this is the
+        pool's node only if the pool's location can be queried (a CUDA 13 build
+        of ``cuda.core`` and a 13.2 or later driver). Otherwise it is 0, which is
+        not known to be the pool's node.
+        """
         return self._numa_id
 
     @property
     def is_device_accessible(self) -> bool:
-        """Return True. This memory resource provides device-accessible buffers."""
+        """Return True. Every device that supports this kind of host memory pool can read and write its buffers."""
         return True
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
+
+
+cdef inline bint _host_pool_supported(device, bint host_numa):
+    return (
+        device.properties.host_numa_memory_pools_supported
+        if host_numa
+        else device.properties.host_memory_pools_supported
+    )
 
 
 cdef inline _PMR_init(PinnedMemoryResource self, options):
@@ -308,6 +339,43 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
             ipc_enabled,
             max_size,
         )
+
+    _PMR_grant_device_access(self, numa_id >= 0, False)
+
+
+cdef inline int _PMR_grant_device_access(
+        PinnedMemoryResource self, bint host_numa, bint imported) except? -1:
+    # A pool on a host location is accessible only from the host by default
+    # (see cuMemPoolCreate), and access is per process, so both the creating
+    # and the importing process grant read/write access to every device that
+    # supports this kind of host pool, as cudaMallocHost memory is. Other
+    # devices cannot use the pool.
+    from .._device import Device
+
+    cdef cydriver.CUmemAccessDesc desc
+    cdef vector[cydriver.CUmemAccessDesc] access
+    desc.flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+    for dev in Device.get_all_devices():
+        if _host_pool_supported(dev, host_numa):
+            desc.location = cumemlocation_from_id(
+                cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE, dev.device_id)
+            access.push_back(desc)
+    if not access.empty():
+        MP_set_access(self, access.data(), access.size(), imported)
+    return 0
+
+
+cdef int _PMR_init_imported(_MemPool mr, object unused) except? -1:
+    cdef PinnedMemoryResource self = <PinnedMemoryResource>mr
+    cdef cydriver.CUmemLocation loc
+    # IPC-enabled pinned pools created by cuda.core are always placed on a host
+    # NUMA node. Without a location query (a CUDA 12 build or a driver before
+    # 13.2), the pool's kind is not checked and numa_id keeps its default.
+    cdef bint host_numa = True
+    if _ipc.MP_check_import_location(self, True, &loc):
+        host_numa = loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+        self._numa_id = loc.id if host_numa else -1
+    return _PMR_grant_device_access(self, host_numa, True)
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:

@@ -17,6 +17,7 @@ from cuda.bindings.utils import (
     get_minimal_required_cuda_ver_from_ptx_ver,
     get_ptx_ver,
 )
+from cuda.bindings.utils._ptx_utils import _ptx_to_cuda
 
 have_cufile = importlib.util.find_spec("cuda.bindings.cufile") is not None
 
@@ -70,6 +71,16 @@ def test_ptx_utils(kernel, actual_ptx_ver, min_cuda_ver):
     assert ptx_ver == actual_ptx_ver
     cuda_ver = get_minimal_required_cuda_ver_from_ptx_ver(ptx_ver)
     assert cuda_ver == min_cuda_ver
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_ptx_mapping_covers_bindings_cuda_version():
+    """Keep the PTX table in sync with the CUDA release of the generated bindings."""
+    cuda_version = (driver.CUDA_VERSION // 1000, (driver.CUDA_VERSION % 1000) // 10)
+    assert cuda_version in _ptx_to_cuda.values(), (
+        f"No PTX ISA mapping for CUDA {cuda_version[0]}.{cuda_version[1]}. "
+        "Check the PTX ISA release history and update cuda_bindings_13/cuda/bindings/utils/_ptx_utils.py."
+    )
 
 
 @pytest.mark.parametrize(
@@ -186,6 +197,7 @@ def test_check_nvvm_compiler_options_arch_detection():
     assert check_nvvm_compiler_options(["-arch=compute_99999"]) is False
 
 
+# This test is not currently run in any CI job
 def test_check_nvvm_compiler_options_no_libnvvm():
     if _libnvvm_available:
         pytest.skip("libNVVM is available; this test targets the fallback path")

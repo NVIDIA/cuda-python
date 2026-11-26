@@ -39,6 +39,8 @@ def node_array(nodes):
     return (ctypes.c_void_p * len(nodes))(*nodes)
 
 
+# Canary for toolshed/find_skipped_tests.py: it must be reported as skipped in
+# every CI configuration, which shows that this suite ran. Do not remove.
 @pytest.mark.skipif(True, reason="Always skip!")
 def test_always_skip():
     pass
@@ -88,6 +90,7 @@ def test_cuda_memcpy():
     driver.mem_free_v2(dptr)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="claude-sonnet-5-5")
 @pytest.mark.skipif(driver_version_less_than(13041), reason="cuGraphAddNode_v3 was added in CUDA 13.4.1")
 def test_graph_add_node_v3_returns_the_node():
@@ -1401,3 +1404,47 @@ def test_array_member_assignment_and_aliased_dealloc():
     del inner
     assert outer.attrs == ctypes.addressof(attrs)
     assert outer.num_attrs == 8
+
+
+@pytest.mark.skipif(driver.CUDA_VERSION < 13050, reason="Graph batch node parameters require CUDA 13.5 headers")
+@pytest.mark.parametrize(
+    "member_name,wrapper_name,dtype_name,count_name",
+    [
+        ("memcpy_batch", "MemcpyBatchNodeParamsV1", "memcpy_batch_node_params_v1_dtype", "count"),
+        ("fabric_cpy_batch", "FabricCpyBatchNodeParamsV1", "fabric_cpy_batch_node_params_v1_dtype", "num_ops"),
+    ],
+)
+@pytest.mark.agent_authored(model="gpt-6")
+def test_graph_batch_node_params_runtime(member_name, wrapper_name, dtype_name, count_name):
+    wrapper_type = getattr(driver, wrapper_name)
+    member_dtype = getattr(driver, dtype_name)
+    assert driver.graph_node_params_dtype.fields[member_name][0] == member_dtype
+
+    params = driver.GraphNodeParams()
+    member = getattr(params, member_name)
+    assert isinstance(member, wrapper_type)
+    assert memoryview(member).nbytes == member_dtype.itemsize
+
+    # The typed getter aliases the embedded struct, including through NumPy.
+    setattr(member, count_name, 7)
+    assert getattr(getattr(params, member_name), count_name) == 7
+    array = np.frombuffer(params, dtype=driver.graph_node_params_dtype, count=1)
+    assert array[member_name][count_name][0] == 7
+    array[member_name][count_name][0] = 9
+    assert getattr(member, count_name) == 9
+
+    # Assigning an arm copies its scalar fields instead of aliasing the source.
+    replacement = wrapper_type()
+    setattr(replacement, count_name, 11)
+    setattr(params, member_name, replacement)
+    setattr(replacement, count_name, 13)
+    assert getattr(getattr(params, member_name), count_name) == 11
+
+    readonly = driver.GraphNodeParams.from_buffer(bytes(memoryview(params)))
+    readonly_member = getattr(readonly, member_name)
+    assert isinstance(readonly_member, wrapper_type)
+    assert getattr(readonly_member, count_name) == 11
+    with pytest.raises(ValueError, match="read-only"):
+        setattr(readonly_member, count_name, 17)
+    with pytest.raises(ValueError, match="read-only"):
+        setattr(readonly, member_name, replacement)

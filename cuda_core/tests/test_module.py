@@ -345,6 +345,19 @@ def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type
         assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
 
+def test_device_node_update_supported(get_saxpy_kernel_cubin):
+    from cuda.core._utils.version import BUILD_CUDA_MAJOR, driver_version
+
+    kernel, _ = get_saxpy_kernel_cubin
+
+    for device in Device.get_all_devices():
+        if BUILD_CUDA_MAJOR < 13 or driver_version() < (13, 3, 0):
+            with pytest.raises(NotImplementedError):
+                _ = kernel.attributes[device].device_node_update_supported
+        else:
+            assert isinstance(kernel.attributes[device].device_node_update_supported, bool)
+
+
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod.symbol_mapping
@@ -649,6 +662,7 @@ def test_occupancy_max_potential_block_size_constant(get_saxpy_kernel_cubin, blo
         kernel.occupancy.max_potential_block_size(invalid_dsmem, block_size_limit)
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(numba is None, reason="Test requires numba to be installed")
 @pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 277, 0])
 def test_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel_cubin, block_size_limit):
@@ -725,6 +739,12 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     assert objcode.code == result.code
     assert objcode.symbol_mapping == result.symbol_mapping
     assert objcode.code_type == result.code_type
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_module_unpickle_rejects_unknown_code_type():
+    with pytest.raises(ValueError, match="code_type='bogus' is not supported"):
+        ObjectCode._reduce_helper(b"", "bogus", "", None)
 
 
 def test_kernel_from_handle(get_saxpy_kernel_cubin):

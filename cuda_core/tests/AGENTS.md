@@ -43,6 +43,18 @@ DeviceMemoryResource(dev, {"ipc_enabled": True})  # NEW uncapped pool, expensive
 Do not add `max_size` to a call that currently passes no options: that
 converts a free default-pool wrapper into a new pool and makes things worse.
 
+### Exception: tests that also use the graph memory pool
+
+The device default pool and the graph memory pool (used by `GraphMemoryResource`
+and graph allocation nodes) each reserve about twice the device memory of
+virtual address space for the lifetime of the process, and neither can be
+capped. A single test that touches both needs both reservations at once, which
+can exceed a small address space on a large-memory GPU. In such a test, prefer
+a capped owned pool (`max_size=POOL_SIZE`) over the default-pool wrapper, and
+release it at the end of the test. The capped pool's reservation is small and
+returned on `close()`. Examples: `test_graph_alloc` and the `sample_buffer`
+fixtures in `test_object_protocols.py`.
+
 ### Managed pools are exempt
 
 `cuMemPoolCreate` requires `CUmemPoolProps.maxSize` to be zero for managed
@@ -107,9 +119,15 @@ Follow these rules when adding or moving shared test code:
   when the test needs to communicate with a running child or inspect its lifetime;
   use `kill_subprocesses` before assertions and `track_child_processes` for
   fixture cleanup so a stuck child cannot block IPC resource teardown.
+- Run worker threads with `run_in_threads` from `helpers.misc` instead of
+  hand-written start/join loops. An exception in a thread otherwise only ends
+  that thread and the test can pass. The helper re-raises the first failure,
+  aborts a shared `threading.Barrier` so the other workers do not hang, and
+  with `timeout` fails on a thread that does not finish.
 - Use the skip guards in `helpers/memory.py` instead of per-module copies:
   `skip_if_mempool_unsupported`, `skip_if_managed_mempool_unsupported` (a
-  property check only; it never constructs a managed resource), and
+  property check only; it never constructs a managed resource),
+  `skip_if_managed_allocation_unsupported` for raw managed allocations, and
   `is_pool_resource` to tell pool-backed resources from VMM ones.
 - Search `tests/helpers/` and `cuda_python_test_helpers/` for prior art
   before adding a new helper; consolidate duplicates across

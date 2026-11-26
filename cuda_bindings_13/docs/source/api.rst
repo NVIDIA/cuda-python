@@ -7,7 +7,7 @@ CUDA Python API Reference
 
 .. toctree::
    :maxdepth: 3
-   :caption: CaptionHolder:
+   :caption: Modules:
 
    module/driver
    module/driver_v2
@@ -21,3 +21,9 @@ CUDA Python API Reference
    module/cufile
    module/nvml
    module/utils
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Migration guides:
+
+   module/v2_migration

@@ -103,6 +103,7 @@ Functions
    device_get_gpu_instances
    device_get_gpu_max_pcie_link_generation
    device_get_gpu_operation_mode
+   device_get_gpu_uptime_v1
    device_get_grid_licensable_features_v4
    device_get_gsp_firmware_mode
    device_get_gsp_firmware_version
@@ -150,6 +151,9 @@ Functions
    device_get_nvlink_capability
    device_get_nvlink_error_counter
    device_get_nvlink_info
+   device_get_nvlink_info_v3
+   device_get_nvlink_nvle_private_info_v1
+   device_get_nvlink_remap_table_info_v1
    device_get_nvlink_remote_device_type
    device_get_nvlink_remote_pci_info_v2
    device_get_nvlink_state
@@ -222,6 +226,7 @@ Functions
    device_get_vgpu_utilization
    device_get_virtualization_mode
    device_is_mig_device_handle
+   device_lock_nvlink_remap_table_v1
    device_modify_drain_state
    device_on_same_board
    device_perf_metrics_get_samples_v1
@@ -260,6 +265,7 @@ Functions
    device_set_nvlink_bw_mode
    device_set_nvlink_bw_mode_async_v1
    device_set_nvlink_device_low_power_threshold
+   device_set_nvlink_nvle_ready_v1
    device_set_persistence_mode
    device_set_power_management_limit_v2
    device_set_power_mizer_mode_v1
@@ -269,6 +275,7 @@ Functions
    device_set_vgpu_heterogeneous_mode
    device_set_vgpu_scheduler_state
    device_set_virtualization_mode
+   device_setup_nvlink_nvle_encryption_key_v1
    device_validate_inforom
    error_string
    event_set_create
@@ -313,6 +320,7 @@ Functions
    system_get_conf_compute_gpus_ready_state
    system_get_conf_compute_key_rotation_threshold_info
    system_get_conf_compute_settings
+   system_get_conf_compute_settings_v2
    system_get_conf_compute_state
    system_get_cper_v1
    system_get_cuda_driver_version
@@ -539,7 +547,8 @@ Types
    EccSramUniqueUncorrectedErrorEntry_v1
    EncoderSessionInfo
    EventData
-   EventData_v2
+   EventSetGetContextInfo_v1
+   EventSetGetGpuOperationalEventContextLegacyXid_v1
    ExcludedDeviceInfo
    FBCSessionInfo
    FBCStats
@@ -553,10 +562,10 @@ Types
    GpuFabricInfo_v4
    GpuInstanceInfo
    GpuOperationalEventConfig_v1
-   GpuOperationalEventContextLegacyXid_v1
    GpuInstancePlacement
    GpuInstanceProfileInfo_v3
    GpuThermalSettings
+   GpuUptime_v1
    GridLicensableFeature
    GridLicensableFeatures
    GridLicenseExpiry
@@ -567,15 +576,20 @@ Types
    NvlinkFirmwareInfo
    NvlinkFirmwareVersion
    NvlinkGetBwMode_v1
+   NvlinkGetRemapTableInfo_v1
    NvLinkInfo_v1
    NvLinkInfo_v2
+   NvLinkInfo_v3
+   NvlinkLockRemapTable_v1
+   NvlinkNvlePrivateInfo_v1
    NvlinkSetBwMode_v1
    NvlinkSetBwModeAsync_v1
+   NvlinkSetNvleReady_v1
+   NvlinkSetupNvleEncryptionKey_v1
    NvlinkSupportedBwModes_v1
    NvlinkTelemetrySample_v1
    NvlinkTelemetrySamples_v1
    ObservedMetrics
-   OperationalEventContextInfo_v1
    PciInfo
    PciInfoExt_v1
    PerfMetricControllerSample
@@ -609,6 +623,7 @@ Types
    Sample
    SetMemoryLimits_v1
    SystemConfComputeSettings_v1
+   SystemConfComputeSettings_v2
    SystemEventData_v1
    UnitFanInfo
    UnitFanSpeeds

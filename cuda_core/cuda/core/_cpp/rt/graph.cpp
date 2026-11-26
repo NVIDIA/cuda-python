@@ -88,8 +88,12 @@ struct ChildGraphKeyHash {
     std::size_t
     operator()(const ChildGraphKey &key) const noexcept
     {
+        // boost::hash_combine mixing constants.
+        constexpr std::size_t golden_ratio = 0x9e3779b9;
+        constexpr std::size_t left_shift = 6;
+        constexpr std::size_t right_shift = 2;
         std::size_t h = std::hash<const void *>{}(key.graph);
-        return h ^ (std::hash<const void *>{}(key.owner_node) + 0x9e3779b9 + (h << 6) + (h >> 2));
+        return h ^ (std::hash<const void *>{}(key.owner_node) + golden_ratio + (h << left_shift) + (h >> right_shift));
     }
 };
 
@@ -109,9 +113,10 @@ struct GraphBox : GraphBoxBase {
     // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
     HandleRegistry<ChildGraphKey, GraphHandle, ChildGraphKeyHash> children;  // Direct child graphs.
 
+    // Not noexcept: the std::map and HandleRegistry members allocate.
     GraphBox(
         CUgraph resource_, GraphHierarchy *hierarchy_, GraphBox *parent_ = nullptr, CUgraphNode owner_node_ = nullptr
-    ) noexcept
+    )
         : GraphBoxBase{resource_}, hierarchy(hierarchy_), parent(parent_), owner_node(owner_node_)
     {
     }
@@ -162,7 +167,7 @@ free_deleter(const void *p) noexcept
 GraphBox *
 get_box(const GraphHandle &h) noexcept
 {
-    auto *value = reinterpret_cast<const GraphBoxBase *>(h.get());
+    const auto *value = reinterpret_cast<const GraphBoxBase *>(h.get());
     return const_cast<GraphBox *>(static_cast<const GraphBox *>(value));
 }
 
@@ -287,7 +292,7 @@ struct PreparedAttachmentState {
     explicit PreparedAttachmentState(GraphHandle h_graph_) : h_graph(std::move(h_graph_)) {}
 };
 
-void
+static void
 rollback_prepared_attachment(PreparedAttachmentState *state) noexcept
 {
     if (!state) {
@@ -416,7 +421,7 @@ graph_prepare_child_graph_update(
     return CUDA_SUCCESS;
 }
 
-void
+static void
 publish_child_graph_update(PreparedChildGraphUpdateState &state, GraphHandle *out_child)
 {
     GraphBox *parent = get_box(state.h_parent);

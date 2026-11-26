@@ -6,7 +6,7 @@ from __future__ import annotations
 
 cimport cython
 from libc.limits cimport ULLONG_MAX
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uint64_t, uintptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
@@ -31,6 +31,7 @@ from cuda.core._rt cimport create_mempool_handle_ref  # no-cython-lint
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
+from cuda.core._utils.version import driver_version  # no-cython-lint
 
 import uuid
 from typing import TYPE_CHECKING
@@ -40,8 +41,49 @@ if TYPE_CHECKING:
     from cuda.core.typing import DevicePointerType
 
 
+# Pool attribute reads and writes and cuMemPoolTrimTo are potentially unsafe
+# calls during stream capture: the driver refuses them, and invalidates the
+# capture, while a global-mode capture is active on any thread or a
+# thread-local one on the calling thread. Capture mode is a per-thread
+# property, so the calling thread is switched to relaxed mode around such a
+# call and its previous mode is restored afterwards. This has no observable
+# effect when nothing is capturing. The call executes immediately rather than
+# being recorded into a graph, which is the intent for a process-wide pool.
+cdef inline int _enter_relaxed_capture_mode(cydriver.CUstreamCaptureMode* mode) except?-1 nogil:
+    # On return, mode holds the thread's previous capture mode.
+    mode[0] = cydriver.CU_STREAM_CAPTURE_MODE_RELAXED
+    return HANDLE_RETURN(cydriver.cuThreadExchangeStreamCaptureMode(mode))
+
+
+cdef int _exit_relaxed_capture_mode(
+        cydriver.CUresult err, cydriver.CUstreamCaptureMode* mode) except?-1 nogil:
+    """Restore the thread's capture mode, then raise if the call or the restore failed."""
+    cdef cydriver.CUresult restore_err = cydriver.cuThreadExchangeStreamCaptureMode(mode)
+    if err != cydriver.CUDA_SUCCESS:
+        with gil:
+            try:
+                HANDLE_RETURN(err)
+            except:
+                if restore_err != cydriver.CUDA_SUCCESS:
+                    # The call's error propagates with the restore failure
+                    # attached as a note (error handling policy).
+                    attach_rollback_failure(
+                        b"cuThreadExchangeStreamCaptureMode", restore_err,
+                        b"failed to restore the thread's stream capture mode")
+                raise
+    return HANDLE_RETURN(restore_err)
+
+
 cdef class _MemPoolAttributes:
-    """Provides access to memory pool attributes."""
+    """Provides access to memory pool attributes.
+
+    Setting an attribute changes the memory pool itself, which other memory
+    resources that share the pool, such as a device's default pool, also see.
+    Reading or setting an attribute does not affect a stream capture in
+    progress on any thread. The driver rejects reading or setting an
+    attribute of a memory resource mapped from another process
+    (``is_mapped``), which raises ``CUDAError``.
+    """
     cdef:
         MemoryPoolHandle _h_pool
 
@@ -61,9 +103,32 @@ cdef class _MemPoolAttributes:
         )
 
     cdef int _getattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except?-1:
+        cdef cydriver.CUstreamCaptureMode mode
+        cdef cydriver.CUresult err
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(as_cu(self._h_pool), attr_enum, value))
+            _enter_relaxed_capture_mode(&mode)
+            err = cydriver.cuMemPoolGetAttribute(as_cu(self._h_pool), attr_enum, value)
+            _exit_relaxed_capture_mode(err, &mode)
         return 0
+
+    cdef int _setattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except?-1:
+        cdef cydriver.CUstreamCaptureMode mode
+        cdef cydriver.CUresult err
+        with nogil:
+            _enter_relaxed_capture_mode(&mode)
+            err = cydriver.cuMemPoolSetAttribute(as_cu(self._h_pool), attr_enum, value)
+            _exit_relaxed_capture_mode(err, &mode)
+        return 0
+
+    cdef int _setflag(self, cydriver.CUmemPool_attribute attr_enum, bint flag) except?-1:
+        cdef int value = flag
+        return self._setattribute(attr_enum, &value)
+
+    cdef int _reset_watermark(self, cydriver.CUmemPool_attribute attr_enum, str name, value) except?-1:
+        if value != 0:
+            raise AttributeError(f"Attribute '{name}' may only be set to zero (got {value}).")
+        cdef cydriver.cuuint64_t zero = 0
+        return self._setattribute(attr_enum, &zero)
 
     @property
     def reuse_follow_event_dependencies(self) -> bool:
@@ -72,12 +137,20 @@ cdef class _MemPoolAttributes:
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES, &value)
         return bool(value)
 
+    @reuse_follow_event_dependencies.setter
+    def reuse_follow_event_dependencies(self, value: bool) -> None:
+        self._setflag(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_FOLLOW_EVENT_DEPENDENCIES, value)
+
     @property
     def reuse_allow_opportunistic(self) -> bool:
         """Allow reuse of completed frees without dependencies."""
         cdef int value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC, &value)
         return bool(value)
+
+    @reuse_allow_opportunistic.setter
+    def reuse_allow_opportunistic(self, value: bool) -> None:
+        self._setflag(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_OPPORTUNISTIC, value)
 
     @property
     def reuse_allow_internal_dependencies(self) -> bool:
@@ -86,12 +159,24 @@ cdef class _MemPoolAttributes:
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES, &value)
         return bool(value)
 
+    @reuse_allow_internal_dependencies.setter
+    def reuse_allow_internal_dependencies(self, value: bool) -> None:
+        self._setflag(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES, value)
+
     @property
     def release_threshold(self) -> int:
-        """Amount of reserved memory to hold before OS release."""
+        """
+        Amount of reserved memory, in bytes, to hold before OS release. When
+        more than this is reserved, the pool returns unused memory to the OS
+        at the next synchronization of an event, stream or device.
+        """
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &value)
         return int(value)
+
+    @release_threshold.setter
+    def release_threshold(self, uint64_t value) -> None:
+        self._setattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &value)
 
     @property
     def reserved_mem_current(self) -> int:
@@ -102,10 +187,18 @@ cdef class _MemPoolAttributes:
 
     @property
     def reserved_mem_high(self) -> int:
-        """High watermark of backing memory allocated."""
+        """
+        High watermark of backing memory allocated. It can be set to zero to
+        reset it to the current value.
+        """
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH, &value)
         return int(value)
+
+    @reserved_mem_high.setter
+    def reserved_mem_high(self, value: int) -> None:
+        self._reset_watermark(
+            cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RESERVED_MEM_HIGH, "reserved_mem_high", value)
 
     @property
     def used_mem_current(self) -> int:
@@ -116,10 +209,18 @@ cdef class _MemPoolAttributes:
 
     @property
     def used_mem_high(self) -> int:
-        """High watermark of memory in use."""
+        """
+        High watermark of memory in use. It can be set to zero to reset it to
+        the current value.
+        """
         cdef cydriver.cuuint64_t value
         self._getattribute(cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH, &value)
         return int(value)
+
+    @used_mem_high.setter
+    def used_mem_high(self, value: int) -> None:
+        self._reset_watermark(
+            cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_USED_MEM_HIGH, "used_mem_high", value)
 
 
 cdef class _MemPool(MemoryResource):
@@ -193,10 +294,33 @@ cdef class _MemPool(MemoryResource):
         cdef Stream s = Stream_accept(stream)
         _MP_deallocate(self, <uintptr_t>ptr, size, s)
 
+    def trim(self, size_t min_bytes_to_keep=0) -> None:
+        """Release unused memory held by the memory pool back to the OS.
+
+        Memory that backs live allocations is not released, nor is memory
+        freed on a stream until the host has observed the free through a
+        synchronization. Trimming does not affect a stream capture in progress
+        on any thread. The driver rejects trimming a memory resource mapped
+        from another process (``is_mapped``), which raises ``CUDAError``.
+
+        Parameters
+        ----------
+        min_bytes_to_keep : int, optional
+            Reserved memory, in bytes, that the pool keeps. Defaults to 0,
+            which releases all unused memory.
+        """
+        MP_check_open(self)
+        cdef cydriver.CUstreamCaptureMode mode
+        cdef cydriver.CUresult err
+        with nogil:
+            _enter_relaxed_capture_mode(&mode)
+            err = cydriver.cuMemPoolTrimTo(as_cu(self._h_pool), min_bytes_to_keep)
+            _exit_relaxed_capture_mode(err, &mode)
+
     @property
     @cython.critical_section
     def attributes(self) -> _MemPoolAttributes:
-        """Memory pool attributes."""
+        """:obj:`~_memory._memory_pool._MemPoolAttributes` object with the attributes of the memory pool."""
         MP_check_open(self)
         cdef _MemPoolAttributes attributes
         if self._attributes is None:
@@ -313,24 +437,16 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
     the OS as soon as there are no active suballocations.  Setting it to
     ULLONG_MAX avoids repeated OS round-trips.
 
-    Pool attribute reads and writes are potentially unsafe calls while the
-    calling thread is inside a global or thread-local stream capture: the
-    driver refuses them and invalidates the capture. Capture mode is a
-    per-thread property, so the thread is switched to relaxed mode around the
-    two calls and its previous mode is restored afterwards. This has no
-    observable effect when the thread is not capturing. The attribute write
-    executes immediately rather than being recorded into a graph, which is the
-    intent for a process-wide pool setting.
+    The read and the write run in relaxed capture mode, like every pool
+    attribute access (see ``_enter_relaxed_capture_mode``).
     """
     MP_check_open(self)
     cdef cydriver.cuuint64_t current_threshold
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
-    cdef cydriver.CUstreamCaptureMode mode = cydriver.CU_STREAM_CAPTURE_MODE_RELAXED
+    cdef cydriver.CUstreamCaptureMode mode
     cdef cydriver.CUresult err
-    cdef cydriver.CUresult restore_err
     with nogil:
-        # On return, mode holds the thread's previous capture mode.
-        HANDLE_RETURN(cydriver.cuThreadExchangeStreamCaptureMode(&mode))
+        _enter_relaxed_capture_mode(&mode)
         err = cydriver.cuMemPoolGetAttribute(
             as_cu(self._h_pool),
             cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
@@ -342,19 +458,97 @@ cdef int MP_raise_release_threshold(_MemPool self) except? -1:
                 cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                 &max_threshold
             )
-        restore_err = cydriver.cuThreadExchangeStreamCaptureMode(&mode)
-    try:
-        HANDLE_RETURN(err)
-    except:
-        if restore_err != cydriver.CUDA_SUCCESS:
-            # The attribute error propagates with the restore failure attached
-            # as a note (error handling policy).
-            attach_rollback_failure(
-                b"cuThreadExchangeStreamCaptureMode", restore_err,
-                b"failed to restore the thread's stream capture mode")
-        raise
-    HANDLE_RETURN(restore_err)
+        _exit_relaxed_capture_mode(err, &mode)
     return 0
+
+
+cdef int MP_set_access(
+        _MemPool self, const cydriver.CUmemAccessDesc* desc, size_t count,
+        bint retry_already_mapped=False) except? -1:
+    """Set device access to the pool.
+
+    Runs in relaxed capture mode, like every pool attribute access (see
+    ``_enter_relaxed_capture_mode``): the driver refuses cuMemPoolSetAccess,
+    and invalidates the capture, while a global-mode capture is active on
+    any thread or a thread-local one on the calling thread.
+
+    With ``retry_already_mapped``, each entry is set on its own, and an
+    identical second call follows a CUDA_ERROR_ALREADY_MAPPED. Importing a
+    pool that is already imported in this process returns the same
+    CUmemoryPool. Once its previous owner has revoked access and destroyed its
+    import, the driver can still hold the pool and fail a grant over the
+    mapping that an unsynchronized free left behind. The identical retry
+    succeeds (seen on drivers 580 and 595); with several devices, one retry of
+    a combined call is not enough. Any other status, and a second failure for
+    an entry, raise.
+    """
+    cdef cydriver.CUstreamCaptureMode mode
+    cdef cydriver.CUresult err = cydriver.CUDA_SUCCESS
+    cdef size_t i
+    with nogil:
+        _enter_relaxed_capture_mode(&mode)
+        if not retry_already_mapped:
+            err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc, count)
+        else:
+            for i in range(count):
+                err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc + i, 1)
+                if err == cydriver.CUDA_ERROR_ALREADY_MAPPED:
+                    err = cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), desc + i, 1)
+                if err != cydriver.CUDA_SUCCESS:
+                    break
+        _exit_relaxed_capture_mode(err, &mode)
+    return 0
+
+
+cdef bint MP_location_query_available() except? -1:
+    """Whether ``MP_get_location`` can query a pool's location.
+
+    ``CU_MEMPOOL_ATTR_LOCATION_TYPE`` and ``_ID`` are 13.2 driver attributes.
+    Every cuda-bindings at or above the CUDA 13 floor defines them, so only the
+    driver can lack them; an older driver rejects them as invalid.
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        # Not cy_driver_version(): imports run concurrently on free-threaded
+        # builds, and its cache is filled without synchronization. Tests replace
+        # this module's driver_version to exercise the pre-13.2 fallback.
+        return driver_version() >= (13, 2, 0)
+    ELSE:
+        return False
+
+
+cdef int MP_get_location(_MemPool self, cydriver.CUmemLocation* loc) except? -1:
+    """Store the pool's location type and ID in ``loc``.
+
+    Runs in relaxed capture mode, like every pool attribute access (see
+    ``_enter_relaxed_capture_mode``). Requires a CUDA 13 build and a 13.2 or
+    later driver (``MP_location_query_available``).
+    """
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        cdef int loc_type = 0
+        cdef int loc_id = 0
+        cdef cydriver.CUstreamCaptureMode mode
+        cdef cydriver.CUresult err
+        with nogil:
+            _enter_relaxed_capture_mode(&mode)
+            err = cydriver.cuMemPoolGetAttribute(
+                as_cu(self._h_pool),
+                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE,
+                &loc_type
+            )
+            if err == cydriver.CUDA_SUCCESS:
+                err = cydriver.cuMemPoolGetAttribute(
+                    as_cu(self._h_pool),
+                    cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID,
+                    &loc_id
+                )
+            _exit_relaxed_capture_mode(err, &mode)
+        loc.type = <cydriver.CUmemLocationType>loc_type
+        loc.id = loc_id
+        return 0
+    ELSE:
+        raise RuntimeError(
+            "Querying the location of a memory pool requires a CUDA 13 build of cuda.core"
+        )
 
 
 # Raise an exception if the given stream is capturing.

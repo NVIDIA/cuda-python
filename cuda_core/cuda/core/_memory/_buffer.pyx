@@ -316,7 +316,13 @@ cdef class Buffer:
             record_stream = mr.is_device_accessible
             self._h_ptr = deviceptr_create_with_mr(c_ptr, size, mr)
             if record_stream:
-                _ds_status = set_deallocation_stream(self._h_ptr, s._h_stream)
+                try:
+                    _ds_status = set_deallocation_stream(self._h_ptr, s._h_stream)
+                except MemoryError:
+                    # Reset for the same reason as below, inside the handler so the
+                    # destructor cannot swallow the MemoryError that is propagating.
+                    self._h_ptr.reset()
+                    raise
                 if _ds_status != cydriver.CUresult.CUDA_SUCCESS:
                     # Reset before raising: the DevicePtrHandle destructor would otherwise
                     # invoke _mr_dealloc_callback, which catches any inner exception and

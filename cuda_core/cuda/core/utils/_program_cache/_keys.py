@@ -14,7 +14,8 @@ from __future__ import annotations
 import abc
 import collections.abc
 import hashlib
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 # Mutual-dependency contract: this module imports ProgramOptions from
 # cuda.core._program at module level, and cuda.core._program imports
@@ -543,7 +544,8 @@ class _LinkerBackend(_KeyBackend):
         # so the bytes are still in the digest via ``linker_version``.
         use_driver = self._decide_driver()
         if use_driver is None:
-            assert self._cached_decision_exc is not None
+            if self._cached_decision_exc is None:
+                raise RuntimeError("internal cuda.core error, please report: linker probe failed without an exception")
             _hash_probe_failure(update, "linker", self._cached_decision_exc)
             return
         try:

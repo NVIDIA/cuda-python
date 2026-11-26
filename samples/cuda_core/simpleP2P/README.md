@@ -6,7 +6,7 @@ This sample demonstrates peer-to-peer (P2P) memory access between multiple GPUs 
 
 ## What you will learn
 
-- How to detect multiple CUDA-capable GPUs using `system.get_num_devices()` and `Device(id)`
+- How to detect multiple CUDA-capable GPUs using `Device.get_all_devices()` and `Device(id)`
 - How to check P2P capability between GPU pairs using `device.can_access_peer()`
 - How to enable and disable peer access using `DeviceMemoryResource.peer_accessible_by`
 - How to allocate device memory on specific GPUs using `DeviceMemoryResource`
@@ -27,7 +27,7 @@ This sample demonstrates peer-to-peer (P2P) memory access between multiple GPUs 
 
 **From cuda.core:**
 - `system` – Pre-instantiated singleton for system-level CUDA information
-- `system.get_num_devices()` – Get number of CUDA-capable devices
+- `Device.get_all_devices()` – Get the CUDA devices visible to this process
 - `Device(id)` – Get specific CUDA device handle
 - `device.can_access_peer(peer)` – Check if this device can access peer device memory
 - `device.set_current()` – Set active device for subsequent operations
@@ -67,6 +67,7 @@ This sample demonstrates peer-to-peer (P2P) memory access between multiple GPUs 
 ### Requirements
 - **Two or more GPUs**: System must have multiple CUDA-capable GPUs
 - **P2P support**: GPUs must be P2P-capable (check with `can_access_peer()`)
+- **Memory pools**: The GPUs must support device and host memory pools (check with `device.properties.memory_pools_supported` and `device.properties.host_memory_pools_supported`)
 - **PCIe topology**: Usually requires GPUs on same PCIe root complex
 - **Platform support**: Not available on Mac OSX, limited on ARM platforms
 
@@ -84,8 +85,9 @@ This sample demonstrates peer-to-peer (P2P) memory access between multiple GPUs 
 3. **CUDA Toolkit 13.0+** installed on your system
 4. **Python 3.11 or newer**
 5. **Proper PCIe topology** (GPUs should be on same PCIe root complex for best performance)
+6. **CUDA memory pools** support on both GPUs (device and host memory pools); used to allocate the peer-accessible buffers
 
-**Note**: This sample will gracefully exit if fewer than 2 GPUs are detected or if P2P is not supported between any GPU pair.
+**Note**: This sample will gracefully exit if fewer than 2 GPUs are detected, if P2P is not supported between any GPU pair, or if the GPUs do not support CUDA memory pools (for example, GPUs in TCC mode).
 
 **Install packages:**
 ```bash

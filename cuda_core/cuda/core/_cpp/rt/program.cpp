@@ -129,8 +129,9 @@ create_kernel_handle_ref(CUkernel kernel)
 LibraryHandle
 get_kernel_library(const KernelHandle &h) noexcept
 {
-    if (!h)
+    if (!h) {
         return {};
+    }
     return get_box(h)->h_library;
 }
 

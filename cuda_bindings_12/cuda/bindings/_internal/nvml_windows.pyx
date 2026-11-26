@@ -2,11 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5e4dabf79550bbf99149a55b67542f1b6bf20a48f3dbfd922848c16115418f5e
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=5afbd4bac3bbe9aa0425a1ec4550bb3581ebb148d47a9de0668ea72649f4b395
 
 
 # <<<< PREAMBLE CONTENT >>>>
+
+from libc.stdint cimport (
+    intptr_t,
+    uintptr_t,
+)
 
 cdef extern from * nogil:
     """
@@ -43,11 +48,6 @@ cdef extern from * nogil:
 cdef extern from "<windows.h>":
     ctypedef void* HMODULE
     void* _cyb_GetProcAddress "GetProcAddress"(HMODULE, const char*) nogil
-
-from libc.stdint cimport (
-    intptr_t,
-    uintptr_t,
-)
 
 import threading as _cyb_threading
 
@@ -434,1125 +434,409 @@ cdef void* __nvmlEventSetGetContextInfo_v1 = NULL
 cdef void* __nvmlEventSetGetContextData_v1 = NULL
 cdef void* __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = NULL
 cdef void* __nvmlDeviceGetBankRemapperStatus_v1 = NULL
+cdef void* __nvmlDeviceGetGpuUptime_v1 = NULL
+cdef void* __nvmlSystemGetConfComputeSettings_v2 = NULL
+cdef void* __nvmlDeviceGetNvLinkInfo_v3 = NULL
+cdef void* __nvmlDeviceGetNvlinkRemapTableInfo_v1 = NULL
+cdef void* __nvmlDeviceSetNvlinkNvleReady_v1 = NULL
+cdef void* __nvmlDeviceLockNvlinkRemapTable_v1 = NULL
+cdef void* __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 = NULL
+cdef void* __nvmlDeviceGetNvlinkNvlePrivateInfo_v1 = NULL
+
+cdef enum: _cyb_nvml_n_functions = 378
+cdef void** _cyb_nvml_slots[_cyb_nvml_n_functions]
+cdef const char* _cyb_nvml_names[_cyb_nvml_n_functions]
+_cyb_nvml_slots[0] = &__nvmlInit_v2; _cyb_nvml_names[0] = b'nvmlInit_v2'
+_cyb_nvml_slots[1] = &__nvmlInitWithFlags; _cyb_nvml_names[1] = b'nvmlInitWithFlags'
+_cyb_nvml_slots[2] = &__nvmlShutdown; _cyb_nvml_names[2] = b'nvmlShutdown'
+_cyb_nvml_slots[3] = &__nvmlErrorString; _cyb_nvml_names[3] = b'nvmlErrorString'
+_cyb_nvml_slots[4] = &__nvmlSystemGetDriverVersion; _cyb_nvml_names[4] = b'nvmlSystemGetDriverVersion'
+_cyb_nvml_slots[5] = &__nvmlSystemGetNVMLVersion; _cyb_nvml_names[5] = b'nvmlSystemGetNVMLVersion'
+_cyb_nvml_slots[6] = &__nvmlSystemGetCudaDriverVersion; _cyb_nvml_names[6] = b'nvmlSystemGetCudaDriverVersion'
+_cyb_nvml_slots[7] = &__nvmlSystemGetCudaDriverVersion_v2; _cyb_nvml_names[7] = b'nvmlSystemGetCudaDriverVersion_v2'
+_cyb_nvml_slots[8] = &__nvmlSystemGetProcessName; _cyb_nvml_names[8] = b'nvmlSystemGetProcessName'
+_cyb_nvml_slots[9] = &__nvmlSystemGetHicVersion; _cyb_nvml_names[9] = b'nvmlSystemGetHicVersion'
+_cyb_nvml_slots[10] = &__nvmlSystemGetTopologyGpuSet; _cyb_nvml_names[10] = b'nvmlSystemGetTopologyGpuSet'
+_cyb_nvml_slots[11] = &__nvmlSystemGetDriverBranch; _cyb_nvml_names[11] = b'nvmlSystemGetDriverBranch'
+_cyb_nvml_slots[12] = &__nvmlUnitGetCount; _cyb_nvml_names[12] = b'nvmlUnitGetCount'
+_cyb_nvml_slots[13] = &__nvmlUnitGetHandleByIndex; _cyb_nvml_names[13] = b'nvmlUnitGetHandleByIndex'
+_cyb_nvml_slots[14] = &__nvmlUnitGetUnitInfo; _cyb_nvml_names[14] = b'nvmlUnitGetUnitInfo'
+_cyb_nvml_slots[15] = &__nvmlUnitGetLedState; _cyb_nvml_names[15] = b'nvmlUnitGetLedState'
+_cyb_nvml_slots[16] = &__nvmlUnitGetPsuInfo; _cyb_nvml_names[16] = b'nvmlUnitGetPsuInfo'
+_cyb_nvml_slots[17] = &__nvmlUnitGetTemperature; _cyb_nvml_names[17] = b'nvmlUnitGetTemperature'
+_cyb_nvml_slots[18] = &__nvmlUnitGetFanSpeedInfo; _cyb_nvml_names[18] = b'nvmlUnitGetFanSpeedInfo'
+_cyb_nvml_slots[19] = &__nvmlUnitGetDevices; _cyb_nvml_names[19] = b'nvmlUnitGetDevices'
+_cyb_nvml_slots[20] = &__nvmlDeviceGetCount_v2; _cyb_nvml_names[20] = b'nvmlDeviceGetCount_v2'
+_cyb_nvml_slots[21] = &__nvmlDeviceGetAttributes_v2; _cyb_nvml_names[21] = b'nvmlDeviceGetAttributes_v2'
+_cyb_nvml_slots[22] = &__nvmlDeviceGetHandleByIndex_v2; _cyb_nvml_names[22] = b'nvmlDeviceGetHandleByIndex_v2'
+_cyb_nvml_slots[23] = &__nvmlDeviceGetHandleBySerial; _cyb_nvml_names[23] = b'nvmlDeviceGetHandleBySerial'
+_cyb_nvml_slots[24] = &__nvmlDeviceGetHandleByUUID; _cyb_nvml_names[24] = b'nvmlDeviceGetHandleByUUID'
+_cyb_nvml_slots[25] = &__nvmlDeviceGetHandleByUUIDV; _cyb_nvml_names[25] = b'nvmlDeviceGetHandleByUUIDV'
+_cyb_nvml_slots[26] = &__nvmlDeviceGetHandleByPciBusId_v2; _cyb_nvml_names[26] = b'nvmlDeviceGetHandleByPciBusId_v2'
+_cyb_nvml_slots[27] = &__nvmlDeviceGetName; _cyb_nvml_names[27] = b'nvmlDeviceGetName'
+_cyb_nvml_slots[28] = &__nvmlDeviceGetBrand; _cyb_nvml_names[28] = b'nvmlDeviceGetBrand'
+_cyb_nvml_slots[29] = &__nvmlDeviceGetIndex; _cyb_nvml_names[29] = b'nvmlDeviceGetIndex'
+_cyb_nvml_slots[30] = &__nvmlDeviceGetSerial; _cyb_nvml_names[30] = b'nvmlDeviceGetSerial'
+_cyb_nvml_slots[31] = &__nvmlDeviceGetModuleId; _cyb_nvml_names[31] = b'nvmlDeviceGetModuleId'
+_cyb_nvml_slots[32] = &__nvmlDeviceGetC2cModeInfoV; _cyb_nvml_names[32] = b'nvmlDeviceGetC2cModeInfoV'
+_cyb_nvml_slots[33] = &__nvmlDeviceGetMemoryAffinity; _cyb_nvml_names[33] = b'nvmlDeviceGetMemoryAffinity'
+_cyb_nvml_slots[34] = &__nvmlDeviceGetCpuAffinityWithinScope; _cyb_nvml_names[34] = b'nvmlDeviceGetCpuAffinityWithinScope'
+_cyb_nvml_slots[35] = &__nvmlDeviceGetCpuAffinity; _cyb_nvml_names[35] = b'nvmlDeviceGetCpuAffinity'
+_cyb_nvml_slots[36] = &__nvmlDeviceSetCpuAffinity; _cyb_nvml_names[36] = b'nvmlDeviceSetCpuAffinity'
+_cyb_nvml_slots[37] = &__nvmlDeviceClearCpuAffinity; _cyb_nvml_names[37] = b'nvmlDeviceClearCpuAffinity'
+_cyb_nvml_slots[38] = &__nvmlDeviceGetNumaNodeId; _cyb_nvml_names[38] = b'nvmlDeviceGetNumaNodeId'
+_cyb_nvml_slots[39] = &__nvmlDeviceGetTopologyCommonAncestor; _cyb_nvml_names[39] = b'nvmlDeviceGetTopologyCommonAncestor'
+_cyb_nvml_slots[40] = &__nvmlDeviceGetTopologyNearestGpus; _cyb_nvml_names[40] = b'nvmlDeviceGetTopologyNearestGpus'
+_cyb_nvml_slots[41] = &__nvmlDeviceGetP2PStatus; _cyb_nvml_names[41] = b'nvmlDeviceGetP2PStatus'
+_cyb_nvml_slots[42] = &__nvmlDeviceGetUUID; _cyb_nvml_names[42] = b'nvmlDeviceGetUUID'
+_cyb_nvml_slots[43] = &__nvmlDeviceGetMinorNumber; _cyb_nvml_names[43] = b'nvmlDeviceGetMinorNumber'
+_cyb_nvml_slots[44] = &__nvmlDeviceGetBoardPartNumber; _cyb_nvml_names[44] = b'nvmlDeviceGetBoardPartNumber'
+_cyb_nvml_slots[45] = &__nvmlDeviceGetInforomVersion; _cyb_nvml_names[45] = b'nvmlDeviceGetInforomVersion'
+_cyb_nvml_slots[46] = &__nvmlDeviceGetInforomImageVersion; _cyb_nvml_names[46] = b'nvmlDeviceGetInforomImageVersion'
+_cyb_nvml_slots[47] = &__nvmlDeviceGetInforomConfigurationChecksum; _cyb_nvml_names[47] = b'nvmlDeviceGetInforomConfigurationChecksum'
+_cyb_nvml_slots[48] = &__nvmlDeviceValidateInforom; _cyb_nvml_names[48] = b'nvmlDeviceValidateInforom'
+_cyb_nvml_slots[49] = &__nvmlDeviceGetLastBBXFlushTime; _cyb_nvml_names[49] = b'nvmlDeviceGetLastBBXFlushTime'
+_cyb_nvml_slots[50] = &__nvmlDeviceGetDisplayMode; _cyb_nvml_names[50] = b'nvmlDeviceGetDisplayMode'
+_cyb_nvml_slots[51] = &__nvmlDeviceGetDisplayActive; _cyb_nvml_names[51] = b'nvmlDeviceGetDisplayActive'
+_cyb_nvml_slots[52] = &__nvmlDeviceGetPersistenceMode; _cyb_nvml_names[52] = b'nvmlDeviceGetPersistenceMode'
+_cyb_nvml_slots[53] = &__nvmlDeviceGetPciInfoExt; _cyb_nvml_names[53] = b'nvmlDeviceGetPciInfoExt'
+_cyb_nvml_slots[54] = &__nvmlDeviceGetPciInfo_v3; _cyb_nvml_names[54] = b'nvmlDeviceGetPciInfo_v3'
+_cyb_nvml_slots[55] = &__nvmlDeviceGetMaxPcieLinkGeneration; _cyb_nvml_names[55] = b'nvmlDeviceGetMaxPcieLinkGeneration'
+_cyb_nvml_slots[56] = &__nvmlDeviceGetGpuMaxPcieLinkGeneration; _cyb_nvml_names[56] = b'nvmlDeviceGetGpuMaxPcieLinkGeneration'
+_cyb_nvml_slots[57] = &__nvmlDeviceGetMaxPcieLinkWidth; _cyb_nvml_names[57] = b'nvmlDeviceGetMaxPcieLinkWidth'
+_cyb_nvml_slots[58] = &__nvmlDeviceGetCurrPcieLinkGeneration; _cyb_nvml_names[58] = b'nvmlDeviceGetCurrPcieLinkGeneration'
+_cyb_nvml_slots[59] = &__nvmlDeviceGetCurrPcieLinkWidth; _cyb_nvml_names[59] = b'nvmlDeviceGetCurrPcieLinkWidth'
+_cyb_nvml_slots[60] = &__nvmlDeviceGetPcieThroughput; _cyb_nvml_names[60] = b'nvmlDeviceGetPcieThroughput'
+_cyb_nvml_slots[61] = &__nvmlDeviceGetPcieReplayCounter; _cyb_nvml_names[61] = b'nvmlDeviceGetPcieReplayCounter'
+_cyb_nvml_slots[62] = &__nvmlDeviceGetClockInfo; _cyb_nvml_names[62] = b'nvmlDeviceGetClockInfo'
+_cyb_nvml_slots[63] = &__nvmlDeviceGetMaxClockInfo; _cyb_nvml_names[63] = b'nvmlDeviceGetMaxClockInfo'
+_cyb_nvml_slots[64] = &__nvmlDeviceGetGpcClkVfOffset; _cyb_nvml_names[64] = b'nvmlDeviceGetGpcClkVfOffset'
+_cyb_nvml_slots[65] = &__nvmlDeviceGetClock; _cyb_nvml_names[65] = b'nvmlDeviceGetClock'
+_cyb_nvml_slots[66] = &__nvmlDeviceGetMaxCustomerBoostClock; _cyb_nvml_names[66] = b'nvmlDeviceGetMaxCustomerBoostClock'
+_cyb_nvml_slots[67] = &__nvmlDeviceGetSupportedMemoryClocks; _cyb_nvml_names[67] = b'nvmlDeviceGetSupportedMemoryClocks'
+_cyb_nvml_slots[68] = &__nvmlDeviceGetSupportedGraphicsClocks; _cyb_nvml_names[68] = b'nvmlDeviceGetSupportedGraphicsClocks'
+_cyb_nvml_slots[69] = &__nvmlDeviceGetAutoBoostedClocksEnabled; _cyb_nvml_names[69] = b'nvmlDeviceGetAutoBoostedClocksEnabled'
+_cyb_nvml_slots[70] = &__nvmlDeviceGetFanSpeed; _cyb_nvml_names[70] = b'nvmlDeviceGetFanSpeed'
+_cyb_nvml_slots[71] = &__nvmlDeviceGetFanSpeed_v2; _cyb_nvml_names[71] = b'nvmlDeviceGetFanSpeed_v2'
+_cyb_nvml_slots[72] = &__nvmlDeviceGetFanSpeedRPM; _cyb_nvml_names[72] = b'nvmlDeviceGetFanSpeedRPM'
+_cyb_nvml_slots[73] = &__nvmlDeviceGetTargetFanSpeed; _cyb_nvml_names[73] = b'nvmlDeviceGetTargetFanSpeed'
+_cyb_nvml_slots[74] = &__nvmlDeviceGetMinMaxFanSpeed; _cyb_nvml_names[74] = b'nvmlDeviceGetMinMaxFanSpeed'
+_cyb_nvml_slots[75] = &__nvmlDeviceGetFanControlPolicy_v2; _cyb_nvml_names[75] = b'nvmlDeviceGetFanControlPolicy_v2'
+_cyb_nvml_slots[76] = &__nvmlDeviceGetNumFans; _cyb_nvml_names[76] = b'nvmlDeviceGetNumFans'
+_cyb_nvml_slots[77] = &__nvmlDeviceGetCoolerInfo; _cyb_nvml_names[77] = b'nvmlDeviceGetCoolerInfo'
+_cyb_nvml_slots[78] = &__nvmlDeviceGetTemperatureV; _cyb_nvml_names[78] = b'nvmlDeviceGetTemperatureV'
+_cyb_nvml_slots[79] = &__nvmlDeviceGetTemperatureThreshold; _cyb_nvml_names[79] = b'nvmlDeviceGetTemperatureThreshold'
+_cyb_nvml_slots[80] = &__nvmlDeviceGetMarginTemperature; _cyb_nvml_names[80] = b'nvmlDeviceGetMarginTemperature'
+_cyb_nvml_slots[81] = &__nvmlDeviceGetThermalSettings; _cyb_nvml_names[81] = b'nvmlDeviceGetThermalSettings'
+_cyb_nvml_slots[82] = &__nvmlDeviceGetPerformanceState; _cyb_nvml_names[82] = b'nvmlDeviceGetPerformanceState'
+_cyb_nvml_slots[83] = &__nvmlDeviceGetCurrentClocksEventReasons; _cyb_nvml_names[83] = b'nvmlDeviceGetCurrentClocksEventReasons'
+_cyb_nvml_slots[84] = &__nvmlDeviceGetSupportedClocksEventReasons; _cyb_nvml_names[84] = b'nvmlDeviceGetSupportedClocksEventReasons'
+_cyb_nvml_slots[85] = &__nvmlDeviceGetPowerState; _cyb_nvml_names[85] = b'nvmlDeviceGetPowerState'
+_cyb_nvml_slots[86] = &__nvmlDeviceGetDynamicPstatesInfo; _cyb_nvml_names[86] = b'nvmlDeviceGetDynamicPstatesInfo'
+_cyb_nvml_slots[87] = &__nvmlDeviceGetMemClkVfOffset; _cyb_nvml_names[87] = b'nvmlDeviceGetMemClkVfOffset'
+_cyb_nvml_slots[88] = &__nvmlDeviceGetMinMaxClockOfPState; _cyb_nvml_names[88] = b'nvmlDeviceGetMinMaxClockOfPState'
+_cyb_nvml_slots[89] = &__nvmlDeviceGetSupportedPerformanceStates; _cyb_nvml_names[89] = b'nvmlDeviceGetSupportedPerformanceStates'
+_cyb_nvml_slots[90] = &__nvmlDeviceGetGpcClkMinMaxVfOffset; _cyb_nvml_names[90] = b'nvmlDeviceGetGpcClkMinMaxVfOffset'
+_cyb_nvml_slots[91] = &__nvmlDeviceGetMemClkMinMaxVfOffset; _cyb_nvml_names[91] = b'nvmlDeviceGetMemClkMinMaxVfOffset'
+_cyb_nvml_slots[92] = &__nvmlDeviceGetClockOffsets; _cyb_nvml_names[92] = b'nvmlDeviceGetClockOffsets'
+_cyb_nvml_slots[93] = &__nvmlDeviceSetClockOffsets; _cyb_nvml_names[93] = b'nvmlDeviceSetClockOffsets'
+_cyb_nvml_slots[94] = &__nvmlDeviceGetPerformanceModes; _cyb_nvml_names[94] = b'nvmlDeviceGetPerformanceModes'
+_cyb_nvml_slots[95] = &__nvmlDeviceGetCurrentClockFreqs; _cyb_nvml_names[95] = b'nvmlDeviceGetCurrentClockFreqs'
+_cyb_nvml_slots[96] = &__nvmlDeviceGetPowerManagementLimit; _cyb_nvml_names[96] = b'nvmlDeviceGetPowerManagementLimit'
+_cyb_nvml_slots[97] = &__nvmlDeviceGetPowerManagementLimitConstraints; _cyb_nvml_names[97] = b'nvmlDeviceGetPowerManagementLimitConstraints'
+_cyb_nvml_slots[98] = &__nvmlDeviceGetPowerManagementDefaultLimit; _cyb_nvml_names[98] = b'nvmlDeviceGetPowerManagementDefaultLimit'
+_cyb_nvml_slots[99] = &__nvmlDeviceGetPowerUsage; _cyb_nvml_names[99] = b'nvmlDeviceGetPowerUsage'
+_cyb_nvml_slots[100] = &__nvmlDeviceGetTotalEnergyConsumption; _cyb_nvml_names[100] = b'nvmlDeviceGetTotalEnergyConsumption'
+_cyb_nvml_slots[101] = &__nvmlDeviceGetEnforcedPowerLimit; _cyb_nvml_names[101] = b'nvmlDeviceGetEnforcedPowerLimit'
+_cyb_nvml_slots[102] = &__nvmlDeviceGetGpuOperationMode; _cyb_nvml_names[102] = b'nvmlDeviceGetGpuOperationMode'
+_cyb_nvml_slots[103] = &__nvmlDeviceGetMemoryInfo_v2; _cyb_nvml_names[103] = b'nvmlDeviceGetMemoryInfo_v2'
+_cyb_nvml_slots[104] = &__nvmlDeviceGetComputeMode; _cyb_nvml_names[104] = b'nvmlDeviceGetComputeMode'
+_cyb_nvml_slots[105] = &__nvmlDeviceGetCudaComputeCapability; _cyb_nvml_names[105] = b'nvmlDeviceGetCudaComputeCapability'
+_cyb_nvml_slots[106] = &__nvmlDeviceGetDramEncryptionMode; _cyb_nvml_names[106] = b'nvmlDeviceGetDramEncryptionMode'
+_cyb_nvml_slots[107] = &__nvmlDeviceSetDramEncryptionMode; _cyb_nvml_names[107] = b'nvmlDeviceSetDramEncryptionMode'
+_cyb_nvml_slots[108] = &__nvmlDeviceGetEccMode; _cyb_nvml_names[108] = b'nvmlDeviceGetEccMode'
+_cyb_nvml_slots[109] = &__nvmlDeviceGetDefaultEccMode; _cyb_nvml_names[109] = b'nvmlDeviceGetDefaultEccMode'
+_cyb_nvml_slots[110] = &__nvmlDeviceGetBoardId; _cyb_nvml_names[110] = b'nvmlDeviceGetBoardId'
+_cyb_nvml_slots[111] = &__nvmlDeviceGetMultiGpuBoard; _cyb_nvml_names[111] = b'nvmlDeviceGetMultiGpuBoard'
+_cyb_nvml_slots[112] = &__nvmlDeviceGetTotalEccErrors; _cyb_nvml_names[112] = b'nvmlDeviceGetTotalEccErrors'
+_cyb_nvml_slots[113] = &__nvmlDeviceGetMemoryErrorCounter; _cyb_nvml_names[113] = b'nvmlDeviceGetMemoryErrorCounter'
+_cyb_nvml_slots[114] = &__nvmlDeviceGetUtilizationRates; _cyb_nvml_names[114] = b'nvmlDeviceGetUtilizationRates'
+_cyb_nvml_slots[115] = &__nvmlDeviceGetEncoderUtilization; _cyb_nvml_names[115] = b'nvmlDeviceGetEncoderUtilization'
+_cyb_nvml_slots[116] = &__nvmlDeviceGetEncoderCapacity; _cyb_nvml_names[116] = b'nvmlDeviceGetEncoderCapacity'
+_cyb_nvml_slots[117] = &__nvmlDeviceGetEncoderStats; _cyb_nvml_names[117] = b'nvmlDeviceGetEncoderStats'
+_cyb_nvml_slots[118] = &__nvmlDeviceGetEncoderSessions; _cyb_nvml_names[118] = b'nvmlDeviceGetEncoderSessions'
+_cyb_nvml_slots[119] = &__nvmlDeviceGetDecoderUtilization; _cyb_nvml_names[119] = b'nvmlDeviceGetDecoderUtilization'
+_cyb_nvml_slots[120] = &__nvmlDeviceGetJpgUtilization; _cyb_nvml_names[120] = b'nvmlDeviceGetJpgUtilization'
+_cyb_nvml_slots[121] = &__nvmlDeviceGetOfaUtilization; _cyb_nvml_names[121] = b'nvmlDeviceGetOfaUtilization'
+_cyb_nvml_slots[122] = &__nvmlDeviceGetFBCStats; _cyb_nvml_names[122] = b'nvmlDeviceGetFBCStats'
+_cyb_nvml_slots[123] = &__nvmlDeviceGetFBCSessions; _cyb_nvml_names[123] = b'nvmlDeviceGetFBCSessions'
+_cyb_nvml_slots[124] = &__nvmlDeviceGetDriverModel_v2; _cyb_nvml_names[124] = b'nvmlDeviceGetDriverModel_v2'
+_cyb_nvml_slots[125] = &__nvmlDeviceGetVbiosVersion; _cyb_nvml_names[125] = b'nvmlDeviceGetVbiosVersion'
+_cyb_nvml_slots[126] = &__nvmlDeviceGetBridgeChipInfo; _cyb_nvml_names[126] = b'nvmlDeviceGetBridgeChipInfo'
+_cyb_nvml_slots[127] = &__nvmlDeviceGetComputeRunningProcesses_v3; _cyb_nvml_names[127] = b'nvmlDeviceGetComputeRunningProcesses_v3'
+_cyb_nvml_slots[128] = &__nvmlDeviceGetGraphicsRunningProcesses_v3; _cyb_nvml_names[128] = b'nvmlDeviceGetGraphicsRunningProcesses_v3'
+_cyb_nvml_slots[129] = &__nvmlDeviceGetMPSComputeRunningProcesses_v3; _cyb_nvml_names[129] = b'nvmlDeviceGetMPSComputeRunningProcesses_v3'
+_cyb_nvml_slots[130] = &__nvmlDeviceGetRunningProcessDetailList; _cyb_nvml_names[130] = b'nvmlDeviceGetRunningProcessDetailList'
+_cyb_nvml_slots[131] = &__nvmlDeviceOnSameBoard; _cyb_nvml_names[131] = b'nvmlDeviceOnSameBoard'
+_cyb_nvml_slots[132] = &__nvmlDeviceGetAPIRestriction; _cyb_nvml_names[132] = b'nvmlDeviceGetAPIRestriction'
+_cyb_nvml_slots[133] = &__nvmlDeviceGetSamples; _cyb_nvml_names[133] = b'nvmlDeviceGetSamples'
+_cyb_nvml_slots[134] = &__nvmlDeviceGetBAR1MemoryInfo; _cyb_nvml_names[134] = b'nvmlDeviceGetBAR1MemoryInfo'
+_cyb_nvml_slots[135] = &__nvmlDeviceGetIrqNum; _cyb_nvml_names[135] = b'nvmlDeviceGetIrqNum'
+_cyb_nvml_slots[136] = &__nvmlDeviceGetNumGpuCores; _cyb_nvml_names[136] = b'nvmlDeviceGetNumGpuCores'
+_cyb_nvml_slots[137] = &__nvmlDeviceGetPowerSource; _cyb_nvml_names[137] = b'nvmlDeviceGetPowerSource'
+_cyb_nvml_slots[138] = &__nvmlDeviceGetMemoryBusWidth; _cyb_nvml_names[138] = b'nvmlDeviceGetMemoryBusWidth'
+_cyb_nvml_slots[139] = &__nvmlDeviceGetPcieLinkMaxSpeed; _cyb_nvml_names[139] = b'nvmlDeviceGetPcieLinkMaxSpeed'
+_cyb_nvml_slots[140] = &__nvmlDeviceGetPcieSpeed; _cyb_nvml_names[140] = b'nvmlDeviceGetPcieSpeed'
+_cyb_nvml_slots[141] = &__nvmlDeviceGetAdaptiveClockInfoStatus; _cyb_nvml_names[141] = b'nvmlDeviceGetAdaptiveClockInfoStatus'
+_cyb_nvml_slots[142] = &__nvmlDeviceGetBusType; _cyb_nvml_names[142] = b'nvmlDeviceGetBusType'
+_cyb_nvml_slots[143] = &__nvmlDeviceGetGpuFabricInfoV; _cyb_nvml_names[143] = b'nvmlDeviceGetGpuFabricInfoV'
+_cyb_nvml_slots[144] = &__nvmlSystemGetConfComputeCapabilities; _cyb_nvml_names[144] = b'nvmlSystemGetConfComputeCapabilities'
+_cyb_nvml_slots[145] = &__nvmlSystemGetConfComputeState; _cyb_nvml_names[145] = b'nvmlSystemGetConfComputeState'
+_cyb_nvml_slots[146] = &__nvmlDeviceGetConfComputeMemSizeInfo; _cyb_nvml_names[146] = b'nvmlDeviceGetConfComputeMemSizeInfo'
+_cyb_nvml_slots[147] = &__nvmlSystemGetConfComputeGpusReadyState; _cyb_nvml_names[147] = b'nvmlSystemGetConfComputeGpusReadyState'
+_cyb_nvml_slots[148] = &__nvmlDeviceGetConfComputeProtectedMemoryUsage; _cyb_nvml_names[148] = b'nvmlDeviceGetConfComputeProtectedMemoryUsage'
+_cyb_nvml_slots[149] = &__nvmlDeviceGetConfComputeGpuCertificate; _cyb_nvml_names[149] = b'nvmlDeviceGetConfComputeGpuCertificate'
+_cyb_nvml_slots[150] = &__nvmlDeviceGetConfComputeGpuAttestationReport; _cyb_nvml_names[150] = b'nvmlDeviceGetConfComputeGpuAttestationReport'
+_cyb_nvml_slots[151] = &__nvmlSystemGetConfComputeKeyRotationThresholdInfo; _cyb_nvml_names[151] = b'nvmlSystemGetConfComputeKeyRotationThresholdInfo'
+_cyb_nvml_slots[152] = &__nvmlDeviceSetConfComputeUnprotectedMemSize; _cyb_nvml_names[152] = b'nvmlDeviceSetConfComputeUnprotectedMemSize'
+_cyb_nvml_slots[153] = &__nvmlSystemSetConfComputeGpusReadyState; _cyb_nvml_names[153] = b'nvmlSystemSetConfComputeGpusReadyState'
+_cyb_nvml_slots[154] = &__nvmlSystemSetConfComputeKeyRotationThresholdInfo; _cyb_nvml_names[154] = b'nvmlSystemSetConfComputeKeyRotationThresholdInfo'
+_cyb_nvml_slots[155] = &__nvmlSystemGetConfComputeSettings; _cyb_nvml_names[155] = b'nvmlSystemGetConfComputeSettings'
+_cyb_nvml_slots[156] = &__nvmlDeviceGetGspFirmwareVersion; _cyb_nvml_names[156] = b'nvmlDeviceGetGspFirmwareVersion'
+_cyb_nvml_slots[157] = &__nvmlDeviceGetGspFirmwareMode; _cyb_nvml_names[157] = b'nvmlDeviceGetGspFirmwareMode'
+_cyb_nvml_slots[158] = &__nvmlDeviceGetSramEccErrorStatus; _cyb_nvml_names[158] = b'nvmlDeviceGetSramEccErrorStatus'
+_cyb_nvml_slots[159] = &__nvmlDeviceGetAccountingMode; _cyb_nvml_names[159] = b'nvmlDeviceGetAccountingMode'
+_cyb_nvml_slots[160] = &__nvmlDeviceGetAccountingStats; _cyb_nvml_names[160] = b'nvmlDeviceGetAccountingStats'
+_cyb_nvml_slots[161] = &__nvmlDeviceGetAccountingPids; _cyb_nvml_names[161] = b'nvmlDeviceGetAccountingPids'
+_cyb_nvml_slots[162] = &__nvmlDeviceGetAccountingBufferSize; _cyb_nvml_names[162] = b'nvmlDeviceGetAccountingBufferSize'
+_cyb_nvml_slots[163] = &__nvmlDeviceGetRetiredPages; _cyb_nvml_names[163] = b'nvmlDeviceGetRetiredPages'
+_cyb_nvml_slots[164] = &__nvmlDeviceGetRetiredPages_v2; _cyb_nvml_names[164] = b'nvmlDeviceGetRetiredPages_v2'
+_cyb_nvml_slots[165] = &__nvmlDeviceGetRetiredPagesPendingStatus; _cyb_nvml_names[165] = b'nvmlDeviceGetRetiredPagesPendingStatus'
+_cyb_nvml_slots[166] = &__nvmlDeviceGetRemappedRows; _cyb_nvml_names[166] = b'nvmlDeviceGetRemappedRows'
+_cyb_nvml_slots[167] = &__nvmlDeviceGetRowRemapperHistogram; _cyb_nvml_names[167] = b'nvmlDeviceGetRowRemapperHistogram'
+_cyb_nvml_slots[168] = &__nvmlDeviceGetArchitecture; _cyb_nvml_names[168] = b'nvmlDeviceGetArchitecture'
+_cyb_nvml_slots[169] = &__nvmlDeviceGetClkMonStatus; _cyb_nvml_names[169] = b'nvmlDeviceGetClkMonStatus'
+_cyb_nvml_slots[170] = &__nvmlDeviceGetProcessUtilization; _cyb_nvml_names[170] = b'nvmlDeviceGetProcessUtilization'
+_cyb_nvml_slots[171] = &__nvmlDeviceGetProcessesUtilizationInfo; _cyb_nvml_names[171] = b'nvmlDeviceGetProcessesUtilizationInfo'
+_cyb_nvml_slots[172] = &__nvmlDeviceGetPlatformInfo; _cyb_nvml_names[172] = b'nvmlDeviceGetPlatformInfo'
+_cyb_nvml_slots[173] = &__nvmlUnitSetLedState; _cyb_nvml_names[173] = b'nvmlUnitSetLedState'
+_cyb_nvml_slots[174] = &__nvmlDeviceSetPersistenceMode; _cyb_nvml_names[174] = b'nvmlDeviceSetPersistenceMode'
+_cyb_nvml_slots[175] = &__nvmlDeviceSetComputeMode; _cyb_nvml_names[175] = b'nvmlDeviceSetComputeMode'
+_cyb_nvml_slots[176] = &__nvmlDeviceSetEccMode; _cyb_nvml_names[176] = b'nvmlDeviceSetEccMode'
+_cyb_nvml_slots[177] = &__nvmlDeviceClearEccErrorCounts; _cyb_nvml_names[177] = b'nvmlDeviceClearEccErrorCounts'
+_cyb_nvml_slots[178] = &__nvmlDeviceSetDriverModel; _cyb_nvml_names[178] = b'nvmlDeviceSetDriverModel'
+_cyb_nvml_slots[179] = &__nvmlDeviceSetGpuLockedClocks; _cyb_nvml_names[179] = b'nvmlDeviceSetGpuLockedClocks'
+_cyb_nvml_slots[180] = &__nvmlDeviceResetGpuLockedClocks; _cyb_nvml_names[180] = b'nvmlDeviceResetGpuLockedClocks'
+_cyb_nvml_slots[181] = &__nvmlDeviceSetMemoryLockedClocks; _cyb_nvml_names[181] = b'nvmlDeviceSetMemoryLockedClocks'
+_cyb_nvml_slots[182] = &__nvmlDeviceResetMemoryLockedClocks; _cyb_nvml_names[182] = b'nvmlDeviceResetMemoryLockedClocks'
+_cyb_nvml_slots[183] = &__nvmlDeviceSetAutoBoostedClocksEnabled; _cyb_nvml_names[183] = b'nvmlDeviceSetAutoBoostedClocksEnabled'
+_cyb_nvml_slots[184] = &__nvmlDeviceSetDefaultAutoBoostedClocksEnabled; _cyb_nvml_names[184] = b'nvmlDeviceSetDefaultAutoBoostedClocksEnabled'
+_cyb_nvml_slots[185] = &__nvmlDeviceSetDefaultFanSpeed_v2; _cyb_nvml_names[185] = b'nvmlDeviceSetDefaultFanSpeed_v2'
+_cyb_nvml_slots[186] = &__nvmlDeviceSetFanControlPolicy; _cyb_nvml_names[186] = b'nvmlDeviceSetFanControlPolicy'
+_cyb_nvml_slots[187] = &__nvmlDeviceSetTemperatureThreshold; _cyb_nvml_names[187] = b'nvmlDeviceSetTemperatureThreshold'
+_cyb_nvml_slots[188] = &__nvmlDeviceSetGpuOperationMode; _cyb_nvml_names[188] = b'nvmlDeviceSetGpuOperationMode'
+_cyb_nvml_slots[189] = &__nvmlDeviceSetAPIRestriction; _cyb_nvml_names[189] = b'nvmlDeviceSetAPIRestriction'
+_cyb_nvml_slots[190] = &__nvmlDeviceSetFanSpeed_v2; _cyb_nvml_names[190] = b'nvmlDeviceSetFanSpeed_v2'
+_cyb_nvml_slots[191] = &__nvmlDeviceSetAccountingMode; _cyb_nvml_names[191] = b'nvmlDeviceSetAccountingMode'
+_cyb_nvml_slots[192] = &__nvmlDeviceClearAccountingPids; _cyb_nvml_names[192] = b'nvmlDeviceClearAccountingPids'
+_cyb_nvml_slots[193] = &__nvmlDeviceSetPowerManagementLimit_v2; _cyb_nvml_names[193] = b'nvmlDeviceSetPowerManagementLimit_v2'
+_cyb_nvml_slots[194] = &__nvmlDeviceGetNvLinkState; _cyb_nvml_names[194] = b'nvmlDeviceGetNvLinkState'
+_cyb_nvml_slots[195] = &__nvmlDeviceGetNvLinkVersion; _cyb_nvml_names[195] = b'nvmlDeviceGetNvLinkVersion'
+_cyb_nvml_slots[196] = &__nvmlDeviceGetNvLinkCapability; _cyb_nvml_names[196] = b'nvmlDeviceGetNvLinkCapability'
+_cyb_nvml_slots[197] = &__nvmlDeviceGetNvLinkRemotePciInfo_v2; _cyb_nvml_names[197] = b'nvmlDeviceGetNvLinkRemotePciInfo_v2'
+_cyb_nvml_slots[198] = &__nvmlDeviceGetNvLinkErrorCounter; _cyb_nvml_names[198] = b'nvmlDeviceGetNvLinkErrorCounter'
+_cyb_nvml_slots[199] = &__nvmlDeviceResetNvLinkErrorCounters; _cyb_nvml_names[199] = b'nvmlDeviceResetNvLinkErrorCounters'
+_cyb_nvml_slots[200] = &__nvmlDeviceGetNvLinkRemoteDeviceType; _cyb_nvml_names[200] = b'nvmlDeviceGetNvLinkRemoteDeviceType'
+_cyb_nvml_slots[201] = &__nvmlDeviceSetNvLinkDeviceLowPowerThreshold; _cyb_nvml_names[201] = b'nvmlDeviceSetNvLinkDeviceLowPowerThreshold'
+_cyb_nvml_slots[202] = &__nvmlSystemSetNvlinkBwMode; _cyb_nvml_names[202] = b'nvmlSystemSetNvlinkBwMode'
+_cyb_nvml_slots[203] = &__nvmlSystemGetNvlinkBwMode; _cyb_nvml_names[203] = b'nvmlSystemGetNvlinkBwMode'
+_cyb_nvml_slots[204] = &__nvmlDeviceGetNvlinkSupportedBwModes; _cyb_nvml_names[204] = b'nvmlDeviceGetNvlinkSupportedBwModes'
+_cyb_nvml_slots[205] = &__nvmlDeviceGetNvlinkBwMode; _cyb_nvml_names[205] = b'nvmlDeviceGetNvlinkBwMode'
+_cyb_nvml_slots[206] = &__nvmlDeviceSetNvlinkBwMode; _cyb_nvml_names[206] = b'nvmlDeviceSetNvlinkBwMode'
+_cyb_nvml_slots[207] = &__nvmlEventSetCreate; _cyb_nvml_names[207] = b'nvmlEventSetCreate'
+_cyb_nvml_slots[208] = &__nvmlDeviceRegisterEvents; _cyb_nvml_names[208] = b'nvmlDeviceRegisterEvents'
+_cyb_nvml_slots[209] = &__nvmlDeviceGetSupportedEventTypes; _cyb_nvml_names[209] = b'nvmlDeviceGetSupportedEventTypes'
+_cyb_nvml_slots[210] = &__nvmlEventSetWait_v2; _cyb_nvml_names[210] = b'nvmlEventSetWait_v2'
+_cyb_nvml_slots[211] = &__nvmlEventSetFree; _cyb_nvml_names[211] = b'nvmlEventSetFree'
+_cyb_nvml_slots[212] = &__nvmlSystemEventSetCreate; _cyb_nvml_names[212] = b'nvmlSystemEventSetCreate'
+_cyb_nvml_slots[213] = &__nvmlSystemEventSetFree; _cyb_nvml_names[213] = b'nvmlSystemEventSetFree'
+_cyb_nvml_slots[214] = &__nvmlSystemRegisterEvents; _cyb_nvml_names[214] = b'nvmlSystemRegisterEvents'
+_cyb_nvml_slots[215] = &__nvmlSystemEventSetWait; _cyb_nvml_names[215] = b'nvmlSystemEventSetWait'
+_cyb_nvml_slots[216] = &__nvmlDeviceModifyDrainState; _cyb_nvml_names[216] = b'nvmlDeviceModifyDrainState'
+_cyb_nvml_slots[217] = &__nvmlDeviceQueryDrainState; _cyb_nvml_names[217] = b'nvmlDeviceQueryDrainState'
+_cyb_nvml_slots[218] = &__nvmlDeviceRemoveGpu_v2; _cyb_nvml_names[218] = b'nvmlDeviceRemoveGpu_v2'
+_cyb_nvml_slots[219] = &__nvmlDeviceDiscoverGpus; _cyb_nvml_names[219] = b'nvmlDeviceDiscoverGpus'
+_cyb_nvml_slots[220] = &__nvmlDeviceGetFieldValues; _cyb_nvml_names[220] = b'nvmlDeviceGetFieldValues'
+_cyb_nvml_slots[221] = &__nvmlDeviceClearFieldValues; _cyb_nvml_names[221] = b'nvmlDeviceClearFieldValues'
+_cyb_nvml_slots[222] = &__nvmlDeviceGetVirtualizationMode; _cyb_nvml_names[222] = b'nvmlDeviceGetVirtualizationMode'
+_cyb_nvml_slots[223] = &__nvmlDeviceGetHostVgpuMode; _cyb_nvml_names[223] = b'nvmlDeviceGetHostVgpuMode'
+_cyb_nvml_slots[224] = &__nvmlDeviceSetVirtualizationMode; _cyb_nvml_names[224] = b'nvmlDeviceSetVirtualizationMode'
+_cyb_nvml_slots[225] = &__nvmlDeviceGetVgpuHeterogeneousMode; _cyb_nvml_names[225] = b'nvmlDeviceGetVgpuHeterogeneousMode'
+_cyb_nvml_slots[226] = &__nvmlDeviceSetVgpuHeterogeneousMode; _cyb_nvml_names[226] = b'nvmlDeviceSetVgpuHeterogeneousMode'
+_cyb_nvml_slots[227] = &__nvmlVgpuInstanceGetPlacementId; _cyb_nvml_names[227] = b'nvmlVgpuInstanceGetPlacementId'
+_cyb_nvml_slots[228] = &__nvmlDeviceGetVgpuTypeSupportedPlacements; _cyb_nvml_names[228] = b'nvmlDeviceGetVgpuTypeSupportedPlacements'
+_cyb_nvml_slots[229] = &__nvmlDeviceGetVgpuTypeCreatablePlacements; _cyb_nvml_names[229] = b'nvmlDeviceGetVgpuTypeCreatablePlacements'
+_cyb_nvml_slots[230] = &__nvmlVgpuTypeGetGspHeapSize; _cyb_nvml_names[230] = b'nvmlVgpuTypeGetGspHeapSize'
+_cyb_nvml_slots[231] = &__nvmlVgpuTypeGetFbReservation; _cyb_nvml_names[231] = b'nvmlVgpuTypeGetFbReservation'
+_cyb_nvml_slots[232] = &__nvmlVgpuInstanceGetRuntimeStateSize; _cyb_nvml_names[232] = b'nvmlVgpuInstanceGetRuntimeStateSize'
+_cyb_nvml_slots[233] = &__nvmlDeviceSetVgpuCapabilities; _cyb_nvml_names[233] = b'nvmlDeviceSetVgpuCapabilities'
+_cyb_nvml_slots[234] = &__nvmlDeviceGetGridLicensableFeatures_v4; _cyb_nvml_names[234] = b'nvmlDeviceGetGridLicensableFeatures_v4'
+_cyb_nvml_slots[235] = &__nvmlGetVgpuDriverCapabilities; _cyb_nvml_names[235] = b'nvmlGetVgpuDriverCapabilities'
+_cyb_nvml_slots[236] = &__nvmlDeviceGetVgpuCapabilities; _cyb_nvml_names[236] = b'nvmlDeviceGetVgpuCapabilities'
+_cyb_nvml_slots[237] = &__nvmlDeviceGetSupportedVgpus; _cyb_nvml_names[237] = b'nvmlDeviceGetSupportedVgpus'
+_cyb_nvml_slots[238] = &__nvmlDeviceGetCreatableVgpus; _cyb_nvml_names[238] = b'nvmlDeviceGetCreatableVgpus'
+_cyb_nvml_slots[239] = &__nvmlVgpuTypeGetClass; _cyb_nvml_names[239] = b'nvmlVgpuTypeGetClass'
+_cyb_nvml_slots[240] = &__nvmlVgpuTypeGetName; _cyb_nvml_names[240] = b'nvmlVgpuTypeGetName'
+_cyb_nvml_slots[241] = &__nvmlVgpuTypeGetGpuInstanceProfileId; _cyb_nvml_names[241] = b'nvmlVgpuTypeGetGpuInstanceProfileId'
+_cyb_nvml_slots[242] = &__nvmlVgpuTypeGetDeviceID; _cyb_nvml_names[242] = b'nvmlVgpuTypeGetDeviceID'
+_cyb_nvml_slots[243] = &__nvmlVgpuTypeGetFramebufferSize; _cyb_nvml_names[243] = b'nvmlVgpuTypeGetFramebufferSize'
+_cyb_nvml_slots[244] = &__nvmlVgpuTypeGetNumDisplayHeads; _cyb_nvml_names[244] = b'nvmlVgpuTypeGetNumDisplayHeads'
+_cyb_nvml_slots[245] = &__nvmlVgpuTypeGetResolution; _cyb_nvml_names[245] = b'nvmlVgpuTypeGetResolution'
+_cyb_nvml_slots[246] = &__nvmlVgpuTypeGetLicense; _cyb_nvml_names[246] = b'nvmlVgpuTypeGetLicense'
+_cyb_nvml_slots[247] = &__nvmlVgpuTypeGetFrameRateLimit; _cyb_nvml_names[247] = b'nvmlVgpuTypeGetFrameRateLimit'
+_cyb_nvml_slots[248] = &__nvmlVgpuTypeGetMaxInstances; _cyb_nvml_names[248] = b'nvmlVgpuTypeGetMaxInstances'
+_cyb_nvml_slots[249] = &__nvmlVgpuTypeGetMaxInstancesPerVm; _cyb_nvml_names[249] = b'nvmlVgpuTypeGetMaxInstancesPerVm'
+_cyb_nvml_slots[250] = &__nvmlVgpuTypeGetBAR1Info; _cyb_nvml_names[250] = b'nvmlVgpuTypeGetBAR1Info'
+_cyb_nvml_slots[251] = &__nvmlDeviceGetActiveVgpus; _cyb_nvml_names[251] = b'nvmlDeviceGetActiveVgpus'
+_cyb_nvml_slots[252] = &__nvmlVgpuInstanceGetVmID; _cyb_nvml_names[252] = b'nvmlVgpuInstanceGetVmID'
+_cyb_nvml_slots[253] = &__nvmlVgpuInstanceGetUUID; _cyb_nvml_names[253] = b'nvmlVgpuInstanceGetUUID'
+_cyb_nvml_slots[254] = &__nvmlVgpuInstanceGetVmDriverVersion; _cyb_nvml_names[254] = b'nvmlVgpuInstanceGetVmDriverVersion'
+_cyb_nvml_slots[255] = &__nvmlVgpuInstanceGetFbUsage; _cyb_nvml_names[255] = b'nvmlVgpuInstanceGetFbUsage'
+_cyb_nvml_slots[256] = &__nvmlVgpuInstanceGetLicenseStatus; _cyb_nvml_names[256] = b'nvmlVgpuInstanceGetLicenseStatus'
+_cyb_nvml_slots[257] = &__nvmlVgpuInstanceGetType; _cyb_nvml_names[257] = b'nvmlVgpuInstanceGetType'
+_cyb_nvml_slots[258] = &__nvmlVgpuInstanceGetFrameRateLimit; _cyb_nvml_names[258] = b'nvmlVgpuInstanceGetFrameRateLimit'
+_cyb_nvml_slots[259] = &__nvmlVgpuInstanceGetEccMode; _cyb_nvml_names[259] = b'nvmlVgpuInstanceGetEccMode'
+_cyb_nvml_slots[260] = &__nvmlVgpuInstanceGetEncoderCapacity; _cyb_nvml_names[260] = b'nvmlVgpuInstanceGetEncoderCapacity'
+_cyb_nvml_slots[261] = &__nvmlVgpuInstanceSetEncoderCapacity; _cyb_nvml_names[261] = b'nvmlVgpuInstanceSetEncoderCapacity'
+_cyb_nvml_slots[262] = &__nvmlVgpuInstanceGetEncoderStats; _cyb_nvml_names[262] = b'nvmlVgpuInstanceGetEncoderStats'
+_cyb_nvml_slots[263] = &__nvmlVgpuInstanceGetEncoderSessions; _cyb_nvml_names[263] = b'nvmlVgpuInstanceGetEncoderSessions'
+_cyb_nvml_slots[264] = &__nvmlVgpuInstanceGetFBCStats; _cyb_nvml_names[264] = b'nvmlVgpuInstanceGetFBCStats'
+_cyb_nvml_slots[265] = &__nvmlVgpuInstanceGetFBCSessions; _cyb_nvml_names[265] = b'nvmlVgpuInstanceGetFBCSessions'
+_cyb_nvml_slots[266] = &__nvmlVgpuInstanceGetGpuInstanceId; _cyb_nvml_names[266] = b'nvmlVgpuInstanceGetGpuInstanceId'
+_cyb_nvml_slots[267] = &__nvmlVgpuInstanceGetGpuPciId; _cyb_nvml_names[267] = b'nvmlVgpuInstanceGetGpuPciId'
+_cyb_nvml_slots[268] = &__nvmlVgpuTypeGetCapabilities; _cyb_nvml_names[268] = b'nvmlVgpuTypeGetCapabilities'
+_cyb_nvml_slots[269] = &__nvmlVgpuInstanceGetMdevUUID; _cyb_nvml_names[269] = b'nvmlVgpuInstanceGetMdevUUID'
+_cyb_nvml_slots[270] = &__nvmlGpuInstanceGetCreatableVgpus; _cyb_nvml_names[270] = b'nvmlGpuInstanceGetCreatableVgpus'
+_cyb_nvml_slots[271] = &__nvmlVgpuTypeGetMaxInstancesPerGpuInstance; _cyb_nvml_names[271] = b'nvmlVgpuTypeGetMaxInstancesPerGpuInstance'
+_cyb_nvml_slots[272] = &__nvmlGpuInstanceGetActiveVgpus; _cyb_nvml_names[272] = b'nvmlGpuInstanceGetActiveVgpus'
+_cyb_nvml_slots[273] = &__nvmlGpuInstanceSetVgpuSchedulerState; _cyb_nvml_names[273] = b'nvmlGpuInstanceSetVgpuSchedulerState'
+_cyb_nvml_slots[274] = &__nvmlGpuInstanceGetVgpuSchedulerState; _cyb_nvml_names[274] = b'nvmlGpuInstanceGetVgpuSchedulerState'
+_cyb_nvml_slots[275] = &__nvmlGpuInstanceGetVgpuSchedulerLog; _cyb_nvml_names[275] = b'nvmlGpuInstanceGetVgpuSchedulerLog'
+_cyb_nvml_slots[276] = &__nvmlGpuInstanceGetVgpuTypeCreatablePlacements; _cyb_nvml_names[276] = b'nvmlGpuInstanceGetVgpuTypeCreatablePlacements'
+_cyb_nvml_slots[277] = &__nvmlGpuInstanceGetVgpuHeterogeneousMode; _cyb_nvml_names[277] = b'nvmlGpuInstanceGetVgpuHeterogeneousMode'
+_cyb_nvml_slots[278] = &__nvmlGpuInstanceSetVgpuHeterogeneousMode; _cyb_nvml_names[278] = b'nvmlGpuInstanceSetVgpuHeterogeneousMode'
+_cyb_nvml_slots[279] = &__nvmlVgpuInstanceGetMetadata; _cyb_nvml_names[279] = b'nvmlVgpuInstanceGetMetadata'
+_cyb_nvml_slots[280] = &__nvmlDeviceGetVgpuMetadata; _cyb_nvml_names[280] = b'nvmlDeviceGetVgpuMetadata'
+_cyb_nvml_slots[281] = &__nvmlGetVgpuCompatibility; _cyb_nvml_names[281] = b'nvmlGetVgpuCompatibility'
+_cyb_nvml_slots[282] = &__nvmlDeviceGetPgpuMetadataString; _cyb_nvml_names[282] = b'nvmlDeviceGetPgpuMetadataString'
+_cyb_nvml_slots[283] = &__nvmlDeviceGetVgpuSchedulerLog; _cyb_nvml_names[283] = b'nvmlDeviceGetVgpuSchedulerLog'
+_cyb_nvml_slots[284] = &__nvmlDeviceGetVgpuSchedulerState; _cyb_nvml_names[284] = b'nvmlDeviceGetVgpuSchedulerState'
+_cyb_nvml_slots[285] = &__nvmlDeviceGetVgpuSchedulerCapabilities; _cyb_nvml_names[285] = b'nvmlDeviceGetVgpuSchedulerCapabilities'
+_cyb_nvml_slots[286] = &__nvmlDeviceSetVgpuSchedulerState; _cyb_nvml_names[286] = b'nvmlDeviceSetVgpuSchedulerState'
+_cyb_nvml_slots[287] = &__nvmlGetVgpuVersion; _cyb_nvml_names[287] = b'nvmlGetVgpuVersion'
+_cyb_nvml_slots[288] = &__nvmlSetVgpuVersion; _cyb_nvml_names[288] = b'nvmlSetVgpuVersion'
+_cyb_nvml_slots[289] = &__nvmlDeviceGetVgpuUtilization; _cyb_nvml_names[289] = b'nvmlDeviceGetVgpuUtilization'
+_cyb_nvml_slots[290] = &__nvmlDeviceGetVgpuInstancesUtilizationInfo; _cyb_nvml_names[290] = b'nvmlDeviceGetVgpuInstancesUtilizationInfo'
+_cyb_nvml_slots[291] = &__nvmlDeviceGetVgpuProcessUtilization; _cyb_nvml_names[291] = b'nvmlDeviceGetVgpuProcessUtilization'
+_cyb_nvml_slots[292] = &__nvmlDeviceGetVgpuProcessesUtilizationInfo; _cyb_nvml_names[292] = b'nvmlDeviceGetVgpuProcessesUtilizationInfo'
+_cyb_nvml_slots[293] = &__nvmlVgpuInstanceGetAccountingMode; _cyb_nvml_names[293] = b'nvmlVgpuInstanceGetAccountingMode'
+_cyb_nvml_slots[294] = &__nvmlVgpuInstanceGetAccountingPids; _cyb_nvml_names[294] = b'nvmlVgpuInstanceGetAccountingPids'
+_cyb_nvml_slots[295] = &__nvmlVgpuInstanceGetAccountingStats; _cyb_nvml_names[295] = b'nvmlVgpuInstanceGetAccountingStats'
+_cyb_nvml_slots[296] = &__nvmlVgpuInstanceClearAccountingPids; _cyb_nvml_names[296] = b'nvmlVgpuInstanceClearAccountingPids'
+_cyb_nvml_slots[297] = &__nvmlVgpuInstanceGetLicenseInfo_v2; _cyb_nvml_names[297] = b'nvmlVgpuInstanceGetLicenseInfo_v2'
+_cyb_nvml_slots[298] = &__nvmlGetExcludedDeviceCount; _cyb_nvml_names[298] = b'nvmlGetExcludedDeviceCount'
+_cyb_nvml_slots[299] = &__nvmlGetExcludedDeviceInfoByIndex; _cyb_nvml_names[299] = b'nvmlGetExcludedDeviceInfoByIndex'
+_cyb_nvml_slots[300] = &__nvmlDeviceSetMigMode; _cyb_nvml_names[300] = b'nvmlDeviceSetMigMode'
+_cyb_nvml_slots[301] = &__nvmlDeviceGetMigMode; _cyb_nvml_names[301] = b'nvmlDeviceGetMigMode'
+_cyb_nvml_slots[302] = &__nvmlDeviceGetGpuInstanceProfileInfoV; _cyb_nvml_names[302] = b'nvmlDeviceGetGpuInstanceProfileInfoV'
+_cyb_nvml_slots[303] = &__nvmlDeviceGetGpuInstancePossiblePlacements_v2; _cyb_nvml_names[303] = b'nvmlDeviceGetGpuInstancePossiblePlacements_v2'
+_cyb_nvml_slots[304] = &__nvmlDeviceGetGpuInstanceRemainingCapacity; _cyb_nvml_names[304] = b'nvmlDeviceGetGpuInstanceRemainingCapacity'
+_cyb_nvml_slots[305] = &__nvmlDeviceCreateGpuInstance; _cyb_nvml_names[305] = b'nvmlDeviceCreateGpuInstance'
+_cyb_nvml_slots[306] = &__nvmlDeviceCreateGpuInstanceWithPlacement; _cyb_nvml_names[306] = b'nvmlDeviceCreateGpuInstanceWithPlacement'
+_cyb_nvml_slots[307] = &__nvmlGpuInstanceDestroy; _cyb_nvml_names[307] = b'nvmlGpuInstanceDestroy'
+_cyb_nvml_slots[308] = &__nvmlDeviceGetGpuInstances; _cyb_nvml_names[308] = b'nvmlDeviceGetGpuInstances'
+_cyb_nvml_slots[309] = &__nvmlDeviceGetGpuInstanceById; _cyb_nvml_names[309] = b'nvmlDeviceGetGpuInstanceById'
+_cyb_nvml_slots[310] = &__nvmlGpuInstanceGetInfo; _cyb_nvml_names[310] = b'nvmlGpuInstanceGetInfo'
+_cyb_nvml_slots[311] = &__nvmlGpuInstanceGetComputeInstanceProfileInfoV; _cyb_nvml_names[311] = b'nvmlGpuInstanceGetComputeInstanceProfileInfoV'
+_cyb_nvml_slots[312] = &__nvmlGpuInstanceGetComputeInstanceRemainingCapacity; _cyb_nvml_names[312] = b'nvmlGpuInstanceGetComputeInstanceRemainingCapacity'
+_cyb_nvml_slots[313] = &__nvmlGpuInstanceGetComputeInstancePossiblePlacements; _cyb_nvml_names[313] = b'nvmlGpuInstanceGetComputeInstancePossiblePlacements'
+_cyb_nvml_slots[314] = &__nvmlGpuInstanceCreateComputeInstance; _cyb_nvml_names[314] = b'nvmlGpuInstanceCreateComputeInstance'
+_cyb_nvml_slots[315] = &__nvmlGpuInstanceCreateComputeInstanceWithPlacement; _cyb_nvml_names[315] = b'nvmlGpuInstanceCreateComputeInstanceWithPlacement'
+_cyb_nvml_slots[316] = &__nvmlComputeInstanceDestroy; _cyb_nvml_names[316] = b'nvmlComputeInstanceDestroy'
+_cyb_nvml_slots[317] = &__nvmlGpuInstanceGetComputeInstances; _cyb_nvml_names[317] = b'nvmlGpuInstanceGetComputeInstances'
+_cyb_nvml_slots[318] = &__nvmlGpuInstanceGetComputeInstanceById; _cyb_nvml_names[318] = b'nvmlGpuInstanceGetComputeInstanceById'
+_cyb_nvml_slots[319] = &__nvmlComputeInstanceGetInfo_v2; _cyb_nvml_names[319] = b'nvmlComputeInstanceGetInfo_v2'
+_cyb_nvml_slots[320] = &__nvmlDeviceIsMigDeviceHandle; _cyb_nvml_names[320] = b'nvmlDeviceIsMigDeviceHandle'
+_cyb_nvml_slots[321] = &__nvmlDeviceGetGpuInstanceId; _cyb_nvml_names[321] = b'nvmlDeviceGetGpuInstanceId'
+_cyb_nvml_slots[322] = &__nvmlDeviceGetComputeInstanceId; _cyb_nvml_names[322] = b'nvmlDeviceGetComputeInstanceId'
+_cyb_nvml_slots[323] = &__nvmlDeviceGetMaxMigDeviceCount; _cyb_nvml_names[323] = b'nvmlDeviceGetMaxMigDeviceCount'
+_cyb_nvml_slots[324] = &__nvmlDeviceGetMigDeviceHandleByIndex; _cyb_nvml_names[324] = b'nvmlDeviceGetMigDeviceHandleByIndex'
+_cyb_nvml_slots[325] = &__nvmlDeviceGetDeviceHandleFromMigDeviceHandle; _cyb_nvml_names[325] = b'nvmlDeviceGetDeviceHandleFromMigDeviceHandle'
+_cyb_nvml_slots[326] = &__nvmlDeviceGetCapabilities; _cyb_nvml_names[326] = b'nvmlDeviceGetCapabilities'
+_cyb_nvml_slots[327] = &__nvmlDevicePowerSmoothingActivatePresetProfile; _cyb_nvml_names[327] = b'nvmlDevicePowerSmoothingActivatePresetProfile'
+_cyb_nvml_slots[328] = &__nvmlDevicePowerSmoothingUpdatePresetProfileParam; _cyb_nvml_names[328] = b'nvmlDevicePowerSmoothingUpdatePresetProfileParam'
+_cyb_nvml_slots[329] = &__nvmlDevicePowerSmoothingSetState; _cyb_nvml_names[329] = b'nvmlDevicePowerSmoothingSetState'
+_cyb_nvml_slots[330] = &__nvmlDeviceGetAddressingMode; _cyb_nvml_names[330] = b'nvmlDeviceGetAddressingMode'
+_cyb_nvml_slots[331] = &__nvmlDeviceGetRepairStatus; _cyb_nvml_names[331] = b'nvmlDeviceGetRepairStatus'
+_cyb_nvml_slots[332] = &__nvmlDeviceGetPowerMizerMode_v1; _cyb_nvml_names[332] = b'nvmlDeviceGetPowerMizerMode_v1'
+_cyb_nvml_slots[333] = &__nvmlDeviceSetPowerMizerMode_v1; _cyb_nvml_names[333] = b'nvmlDeviceSetPowerMizerMode_v1'
+_cyb_nvml_slots[334] = &__nvmlDeviceGetPdi; _cyb_nvml_names[334] = b'nvmlDeviceGetPdi'
+_cyb_nvml_slots[335] = &__nvmlDeviceSetHostname_v1; _cyb_nvml_names[335] = b'nvmlDeviceSetHostname_v1'
+_cyb_nvml_slots[336] = &__nvmlDeviceGetHostname_v1; _cyb_nvml_names[336] = b'nvmlDeviceGetHostname_v1'
+_cyb_nvml_slots[337] = &__nvmlDeviceGetNvLinkInfo; _cyb_nvml_names[337] = b'nvmlDeviceGetNvLinkInfo'
+_cyb_nvml_slots[338] = &__nvmlDeviceReadWritePRM_v1; _cyb_nvml_names[338] = b'nvmlDeviceReadWritePRM_v1'
+_cyb_nvml_slots[339] = &__nvmlDeviceGetGpuInstanceProfileInfoByIdV; _cyb_nvml_names[339] = b'nvmlDeviceGetGpuInstanceProfileInfoByIdV'
+_cyb_nvml_slots[340] = &__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts; _cyb_nvml_names[340] = b'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts'
+_cyb_nvml_slots[341] = &__nvmlDeviceGetUnrepairableMemoryFlag_v1; _cyb_nvml_names[341] = b'nvmlDeviceGetUnrepairableMemoryFlag_v1'
+_cyb_nvml_slots[342] = &__nvmlDeviceReadPRMCounters_v1; _cyb_nvml_names[342] = b'nvmlDeviceReadPRMCounters_v1'
+_cyb_nvml_slots[343] = &__nvmlDeviceSetRusdSettings_v1; _cyb_nvml_names[343] = b'nvmlDeviceSetRusdSettings_v1'
+_cyb_nvml_slots[344] = &__nvmlDeviceVgpuForceGspUnload; _cyb_nvml_names[344] = b'nvmlDeviceVgpuForceGspUnload'
+_cyb_nvml_slots[345] = &__nvmlDeviceGetVgpuSchedulerState_v2; _cyb_nvml_names[345] = b'nvmlDeviceGetVgpuSchedulerState_v2'
+_cyb_nvml_slots[346] = &__nvmlGpuInstanceGetVgpuSchedulerState_v2; _cyb_nvml_names[346] = b'nvmlGpuInstanceGetVgpuSchedulerState_v2'
+_cyb_nvml_slots[347] = &__nvmlDeviceGetVgpuSchedulerLog_v2; _cyb_nvml_names[347] = b'nvmlDeviceGetVgpuSchedulerLog_v2'
+_cyb_nvml_slots[348] = &__nvmlGpuInstanceGetVgpuSchedulerLog_v2; _cyb_nvml_names[348] = b'nvmlGpuInstanceGetVgpuSchedulerLog_v2'
+_cyb_nvml_slots[349] = &__nvmlDeviceSetVgpuSchedulerState_v2; _cyb_nvml_names[349] = b'nvmlDeviceSetVgpuSchedulerState_v2'
+_cyb_nvml_slots[350] = &__nvmlGpuInstanceSetVgpuSchedulerState_v2; _cyb_nvml_names[350] = b'nvmlGpuInstanceSetVgpuSchedulerState_v2'
+_cyb_nvml_slots[351] = &__nvmlSystemGetCPER_v1; _cyb_nvml_names[351] = b'nvmlSystemGetCPER_v1'
+_cyb_nvml_slots[352] = &__nvmlDeviceGetBBXTimeData_v1; _cyb_nvml_names[352] = b'nvmlDeviceGetBBXTimeData_v1'
+_cyb_nvml_slots[353] = &__nvmlDeviceGetAccountingStats_v2; _cyb_nvml_names[353] = b'nvmlDeviceGetAccountingStats_v2'
+_cyb_nvml_slots[354] = &__nvmlDeviceGetRemappedRows_v2; _cyb_nvml_names[354] = b'nvmlDeviceGetRemappedRows_v2'
+_cyb_nvml_slots[355] = &__nvmlDeviceSetAdaptiveTgpMode_v1; _cyb_nvml_names[355] = b'nvmlDeviceSetAdaptiveTgpMode_v1'
+_cyb_nvml_slots[356] = &__nvmlDeviceGetAdaptiveTgpModeInfo_v1; _cyb_nvml_names[356] = b'nvmlDeviceGetAdaptiveTgpModeInfo_v1'
+_cyb_nvml_slots[357] = &__nvmlDeviceSetMemoryLimits_v1; _cyb_nvml_names[357] = b'nvmlDeviceSetMemoryLimits_v1'
+_cyb_nvml_slots[358] = &__nvmlDeviceGetMemoryLimits_v1; _cyb_nvml_names[358] = b'nvmlDeviceGetMemoryLimits_v1'
+_cyb_nvml_slots[359] = &__nvmlDeviceGetGpuFabricInfo_v4; _cyb_nvml_names[359] = b'nvmlDeviceGetGpuFabricInfo_v4'
+_cyb_nvml_slots[360] = &__nvmlDevicePerfMetricsGetSamples_v1; _cyb_nvml_names[360] = b'nvmlDevicePerfMetricsGetSamples_v1'
+_cyb_nvml_slots[361] = &__nvmlDeviceSetNvlinkBwModeAsync_v1; _cyb_nvml_names[361] = b'nvmlDeviceSetNvlinkBwModeAsync_v1'
+_cyb_nvml_slots[362] = &__nvmlDeviceGetNvLinkTelemetrySamples_v1; _cyb_nvml_names[362] = b'nvmlDeviceGetNvLinkTelemetrySamples_v1'
+_cyb_nvml_slots[363] = &__nvmlEventSetRegisterGpuOperationalEvents_v1; _cyb_nvml_names[363] = b'nvmlEventSetRegisterGpuOperationalEvents_v1'
+_cyb_nvml_slots[364] = &__nvmlEventSetWait_v3; _cyb_nvml_names[364] = b'nvmlEventSetWait_v3'
+_cyb_nvml_slots[365] = &__nvmlEventSetGetContextCount_v1; _cyb_nvml_names[365] = b'nvmlEventSetGetContextCount_v1'
+_cyb_nvml_slots[366] = &__nvmlEventSetGetContextInfo_v1; _cyb_nvml_names[366] = b'nvmlEventSetGetContextInfo_v1'
+_cyb_nvml_slots[367] = &__nvmlEventSetGetContextData_v1; _cyb_nvml_names[367] = b'nvmlEventSetGetContextData_v1'
+_cyb_nvml_slots[368] = &__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1; _cyb_nvml_names[368] = b'nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1'
+_cyb_nvml_slots[369] = &__nvmlDeviceGetBankRemapperStatus_v1; _cyb_nvml_names[369] = b'nvmlDeviceGetBankRemapperStatus_v1'
+_cyb_nvml_slots[370] = &__nvmlDeviceGetGpuUptime_v1; _cyb_nvml_names[370] = b'nvmlDeviceGetGpuUptime_v1'
+_cyb_nvml_slots[371] = &__nvmlSystemGetConfComputeSettings_v2; _cyb_nvml_names[371] = b'nvmlSystemGetConfComputeSettings_v2'
+_cyb_nvml_slots[372] = &__nvmlDeviceGetNvLinkInfo_v3; _cyb_nvml_names[372] = b'nvmlDeviceGetNvLinkInfo_v3'
+_cyb_nvml_slots[373] = &__nvmlDeviceGetNvlinkRemapTableInfo_v1; _cyb_nvml_names[373] = b'nvmlDeviceGetNvlinkRemapTableInfo_v1'
+_cyb_nvml_slots[374] = &__nvmlDeviceSetNvlinkNvleReady_v1; _cyb_nvml_names[374] = b'nvmlDeviceSetNvlinkNvleReady_v1'
+_cyb_nvml_slots[375] = &__nvmlDeviceLockNvlinkRemapTable_v1; _cyb_nvml_names[375] = b'nvmlDeviceLockNvlinkRemapTable_v1'
+_cyb_nvml_slots[376] = &__nvmlDeviceSetupNvlinkNvleEncryptionKey_v1; _cyb_nvml_names[376] = b'nvmlDeviceSetupNvlinkNvleEncryptionKey_v1'
+_cyb_nvml_slots[377] = &__nvmlDeviceGetNvlinkNvlePrivateInfo_v1; _cyb_nvml_names[377] = b'nvmlDeviceGetNvlinkNvlePrivateInfo_v1'
 
 cdef int _init_nvml() except -1 nogil:
     global _cyb___py_nvml_init
 
     cdef int err
     cdef uintptr_t handle
+    cdef Py_ssize_t i
     with gil, _cyb_symbol_lock:
         if _cyb___py_nvml_init: return 0
 
         handle = load_library()
-        global __nvmlInit_v2
-        __nvmlInit_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlInit_v2')
-
-        global __nvmlInitWithFlags
-        __nvmlInitWithFlags = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlInitWithFlags')
-
-        global __nvmlShutdown
-        __nvmlShutdown = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlShutdown')
-
-        global __nvmlErrorString
-        __nvmlErrorString = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlErrorString')
-
-        global __nvmlSystemGetDriverVersion
-        __nvmlSystemGetDriverVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetDriverVersion')
-
-        global __nvmlSystemGetNVMLVersion
-        __nvmlSystemGetNVMLVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetNVMLVersion')
-
-        global __nvmlSystemGetCudaDriverVersion
-        __nvmlSystemGetCudaDriverVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetCudaDriverVersion')
-
-        global __nvmlSystemGetCudaDriverVersion_v2
-        __nvmlSystemGetCudaDriverVersion_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetCudaDriverVersion_v2')
-
-        global __nvmlSystemGetProcessName
-        __nvmlSystemGetProcessName = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetProcessName')
-
-        global __nvmlSystemGetHicVersion
-        __nvmlSystemGetHicVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetHicVersion')
-
-        global __nvmlSystemGetTopologyGpuSet
-        __nvmlSystemGetTopologyGpuSet = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetTopologyGpuSet')
-
-        global __nvmlSystemGetDriverBranch
-        __nvmlSystemGetDriverBranch = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetDriverBranch')
-
-        global __nvmlUnitGetCount
-        __nvmlUnitGetCount = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetCount')
-
-        global __nvmlUnitGetHandleByIndex
-        __nvmlUnitGetHandleByIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetHandleByIndex')
-
-        global __nvmlUnitGetUnitInfo
-        __nvmlUnitGetUnitInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetUnitInfo')
-
-        global __nvmlUnitGetLedState
-        __nvmlUnitGetLedState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetLedState')
-
-        global __nvmlUnitGetPsuInfo
-        __nvmlUnitGetPsuInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetPsuInfo')
-
-        global __nvmlUnitGetTemperature
-        __nvmlUnitGetTemperature = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetTemperature')
-
-        global __nvmlUnitGetFanSpeedInfo
-        __nvmlUnitGetFanSpeedInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetFanSpeedInfo')
-
-        global __nvmlUnitGetDevices
-        __nvmlUnitGetDevices = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitGetDevices')
-
-        global __nvmlDeviceGetCount_v2
-        __nvmlDeviceGetCount_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCount_v2')
-
-        global __nvmlDeviceGetAttributes_v2
-        __nvmlDeviceGetAttributes_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAttributes_v2')
-
-        global __nvmlDeviceGetHandleByIndex_v2
-        __nvmlDeviceGetHandleByIndex_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByIndex_v2')
-
-        global __nvmlDeviceGetHandleBySerial
-        __nvmlDeviceGetHandleBySerial = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleBySerial')
-
-        global __nvmlDeviceGetHandleByUUID
-        __nvmlDeviceGetHandleByUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByUUID')
-
-        global __nvmlDeviceGetHandleByUUIDV
-        __nvmlDeviceGetHandleByUUIDV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByUUIDV')
-
-        global __nvmlDeviceGetHandleByPciBusId_v2
-        __nvmlDeviceGetHandleByPciBusId_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHandleByPciBusId_v2')
-
-        global __nvmlDeviceGetName
-        __nvmlDeviceGetName = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetName')
-
-        global __nvmlDeviceGetBrand
-        __nvmlDeviceGetBrand = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBrand')
-
-        global __nvmlDeviceGetIndex
-        __nvmlDeviceGetIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetIndex')
-
-        global __nvmlDeviceGetSerial
-        __nvmlDeviceGetSerial = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSerial')
-
-        global __nvmlDeviceGetModuleId
-        __nvmlDeviceGetModuleId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetModuleId')
-
-        global __nvmlDeviceGetC2cModeInfoV
-        __nvmlDeviceGetC2cModeInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetC2cModeInfoV')
-
-        global __nvmlDeviceGetMemoryAffinity
-        __nvmlDeviceGetMemoryAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryAffinity')
-
-        global __nvmlDeviceGetCpuAffinityWithinScope
-        __nvmlDeviceGetCpuAffinityWithinScope = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCpuAffinityWithinScope')
-
-        global __nvmlDeviceGetCpuAffinity
-        __nvmlDeviceGetCpuAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCpuAffinity')
-
-        global __nvmlDeviceSetCpuAffinity
-        __nvmlDeviceSetCpuAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetCpuAffinity')
-
-        global __nvmlDeviceClearCpuAffinity
-        __nvmlDeviceClearCpuAffinity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearCpuAffinity')
-
-        global __nvmlDeviceGetNumaNodeId
-        __nvmlDeviceGetNumaNodeId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNumaNodeId')
-
-        global __nvmlDeviceGetTopologyCommonAncestor
-        __nvmlDeviceGetTopologyCommonAncestor = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTopologyCommonAncestor')
-
-        global __nvmlDeviceGetTopologyNearestGpus
-        __nvmlDeviceGetTopologyNearestGpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTopologyNearestGpus')
-
-        global __nvmlDeviceGetP2PStatus
-        __nvmlDeviceGetP2PStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetP2PStatus')
-
-        global __nvmlDeviceGetUUID
-        __nvmlDeviceGetUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetUUID')
-
-        global __nvmlDeviceGetMinorNumber
-        __nvmlDeviceGetMinorNumber = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMinorNumber')
-
-        global __nvmlDeviceGetBoardPartNumber
-        __nvmlDeviceGetBoardPartNumber = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBoardPartNumber')
-
-        global __nvmlDeviceGetInforomVersion
-        __nvmlDeviceGetInforomVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetInforomVersion')
-
-        global __nvmlDeviceGetInforomImageVersion
-        __nvmlDeviceGetInforomImageVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetInforomImageVersion')
-
-        global __nvmlDeviceGetInforomConfigurationChecksum
-        __nvmlDeviceGetInforomConfigurationChecksum = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetInforomConfigurationChecksum')
-
-        global __nvmlDeviceValidateInforom
-        __nvmlDeviceValidateInforom = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceValidateInforom')
-
-        global __nvmlDeviceGetLastBBXFlushTime
-        __nvmlDeviceGetLastBBXFlushTime = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetLastBBXFlushTime')
-
-        global __nvmlDeviceGetDisplayMode
-        __nvmlDeviceGetDisplayMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDisplayMode')
-
-        global __nvmlDeviceGetDisplayActive
-        __nvmlDeviceGetDisplayActive = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDisplayActive')
-
-        global __nvmlDeviceGetPersistenceMode
-        __nvmlDeviceGetPersistenceMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPersistenceMode')
-
-        global __nvmlDeviceGetPciInfoExt
-        __nvmlDeviceGetPciInfoExt = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPciInfoExt')
-
-        global __nvmlDeviceGetPciInfo_v3
-        __nvmlDeviceGetPciInfo_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPciInfo_v3')
-
-        global __nvmlDeviceGetMaxPcieLinkGeneration
-        __nvmlDeviceGetMaxPcieLinkGeneration = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxPcieLinkGeneration')
-
-        global __nvmlDeviceGetGpuMaxPcieLinkGeneration
-        __nvmlDeviceGetGpuMaxPcieLinkGeneration = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuMaxPcieLinkGeneration')
-
-        global __nvmlDeviceGetMaxPcieLinkWidth
-        __nvmlDeviceGetMaxPcieLinkWidth = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxPcieLinkWidth')
-
-        global __nvmlDeviceGetCurrPcieLinkGeneration
-        __nvmlDeviceGetCurrPcieLinkGeneration = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrPcieLinkGeneration')
-
-        global __nvmlDeviceGetCurrPcieLinkWidth
-        __nvmlDeviceGetCurrPcieLinkWidth = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrPcieLinkWidth')
-
-        global __nvmlDeviceGetPcieThroughput
-        __nvmlDeviceGetPcieThroughput = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieThroughput')
-
-        global __nvmlDeviceGetPcieReplayCounter
-        __nvmlDeviceGetPcieReplayCounter = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieReplayCounter')
-
-        global __nvmlDeviceGetClockInfo
-        __nvmlDeviceGetClockInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClockInfo')
-
-        global __nvmlDeviceGetMaxClockInfo
-        __nvmlDeviceGetMaxClockInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxClockInfo')
-
-        global __nvmlDeviceGetGpcClkVfOffset
-        __nvmlDeviceGetGpcClkVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpcClkVfOffset')
-
-        global __nvmlDeviceGetClock
-        __nvmlDeviceGetClock = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClock')
-
-        global __nvmlDeviceGetMaxCustomerBoostClock
-        __nvmlDeviceGetMaxCustomerBoostClock = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxCustomerBoostClock')
-
-        global __nvmlDeviceGetSupportedMemoryClocks
-        __nvmlDeviceGetSupportedMemoryClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedMemoryClocks')
-
-        global __nvmlDeviceGetSupportedGraphicsClocks
-        __nvmlDeviceGetSupportedGraphicsClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedGraphicsClocks')
-
-        global __nvmlDeviceGetAutoBoostedClocksEnabled
-        __nvmlDeviceGetAutoBoostedClocksEnabled = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAutoBoostedClocksEnabled')
-
-        global __nvmlDeviceGetFanSpeed
-        __nvmlDeviceGetFanSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanSpeed')
-
-        global __nvmlDeviceGetFanSpeed_v2
-        __nvmlDeviceGetFanSpeed_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanSpeed_v2')
-
-        global __nvmlDeviceGetFanSpeedRPM
-        __nvmlDeviceGetFanSpeedRPM = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanSpeedRPM')
-
-        global __nvmlDeviceGetTargetFanSpeed
-        __nvmlDeviceGetTargetFanSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTargetFanSpeed')
-
-        global __nvmlDeviceGetMinMaxFanSpeed
-        __nvmlDeviceGetMinMaxFanSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMinMaxFanSpeed')
-
-        global __nvmlDeviceGetFanControlPolicy_v2
-        __nvmlDeviceGetFanControlPolicy_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFanControlPolicy_v2')
-
-        global __nvmlDeviceGetNumFans
-        __nvmlDeviceGetNumFans = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNumFans')
-
-        global __nvmlDeviceGetCoolerInfo
-        __nvmlDeviceGetCoolerInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCoolerInfo')
-
-        global __nvmlDeviceGetTemperatureV
-        __nvmlDeviceGetTemperatureV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTemperatureV')
-
-        global __nvmlDeviceGetTemperatureThreshold
-        __nvmlDeviceGetTemperatureThreshold = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTemperatureThreshold')
-
-        global __nvmlDeviceGetMarginTemperature
-        __nvmlDeviceGetMarginTemperature = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMarginTemperature')
-
-        global __nvmlDeviceGetThermalSettings
-        __nvmlDeviceGetThermalSettings = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetThermalSettings')
-
-        global __nvmlDeviceGetPerformanceState
-        __nvmlDeviceGetPerformanceState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPerformanceState')
-
-        global __nvmlDeviceGetCurrentClocksEventReasons
-        __nvmlDeviceGetCurrentClocksEventReasons = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrentClocksEventReasons')
-
-        global __nvmlDeviceGetSupportedClocksEventReasons
-        __nvmlDeviceGetSupportedClocksEventReasons = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedClocksEventReasons')
-
-        global __nvmlDeviceGetPowerState
-        __nvmlDeviceGetPowerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerState')
-
-        global __nvmlDeviceGetDynamicPstatesInfo
-        __nvmlDeviceGetDynamicPstatesInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDynamicPstatesInfo')
-
-        global __nvmlDeviceGetMemClkVfOffset
-        __nvmlDeviceGetMemClkVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemClkVfOffset')
-
-        global __nvmlDeviceGetMinMaxClockOfPState
-        __nvmlDeviceGetMinMaxClockOfPState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMinMaxClockOfPState')
-
-        global __nvmlDeviceGetSupportedPerformanceStates
-        __nvmlDeviceGetSupportedPerformanceStates = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedPerformanceStates')
-
-        global __nvmlDeviceGetGpcClkMinMaxVfOffset
-        __nvmlDeviceGetGpcClkMinMaxVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpcClkMinMaxVfOffset')
-
-        global __nvmlDeviceGetMemClkMinMaxVfOffset
-        __nvmlDeviceGetMemClkMinMaxVfOffset = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemClkMinMaxVfOffset')
-
-        global __nvmlDeviceGetClockOffsets
-        __nvmlDeviceGetClockOffsets = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClockOffsets')
-
-        global __nvmlDeviceSetClockOffsets
-        __nvmlDeviceSetClockOffsets = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetClockOffsets')
-
-        global __nvmlDeviceGetPerformanceModes
-        __nvmlDeviceGetPerformanceModes = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPerformanceModes')
-
-        global __nvmlDeviceGetCurrentClockFreqs
-        __nvmlDeviceGetCurrentClockFreqs = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCurrentClockFreqs')
-
-        global __nvmlDeviceGetPowerManagementLimit
-        __nvmlDeviceGetPowerManagementLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerManagementLimit')
-
-        global __nvmlDeviceGetPowerManagementLimitConstraints
-        __nvmlDeviceGetPowerManagementLimitConstraints = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerManagementLimitConstraints')
-
-        global __nvmlDeviceGetPowerManagementDefaultLimit
-        __nvmlDeviceGetPowerManagementDefaultLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerManagementDefaultLimit')
-
-        global __nvmlDeviceGetPowerUsage
-        __nvmlDeviceGetPowerUsage = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerUsage')
-
-        global __nvmlDeviceGetTotalEnergyConsumption
-        __nvmlDeviceGetTotalEnergyConsumption = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTotalEnergyConsumption')
-
-        global __nvmlDeviceGetEnforcedPowerLimit
-        __nvmlDeviceGetEnforcedPowerLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEnforcedPowerLimit')
-
-        global __nvmlDeviceGetGpuOperationMode
-        __nvmlDeviceGetGpuOperationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuOperationMode')
-
-        global __nvmlDeviceGetMemoryInfo_v2
-        __nvmlDeviceGetMemoryInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryInfo_v2')
-
-        global __nvmlDeviceGetComputeMode
-        __nvmlDeviceGetComputeMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetComputeMode')
-
-        global __nvmlDeviceGetCudaComputeCapability
-        __nvmlDeviceGetCudaComputeCapability = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCudaComputeCapability')
-
-        global __nvmlDeviceGetDramEncryptionMode
-        __nvmlDeviceGetDramEncryptionMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDramEncryptionMode')
-
-        global __nvmlDeviceSetDramEncryptionMode
-        __nvmlDeviceSetDramEncryptionMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDramEncryptionMode')
-
-        global __nvmlDeviceGetEccMode
-        __nvmlDeviceGetEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEccMode')
-
-        global __nvmlDeviceGetDefaultEccMode
-        __nvmlDeviceGetDefaultEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDefaultEccMode')
-
-        global __nvmlDeviceGetBoardId
-        __nvmlDeviceGetBoardId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBoardId')
-
-        global __nvmlDeviceGetMultiGpuBoard
-        __nvmlDeviceGetMultiGpuBoard = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMultiGpuBoard')
-
-        global __nvmlDeviceGetTotalEccErrors
-        __nvmlDeviceGetTotalEccErrors = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetTotalEccErrors')
-
-        global __nvmlDeviceGetMemoryErrorCounter
-        __nvmlDeviceGetMemoryErrorCounter = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryErrorCounter')
-
-        global __nvmlDeviceGetUtilizationRates
-        __nvmlDeviceGetUtilizationRates = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetUtilizationRates')
-
-        global __nvmlDeviceGetEncoderUtilization
-        __nvmlDeviceGetEncoderUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderUtilization')
-
-        global __nvmlDeviceGetEncoderCapacity
-        __nvmlDeviceGetEncoderCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderCapacity')
-
-        global __nvmlDeviceGetEncoderStats
-        __nvmlDeviceGetEncoderStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderStats')
-
-        global __nvmlDeviceGetEncoderSessions
-        __nvmlDeviceGetEncoderSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetEncoderSessions')
-
-        global __nvmlDeviceGetDecoderUtilization
-        __nvmlDeviceGetDecoderUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDecoderUtilization')
-
-        global __nvmlDeviceGetJpgUtilization
-        __nvmlDeviceGetJpgUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetJpgUtilization')
-
-        global __nvmlDeviceGetOfaUtilization
-        __nvmlDeviceGetOfaUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetOfaUtilization')
-
-        global __nvmlDeviceGetFBCStats
-        __nvmlDeviceGetFBCStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFBCStats')
-
-        global __nvmlDeviceGetFBCSessions
-        __nvmlDeviceGetFBCSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFBCSessions')
-
-        global __nvmlDeviceGetDriverModel_v2
-        __nvmlDeviceGetDriverModel_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDriverModel_v2')
-
-        global __nvmlDeviceGetVbiosVersion
-        __nvmlDeviceGetVbiosVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVbiosVersion')
-
-        global __nvmlDeviceGetBridgeChipInfo
-        __nvmlDeviceGetBridgeChipInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBridgeChipInfo')
-
-        global __nvmlDeviceGetComputeRunningProcesses_v3
-        __nvmlDeviceGetComputeRunningProcesses_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetComputeRunningProcesses_v3')
-
-        global __nvmlDeviceGetGraphicsRunningProcesses_v3
-        __nvmlDeviceGetGraphicsRunningProcesses_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
-
-        global __nvmlDeviceGetMPSComputeRunningProcesses_v3
-        __nvmlDeviceGetMPSComputeRunningProcesses_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
-
-        global __nvmlDeviceGetRunningProcessDetailList
-        __nvmlDeviceGetRunningProcessDetailList = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRunningProcessDetailList')
-
-        global __nvmlDeviceOnSameBoard
-        __nvmlDeviceOnSameBoard = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceOnSameBoard')
-
-        global __nvmlDeviceGetAPIRestriction
-        __nvmlDeviceGetAPIRestriction = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAPIRestriction')
-
-        global __nvmlDeviceGetSamples
-        __nvmlDeviceGetSamples = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSamples')
-
-        global __nvmlDeviceGetBAR1MemoryInfo
-        __nvmlDeviceGetBAR1MemoryInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBAR1MemoryInfo')
-
-        global __nvmlDeviceGetIrqNum
-        __nvmlDeviceGetIrqNum = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetIrqNum')
-
-        global __nvmlDeviceGetNumGpuCores
-        __nvmlDeviceGetNumGpuCores = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNumGpuCores')
-
-        global __nvmlDeviceGetPowerSource
-        __nvmlDeviceGetPowerSource = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerSource')
-
-        global __nvmlDeviceGetMemoryBusWidth
-        __nvmlDeviceGetMemoryBusWidth = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryBusWidth')
-
-        global __nvmlDeviceGetPcieLinkMaxSpeed
-        __nvmlDeviceGetPcieLinkMaxSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieLinkMaxSpeed')
-
-        global __nvmlDeviceGetPcieSpeed
-        __nvmlDeviceGetPcieSpeed = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPcieSpeed')
-
-        global __nvmlDeviceGetAdaptiveClockInfoStatus
-        __nvmlDeviceGetAdaptiveClockInfoStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAdaptiveClockInfoStatus')
-
-        global __nvmlDeviceGetBusType
-        __nvmlDeviceGetBusType = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBusType')
-
-        global __nvmlDeviceGetGpuFabricInfoV
-        __nvmlDeviceGetGpuFabricInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuFabricInfoV')
-
-        global __nvmlSystemGetConfComputeCapabilities
-        __nvmlSystemGetConfComputeCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeCapabilities')
-
-        global __nvmlSystemGetConfComputeState
-        __nvmlSystemGetConfComputeState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeState')
-
-        global __nvmlDeviceGetConfComputeMemSizeInfo
-        __nvmlDeviceGetConfComputeMemSizeInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeMemSizeInfo')
-
-        global __nvmlSystemGetConfComputeGpusReadyState
-        __nvmlSystemGetConfComputeGpusReadyState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeGpusReadyState')
-
-        global __nvmlDeviceGetConfComputeProtectedMemoryUsage
-        __nvmlDeviceGetConfComputeProtectedMemoryUsage = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeProtectedMemoryUsage')
-
-        global __nvmlDeviceGetConfComputeGpuCertificate
-        __nvmlDeviceGetConfComputeGpuCertificate = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeGpuCertificate')
-
-        global __nvmlDeviceGetConfComputeGpuAttestationReport
-        __nvmlDeviceGetConfComputeGpuAttestationReport = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetConfComputeGpuAttestationReport')
-
-        global __nvmlSystemGetConfComputeKeyRotationThresholdInfo
-        __nvmlSystemGetConfComputeKeyRotationThresholdInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeKeyRotationThresholdInfo')
-
-        global __nvmlDeviceSetConfComputeUnprotectedMemSize
-        __nvmlDeviceSetConfComputeUnprotectedMemSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetConfComputeUnprotectedMemSize')
-
-        global __nvmlSystemSetConfComputeGpusReadyState
-        __nvmlSystemSetConfComputeGpusReadyState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemSetConfComputeGpusReadyState')
-
-        global __nvmlSystemSetConfComputeKeyRotationThresholdInfo
-        __nvmlSystemSetConfComputeKeyRotationThresholdInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemSetConfComputeKeyRotationThresholdInfo')
-
-        global __nvmlSystemGetConfComputeSettings
-        __nvmlSystemGetConfComputeSettings = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetConfComputeSettings')
-
-        global __nvmlDeviceGetGspFirmwareVersion
-        __nvmlDeviceGetGspFirmwareVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGspFirmwareVersion')
-
-        global __nvmlDeviceGetGspFirmwareMode
-        __nvmlDeviceGetGspFirmwareMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGspFirmwareMode')
-
-        global __nvmlDeviceGetSramEccErrorStatus
-        __nvmlDeviceGetSramEccErrorStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSramEccErrorStatus')
-
-        global __nvmlDeviceGetAccountingMode
-        __nvmlDeviceGetAccountingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingMode')
-
-        global __nvmlDeviceGetAccountingStats
-        __nvmlDeviceGetAccountingStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingStats')
-
-        global __nvmlDeviceGetAccountingPids
-        __nvmlDeviceGetAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingPids')
-
-        global __nvmlDeviceGetAccountingBufferSize
-        __nvmlDeviceGetAccountingBufferSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingBufferSize')
-
-        global __nvmlDeviceGetRetiredPages
-        __nvmlDeviceGetRetiredPages = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRetiredPages')
-
-        global __nvmlDeviceGetRetiredPages_v2
-        __nvmlDeviceGetRetiredPages_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRetiredPages_v2')
-
-        global __nvmlDeviceGetRetiredPagesPendingStatus
-        __nvmlDeviceGetRetiredPagesPendingStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRetiredPagesPendingStatus')
-
-        global __nvmlDeviceGetRemappedRows
-        __nvmlDeviceGetRemappedRows = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRemappedRows')
-
-        global __nvmlDeviceGetRowRemapperHistogram
-        __nvmlDeviceGetRowRemapperHistogram = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRowRemapperHistogram')
-
-        global __nvmlDeviceGetArchitecture
-        __nvmlDeviceGetArchitecture = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetArchitecture')
-
-        global __nvmlDeviceGetClkMonStatus
-        __nvmlDeviceGetClkMonStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetClkMonStatus')
-
-        global __nvmlDeviceGetProcessUtilization
-        __nvmlDeviceGetProcessUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetProcessUtilization')
-
-        global __nvmlDeviceGetProcessesUtilizationInfo
-        __nvmlDeviceGetProcessesUtilizationInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetProcessesUtilizationInfo')
-
-        global __nvmlDeviceGetPlatformInfo
-        __nvmlDeviceGetPlatformInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPlatformInfo')
-
-        global __nvmlUnitSetLedState
-        __nvmlUnitSetLedState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlUnitSetLedState')
-
-        global __nvmlDeviceSetPersistenceMode
-        __nvmlDeviceSetPersistenceMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetPersistenceMode')
-
-        global __nvmlDeviceSetComputeMode
-        __nvmlDeviceSetComputeMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetComputeMode')
-
-        global __nvmlDeviceSetEccMode
-        __nvmlDeviceSetEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetEccMode')
-
-        global __nvmlDeviceClearEccErrorCounts
-        __nvmlDeviceClearEccErrorCounts = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearEccErrorCounts')
-
-        global __nvmlDeviceSetDriverModel
-        __nvmlDeviceSetDriverModel = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDriverModel')
-
-        global __nvmlDeviceSetGpuLockedClocks
-        __nvmlDeviceSetGpuLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetGpuLockedClocks')
-
-        global __nvmlDeviceResetGpuLockedClocks
-        __nvmlDeviceResetGpuLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceResetGpuLockedClocks')
-
-        global __nvmlDeviceSetMemoryLockedClocks
-        __nvmlDeviceSetMemoryLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetMemoryLockedClocks')
-
-        global __nvmlDeviceResetMemoryLockedClocks
-        __nvmlDeviceResetMemoryLockedClocks = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceResetMemoryLockedClocks')
-
-        global __nvmlDeviceSetAutoBoostedClocksEnabled
-        __nvmlDeviceSetAutoBoostedClocksEnabled = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAutoBoostedClocksEnabled')
-
-        global __nvmlDeviceSetDefaultAutoBoostedClocksEnabled
-        __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDefaultAutoBoostedClocksEnabled')
-
-        global __nvmlDeviceSetDefaultFanSpeed_v2
-        __nvmlDeviceSetDefaultFanSpeed_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetDefaultFanSpeed_v2')
-
-        global __nvmlDeviceSetFanControlPolicy
-        __nvmlDeviceSetFanControlPolicy = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetFanControlPolicy')
-
-        global __nvmlDeviceSetTemperatureThreshold
-        __nvmlDeviceSetTemperatureThreshold = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetTemperatureThreshold')
-
-        global __nvmlDeviceSetGpuOperationMode
-        __nvmlDeviceSetGpuOperationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetGpuOperationMode')
-
-        global __nvmlDeviceSetAPIRestriction
-        __nvmlDeviceSetAPIRestriction = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAPIRestriction')
-
-        global __nvmlDeviceSetFanSpeed_v2
-        __nvmlDeviceSetFanSpeed_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetFanSpeed_v2')
-
-        global __nvmlDeviceSetAccountingMode
-        __nvmlDeviceSetAccountingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAccountingMode')
-
-        global __nvmlDeviceClearAccountingPids
-        __nvmlDeviceClearAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearAccountingPids')
-
-        global __nvmlDeviceSetPowerManagementLimit_v2
-        __nvmlDeviceSetPowerManagementLimit_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetPowerManagementLimit_v2')
-
-        global __nvmlDeviceGetNvLinkState
-        __nvmlDeviceGetNvLinkState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkState')
-
-        global __nvmlDeviceGetNvLinkVersion
-        __nvmlDeviceGetNvLinkVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkVersion')
-
-        global __nvmlDeviceGetNvLinkCapability
-        __nvmlDeviceGetNvLinkCapability = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkCapability')
-
-        global __nvmlDeviceGetNvLinkRemotePciInfo_v2
-        __nvmlDeviceGetNvLinkRemotePciInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkRemotePciInfo_v2')
-
-        global __nvmlDeviceGetNvLinkErrorCounter
-        __nvmlDeviceGetNvLinkErrorCounter = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkErrorCounter')
-
-        global __nvmlDeviceResetNvLinkErrorCounters
-        __nvmlDeviceResetNvLinkErrorCounters = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceResetNvLinkErrorCounters')
-
-        global __nvmlDeviceGetNvLinkRemoteDeviceType
-        __nvmlDeviceGetNvLinkRemoteDeviceType = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkRemoteDeviceType')
-
-        global __nvmlDeviceSetNvLinkDeviceLowPowerThreshold
-        __nvmlDeviceSetNvLinkDeviceLowPowerThreshold = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetNvLinkDeviceLowPowerThreshold')
-
-        global __nvmlSystemSetNvlinkBwMode
-        __nvmlSystemSetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemSetNvlinkBwMode')
-
-        global __nvmlSystemGetNvlinkBwMode
-        __nvmlSystemGetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetNvlinkBwMode')
-
-        global __nvmlDeviceGetNvlinkSupportedBwModes
-        __nvmlDeviceGetNvlinkSupportedBwModes = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvlinkSupportedBwModes')
-
-        global __nvmlDeviceGetNvlinkBwMode
-        __nvmlDeviceGetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvlinkBwMode')
-
-        global __nvmlDeviceSetNvlinkBwMode
-        __nvmlDeviceSetNvlinkBwMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetNvlinkBwMode')
-
-        global __nvmlEventSetCreate
-        __nvmlEventSetCreate = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetCreate')
-
-        global __nvmlDeviceRegisterEvents
-        __nvmlDeviceRegisterEvents = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceRegisterEvents')
-
-        global __nvmlDeviceGetSupportedEventTypes
-        __nvmlDeviceGetSupportedEventTypes = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedEventTypes')
-
-        global __nvmlEventSetWait_v2
-        __nvmlEventSetWait_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetWait_v2')
-
-        global __nvmlEventSetFree
-        __nvmlEventSetFree = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetFree')
-
-        global __nvmlSystemEventSetCreate
-        __nvmlSystemEventSetCreate = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemEventSetCreate')
-
-        global __nvmlSystemEventSetFree
-        __nvmlSystemEventSetFree = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemEventSetFree')
-
-        global __nvmlSystemRegisterEvents
-        __nvmlSystemRegisterEvents = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemRegisterEvents')
-
-        global __nvmlSystemEventSetWait
-        __nvmlSystemEventSetWait = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemEventSetWait')
-
-        global __nvmlDeviceModifyDrainState
-        __nvmlDeviceModifyDrainState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceModifyDrainState')
-
-        global __nvmlDeviceQueryDrainState
-        __nvmlDeviceQueryDrainState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceQueryDrainState')
-
-        global __nvmlDeviceRemoveGpu_v2
-        __nvmlDeviceRemoveGpu_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceRemoveGpu_v2')
-
-        global __nvmlDeviceDiscoverGpus
-        __nvmlDeviceDiscoverGpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceDiscoverGpus')
-
-        global __nvmlDeviceGetFieldValues
-        __nvmlDeviceGetFieldValues = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetFieldValues')
-
-        global __nvmlDeviceClearFieldValues
-        __nvmlDeviceClearFieldValues = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceClearFieldValues')
-
-        global __nvmlDeviceGetVirtualizationMode
-        __nvmlDeviceGetVirtualizationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVirtualizationMode')
-
-        global __nvmlDeviceGetHostVgpuMode
-        __nvmlDeviceGetHostVgpuMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHostVgpuMode')
-
-        global __nvmlDeviceSetVirtualizationMode
-        __nvmlDeviceSetVirtualizationMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVirtualizationMode')
-
-        global __nvmlDeviceGetVgpuHeterogeneousMode
-        __nvmlDeviceGetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuHeterogeneousMode')
-
-        global __nvmlDeviceSetVgpuHeterogeneousMode
-        __nvmlDeviceSetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuHeterogeneousMode')
-
-        global __nvmlVgpuInstanceGetPlacementId
-        __nvmlVgpuInstanceGetPlacementId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetPlacementId')
-
-        global __nvmlDeviceGetVgpuTypeSupportedPlacements
-        __nvmlDeviceGetVgpuTypeSupportedPlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuTypeSupportedPlacements')
-
-        global __nvmlDeviceGetVgpuTypeCreatablePlacements
-        __nvmlDeviceGetVgpuTypeCreatablePlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuTypeCreatablePlacements')
-
-        global __nvmlVgpuTypeGetGspHeapSize
-        __nvmlVgpuTypeGetGspHeapSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetGspHeapSize')
-
-        global __nvmlVgpuTypeGetFbReservation
-        __nvmlVgpuTypeGetFbReservation = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetFbReservation')
-
-        global __nvmlVgpuInstanceGetRuntimeStateSize
-        __nvmlVgpuInstanceGetRuntimeStateSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetRuntimeStateSize')
-
-        global __nvmlDeviceSetVgpuCapabilities
-        __nvmlDeviceSetVgpuCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuCapabilities')
-
-        global __nvmlDeviceGetGridLicensableFeatures_v4
-        __nvmlDeviceGetGridLicensableFeatures_v4 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGridLicensableFeatures_v4')
-
-        global __nvmlGetVgpuDriverCapabilities
-        __nvmlGetVgpuDriverCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetVgpuDriverCapabilities')
-
-        global __nvmlDeviceGetVgpuCapabilities
-        __nvmlDeviceGetVgpuCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuCapabilities')
-
-        global __nvmlDeviceGetSupportedVgpus
-        __nvmlDeviceGetSupportedVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSupportedVgpus')
-
-        global __nvmlDeviceGetCreatableVgpus
-        __nvmlDeviceGetCreatableVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCreatableVgpus')
-
-        global __nvmlVgpuTypeGetClass
-        __nvmlVgpuTypeGetClass = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetClass')
-
-        global __nvmlVgpuTypeGetName
-        __nvmlVgpuTypeGetName = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetName')
-
-        global __nvmlVgpuTypeGetGpuInstanceProfileId
-        __nvmlVgpuTypeGetGpuInstanceProfileId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetGpuInstanceProfileId')
-
-        global __nvmlVgpuTypeGetDeviceID
-        __nvmlVgpuTypeGetDeviceID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetDeviceID')
-
-        global __nvmlVgpuTypeGetFramebufferSize
-        __nvmlVgpuTypeGetFramebufferSize = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetFramebufferSize')
-
-        global __nvmlVgpuTypeGetNumDisplayHeads
-        __nvmlVgpuTypeGetNumDisplayHeads = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetNumDisplayHeads')
-
-        global __nvmlVgpuTypeGetResolution
-        __nvmlVgpuTypeGetResolution = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetResolution')
-
-        global __nvmlVgpuTypeGetLicense
-        __nvmlVgpuTypeGetLicense = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetLicense')
-
-        global __nvmlVgpuTypeGetFrameRateLimit
-        __nvmlVgpuTypeGetFrameRateLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetFrameRateLimit')
-
-        global __nvmlVgpuTypeGetMaxInstances
-        __nvmlVgpuTypeGetMaxInstances = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetMaxInstances')
-
-        global __nvmlVgpuTypeGetMaxInstancesPerVm
-        __nvmlVgpuTypeGetMaxInstancesPerVm = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetMaxInstancesPerVm')
-
-        global __nvmlVgpuTypeGetBAR1Info
-        __nvmlVgpuTypeGetBAR1Info = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetBAR1Info')
-
-        global __nvmlDeviceGetActiveVgpus
-        __nvmlDeviceGetActiveVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetActiveVgpus')
-
-        global __nvmlVgpuInstanceGetVmID
-        __nvmlVgpuInstanceGetVmID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetVmID')
-
-        global __nvmlVgpuInstanceGetUUID
-        __nvmlVgpuInstanceGetUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetUUID')
-
-        global __nvmlVgpuInstanceGetVmDriverVersion
-        __nvmlVgpuInstanceGetVmDriverVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetVmDriverVersion')
-
-        global __nvmlVgpuInstanceGetFbUsage
-        __nvmlVgpuInstanceGetFbUsage = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFbUsage')
-
-        global __nvmlVgpuInstanceGetLicenseStatus
-        __nvmlVgpuInstanceGetLicenseStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetLicenseStatus')
-
-        global __nvmlVgpuInstanceGetType
-        __nvmlVgpuInstanceGetType = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetType')
-
-        global __nvmlVgpuInstanceGetFrameRateLimit
-        __nvmlVgpuInstanceGetFrameRateLimit = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFrameRateLimit')
-
-        global __nvmlVgpuInstanceGetEccMode
-        __nvmlVgpuInstanceGetEccMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEccMode')
-
-        global __nvmlVgpuInstanceGetEncoderCapacity
-        __nvmlVgpuInstanceGetEncoderCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEncoderCapacity')
-
-        global __nvmlVgpuInstanceSetEncoderCapacity
-        __nvmlVgpuInstanceSetEncoderCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceSetEncoderCapacity')
-
-        global __nvmlVgpuInstanceGetEncoderStats
-        __nvmlVgpuInstanceGetEncoderStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEncoderStats')
-
-        global __nvmlVgpuInstanceGetEncoderSessions
-        __nvmlVgpuInstanceGetEncoderSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetEncoderSessions')
-
-        global __nvmlVgpuInstanceGetFBCStats
-        __nvmlVgpuInstanceGetFBCStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFBCStats')
-
-        global __nvmlVgpuInstanceGetFBCSessions
-        __nvmlVgpuInstanceGetFBCSessions = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetFBCSessions')
-
-        global __nvmlVgpuInstanceGetGpuInstanceId
-        __nvmlVgpuInstanceGetGpuInstanceId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetGpuInstanceId')
-
-        global __nvmlVgpuInstanceGetGpuPciId
-        __nvmlVgpuInstanceGetGpuPciId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetGpuPciId')
-
-        global __nvmlVgpuTypeGetCapabilities
-        __nvmlVgpuTypeGetCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetCapabilities')
-
-        global __nvmlVgpuInstanceGetMdevUUID
-        __nvmlVgpuInstanceGetMdevUUID = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetMdevUUID')
-
-        global __nvmlGpuInstanceGetCreatableVgpus
-        __nvmlGpuInstanceGetCreatableVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetCreatableVgpus')
-
-        global __nvmlVgpuTypeGetMaxInstancesPerGpuInstance
-        __nvmlVgpuTypeGetMaxInstancesPerGpuInstance = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuTypeGetMaxInstancesPerGpuInstance')
-
-        global __nvmlGpuInstanceGetActiveVgpus
-        __nvmlGpuInstanceGetActiveVgpus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetActiveVgpus')
-
-        global __nvmlGpuInstanceSetVgpuSchedulerState
-        __nvmlGpuInstanceSetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceSetVgpuSchedulerState')
-
-        global __nvmlGpuInstanceGetVgpuSchedulerState
-        __nvmlGpuInstanceGetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerState')
-
-        global __nvmlGpuInstanceGetVgpuSchedulerLog
-        __nvmlGpuInstanceGetVgpuSchedulerLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerLog')
-
-        global __nvmlGpuInstanceGetVgpuTypeCreatablePlacements
-        __nvmlGpuInstanceGetVgpuTypeCreatablePlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuTypeCreatablePlacements')
-
-        global __nvmlGpuInstanceGetVgpuHeterogeneousMode
-        __nvmlGpuInstanceGetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuHeterogeneousMode')
-
-        global __nvmlGpuInstanceSetVgpuHeterogeneousMode
-        __nvmlGpuInstanceSetVgpuHeterogeneousMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceSetVgpuHeterogeneousMode')
-
-        global __nvmlVgpuInstanceGetMetadata
-        __nvmlVgpuInstanceGetMetadata = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetMetadata')
-
-        global __nvmlDeviceGetVgpuMetadata
-        __nvmlDeviceGetVgpuMetadata = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuMetadata')
-
-        global __nvmlGetVgpuCompatibility
-        __nvmlGetVgpuCompatibility = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetVgpuCompatibility')
-
-        global __nvmlDeviceGetPgpuMetadataString
-        __nvmlDeviceGetPgpuMetadataString = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPgpuMetadataString')
-
-        global __nvmlDeviceGetVgpuSchedulerLog
-        __nvmlDeviceGetVgpuSchedulerLog = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerLog')
-
-        global __nvmlDeviceGetVgpuSchedulerState
-        __nvmlDeviceGetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerState')
-
-        global __nvmlDeviceGetVgpuSchedulerCapabilities
-        __nvmlDeviceGetVgpuSchedulerCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerCapabilities')
-
-        global __nvmlDeviceSetVgpuSchedulerState
-        __nvmlDeviceSetVgpuSchedulerState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuSchedulerState')
-
-        global __nvmlGetVgpuVersion
-        __nvmlGetVgpuVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetVgpuVersion')
-
-        global __nvmlSetVgpuVersion
-        __nvmlSetVgpuVersion = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSetVgpuVersion')
-
-        global __nvmlDeviceGetVgpuUtilization
-        __nvmlDeviceGetVgpuUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuUtilization')
-
-        global __nvmlDeviceGetVgpuInstancesUtilizationInfo
-        __nvmlDeviceGetVgpuInstancesUtilizationInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuInstancesUtilizationInfo')
-
-        global __nvmlDeviceGetVgpuProcessUtilization
-        __nvmlDeviceGetVgpuProcessUtilization = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuProcessUtilization')
-
-        global __nvmlDeviceGetVgpuProcessesUtilizationInfo
-        __nvmlDeviceGetVgpuProcessesUtilizationInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuProcessesUtilizationInfo')
-
-        global __nvmlVgpuInstanceGetAccountingMode
-        __nvmlVgpuInstanceGetAccountingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetAccountingMode')
-
-        global __nvmlVgpuInstanceGetAccountingPids
-        __nvmlVgpuInstanceGetAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetAccountingPids')
-
-        global __nvmlVgpuInstanceGetAccountingStats
-        __nvmlVgpuInstanceGetAccountingStats = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetAccountingStats')
-
-        global __nvmlVgpuInstanceClearAccountingPids
-        __nvmlVgpuInstanceClearAccountingPids = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceClearAccountingPids')
-
-        global __nvmlVgpuInstanceGetLicenseInfo_v2
-        __nvmlVgpuInstanceGetLicenseInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlVgpuInstanceGetLicenseInfo_v2')
-
-        global __nvmlGetExcludedDeviceCount
-        __nvmlGetExcludedDeviceCount = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetExcludedDeviceCount')
-
-        global __nvmlGetExcludedDeviceInfoByIndex
-        __nvmlGetExcludedDeviceInfoByIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGetExcludedDeviceInfoByIndex')
-
-        global __nvmlDeviceSetMigMode
-        __nvmlDeviceSetMigMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetMigMode')
-
-        global __nvmlDeviceGetMigMode
-        __nvmlDeviceGetMigMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMigMode')
-
-        global __nvmlDeviceGetGpuInstanceProfileInfoV
-        __nvmlDeviceGetGpuInstanceProfileInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceProfileInfoV')
-
-        global __nvmlDeviceGetGpuInstancePossiblePlacements_v2
-        __nvmlDeviceGetGpuInstancePossiblePlacements_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstancePossiblePlacements_v2')
-
-        global __nvmlDeviceGetGpuInstanceRemainingCapacity
-        __nvmlDeviceGetGpuInstanceRemainingCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceRemainingCapacity')
-
-        global __nvmlDeviceCreateGpuInstance
-        __nvmlDeviceCreateGpuInstance = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceCreateGpuInstance')
-
-        global __nvmlDeviceCreateGpuInstanceWithPlacement
-        __nvmlDeviceCreateGpuInstanceWithPlacement = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceCreateGpuInstanceWithPlacement')
-
-        global __nvmlGpuInstanceDestroy
-        __nvmlGpuInstanceDestroy = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceDestroy')
-
-        global __nvmlDeviceGetGpuInstances
-        __nvmlDeviceGetGpuInstances = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstances')
-
-        global __nvmlDeviceGetGpuInstanceById
-        __nvmlDeviceGetGpuInstanceById = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceById')
-
-        global __nvmlGpuInstanceGetInfo
-        __nvmlGpuInstanceGetInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetInfo')
-
-        global __nvmlGpuInstanceGetComputeInstanceProfileInfoV
-        __nvmlGpuInstanceGetComputeInstanceProfileInfoV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstanceProfileInfoV')
-
-        global __nvmlGpuInstanceGetComputeInstanceRemainingCapacity
-        __nvmlGpuInstanceGetComputeInstanceRemainingCapacity = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstanceRemainingCapacity')
-
-        global __nvmlGpuInstanceGetComputeInstancePossiblePlacements
-        __nvmlGpuInstanceGetComputeInstancePossiblePlacements = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstancePossiblePlacements')
-
-        global __nvmlGpuInstanceCreateComputeInstance
-        __nvmlGpuInstanceCreateComputeInstance = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceCreateComputeInstance')
-
-        global __nvmlGpuInstanceCreateComputeInstanceWithPlacement
-        __nvmlGpuInstanceCreateComputeInstanceWithPlacement = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceCreateComputeInstanceWithPlacement')
-
-        global __nvmlComputeInstanceDestroy
-        __nvmlComputeInstanceDestroy = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlComputeInstanceDestroy')
-
-        global __nvmlGpuInstanceGetComputeInstances
-        __nvmlGpuInstanceGetComputeInstances = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstances')
-
-        global __nvmlGpuInstanceGetComputeInstanceById
-        __nvmlGpuInstanceGetComputeInstanceById = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetComputeInstanceById')
-
-        global __nvmlComputeInstanceGetInfo_v2
-        __nvmlComputeInstanceGetInfo_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlComputeInstanceGetInfo_v2')
-
-        global __nvmlDeviceIsMigDeviceHandle
-        __nvmlDeviceIsMigDeviceHandle = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceIsMigDeviceHandle')
-
-        global __nvmlDeviceGetGpuInstanceId
-        __nvmlDeviceGetGpuInstanceId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceId')
-
-        global __nvmlDeviceGetComputeInstanceId
-        __nvmlDeviceGetComputeInstanceId = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetComputeInstanceId')
-
-        global __nvmlDeviceGetMaxMigDeviceCount
-        __nvmlDeviceGetMaxMigDeviceCount = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMaxMigDeviceCount')
-
-        global __nvmlDeviceGetMigDeviceHandleByIndex
-        __nvmlDeviceGetMigDeviceHandleByIndex = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMigDeviceHandleByIndex')
-
-        global __nvmlDeviceGetDeviceHandleFromMigDeviceHandle
-        __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
-
-        global __nvmlDeviceGetCapabilities
-        __nvmlDeviceGetCapabilities = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetCapabilities')
-
-        global __nvmlDevicePowerSmoothingActivatePresetProfile
-        __nvmlDevicePowerSmoothingActivatePresetProfile = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePowerSmoothingActivatePresetProfile')
-
-        global __nvmlDevicePowerSmoothingUpdatePresetProfileParam
-        __nvmlDevicePowerSmoothingUpdatePresetProfileParam = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePowerSmoothingUpdatePresetProfileParam')
-
-        global __nvmlDevicePowerSmoothingSetState
-        __nvmlDevicePowerSmoothingSetState = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePowerSmoothingSetState')
-
-        global __nvmlDeviceGetAddressingMode
-        __nvmlDeviceGetAddressingMode = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAddressingMode')
-
-        global __nvmlDeviceGetRepairStatus
-        __nvmlDeviceGetRepairStatus = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRepairStatus')
-
-        global __nvmlDeviceGetPowerMizerMode_v1
-        __nvmlDeviceGetPowerMizerMode_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPowerMizerMode_v1')
-
-        global __nvmlDeviceSetPowerMizerMode_v1
-        __nvmlDeviceSetPowerMizerMode_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetPowerMizerMode_v1')
-
-        global __nvmlDeviceGetPdi
-        __nvmlDeviceGetPdi = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetPdi')
-
-        global __nvmlDeviceSetHostname_v1
-        __nvmlDeviceSetHostname_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetHostname_v1')
-
-        global __nvmlDeviceGetHostname_v1
-        __nvmlDeviceGetHostname_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetHostname_v1')
-
-        global __nvmlDeviceGetNvLinkInfo
-        __nvmlDeviceGetNvLinkInfo = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkInfo')
-
-        global __nvmlDeviceReadWritePRM_v1
-        __nvmlDeviceReadWritePRM_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceReadWritePRM_v1')
-
-        global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
-        __nvmlDeviceGetGpuInstanceProfileInfoByIdV = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
-
-        global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
-        __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
-
-        global __nvmlDeviceGetUnrepairableMemoryFlag_v1
-        __nvmlDeviceGetUnrepairableMemoryFlag_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
-
-        global __nvmlDeviceReadPRMCounters_v1
-        __nvmlDeviceReadPRMCounters_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceReadPRMCounters_v1')
-
-        global __nvmlDeviceSetRusdSettings_v1
-        __nvmlDeviceSetRusdSettings_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetRusdSettings_v1')
-
-        global __nvmlDeviceVgpuForceGspUnload
-        __nvmlDeviceVgpuForceGspUnload = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceVgpuForceGspUnload')
-
-        global __nvmlDeviceGetVgpuSchedulerState_v2
-        __nvmlDeviceGetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerState_v2')
-
-        global __nvmlGpuInstanceGetVgpuSchedulerState_v2
-        __nvmlGpuInstanceGetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerState_v2')
-
-        global __nvmlDeviceGetVgpuSchedulerLog_v2
-        __nvmlDeviceGetVgpuSchedulerLog_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetVgpuSchedulerLog_v2')
-
-        global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
-        __nvmlGpuInstanceGetVgpuSchedulerLog_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceGetVgpuSchedulerLog_v2')
-
-        global __nvmlDeviceSetVgpuSchedulerState_v2
-        __nvmlDeviceSetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetVgpuSchedulerState_v2')
-
-        global __nvmlGpuInstanceSetVgpuSchedulerState_v2
-        __nvmlGpuInstanceSetVgpuSchedulerState_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlGpuInstanceSetVgpuSchedulerState_v2')
-
-        global __nvmlSystemGetCPER_v1
-        __nvmlSystemGetCPER_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlSystemGetCPER_v1')
-
-        global __nvmlDeviceGetBBXTimeData_v1
-        __nvmlDeviceGetBBXTimeData_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBBXTimeData_v1')
-
-        global __nvmlDeviceGetAccountingStats_v2
-        __nvmlDeviceGetAccountingStats_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAccountingStats_v2')
-
-        global __nvmlDeviceGetRemappedRows_v2
-        __nvmlDeviceGetRemappedRows_v2 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetRemappedRows_v2')
-
-        global __nvmlDeviceSetAdaptiveTgpMode_v1
-        __nvmlDeviceSetAdaptiveTgpMode_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetAdaptiveTgpMode_v1')
-
-        global __nvmlDeviceGetAdaptiveTgpModeInfo_v1
-        __nvmlDeviceGetAdaptiveTgpModeInfo_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetAdaptiveTgpModeInfo_v1')
-
-        global __nvmlDeviceSetMemoryLimits_v1
-        __nvmlDeviceSetMemoryLimits_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetMemoryLimits_v1')
-
-        global __nvmlDeviceGetMemoryLimits_v1
-        __nvmlDeviceGetMemoryLimits_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetMemoryLimits_v1')
-
-        global __nvmlDeviceGetGpuFabricInfo_v4
-        __nvmlDeviceGetGpuFabricInfo_v4 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetGpuFabricInfo_v4')
-
-        global __nvmlDevicePerfMetricsGetSamples_v1
-        __nvmlDevicePerfMetricsGetSamples_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDevicePerfMetricsGetSamples_v1')
-
-        global __nvmlDeviceSetNvlinkBwModeAsync_v1
-        __nvmlDeviceSetNvlinkBwModeAsync_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceSetNvlinkBwModeAsync_v1')
-
-        global __nvmlDeviceGetNvLinkTelemetrySamples_v1
-        __nvmlDeviceGetNvLinkTelemetrySamples_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetNvLinkTelemetrySamples_v1')
-
-        global __nvmlEventSetRegisterGpuOperationalEvents_v1
-        __nvmlEventSetRegisterGpuOperationalEvents_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetRegisterGpuOperationalEvents_v1')
-
-        global __nvmlEventSetWait_v3
-        __nvmlEventSetWait_v3 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetWait_v3')
-
-        global __nvmlEventSetGetContextCount_v1
-        __nvmlEventSetGetContextCount_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextCount_v1')
-
-        global __nvmlEventSetGetContextInfo_v1
-        __nvmlEventSetGetContextInfo_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextInfo_v1')
-
-        global __nvmlEventSetGetContextData_v1
-        __nvmlEventSetGetContextData_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetContextData_v1')
-
-        global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
-        __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1')
-
-        global __nvmlDeviceGetBankRemapperStatus_v1
-        __nvmlDeviceGetBankRemapperStatus_v1 = _cyb_GetProcAddress(<HMODULE>handle, 'nvmlDeviceGetBankRemapperStatus_v1')
+        for i in range(_cyb_nvml_n_functions):
+            _cyb_nvml_slots[i][0] = _cyb_GetProcAddress(<HMODULE>handle, _cyb_nvml_names[i])
 
         _cyb_atomic_int_store(<int *>&_cyb___py_nvml_init, 1)
         return 0
@@ -1571,1115 +855,9 @@ cpdef dict _inspect_function_pointers():
 
     _check_or_init_nvml()
     cdef dict data = {}
-    global __nvmlInit_v2
-    data["__nvmlInit_v2"] = <intptr_t>__nvmlInit_v2
-
-    global __nvmlInitWithFlags
-    data["__nvmlInitWithFlags"] = <intptr_t>__nvmlInitWithFlags
-
-    global __nvmlShutdown
-    data["__nvmlShutdown"] = <intptr_t>__nvmlShutdown
-
-    global __nvmlErrorString
-    data["__nvmlErrorString"] = <intptr_t>__nvmlErrorString
-
-    global __nvmlSystemGetDriverVersion
-    data["__nvmlSystemGetDriverVersion"] = <intptr_t>__nvmlSystemGetDriverVersion
-
-    global __nvmlSystemGetNVMLVersion
-    data["__nvmlSystemGetNVMLVersion"] = <intptr_t>__nvmlSystemGetNVMLVersion
-
-    global __nvmlSystemGetCudaDriverVersion
-    data["__nvmlSystemGetCudaDriverVersion"] = <intptr_t>__nvmlSystemGetCudaDriverVersion
-
-    global __nvmlSystemGetCudaDriverVersion_v2
-    data["__nvmlSystemGetCudaDriverVersion_v2"] = <intptr_t>__nvmlSystemGetCudaDriverVersion_v2
-
-    global __nvmlSystemGetProcessName
-    data["__nvmlSystemGetProcessName"] = <intptr_t>__nvmlSystemGetProcessName
-
-    global __nvmlSystemGetHicVersion
-    data["__nvmlSystemGetHicVersion"] = <intptr_t>__nvmlSystemGetHicVersion
-
-    global __nvmlSystemGetTopologyGpuSet
-    data["__nvmlSystemGetTopologyGpuSet"] = <intptr_t>__nvmlSystemGetTopologyGpuSet
-
-    global __nvmlSystemGetDriverBranch
-    data["__nvmlSystemGetDriverBranch"] = <intptr_t>__nvmlSystemGetDriverBranch
-
-    global __nvmlUnitGetCount
-    data["__nvmlUnitGetCount"] = <intptr_t>__nvmlUnitGetCount
-
-    global __nvmlUnitGetHandleByIndex
-    data["__nvmlUnitGetHandleByIndex"] = <intptr_t>__nvmlUnitGetHandleByIndex
-
-    global __nvmlUnitGetUnitInfo
-    data["__nvmlUnitGetUnitInfo"] = <intptr_t>__nvmlUnitGetUnitInfo
-
-    global __nvmlUnitGetLedState
-    data["__nvmlUnitGetLedState"] = <intptr_t>__nvmlUnitGetLedState
-
-    global __nvmlUnitGetPsuInfo
-    data["__nvmlUnitGetPsuInfo"] = <intptr_t>__nvmlUnitGetPsuInfo
-
-    global __nvmlUnitGetTemperature
-    data["__nvmlUnitGetTemperature"] = <intptr_t>__nvmlUnitGetTemperature
-
-    global __nvmlUnitGetFanSpeedInfo
-    data["__nvmlUnitGetFanSpeedInfo"] = <intptr_t>__nvmlUnitGetFanSpeedInfo
-
-    global __nvmlUnitGetDevices
-    data["__nvmlUnitGetDevices"] = <intptr_t>__nvmlUnitGetDevices
-
-    global __nvmlDeviceGetCount_v2
-    data["__nvmlDeviceGetCount_v2"] = <intptr_t>__nvmlDeviceGetCount_v2
-
-    global __nvmlDeviceGetAttributes_v2
-    data["__nvmlDeviceGetAttributes_v2"] = <intptr_t>__nvmlDeviceGetAttributes_v2
-
-    global __nvmlDeviceGetHandleByIndex_v2
-    data["__nvmlDeviceGetHandleByIndex_v2"] = <intptr_t>__nvmlDeviceGetHandleByIndex_v2
-
-    global __nvmlDeviceGetHandleBySerial
-    data["__nvmlDeviceGetHandleBySerial"] = <intptr_t>__nvmlDeviceGetHandleBySerial
-
-    global __nvmlDeviceGetHandleByUUID
-    data["__nvmlDeviceGetHandleByUUID"] = <intptr_t>__nvmlDeviceGetHandleByUUID
-
-    global __nvmlDeviceGetHandleByUUIDV
-    data["__nvmlDeviceGetHandleByUUIDV"] = <intptr_t>__nvmlDeviceGetHandleByUUIDV
-
-    global __nvmlDeviceGetHandleByPciBusId_v2
-    data["__nvmlDeviceGetHandleByPciBusId_v2"] = <intptr_t>__nvmlDeviceGetHandleByPciBusId_v2
-
-    global __nvmlDeviceGetName
-    data["__nvmlDeviceGetName"] = <intptr_t>__nvmlDeviceGetName
-
-    global __nvmlDeviceGetBrand
-    data["__nvmlDeviceGetBrand"] = <intptr_t>__nvmlDeviceGetBrand
-
-    global __nvmlDeviceGetIndex
-    data["__nvmlDeviceGetIndex"] = <intptr_t>__nvmlDeviceGetIndex
-
-    global __nvmlDeviceGetSerial
-    data["__nvmlDeviceGetSerial"] = <intptr_t>__nvmlDeviceGetSerial
-
-    global __nvmlDeviceGetModuleId
-    data["__nvmlDeviceGetModuleId"] = <intptr_t>__nvmlDeviceGetModuleId
-
-    global __nvmlDeviceGetC2cModeInfoV
-    data["__nvmlDeviceGetC2cModeInfoV"] = <intptr_t>__nvmlDeviceGetC2cModeInfoV
-
-    global __nvmlDeviceGetMemoryAffinity
-    data["__nvmlDeviceGetMemoryAffinity"] = <intptr_t>__nvmlDeviceGetMemoryAffinity
-
-    global __nvmlDeviceGetCpuAffinityWithinScope
-    data["__nvmlDeviceGetCpuAffinityWithinScope"] = <intptr_t>__nvmlDeviceGetCpuAffinityWithinScope
-
-    global __nvmlDeviceGetCpuAffinity
-    data["__nvmlDeviceGetCpuAffinity"] = <intptr_t>__nvmlDeviceGetCpuAffinity
-
-    global __nvmlDeviceSetCpuAffinity
-    data["__nvmlDeviceSetCpuAffinity"] = <intptr_t>__nvmlDeviceSetCpuAffinity
-
-    global __nvmlDeviceClearCpuAffinity
-    data["__nvmlDeviceClearCpuAffinity"] = <intptr_t>__nvmlDeviceClearCpuAffinity
-
-    global __nvmlDeviceGetNumaNodeId
-    data["__nvmlDeviceGetNumaNodeId"] = <intptr_t>__nvmlDeviceGetNumaNodeId
-
-    global __nvmlDeviceGetTopologyCommonAncestor
-    data["__nvmlDeviceGetTopologyCommonAncestor"] = <intptr_t>__nvmlDeviceGetTopologyCommonAncestor
-
-    global __nvmlDeviceGetTopologyNearestGpus
-    data["__nvmlDeviceGetTopologyNearestGpus"] = <intptr_t>__nvmlDeviceGetTopologyNearestGpus
-
-    global __nvmlDeviceGetP2PStatus
-    data["__nvmlDeviceGetP2PStatus"] = <intptr_t>__nvmlDeviceGetP2PStatus
-
-    global __nvmlDeviceGetUUID
-    data["__nvmlDeviceGetUUID"] = <intptr_t>__nvmlDeviceGetUUID
-
-    global __nvmlDeviceGetMinorNumber
-    data["__nvmlDeviceGetMinorNumber"] = <intptr_t>__nvmlDeviceGetMinorNumber
-
-    global __nvmlDeviceGetBoardPartNumber
-    data["__nvmlDeviceGetBoardPartNumber"] = <intptr_t>__nvmlDeviceGetBoardPartNumber
-
-    global __nvmlDeviceGetInforomVersion
-    data["__nvmlDeviceGetInforomVersion"] = <intptr_t>__nvmlDeviceGetInforomVersion
-
-    global __nvmlDeviceGetInforomImageVersion
-    data["__nvmlDeviceGetInforomImageVersion"] = <intptr_t>__nvmlDeviceGetInforomImageVersion
-
-    global __nvmlDeviceGetInforomConfigurationChecksum
-    data["__nvmlDeviceGetInforomConfigurationChecksum"] = <intptr_t>__nvmlDeviceGetInforomConfigurationChecksum
-
-    global __nvmlDeviceValidateInforom
-    data["__nvmlDeviceValidateInforom"] = <intptr_t>__nvmlDeviceValidateInforom
-
-    global __nvmlDeviceGetLastBBXFlushTime
-    data["__nvmlDeviceGetLastBBXFlushTime"] = <intptr_t>__nvmlDeviceGetLastBBXFlushTime
-
-    global __nvmlDeviceGetDisplayMode
-    data["__nvmlDeviceGetDisplayMode"] = <intptr_t>__nvmlDeviceGetDisplayMode
-
-    global __nvmlDeviceGetDisplayActive
-    data["__nvmlDeviceGetDisplayActive"] = <intptr_t>__nvmlDeviceGetDisplayActive
-
-    global __nvmlDeviceGetPersistenceMode
-    data["__nvmlDeviceGetPersistenceMode"] = <intptr_t>__nvmlDeviceGetPersistenceMode
-
-    global __nvmlDeviceGetPciInfoExt
-    data["__nvmlDeviceGetPciInfoExt"] = <intptr_t>__nvmlDeviceGetPciInfoExt
-
-    global __nvmlDeviceGetPciInfo_v3
-    data["__nvmlDeviceGetPciInfo_v3"] = <intptr_t>__nvmlDeviceGetPciInfo_v3
-
-    global __nvmlDeviceGetMaxPcieLinkGeneration
-    data["__nvmlDeviceGetMaxPcieLinkGeneration"] = <intptr_t>__nvmlDeviceGetMaxPcieLinkGeneration
-
-    global __nvmlDeviceGetGpuMaxPcieLinkGeneration
-    data["__nvmlDeviceGetGpuMaxPcieLinkGeneration"] = <intptr_t>__nvmlDeviceGetGpuMaxPcieLinkGeneration
-
-    global __nvmlDeviceGetMaxPcieLinkWidth
-    data["__nvmlDeviceGetMaxPcieLinkWidth"] = <intptr_t>__nvmlDeviceGetMaxPcieLinkWidth
-
-    global __nvmlDeviceGetCurrPcieLinkGeneration
-    data["__nvmlDeviceGetCurrPcieLinkGeneration"] = <intptr_t>__nvmlDeviceGetCurrPcieLinkGeneration
-
-    global __nvmlDeviceGetCurrPcieLinkWidth
-    data["__nvmlDeviceGetCurrPcieLinkWidth"] = <intptr_t>__nvmlDeviceGetCurrPcieLinkWidth
-
-    global __nvmlDeviceGetPcieThroughput
-    data["__nvmlDeviceGetPcieThroughput"] = <intptr_t>__nvmlDeviceGetPcieThroughput
-
-    global __nvmlDeviceGetPcieReplayCounter
-    data["__nvmlDeviceGetPcieReplayCounter"] = <intptr_t>__nvmlDeviceGetPcieReplayCounter
-
-    global __nvmlDeviceGetClockInfo
-    data["__nvmlDeviceGetClockInfo"] = <intptr_t>__nvmlDeviceGetClockInfo
-
-    global __nvmlDeviceGetMaxClockInfo
-    data["__nvmlDeviceGetMaxClockInfo"] = <intptr_t>__nvmlDeviceGetMaxClockInfo
-
-    global __nvmlDeviceGetGpcClkVfOffset
-    data["__nvmlDeviceGetGpcClkVfOffset"] = <intptr_t>__nvmlDeviceGetGpcClkVfOffset
-
-    global __nvmlDeviceGetClock
-    data["__nvmlDeviceGetClock"] = <intptr_t>__nvmlDeviceGetClock
-
-    global __nvmlDeviceGetMaxCustomerBoostClock
-    data["__nvmlDeviceGetMaxCustomerBoostClock"] = <intptr_t>__nvmlDeviceGetMaxCustomerBoostClock
-
-    global __nvmlDeviceGetSupportedMemoryClocks
-    data["__nvmlDeviceGetSupportedMemoryClocks"] = <intptr_t>__nvmlDeviceGetSupportedMemoryClocks
-
-    global __nvmlDeviceGetSupportedGraphicsClocks
-    data["__nvmlDeviceGetSupportedGraphicsClocks"] = <intptr_t>__nvmlDeviceGetSupportedGraphicsClocks
-
-    global __nvmlDeviceGetAutoBoostedClocksEnabled
-    data["__nvmlDeviceGetAutoBoostedClocksEnabled"] = <intptr_t>__nvmlDeviceGetAutoBoostedClocksEnabled
-
-    global __nvmlDeviceGetFanSpeed
-    data["__nvmlDeviceGetFanSpeed"] = <intptr_t>__nvmlDeviceGetFanSpeed
-
-    global __nvmlDeviceGetFanSpeed_v2
-    data["__nvmlDeviceGetFanSpeed_v2"] = <intptr_t>__nvmlDeviceGetFanSpeed_v2
-
-    global __nvmlDeviceGetFanSpeedRPM
-    data["__nvmlDeviceGetFanSpeedRPM"] = <intptr_t>__nvmlDeviceGetFanSpeedRPM
-
-    global __nvmlDeviceGetTargetFanSpeed
-    data["__nvmlDeviceGetTargetFanSpeed"] = <intptr_t>__nvmlDeviceGetTargetFanSpeed
-
-    global __nvmlDeviceGetMinMaxFanSpeed
-    data["__nvmlDeviceGetMinMaxFanSpeed"] = <intptr_t>__nvmlDeviceGetMinMaxFanSpeed
-
-    global __nvmlDeviceGetFanControlPolicy_v2
-    data["__nvmlDeviceGetFanControlPolicy_v2"] = <intptr_t>__nvmlDeviceGetFanControlPolicy_v2
-
-    global __nvmlDeviceGetNumFans
-    data["__nvmlDeviceGetNumFans"] = <intptr_t>__nvmlDeviceGetNumFans
-
-    global __nvmlDeviceGetCoolerInfo
-    data["__nvmlDeviceGetCoolerInfo"] = <intptr_t>__nvmlDeviceGetCoolerInfo
-
-    global __nvmlDeviceGetTemperatureV
-    data["__nvmlDeviceGetTemperatureV"] = <intptr_t>__nvmlDeviceGetTemperatureV
-
-    global __nvmlDeviceGetTemperatureThreshold
-    data["__nvmlDeviceGetTemperatureThreshold"] = <intptr_t>__nvmlDeviceGetTemperatureThreshold
-
-    global __nvmlDeviceGetMarginTemperature
-    data["__nvmlDeviceGetMarginTemperature"] = <intptr_t>__nvmlDeviceGetMarginTemperature
-
-    global __nvmlDeviceGetThermalSettings
-    data["__nvmlDeviceGetThermalSettings"] = <intptr_t>__nvmlDeviceGetThermalSettings
-
-    global __nvmlDeviceGetPerformanceState
-    data["__nvmlDeviceGetPerformanceState"] = <intptr_t>__nvmlDeviceGetPerformanceState
-
-    global __nvmlDeviceGetCurrentClocksEventReasons
-    data["__nvmlDeviceGetCurrentClocksEventReasons"] = <intptr_t>__nvmlDeviceGetCurrentClocksEventReasons
-
-    global __nvmlDeviceGetSupportedClocksEventReasons
-    data["__nvmlDeviceGetSupportedClocksEventReasons"] = <intptr_t>__nvmlDeviceGetSupportedClocksEventReasons
-
-    global __nvmlDeviceGetPowerState
-    data["__nvmlDeviceGetPowerState"] = <intptr_t>__nvmlDeviceGetPowerState
-
-    global __nvmlDeviceGetDynamicPstatesInfo
-    data["__nvmlDeviceGetDynamicPstatesInfo"] = <intptr_t>__nvmlDeviceGetDynamicPstatesInfo
-
-    global __nvmlDeviceGetMemClkVfOffset
-    data["__nvmlDeviceGetMemClkVfOffset"] = <intptr_t>__nvmlDeviceGetMemClkVfOffset
-
-    global __nvmlDeviceGetMinMaxClockOfPState
-    data["__nvmlDeviceGetMinMaxClockOfPState"] = <intptr_t>__nvmlDeviceGetMinMaxClockOfPState
-
-    global __nvmlDeviceGetSupportedPerformanceStates
-    data["__nvmlDeviceGetSupportedPerformanceStates"] = <intptr_t>__nvmlDeviceGetSupportedPerformanceStates
-
-    global __nvmlDeviceGetGpcClkMinMaxVfOffset
-    data["__nvmlDeviceGetGpcClkMinMaxVfOffset"] = <intptr_t>__nvmlDeviceGetGpcClkMinMaxVfOffset
-
-    global __nvmlDeviceGetMemClkMinMaxVfOffset
-    data["__nvmlDeviceGetMemClkMinMaxVfOffset"] = <intptr_t>__nvmlDeviceGetMemClkMinMaxVfOffset
-
-    global __nvmlDeviceGetClockOffsets
-    data["__nvmlDeviceGetClockOffsets"] = <intptr_t>__nvmlDeviceGetClockOffsets
-
-    global __nvmlDeviceSetClockOffsets
-    data["__nvmlDeviceSetClockOffsets"] = <intptr_t>__nvmlDeviceSetClockOffsets
-
-    global __nvmlDeviceGetPerformanceModes
-    data["__nvmlDeviceGetPerformanceModes"] = <intptr_t>__nvmlDeviceGetPerformanceModes
-
-    global __nvmlDeviceGetCurrentClockFreqs
-    data["__nvmlDeviceGetCurrentClockFreqs"] = <intptr_t>__nvmlDeviceGetCurrentClockFreqs
-
-    global __nvmlDeviceGetPowerManagementLimit
-    data["__nvmlDeviceGetPowerManagementLimit"] = <intptr_t>__nvmlDeviceGetPowerManagementLimit
-
-    global __nvmlDeviceGetPowerManagementLimitConstraints
-    data["__nvmlDeviceGetPowerManagementLimitConstraints"] = <intptr_t>__nvmlDeviceGetPowerManagementLimitConstraints
-
-    global __nvmlDeviceGetPowerManagementDefaultLimit
-    data["__nvmlDeviceGetPowerManagementDefaultLimit"] = <intptr_t>__nvmlDeviceGetPowerManagementDefaultLimit
-
-    global __nvmlDeviceGetPowerUsage
-    data["__nvmlDeviceGetPowerUsage"] = <intptr_t>__nvmlDeviceGetPowerUsage
-
-    global __nvmlDeviceGetTotalEnergyConsumption
-    data["__nvmlDeviceGetTotalEnergyConsumption"] = <intptr_t>__nvmlDeviceGetTotalEnergyConsumption
-
-    global __nvmlDeviceGetEnforcedPowerLimit
-    data["__nvmlDeviceGetEnforcedPowerLimit"] = <intptr_t>__nvmlDeviceGetEnforcedPowerLimit
-
-    global __nvmlDeviceGetGpuOperationMode
-    data["__nvmlDeviceGetGpuOperationMode"] = <intptr_t>__nvmlDeviceGetGpuOperationMode
-
-    global __nvmlDeviceGetMemoryInfo_v2
-    data["__nvmlDeviceGetMemoryInfo_v2"] = <intptr_t>__nvmlDeviceGetMemoryInfo_v2
-
-    global __nvmlDeviceGetComputeMode
-    data["__nvmlDeviceGetComputeMode"] = <intptr_t>__nvmlDeviceGetComputeMode
-
-    global __nvmlDeviceGetCudaComputeCapability
-    data["__nvmlDeviceGetCudaComputeCapability"] = <intptr_t>__nvmlDeviceGetCudaComputeCapability
-
-    global __nvmlDeviceGetDramEncryptionMode
-    data["__nvmlDeviceGetDramEncryptionMode"] = <intptr_t>__nvmlDeviceGetDramEncryptionMode
-
-    global __nvmlDeviceSetDramEncryptionMode
-    data["__nvmlDeviceSetDramEncryptionMode"] = <intptr_t>__nvmlDeviceSetDramEncryptionMode
-
-    global __nvmlDeviceGetEccMode
-    data["__nvmlDeviceGetEccMode"] = <intptr_t>__nvmlDeviceGetEccMode
-
-    global __nvmlDeviceGetDefaultEccMode
-    data["__nvmlDeviceGetDefaultEccMode"] = <intptr_t>__nvmlDeviceGetDefaultEccMode
-
-    global __nvmlDeviceGetBoardId
-    data["__nvmlDeviceGetBoardId"] = <intptr_t>__nvmlDeviceGetBoardId
-
-    global __nvmlDeviceGetMultiGpuBoard
-    data["__nvmlDeviceGetMultiGpuBoard"] = <intptr_t>__nvmlDeviceGetMultiGpuBoard
-
-    global __nvmlDeviceGetTotalEccErrors
-    data["__nvmlDeviceGetTotalEccErrors"] = <intptr_t>__nvmlDeviceGetTotalEccErrors
-
-    global __nvmlDeviceGetMemoryErrorCounter
-    data["__nvmlDeviceGetMemoryErrorCounter"] = <intptr_t>__nvmlDeviceGetMemoryErrorCounter
-
-    global __nvmlDeviceGetUtilizationRates
-    data["__nvmlDeviceGetUtilizationRates"] = <intptr_t>__nvmlDeviceGetUtilizationRates
-
-    global __nvmlDeviceGetEncoderUtilization
-    data["__nvmlDeviceGetEncoderUtilization"] = <intptr_t>__nvmlDeviceGetEncoderUtilization
-
-    global __nvmlDeviceGetEncoderCapacity
-    data["__nvmlDeviceGetEncoderCapacity"] = <intptr_t>__nvmlDeviceGetEncoderCapacity
-
-    global __nvmlDeviceGetEncoderStats
-    data["__nvmlDeviceGetEncoderStats"] = <intptr_t>__nvmlDeviceGetEncoderStats
-
-    global __nvmlDeviceGetEncoderSessions
-    data["__nvmlDeviceGetEncoderSessions"] = <intptr_t>__nvmlDeviceGetEncoderSessions
-
-    global __nvmlDeviceGetDecoderUtilization
-    data["__nvmlDeviceGetDecoderUtilization"] = <intptr_t>__nvmlDeviceGetDecoderUtilization
-
-    global __nvmlDeviceGetJpgUtilization
-    data["__nvmlDeviceGetJpgUtilization"] = <intptr_t>__nvmlDeviceGetJpgUtilization
-
-    global __nvmlDeviceGetOfaUtilization
-    data["__nvmlDeviceGetOfaUtilization"] = <intptr_t>__nvmlDeviceGetOfaUtilization
-
-    global __nvmlDeviceGetFBCStats
-    data["__nvmlDeviceGetFBCStats"] = <intptr_t>__nvmlDeviceGetFBCStats
-
-    global __nvmlDeviceGetFBCSessions
-    data["__nvmlDeviceGetFBCSessions"] = <intptr_t>__nvmlDeviceGetFBCSessions
-
-    global __nvmlDeviceGetDriverModel_v2
-    data["__nvmlDeviceGetDriverModel_v2"] = <intptr_t>__nvmlDeviceGetDriverModel_v2
-
-    global __nvmlDeviceGetVbiosVersion
-    data["__nvmlDeviceGetVbiosVersion"] = <intptr_t>__nvmlDeviceGetVbiosVersion
-
-    global __nvmlDeviceGetBridgeChipInfo
-    data["__nvmlDeviceGetBridgeChipInfo"] = <intptr_t>__nvmlDeviceGetBridgeChipInfo
-
-    global __nvmlDeviceGetComputeRunningProcesses_v3
-    data["__nvmlDeviceGetComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetComputeRunningProcesses_v3
-
-    global __nvmlDeviceGetGraphicsRunningProcesses_v3
-    data["__nvmlDeviceGetGraphicsRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetGraphicsRunningProcesses_v3
-
-    global __nvmlDeviceGetMPSComputeRunningProcesses_v3
-    data["__nvmlDeviceGetMPSComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetMPSComputeRunningProcesses_v3
-
-    global __nvmlDeviceGetRunningProcessDetailList
-    data["__nvmlDeviceGetRunningProcessDetailList"] = <intptr_t>__nvmlDeviceGetRunningProcessDetailList
-
-    global __nvmlDeviceOnSameBoard
-    data["__nvmlDeviceOnSameBoard"] = <intptr_t>__nvmlDeviceOnSameBoard
-
-    global __nvmlDeviceGetAPIRestriction
-    data["__nvmlDeviceGetAPIRestriction"] = <intptr_t>__nvmlDeviceGetAPIRestriction
-
-    global __nvmlDeviceGetSamples
-    data["__nvmlDeviceGetSamples"] = <intptr_t>__nvmlDeviceGetSamples
-
-    global __nvmlDeviceGetBAR1MemoryInfo
-    data["__nvmlDeviceGetBAR1MemoryInfo"] = <intptr_t>__nvmlDeviceGetBAR1MemoryInfo
-
-    global __nvmlDeviceGetIrqNum
-    data["__nvmlDeviceGetIrqNum"] = <intptr_t>__nvmlDeviceGetIrqNum
-
-    global __nvmlDeviceGetNumGpuCores
-    data["__nvmlDeviceGetNumGpuCores"] = <intptr_t>__nvmlDeviceGetNumGpuCores
-
-    global __nvmlDeviceGetPowerSource
-    data["__nvmlDeviceGetPowerSource"] = <intptr_t>__nvmlDeviceGetPowerSource
-
-    global __nvmlDeviceGetMemoryBusWidth
-    data["__nvmlDeviceGetMemoryBusWidth"] = <intptr_t>__nvmlDeviceGetMemoryBusWidth
-
-    global __nvmlDeviceGetPcieLinkMaxSpeed
-    data["__nvmlDeviceGetPcieLinkMaxSpeed"] = <intptr_t>__nvmlDeviceGetPcieLinkMaxSpeed
-
-    global __nvmlDeviceGetPcieSpeed
-    data["__nvmlDeviceGetPcieSpeed"] = <intptr_t>__nvmlDeviceGetPcieSpeed
-
-    global __nvmlDeviceGetAdaptiveClockInfoStatus
-    data["__nvmlDeviceGetAdaptiveClockInfoStatus"] = <intptr_t>__nvmlDeviceGetAdaptiveClockInfoStatus
-
-    global __nvmlDeviceGetBusType
-    data["__nvmlDeviceGetBusType"] = <intptr_t>__nvmlDeviceGetBusType
-
-    global __nvmlDeviceGetGpuFabricInfoV
-    data["__nvmlDeviceGetGpuFabricInfoV"] = <intptr_t>__nvmlDeviceGetGpuFabricInfoV
-
-    global __nvmlSystemGetConfComputeCapabilities
-    data["__nvmlSystemGetConfComputeCapabilities"] = <intptr_t>__nvmlSystemGetConfComputeCapabilities
-
-    global __nvmlSystemGetConfComputeState
-    data["__nvmlSystemGetConfComputeState"] = <intptr_t>__nvmlSystemGetConfComputeState
-
-    global __nvmlDeviceGetConfComputeMemSizeInfo
-    data["__nvmlDeviceGetConfComputeMemSizeInfo"] = <intptr_t>__nvmlDeviceGetConfComputeMemSizeInfo
-
-    global __nvmlSystemGetConfComputeGpusReadyState
-    data["__nvmlSystemGetConfComputeGpusReadyState"] = <intptr_t>__nvmlSystemGetConfComputeGpusReadyState
-
-    global __nvmlDeviceGetConfComputeProtectedMemoryUsage
-    data["__nvmlDeviceGetConfComputeProtectedMemoryUsage"] = <intptr_t>__nvmlDeviceGetConfComputeProtectedMemoryUsage
-
-    global __nvmlDeviceGetConfComputeGpuCertificate
-    data["__nvmlDeviceGetConfComputeGpuCertificate"] = <intptr_t>__nvmlDeviceGetConfComputeGpuCertificate
-
-    global __nvmlDeviceGetConfComputeGpuAttestationReport
-    data["__nvmlDeviceGetConfComputeGpuAttestationReport"] = <intptr_t>__nvmlDeviceGetConfComputeGpuAttestationReport
-
-    global __nvmlSystemGetConfComputeKeyRotationThresholdInfo
-    data["__nvmlSystemGetConfComputeKeyRotationThresholdInfo"] = <intptr_t>__nvmlSystemGetConfComputeKeyRotationThresholdInfo
-
-    global __nvmlDeviceSetConfComputeUnprotectedMemSize
-    data["__nvmlDeviceSetConfComputeUnprotectedMemSize"] = <intptr_t>__nvmlDeviceSetConfComputeUnprotectedMemSize
-
-    global __nvmlSystemSetConfComputeGpusReadyState
-    data["__nvmlSystemSetConfComputeGpusReadyState"] = <intptr_t>__nvmlSystemSetConfComputeGpusReadyState
-
-    global __nvmlSystemSetConfComputeKeyRotationThresholdInfo
-    data["__nvmlSystemSetConfComputeKeyRotationThresholdInfo"] = <intptr_t>__nvmlSystemSetConfComputeKeyRotationThresholdInfo
-
-    global __nvmlSystemGetConfComputeSettings
-    data["__nvmlSystemGetConfComputeSettings"] = <intptr_t>__nvmlSystemGetConfComputeSettings
-
-    global __nvmlDeviceGetGspFirmwareVersion
-    data["__nvmlDeviceGetGspFirmwareVersion"] = <intptr_t>__nvmlDeviceGetGspFirmwareVersion
-
-    global __nvmlDeviceGetGspFirmwareMode
-    data["__nvmlDeviceGetGspFirmwareMode"] = <intptr_t>__nvmlDeviceGetGspFirmwareMode
-
-    global __nvmlDeviceGetSramEccErrorStatus
-    data["__nvmlDeviceGetSramEccErrorStatus"] = <intptr_t>__nvmlDeviceGetSramEccErrorStatus
-
-    global __nvmlDeviceGetAccountingMode
-    data["__nvmlDeviceGetAccountingMode"] = <intptr_t>__nvmlDeviceGetAccountingMode
-
-    global __nvmlDeviceGetAccountingStats
-    data["__nvmlDeviceGetAccountingStats"] = <intptr_t>__nvmlDeviceGetAccountingStats
-
-    global __nvmlDeviceGetAccountingPids
-    data["__nvmlDeviceGetAccountingPids"] = <intptr_t>__nvmlDeviceGetAccountingPids
-
-    global __nvmlDeviceGetAccountingBufferSize
-    data["__nvmlDeviceGetAccountingBufferSize"] = <intptr_t>__nvmlDeviceGetAccountingBufferSize
-
-    global __nvmlDeviceGetRetiredPages
-    data["__nvmlDeviceGetRetiredPages"] = <intptr_t>__nvmlDeviceGetRetiredPages
-
-    global __nvmlDeviceGetRetiredPages_v2
-    data["__nvmlDeviceGetRetiredPages_v2"] = <intptr_t>__nvmlDeviceGetRetiredPages_v2
-
-    global __nvmlDeviceGetRetiredPagesPendingStatus
-    data["__nvmlDeviceGetRetiredPagesPendingStatus"] = <intptr_t>__nvmlDeviceGetRetiredPagesPendingStatus
-
-    global __nvmlDeviceGetRemappedRows
-    data["__nvmlDeviceGetRemappedRows"] = <intptr_t>__nvmlDeviceGetRemappedRows
-
-    global __nvmlDeviceGetRowRemapperHistogram
-    data["__nvmlDeviceGetRowRemapperHistogram"] = <intptr_t>__nvmlDeviceGetRowRemapperHistogram
-
-    global __nvmlDeviceGetArchitecture
-    data["__nvmlDeviceGetArchitecture"] = <intptr_t>__nvmlDeviceGetArchitecture
-
-    global __nvmlDeviceGetClkMonStatus
-    data["__nvmlDeviceGetClkMonStatus"] = <intptr_t>__nvmlDeviceGetClkMonStatus
-
-    global __nvmlDeviceGetProcessUtilization
-    data["__nvmlDeviceGetProcessUtilization"] = <intptr_t>__nvmlDeviceGetProcessUtilization
-
-    global __nvmlDeviceGetProcessesUtilizationInfo
-    data["__nvmlDeviceGetProcessesUtilizationInfo"] = <intptr_t>__nvmlDeviceGetProcessesUtilizationInfo
-
-    global __nvmlDeviceGetPlatformInfo
-    data["__nvmlDeviceGetPlatformInfo"] = <intptr_t>__nvmlDeviceGetPlatformInfo
-
-    global __nvmlUnitSetLedState
-    data["__nvmlUnitSetLedState"] = <intptr_t>__nvmlUnitSetLedState
-
-    global __nvmlDeviceSetPersistenceMode
-    data["__nvmlDeviceSetPersistenceMode"] = <intptr_t>__nvmlDeviceSetPersistenceMode
-
-    global __nvmlDeviceSetComputeMode
-    data["__nvmlDeviceSetComputeMode"] = <intptr_t>__nvmlDeviceSetComputeMode
-
-    global __nvmlDeviceSetEccMode
-    data["__nvmlDeviceSetEccMode"] = <intptr_t>__nvmlDeviceSetEccMode
-
-    global __nvmlDeviceClearEccErrorCounts
-    data["__nvmlDeviceClearEccErrorCounts"] = <intptr_t>__nvmlDeviceClearEccErrorCounts
-
-    global __nvmlDeviceSetDriverModel
-    data["__nvmlDeviceSetDriverModel"] = <intptr_t>__nvmlDeviceSetDriverModel
-
-    global __nvmlDeviceSetGpuLockedClocks
-    data["__nvmlDeviceSetGpuLockedClocks"] = <intptr_t>__nvmlDeviceSetGpuLockedClocks
-
-    global __nvmlDeviceResetGpuLockedClocks
-    data["__nvmlDeviceResetGpuLockedClocks"] = <intptr_t>__nvmlDeviceResetGpuLockedClocks
-
-    global __nvmlDeviceSetMemoryLockedClocks
-    data["__nvmlDeviceSetMemoryLockedClocks"] = <intptr_t>__nvmlDeviceSetMemoryLockedClocks
-
-    global __nvmlDeviceResetMemoryLockedClocks
-    data["__nvmlDeviceResetMemoryLockedClocks"] = <intptr_t>__nvmlDeviceResetMemoryLockedClocks
-
-    global __nvmlDeviceSetAutoBoostedClocksEnabled
-    data["__nvmlDeviceSetAutoBoostedClocksEnabled"] = <intptr_t>__nvmlDeviceSetAutoBoostedClocksEnabled
-
-    global __nvmlDeviceSetDefaultAutoBoostedClocksEnabled
-    data["__nvmlDeviceSetDefaultAutoBoostedClocksEnabled"] = <intptr_t>__nvmlDeviceSetDefaultAutoBoostedClocksEnabled
-
-    global __nvmlDeviceSetDefaultFanSpeed_v2
-    data["__nvmlDeviceSetDefaultFanSpeed_v2"] = <intptr_t>__nvmlDeviceSetDefaultFanSpeed_v2
-
-    global __nvmlDeviceSetFanControlPolicy
-    data["__nvmlDeviceSetFanControlPolicy"] = <intptr_t>__nvmlDeviceSetFanControlPolicy
-
-    global __nvmlDeviceSetTemperatureThreshold
-    data["__nvmlDeviceSetTemperatureThreshold"] = <intptr_t>__nvmlDeviceSetTemperatureThreshold
-
-    global __nvmlDeviceSetGpuOperationMode
-    data["__nvmlDeviceSetGpuOperationMode"] = <intptr_t>__nvmlDeviceSetGpuOperationMode
-
-    global __nvmlDeviceSetAPIRestriction
-    data["__nvmlDeviceSetAPIRestriction"] = <intptr_t>__nvmlDeviceSetAPIRestriction
-
-    global __nvmlDeviceSetFanSpeed_v2
-    data["__nvmlDeviceSetFanSpeed_v2"] = <intptr_t>__nvmlDeviceSetFanSpeed_v2
-
-    global __nvmlDeviceSetAccountingMode
-    data["__nvmlDeviceSetAccountingMode"] = <intptr_t>__nvmlDeviceSetAccountingMode
-
-    global __nvmlDeviceClearAccountingPids
-    data["__nvmlDeviceClearAccountingPids"] = <intptr_t>__nvmlDeviceClearAccountingPids
-
-    global __nvmlDeviceSetPowerManagementLimit_v2
-    data["__nvmlDeviceSetPowerManagementLimit_v2"] = <intptr_t>__nvmlDeviceSetPowerManagementLimit_v2
-
-    global __nvmlDeviceGetNvLinkState
-    data["__nvmlDeviceGetNvLinkState"] = <intptr_t>__nvmlDeviceGetNvLinkState
-
-    global __nvmlDeviceGetNvLinkVersion
-    data["__nvmlDeviceGetNvLinkVersion"] = <intptr_t>__nvmlDeviceGetNvLinkVersion
-
-    global __nvmlDeviceGetNvLinkCapability
-    data["__nvmlDeviceGetNvLinkCapability"] = <intptr_t>__nvmlDeviceGetNvLinkCapability
-
-    global __nvmlDeviceGetNvLinkRemotePciInfo_v2
-    data["__nvmlDeviceGetNvLinkRemotePciInfo_v2"] = <intptr_t>__nvmlDeviceGetNvLinkRemotePciInfo_v2
-
-    global __nvmlDeviceGetNvLinkErrorCounter
-    data["__nvmlDeviceGetNvLinkErrorCounter"] = <intptr_t>__nvmlDeviceGetNvLinkErrorCounter
-
-    global __nvmlDeviceResetNvLinkErrorCounters
-    data["__nvmlDeviceResetNvLinkErrorCounters"] = <intptr_t>__nvmlDeviceResetNvLinkErrorCounters
-
-    global __nvmlDeviceGetNvLinkRemoteDeviceType
-    data["__nvmlDeviceGetNvLinkRemoteDeviceType"] = <intptr_t>__nvmlDeviceGetNvLinkRemoteDeviceType
-
-    global __nvmlDeviceSetNvLinkDeviceLowPowerThreshold
-    data["__nvmlDeviceSetNvLinkDeviceLowPowerThreshold"] = <intptr_t>__nvmlDeviceSetNvLinkDeviceLowPowerThreshold
-
-    global __nvmlSystemSetNvlinkBwMode
-    data["__nvmlSystemSetNvlinkBwMode"] = <intptr_t>__nvmlSystemSetNvlinkBwMode
-
-    global __nvmlSystemGetNvlinkBwMode
-    data["__nvmlSystemGetNvlinkBwMode"] = <intptr_t>__nvmlSystemGetNvlinkBwMode
-
-    global __nvmlDeviceGetNvlinkSupportedBwModes
-    data["__nvmlDeviceGetNvlinkSupportedBwModes"] = <intptr_t>__nvmlDeviceGetNvlinkSupportedBwModes
-
-    global __nvmlDeviceGetNvlinkBwMode
-    data["__nvmlDeviceGetNvlinkBwMode"] = <intptr_t>__nvmlDeviceGetNvlinkBwMode
-
-    global __nvmlDeviceSetNvlinkBwMode
-    data["__nvmlDeviceSetNvlinkBwMode"] = <intptr_t>__nvmlDeviceSetNvlinkBwMode
-
-    global __nvmlEventSetCreate
-    data["__nvmlEventSetCreate"] = <intptr_t>__nvmlEventSetCreate
-
-    global __nvmlDeviceRegisterEvents
-    data["__nvmlDeviceRegisterEvents"] = <intptr_t>__nvmlDeviceRegisterEvents
-
-    global __nvmlDeviceGetSupportedEventTypes
-    data["__nvmlDeviceGetSupportedEventTypes"] = <intptr_t>__nvmlDeviceGetSupportedEventTypes
-
-    global __nvmlEventSetWait_v2
-    data["__nvmlEventSetWait_v2"] = <intptr_t>__nvmlEventSetWait_v2
-
-    global __nvmlEventSetFree
-    data["__nvmlEventSetFree"] = <intptr_t>__nvmlEventSetFree
-
-    global __nvmlSystemEventSetCreate
-    data["__nvmlSystemEventSetCreate"] = <intptr_t>__nvmlSystemEventSetCreate
-
-    global __nvmlSystemEventSetFree
-    data["__nvmlSystemEventSetFree"] = <intptr_t>__nvmlSystemEventSetFree
-
-    global __nvmlSystemRegisterEvents
-    data["__nvmlSystemRegisterEvents"] = <intptr_t>__nvmlSystemRegisterEvents
-
-    global __nvmlSystemEventSetWait
-    data["__nvmlSystemEventSetWait"] = <intptr_t>__nvmlSystemEventSetWait
-
-    global __nvmlDeviceModifyDrainState
-    data["__nvmlDeviceModifyDrainState"] = <intptr_t>__nvmlDeviceModifyDrainState
-
-    global __nvmlDeviceQueryDrainState
-    data["__nvmlDeviceQueryDrainState"] = <intptr_t>__nvmlDeviceQueryDrainState
-
-    global __nvmlDeviceRemoveGpu_v2
-    data["__nvmlDeviceRemoveGpu_v2"] = <intptr_t>__nvmlDeviceRemoveGpu_v2
-
-    global __nvmlDeviceDiscoverGpus
-    data["__nvmlDeviceDiscoverGpus"] = <intptr_t>__nvmlDeviceDiscoverGpus
-
-    global __nvmlDeviceGetFieldValues
-    data["__nvmlDeviceGetFieldValues"] = <intptr_t>__nvmlDeviceGetFieldValues
-
-    global __nvmlDeviceClearFieldValues
-    data["__nvmlDeviceClearFieldValues"] = <intptr_t>__nvmlDeviceClearFieldValues
-
-    global __nvmlDeviceGetVirtualizationMode
-    data["__nvmlDeviceGetVirtualizationMode"] = <intptr_t>__nvmlDeviceGetVirtualizationMode
-
-    global __nvmlDeviceGetHostVgpuMode
-    data["__nvmlDeviceGetHostVgpuMode"] = <intptr_t>__nvmlDeviceGetHostVgpuMode
-
-    global __nvmlDeviceSetVirtualizationMode
-    data["__nvmlDeviceSetVirtualizationMode"] = <intptr_t>__nvmlDeviceSetVirtualizationMode
-
-    global __nvmlDeviceGetVgpuHeterogeneousMode
-    data["__nvmlDeviceGetVgpuHeterogeneousMode"] = <intptr_t>__nvmlDeviceGetVgpuHeterogeneousMode
-
-    global __nvmlDeviceSetVgpuHeterogeneousMode
-    data["__nvmlDeviceSetVgpuHeterogeneousMode"] = <intptr_t>__nvmlDeviceSetVgpuHeterogeneousMode
-
-    global __nvmlVgpuInstanceGetPlacementId
-    data["__nvmlVgpuInstanceGetPlacementId"] = <intptr_t>__nvmlVgpuInstanceGetPlacementId
-
-    global __nvmlDeviceGetVgpuTypeSupportedPlacements
-    data["__nvmlDeviceGetVgpuTypeSupportedPlacements"] = <intptr_t>__nvmlDeviceGetVgpuTypeSupportedPlacements
-
-    global __nvmlDeviceGetVgpuTypeCreatablePlacements
-    data["__nvmlDeviceGetVgpuTypeCreatablePlacements"] = <intptr_t>__nvmlDeviceGetVgpuTypeCreatablePlacements
-
-    global __nvmlVgpuTypeGetGspHeapSize
-    data["__nvmlVgpuTypeGetGspHeapSize"] = <intptr_t>__nvmlVgpuTypeGetGspHeapSize
-
-    global __nvmlVgpuTypeGetFbReservation
-    data["__nvmlVgpuTypeGetFbReservation"] = <intptr_t>__nvmlVgpuTypeGetFbReservation
-
-    global __nvmlVgpuInstanceGetRuntimeStateSize
-    data["__nvmlVgpuInstanceGetRuntimeStateSize"] = <intptr_t>__nvmlVgpuInstanceGetRuntimeStateSize
-
-    global __nvmlDeviceSetVgpuCapabilities
-    data["__nvmlDeviceSetVgpuCapabilities"] = <intptr_t>__nvmlDeviceSetVgpuCapabilities
-
-    global __nvmlDeviceGetGridLicensableFeatures_v4
-    data["__nvmlDeviceGetGridLicensableFeatures_v4"] = <intptr_t>__nvmlDeviceGetGridLicensableFeatures_v4
-
-    global __nvmlGetVgpuDriverCapabilities
-    data["__nvmlGetVgpuDriverCapabilities"] = <intptr_t>__nvmlGetVgpuDriverCapabilities
-
-    global __nvmlDeviceGetVgpuCapabilities
-    data["__nvmlDeviceGetVgpuCapabilities"] = <intptr_t>__nvmlDeviceGetVgpuCapabilities
-
-    global __nvmlDeviceGetSupportedVgpus
-    data["__nvmlDeviceGetSupportedVgpus"] = <intptr_t>__nvmlDeviceGetSupportedVgpus
-
-    global __nvmlDeviceGetCreatableVgpus
-    data["__nvmlDeviceGetCreatableVgpus"] = <intptr_t>__nvmlDeviceGetCreatableVgpus
-
-    global __nvmlVgpuTypeGetClass
-    data["__nvmlVgpuTypeGetClass"] = <intptr_t>__nvmlVgpuTypeGetClass
-
-    global __nvmlVgpuTypeGetName
-    data["__nvmlVgpuTypeGetName"] = <intptr_t>__nvmlVgpuTypeGetName
-
-    global __nvmlVgpuTypeGetGpuInstanceProfileId
-    data["__nvmlVgpuTypeGetGpuInstanceProfileId"] = <intptr_t>__nvmlVgpuTypeGetGpuInstanceProfileId
-
-    global __nvmlVgpuTypeGetDeviceID
-    data["__nvmlVgpuTypeGetDeviceID"] = <intptr_t>__nvmlVgpuTypeGetDeviceID
-
-    global __nvmlVgpuTypeGetFramebufferSize
-    data["__nvmlVgpuTypeGetFramebufferSize"] = <intptr_t>__nvmlVgpuTypeGetFramebufferSize
-
-    global __nvmlVgpuTypeGetNumDisplayHeads
-    data["__nvmlVgpuTypeGetNumDisplayHeads"] = <intptr_t>__nvmlVgpuTypeGetNumDisplayHeads
-
-    global __nvmlVgpuTypeGetResolution
-    data["__nvmlVgpuTypeGetResolution"] = <intptr_t>__nvmlVgpuTypeGetResolution
-
-    global __nvmlVgpuTypeGetLicense
-    data["__nvmlVgpuTypeGetLicense"] = <intptr_t>__nvmlVgpuTypeGetLicense
-
-    global __nvmlVgpuTypeGetFrameRateLimit
-    data["__nvmlVgpuTypeGetFrameRateLimit"] = <intptr_t>__nvmlVgpuTypeGetFrameRateLimit
-
-    global __nvmlVgpuTypeGetMaxInstances
-    data["__nvmlVgpuTypeGetMaxInstances"] = <intptr_t>__nvmlVgpuTypeGetMaxInstances
-
-    global __nvmlVgpuTypeGetMaxInstancesPerVm
-    data["__nvmlVgpuTypeGetMaxInstancesPerVm"] = <intptr_t>__nvmlVgpuTypeGetMaxInstancesPerVm
-
-    global __nvmlVgpuTypeGetBAR1Info
-    data["__nvmlVgpuTypeGetBAR1Info"] = <intptr_t>__nvmlVgpuTypeGetBAR1Info
-
-    global __nvmlDeviceGetActiveVgpus
-    data["__nvmlDeviceGetActiveVgpus"] = <intptr_t>__nvmlDeviceGetActiveVgpus
-
-    global __nvmlVgpuInstanceGetVmID
-    data["__nvmlVgpuInstanceGetVmID"] = <intptr_t>__nvmlVgpuInstanceGetVmID
-
-    global __nvmlVgpuInstanceGetUUID
-    data["__nvmlVgpuInstanceGetUUID"] = <intptr_t>__nvmlVgpuInstanceGetUUID
-
-    global __nvmlVgpuInstanceGetVmDriverVersion
-    data["__nvmlVgpuInstanceGetVmDriverVersion"] = <intptr_t>__nvmlVgpuInstanceGetVmDriverVersion
-
-    global __nvmlVgpuInstanceGetFbUsage
-    data["__nvmlVgpuInstanceGetFbUsage"] = <intptr_t>__nvmlVgpuInstanceGetFbUsage
-
-    global __nvmlVgpuInstanceGetLicenseStatus
-    data["__nvmlVgpuInstanceGetLicenseStatus"] = <intptr_t>__nvmlVgpuInstanceGetLicenseStatus
-
-    global __nvmlVgpuInstanceGetType
-    data["__nvmlVgpuInstanceGetType"] = <intptr_t>__nvmlVgpuInstanceGetType
-
-    global __nvmlVgpuInstanceGetFrameRateLimit
-    data["__nvmlVgpuInstanceGetFrameRateLimit"] = <intptr_t>__nvmlVgpuInstanceGetFrameRateLimit
-
-    global __nvmlVgpuInstanceGetEccMode
-    data["__nvmlVgpuInstanceGetEccMode"] = <intptr_t>__nvmlVgpuInstanceGetEccMode
-
-    global __nvmlVgpuInstanceGetEncoderCapacity
-    data["__nvmlVgpuInstanceGetEncoderCapacity"] = <intptr_t>__nvmlVgpuInstanceGetEncoderCapacity
-
-    global __nvmlVgpuInstanceSetEncoderCapacity
-    data["__nvmlVgpuInstanceSetEncoderCapacity"] = <intptr_t>__nvmlVgpuInstanceSetEncoderCapacity
-
-    global __nvmlVgpuInstanceGetEncoderStats
-    data["__nvmlVgpuInstanceGetEncoderStats"] = <intptr_t>__nvmlVgpuInstanceGetEncoderStats
-
-    global __nvmlVgpuInstanceGetEncoderSessions
-    data["__nvmlVgpuInstanceGetEncoderSessions"] = <intptr_t>__nvmlVgpuInstanceGetEncoderSessions
-
-    global __nvmlVgpuInstanceGetFBCStats
-    data["__nvmlVgpuInstanceGetFBCStats"] = <intptr_t>__nvmlVgpuInstanceGetFBCStats
-
-    global __nvmlVgpuInstanceGetFBCSessions
-    data["__nvmlVgpuInstanceGetFBCSessions"] = <intptr_t>__nvmlVgpuInstanceGetFBCSessions
-
-    global __nvmlVgpuInstanceGetGpuInstanceId
-    data["__nvmlVgpuInstanceGetGpuInstanceId"] = <intptr_t>__nvmlVgpuInstanceGetGpuInstanceId
-
-    global __nvmlVgpuInstanceGetGpuPciId
-    data["__nvmlVgpuInstanceGetGpuPciId"] = <intptr_t>__nvmlVgpuInstanceGetGpuPciId
-
-    global __nvmlVgpuTypeGetCapabilities
-    data["__nvmlVgpuTypeGetCapabilities"] = <intptr_t>__nvmlVgpuTypeGetCapabilities
-
-    global __nvmlVgpuInstanceGetMdevUUID
-    data["__nvmlVgpuInstanceGetMdevUUID"] = <intptr_t>__nvmlVgpuInstanceGetMdevUUID
-
-    global __nvmlGpuInstanceGetCreatableVgpus
-    data["__nvmlGpuInstanceGetCreatableVgpus"] = <intptr_t>__nvmlGpuInstanceGetCreatableVgpus
-
-    global __nvmlVgpuTypeGetMaxInstancesPerGpuInstance
-    data["__nvmlVgpuTypeGetMaxInstancesPerGpuInstance"] = <intptr_t>__nvmlVgpuTypeGetMaxInstancesPerGpuInstance
-
-    global __nvmlGpuInstanceGetActiveVgpus
-    data["__nvmlGpuInstanceGetActiveVgpus"] = <intptr_t>__nvmlGpuInstanceGetActiveVgpus
-
-    global __nvmlGpuInstanceSetVgpuSchedulerState
-    data["__nvmlGpuInstanceSetVgpuSchedulerState"] = <intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState
-
-    global __nvmlGpuInstanceGetVgpuSchedulerState
-    data["__nvmlGpuInstanceGetVgpuSchedulerState"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerState
-
-    global __nvmlGpuInstanceGetVgpuSchedulerLog
-    data["__nvmlGpuInstanceGetVgpuSchedulerLog"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerLog
-
-    global __nvmlGpuInstanceGetVgpuTypeCreatablePlacements
-    data["__nvmlGpuInstanceGetVgpuTypeCreatablePlacements"] = <intptr_t>__nvmlGpuInstanceGetVgpuTypeCreatablePlacements
-
-    global __nvmlGpuInstanceGetVgpuHeterogeneousMode
-    data["__nvmlGpuInstanceGetVgpuHeterogeneousMode"] = <intptr_t>__nvmlGpuInstanceGetVgpuHeterogeneousMode
-
-    global __nvmlGpuInstanceSetVgpuHeterogeneousMode
-    data["__nvmlGpuInstanceSetVgpuHeterogeneousMode"] = <intptr_t>__nvmlGpuInstanceSetVgpuHeterogeneousMode
-
-    global __nvmlVgpuInstanceGetMetadata
-    data["__nvmlVgpuInstanceGetMetadata"] = <intptr_t>__nvmlVgpuInstanceGetMetadata
-
-    global __nvmlDeviceGetVgpuMetadata
-    data["__nvmlDeviceGetVgpuMetadata"] = <intptr_t>__nvmlDeviceGetVgpuMetadata
-
-    global __nvmlGetVgpuCompatibility
-    data["__nvmlGetVgpuCompatibility"] = <intptr_t>__nvmlGetVgpuCompatibility
-
-    global __nvmlDeviceGetPgpuMetadataString
-    data["__nvmlDeviceGetPgpuMetadataString"] = <intptr_t>__nvmlDeviceGetPgpuMetadataString
-
-    global __nvmlDeviceGetVgpuSchedulerLog
-    data["__nvmlDeviceGetVgpuSchedulerLog"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerLog
-
-    global __nvmlDeviceGetVgpuSchedulerState
-    data["__nvmlDeviceGetVgpuSchedulerState"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerState
-
-    global __nvmlDeviceGetVgpuSchedulerCapabilities
-    data["__nvmlDeviceGetVgpuSchedulerCapabilities"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerCapabilities
-
-    global __nvmlDeviceSetVgpuSchedulerState
-    data["__nvmlDeviceSetVgpuSchedulerState"] = <intptr_t>__nvmlDeviceSetVgpuSchedulerState
-
-    global __nvmlGetVgpuVersion
-    data["__nvmlGetVgpuVersion"] = <intptr_t>__nvmlGetVgpuVersion
-
-    global __nvmlSetVgpuVersion
-    data["__nvmlSetVgpuVersion"] = <intptr_t>__nvmlSetVgpuVersion
-
-    global __nvmlDeviceGetVgpuUtilization
-    data["__nvmlDeviceGetVgpuUtilization"] = <intptr_t>__nvmlDeviceGetVgpuUtilization
-
-    global __nvmlDeviceGetVgpuInstancesUtilizationInfo
-    data["__nvmlDeviceGetVgpuInstancesUtilizationInfo"] = <intptr_t>__nvmlDeviceGetVgpuInstancesUtilizationInfo
-
-    global __nvmlDeviceGetVgpuProcessUtilization
-    data["__nvmlDeviceGetVgpuProcessUtilization"] = <intptr_t>__nvmlDeviceGetVgpuProcessUtilization
-
-    global __nvmlDeviceGetVgpuProcessesUtilizationInfo
-    data["__nvmlDeviceGetVgpuProcessesUtilizationInfo"] = <intptr_t>__nvmlDeviceGetVgpuProcessesUtilizationInfo
-
-    global __nvmlVgpuInstanceGetAccountingMode
-    data["__nvmlVgpuInstanceGetAccountingMode"] = <intptr_t>__nvmlVgpuInstanceGetAccountingMode
-
-    global __nvmlVgpuInstanceGetAccountingPids
-    data["__nvmlVgpuInstanceGetAccountingPids"] = <intptr_t>__nvmlVgpuInstanceGetAccountingPids
-
-    global __nvmlVgpuInstanceGetAccountingStats
-    data["__nvmlVgpuInstanceGetAccountingStats"] = <intptr_t>__nvmlVgpuInstanceGetAccountingStats
-
-    global __nvmlVgpuInstanceClearAccountingPids
-    data["__nvmlVgpuInstanceClearAccountingPids"] = <intptr_t>__nvmlVgpuInstanceClearAccountingPids
-
-    global __nvmlVgpuInstanceGetLicenseInfo_v2
-    data["__nvmlVgpuInstanceGetLicenseInfo_v2"] = <intptr_t>__nvmlVgpuInstanceGetLicenseInfo_v2
-
-    global __nvmlGetExcludedDeviceCount
-    data["__nvmlGetExcludedDeviceCount"] = <intptr_t>__nvmlGetExcludedDeviceCount
-
-    global __nvmlGetExcludedDeviceInfoByIndex
-    data["__nvmlGetExcludedDeviceInfoByIndex"] = <intptr_t>__nvmlGetExcludedDeviceInfoByIndex
-
-    global __nvmlDeviceSetMigMode
-    data["__nvmlDeviceSetMigMode"] = <intptr_t>__nvmlDeviceSetMigMode
-
-    global __nvmlDeviceGetMigMode
-    data["__nvmlDeviceGetMigMode"] = <intptr_t>__nvmlDeviceGetMigMode
-
-    global __nvmlDeviceGetGpuInstanceProfileInfoV
-    data["__nvmlDeviceGetGpuInstanceProfileInfoV"] = <intptr_t>__nvmlDeviceGetGpuInstanceProfileInfoV
-
-    global __nvmlDeviceGetGpuInstancePossiblePlacements_v2
-    data["__nvmlDeviceGetGpuInstancePossiblePlacements_v2"] = <intptr_t>__nvmlDeviceGetGpuInstancePossiblePlacements_v2
-
-    global __nvmlDeviceGetGpuInstanceRemainingCapacity
-    data["__nvmlDeviceGetGpuInstanceRemainingCapacity"] = <intptr_t>__nvmlDeviceGetGpuInstanceRemainingCapacity
-
-    global __nvmlDeviceCreateGpuInstance
-    data["__nvmlDeviceCreateGpuInstance"] = <intptr_t>__nvmlDeviceCreateGpuInstance
-
-    global __nvmlDeviceCreateGpuInstanceWithPlacement
-    data["__nvmlDeviceCreateGpuInstanceWithPlacement"] = <intptr_t>__nvmlDeviceCreateGpuInstanceWithPlacement
-
-    global __nvmlGpuInstanceDestroy
-    data["__nvmlGpuInstanceDestroy"] = <intptr_t>__nvmlGpuInstanceDestroy
-
-    global __nvmlDeviceGetGpuInstances
-    data["__nvmlDeviceGetGpuInstances"] = <intptr_t>__nvmlDeviceGetGpuInstances
-
-    global __nvmlDeviceGetGpuInstanceById
-    data["__nvmlDeviceGetGpuInstanceById"] = <intptr_t>__nvmlDeviceGetGpuInstanceById
-
-    global __nvmlGpuInstanceGetInfo
-    data["__nvmlGpuInstanceGetInfo"] = <intptr_t>__nvmlGpuInstanceGetInfo
-
-    global __nvmlGpuInstanceGetComputeInstanceProfileInfoV
-    data["__nvmlGpuInstanceGetComputeInstanceProfileInfoV"] = <intptr_t>__nvmlGpuInstanceGetComputeInstanceProfileInfoV
-
-    global __nvmlGpuInstanceGetComputeInstanceRemainingCapacity
-    data["__nvmlGpuInstanceGetComputeInstanceRemainingCapacity"] = <intptr_t>__nvmlGpuInstanceGetComputeInstanceRemainingCapacity
-
-    global __nvmlGpuInstanceGetComputeInstancePossiblePlacements
-    data["__nvmlGpuInstanceGetComputeInstancePossiblePlacements"] = <intptr_t>__nvmlGpuInstanceGetComputeInstancePossiblePlacements
-
-    global __nvmlGpuInstanceCreateComputeInstance
-    data["__nvmlGpuInstanceCreateComputeInstance"] = <intptr_t>__nvmlGpuInstanceCreateComputeInstance
-
-    global __nvmlGpuInstanceCreateComputeInstanceWithPlacement
-    data["__nvmlGpuInstanceCreateComputeInstanceWithPlacement"] = <intptr_t>__nvmlGpuInstanceCreateComputeInstanceWithPlacement
-
-    global __nvmlComputeInstanceDestroy
-    data["__nvmlComputeInstanceDestroy"] = <intptr_t>__nvmlComputeInstanceDestroy
-
-    global __nvmlGpuInstanceGetComputeInstances
-    data["__nvmlGpuInstanceGetComputeInstances"] = <intptr_t>__nvmlGpuInstanceGetComputeInstances
-
-    global __nvmlGpuInstanceGetComputeInstanceById
-    data["__nvmlGpuInstanceGetComputeInstanceById"] = <intptr_t>__nvmlGpuInstanceGetComputeInstanceById
-
-    global __nvmlComputeInstanceGetInfo_v2
-    data["__nvmlComputeInstanceGetInfo_v2"] = <intptr_t>__nvmlComputeInstanceGetInfo_v2
-
-    global __nvmlDeviceIsMigDeviceHandle
-    data["__nvmlDeviceIsMigDeviceHandle"] = <intptr_t>__nvmlDeviceIsMigDeviceHandle
-
-    global __nvmlDeviceGetGpuInstanceId
-    data["__nvmlDeviceGetGpuInstanceId"] = <intptr_t>__nvmlDeviceGetGpuInstanceId
-
-    global __nvmlDeviceGetComputeInstanceId
-    data["__nvmlDeviceGetComputeInstanceId"] = <intptr_t>__nvmlDeviceGetComputeInstanceId
-
-    global __nvmlDeviceGetMaxMigDeviceCount
-    data["__nvmlDeviceGetMaxMigDeviceCount"] = <intptr_t>__nvmlDeviceGetMaxMigDeviceCount
-
-    global __nvmlDeviceGetMigDeviceHandleByIndex
-    data["__nvmlDeviceGetMigDeviceHandleByIndex"] = <intptr_t>__nvmlDeviceGetMigDeviceHandleByIndex
-
-    global __nvmlDeviceGetDeviceHandleFromMigDeviceHandle
-    data["__nvmlDeviceGetDeviceHandleFromMigDeviceHandle"] = <intptr_t>__nvmlDeviceGetDeviceHandleFromMigDeviceHandle
-
-    global __nvmlDeviceGetCapabilities
-    data["__nvmlDeviceGetCapabilities"] = <intptr_t>__nvmlDeviceGetCapabilities
-
-    global __nvmlDevicePowerSmoothingActivatePresetProfile
-    data["__nvmlDevicePowerSmoothingActivatePresetProfile"] = <intptr_t>__nvmlDevicePowerSmoothingActivatePresetProfile
-
-    global __nvmlDevicePowerSmoothingUpdatePresetProfileParam
-    data["__nvmlDevicePowerSmoothingUpdatePresetProfileParam"] = <intptr_t>__nvmlDevicePowerSmoothingUpdatePresetProfileParam
-
-    global __nvmlDevicePowerSmoothingSetState
-    data["__nvmlDevicePowerSmoothingSetState"] = <intptr_t>__nvmlDevicePowerSmoothingSetState
-
-    global __nvmlDeviceGetAddressingMode
-    data["__nvmlDeviceGetAddressingMode"] = <intptr_t>__nvmlDeviceGetAddressingMode
-
-    global __nvmlDeviceGetRepairStatus
-    data["__nvmlDeviceGetRepairStatus"] = <intptr_t>__nvmlDeviceGetRepairStatus
-
-    global __nvmlDeviceGetPowerMizerMode_v1
-    data["__nvmlDeviceGetPowerMizerMode_v1"] = <intptr_t>__nvmlDeviceGetPowerMizerMode_v1
-
-    global __nvmlDeviceSetPowerMizerMode_v1
-    data["__nvmlDeviceSetPowerMizerMode_v1"] = <intptr_t>__nvmlDeviceSetPowerMizerMode_v1
-
-    global __nvmlDeviceGetPdi
-    data["__nvmlDeviceGetPdi"] = <intptr_t>__nvmlDeviceGetPdi
-
-    global __nvmlDeviceSetHostname_v1
-    data["__nvmlDeviceSetHostname_v1"] = <intptr_t>__nvmlDeviceSetHostname_v1
-
-    global __nvmlDeviceGetHostname_v1
-    data["__nvmlDeviceGetHostname_v1"] = <intptr_t>__nvmlDeviceGetHostname_v1
-
-    global __nvmlDeviceGetNvLinkInfo
-    data["__nvmlDeviceGetNvLinkInfo"] = <intptr_t>__nvmlDeviceGetNvLinkInfo
-
-    global __nvmlDeviceReadWritePRM_v1
-    data["__nvmlDeviceReadWritePRM_v1"] = <intptr_t>__nvmlDeviceReadWritePRM_v1
-
-    global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
-    data["__nvmlDeviceGetGpuInstanceProfileInfoByIdV"] = <intptr_t>__nvmlDeviceGetGpuInstanceProfileInfoByIdV
-
-    global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
-    data["__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts"] = <intptr_t>__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
-
-    global __nvmlDeviceGetUnrepairableMemoryFlag_v1
-    data["__nvmlDeviceGetUnrepairableMemoryFlag_v1"] = <intptr_t>__nvmlDeviceGetUnrepairableMemoryFlag_v1
-
-    global __nvmlDeviceReadPRMCounters_v1
-    data["__nvmlDeviceReadPRMCounters_v1"] = <intptr_t>__nvmlDeviceReadPRMCounters_v1
-
-    global __nvmlDeviceSetRusdSettings_v1
-    data["__nvmlDeviceSetRusdSettings_v1"] = <intptr_t>__nvmlDeviceSetRusdSettings_v1
-
-    global __nvmlDeviceVgpuForceGspUnload
-    data["__nvmlDeviceVgpuForceGspUnload"] = <intptr_t>__nvmlDeviceVgpuForceGspUnload
-
-    global __nvmlDeviceGetVgpuSchedulerState_v2
-    data["__nvmlDeviceGetVgpuSchedulerState_v2"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerState_v2
-
-    global __nvmlGpuInstanceGetVgpuSchedulerState_v2
-    data["__nvmlGpuInstanceGetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerState_v2
-
-    global __nvmlDeviceGetVgpuSchedulerLog_v2
-    data["__nvmlDeviceGetVgpuSchedulerLog_v2"] = <intptr_t>__nvmlDeviceGetVgpuSchedulerLog_v2
-
-    global __nvmlGpuInstanceGetVgpuSchedulerLog_v2
-    data["__nvmlGpuInstanceGetVgpuSchedulerLog_v2"] = <intptr_t>__nvmlGpuInstanceGetVgpuSchedulerLog_v2
-
-    global __nvmlDeviceSetVgpuSchedulerState_v2
-    data["__nvmlDeviceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlDeviceSetVgpuSchedulerState_v2
-
-    global __nvmlGpuInstanceSetVgpuSchedulerState_v2
-    data["__nvmlGpuInstanceSetVgpuSchedulerState_v2"] = <intptr_t>__nvmlGpuInstanceSetVgpuSchedulerState_v2
-
-    global __nvmlSystemGetCPER_v1
-    data["__nvmlSystemGetCPER_v1"] = <intptr_t>__nvmlSystemGetCPER_v1
-
-    global __nvmlDeviceGetBBXTimeData_v1
-    data["__nvmlDeviceGetBBXTimeData_v1"] = <intptr_t>__nvmlDeviceGetBBXTimeData_v1
-
-    global __nvmlDeviceGetAccountingStats_v2
-    data["__nvmlDeviceGetAccountingStats_v2"] = <intptr_t>__nvmlDeviceGetAccountingStats_v2
-
-    global __nvmlDeviceGetRemappedRows_v2
-    data["__nvmlDeviceGetRemappedRows_v2"] = <intptr_t>__nvmlDeviceGetRemappedRows_v2
-
-    global __nvmlDeviceSetAdaptiveTgpMode_v1
-    data["__nvmlDeviceSetAdaptiveTgpMode_v1"] = <intptr_t>__nvmlDeviceSetAdaptiveTgpMode_v1
-
-    global __nvmlDeviceGetAdaptiveTgpModeInfo_v1
-    data["__nvmlDeviceGetAdaptiveTgpModeInfo_v1"] = <intptr_t>__nvmlDeviceGetAdaptiveTgpModeInfo_v1
-
-    global __nvmlDeviceSetMemoryLimits_v1
-    data["__nvmlDeviceSetMemoryLimits_v1"] = <intptr_t>__nvmlDeviceSetMemoryLimits_v1
-
-    global __nvmlDeviceGetMemoryLimits_v1
-    data["__nvmlDeviceGetMemoryLimits_v1"] = <intptr_t>__nvmlDeviceGetMemoryLimits_v1
-
-    global __nvmlDeviceGetGpuFabricInfo_v4
-    data["__nvmlDeviceGetGpuFabricInfo_v4"] = <intptr_t>__nvmlDeviceGetGpuFabricInfo_v4
-
-    global __nvmlDevicePerfMetricsGetSamples_v1
-    data["__nvmlDevicePerfMetricsGetSamples_v1"] = <intptr_t>__nvmlDevicePerfMetricsGetSamples_v1
-
-    global __nvmlDeviceSetNvlinkBwModeAsync_v1
-    data["__nvmlDeviceSetNvlinkBwModeAsync_v1"] = <intptr_t>__nvmlDeviceSetNvlinkBwModeAsync_v1
-
-    global __nvmlDeviceGetNvLinkTelemetrySamples_v1
-    data["__nvmlDeviceGetNvLinkTelemetrySamples_v1"] = <intptr_t>__nvmlDeviceGetNvLinkTelemetrySamples_v1
-
-    global __nvmlEventSetRegisterGpuOperationalEvents_v1
-    data["__nvmlEventSetRegisterGpuOperationalEvents_v1"] = <intptr_t>__nvmlEventSetRegisterGpuOperationalEvents_v1
-
-    global __nvmlEventSetWait_v3
-    data["__nvmlEventSetWait_v3"] = <intptr_t>__nvmlEventSetWait_v3
-
-    global __nvmlEventSetGetContextCount_v1
-    data["__nvmlEventSetGetContextCount_v1"] = <intptr_t>__nvmlEventSetGetContextCount_v1
-
-    global __nvmlEventSetGetContextInfo_v1
-    data["__nvmlEventSetGetContextInfo_v1"] = <intptr_t>__nvmlEventSetGetContextInfo_v1
-
-    global __nvmlEventSetGetContextData_v1
-    data["__nvmlEventSetGetContextData_v1"] = <intptr_t>__nvmlEventSetGetContextData_v1
-
-    global __nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
-    data["__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1"] = <intptr_t>__nvmlEventSetGetGpuOperationalEventContextLegacyXid_v1
-
-    global __nvmlDeviceGetBankRemapperStatus_v1
-    data["__nvmlDeviceGetBankRemapperStatus_v1"] = <intptr_t>__nvmlDeviceGetBankRemapperStatus_v1
+    cdef Py_ssize_t i
+    for i in range(_cyb_nvml_n_functions):
+        data['__' + _cyb_nvml_names[i].decode()] = <intptr_t>_cyb_nvml_slots[i][0]
     _cyb_func_ptrs = data
     return data
 
@@ -6399,3 +4577,83 @@ cdef nvmlReturn_t _nvmlDeviceGetBankRemapperStatus_v1(nvmlDevice_t device, nvmlE
             raise FunctionNotFoundError("function nvmlDeviceGetBankRemapperStatus_v1 is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEccBankRemapperStatus_v1_t*) noexcept nogil>__nvmlDeviceGetBankRemapperStatus_v1)(
         device, pBankRemapperStatus)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetGpuUptime_v1(nvmlDevice_t device, nvmlGpuUptime_v1_t* uptime) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetGpuUptime_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetGpuUptime_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetGpuUptime_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlGpuUptime_v1_t*) noexcept nogil>__nvmlDeviceGetGpuUptime_v1)(
+        device, uptime)
+
+
+cdef nvmlReturn_t _nvmlSystemGetConfComputeSettings_v2(nvmlSystemConfComputeSettings_v2_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlSystemGetConfComputeSettings_v2
+    _check_or_init_nvml()
+    if __nvmlSystemGetConfComputeSettings_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlSystemGetConfComputeSettings_v2 is not found")
+    return (<nvmlReturn_t (*)(nvmlSystemConfComputeSettings_v2_t*) noexcept nogil>__nvmlSystemGetConfComputeSettings_v2)(
+        settings)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkInfo_v3(nvmlDevice_t device, nvmlNvLinkInfo_v3_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvLinkInfo_v3
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvLinkInfo_v3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvLinkInfo_v3 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvLinkInfo_v3_t*) noexcept nogil>__nvmlDeviceGetNvLinkInfo_v3)(
+        device, info)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvlinkRemapTableInfo_v1(nvmlDevice_t device, nvmlNvlinkGetRemapTableInfo_v1_t* remapTableInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvlinkRemapTableInfo_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvlinkRemapTableInfo_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvlinkRemapTableInfo_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkGetRemapTableInfo_v1_t*) noexcept nogil>__nvmlDeviceGetNvlinkRemapTableInfo_v1)(
+        device, remapTableInfo)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetNvlinkNvleReady_v1(nvmlDevice_t device, nvmlNvlinkSetNvleReady_v1_t* setNvleReady) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetNvlinkNvleReady_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetNvlinkNvleReady_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetNvlinkNvleReady_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkSetNvleReady_v1_t*) noexcept nogil>__nvmlDeviceSetNvlinkNvleReady_v1)(
+        device, setNvleReady)
+
+
+cdef nvmlReturn_t _nvmlDeviceLockNvlinkRemapTable_v1(nvmlDevice_t device, nvmlNvlinkLockRemapTable_v1_t* remapTableLockInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceLockNvlinkRemapTable_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceLockNvlinkRemapTable_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceLockNvlinkRemapTable_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkLockRemapTable_v1_t*) noexcept nogil>__nvmlDeviceLockNvlinkRemapTable_v1)(
+        device, remapTableLockInfo)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetupNvlinkNvleEncryptionKey_v1(nvmlDevice_t device, nvmlNvlinkSetupNvleEncryptionKey_v1_t* encryptionKey) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetupNvlinkNvleEncryptionKey_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkSetupNvleEncryptionKey_v1_t*) noexcept nogil>__nvmlDeviceSetupNvlinkNvleEncryptionKey_v1)(
+        device, encryptionKey)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvlinkNvlePrivateInfo_v1(nvmlDevice_t device, nvmlNvlinkNvlePrivateInfo_v1_t* privateInfo) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvlinkNvlePrivateInfo_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvlinkNvlePrivateInfo_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvlinkNvlePrivateInfo_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvlinkNvlePrivateInfo_v1_t*) noexcept nogil>__nvmlDeviceGetNvlinkNvlePrivateInfo_v1)(
+        device, privateInfo)

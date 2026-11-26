@@ -90,6 +90,20 @@ def test_register_rejects_non_ipc_memory_resource(mempool_device):
         DeviceMemoryResource.from_registry(key)
 
 
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+@pytest.mark.parametrize("key", ["not-a-uuid", 1, None], ids=["str", "int", "none"])
+def test_registry_rejects_a_key_that_is_not_a_uuid(mempool_device, key):
+    """The registry is keyed by UUID bytes; any other key is a TypeError, not an AttributeError."""
+    mr = DeviceMemoryResource(mempool_device)
+
+    with pytest.raises(TypeError, match="uuid.UUID"):
+        mr.register(key)
+    with pytest.raises(TypeError, match="uuid.UUID"):
+        DeviceMemoryResource.from_registry(key)
+
+
+# For the VirtualMR parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.human_authored
 def test_register_rejects_mismatched_uuid(ipc_memory_resource):
     """register() rejects a UUID that does not match the resource's own.
@@ -121,6 +135,34 @@ def test_register_rejects_mismatched_uuid(ipc_memory_resource):
     assert mr.register(mr.uuid) is mr
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_register_keeps_the_uuid_object_the_resource_already_has(ipc_memory_resource_factory):
+    """register() under an equal UUID keeps the UUID object the resource already has.
+
+    The UUID of an allocation handle is read without a lock. Replacing the
+    object would release the old one while another thread may be taking a
+    reference to it, which is a use-after-free on a free-threaded build.
+    """
+    # A resource of its own: pytest-run-parallel shares fixtures between its
+    # threads, and another thread could register a shared resource first.
+    mr = ipc_memory_resource_factory()
+    if not is_pool_resource(mr):
+        pytest.skip("allocation handles and the registry are pool-only")
+
+    original = mr.uuid
+    assert original is not None
+    equal = uuid.UUID(bytes=original.bytes)
+    assert equal is not original
+    # Not registered yet, so the call below inserts rather than returning a hit.
+    with pytest.raises(RuntimeError, match="was not found"):
+        type(mr).from_registry(equal)
+
+    assert mr.register(equal) is mr
+
+    assert mr.uuid is original
+    assert type(mr).from_registry(equal) is mr
+
+
 @pytest.mark.skipif(os.name == "nt", reason="IPC allocation handles are not supported on Windows")
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_ipc_allocation_handle_state_tracks_close():
@@ -138,6 +180,8 @@ def test_ipc_allocation_handle_state_tracks_close():
         os.close(write_fd)
 
 
+# For the VirtualMR parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_closed_ipc_allocation_handle_rejected_before_registry_hit(ipc_device, ipc_memory_resource):
     mr = ipc_memory_resource
@@ -227,6 +271,9 @@ class ChildErrorHarness:
             exc_info = type(e), str(e)
         else:
             exc_info = None, None
+        # An import rejected after mapping (an oversized descriptor) enqueues the
+        # free of its mapping; drain it before the exporter frees its allocation.
+        self.device.sync()
         pipe[1].put(exc_info)
 
 
@@ -243,7 +290,7 @@ class TestImportOversizedBufferDescriptorSize(ChildErrorHarness):
         else:
             # The VMM descriptor carries the exported handles and their sizes;
             # forge only the buffer size.
-            oversized = type(desc)._from_exports(desc._handle_type, desc._chunk_sizes, desc._handles, desc.size * 100)
+            oversized = type(desc)._from_exports(desc._chunk_sizes, desc._handles, desc.size * 100)
         stream.sync()
         queue.put(oversized)
 
@@ -330,6 +377,8 @@ class TestImportBuffer(ChildErrorHarness):
         assert exc_msg.startswith("Argument 'ipc_descriptor' has incorrect type")
 
 
+# For the inherited test_main[VirtualMR] case:
+# This test is not currently run in any CI job
 class TestDanglingBuffer(ChildErrorHarness):
     """
     Error when importing a buffer object without registering its memory

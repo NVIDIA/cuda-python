@@ -339,6 +339,7 @@ def test_device_pci_bus_id():
         assert new_device.index == device.index
 
 
+# This test is not currently run in any CI job
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_attributes(subtests):
     for device in system.Device.get_all_devices():
@@ -476,6 +477,12 @@ def test_field_value_decodes_signed_long_long():
     value = _device.FieldValue(field_value).value
     assert value == -45
     assert type(value) is int
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_field_value_rejects_multiple_values():
+    with pytest.raises(ValueError, match="exactly one field value, got 2"):
+        _device.FieldValue(nvml.FieldValue(2))
 
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
@@ -629,6 +636,7 @@ def test_get_inforom_version(subtests):
             inforom.validate()
 
 
+# This test is not currently run in any CI job
 def test_auto_boosted_clocks_enabled(subtests):
     for device in system.Device.get_all_devices():
         with subtests.test(device_index=device.index):

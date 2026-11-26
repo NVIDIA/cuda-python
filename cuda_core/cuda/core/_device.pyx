@@ -1684,7 +1684,11 @@ cdef inline int Device_resolve_device_id(device_id) except? -1:
         elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-            assert <void*>(ctx) == NULL
+            if <void*>(ctx) != NULL:
+                raise RuntimeError(
+                    "internal cuda.core error, please report: cuCtxGetDevice returned "
+                    "CUDA_ERROR_INVALID_CONTEXT while a context is current"
+                )
             return 0  # cudart behavior
         else:
             HANDLE_RETURN(err)

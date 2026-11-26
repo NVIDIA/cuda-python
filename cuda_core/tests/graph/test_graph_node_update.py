@@ -8,8 +8,8 @@ import gc
 import threading
 import time
 import weakref
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import pytest
 from helpers.graph_kernels import compile_common_kernels
@@ -993,6 +993,8 @@ def test_failed_definition_node_update_preserves_state(
     case.assert_exec_uses(graph, case.original)
 
 
+# For the host-callback-ctypes parameter case:
+# This test is not currently run in any CI job
 @pytest.mark.agent_authored(model="gpt-5.6")
 def test_definition_node_update_rejects_wrong_type(
     definition_update_case,

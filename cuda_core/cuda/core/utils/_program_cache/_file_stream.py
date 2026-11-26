@@ -19,8 +19,9 @@ import os
 import tempfile
 import threading
 import time
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 
 from cuda.core._module import ObjectCode
 from cuda.core.utils._cache_dir import _default_cache_dir as _user_cache_dir
@@ -93,7 +94,8 @@ def _with_sharing_retry(
             last_exc = exc
     if on_exhausted is not None:
         return on_exhausted(last_exc)
-    assert last_exc is not None  # at least one iteration ran and caught a PermissionError
+    if last_exc is None:
+        raise RuntimeError("internal cuda.core error, please report: sharing retry ran no attempts")
     raise last_exc
 
 

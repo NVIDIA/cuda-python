@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# This code was automatically generated across versions from 12.9.1 to 13.4.1. Do not modify it directly.
-# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=8d1afafeb9369977927ce07c70187f6f0927eb5f556b6f4e3569d6ce58980e7a
+# This code was automatically generated across versions from 12.9.1 to 13.5.0. Do not modify it directly.
+# CYTHON-BINDINGS-GENERATED-DO-NOT-MODIFY-THIS-FILE: format=1; content-sha256=1a1a93143a45c1317fad32c5836bb153412cd49748d57bac998f8a9fc00e1bef
 
 
 
@@ -464,3 +464,11 @@ cpdef object device_get_nv_link_telemetry_samples_v1(intptr_t device)
 cpdef event_set_register_gpu_operational_events_v1(intptr_t event_set, config)
 cpdef object event_set_get_context_count_v1(intptr_t set)
 cpdef object device_get_bank_remapper_status_v1(intptr_t device)
+cpdef object device_get_gpu_uptime_v1(intptr_t device)
+cpdef object system_get_conf_compute_settings_v2()
+cpdef object device_get_nvlink_info_v3(intptr_t device)
+cpdef object device_get_nvlink_remap_table_info_v1(intptr_t device)
+cpdef device_set_nvlink_nvle_ready_v1(intptr_t device, set_nvle_ready)
+cpdef device_lock_nvlink_remap_table_v1(intptr_t device, remap_table_lock_info)
+cpdef device_setup_nvlink_nvle_encryption_key_v1(intptr_t device, encryption_key)
+cpdef object device_get_nvlink_nvle_private_info_v1(intptr_t device)

@@ -11,8 +11,8 @@ from cuda.core._rt cimport FileDescriptorHandle
 # Holds _MemPool objects imported by this process.  This enables
 # buffer serialization, as buffers can reduce to a pair comprising the memory
 # resource UUID (the key into this registry) and the serialized buffer
-# descriptor.
-cdef object registry
+# descriptor.  Maps ``uuid.UUID.bytes`` to a weak reference of the resource.
+cdef dict registry
 
 
 # The IPC handle type for this platform.  IPC is currently only supported on
@@ -55,10 +55,20 @@ cdef class IPCAllocationHandle:
 
 # Descriptor of a VirtualMemoryResource buffer: one exported handle per
 # physical allocation that backs the buffer, in address order.
-cdef class VirtualMemoryFdBufferDescriptor(IPCBufferDescriptor):
-    cdef readonly int   _handle_type
+cdef class _VirtualMemoryDescriptor(IPCBufferDescriptor):
     cdef readonly tuple _chunk_sizes
+
+    cdef int driver_handle_type(self) except -1
+    cdef void* handle_ptr(self, Py_ssize_t i, cydriver.CUmemFabricHandle* scratch) except? NULL
+
+
+cdef class VirtualMemoryFdBufferDescriptor(_VirtualMemoryDescriptor):
     cdef readonly tuple _handles
+
+
+cdef class VirtualMemoryFabricBufferDescriptor(_VirtualMemoryDescriptor):
+    cdef readonly tuple _handles
+    cdef object _owner_uuid
 
 
 # Buffer IPC Implementation
@@ -69,7 +79,17 @@ cdef Buffer Buffer_from_ipc_descriptor(cls, object, IPCBufferDescriptor, stream)
 
 # _MemPool IPC Implementation
 # ---------------------------
-cdef _MemPool MP_from_allocation_handle(cls, alloc_handle)
+# Initializes a newly imported pool before MP_from_allocation_handle registers
+# it. The second argument is the init_arg passed to MP_from_allocation_handle.
+ctypedef int (*MP_import_init_t)(_MemPool, object) except? -1
+
+# Checks the location of an imported pool against the requested class: host=True
+# accepts a HOST or HOST_NUMA pool, host=False a DEVICE, INVISIBLE or
+# DEVICE_LOCALITY_DOMAIN one. Any other location raises TypeError. Returns 1 and
+# stores the location in loc, or returns 0 without checking when the location
+# cannot be queried (a CUDA 12 build or a driver before 13.2).
+cdef int MP_check_import_location(_MemPool, bint host, cydriver.CUmemLocation* loc) except? -1
+cdef _MemPool MP_from_allocation_handle(cls, alloc_handle, MP_import_init_t init=*, object init_arg=*)
 cdef _MemPool MP_from_registry(uuid)
 cdef _MemPool MP_register(_MemPool, uuid)
 cdef IPCAllocationHandle MP_export_mempool(_MemPool)

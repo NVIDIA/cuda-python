@@ -10,7 +10,7 @@
 # ################################################################################
 
 # /// script
-# dependencies = ["cuda_bindings", "cuda_core"]
+# dependencies = ["cuda_core"]
 # ///
 
 import ctypes
