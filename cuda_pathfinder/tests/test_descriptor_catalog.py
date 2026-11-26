@@ -217,3 +217,16 @@ def test_windows_binary_arch_checks_cover_architecture_neutral_layouts():
     checked_libs = {spec.name for spec in DESCRIPTOR_CATALOG if spec.requires_windows_binary_arch_check}
 
     assert checked_libs == {"nvvm", "cudnn"}
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_no_windows_dll_name_is_a_helper_or_32_bit_file():
+    """The DLL search used to skip these file kinds at run time. The catalog must never name one."""
+
+    def is_helper_or_32_bit_file(dll_name: str) -> bool:
+        if dll_name.startswith("nvrtc"):
+            return dll_name.endswith(".alt.dll") or "-builtins" in dll_name
+        return dll_name.startswith(("cudart32_", "nvvm32"))
+
+    named = [dll for spec in DESCRIPTOR_CATALOG for dll in spec.windows_dlls if is_helper_or_32_bit_file(dll)]
+    assert named == []
