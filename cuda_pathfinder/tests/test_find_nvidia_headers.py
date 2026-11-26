@@ -29,20 +29,22 @@ from cuda.pathfinder import LocatedHeaderDir, find_nvidia_header_directory, loca
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _resolve_system_loaded_abs_path_in_subprocess,
 )
-from cuda.pathfinder._headers.header_descriptor import HEADER_DESCRIPTORS
-from cuda.pathfinder._headers.supported_nvidia_headers import (
-    SUPPORTED_HEADERS_CTK,
-    SUPPORTED_HEADERS_CTK_ALL,
-    SUPPORTED_HEADERS_NON_CTK,
-    SUPPORTED_HEADERS_NON_CTK_ALL,
-    SUPPORTED_INSTALL_DIRS_NON_CTK,
-    SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
-)
+from cuda.pathfinder._headers.header_descriptor import HEADER_DESCRIPTORS, system_install_dir_patterns
+from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK
 from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
+
+_CTK_DESCRIPTORS = tuple(desc for desc in HEADER_DESCRIPTORS.values() if desc.packaged_with == "ctk")
+_NON_CTK_DESCRIPTORS = tuple(desc for desc in HEADER_DESCRIPTORS.values() if desc.packaged_with == "other")
+# Header basenames of the non-CTK libraries available on the current platform.
+SUPPORTED_HEADERS_NON_CTK = {
+    desc.name: desc.header_basename
+    for desc in _NON_CTK_DESCRIPTORS
+    if (desc.available_on_windows if IS_WINDOWS else desc.available_on_linux)
+}
 
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cudensitymat": r"^cudensitymat-.*$",
@@ -81,8 +83,10 @@ def _located_hdr_dir_asserts(located_hdr_dir):
 
 
 def test_non_ctk_importlib_metadata_distributions_names():
-    # Ensure the dict keys above stay in sync with supported_nvidia_headers
-    assert sorted(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES) == sorted(SUPPORTED_HEADERS_NON_CTK_ALL)
+    # Ensure the dict keys above stay in sync with the header descriptor catalog
+    assert sorted(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES) == sorted(
+        desc.name for desc in _NON_CTK_DESCRIPTORS if desc.available_on_linux or desc.available_on_windows
+    )
 
 
 @pytest.mark.agent_authored(model="gpt-5")
@@ -342,8 +346,8 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
         elif conda_prefix := os.environ.get("CONDA_PREFIX"):
             assert Path(hdr_dir).is_relative_to(Path(conda_prefix).resolve())
         else:
-            inst_dirs = SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname)
-            if inst_dirs is not None:
+            inst_dirs = system_install_dir_patterns(HEADER_DESCRIPTORS[libname])
+            if inst_dirs:
                 for inst_dir in inst_dirs:
                     # Absolute glob pattern: Path.glob needs a separate base dir,
                     # and the wildcard is not pinned to the last component.
@@ -354,8 +358,12 @@ def test_locate_non_ctk_headers(info_summary_append, libname):
                     raise RuntimeError(f"{hdr_dir=} does not match any {inst_dirs=}")
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-2")
 def test_supported_headers_site_packages_ctk_consistency():
-    assert tuple(sorted(SUPPORTED_HEADERS_CTK_ALL)) == tuple(sorted(SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK.keys()))
+    available_somewhere = sorted(
+        desc.name for desc in _CTK_DESCRIPTORS if desc.available_on_linux or desc.available_on_windows
+    )
+    assert available_somewhere == sorted(desc.name for desc in _CTK_DESCRIPTORS if desc.site_packages_dirs)
 
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())
