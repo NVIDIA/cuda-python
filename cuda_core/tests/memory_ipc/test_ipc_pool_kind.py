@@ -12,7 +12,9 @@ resource is registered. The check needs a CUDA 13 build of cuda.core and a
 """
 
 import contextlib
+import functools
 import multiprocessing as mp
+import threading
 
 import pytest
 from helpers.child_processes import run_child
@@ -27,6 +29,7 @@ from helpers.memory import (
     skip_if_host_numa_pinned_memory_unsupported,
     skip_if_pool_location_query_unsupported,
 )
+from helpers.misc import run_in_threads
 
 from cuda.bindings import driver
 from cuda.core import (
@@ -41,6 +44,7 @@ from cuda.core._memory._buffer import _live_owned_mempool_count
 from cuda.core._memory._pinned_memory_resource import _deep_reduce_pinned_memory_resource
 
 NBYTES = 64
+THREADS = 4
 
 # these tests spawn new processes and files which fails for very many threads;
 # child processes and IPC fixtures are shared across workers (#2784); cap at two threads
@@ -206,6 +210,36 @@ def child_registered_import_applies_numa_id(alloc_handle):
             PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID + 1)
         assert PinnedMemoryResource.from_allocation_handle(alloc_handle) is mr
         assert mr.numa_id == CLAIMED_NUMA_ID
+    assert _live_owned_mempool_count() == baseline
+
+
+def child_concurrent_numa_ids_agree(alloc_handle):
+    _without_location_query()
+    device = Device()
+    device.set_current()
+    baseline = _live_owned_mempool_count()
+
+    with contextlib.ExitStack() as stack:
+        mr = enter_imported_pool(stack, PinnedMemoryResource, device, alloc_handle)
+        barrier = threading.Barrier(THREADS)
+        adopted = []
+
+        def importer(numa_id):
+            barrier.wait()
+            try:
+                PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=numa_id)
+            except ValueError:
+                return
+            adopted.append(numa_id)
+
+        # Each thread names a different node for a resource whose node is unknown.
+        run_in_threads(
+            [functools.partial(importer, CLAIMED_NUMA_ID + i) for i in range(THREADS)],
+            barrier=barrier,
+            timeout=60,
+        )
+        # Exactly one node wins, and no import that named another node succeeds.
+        assert adopted == [mr.numa_id]
     assert _live_owned_mempool_count() == baseline
 
 
@@ -387,6 +421,10 @@ class TestPinnedImportNumaId(_IpcPoolFixtures):
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
     def test_registered_import_applies_numa_id(self, pinned_ipc_resource):
         run_child(child_registered_import_applies_numa_id, pinned_ipc_resource.allocation_handle)
+
+    @pytest.mark.agent_authored(model="claude-opus-5-5")
+    def test_concurrent_imports_agree_on_numa_id(self, pinned_ipc_resource):
+        run_child(child_concurrent_numa_ids_agree, pinned_ipc_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
     def test_negative_numa_id_raises(self):

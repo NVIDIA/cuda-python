@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._memory._memory_pool cimport (
@@ -278,6 +279,7 @@ cdef class PinnedMemoryResource(_MemPool):
         return -1
 
     @property
+    @cython.critical_section
     def numa_id(self) -> int:
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
 
@@ -405,15 +407,21 @@ cdef inline int _PMR_apply_numa_id(PinnedMemoryResource self, object numa_id) ex
     # A node the caller passed must agree with a node that is known. A resource
     # whose node is unknown, such as one registered by an earlier import that
     # was given no node, takes the caller's node.
+    # Concurrent imports of one handle share this resource, so on a free-threaded
+    # build the check and the write are one step. Otherwise two imports with
+    # different nodes could both find the node unknown and both succeed.
+    cdef int node
     if numa_id is None:
         return 0
-    if not self._numa_id_known:
-        self._numa_id = numa_id
-        self._numa_id_known = True
-    elif self._numa_id != numa_id:
-        raise ValueError(
-            f"numa_id {numa_id} does not match the NUMA node of the memory pool, "
-            f"which is {self._numa_id}")
+    node = numa_id
+    with cython.critical_section(self):
+        if not self._numa_id_known:
+            self._numa_id = node
+            self._numa_id_known = True
+        elif self._numa_id != node:
+            raise ValueError(
+                f"numa_id {node} does not match the NUMA node of the memory pool, "
+                f"which is {self._numa_id}")
     return 0
 
 
@@ -442,8 +450,13 @@ def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:
     alloc_handle = pmr.allocation_handle
     # NUMA node IDs are the same in every process on the host, so the node needs
     # no translation as a device ordinal does. An unknown node is not sent, so
-    # that the importer does not mistake a placeholder for the pool's node.
-    return pmr.from_allocation_handle, (alloc_handle, pmr._numa_id if pmr._numa_id_known else None)
+    # that the importer does not mistake a placeholder for the pool's node, and
+    # neither is -1, which from_allocation_handle rejects.
+    numa_id = None
+    with cython.critical_section(pmr):
+        if pmr._numa_id_known and pmr._numa_id >= 0:
+            numa_id = pmr._numa_id
+    return pmr.from_allocation_handle, (alloc_handle, numa_id)
 
 
 multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)
