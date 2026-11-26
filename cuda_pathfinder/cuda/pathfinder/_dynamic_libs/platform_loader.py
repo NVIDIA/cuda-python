@@ -36,6 +36,6 @@ if sys.platform == "win32":
 else:
     from cuda.pathfinder._dynamic_libs import load_dl_linux as _impl
 
-# The platform modules already expose functions matching the PlatformLoader
-# protocol. Wrap in a simple namespace so callers use LOADER.method() syntax.
+# LOADER is the platform module itself. Its functions match the PlatformLoader
+# protocol, so callers write LOADER.method().
 LOADER: PlatformLoader = _impl

@@ -135,7 +135,7 @@ def find_in_cuda_path(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
 def find_via_ctk_root_canary(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Try CTK header lookup via CTK-root canary probing.
 
-    Skips immediately if the descriptor does not opt in (``use_ctk_root_canary``).
+    Skips immediately unless the header ships with the CUDA Toolkit (``use_ctk_root_canary``).
     Otherwise, system-loads ``cudart`` in a fully isolated Python subprocess, derives
     CTK root from the resolved library path, and searches the expected include
     layout under that root.
@@ -210,8 +210,8 @@ def locate_nvidia_header_directory(libname: str) -> LocatedHeaderDir | None:
         2. **Conda environments** — platform-specific conda include layouts.
         3. **Product environment variables** — for example, ``CUDNN_PATH``.
         4. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
-        5. **CTK root canary probe** — subprocess canary (descriptors with
-           ``use_ctk_root_canary=True`` only).
+        5. **CTK root canary probe** — subprocess canary (CUDA Toolkit
+           headers only).
         6. **System install directories** — glob patterns from the descriptor.
     """
     desc = HEADER_DESCRIPTORS.get(libname)
@@ -239,8 +239,8 @@ def find_nvidia_header_directory(libname: str) -> str | None:
         2. **Conda environments** — platform-specific conda include layouts.
         3. **Product environment variables** — for example, ``CUDNN_PATH``.
         4. **CUDA Toolkit environment variables** — ``CUDA_PATH`` / ``CUDA_HOME``.
-        5. **CTK root canary probe** — subprocess canary (descriptors with
-           ``use_ctk_root_canary=True`` only).
+        5. **CTK root canary probe** — subprocess canary (CUDA Toolkit
+           headers only).
         6. **System install directories** — glob patterns from the descriptor.
     """
     found = locate_nvidia_header_directory(libname)
