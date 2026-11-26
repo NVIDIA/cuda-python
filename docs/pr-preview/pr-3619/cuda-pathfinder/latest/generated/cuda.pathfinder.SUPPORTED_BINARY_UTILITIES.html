@@ -559,8 +559,8 @@
 <dt class="sig sig-object py" id="cuda.pathfinder.SUPPORTED_BINARY_UTILITIES">
 <span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_BINARY_UTILITIES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('nvcc',</span> <span class="pre">'ptxas',</span> <span class="pre">'nvdisasm',</span> <span class="pre">'cuobjdump',</span> <span class="pre">'nvprune',</span> <span class="pre">'fatbinary',</span> <span class="pre">'bin2c',</span> <span class="pre">'nvlink',</span> <span class="pre">'cuda-gdb',</span> <span class="pre">'cuda-gdbserver',</span> <span class="pre">'compute-sanitizer',</span> <span class="pre">'nvprof',</span> <span class="pre">'nsys',</span> <span class="pre">'nsight-sys',</span> <span class="pre">'ncu',</span> <span class="pre">'nsight-compute')</span></em><a class="headerlink" href="#cuda.pathfinder.SUPPORTED_BINARY_UTILITIES" title="Link to this definition">#</a></dt>
 <dd><p>Tuple of supported CUDA binary utility names that can be located
-via <code class="docutils literal notranslate"><span class="pre">find_nvidia_binary_utility()</span></code>. Platform-aware (e.g., some
-utilities may be available only on Linux or Windows).
+via <code class="docutils literal notranslate"><span class="pre">find_nvidia_binary_utility()</span></code>. The tuple is the same on every
+platform; some utilities exist only on Linux or only on Windows.
 Example utilities: <code class="docutils literal notranslate"><span class="pre">&quot;nvdisasm&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cuobjdump&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;nvcc&quot;</span></code>.</p>
 </dd></dl>
 
