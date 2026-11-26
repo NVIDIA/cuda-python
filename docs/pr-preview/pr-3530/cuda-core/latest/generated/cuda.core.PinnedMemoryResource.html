@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5d1c390e"></script>
+    <script src="../_static/documentation_options.js?v=f964bd17"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev78';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1.dev79';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -946,9 +946,11 @@ in every process on the host. The pool’s node is read from the
 driver when possible (a CUDA 13 build of <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> and a 13.2
 or later driver); otherwise this value is the imported resource’s
 <a class="reference internal" href="#cuda.core.PinnedMemoryResource.numa_id" title="cuda.core.PinnedMemoryResource.numa_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">numa_id</span></code></a>. Unpickling a resource passes the exporter’s node
-automatically if it was known. If the node comes from neither the
-driver nor this argument, the import succeeds but <a class="reference internal" href="#cuda.core.PinnedMemoryResource.numa_id" title="cuda.core.PinnedMemoryResource.numa_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">numa_id</span></code></a>
-raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>. Must be &gt;= 0 if given.</p></li>
+automatically if it was known. If the handle’s resource is already
+registered in this process with an unknown node, this value becomes
+its node. If the node comes from neither the driver nor this
+argument, the import succeeds but <a class="reference internal" href="#cuda.core.PinnedMemoryResource.numa_id" title="cuda.core.PinnedMemoryResource.numa_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">numa_id</span></code></a> raises
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>. Must be &gt;= 0 if given.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
