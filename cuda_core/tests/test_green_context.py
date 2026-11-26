@@ -334,25 +334,27 @@ def test_set_current_returns_live_context_after_address_reuse(init_cuda, sm_reso
     # Make the Device remember a plain Context for a context that cuda.core did
     # not create, destroy that context, and retry until the driver reuses its
     # CUcontext address for a green context that cuda.core owns.
-    for _ in range(20):
-        foreign = handle_return(driver.cuGreenCtxCreate(desc, dev.device_id, flags))
-        try:
-            handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
-            stale = dev.set_current(primary)
-            dev.set_current(stale)  # the Device now remembers stale
-        finally:
-            # Behind the Device's back, so that it keeps remembering stale.
-            handle_return(driver.cuCtxSetCurrent(primary.handle))
-            handle_return(driver.cuGreenCtxDestroy(foreign))
-        assert not stale.is_green
-        green = dev.create_context(opts)
-        if int(green.handle) == int(stale.handle):
-            break
-        green.close()
-    else:
-        pytest.skip("driver did not reuse the destroyed context's CUcontext address")
-
+    green = None
     try:
+        for _ in range(20):
+            foreign = handle_return(driver.cuGreenCtxCreate(desc, dev.device_id, flags))
+            try:
+                handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+                stale = dev.set_current(primary)
+                dev.set_current(stale)  # the Device now remembers stale
+            finally:
+                # Behind the Device's back, so that it keeps remembering stale.
+                handle_return(driver.cuCtxSetCurrent(primary.handle))
+                handle_return(driver.cuGreenCtxDestroy(foreign))
+            assert not stale.is_green
+            green = dev.create_context(opts)
+            if int(green.handle) == int(stale.handle):
+                break
+            green.close()
+            green = None
+        else:
+            pytest.skip("driver did not reuse the destroyed context's CUcontext address")
+
         handle_return(driver.cuCtxSetCurrent(green.handle))
         previous = dev.set_current(primary)
         # Context equality compares raw CUcontext values, so compare identity
@@ -360,8 +362,11 @@ def test_set_current_returns_live_context_after_address_reuse(init_cuda, sm_reso
         assert previous is not stale
         assert previous.is_green
     finally:
-        handle_return(driver.cuCtxSetCurrent(primary.handle))
-        green.close()
+        # A skip or a failure above leaves the Device remembering stale, which
+        # the init_cuda teardown would then synchronize: rebind it.
+        dev.set_current(primary)
+        if green is not None:
+            green.close()
 
 
 # The driver holds a retain of the primary context while any green context of
