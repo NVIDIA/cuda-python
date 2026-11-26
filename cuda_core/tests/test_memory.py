@@ -1831,6 +1831,8 @@ def test_vmm_host_modify_allocation_rejects_exportable_handle_type(init_cuda):
 def test_vmm_allocate_zero_size(init_cuda):
     """allocate(0) returns an empty buffer without a driver call; a grow of it inherits its stream."""
     device = _vmm_device_or_skip()
+    if device.compute_capability.major < 7:
+        pytest.skip("__nanosleep is only available starting Volta (sm70)")
     mr = _vmm_resource(device)
     s = device.create_stream()
     try:
@@ -1898,6 +1900,8 @@ def test_vmm_close_synchronizes_recorded_streams(init_cuda, close_input_first):
     instead of faulting.
     """
     device = _vmm_device_or_skip()
+    if device.compute_capability.major < 7:
+        pytest.skip("__nanosleep is only available starting Volta (sm70)")
     mr = _vmm_resource(device)
     sleeper = NanosleepKernel(device, sleep_duration_ms=200)
     s1 = device.create_stream()
