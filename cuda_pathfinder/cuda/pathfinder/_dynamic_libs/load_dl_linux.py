@@ -69,7 +69,7 @@ class _LinkMapLNameView(ctypes.Structure):
         returned by `dlinfo(...)`.
       - Do **not** instantiate it or pass it **by value** to any C function.
       - Do **not** access any members beyond those declared here.
-      - Do **not** rely on `ctypes.sizeof(LinkMapPrefix)` for allocation.
+      - Do **not** rely on `ctypes.sizeof(_LinkMapLNameView)` for allocation.
 
     Rationale:
       - Defining only the leading fields avoids depending on internal/unstable
