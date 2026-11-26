@@ -28,7 +28,7 @@ class PlatformLoader(Protocol):
 
     def load_with_system_search(self, desc: LibDescriptor) -> LoadedDL | None: ...
 
-    def load_with_abs_path(self, desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL: ...
+    def load_with_abs_path(self, desc: LibDescriptor, found_path: str, found_via: str) -> LoadedDL: ...
 
 
 if sys.platform == "win32":
@@ -36,6 +36,6 @@ if sys.platform == "win32":
 else:
     from cuda.pathfinder._dynamic_libs import load_dl_linux as _impl
 
-# The platform modules already expose functions matching the PlatformLoader
-# protocol. Wrap in a simple namespace so callers use LOADER.method() syntax.
+# LOADER is the platform module itself. Its functions match the PlatformLoader
+# protocol, so callers write LOADER.method().
 LOADER: PlatformLoader = _impl
