@@ -319,6 +319,51 @@ def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
         green.close()
 
 
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_set_current_returns_live_context_after_address_reuse(init_cuda, sm_resource):
+    """set_current() returns the live green context, not the Device's stale
+    Context for a destroyed context at the same CUcontext address."""
+    dev = init_cuda
+    primary = dev.context
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    opts = ContextOptions(resources=[groups[0]])
+    res = handle_return(driver.cuDeviceGetDevResource(dev.device_id, driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM))
+    desc = handle_return(driver.cuDevResourceGenerateDesc([res], 1))
+    flags = driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
+
+    # Make the Device remember a plain Context for a context that cuda.core did
+    # not create, destroy that context, and retry until the driver reuses its
+    # CUcontext address for a green context that cuda.core owns.
+    for _ in range(20):
+        foreign = handle_return(driver.cuGreenCtxCreate(desc, dev.device_id, flags))
+        try:
+            handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+            stale = dev.set_current(primary)
+            dev.set_current(stale)  # the Device now remembers stale
+        finally:
+            # Behind the Device's back, so that it keeps remembering stale.
+            handle_return(driver.cuCtxSetCurrent(primary.handle))
+            handle_return(driver.cuGreenCtxDestroy(foreign))
+        assert not stale.is_green
+        green = dev.create_context(opts)
+        if int(green.handle) == int(stale.handle):
+            break
+        green.close()
+    else:
+        pytest.skip("driver did not reuse the destroyed context's CUcontext address")
+
+    try:
+        handle_return(driver.cuCtxSetCurrent(green.handle))
+        previous = dev.set_current(primary)
+        # Context equality compares raw CUcontext values, so compare identity
+        # and ownership instead.
+        assert previous is not stale
+        assert previous.is_green
+    finally:
+        handle_return(driver.cuCtxSetCurrent(primary.handle))
+        green.close()
+
+
 # The driver holds a retain of the primary context while any green context of
 # the device exists. The tests below therefore check the primary context's state
 # only after their green contexts are destroyed, and run in a fresh child

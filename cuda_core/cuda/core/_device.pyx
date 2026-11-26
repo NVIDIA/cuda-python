@@ -1323,7 +1323,11 @@ class Device:
             self._has_inited = True
             self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:
-                if prev_owned is not None and as_cu(prev_owned._h_context) == prev_ctx:
+                # Reuse this device's Context object only if it holds the handle
+                # just resolved. Comparing CUcontext addresses is not enough: the
+                # driver reuses the address of a destroyed context, and a stale
+                # object for it would hide the live context's owning handle.
+                if prev_owned is not None and prev_owned._h_context.get() == h_context.get():
                     return prev_owned
                 return Context._from_handle(Context, h_context, <int>prev_dev)
         else:
