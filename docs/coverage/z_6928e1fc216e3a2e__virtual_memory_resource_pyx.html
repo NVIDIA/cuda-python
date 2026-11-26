@@ -89,7 +89,7 @@
   "@": "tests/test_memory.py::test_vmm_close_during_unrelated_capture_keeps_capture_valid[thread_local]|run",
   "[": "tests/test_memory.py::test_vmm_host_location_allocate_without_current_context|run",
   "]": "tests/test_memory.py::test_vmm_release_from_gc_on_capturing_stream_reports_and_unmaps|run",
-  "^": "tests/memory_ipc/test_vmm_fabric.py::test_cross_process[descriptor-pool]|setup",
+  "^": "tests/memory_ipc/test_vmm_fabric.py::test_cross_process[buffer-queue]|setup",
   "_": "(empty)",
   "`": "tests/memory_ipc/test_vmm_ipc.py::TestEmptyBuffer::test_round_trip|run",
   "{": "tests/memory_ipc/test_vmm_fabric.py::test_handle_type_mismatch|run",
@@ -244,7 +244,7 @@
             <a id="nextFileLink" class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.5">coverage.py v7.17.5</a>,
-            created at 2026-11-25 01:57 +0000
+            created at 2026-11-26 00:59 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -562,11 +562,11 @@
     <p class="pln"><span class="n"><a id="t301" href="#t301">301</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;``HANDLE_RETURN(status)``, with ``detail`` attached to the raised error as a note.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t"><span class="txt">    if status == cydriver.CUDA_SUCCESS:</span>&nbsp;</span><input type="checkbox" id="ctxs302"><span class="r"><label for="ctxs302" class="ctx">46 ctx</label></span><span class="ctxs">113MV45WX7Y8Z9Q0RSTzANOU^CecghDbEHikjdafBIlFGJK</span></p>
     <p class="run"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t"><span class="txt">        return 0</span>&nbsp;</span><input type="checkbox" id="ctxs303"><span class="r"><label for="ctxs303" class="ctx">45 ctx</label></span><span class="ctxs">113MV45WX7Y8Z9Q0RSTzANOUCecghDbEHikjdafBIlFGJK</span></p>
-    <p class="run"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs304"><span class="r"><label for="ctxs304" class="ctx">1 ctx</label></span><span class="ctxs">1^</span></p>
-    <p class="run"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">        HANDLE_RETURN(status)</span>&nbsp;</span><input type="checkbox" id="ctxs305"><span class="r"><label for="ctxs305" class="ctx">1 ctx</label></span><span class="ctxs">1^</span></p>
-    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    except Exception as exc:</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">1 ctx</label></span><span class="ctxs">1^</span></p>
-    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">        exc.add_note(detail)</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">1 ctx</label></span><span class="ctxs">1^</span></p>
-    <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><input type="checkbox" id="ctxs308"><span class="r"><label for="ctxs308" class="ctx">1 ctx</label></span><span class="ctxs">1^</span></p>
+    <p class="run"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t"><span class="txt">    try:</span>&nbsp;</span><input type="checkbox" id="ctxs304"><span class="r"><label for="ctxs304" class="ctx">2 ctx</label></span><span class="ctxs">1^b</span></p>
+    <p class="run"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t"><span class="txt">        HANDLE_RETURN(status)</span>&nbsp;</span><input type="checkbox" id="ctxs305"><span class="r"><label for="ctxs305" class="ctx">2 ctx</label></span><span class="ctxs">1^b</span></p>
+    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t"><span class="txt">    except Exception as exc:</span>&nbsp;</span><input type="checkbox" id="ctxs306"><span class="r"><label for="ctxs306" class="ctx">2 ctx</label></span><span class="ctxs">1^b</span></p>
+    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t"><span class="txt">        exc.add_note(detail)</span>&nbsp;</span><input type="checkbox" id="ctxs307"><span class="r"><label for="ctxs307" class="ctx">2 ctx</label></span><span class="ctxs">1^b</span></p>
+    <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t"><span class="txt">        raise</span>&nbsp;</span><input type="checkbox" id="ctxs308"><span class="r"><label for="ctxs308" class="ctx">2 ctx</label></span><span class="ctxs">1^b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t"><span class="txt">    return 0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
@@ -1555,7 +1555,7 @@
             <a class="nav" href="z_0efdcd0c69c2ddb8__memoryview_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.5">coverage.py v7.17.5</a>,
-            created at 2026-11-25 01:57 +0000
+            created at 2026-11-26 00:59 +0000
         </p>
     </div>
 </footer>
