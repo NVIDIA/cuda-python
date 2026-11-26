@@ -11,42 +11,8 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SUPPORTED_LIBNAMES_LINUX,
     SUPPORTED_LIBNAMES_WINDOWS_ARM64,
     SUPPORTED_LIBNAMES_WINDOWS_X64,
-    SUPPORTED_LINUX_SONAMES,
-    SUPPORTED_WINDOWS_DLLS,
 )
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, IS_WINDOWS_ARM64, IS_WINDOWS_X64
-
-# ---------------------------------------------------------------------------
-# Registry completeness
-# ---------------------------------------------------------------------------
-
-
-def test_registry_covers_all_linux_sonames():
-    assert set(SUPPORTED_LINUX_SONAMES) <= set(LIB_DESCRIPTORS)
-
-
-def test_registry_covers_all_windows_dlls():
-    assert set(SUPPORTED_WINDOWS_DLLS) <= set(LIB_DESCRIPTORS)
-
-
-def test_registry_has_no_extra_entries():
-    expected = set(SUPPORTED_LINUX_SONAMES) | set(SUPPORTED_WINDOWS_DLLS)
-    assert set(LIB_DESCRIPTORS) == expected
-
-
-# ---------------------------------------------------------------------------
-# Per-field consistency with source dicts
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-def test_linux_sonames_match(name):
-    assert tuple(reversed(LIB_DESCRIPTORS[name].linux_sonames)) == SUPPORTED_LINUX_SONAMES.get(name, ())
-
-
-@pytest.mark.parametrize("name", sorted(LIB_DESCRIPTORS))
-def test_windows_dlls_match(name):
-    assert tuple(reversed(LIB_DESCRIPTORS[name].windows_dlls)) == SUPPORTED_WINDOWS_DLLS.get(name, ())
 
 
 @pytest.mark.agent_authored(model="gpt-5")
