@@ -5,7 +5,7 @@ import functools
 from dataclasses import dataclass
 from typing import TypedDict
 
-from cuda.pathfinder._static_libs.locate_file import locate_file, not_found_message
+from cuda.pathfinder._static_libs.locate_file import locate_file
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
@@ -77,15 +77,13 @@ def locate_bitcode_lib(name: str) -> LocatedBitcodeLib:
     filename = info["filename"]
     rel_paths = (info["rel_path"],)
 
-    found = locate_file(
+    abs_path, found_via = locate_file(
         filename,
         site_packages_dirs=info["site_packages_dirs"],
         conda_rel_paths=rel_paths,
         ctk_rel_paths=rel_paths,
+        not_found_error=BitcodeLibNotFoundError,
     )
-    if found is None:
-        raise BitcodeLibNotFoundError(not_found_message(filename, rel_paths))
-    abs_path, found_via = found
     return LocatedBitcodeLib(name=name, abs_path=abs_path, filename=filename, found_via=found_via)
 
 
