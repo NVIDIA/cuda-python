@@ -264,7 +264,7 @@ class TestFindInSitePackages:
     def test_misses_when_no_rel_dirs(self):
         desc = _make_desc(site_packages_linux=(), site_packages_windows=WindowsSearchDirs())
         result = find_in_site_packages(_ctx(desc))
-        assert isinstance(result, NotFound)
+        assert not result.found
 
     def test_found_linux(self, mocker, tmp_path):
         lib_dir = tmp_path / "nvidia" / "cuda_runtime" / "lib"
@@ -281,7 +281,7 @@ class TestFindInSitePackages:
             site_packages_linux=(os.path.join("nvidia", "cuda_runtime", "lib"),),
         )
         result = find_in_site_packages(_ctx(desc))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(so_file)
         assert result.found_via == "site-packages"
 
@@ -299,7 +299,7 @@ class TestFindInSitePackages:
 
         result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["nvvm"]))
 
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(so_file)
         assert result.found_via == "site-packages"
 
@@ -323,7 +323,7 @@ class TestFindInSitePackages:
             ),
         )
         result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(dll)
         assert result.found_via == "site-packages"
 
@@ -340,7 +340,7 @@ class TestFindInSitePackages:
 
         result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch="x64"))
 
-        assert isinstance(result, NotFound)
+        assert not result.found
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_windows_matching_rejects_unlisted_cupti_name(self, mocker, tmp_path):
@@ -355,7 +355,7 @@ class TestFindInSitePackages:
 
         result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["cupti"], windows_arch="x64"))
 
-        assert isinstance(result, NotFound)
+        assert not result.found
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
     def test_windows_known_cupti_names_follow_declared_preference_order(self, tmp_path):
@@ -404,7 +404,7 @@ class TestFindInSitePackages:
 
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, windows_arch="arm64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "site-packages"
 
@@ -426,7 +426,7 @@ class TestFindInSitePackages:
 
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(x86_64_dll)
         assert result.found_via == "site-packages"
 
@@ -442,7 +442,7 @@ class TestFindInSitePackages:
 
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(cuda12_dll)
         assert result.found_via == "site-packages"
 
@@ -461,7 +461,7 @@ class TestFindInSitePackages:
 
         result = find_in_site_packages(ctx)
 
-        assert isinstance(result, NotFound)
+        assert not result.found
 
     @pytest.mark.parametrize(
         ("target_arch", "wheel_arch", "expected_source"),
@@ -509,7 +509,7 @@ class TestFindInSitePackages:
 
         ctx = _ctx()
         result = find_in_site_packages(ctx)
-        assert isinstance(result, NotFound)
+        assert not result.found
         assert any("No such file" in m for m in result.error_messages)
 
     @pytest.mark.agent_authored(model="gpt-5.6-sol")
@@ -526,7 +526,7 @@ class TestFindInSitePackages:
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         result = find_in_site_packages(_ctx(desc))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(versioned)
         assert result.found_via == "site-packages"
 
@@ -546,7 +546,7 @@ class TestFindInSitePackages:
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         result = find_in_site_packages(_ctx(desc))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(preferred)
         assert result.found_via == "site-packages"
 
@@ -568,7 +568,7 @@ class TestFindInSitePackages:
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         ctx = _ctx(desc)
         result = find_in_site_packages(ctx)
-        assert isinstance(result, NotFound)
+        assert not result.found
         assert result.error_messages
         assert all("*" not in message for message in result.error_messages)
 
@@ -581,11 +581,11 @@ class TestFindInSitePackages:
 class TestFindInConda:
     def test_misses_without_conda_prefix(self, mocker):
         mocker.patch.dict(os.environ, {}, clear=True)
-        assert isinstance(find_in_conda(_ctx()), NotFound)
+        assert not find_in_conda(_ctx()).found
 
     def test_misses_with_empty_conda_prefix(self, mocker):
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": ""})
-        assert isinstance(find_in_conda(_ctx()), NotFound)
+        assert not find_in_conda(_ctx()).found
 
     def test_found_linux(self, mocker, tmp_path):
         lib_dir = tmp_path / "lib"
@@ -596,7 +596,7 @@ class TestFindInConda:
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
         result = find_in_conda(_ctx())
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(so_file)
         assert result.found_via == "conda"
 
@@ -609,7 +609,7 @@ class TestFindInConda:
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
         result = find_in_conda(_ctx(windows_arch="x64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(dll)
         assert result.found_via == "conda"
 
@@ -626,7 +626,7 @@ class TestFindInConda:
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
         result = find_in_conda(_ctx(windows_arch="arm64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "conda"
 
@@ -641,7 +641,7 @@ class TestFindInConda:
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         result = find_in_conda(_ctx(desc))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(versioned)
         assert result.found_via == "conda"
 
@@ -660,7 +660,7 @@ class TestFindInConda:
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
         ctx = _ctx(desc)
         result = find_in_conda(ctx)
-        assert isinstance(result, NotFound)
+        assert not result.found
         assert result.error_messages
         assert all("*" not in message for message in result.error_messages)
 
@@ -673,7 +673,7 @@ class TestFindInConda:
 class TestFindInCudaHome:
     def test_misses_without_env_var(self, mocker):
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=None)
-        assert isinstance(find_in_cuda_path(_ctx()), NotFound)
+        assert not find_in_cuda_path(_ctx()).found
 
     def test_found_linux(self, mocker, tmp_path):
         lib_dir = tmp_path / "lib64"
@@ -684,7 +684,7 @@ class TestFindInCudaHome:
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
         result = find_in_cuda_path(_ctx())
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
 
@@ -707,7 +707,7 @@ class TestFindInCudaHome:
 
         result = find_in_cuda_path(_ctx())
 
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.found_via == "CUDA_PATH"
         assert os.path.samefile(result.abs_path, selected_library)
 
@@ -720,7 +720,7 @@ class TestFindInCudaHome:
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
         result = find_in_cuda_path(_ctx(windows_arch="x64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(dll)
         assert result.found_via == "CUDA_PATH"
 
@@ -737,7 +737,7 @@ class TestFindInCudaHome:
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
         result = find_in_cuda_path(_ctx(windows_arch="arm64"))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "CUDA_PATH"
 
@@ -762,9 +762,8 @@ class TestFindInCudaHome:
         ctx = _ctx(LIB_DESCRIPTORS["nvvm"], windows_arch=target_arch)
         result = find_in_cuda_path(ctx)
 
-        assert isinstance(result, FindResult) is expected_found
+        assert result.found is expected_found
         if expected_found:
-            assert isinstance(result, FindResult)
             assert result.abs_path == str(dll)
             assert result.found_via == "CUDA_PATH"
         else:
@@ -861,7 +860,7 @@ class TestWindowsInstallRoots:
 
         result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch=target_arch))
 
-        assert isinstance(result, NotFound)
+        assert not result.found
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_program_files_finds_versioned_cudnn_install(self, mocker, tmp_path):
@@ -915,9 +914,9 @@ class TestWindowsInstallRoots:
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(cuda_root))
         ctx = _ctx(LIB_DESCRIPTORS["cudnn"], windows_arch="arm64")
 
-        assert isinstance(find_in_conda(ctx), NotFound)
-        assert isinstance(find_in_cuda_path(ctx), NotFound)
-        assert isinstance(find_in_program_files_roots(ctx), NotFound)
+        assert not find_in_conda(ctx).found
+        assert not find_in_cuda_path(ctx).found
+        assert not find_in_program_files_roots(ctx).found
         assert ctx.site_packages_rel_dirs == ("nvidia/cudnn/bin",)
 
 
@@ -1074,7 +1073,7 @@ class TestAnchorRelDirs:
             anchor_rel_dirs_linux=("nvvm/lib64",),
         )
         result = find_in_cuda_path(_ctx(desc))
-        assert isinstance(result, FindResult)
+        assert result.found
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
 
