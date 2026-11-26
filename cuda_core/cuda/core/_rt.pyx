@@ -75,8 +75,6 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         cydriver.CUcontext ctx, cydriver.CUdevice device) except+ nogil
     ContextHandle create_context_handle_from_green_ctx "cuda_core::rt::create_context_handle_from_green_ctx" (
         const GreenCtxHandle& h_green_ctx) except+ nogil
-    cpp_bool context_handle_is_owning "cuda_core::rt::context_handle_is_owning" (
-        const ContextHandle& h) noexcept nogil
     GreenCtxHandle get_context_green_ctx "cuda_core::rt::get_context_green_ctx" (
         const ContextHandle& h) noexcept nogil
     GreenCtxHandle create_green_ctx_handle "cuda_core::rt::create_green_ctx_handle" (

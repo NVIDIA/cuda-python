@@ -33,7 +33,6 @@ from cuda.core._rt cimport (
     ContextHandle,
     EventHandle,
     StreamHandle,
-    context_handle_is_owning,
     create_context_handle_ref,
     create_event_handle_for_stream,
     create_stream_handle,
@@ -527,15 +526,6 @@ cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 
     # Default-stream tokens must never reuse a sticky object field, even if
     # something else populated ``_h_context`` (defense in depth for #2485).
     if self._h_context and not is_default:
-        if not self._ctx_borrowed or context_handle_is_owning(self._h_context):
-            h_context[0] = self._h_context
-            return 0
-        # A borrowed stream whose context cuda.core did not own at the last
-        # lookup: resolve it again, so that a primary context that has become
-        # current since is returned as its pinned handle, which keeps it alive.
-        # A stream's context never changes, so cuStreamGetCtx is not repeated.
-        with gil:
-            self._h_context = create_context_handle_ref(as_cu(self._h_context))
         h_context[0] = self._h_context
         return 0
 
@@ -545,7 +535,6 @@ cdef inline int Stream_get_ctx(Stream self, ContextHandle* h_context) except?-1 
         if ctx != NULL:
             with gil:
                 h_context[0] = create_context_handle_ref(ctx)
-            self._ctx_borrowed = True
 
     if h_context[0] and not is_default:
         self._h_context = h_context[0]

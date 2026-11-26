@@ -431,12 +431,6 @@ create_context_handle_from_green_ctx(const GreenCtxHandle &h_green_ctx)
     return resolve_context_handle(ctx, h_green_ctx, [] { return ContextHandle{}; });
 }
 
-bool
-context_handle_is_owning(const ContextHandle &h) noexcept
-{
-    return h && owns_context(h);
-}
-
 GreenCtxHandle
 get_context_green_ctx(const ContextHandle &h) noexcept
 {
