@@ -69,7 +69,8 @@ else:
 def _query_driver_cuda_version_int() -> int:
     """Return the encoded CUDA driver version from ``cuDriverGetVersion()``."""
     loaded_cuda = _load_nvidia_dynamic_lib("cuda")
-    driver_lib = _DRIVER_LIB_LOADER(loaded_cuda.abs_path)
+    # `LoadedDL.abs_path` is typed `str | None`, but the Windows loader is declared to take `str`.
+    driver_lib = _DRIVER_LIB_LOADER(loaded_cuda.abs_path)  # type: ignore[arg-type, unused-ignore]
     cu_driver_get_version = driver_lib.cuDriverGetVersion
     cu_driver_get_version.argtypes = [ctypes.POINTER(ctypes.c_int)]
     cu_driver_get_version.restype = ctypes.c_int

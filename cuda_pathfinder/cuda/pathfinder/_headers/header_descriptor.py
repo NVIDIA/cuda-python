@@ -13,7 +13,7 @@ from __future__ import annotations
 import glob
 import os
 import sysconfig
-from typing import TypeAlias, cast
+from typing import TypeAlias
 
 from cuda.pathfinder._headers.header_descriptor_catalog import (
     HEADER_DESCRIPTOR_CATALOG,
@@ -34,8 +34,8 @@ def platform_include_subdirs(desc: HeaderDescriptor) -> tuple[str, ...]:
     common subdirs.  On Linux, only the common subdirs are returned.
     """
     if IS_WINDOWS:
-        return cast(tuple[str, ...], desc.include_subdirs_windows + desc.include_subdirs)
-    return cast(tuple[str, ...], desc.include_subdirs)
+        return desc.include_subdirs_windows + desc.include_subdirs
+    return desc.include_subdirs
 
 
 def system_install_dir_patterns(desc: HeaderDescriptor) -> tuple[str, ...]:

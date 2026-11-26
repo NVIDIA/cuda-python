@@ -161,7 +161,7 @@ def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
     return None
 
 
-def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL:
+def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
