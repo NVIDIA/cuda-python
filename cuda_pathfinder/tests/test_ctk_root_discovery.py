@@ -194,7 +194,7 @@ def test_try_via_ctk_root_finds_nvvm(tmp_path):
     nvvm_lib = _create_nvvm_in_ctk(ctk_root)
 
     result = find_via_ctk_root(_ctx("nvvm"), str(ctk_root))
-    assert isinstance(result, FindResult)
+    assert result.found
     assert result.abs_path == str(nvvm_lib)
     assert result.found_via == "system-ctk-root"
 
@@ -203,7 +203,7 @@ def test_try_via_ctk_root_misses_when_dir_missing(tmp_path):
     ctk_root = tmp_path / "cuda-13"
     ctk_root.mkdir()
 
-    assert isinstance(find_via_ctk_root(_ctx("nvvm"), str(ctk_root)), NotFound)
+    assert not find_via_ctk_root(_ctx("nvvm"), str(ctk_root)).found
 
 
 def test_try_via_ctk_root_regular_lib(tmp_path):
@@ -211,7 +211,7 @@ def test_try_via_ctk_root_regular_lib(tmp_path):
     cudart_lib = _create_cudart_in_ctk(ctk_root)
 
     result = find_via_ctk_root(_ctx("cudart"), str(ctk_root))
-    assert isinstance(result, FindResult)
+    assert result.found
     assert result.abs_path == str(cudart_lib)
     assert result.found_via == "system-ctk-root"
 
@@ -229,7 +229,7 @@ def test_try_via_ctk_root_windows_arm64_prefers_arch_dir(tmp_path):
 
     ctx = windows_search_context(LIB_DESCRIPTORS["cudart"], "arm64")
     result = find_via_ctk_root(ctx, str(ctk_root))
-    assert isinstance(result, FindResult)
+    assert result.found
     assert result.abs_path == str(arm64_lib)
     assert result.found_via == "system-ctk-root"
 
@@ -386,7 +386,7 @@ def test_canary_finds_nvvm(tmp_path, mocker):
 
 def test_canary_misses_when_subprocess_probe_fails(mocker):
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
+    assert not _try_ctk_root_canary(_ctx("nvvm")).found
 
 
 def test_canary_misses_when_ctk_root_unrecognized(mocker):
@@ -394,7 +394,7 @@ def test_canary_misses_when_ctk_root_unrecognized(mocker):
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value="/weird/path/libcudart.so.13",
     )
-    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
+    assert not _try_ctk_root_canary(_ctx("nvvm")).found
 
 
 def test_canary_misses_when_nvvm_not_in_ctk_root(tmp_path, mocker):
@@ -406,12 +406,12 @@ def test_canary_misses_when_nvvm_not_in_ctk_root(tmp_path, mocker):
         f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(ctk_root),
     )
-    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
+    assert not _try_ctk_root_canary(_ctx("nvvm")).found
 
 
 def test_canary_skips_when_abs_path_none(mocker):
     mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
-    assert isinstance(_try_ctk_root_canary(_ctx("nvvm")), NotFound)
+    assert not _try_ctk_root_canary(_ctx("nvvm")).found
 
 
 # ---------------------------------------------------------------------------
