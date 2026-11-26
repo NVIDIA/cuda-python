@@ -35,10 +35,16 @@ class HeaderDescriptorSpec:
     system_install_dirs_windows: tuple[str, ...] = ()
     # Whether to search /usr/include/<sysconfig MULTIARCH> before system_install_dirs.
     use_linux_multiarch_include_dir: bool = False
-    # Whether to use targets/<arch>/include layout for conda on Linux.
-    conda_targets_layout: bool = True
-    # Whether to attempt CTK-root canary probing (spawns a subprocess).
-    use_ctk_root_canary: bool = True
+
+    @property
+    def conda_targets_layout(self) -> bool:
+        """Whether to use targets/<arch>/include layout for conda on Linux: CTK headers only."""
+        return self.packaged_with == "ctk"
+
+    @property
+    def use_ctk_root_canary(self) -> bool:
+        """Whether to attempt CTK-root canary probing (spawns a subprocess): CTK headers only."""
+        return self.packaged_with == "ctk"
 
 
 HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
@@ -170,8 +176,6 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         ),
         system_install_dirs_windows=("${ProgramFiles}/NVIDIA/CUDNN/v9.*/include",),
         use_linux_multiarch_include_dir=True,
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cusolverMp",
@@ -179,32 +183,24 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         header_basename="cusolverMp.h",
         site_packages_dirs=("nvidia/cu13/include", "nvidia/cu12/include"),
         available_on_windows=False,
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cusparseLt",
         packaged_with="other",
         header_basename="cusparseLt.h",
         site_packages_dirs=("nvidia/cu13/include", "nvidia/cusparselt/include"),
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cute",
         packaged_with="other",
         header_basename="cute/tensor.hpp",
         site_packages_dirs=("cutlass_library/source/include",),
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cutensor",
         packaged_with="other",
         header_basename="cutensor.h",
         site_packages_dirs=("cutensor/include",),
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cudensitymat",
@@ -212,8 +208,6 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         header_basename="cudensitymat.h",
         site_packages_dirs=("cuquantum/include",),
         available_on_windows=False,
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cupauliprop",
@@ -221,8 +215,6 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         header_basename="cupauliprop.h",
         site_packages_dirs=("cuquantum/include",),
         available_on_windows=False,
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cutensornet",
@@ -230,8 +222,6 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         header_basename="cutensornet.h",
         site_packages_dirs=("cuquantum/include",),
         available_on_windows=False,
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="custabilizer",
@@ -239,8 +229,6 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         header_basename="custabilizer.h",
         site_packages_dirs=("cuquantum/include",),
         available_on_windows=False,
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="custatevec",
@@ -248,24 +236,18 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         header_basename="custatevec.h",
         site_packages_dirs=("cuquantum/include",),
         available_on_windows=False,
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="cutlass",
         packaged_with="other",
         header_basename="cutlass/cutlass.h",
         site_packages_dirs=("cutlass_library/source/include",),
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="mathdx",
         packaged_with="other",
         header_basename="libmathdx.h",
         site_packages_dirs=("nvidia/cu13/include", "nvidia/cu12/include"),
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="nccl",
@@ -276,8 +258,6 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         anchor_include_rel_dirs=("include", "build/include"),
         product_root_env_vars=("NCCL_HOME",),
         system_install_dirs=("/usr/include", "/usr/local/include"),
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
     HeaderDescriptorSpec(
         name="nvshmem",
@@ -286,7 +266,5 @@ HEADER_DESCRIPTOR_CATALOG: tuple[HeaderDescriptorSpec, ...] = (
         site_packages_dirs=("nvidia/nvshmem/include",),
         available_on_windows=False,
         system_install_dirs=("/usr/include/nvshmem_*",),
-        conda_targets_layout=False,
-        use_ctk_root_canary=False,
     ),
 )

@@ -22,7 +22,6 @@ from local_helpers import quote_for_shell
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
-    _DRIVER_ONLY_LIBNAMES,
     _load_driver_lib_no_cache,
     _load_lib_no_cache,
 )
@@ -30,6 +29,8 @@ from cuda.pathfinder._dynamic_libs.search_steps import NotFound
 from cuda.pathfinder._dynamic_libs.subprocess_protocol import STATUS_NOT_FOUND, parse_dynamic_lib_subprocess_payload
 from cuda.pathfinder._utils import driver_info
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+
+_DRIVER_LIBNAMES = sorted(name for name, desc in LIB_DESCRIPTORS.items() if desc.packaged_with == "driver")
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -98,7 +99,7 @@ def test_driver_lib_does_not_search_site_packages(mocker):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("libname", sorted(_DRIVER_ONLY_LIBNAMES))
+@pytest.mark.parametrize("libname", _DRIVER_LIBNAMES)
 def test_load_lib_no_cache_dispatches_to_driver_path(libname, mocker):
     loaded = _make_loaded_dl(f"/usr/lib/fake_{libname}.so", "system-search")
     mock_driver = mocker.patch(f"{_MODULE}._load_driver_lib_no_cache", return_value=loaded)
@@ -132,7 +133,7 @@ def test_load_lib_no_cache_does_not_dispatch_ctk_lib_to_driver_path(mocker):
 
 # For libname=nvcudla:
 # This test is not currently run in any CI job
-@pytest.mark.parametrize("libname", sorted(_DRIVER_ONLY_LIBNAMES))
+@pytest.mark.parametrize("libname", _DRIVER_LIBNAMES)
 def test_real_load_driver_lib(info_summary_append, libname):
     """Load a real driver library in a dedicated subprocess.
 
