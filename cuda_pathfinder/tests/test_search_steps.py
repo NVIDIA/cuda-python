@@ -17,8 +17,6 @@ from cuda.pathfinder._dynamic_libs.descriptor_catalog import WindowsSearchDirs
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS, LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.search_platform import (
-    LinuxSearchPlatform,
-    WindowsSearchPlatform,
     _find_descriptor_dll_under_dir,
     linux_search_context,
     windows_search_context,
@@ -62,10 +60,11 @@ def _make_desc(name: str = "cudart", **overrides) -> LibDescriptor:
     return LibDescriptor(**defaults)
 
 
-def _ctx(desc: LibDescriptor | None = None, *, platform=None) -> SearchContext:
-    if platform is None:
-        platform = LinuxSearchPlatform()
-    return SearchContext(desc or _make_desc(), platform=platform)
+def _ctx(desc: LibDescriptor | None = None, *, windows_arch: str | None = None) -> SearchContext:
+    desc = desc or _make_desc()
+    if windows_arch is None:
+        return linux_search_context(desc)
+    return windows_search_context(desc, windows_arch)
 
 
 def _patch_site_packages_search(mocker, root):
@@ -92,11 +91,11 @@ def _write_pe(path, machine):
 
 class TestSearchContext:
     def test_lib_searched_for_linux(self):
-        ctx = SearchContext(LIB_DESCRIPTORS["cublas"], platform=LinuxSearchPlatform())
+        ctx = linux_search_context(LIB_DESCRIPTORS["cublas"])
         assert ctx.lib_searched_for == "libcublas.so.13 or libcublas.so.12"
 
     def test_lib_searched_for_windows(self):
-        ctx = SearchContext(_make_desc(name="cublas"), platform=WindowsSearchPlatform(target_arch="x64"))
+        ctx = windows_search_context(_make_desc(name="cublas"), "x64")
         assert ctx.lib_searched_for == "known cublas DLL"
 
     def test_raise_not_found_includes_messages(self):
@@ -123,9 +122,9 @@ class TestWindowsPythonArch:
         mocker.patch.object(search_platform_mod, "IS_WINDOWS", False)
         get_windows_arch = mocker.patch.object(search_platform_mod, "windows_python_arch")
 
-        platform = search_platform_mod._platform_for_current_system()
+        ctx = search_platform_mod.search_context(_make_desc())
 
-        assert isinstance(platform, LinuxSearchPlatform)
+        assert ctx.windows_arch is None
         get_windows_arch.assert_not_called()
 
     @pytest.mark.agent_authored(model="gpt-5")
@@ -281,7 +280,7 @@ class TestFindInSitePackages:
         desc = _make_desc(
             site_packages_linux=(os.path.join("nvidia", "cuda_runtime", "lib"),),
         )
-        result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
+        result = find_in_site_packages(_ctx(desc))
         assert result is not None
         assert result.abs_path == str(so_file)
         assert result.found_via == "site-packages"
@@ -298,7 +297,7 @@ class TestFindInSitePackages:
             return_value=[str(lib_dir)],
         )
 
-        result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["nvvm"], platform=LinuxSearchPlatform()))
+        result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["nvvm"]))
 
         assert result is not None
         assert result.abs_path == str(so_file)
@@ -323,7 +322,7 @@ class TestFindInSitePackages:
                 arm64=(os.path.join("nvidia", "cuda_runtime", "bin"),),
             ),
         )
-        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
+        result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "site-packages"
@@ -339,9 +338,7 @@ class TestFindInSitePackages:
             return_value=[str(bin_dir)],
         )
 
-        result = find_in_site_packages(
-            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
-        )
+        result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch="x64"))
 
         assert result is None
 
@@ -356,9 +353,7 @@ class TestFindInSitePackages:
             return_value=[str(bin_dir)],
         )
 
-        result = find_in_site_packages(
-            _ctx(LIB_DESCRIPTORS["cupti"], platform=WindowsSearchPlatform(target_arch="x64"))
-        )
+        result = find_in_site_packages(_ctx(LIB_DESCRIPTORS["cupti"], windows_arch="x64"))
 
         assert result is None
 
@@ -408,7 +403,7 @@ class TestFindInSitePackages:
         mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
-        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="arm64")))
+        result = find_in_site_packages(_ctx(desc, windows_arch="arm64"))
         assert result is not None
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "site-packages"
@@ -430,7 +425,7 @@ class TestFindInSitePackages:
         mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
-        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
+        result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
         assert result is not None
         assert result.abs_path == str(x86_64_dll)
         assert result.found_via == "site-packages"
@@ -446,7 +441,7 @@ class TestFindInSitePackages:
         mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
-        result = find_in_site_packages(_ctx(desc, platform=WindowsSearchPlatform(target_arch="x64")))
+        result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
         assert result is not None
         assert result.abs_path == str(cuda12_dll)
         assert result.found_via == "site-packages"
@@ -461,10 +456,10 @@ class TestFindInSitePackages:
         mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
-        platform = WindowsSearchPlatform(target_arch="arm64")
-        assert platform.site_packages_rel_dirs(desc) == ("nvidia/cu13/bin/arm64",)
+        ctx = _ctx(desc, windows_arch="arm64")
+        assert ctx.site_packages_rel_dirs == ("nvidia/cu13/bin/arm64",)
 
-        result = find_in_site_packages(_ctx(desc, platform=platform))
+        result = find_in_site_packages(ctx)
 
         assert result is None
 
@@ -496,7 +491,7 @@ class TestFindInSitePackages:
 
         desc = LIB_DESCRIPTORS["cudnn"]
         result = run_find_steps(
-            _ctx(desc, platform=WindowsSearchPlatform(target_arch=target_arch)),
+            _ctx(desc, windows_arch=target_arch),
             (find_in_site_packages, find_in_install_root_env_vars),
         )
 
@@ -512,7 +507,7 @@ class TestFindInSitePackages:
             return_value=[str(empty_dir)],
         )
 
-        ctx = _ctx(platform=LinuxSearchPlatform())
+        ctx = _ctx()
         result = find_in_site_packages(ctx)
         assert result is None
         assert any("No such file" in m for m in ctx.error_messages)
@@ -530,7 +525,7 @@ class TestFindInSitePackages:
         )
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
-        result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
+        result = find_in_site_packages(_ctx(desc))
         assert result is not None
         assert result.abs_path == str(versioned)
         assert result.found_via == "site-packages"
@@ -550,7 +545,7 @@ class TestFindInSitePackages:
         )
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
-        result = find_in_site_packages(_ctx(desc, platform=LinuxSearchPlatform()))
+        result = find_in_site_packages(_ctx(desc))
         assert result is not None
         assert result.abs_path == str(preferred)
         assert result.found_via == "site-packages"
@@ -571,7 +566,7 @@ class TestFindInSitePackages:
         )
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
-        ctx = _ctx(desc, platform=LinuxSearchPlatform())
+        ctx = _ctx(desc)
         result = find_in_site_packages(ctx)
         assert result is None
         assert ctx.error_messages
@@ -600,7 +595,7 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=LinuxSearchPlatform()))
+        result = find_in_conda(_ctx())
         assert result is not None
         assert result.abs_path == str(so_file)
         assert result.found_via == "conda"
@@ -613,7 +608,7 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=WindowsSearchPlatform(target_arch="x64")))
+        result = find_in_conda(_ctx(windows_arch="x64"))
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "conda"
@@ -630,7 +625,7 @@ class TestFindInConda:
 
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
-        result = find_in_conda(_ctx(platform=WindowsSearchPlatform(target_arch="arm64")))
+        result = find_in_conda(_ctx(windows_arch="arm64"))
         assert result is not None
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "conda"
@@ -645,7 +640,7 @@ class TestFindInConda:
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
-        result = find_in_conda(_ctx(desc, platform=LinuxSearchPlatform()))
+        result = find_in_conda(_ctx(desc))
         assert result is not None
         assert result.abs_path == str(versioned)
         assert result.found_via == "conda"
@@ -663,7 +658,7 @@ class TestFindInConda:
         mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path)})
 
         desc = _make_desc(linux_sonames=("libcudart.so.13", "libcudart.so.12"))
-        ctx = _ctx(desc, platform=LinuxSearchPlatform())
+        ctx = _ctx(desc)
         result = find_in_conda(ctx)
         assert result is None
         assert ctx.error_messages
@@ -678,7 +673,7 @@ class TestFindInConda:
 class TestFindInCudaHome:
     def test_returns_none_without_env_var(self, mocker):
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=None)
-        assert find_in_cuda_path(_ctx(platform=LinuxSearchPlatform())) is None
+        assert find_in_cuda_path(_ctx()) is None
 
     def test_found_linux(self, mocker, tmp_path):
         lib_dir = tmp_path / "lib64"
@@ -688,7 +683,7 @@ class TestFindInCudaHome:
 
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
-        result = find_in_cuda_path(_ctx(platform=LinuxSearchPlatform()))
+        result = find_in_cuda_path(_ctx())
         assert result is not None
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
@@ -710,7 +705,7 @@ class TestFindInCudaHome:
         (wrong_lib_dir / "libcudart.so").touch()
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(alias / ".."))
 
-        result = find_in_cuda_path(_ctx(platform=LinuxSearchPlatform()))
+        result = find_in_cuda_path(_ctx())
 
         assert result is not None
         assert result.found_via == "CUDA_PATH"
@@ -724,7 +719,7 @@ class TestFindInCudaHome:
 
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
-        result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform(target_arch="x64")))
+        result = find_in_cuda_path(_ctx(windows_arch="x64"))
         assert result is not None
         assert result.abs_path == str(dll)
         assert result.found_via == "CUDA_PATH"
@@ -741,7 +736,7 @@ class TestFindInCudaHome:
 
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
-        result = find_in_cuda_path(_ctx(platform=WindowsSearchPlatform(target_arch="arm64")))
+        result = find_in_cuda_path(_ctx(windows_arch="arm64"))
         assert result is not None
         assert result.abs_path == str(arm64_dll)
         assert result.found_via == "CUDA_PATH"
@@ -764,7 +759,7 @@ class TestFindInCudaHome:
 
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(tmp_path))
 
-        ctx = _ctx(LIB_DESCRIPTORS["nvvm"], platform=WindowsSearchPlatform(target_arch=target_arch))
+        ctx = _ctx(LIB_DESCRIPTORS["nvvm"], windows_arch=target_arch)
         result = find_in_cuda_path(ctx)
 
         assert (result is not None) is expected_found
@@ -803,7 +798,7 @@ class TestLinuxInstallRoots:
         env[env_var] = str(root)
         mocker.patch.dict(os.environ, env)
 
-        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS[libname], platform=LinuxSearchPlatform()))
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS[libname]))
 
         assert result == FindResult(str(library), env_var)
 
@@ -818,7 +813,7 @@ class TestLinuxInstallRoots:
             libraries.append(library)
         mocker.patch.dict(os.environ, {"CUDNN_PATH": "", "NCCL_HOME": str(tmp_path)})
 
-        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["nccl"], platform=LinuxSearchPlatform()))
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["nccl"]))
 
         assert result == FindResult(str(libraries[0]), "NCCL_HOME")
 
@@ -845,9 +840,7 @@ class TestWindowsInstallRoots:
         _write_pe(dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH[target_arch])
         mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
 
-        result = find_in_install_root_env_vars(
-            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
-        )
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch=target_arch))
 
         assert result == FindResult(str(dll), "CUDNN_PATH")
 
@@ -866,9 +859,7 @@ class TestWindowsInstallRoots:
         _write_pe(bin_dir / "cudnn64_9.dll", windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH[target_arch])
         mocker.patch.dict(os.environ, {"CUDNN_PATH": str(tmp_path)})
 
-        result = find_in_install_root_env_vars(
-            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch=target_arch))
-        )
+        result = find_in_install_root_env_vars(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch=target_arch))
 
         assert result is None
 
@@ -882,9 +873,7 @@ class TestWindowsInstallRoots:
         _write_pe(dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
         mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
 
-        result = find_in_program_files_roots(
-            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
-        )
+        result = find_in_program_files_roots(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch="x64"))
 
         assert result == FindResult(str(dll), "ProgramFiles")
 
@@ -899,9 +888,7 @@ class TestWindowsInstallRoots:
         _write_pe(newer_dll, windows_arch_mod.WINDOWS_PE_MACHINE_BY_ARCH["x64"])
         mocker.patch.dict(os.environ, {"PROGRAMFILES": str(tmp_path), "PROGRAMW6432": ""})
 
-        result = find_in_program_files_roots(
-            _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="x64"))
-        )
+        result = find_in_program_files_roots(_ctx(LIB_DESCRIPTORS["cudnn"], windows_arch="x64"))
 
         assert result == FindResult(str(newer_dll), "ProgramFiles")
 
@@ -926,12 +913,12 @@ class TestWindowsInstallRoots:
             },
         )
         mocker.patch(f"{_STEPS_MOD}.get_cuda_path_or_home", return_value=str(cuda_root))
-        ctx = _ctx(LIB_DESCRIPTORS["cudnn"], platform=WindowsSearchPlatform(target_arch="arm64"))
+        ctx = _ctx(LIB_DESCRIPTORS["cudnn"], windows_arch="arm64")
 
         assert find_in_conda(ctx) is None
         assert find_in_cuda_path(ctx) is None
         assert find_in_program_files_roots(ctx) is None
-        assert ctx.platform.site_packages_rel_dirs(ctx.desc) == ("nvidia/cudnn/bin",)
+        assert ctx.site_packages_rel_dirs == ("nvidia/cudnn/bin",)
 
 
 # ---------------------------------------------------------------------------
@@ -1046,7 +1033,7 @@ class TestAnchorRelDirs:
                 arm64=("bin/arm64", "bin"),
             )
         )
-        assert WindowsSearchPlatform(target_arch="arm64").anchor_rel_dirs(desc) == ("bin/arm64", "bin")
+        assert windows_search_context(desc, "arm64").anchor_rel_dirs == ("bin/arm64", "bin")
 
     @pytest.mark.agent_authored(model="gpt-5")
     def test_windows_anchor_dirs_select_x64(self):
@@ -1056,7 +1043,7 @@ class TestAnchorRelDirs:
                 arm64=("bin/arm64", "bin"),
             )
         )
-        assert WindowsSearchPlatform(target_arch="x64").anchor_rel_dirs(desc) == ("bin/x64", "bin")
+        assert windows_search_context(desc, "x64").anchor_rel_dirs == ("bin/x64", "bin")
 
     def test_nvvm_cuda_home_linux(self, mocker, tmp_path):
         """End-to-end: find_in_cuda_path resolves nvvm under its custom subdir."""
@@ -1072,33 +1059,7 @@ class TestAnchorRelDirs:
             linux_sonames=("libnvvm.so",),
             anchor_rel_dirs_linux=("nvvm/lib64",),
         )
-        result = find_in_cuda_path(_ctx(desc, platform=LinuxSearchPlatform()))
+        result = find_in_cuda_path(_ctx(desc))
         assert result is not None
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
-
-
-# ---------------------------------------------------------------------------
-# Resolved search context vs. the platform classes it replaces
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("windows_arch", (None, "x64", "arm64"), ids=("linux", "x64", "arm64"))
-@pytest.mark.parametrize("desc", LIB_DESCRIPTORS.values(), ids=lambda desc: desc.name)
-@pytest.mark.agent_authored(model="claude-fable-5-2")
-def test_search_context_matches_search_platform(desc, windows_arch, monkeypatch):
-    monkeypatch.delenv("PROGRAMW6432", raising=False)
-    monkeypatch.setenv("PROGRAMFILES", "ProgramFilesRoot")
-    if windows_arch is None:
-        platform, ctx = LinuxSearchPlatform(), linux_search_context(desc)
-    else:
-        platform, ctx = WindowsSearchPlatform(target_arch=windows_arch), windows_search_context(desc, windows_arch)
-
-    assert ctx.lib_searched_for == platform.lib_searched_for(desc)
-    assert ctx.site_packages_rel_dirs == platform.site_packages_rel_dirs(desc)
-    assert ctx.conda_anchor_point("conda-prefix") == platform.conda_anchor_point("conda-prefix")
-    assert ctx.anchor_rel_dirs == platform.anchor_rel_dirs(desc)
-    assert ctx.install_root_env_vars == platform.install_root_env_vars(desc)
-    assert ctx.install_root_env_rel_dirs == platform.install_root_env_rel_dirs(desc)
-    program_files_root_globs = tuple(os.path.join("ProgramFilesRoot", glob) for glob in ctx.program_files_rel_globs)
-    assert program_files_root_globs == platform.program_files_root_globs(desc)
