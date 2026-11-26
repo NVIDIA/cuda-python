@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.batch\_io\_submit
+======================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: batch_io_submit
