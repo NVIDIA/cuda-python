@@ -70,8 +70,8 @@ from cuda.pathfinder._version import __version__  # isort: skip
 SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
 
 #: Tuple of supported CUDA binary utility names that can be located
-#: via ``find_nvidia_binary_utility()``. Platform-aware (e.g., some
-#: utilities may be available only on Linux or Windows).
+#: via ``find_nvidia_binary_utility()``. The tuple is the same on every
+#: platform; some utilities exist only on Linux or only on Windows.
 #: Example utilities: ``"nvdisasm"``, ``"cuobjdump"``, ``"nvcc"``.
 SUPPORTED_BINARY_UTILITIES = _SUPPORTED_BINARIES
 
@@ -91,5 +91,5 @@ SUPPORTED_BITCODE_LIBS = _SUPPORTED_BITCODE_LIBS
 SUPPORTED_STATIC_LIBS = _SUPPORTED_STATIC_LIBS
 
 # Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.
-# It will be removed in release 1.2.4.
+# Its removal was planned for release 1.2.4 and has not happened.
 _find_nvidia_header_directory = find_nvidia_header_directory

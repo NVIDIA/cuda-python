@@ -9,7 +9,8 @@ _CUDA13_BIN = os.path.join("nvidia", "cu13", "bin")
 _NSIGHT_SYSTEMS_BIN = os.path.join("nvidia", "nsight_systems", "bin")
 _NSIGHT_COMPUTE_BIN = os.path.join("nvidia", "nsight_compute", "bin")
 
-# Common CUDA binary utilities available on both Linux and Windows
+# Utility name -> site-packages bin directories to search, in order.
+# The table is the same on every platform; some utilities ship for one only.
 SITE_PACKAGES_BINDIRS = {
     # Core compilation tools
     "nvcc": (_CUDA13_BIN, _CUDA_NVCC_BIN),
