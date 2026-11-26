@@ -12,13 +12,15 @@ import pytest
 
 from cuda.pathfinder._dynamic_libs import load_nvidia_dynamic_lib as load_mod
 from cuda.pathfinder._dynamic_libs import search_steps as steps_mod
+from cuda.pathfinder._dynamic_libs.canary_probe import (
+    _resolve_system_loaded_abs_path_in_subprocess,
+    resolve_ctk_root_via_canary,
+)
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LIB_DESCRIPTORS
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError, LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _load_lib_no_cache,
-    _resolve_system_loaded_abs_path_in_subprocess,
     _try_ctk_root_canary,
-    resolve_ctk_root_via_canary,
 )
 from cuda.pathfinder._dynamic_libs.search_platform import (
     linux_search_context,
@@ -43,6 +45,7 @@ from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
+_PROBE_MODULE = "cuda.pathfinder._dynamic_libs.canary_probe"
 _STEPS_MODULE = "cuda.pathfinder._dynamic_libs.search_steps"
 _PACKAGE_ROOT = DYNAMIC_LIB_SUBPROCESS_CWD
 
@@ -246,7 +249,7 @@ def test_subprocess_probe_returns_abs_path_on_string_payload(mocker):
         stdout='{"status": "ok", "abs_path": "/usr/local/cuda/lib64/libcudart.so.13"}\n',
         stderr="",
     )
-    run_mock = mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    run_mock = mocker.patch(f"{_PROBE_MODULE}.subprocess.run", return_value=result)
 
     assert _resolve_system_loaded_abs_path_in_subprocess("cudart") == "/usr/local/cuda/lib64/libcudart.so.13"
     run_mock.assert_called_once_with(
@@ -266,14 +269,14 @@ def test_subprocess_probe_returns_none_on_null_payload(mocker):
         stdout='{"status": "not-found", "abs_path": null}\n',
         stderr="",
     )
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROBE_MODULE}.subprocess.run", return_value=result)
 
     assert _resolve_system_loaded_abs_path_in_subprocess("cudart") is None
 
 
 def test_subprocess_probe_raises_on_child_failure(mocker):
     result = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr="child failed\n")
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROBE_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(ChildProcessError, match="child failed"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
@@ -281,7 +284,7 @@ def test_subprocess_probe_raises_on_child_failure(mocker):
 
 def test_subprocess_probe_raises_on_timeout(mocker):
     mocker.patch(
-        f"{_MODULE}.subprocess.run",
+        f"{_PROBE_MODULE}.subprocess.run",
         side_effect=subprocess.TimeoutExpired(cmd=["python"], timeout=10.0, stderr="probe hung\n"),
     )
     with pytest.raises(ChildProcessError, match="timed out after 10.0 seconds"):
@@ -290,7 +293,7 @@ def test_subprocess_probe_raises_on_timeout(mocker):
 
 def test_subprocess_probe_raises_on_empty_stdout(mocker):
     result = subprocess.CompletedProcess(args=[], returncode=0, stdout=" \n \n", stderr="")
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROBE_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(RuntimeError, match="produced no stdout payload"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
@@ -298,7 +301,7 @@ def test_subprocess_probe_raises_on_empty_stdout(mocker):
 
 def test_subprocess_probe_raises_on_invalid_json_payload(mocker):
     result = subprocess.CompletedProcess(args=[], returncode=0, stdout="not-json\n", stderr="")
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROBE_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(RuntimeError, match="invalid JSON payload"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
@@ -311,7 +314,7 @@ def test_subprocess_probe_raises_on_unexpected_json_payload(mocker):
         stdout='{"path": "/usr/local/cuda/lib64/libcudart.so.13"}\n',
         stderr="",
     )
-    mocker.patch(f"{_MODULE}.subprocess.run", return_value=result)
+    mocker.patch(f"{_PROBE_MODULE}.subprocess.run", return_value=result)
 
     with pytest.raises(RuntimeError, match="unexpected payload"):
         _resolve_system_loaded_abs_path_in_subprocess("cudart")
@@ -325,7 +328,7 @@ def test_subprocess_probe_does_not_reenter_calling_script(tmp_path):
             f"""
             from pathlib import Path
 
-            from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
+            from cuda.pathfinder._dynamic_libs.canary_probe import (
                 _resolve_system_loaded_abs_path_in_subprocess,
             )
 
@@ -374,7 +377,7 @@ def test_canary_finds_nvvm(tmp_path, mocker):
     nvvm_lib = _create_nvvm_in_ctk(ctk_root)
 
     probe = mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(ctk_root),
     )
     parent_system_loader = mocker.patch.object(load_mod.LOADER, "load_with_system_search")
@@ -385,13 +388,13 @@ def test_canary_finds_nvvm(tmp_path, mocker):
 
 
 def test_canary_misses_when_subprocess_probe_fails(mocker):
-    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
+    mocker.patch(f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     assert not _try_ctk_root_canary(_ctx("nvvm")).found
 
 
 def test_canary_misses_when_ctk_root_unrecognized(mocker):
     mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value="/weird/path/libcudart.so.13",
     )
     assert not _try_ctk_root_canary(_ctx("nvvm")).found
@@ -403,14 +406,14 @@ def test_canary_misses_when_nvvm_not_in_ctk_root(tmp_path, mocker):
     _create_cudart_in_ctk(ctk_root)
 
     mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(ctk_root),
     )
     assert not _try_ctk_root_canary(_ctx("nvvm")).found
 
 
 def test_canary_skips_when_abs_path_none(mocker):
-    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
+    mocker.patch(f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     assert not _try_ctk_root_canary(_ctx("nvvm")).found
 
 
@@ -423,7 +426,7 @@ def test_resolve_ctk_root_via_canary_returns_root(tmp_path, mocker):
     ctk_root = tmp_path / "cuda-13"
     _create_cudart_in_ctk(ctk_root)
     probe = mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(ctk_root),
     )
     assert resolve_ctk_root_via_canary("cudart") == str(ctk_root)
@@ -431,13 +434,13 @@ def test_resolve_ctk_root_via_canary_returns_root(tmp_path, mocker):
 
 
 def test_resolve_ctk_root_via_canary_none_when_probe_fails(mocker):
-    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
+    mocker.patch(f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess", return_value=None)
     assert resolve_ctk_root_via_canary("cudart") is None
 
 
 def test_resolve_ctk_root_via_canary_none_when_unrecognized(mocker):
     mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=str(Path(os.sep, "weird", "path", "libcudart.so.13")),
     )
     assert resolve_ctk_root_via_canary("cudart") is None
@@ -485,7 +488,7 @@ def test_cuda_home_takes_priority_over_canary(tmp_path, mocker):
     # System search finds nothing for nvvm.
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
     # Canary subprocess probe would find cudart if consulted.
-    mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess", side_effect=canary_mock)
+    mocker.patch(f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess", side_effect=canary_mock)
     # CUDA_HOME points to a separate root that also has nvvm
     mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=str(cuda_home_root))
     # Capture the final load call
@@ -513,7 +516,7 @@ def test_canary_fires_only_after_all_earlier_steps_fail(tmp_path, mocker):
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
     # Canary subprocess probe finds cudart under a system CTK root.
     mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=_fake_canary_path(canary_root),
     )
     # No CUDA_HOME set
@@ -536,7 +539,7 @@ def test_non_discoverable_lib_skips_canary_probe(mocker):
     # Force fallback path for a lib that is not canary-discoverable.
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
     mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=None)
-    canary_probe = mocker.patch(f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess")
+    canary_probe = mocker.patch(f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess")
 
     with pytest.raises(DynamicLibNotFoundError):
         _load_lib_no_cache("cublas")
@@ -578,7 +581,7 @@ def test_not_found_error_lists_every_miss_in_search_order(tmp_path, mocker):
     mocker.patch(f"{_MODULE}.load_dependencies")
     mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
     mocker.patch(
-        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        f"{_PROBE_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
         return_value=str(canary_root / "lib64" / "libcudart.so.13"),
     )
 
