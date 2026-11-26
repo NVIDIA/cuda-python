@@ -20,7 +20,11 @@ from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import (
     _try_ctk_root_canary,
     resolve_ctk_root_via_canary,
 )
-from cuda.pathfinder._dynamic_libs.search_platform import search_context, windows_search_context
+from cuda.pathfinder._dynamic_libs.search_platform import (
+    linux_search_context,
+    search_context,
+    windows_search_context,
+)
 from cuda.pathfinder._dynamic_libs.search_steps import (
     SearchContext,
     _derive_ctk_root_linux,
@@ -536,3 +540,53 @@ def test_non_discoverable_lib_skips_canary_probe(mocker):
         _load_lib_no_cache("cublas")
 
     canary_probe.assert_not_called()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_not_found_error_lists_every_miss_in_search_order(tmp_path, mocker):
+    """Pin the whole error text: early steps, then late steps, then the canary root."""
+    desc = LIB_DESCRIPTORS["nvvm"]
+    searched = " or ".join(desc.linux_sonames)
+
+    def searched_dir(root, rel_dir):
+        lib_dir = root.joinpath(*rel_dir.split("/"))
+        lib_dir.mkdir(parents=True)
+        (lib_dir / "unrelated.txt").touch()
+        return lib_dir
+
+    wheel_root = tmp_path / "site-packages"
+    wheel_dir = searched_dir(wheel_root, desc.site_packages_linux[0])
+    conda_dir = searched_dir(tmp_path / "conda", desc.anchor_rel_dirs_linux[0])
+    cuda_dir = searched_dir(tmp_path / "cuda", desc.anchor_rel_dirs_linux[0])
+    canary_root = tmp_path / "cuda-system"
+    canary_dir = searched_dir(canary_root, desc.anchor_rel_dirs_linux[0])
+
+    def find_wheel_dirs(sub_dirs):
+        path = wheel_root.joinpath(*sub_dirs)
+        return [str(path)] if path.is_dir() else []
+
+    mocker.patch(
+        "cuda.pathfinder._dynamic_libs.search_platform.find_sub_dirs_all_sitepackages",
+        side_effect=find_wheel_dirs,
+    )
+    mocker.patch(f"{_MODULE}.search_context", return_value=linux_search_context(desc))
+    mocker.patch.dict(os.environ, {"CONDA_PREFIX": str(tmp_path / "conda")})
+    mocker.patch(f"{_STEPS_MODULE}.get_cuda_path_or_home", return_value=str(tmp_path / "cuda"))
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
+    mocker.patch(f"{_MODULE}.load_dependencies")
+    mocker.patch.object(load_mod.LOADER, "load_with_system_search", return_value=None)
+    mocker.patch(
+        f"{_MODULE}._resolve_system_loaded_abs_path_in_subprocess",
+        return_value=str(canary_root / "lib64" / "libcudart.so.13"),
+    )
+
+    with pytest.raises(DynamicLibNotFoundError) as exc_info:
+        _load_lib_no_cache("nvvm")
+
+    # One message per site-packages directory tried, then one per directory searched after that.
+    messages = [f"No such file: {searched}"] * (len(desc.site_packages_linux) + 3)
+    listings = [
+        f'  listdir("{searched_in}"):\n    unrelated.txt'
+        for searched_in in (wheel_dir, conda_dir.resolve(), cuda_dir.resolve(), canary_dir.resolve())
+    ]
+    assert str(exc_info.value) == f'Failure finding "{searched}": ' + ", ".join(messages) + "\n" + "\n".join(listings)
