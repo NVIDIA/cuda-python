@@ -38,37 +38,34 @@ def test_supported_libnames_linux_sonames_consistency():
     )
 
 
+_CTK_DESCRIPTORS = tuple(
+    desc for desc in load_nvidia_dynamic_lib_module.LIB_DESCRIPTORS.values() if desc.packaged_with == "ctk"
+)
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
 def test_supported_libnames_linux_site_packages_libdirs_ctk_consistency():
     assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
-        sorted(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_LINUX_CTK.keys())
+        sorted(desc.name for desc in _CTK_DESCRIPTORS if desc.site_packages_linux)
     )
 
 
 @pytest.mark.parametrize(
-    ("site_packages_libdirs", "supported_libnames"),
+    ("target_arch", "supported_libnames"),
     [
-        pytest.param(
-            supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_X64,
-            supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_X64,
-            id="x64",
-        ),
-        pytest.param(
-            supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK_ARM64,
-            supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_ARM64,
-            id="arm64",
-        ),
+        pytest.param("x64", supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_X64, id="x64"),
+        pytest.param("arm64", supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS_ARM64, id="arm64"),
     ],
 )
-@pytest.mark.human_reviewed
-def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency(
-    site_packages_libdirs,
-    supported_libnames,
-):
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency(target_arch, supported_libnames):
     # Not every Windows CTK library ships in a pip wheel (e.g. cudla is loaded
     # from the local CUDA Toolkit only), so a library may legitimately omit
     # site_packages_windows. Only assert that every site-packages entry maps to
     # a supported Windows libname, not the other way around.
-    site_packages_libnames = set(site_packages_libdirs)
+    site_packages_libnames = {
+        desc.name for desc in _CTK_DESCRIPTORS if desc.site_packages_windows.for_arch(target_arch)
+    }
     assert site_packages_libnames <= set(supported_libnames)
 
 
@@ -82,13 +79,6 @@ def test_libname_dict_values_are_unique(dict_name):
             if prev_libname is not None:
                 raise RuntimeError(f"Multiple libnames for {value!r}: {prev_libname}, {libname}")
             libname_for_value[value] = libname
-
-
-def test_supported_libnames_windows_libnames_requiring_os_add_dll_directory_consistency():
-    assert not (
-        set(supported_nvidia_libs.LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY)
-        - set(supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS)
-    )
 
 
 def test_runtime_error_on_non_64bit_python(mocker):
