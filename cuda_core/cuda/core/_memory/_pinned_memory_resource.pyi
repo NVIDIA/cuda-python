@@ -166,9 +166,11 @@ class PinnedMemoryResource(_MemPool):
             driver when possible (a CUDA 13 build of ``cuda.core`` and a 13.2
             or later driver); otherwise this value is the imported resource's
             :attr:`numa_id`. Unpickling a resource passes the exporter's node
-            automatically if it was known. If the node comes from neither the
-            driver nor this argument, the import succeeds but :attr:`numa_id`
-            raises ``RuntimeError``. Must be >= 0 if given.
+            automatically if it was known. If the handle's resource is already
+            registered in this process with an unknown node, this value becomes
+            its node. If the node comes from neither the driver nor this
+            argument, the import succeeds but :attr:`numa_id` raises
+            ``RuntimeError``. Must be >= 0 if given.
 
         Returns
         -------

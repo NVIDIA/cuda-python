@@ -220,9 +220,11 @@ cdef class PinnedMemoryResource(_MemPool):
             driver when possible (a CUDA 13 build of ``cuda.core`` and a 13.2
             or later driver); otherwise this value is the imported resource's
             :attr:`numa_id`. Unpickling a resource passes the exporter's node
-            automatically if it was known. If the node comes from neither the
-            driver nor this argument, the import succeeds but :attr:`numa_id`
-            raises ``RuntimeError``. Must be >= 0 if given.
+            automatically if it was known. If the handle's resource is already
+            registered in this process with an unknown node, this value becomes
+            its node. If the node comes from neither the driver nor this
+            argument, the import succeeds but :attr:`numa_id` raises
+            ``RuntimeError``. Must be >= 0 if given.
 
         Returns
         -------
@@ -255,7 +257,7 @@ cdef class PinnedMemoryResource(_MemPool):
             _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported, numa_id))
         # The import hook does not run for a resource that is already registered,
         # whether found at the start or registered by a concurrent import.
-        _PMR_check_numa_id(mr, numa_id)
+        _PMR_apply_numa_id(mr, numa_id)
         return mr
 
     @property
@@ -399,9 +401,16 @@ cdef inline int _PMR_grant_device_access(
     return 0
 
 
-cdef inline int _PMR_check_numa_id(PinnedMemoryResource self, object numa_id) except? -1:
-    # A node the caller passed must agree with a node that is known.
-    if numa_id is not None and self._numa_id_known and self._numa_id != numa_id:
+cdef inline int _PMR_apply_numa_id(PinnedMemoryResource self, object numa_id) except? -1:
+    # A node the caller passed must agree with a node that is known. A resource
+    # whose node is unknown, such as one registered by an earlier import that
+    # was given no node, takes the caller's node.
+    if numa_id is None:
+        return 0
+    if not self._numa_id_known:
+        self._numa_id = numa_id
+        self._numa_id_known = True
+    elif self._numa_id != numa_id:
         raise ValueError(
             f"numa_id {numa_id} does not match the NUMA node of the memory pool, "
             f"which is {self._numa_id}")
@@ -420,7 +429,7 @@ cdef int _PMR_init_imported(_MemPool mr, object numa_id) except? -1:
         host_numa = loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
         self._numa_id = loc.id if host_numa else -1
         self._numa_id_known = True
-        _PMR_check_numa_id(self, numa_id)
+        _PMR_apply_numa_id(self, numa_id)
     elif numa_id is not None:
         self._numa_id = numa_id
         self._numa_id_known = True

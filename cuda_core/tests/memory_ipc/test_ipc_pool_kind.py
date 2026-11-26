@@ -187,15 +187,20 @@ def child_pickle_numa_id(reduced_args):
         assert _deep_reduce_pinned_memory_resource(known)[1][1] == CLAIMED_NUMA_ID
 
 
-def child_registered_import_rejects_conflicting_numa_id(alloc_handle):
+def child_registered_import_applies_numa_id(alloc_handle):
     _without_location_query()
     device = Device()
     device.set_current()
     baseline = _live_owned_mempool_count()
 
     with contextlib.ExitStack() as stack:
-        mr = enter_imported_pool(stack, PinnedMemoryResource, device, alloc_handle, CLAIMED_NUMA_ID)
-        # The handle's UUID is now registered, so the resource is returned as is.
+        mr = enter_imported_pool(stack, PinnedMemoryResource, device, alloc_handle)
+        with pytest.raises(RuntimeError, match="NUMA node .* is not known"):
+            _ = mr.numa_id
+        # The handle's UUID is now registered, so the resource is returned, and
+        # it takes the node that its first import lacked.
+        assert PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID) is mr
+        assert mr.numa_id == CLAIMED_NUMA_ID
         assert PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID) is mr
         with pytest.raises(ValueError, match="numa_id"):
             PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID + 1)
@@ -380,8 +385,8 @@ class TestPinnedImportNumaId(_IpcPoolFixtures):
         run_child(child_pickle_numa_id, reduced_args)
 
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
-    def test_registered_import_rejects_conflicting_numa_id(self, pinned_ipc_resource):
-        run_child(child_registered_import_rejects_conflicting_numa_id, pinned_ipc_resource.allocation_handle)
+    def test_registered_import_applies_numa_id(self, pinned_ipc_resource):
+        run_child(child_registered_import_applies_numa_id, pinned_ipc_resource.allocation_handle)
 
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
     def test_negative_numa_id_raises(self):
