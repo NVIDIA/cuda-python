@@ -639,9 +639,10 @@ the CUDA Toolkit root from it, and search that root’s bin layout.</p></li>
 <p class="admonition-title">Note</p>
 <p>Results are cached using <code class="docutils literal notranslate"><span class="pre">&#64;functools.cache</span></code> for performance. The cache
 persists for the lifetime of the process.</p>
-<p>On Windows, executables are identified by their file extensions
-(<code class="docutils literal notranslate"><span class="pre">.exe</span></code>, <code class="docutils literal notranslate"><span class="pre">.bat</span></code>, <code class="docutils literal notranslate"><span class="pre">.cmd</span></code>). On Unix-like systems, executables
-are identified by the <code class="docutils literal notranslate"><span class="pre">X_OK</span></code> (execute) permission bit.</p>
+<p>On Windows, the search looks for <code class="docutils literal notranslate"><span class="pre">&lt;utility_name&gt;.exe</span></code>. For
+<code class="docutils literal notranslate"><span class="pre">compute-sanitizer</span></code> and <code class="docutils literal notranslate"><span class="pre">ncu</span></code> it tries <code class="docutils literal notranslate"><span class="pre">&lt;utility_name&gt;.bat</span></code>
+first. On Unix-like systems, a file counts only if it has the
+<code class="docutils literal notranslate"><span class="pre">X_OK</span></code> (execute) permission bit.</p>
 <p>Lookup is restricted to the trusted directories and the canary-derived
 CTK root listed above.</p>
 </div>
