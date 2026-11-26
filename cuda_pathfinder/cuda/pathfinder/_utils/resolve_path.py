@@ -5,6 +5,6 @@ import os
 from pathlib import Path
 
 
-def resolve_path(*parts: str | os.PathLike[str]) -> Path:
+def resolve_path(*parts: str | os.PathLike[str]) -> str:
     """Build a canonical absolute path, resolving symlinks and parent components."""
-    return Path(*parts).resolve()
+    return str(Path(*parts).resolve())

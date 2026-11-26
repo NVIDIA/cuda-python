@@ -57,7 +57,7 @@ def _resolve_candidate_paths(candidates: Iterable[str]) -> str | None:
             continue
         seen.add(candidate)
         if _is_executable_candidate(candidate):
-            return str(resolve_path(candidate))
+            return resolve_path(candidate)
     return None
 
 

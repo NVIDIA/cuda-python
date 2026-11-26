@@ -19,9 +19,9 @@ def test_resolve_path_anchors_relative_parts(monkeypatch, tmp_path):
     target.touch()
 
     found = resolve_path("toolkit", Path("library.a"))
-    assert found == target.resolve()
+    assert found == str(target.resolve())
     monkeypatch.chdir(tmp_path.parent)
-    assert found.is_file()
+    assert Path(found).is_file()
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX symlink parent traversal")
@@ -35,7 +35,7 @@ def test_resolve_path_follows_symlink_before_parent(tmp_path):
     alias = tmp_path / "alias"
     alias.symlink_to(sdk / "leaf", target_is_directory=True)
 
-    assert resolve_path(alias, "..", "include", "header.h") == target.resolve()
+    assert resolve_path(alias, "..", "include", "header.h") == str(target.resolve())
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows drive-relative paths")
@@ -59,7 +59,7 @@ def test_resolve_path_anchors_another_drive_current_directory(monkeypatch, tmp_p
         monkeypatch.chdir(tmp_path)
         assert Path.cwd().drive.casefold() != drive.casefold()
         found = resolve_path(drive + "toolkit", "library.a")
-        assert found == target.resolve()
+        assert found == str(target.resolve())
     finally:
         subprocess.run(  # noqa: S603 - remove only the temporary drive created by this test.
             [str(subst), drive, "/d"], check=True, capture_output=True
