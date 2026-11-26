@@ -27,11 +27,16 @@ def locate_file(
     site_packages_dirs: tuple[str, ...],
     conda_rel_paths: tuple[str, ...],
     ctk_rel_paths: tuple[str, ...],
-) -> tuple[str, str] | None:
-    """Return ``(abs_path, found_via)`` for the first place that has *filename*, else ``None``.
+    not_found_error: type[Exception],
+) -> tuple[str, str]:
+    """Return ``(abs_path, found_via)`` for the first place that has *filename*.
 
     Search order: NVIDIA wheels (``site-packages``), ``$CONDA_PREFIX``, then
     ``$CUDA_PATH`` / ``$CUDA_HOME``. Directories are tried first-to-last.
+
+    Raises:
+        not_found_error: If no place has *filename*. The message describes the
+            ``CUDA_PATH`` root that this search read.
     """
     for rel_dir in site_packages_dirs:
         for abs_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split("/"))):
@@ -54,12 +59,11 @@ def locate_file(
             if abs_path is not None:
                 return abs_path, FOUND_VIA_CUDA_PATH
 
-    return None
+    raise not_found_error(_not_found_message(filename, cuda_home, ctk_rel_paths))
 
 
-def not_found_message(filename: str, ctk_rel_paths: tuple[str, ...]) -> str:
-    """Explain a :func:`locate_file` miss by describing the first ``CUDA_PATH`` directory it tried."""
-    cuda_home = get_cuda_path_or_home()
+def _not_found_message(filename: str, cuda_home: str | None, ctk_rel_paths: tuple[str, ...]) -> str:
+    """Explain a miss by describing the first directory tried under *cuda_home*."""
     if cuda_home is None:
         return f'Failure finding "{filename}": CUDA_HOME/CUDA_PATH not set\n'
 
