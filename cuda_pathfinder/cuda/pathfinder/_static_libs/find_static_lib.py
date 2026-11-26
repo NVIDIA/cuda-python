@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TypedDict
 
-from cuda.pathfinder._static_libs.locate_file import locate_file, not_found_message
+from cuda.pathfinder._static_libs.locate_file import locate_file
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 from cuda.pathfinder._utils.windows_arch import windows_python_arch
 
@@ -73,15 +73,13 @@ def locate_static_lib(name: str) -> LocatedStaticLib:
     info = _SUPPORTED_STATIC_LIBS_INFO[name]
     filename = info["filename"]
 
-    found = locate_file(
+    abs_path, found_via = locate_file(
         filename,
         site_packages_dirs=info["site_packages_dirs"],
         conda_rel_paths=info["conda_rel_paths"],
         ctk_rel_paths=info["ctk_rel_paths"],
+        not_found_error=StaticLibNotFoundError,
     )
-    if found is None:
-        raise StaticLibNotFoundError(not_found_message(filename, info["ctk_rel_paths"]))
-    abs_path, found_via = found
     return LocatedStaticLib(name=name, abs_path=abs_path, filename=filename, found_via=found_via)
 
 
