@@ -18,7 +18,6 @@ from typing import ClassVar, Literal, NoReturn
 
 from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import is_suppressed_dll_file
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.found_via import FOUND_VIA_SITE_PACKAGES
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
@@ -152,8 +151,6 @@ def _find_descriptor_dll_under_dir(
 ) -> str | None:
     def candidate_is_usable(path: str) -> bool:
         if not os.path.isfile(path):
-            return False
-        if is_suppressed_dll_file(os.path.basename(path)):
             return False
         return target_arch is None or windows_pe_matches_arch(path, target_arch)
 

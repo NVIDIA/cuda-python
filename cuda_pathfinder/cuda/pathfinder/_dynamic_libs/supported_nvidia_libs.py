@@ -41,14 +41,3 @@ elif IS_WINDOWS_X64:
 else:
     assert IS_WINDOWS_ARM64
     SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS_ARM64
-
-
-def is_suppressed_dll_file(path_basename: str) -> bool:
-    if path_basename.startswith("nvrtc"):
-        # nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-win_amd64.whl:
-        #     nvidia\cuda_nvrtc\bin\
-        #         nvrtc-builtins64_128.dll
-        #         nvrtc64_120_0.alt.dll
-        #         nvrtc64_120_0.dll
-        return path_basename.endswith(".alt.dll") or "-builtins" in path_basename
-    return path_basename.startswith(("cudart32_", "nvvm32"))

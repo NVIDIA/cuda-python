@@ -313,7 +313,6 @@ class TestFindInSitePackages:
             f"{_PLAT_MOD}.find_sub_dirs_all_sitepackages",
             return_value=[str(bin_dir)],
         )
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = _make_desc(
             name="cudart",
@@ -400,7 +399,6 @@ class TestFindInSitePackages:
         arm64_dll.touch()
 
         _patch_site_packages_search(mocker, tmp_path)
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, windows_arch="arm64"))
@@ -422,7 +420,6 @@ class TestFindInSitePackages:
         (cuda12_dir / "cudart64_12.dll").touch()
 
         _patch_site_packages_search(mocker, tmp_path)
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
@@ -438,7 +435,6 @@ class TestFindInSitePackages:
         cuda12_dll.touch()
 
         _patch_site_packages_search(mocker, tmp_path)
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
         result = find_in_site_packages(_ctx(desc, windows_arch="x64"))
@@ -453,7 +449,6 @@ class TestFindInSitePackages:
         (cuda12_dir / "cudart64_12.dll").touch()
 
         _patch_site_packages_search(mocker, tmp_path)
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudart"]
         ctx = _ctx(desc, windows_arch="arm64")
@@ -487,7 +482,6 @@ class TestFindInSitePackages:
         mocker.patch.dict(os.environ, {"CUDNN_PATH": str(archive_root)})
 
         _patch_site_packages_search(mocker, tmp_path)
-        mocker.patch(f"{_PLAT_MOD}.is_suppressed_dll_file", return_value=False)
 
         desc = LIB_DESCRIPTORS["cudnn"]
         result = run_find_steps(
