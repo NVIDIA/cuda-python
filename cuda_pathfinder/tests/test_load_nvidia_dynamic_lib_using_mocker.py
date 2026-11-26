@@ -304,6 +304,39 @@ def test_already_loaded_library_still_loads_its_dependencies(mocker):
     run_find_steps.assert_not_called()
 
 
+@pytest.mark.parametrize("find_succeeds", [True, False], ids=["wheel-found", "wheel-missed"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_library_loaded_during_early_search_reuses_existing_handle(tmp_path, mocker, find_succeeds):
+    desc = load_mod.LIB_DESCRIPTORS["cublas"]
+    filename = desc.windows_dlls[0] if IS_WINDOWS else desc.linux_sonames[0]
+    already_loaded = LoadedDL(str(tmp_path / "external" / filename), True, 0xBEEF, "was-already-loaded-from-elsewhere")
+    probe = mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
+    load_dependencies = mocker.patch(f"{_MODULE}.load_dependencies")
+    calls = mocker.Mock()
+    calls.attach_mock(probe, "probe")
+    calls.attach_mock(load_dependencies, "load_dependencies")
+
+    def discover(_ctx, steps):
+        assert steps is EARLY_FIND_STEPS
+        probe.return_value = already_loaded
+        if find_succeeds:
+            return steps_mod.FindResult(str(tmp_path / "wheel" / filename), "site-packages")
+        return None
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=discover)
+    load_wheel = mocker.patch.object(load_mod.LOADER, "load_with_abs_path")
+    load_native = mocker.patch.object(load_mod.LOADER, "load_with_system_search")
+
+    assert _load_lib_no_cache("cublas") is already_loaded
+    load_wheel.assert_not_called()
+    load_native.assert_not_called()
+    assert calls.mock_calls == [
+        mocker.call.probe(desc),
+        mocker.call.probe(desc),
+        mocker.call.load_dependencies(desc, load_mod.load_nvidia_dynamic_lib),
+    ]
+
+
 @pytest.mark.agent_authored(model="gpt-6")
 def test_unloaded_library_search_failure_precedes_dependency_loading(mocker):
     probe = mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
