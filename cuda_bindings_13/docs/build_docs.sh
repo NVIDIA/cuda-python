@@ -55,5 +55,4 @@ else
     mv build/html/${SPHINX_CUDA_BINDINGS_VER} build/html/latest
 fi
 
-# ensure that the Sphinx reference uses the latest docs
-cp build/html/latest/objects.inv build/html
+python ../../cuda_python/docs/copy_rebased_sphinx_inventory_one_level_up.py build/html/latest/objects.inv
