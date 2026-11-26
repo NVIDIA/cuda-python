@@ -1,0 +1,6 @@
+﻿cuda.pathfinder.SUPPORTED\_STATIC\_LIBS
+=======================================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autodata:: SUPPORTED_STATIC_LIBS
