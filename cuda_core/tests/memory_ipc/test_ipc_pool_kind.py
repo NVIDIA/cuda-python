@@ -134,12 +134,15 @@ def child_imported_numa_id(alloc_handle, numa_id):
 
 def child_unpickled_numa_id(mr, numa_id):
     # The resource was unpickled while the child's arguments were loaded.
-    assert mr.numa_id == numa_id
-    mr.close()
+    with contextlib.closing(mr):
+        assert mr.numa_id == numa_id
 
 
 def _without_location_query():
-    # Stand in for a 13.0 or 13.1 driver (see child_import_without_location_query).
+    # Stand in for a 13.0 or 13.1 driver, as test_program_compile_cache.py does
+    # for _program: MP_location_query_available reads driver_version from the
+    # _memory_pool module on every import. The monkeypatch fixture cannot reach a
+    # spawned child, and this process exits after the test.
     _memory_pool.driver_version = lambda: (13, 1, 0)
 
 
@@ -151,72 +154,76 @@ CLAIMED_NUMA_ID = 7
 
 def child_import_with_numa_id_without_location_query(alloc_handle):
     _without_location_query()
-    Device().set_current()
+    device = Device()
+    device.set_current()
 
     # A raw file descriptor carries no UUID, so each import is a separate resource.
-    omitted = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
-    with pytest.raises(RuntimeError, match="NUMA node .* is not known"):
-        _ = omitted.numa_id
-    given = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=CLAIMED_NUMA_ID)
-    assert given.numa_id == CLAIMED_NUMA_ID
-    given.close()
-    omitted.close()
+    with contextlib.ExitStack() as stack:
+        omitted = enter_imported_pool(stack, PinnedMemoryResource, device, int(alloc_handle))
+        with pytest.raises(RuntimeError, match="NUMA node .* is not known"):
+            _ = omitted.numa_id
+        given = enter_imported_pool(stack, PinnedMemoryResource, device, int(alloc_handle), CLAIMED_NUMA_ID)
+        assert given.numa_id == CLAIMED_NUMA_ID
 
 
 def child_import_reduced_args_without_location_query(reduced_args):
     _without_location_query()
-    Device().set_current()
-    mr = PinnedMemoryResource.from_allocation_handle(*reduced_args)
-    assert mr.numa_id == reduced_args[1]
-    mr.close()
+    device = Device()
+    device.set_current()
+    alloc_handle, numa_id = reduced_args
+    with contextlib.ExitStack() as stack:
+        mr = enter_imported_pool(stack, PinnedMemoryResource, device, alloc_handle, numa_id)
+        assert mr.numa_id == numa_id
 
 
 def child_reduce_imported_resource(alloc_handle):
     _without_location_query()
-    Device().set_current()
+    device = Device()
+    device.set_current()
 
-    # The node of this import is unknown, so a third process must not be told a node.
-    unknown = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
-    assert _deep_reduce_pinned_memory_resource(unknown)[1][1] is None
+    # A third process would have to patch driver_version before unpickling, as
+    # in test_pickle_carries_numa_id, so the reducer's output is checked here.
+    with contextlib.ExitStack() as stack:
+        # The node of this import is unknown, so a third process must not be told a node.
+        unknown = enter_imported_pool(stack, PinnedMemoryResource, device, int(alloc_handle))
+        assert _deep_reduce_pinned_memory_resource(unknown)[1][1] is None
 
-    known = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=CLAIMED_NUMA_ID)
-    assert _deep_reduce_pinned_memory_resource(known)[1][1] == CLAIMED_NUMA_ID
-    known.close()
-    unknown.close()
+        known = enter_imported_pool(stack, PinnedMemoryResource, device, int(alloc_handle), CLAIMED_NUMA_ID)
+        assert _deep_reduce_pinned_memory_resource(known)[1][1] == CLAIMED_NUMA_ID
 
 
 def child_registered_import_rejects_conflicting_numa_id(alloc_handle):
     _without_location_query()
-    Device().set_current()
+    device = Device()
+    device.set_current()
     baseline = _live_owned_mempool_count()
 
-    mr = PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID)
-    # The handle's UUID is now registered, so the resource is returned as is.
-    assert PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID) is mr
-    with pytest.raises(ValueError, match="numa_id"):
-        PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID + 1)
-    assert PinnedMemoryResource.from_allocation_handle(alloc_handle) is mr
-    assert mr.numa_id == CLAIMED_NUMA_ID
-
-    mr.close()
+    with contextlib.ExitStack() as stack:
+        mr = enter_imported_pool(stack, PinnedMemoryResource, device, alloc_handle, CLAIMED_NUMA_ID)
+        # The handle's UUID is now registered, so the resource is returned as is.
+        assert PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID) is mr
+        with pytest.raises(ValueError, match="numa_id"):
+            PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=CLAIMED_NUMA_ID + 1)
+        assert PinnedMemoryResource.from_allocation_handle(alloc_handle) is mr
+        assert mr.numa_id == CLAIMED_NUMA_ID
     assert _live_owned_mempool_count() == baseline
 
 
 def child_numa_id_is_checked_against_driver(alloc_handle):
-    Device().set_current()
+    device = Device()
+    device.set_current()
     baseline = _live_owned_mempool_count()
 
-    mr = PinnedMemoryResource.from_allocation_handle(int(alloc_handle))
-    node = mr.numa_id
-    # Releasing the rejected import cannot raise; a failed cuMemPoolDestroy
-    # surfaces only as a CUDAWarning.
-    with assert_no_cuda_warning(), pytest.raises(ValueError, match="numa_id"):
-        PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=node + 1)
+    with contextlib.ExitStack() as stack:
+        mr = enter_imported_pool(stack, PinnedMemoryResource, device, int(alloc_handle))
+        node = mr.numa_id
+        # Releasing the rejected import cannot raise; a failed cuMemPoolDestroy
+        # surfaces only as a CUDAWarning.
+        with assert_no_cuda_warning(), pytest.raises(ValueError, match="numa_id"):
+            PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=node + 1)
 
-    matching = PinnedMemoryResource.from_allocation_handle(int(alloc_handle), numa_id=node)
-    assert matching.numa_id == node
-    matching.close()
-    mr.close()
+        matching = enter_imported_pool(stack, PinnedMemoryResource, device, int(alloc_handle), node)
+        assert matching.numa_id == node
     assert _live_owned_mempool_count() == baseline
 
 
@@ -238,11 +245,7 @@ def child_matching_import(mr_type, alloc_handle, descriptor):
 
 
 def child_import_without_location_query(mr_type, alloc_handle, descriptor):
-    # Stand in for a 13.0 or 13.1 driver, as test_program_compile_cache.py does
-    # for _program: MP_location_query_available reads driver_version from the
-    # _memory_pool module on every import. The monkeypatch fixture cannot reach a
-    # spawned child, and this process exits after the test.
-    _memory_pool.driver_version = lambda: (13, 1, 0)
+    _without_location_query()
     device = Device()
     device.set_current()
     stream = device.default_stream
@@ -377,6 +380,9 @@ class TestPinnedImportNumaId(_IpcPoolFixtures):
 
     @pytest.mark.agent_authored(model="claude-sonnet-5-5")
     def test_pickle_carries_numa_id(self, pinned_ipc_resource):
+        # The child must patch driver_version before it imports the pool, but
+        # run_child unpickles a resource argument before the child runs. So the
+        # reducer's arguments are sent, and the child imports from them.
         _, reduced_args = _deep_reduce_pinned_memory_resource(pinned_ipc_resource)
         assert reduced_args[0] is pinned_ipc_resource.allocation_handle
         assert reduced_args[1] == pinned_ipc_resource.numa_id
