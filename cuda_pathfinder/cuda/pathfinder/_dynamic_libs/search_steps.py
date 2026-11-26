@@ -34,7 +34,7 @@ from cuda.pathfinder._dynamic_libs.search_platform import (
     find_lib_in_dir,
     find_lib_in_site_packages,
 )
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder._utils.env_vars import get_conda_prefix, get_cuda_path_or_home
 from cuda.pathfinder._utils.found_via import (
     FOUND_VIA_CONDA,
     FOUND_VIA_CUDA_PATH,
@@ -146,8 +146,8 @@ def find_in_site_packages(ctx: SearchContext) -> FindResult | NotFound:
 
 def find_in_conda(ctx: SearchContext) -> FindResult | NotFound:
     """Search ``$CONDA_PREFIX``."""
-    conda_prefix = os.environ.get("CONDA_PREFIX")
-    if not conda_prefix:
+    conda_prefix = get_conda_prefix()
+    if conda_prefix is None:
         return NotFound()
     anchor = ctx.conda_anchor_point(conda_prefix)
     return _find_under_anchor_root(ctx, anchor, FOUND_VIA_CONDA)

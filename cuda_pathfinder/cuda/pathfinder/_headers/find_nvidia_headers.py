@@ -18,7 +18,7 @@ from cuda.pathfinder._headers.header_descriptor import (
     system_install_dir_patterns,
 )
 from cuda.pathfinder._utils.ctk_root_canary import CTK_ROOT_CANARY_ANCHOR_LIBNAMES
-from cuda.pathfinder._utils.env_vars import get_cuda_path_or_home
+from cuda.pathfinder._utils.env_vars import get_conda_prefix, get_cuda_path_or_home
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.found_via import (
     FOUND_VIA_CONDA,
@@ -97,8 +97,8 @@ def find_in_site_packages(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
 
 def find_in_conda(desc: HeaderDescriptor) -> LocatedHeaderDir | None:
     """Search ``$CONDA_PREFIX``."""
-    conda_prefix = os.environ.get("CONDA_PREFIX")
-    if not conda_prefix:
+    conda_prefix = get_conda_prefix()
+    if conda_prefix is None:
         return None
     anchor_point = resolve_conda_anchor(desc, conda_prefix)
     if anchor_point is None:
