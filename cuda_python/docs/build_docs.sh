@@ -51,7 +51,7 @@ else
     mv build/html/${SPHINX_CUDA_PYTHON_VER} build/html/latest
 fi
 
-python ./copy_rebased_sphinx_inventory.py build/html/latest/objects.inv build/html/objects.inv
+python ./copy_rebased_sphinx_inventory_one_level_up.py build/html/latest/objects.inv
 
 # clean up previously auto-generated files
 rm -rf source/generated/

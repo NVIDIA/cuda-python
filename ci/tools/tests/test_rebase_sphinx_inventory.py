@@ -2,14 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import zlib
+from pathlib import Path
 
 import pytest
 
-from cuda_python.docs.copy_rebased_sphinx_inventory import copy_rebased_inventory
+from cuda_python.docs.copy_rebased_sphinx_inventory_one_level_up import copy_rebased_inventory_one_level_up
 
 
 @pytest.mark.agent_authored(model="gpt-6")
-def test_copy_rebases_relative_inventory_targets(tmp_path):
+def test_copy_rebases_relative_inventory_targets(tmp_path, monkeypatch):
     header = (
         b"# Sphinx inventory version 2\n"
         b"# Project: cuda.bindings\n"
@@ -27,7 +28,8 @@ def test_copy_rebases_relative_inventory_targets(tmp_path):
     source.write_bytes(original)
     destination = tmp_path / "objects.inv"
 
-    copy_rebased_inventory(source, destination)
+    monkeypatch.chdir(source.parent)
+    copy_rebased_inventory_one_level_up(Path("objects.inv"))
 
     rebased = destination.read_bytes()
     assert rebased.startswith(header)
