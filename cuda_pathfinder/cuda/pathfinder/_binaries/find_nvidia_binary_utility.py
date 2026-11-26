@@ -175,9 +175,10 @@ def find_nvidia_binary_utility(utility_name: str) -> str | None:
         Results are cached using ``@functools.cache`` for performance. The cache
         persists for the lifetime of the process.
 
-        On Windows, executables are identified by their file extensions
-        (``.exe``, ``.bat``, ``.cmd``). On Unix-like systems, executables
-        are identified by the ``X_OK`` (execute) permission bit.
+        On Windows, the search looks for ``<utility_name>.exe``. For
+        ``compute-sanitizer`` and ``ncu`` it tries ``<utility_name>.bat``
+        first. On Unix-like systems, a file counts only if it has the
+        ``X_OK`` (execute) permission bit.
 
         Lookup is restricted to the trusted directories and the canary-derived
         CTK root listed above.
