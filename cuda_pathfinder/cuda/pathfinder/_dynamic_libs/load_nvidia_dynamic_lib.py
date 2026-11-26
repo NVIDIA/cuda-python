@@ -26,6 +26,7 @@ from cuda.pathfinder._dynamic_libs.search_steps import (
     NotFound,
     SearchContext,
     find_via_ctk_root,
+    first_hit,
     run_find_steps,
 )
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import ALL_AVAILABLE_LIBNAMES
@@ -62,16 +63,8 @@ def _load_driver_lib_no_cache(desc: LibDescriptor) -> LoadedDL:
 
 def _try_ctk_root_canary(ctx: SearchContext) -> FindResult | NotFound:
     """Try CTK-root canary fallback for descriptor-configured libraries."""
-    missed = NotFound()
-    for canary_libname in ctx.desc.ctk_root_canary_anchor_libnames:
-        ctk_root = resolve_ctk_root_via_canary(canary_libname)
-        if ctk_root is None:
-            continue
-        result = find_via_ctk_root(ctx, ctk_root)
-        if result.found:
-            return result
-        missed += result
-    return missed
+    ctk_roots = (resolve_ctk_root_via_canary(libname) for libname in ctx.desc.ctk_root_canary_anchor_libnames)
+    return first_hit(find_via_ctk_root(ctx, ctk_root) for ctk_root in ctk_roots if ctk_root is not None)
 
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:

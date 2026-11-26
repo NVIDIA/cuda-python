@@ -25,7 +25,7 @@ current operating system. Platform differences are resolved up front into the
 
 import glob
 import os
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 
 from cuda.pathfinder._dynamic_libs.search_platform import (
     FindResult,
@@ -49,6 +49,19 @@ from .._utils.resolve_path import resolve_path
 FindStep = Callable[[SearchContext], FindResult | NotFound]
 
 
+def first_hit(results: Iterable[FindResult | NotFound]) -> FindResult | NotFound:
+    """Return the first hit in *results*, or else every miss combined in order.
+
+    *results* is read lazily: nothing after the first hit is evaluated.
+    """
+    missed = NotFound()
+    for result in results:
+        if result.found:
+            return result
+        missed += result
+    return missed
+
+
 def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
     """Yield existing library directories under *root* in descriptor order."""
     for rel_path in rel_dirs:
@@ -64,13 +77,7 @@ def _find_under_root(
     found_via: str,
 ) -> FindResult | NotFound:
     """Resolve *rel_dirs* under *root*, then find the requested library."""
-    missed = NotFound()
-    for lib_dir in _iter_lib_dirs(root, rel_dirs):
-        result = find_lib_in_dir(ctx, lib_dir, found_via)
-        if result.found:
-            return result
-        missed += result
-    return missed
+    return first_hit(find_lib_in_dir(ctx, lib_dir, found_via) for lib_dir in _iter_lib_dirs(root, rel_dirs))
 
 
 def _find_under_anchor_root(ctx: SearchContext, root: str, found_via: str) -> FindResult | NotFound:
@@ -156,16 +163,8 @@ def find_in_conda(ctx: SearchContext) -> FindResult | NotFound:
 def find_in_install_root_env_vars(ctx: SearchContext) -> FindResult | NotFound:
     """Search installation roots named by descriptor-specific environment variables."""
     rel_dirs = ctx.install_root_env_rel_dirs
-    missed = NotFound()
-    for env_var in ctx.install_root_env_vars:
-        root = os.environ.get(env_var)
-        if not root:
-            continue
-        result = _find_under_root(ctx, root, rel_dirs, env_var)
-        if result.found:
-            return result
-        missed += result
-    return missed
+    roots = ((env_var, os.environ.get(env_var)) for env_var in ctx.install_root_env_vars)
+    return first_hit(_find_under_root(ctx, root, rel_dirs, env_var) for env_var, root in roots if root)
 
 
 def find_in_cuda_path(ctx: SearchContext) -> FindResult | NotFound:
@@ -187,16 +186,12 @@ def find_in_cuda_path(ctx: SearchContext) -> FindResult | NotFound:
 
 def find_in_program_files_roots(ctx: SearchContext) -> FindResult | NotFound:
     """Search descriptor-configured installation roots under Program Files."""
-    missed = NotFound()
-    for root_glob in ctx.program_files_root_globs():
-        for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True):
-            if not os.path.isdir(root):
-                continue
-            result = _find_under_anchor_root(ctx, resolve_path(root), FOUND_VIA_PROGRAM_FILES)
-            if result.found:
-                return result
-            missed += result
-    return missed
+    return first_hit(
+        _find_under_anchor_root(ctx, resolve_path(root), FOUND_VIA_PROGRAM_FILES)
+        for root_glob in ctx.program_files_root_globs()
+        for root in sorted(glob.glob(root_glob), key=numeric_aware_path_sort_key, reverse=True)
+        if os.path.isdir(root)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -221,10 +216,4 @@ LATE_FIND_STEPS: tuple[FindStep, ...] = (
 
 def run_find_steps(ctx: SearchContext, steps: tuple[FindStep, ...]) -> FindResult | NotFound:
     """Run find steps in order, returning the first hit or else every step's miss combined."""
-    missed = NotFound()
-    for step in steps:
-        result = step(ctx)
-        if result.found:
-            return result
-        missed += result
-    return missed
+    return first_hit(step(ctx) for step in steps)
