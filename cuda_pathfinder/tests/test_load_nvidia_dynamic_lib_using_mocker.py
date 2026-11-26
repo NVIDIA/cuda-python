@@ -174,7 +174,7 @@ def test_cupti_not_found_raises_error(mocker):
 @pytest.mark.parametrize("preferred_source", ("site-packages", "conda", "system-search"))
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mocker, monkeypatch, preferred_source):
-    desc = load_mod.LIB_DESCRIPTORS["cublasLt"]
+    desc = load_mod.LIB_DESCRIPTORS["cublas"]
     platform = steps_mod.PLATFORM
     filename = desc.windows_dlls[0] if IS_WINDOWS else desc.linux_sonames[0]
 
@@ -208,20 +208,21 @@ def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mock
         side_effect=find_wheel_dirs,
     )
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
-    mocker.patch(f"{_MODULE}.load_dependencies")
+    load_dependency = mocker.patch(f"{_MODULE}.load_nvidia_dynamic_lib")
     native_path = tmp_path / "native" / filename
     native_search = mocker.patch.object(
         load_mod.LOADER,
         "load_with_system_search",
         return_value=_make_loaded_dl(str(native_path), "system-search"),
     )
-    mocker.patch.object(
-        load_mod.LOADER,
-        "load_with_abs_path",
-        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
-    )
 
-    loaded = _load_lib_no_cache("cublasLt")
+    def load_from_discovered_path(_desc, path, via):
+        load_dependency.assert_called_once_with("cublasLt")
+        return _make_loaded_dl(path, via)
+
+    mocker.patch.object(load_mod.LOADER, "load_with_abs_path", side_effect=load_from_discovered_path)
+
+    loaded = _load_lib_no_cache("cublas")
 
     expected_path = {"site-packages": wheel_path, "conda": conda_path, "system-search": native_path}[preferred_source]
     assert loaded.found_via == preferred_source
