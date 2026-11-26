@@ -38,8 +38,9 @@ Windows.
 ## Editing guidance
 
 - **Edit authored descriptors, not derived tables**: when adding/changing a
-  library, update `descriptor_catalog.py` first; keep derived exports in sync
-  through existing conversion logic and tests.
+  library, update `descriptor_catalog.py`. The name sets in
+  `supported_nvidia_libs.py` are computed from it, so there are no derived
+  tables to edit by hand.
 - **Respect cache semantics**: `load_nvidia_dynamic_lib` is cached. Never add
   behavior that closes returned handles or assumes repeated fresh loads.
 - **Keep error contracts intact**:
