@@ -12,6 +12,7 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _load_lib_no_cache
 from cuda.pathfinder._dynamic_libs.search_platform import search_context, windows_search_context
 from cuda.pathfinder._dynamic_libs.search_steps import EARLY_FIND_STEPS, NotFound
+from cuda.pathfinder._utils.found_via import FOUND_VIA_SYSTEM_SEARCH, FOUND_VIA_WAS_ALREADY_LOADED_FROM_ELSEWHERE
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 _MODULE = "cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib"
@@ -278,7 +279,7 @@ def test_cupti_search_order_conda_before_cuda_home(tmp_path, mocker, monkeypatch
 @pytest.mark.agent_authored(model="claude-fable-5-2")
 def test_already_loaded_library_is_returned_without_searching_the_disk(mocker):
     """An unreadable search location must not break a library that is already loaded."""
-    already_loaded = _make_loaded_dl("/opt/elsewhere/libcublas.so.13", "was-already-loaded-from-elsewhere")
+    already_loaded = _make_loaded_dl("/opt/elsewhere/libcublas.so.13", FOUND_VIA_WAS_ALREADY_LOADED_FROM_ELSEWHERE)
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=already_loaded)
     mocker.patch(f"{_MODULE}.load_dependencies")
     unreadable = mocker.patch(
@@ -288,3 +289,38 @@ def test_already_loaded_library_is_returned_without_searching_the_disk(mocker):
 
     assert _load_lib_no_cache("cublas") is already_loaded
     unreadable.assert_not_called()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_already_loaded_library_still_loads_its_dependencies(mocker):
+    """Skipping the search must not skip the dependencies."""
+    already_loaded = _make_loaded_dl("/opt/elsewhere/libcublas.so.13", FOUND_VIA_WAS_ALREADY_LOADED_FROM_ELSEWHERE)
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=already_loaded)
+    load_dependencies = mocker.patch(f"{_MODULE}.load_dependencies")
+    run_find_steps = mocker.patch(f"{_MODULE}.run_find_steps")
+
+    assert _load_lib_no_cache("cublas") is already_loaded
+    load_dependencies.assert_called_once()
+    run_find_steps.assert_not_called()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_dependencies_load_after_the_loaded_check_and_before_the_search(mocker):
+    """Pin the order of the first three steps when the library is not loaded yet."""
+    order = []
+    mocker.patch.object(
+        load_mod.LOADER,
+        "check_if_already_loaded_from_elsewhere",
+        side_effect=lambda _desc: order.append("loaded check"),
+    )
+    mocker.patch(f"{_MODULE}.load_dependencies", side_effect=lambda *_args: order.append("dependencies"))
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=lambda *_args: order.append("search") or NotFound())
+    mocker.patch.object(
+        load_mod.LOADER,
+        "load_with_system_search",
+        return_value=_make_loaded_dl("/usr/lib/libcublas.so.13", FOUND_VIA_SYSTEM_SEARCH),
+    )
+
+    _load_lib_no_cache("cublas")
+
+    assert order == ["loaded check", "dependencies", "search"]
