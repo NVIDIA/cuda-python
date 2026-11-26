@@ -5,11 +5,11 @@ import zlib
 
 import pytest
 
-from ci.tools.rebase_sphinx_inventory import rebase_root_inventories
+from cuda_python.docs.copy_rebased_sphinx_inventory import copy_rebased_inventory
 
 
 @pytest.mark.agent_authored(model="gpt-6")
-def test_only_root_inventory_targets_are_rebased(tmp_path):
+def test_copy_rebases_relative_inventory_targets(tmp_path):
     header = (
         b"# Sphinx inventory version 2\n"
         b"# Project: cuda.bindings\n"
@@ -22,21 +22,18 @@ def test_only_root_inventory_targets_are_rebased(tmp_path):
         b"external std:label -1 https://example.org/overview.html#target -\n"
     )
     original = header + zlib.compress(entries)
-    roots = [tmp_path, *(tmp_path / f"cuda-{part}" for part in ("bindings", "core", "pathfinder"))]
-    for root in roots:
-        for path in (root, root / "latest", root / "13.5.0"):
-            path.mkdir(parents=True, exist_ok=True)
-            (path / "objects.inv").write_bytes(original)
+    source = tmp_path / "latest" / "objects.inv"
+    source.parent.mkdir()
+    source.write_bytes(original)
+    destination = tmp_path / "objects.inv"
 
-    rebase_root_inventories(tmp_path)
+    copy_rebased_inventory(source, destination)
 
-    for root in roots:
-        rebased = (root / "objects.inv").read_bytes()
-        assert rebased.startswith(header)
-        assert zlib.decompress(rebased[len(header) :]) == (
-            b"cuda.bindings.driver.cuInit py:function 1 latest/module/driver.html#$ -\n"
-            b"figure 1 std:label -1 latest/overview.html#figure-1 Example with spaces\n"
-            b"external std:label -1 https://example.org/overview.html#target -\n"
-        )
-        assert (root / "latest" / "objects.inv").read_bytes() == original
-        assert (root / "13.5.0" / "objects.inv").read_bytes() == original
+    rebased = destination.read_bytes()
+    assert rebased.startswith(header)
+    assert zlib.decompress(rebased[len(header) :]) == (
+        b"cuda.bindings.driver.cuInit py:function 1 latest/module/driver.html#$ -\n"
+        b"figure 1 std:label -1 latest/overview.html#figure-1 Example with spaces\n"
+        b"external std:label -1 https://example.org/overview.html#target -\n"
+    )
+    assert source.read_bytes() == original

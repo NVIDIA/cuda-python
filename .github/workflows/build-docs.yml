@@ -360,10 +360,6 @@ jobs:
             rm -f -- "$root"/{nv-versions.json,versions.json,objects.inv}
           done
 
-      - name: Rebase shared docs inventory targets
-        if: ${{ !inputs.is-release }}
-        run: python .ci-control/ci/tools/rebase_sphinx_inventory.py artifacts/docs
-
       # Check links and anchors in the rendered HTML built above.
       # Links in authored Markdown and reST files are checked separately by the
       # ordinary Linux/Windows pre-commit jobs.
