@@ -103,8 +103,27 @@ html_static_path = ["_static"]
 #   - https://stackoverflow.com/a/61694897/2344149
 #   - https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-rst_epilog
 CUDA_PYTHON_DOMAIN = os.environ.get("CUDA_PYTHON_DOMAIN", "https://nvidia.github.io/cuda-python")
+_build_release_docs = os.environ.get("IS_RELEASE") == "true"
+_bindings_docs_path = f"{release}/" if _build_release_docs else "latest"
+_bindings_docs_url = f"{CUDA_PYTHON_DOMAIN}/cuda-bindings/{_bindings_docs_path}"
+
 rst_epilog = f"""
 .. _cuda.core: {CUDA_PYTHON_DOMAIN}/cuda-core/latest
-.. _cuda.bindings: {CUDA_PYTHON_DOMAIN}/cuda-bindings/latest
+.. _cuda.bindings: {_bindings_docs_url}
 .. _cuda.pathfinder: {CUDA_PYTHON_DOMAIN}/cuda-pathfinder/latest
 """
+
+
+def _pin_bindings_toctree(_app, docname, source):
+    if docname != "index":
+        return
+
+    entry = "   cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>"
+    if entry not in source[0]:
+        raise ValueError("Expected the cuda.bindings toctree entry in index.rst")
+    source[0] = source[0].replace(entry, f"   cuda.bindings <{_bindings_docs_url}>", 1)
+
+
+def setup(app):
+    if _build_release_docs:
+        app.connect("source-read", _pin_bindings_toctree)

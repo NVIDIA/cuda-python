@@ -39,8 +39,8 @@ All of the previously available functionality from the ``cuda-python`` package w
 be available, please refer to the `cuda.bindings`_ documentation for installation guide and further detail.
 
 ..
-   The urls above can be auto-inserted by Sphinx (see rst_epilog in conf.py), but
-   not for the urls below, which must be hard-coded due to Sphinx limitation...
+   In release builds, conf.py replaces the cuda.bindings toctree URL below
+   with the matching versioned URL used by the inline link.
 
 .. toctree::
    :maxdepth: 2
