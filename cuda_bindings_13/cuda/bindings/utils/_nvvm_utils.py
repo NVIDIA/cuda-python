@@ -32,6 +32,8 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
 
     If the test program compiles successfully, True is returned.
 
+    If libNVVM cannot be found, False is returned.
+
     cuda.bindings.nvvm returns exceptions instead of return codes.
 
     Parameters
@@ -58,8 +60,12 @@ def check_nvvm_compiler_options(options: Sequence[str]) -> bool:
         raise
 
     from cuda.bindings._internal.nvvm import _inspect_function_pointer
+    from cuda.pathfinder import DynamicLibNotFoundError
 
-    if _inspect_function_pointer("__nvvmCreateProgram") == 0:
+    try:
+        if _inspect_function_pointer("__nvvmCreateProgram") == 0:
+            return False
+    except DynamicLibNotFoundError:
         return False
 
     program = nvvm.create_program()
