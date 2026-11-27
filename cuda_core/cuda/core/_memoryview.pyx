@@ -85,17 +85,25 @@ cdef inline bint _torch_version_check():
 
 cdef object _get_torch_tensor_type():
     global _torch_tensor_type
+    cdef object tensor_type
     with cython.critical_section(_torch_type_cache):
-        if _torch_tensor_type is None:
-            torch = sys.modules.get("torch")
-            tensor_type = getattr(torch, "Tensor", None)
-            if tensor_type is None:
-                # Torch may be imported after an earlier protocol-only call.
-                return None
-            _torch_tensor_type = tensor_type
-        if not _torch_version_check():
+        tensor_type = _torch_tensor_type
+    if tensor_type is None:
+        torch = sys.modules.get("torch")
+        tensor_type = getattr(torch, "Tensor", None)
+        if tensor_type is None:
+            # Torch may be imported after an earlier protocol-only call.
             return None
-        return _torch_tensor_type
+        # The critical section only protects the check-and-set of the
+        # cached global; the Python-level lookups above run outside it.
+        with cython.critical_section(_torch_type_cache):
+            if _torch_tensor_type is None:
+                _torch_tensor_type = tensor_type
+            else:
+                tensor_type = _torch_tensor_type
+    if not _torch_version_check():
+        return None
+    return tensor_type
 
 
 cdef inline bint _is_torch_tensor(object obj):
@@ -585,7 +593,6 @@ cdef class StridedMemoryView:
                 self._layout = layout
         return self._layout
 
-    @cython.critical_section
     cdef inline object get_buffer(self):
         """
         Returns Buffer instance with the underlying data.
@@ -594,7 +601,9 @@ cdef class StridedMemoryView:
         Otherwise, it will create a new instance with owner set to the exporting object.
         """
         cdef object buffer
-        if self._buffer is None:
+        with cython.critical_section(self):
+            buffer = self._buffer
+        if buffer is None:
             if isinstance(self.exporting_obj, Buffer):
                 buffer = self.exporting_obj
             elif self.dl_tensor != NULL:
@@ -604,15 +613,18 @@ cdef class StridedMemoryView:
                 return Buffer.from_handle(self.ptr, 0, owner=self)
             else:
                 buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
-            if self._buffer is None:
-                self._buffer = buffer
-        return self._buffer
+            with cython.critical_section(self):
+                if self._buffer is None:
+                    self._buffer = buffer
+                else:
+                    buffer = self._buffer
+        return buffer
 
-    @cython.critical_section
     cdef inline object get_dtype(self):
         cdef object dtype
-        if self._dtype is None:
-            dtype = None
+        with cython.critical_section(self):
+            dtype = self._dtype
+        if dtype is None:
             if self.dl_tensor != NULL:
                 dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
             elif isinstance(self.metadata, int):
@@ -621,9 +633,12 @@ cdef class StridedMemoryView:
                     self.metadata)
             elif self.metadata is not None:
                 dtype = _typestr2dtype(self.metadata["typestr"])
-            if self._dtype is None:
-                self._dtype = dtype
-        return self._dtype
+            with cython.critical_section(self):
+                if self._dtype is None:
+                    self._dtype = dtype
+                else:
+                    dtype = self._dtype
+        return dtype
 
 
 cdef void _smv_pycapsule_deleter(object capsule) noexcept:
