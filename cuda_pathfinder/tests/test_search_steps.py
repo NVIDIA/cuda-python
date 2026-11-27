@@ -20,6 +20,8 @@ from cuda.pathfinder._dynamic_libs.search_platform import (
     LinuxSearchPlatform,
     WindowsSearchPlatform,
     _find_descriptor_dll_under_dir,
+    linux_search_context,
+    windows_search_context,
 )
 from cuda.pathfinder._dynamic_libs.search_steps import (
     EARLY_FIND_STEPS,
@@ -1074,3 +1076,29 @@ class TestAnchorRelDirs:
         assert result is not None
         assert result.abs_path == str(so_file)
         assert result.found_via == "CUDA_PATH"
+
+
+# ---------------------------------------------------------------------------
+# Resolved search context vs. the platform classes it replaces
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("windows_arch", (None, "x64", "arm64"), ids=("linux", "x64", "arm64"))
+@pytest.mark.parametrize("desc", LIB_DESCRIPTORS.values(), ids=lambda desc: desc.name)
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_search_context_matches_search_platform(desc, windows_arch, monkeypatch):
+    monkeypatch.delenv("PROGRAMW6432", raising=False)
+    monkeypatch.setenv("PROGRAMFILES", "ProgramFilesRoot")
+    if windows_arch is None:
+        platform, ctx = LinuxSearchPlatform(), linux_search_context(desc)
+    else:
+        platform, ctx = WindowsSearchPlatform(target_arch=windows_arch), windows_search_context(desc, windows_arch)
+
+    assert ctx.lib_searched_for == platform.lib_searched_for(desc)
+    assert ctx.site_packages_rel_dirs == platform.site_packages_rel_dirs(desc)
+    assert ctx.conda_anchor_point("conda-prefix") == platform.conda_anchor_point("conda-prefix")
+    assert ctx.anchor_rel_dirs == platform.anchor_rel_dirs(desc)
+    assert ctx.install_root_env_vars == platform.install_root_env_vars(desc)
+    assert ctx.install_root_env_rel_dirs == platform.install_root_env_rel_dirs(desc)
+    program_files_root_globs = tuple(os.path.join("ProgramFilesRoot", glob) for glob in ctx.program_files_rel_globs)
+    assert program_files_root_globs == platform.program_files_root_globs(desc)
