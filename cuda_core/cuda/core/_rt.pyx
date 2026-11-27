@@ -27,6 +27,7 @@
 
 from cpython.object cimport PyObject
 from libc.stddef cimport size_t
+from libcpp cimport bool as cpp_bool
 
 from cuda.bindings cimport cydriver
 from cuda.bindings cimport cynvrtc
@@ -126,11 +127,11 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const cydriver.CUipcEventHandle& ipc_handle, bint is_blocking_sync) except+ nogil
 
     # Event metadata getters
-    bint get_event_timing_enabled "cuda_core::rt::get_event_timing_enabled" (
+    cpp_bool get_event_timing_enabled "cuda_core::rt::get_event_timing_enabled" (
         const EventHandle& h) noexcept nogil
-    bint get_event_is_blocking_sync "cuda_core::rt::get_event_is_blocking_sync" (
+    cpp_bool get_event_is_blocking_sync "cuda_core::rt::get_event_is_blocking_sync" (
         const EventHandle& h) noexcept nogil
-    bint get_event_ipc_enabled "cuda_core::rt::get_event_ipc_enabled" (
+    cpp_bool get_event_ipc_enabled "cuda_core::rt::get_event_ipc_enabled" (
         const EventHandle& h) noexcept nogil
     int get_event_device_id "cuda_core::rt::get_event_device_id" (
         const EventHandle& h) noexcept nogil
@@ -183,7 +184,7 @@ cdef extern from "_cpp/rt/rt.hpp" namespace "cuda_core::rt":
         const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil
     size_t mem_allocation_size "cuda_core::rt::mem_allocation_size" (
         const MemAllocationHandle& h) noexcept nogil
-    bint mem_allocation_is_imported "cuda_core::rt::mem_allocation_is_imported" (
+    cpp_bool mem_allocation_is_imported "cuda_core::rt::mem_allocation_is_imported" (
         const MemAllocationHandle& h) noexcept nogil
     MemAllocationHandle import_mem_allocation_handle "cuda_core::rt::import_mem_allocation_handle" (
         void* os_handle, cydriver.CUmemAllocationHandleType handle_type, size_t size,
