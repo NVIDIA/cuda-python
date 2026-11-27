@@ -74,6 +74,44 @@ the CUDA Toolkit wheels, and let ``cuda-core`` choose the ``cuda-bindings`` vers
 A pin of your own can conflict with the floor of a later ``cuda-core`` release.
 
 
+Matching CUDA Toolkit Version to System Driver (PTX Compatibility)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When compiling PTX dynamically with ``cuda.core``'s compilation APIs, the resulting PTX ISA version
+must be supported by the host system GPU driver. By default, installing ``cuda-core[cu12]`` or
+``cuda-core[cu13]`` resolves ``cuda-toolkit`` to the latest wheel release for that major version. If
+your system display driver is older than the minimum driver required by that latest toolkit release,
+attempting to JIT-compile and execute the PTX will fail with a driver mismatch or unsupported PTX version error.
+
+To ensure PTX compatibility with your system's installed CUDA driver:
+
+1. **Use the system-installed CUDA Toolkit**:
+   If an appropriate CUDA Toolkit matching your driver is already installed on the system, install
+   only the bindings extra in a clean environment (or ensure conflicting wheels like ``nvidia-cuda-nvrtc-cu12``
+   have been removed, as ``cuda.pathfinder`` inspects installed Python packages before system paths):
+
+   .. code-block:: console
+
+      $ pip install cuda-core[minimal-sysctk12]
+      # or for CUDA 13:
+      $ pip install cuda-core[minimal-sysctk13]
+
+2. **Constrain the Toolkit Wheel Version**:
+   If installing toolkit wheels via PyPI, constrain the NVRTC compiler wheel (e.g. ``nvidia-cuda-nvrtc-cu12`` or
+   ``cuda-toolkit[nvrtc]``) alongside ``cuda-toolkit`` so that ``pip`` does not resolve an unconstrained, newer
+   compiler package:
+
+   .. code-block:: console
+
+      $ pip install "cuda-core[cu12]" "nvidia-cuda-nvrtc-cu12<12.5" "cuda-toolkit<12.5"
+
+   In Conda environments, pin ``cuda-version`` to the specific minor version:
+
+   .. code-block:: console
+
+      $ conda install -c conda-forge cuda-core cuda-version=12.4
+
+
 Installing from Conda (conda-forge)
 -----------------------------------
 
