@@ -1,0 +1,1013 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>cuda-bindings 12.9.11 Release notes &#8212; cuda.bindings</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+
+
+    <script src="../_static/documentation_options.js?v=9c71ff8c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/12.9.11-notes';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.5.1.dev104';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+
+    <link rel="canonical" href="https://nvidia.github.io/cuda-python/pr-preview/pr-3642/cuda-bindings/latest/release/12.9.11-notes.html" />
+    <link rel="icon" href="../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cuda-bindings 12.9.2 Release notes" href="12.9.2-notes.html" />
+    <link rel="prev" title="cuda-bindings 12.9.10 Release notes" href="12.9.10-notes.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+
+
+  </head>
+
+  <body data-default-mode="">
+
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/3642">PR 3642</a>! To keep previews small, the autosummary-generated API pages are omitted.</div>
+</aside>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    Apache License 2.0
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    Apache License 2.0
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="13.5.0-notes.html">13.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.4-notes.html">13.4.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.3-notes.html">13.4.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.2-notes.html">13.4.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.1-notes.html">13.4.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.4.0-notes.html">13.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.3.1-notes.html">13.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.3.0-notes.html">13.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.2.0-notes.html">13.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.1.1-notes.html">13.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.1.0-notes.html">13.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.0.3-notes.html">13.0.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">12.9.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.10-notes.html">12.9.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.9-notes.html">12.9.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.8-notes.html">12.9.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.7-notes.html">12.9.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.6-notes.html">12.9.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.5-notes.html">12.9.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.4-notes.html">12.9.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.3-notes.html">12.9.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.2-notes.html">12.9.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.1-notes.html">12.9.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.0-notes.html">12.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.7-notes.html">11.8.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.4-notes.html">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../module/driver.html">driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/driver_v2.html">driver_v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/runtime.html">runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvrtc.html">nvrtc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvrtc_v2.html">nvrtc_v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvvm.html">nvvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvfatbin.html">nvfatbin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/cudla.html">cudla</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/cufile.html">cufile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/nvml.html">nvml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../module/v2_migration.html">Migrating to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> Bindings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Apache License 2.0</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.11 Release notes</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cuda-bindings-12-9-11-release-notes">
+<h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.11 Release notes<a class="headerlink" href="#cuda-bindings-12-9-11-release-notes" title="Link to this heading">#</a></h1>
+<section id="breaking-changes">
+<h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.NvlinkFirmwareInfo.firmware_version</span></code> now exposes only valid entries,
+rather than all 100 slots in the underlying buffer. Set this member to update
+the valid-entry count; the separate <code class="docutils literal notranslate"><span class="pre">num_valid_entries</span></code> member has been
+removed. Use <code class="docutils literal notranslate"><span class="pre">len(info.firmware_version)</span></code> to query the count.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p>Reserved members of <code class="docutils literal notranslate"><span class="pre">runtime</span></code> struct wrappers are no longer exposed as
+Python attributes. Accessing these members now raises <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaArraySparseProperties.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaArrayMemoryRequirements.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyNodeParams.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaFuncAttributes.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemPoolProps.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaEglPlaneDesc_st.reserved</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaIpcEventHandle_st.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaIpcMemHandle_st.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaMemFabricHandle_st.reserved</span></code> (also removed from their <code class="docutils literal notranslate"><span class="pre">_t</span></code> aliases)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalParams.params.nvSciSync.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalParams.params.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalParams.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitParams.params.nvSciSync.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitParams.params.reserved</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitParams.reserved</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams.reserved0</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams.reserved1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams.reserved2</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaGraphEdgeData_st.reserved</span></code></p></li>
+</ul>
+<p>Storage allocated by these wrappers is zero-initialized, including reserved
+fields, so callers do not need to zero these fields explicitly.</p>
+<p>To serialize IPC handles previously accessed through <code class="docutils literal notranslate"><span class="pre">handle.reserved</span></code>,
+copy their raw bytes using <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">ctypes</span></code> instead:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">runtime</span>
+
+<span class="c1"># handle was returned by runtime.cudaIpcGetMemHandle().</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">string_at</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">getPtr</span><span class="p">(),</span> <span class="n">runtime</span><span class="o">.</span><span class="n">CUDA_IPC_HANDLE_SIZE</span><span class="p">)</span>
+<span class="n">restored</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">cudaIpcMemHandle_t</span><span class="p">()</span>
+<span class="n">ctypes</span><span class="o">.</span><span class="n">memmove</span><span class="p">(</span><span class="n">restored</span><span class="o">.</span><span class="n">getPtr</span><span class="p">(),</span> <span class="n">payload</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">CUDA_IPC_HANDLE_SIZE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When restoring a payload received from another process, ensure it contains
+exactly <code class="docutils literal notranslate"><span class="pre">runtime.CUDA_IPC_HANDLE_SIZE</span></code> bytes before copying it.</p>
+</li>
+</ul>
+</section>
+<section id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Expanded NVML coverage with <code class="docutils literal notranslate"><span class="pre">device_get_gpu_uptime_v1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">system_get_conf_compute_settings_v2</span></code>, <code class="docutils literal notranslate"><span class="pre">device_get_nvlink_info_v3</span></code>,
+<code class="docutils literal notranslate"><span class="pre">device_get_nvlink_remap_table_info_v1</span></code>, <code class="docutils literal notranslate"><span class="pre">device_set_nvlink_nvle_ready_v1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">device_lock_nvlink_remap_table_v1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">device_setup_nvlink_nvle_encryption_key_v1</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">device_get_nvlink_nvle_private_info_v1</span></code>, together with their struct wrappers.
+These APIs require an NVML library that provides the corresponding functions.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p>Buffer-like pointer arguments in <code class="docutils literal notranslate"><span class="pre">nvfatbin</span></code>, <code class="docutils literal notranslate"><span class="pre">nvjitlink</span></code>, and <code class="docutils literal notranslate"><span class="pre">nvvm</span></code> now
+accept contiguous buffers of any dimensionality, including ctypes objects
+and multidimensional NumPy arrays. Previously these buffers had to be 1D.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p>Pointer arguments in <code class="docutils literal notranslate"><span class="pre">cufile</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml</span></code>, such as <code class="docutils literal notranslate"><span class="pre">descr</span></code> in
+<code class="docutils literal notranslate"><span class="pre">cufile.handle_register</span></code> and <code class="docutils literal notranslate"><span class="pre">info</span></code> in <code class="docutils literal notranslate"><span class="pre">nvml.device_set_clock_offsets</span></code>,
+now accept <code class="docutils literal notranslate"><span class="pre">None</span></code> as <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">driver.cuLaunchHostFunc</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime.cudaLaunchHostFunc</span></code> now pass the
+host function and its user data to CUDA unchanged. The previous internal
+trampoline freed its state after the first invocation, causing a captured
+host function to crash on the second launch of a CUDA graph. Callers must
+retain the callback object and user data storage until all uses have completed,
+including the lifetime of graphs and their executables; see
+<a class="reference internal" href="../overview.html#host-function-lifetime"><span class="std std-ref">Host functions</span></a>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3107">PR #3107</a>)</p></li>
+<li><p>Corrected the driver-version lookup for <code class="docutils literal notranslate"><span class="pre">cuLogs*</span></code> functions to CUDA 12.9,
+preventing spurious <code class="docutils literal notranslate"><span class="pre">FunctionNotFoundError</span></code> failures on supported drivers.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3377">PR #3377</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3395">PR #3395</a>)</p></li>
+<li><p>Fixed crashes when registering or unregistering <code class="docutils literal notranslate"><span class="pre">cuLogs*</span></code> and asynchronous
+notification callbacks concurrently under free-threaded Python.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p>Nested <code class="docutils literal notranslate"><span class="pre">driver</span></code> and <code class="docutils literal notranslate"><span class="pre">runtime</span></code> struct and union views now retain their
+owning wrapper, and struct-array getters in these modules return independent
+copies, avoiding access to freed backing storage. Mutating a returned element
+no longer updates the parent struct: read the array, modify its elements, then
+assign it back (for example, <code class="docutils literal notranslate"><span class="pre">attrs</span> <span class="pre">=</span> <span class="pre">cfg.attrs</span></code>, update <code class="docutils literal notranslate"><span class="pre">attrs[0]</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">cfg.attrs</span> <span class="pre">=</span> <span class="pre">attrs</span></code>). <code class="docutils literal notranslate"><span class="pre">cufile</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml</span></code> struct wrappers also retain
+owners correctly when indexing and slicing arrays.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cufile</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml</span></code> struct arrays are now zero-initialized, and assigning
+to a member of a read-only array wrapper raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.device_get_field_values</span></code> initializes per-query status to
+<code class="docutils literal notranslate"><span class="pre">ERROR_UNKNOWN</span></code> so entries left unpopulated by NVML do not appear successful.
+Integer field IDs now explicitly use scope ID zero.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.PwrModelMetricsPfpp1x</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml.PwrModelMetricsDlppm1x</span></code> now populate
+their nested <code class="docutils literal notranslate"><span class="pre">estimated_metrics</span></code> arrays using each element’s
+<code class="docutils literal notranslate"><span class="pre">num_vf_points</span></code> and <code class="docutils literal notranslate"><span class="pre">num_estimated_metrics</span></code>, respectively.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+<li><p>Moved cuFile and NVML dtype layout calculations to heap storage to avoid
+placing large temporary structs on the stack during module initialization.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3473">PR #3473</a>)</p></li>
+<li><p>Nested resource pointer conversion accepts both <code class="docutils literal notranslate"><span class="pre">str</span></code> and <code class="docutils literal notranslate"><span class="pre">bytes</span></code>
+options, matching the CUDA 13 bindings behavior.</p></li>
+<li><p>Coredump settings retain borrowed string buffers for the duration of the
+call and free the buffers allocated for getters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_cuda_native_handle</span></code> preserves a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> raised inside a
+registered getter instead of reporting an unknown type.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3315">PR #3315</a>)</p></li>
+</ul>
+</section>
+<section id="deprecations">
+<h2>Deprecations<a class="headerlink" href="#deprecations" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The NVML exception classes <code class="docutils literal notranslate"><span class="pre">nvml.TimeoutError</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml.MemoryError</span></code>
+have been renamed to <code class="docutils literal notranslate"><span class="pre">nvml.NvmlTimeoutError</span></code> and <code class="docutils literal notranslate"><span class="pre">nvml.NvmlMemoryError</span></code>
+to avoid shadowing Python builtins. The old names remain available as
+compatibility aliases. Both classes still derive from <code class="docutils literal notranslate"><span class="pre">nvml.NvmlError</span></code>.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>)</p></li>
+</ul>
+</section>
+<section id="end-of-life">
+<h2>End of Life<a class="headerlink" href="#end-of-life" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Python 3.10 support dropped (end of life); the supported range is
+Python 3.11-3.15.</p></li>
+</ul>
+</section>
+<section id="packaging-and-source-builds">
+<h2>Packaging and Source Builds<a class="headerlink" href="#packaging-and-source-builds" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Wheels omit <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> implementation sources and <code class="docutils literal notranslate"><span class="pre">.in</span></code> generation templates,
+following the CUDA 13 packaging policy. Cython declarations and includes
+(<code class="docutils literal notranslate"><span class="pre">.pxd</span></code> and <code class="docutils literal notranslate"><span class="pre">.pxi</span></code>), and required headers, remain available for downstream
+Cython builds. Source distributions retain the inputs needed to build the package.</p></li>
+<li><p>All binding sources, including the runtime’s internal and Cython layers, are
+now pre-generated. Source builds no longer parse CUDA headers or expand
+templates, removing the <code class="docutils literal notranslate"><span class="pre">pyclibrary</span></code> build dependency and the
+<code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_PARSER_CACHING</span></code> setting.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3429">PR #3429</a>,
+<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3437">PR #3437</a>)</p></li>
+<li><p>Source builds use the monorepo’s shared compiler and Cython-cache tooling and
+check for CUDA 12.9 headers before Cythonization, reporting a clear error when
+the selected toolkit’s major.minor version does not match the generated sources.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3173">PR #3173</a>)</p></li>
+<li><p>Development and test dependencies are now provided through dependency groups;
+use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-v</span> <span class="pre">-e</span> <span class="pre">.</span> <span class="pre">--group</span> <span class="pre">test</span></code> from <code class="docutils literal notranslate"><span class="pre">cuda_bindings_12</span></code>
+for an editable installation with test dependencies.
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/3315">PR #3315</a>)</p></li>
+</ul>
+</section>
+<section id="documentation-and-maintenance">
+<h2>Documentation and Maintenance<a class="headerlink" href="#documentation-and-maintenance" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>CUDA 12.9 maintenance sources now live in <code class="docutils literal notranslate"><span class="pre">cuda_bindings_12</span></code> on <code class="docutils literal notranslate"><span class="pre">main</span></code>.
+The historical <code class="docutils literal notranslate"><span class="pre">12.9.x</span></code> branch is frozen except for emergency fixes, which
+must also be reconciled into <code class="docutils literal notranslate"><span class="pre">main</span></code>. Main-tree CUDA 12 releases are built
+and tested alongside CUDA 13. Old-layout CUDA 12 tags are released from a
+validated workflow on the appropriate maintenance branch or historical tag,
+not from <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+<li><p>Corrected the CUDA 12 driver guidance to its existing minor-version
+compatibility baseline: Linux 525.60.13 and Windows 528.33. This is a
+documentation correction, not a new runtime version check. Newer features
+and PTX compilation can still require a newer driver.</p></li>
+</ul>
+</section>
+<section id="known-issues">
+<h2>Known Issues<a class="headerlink" href="#known-issues" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Updating from v12.6.2.post1 and older via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">cuda-python</span></code> might
+not work. Uninstall with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uninstall</span> <span class="pre">-y</span> <span class="pre">cuda-python</span></code>, then install the
+CUDA 12 line with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;cuda-python~=12.9.0&quot;</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code> on WSL can return incorrect values. Set the
+locale to <code class="docutils literal notranslate"><span class="pre">&quot;C&quot;</span></code> before calling <code class="docutils literal notranslate"><span class="pre">nvml.device_get_compute_running_processes_v3</span></code>
+(which sets the process names) and <code class="docutils literal notranslate"><span class="pre">nvml.system_get_process_name</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="12.9.10-notes.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.10 Release notes</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="12.9.2-notes.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.2 Release notes</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">Enhancements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecations">Deprecations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#end-of-life">End of Life</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#packaging-and-source-builds">Packaging and Source Builds</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-and-maintenance">Documentation and Maintenance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known Issues</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2021-2026, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
