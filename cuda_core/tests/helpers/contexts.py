@@ -12,6 +12,7 @@ __all__ = [
     "assert_no_cuda_warning",
     "current_context_handle",
     "no_current_context",
+    "primary_context_active",
     "use_context",
 ]
 
@@ -34,6 +35,12 @@ def assert_no_cuda_warning():
 def current_context_handle():
     """Return the current CUDA context handle, or zero if none is current."""
     return int(handle_return(driver.cuCtxGetCurrent()))
+
+
+def primary_context_active(device_id):
+    """Return whether the primary context of ``device_id`` is active (retained)."""
+    _, active = handle_return(driver.cuDevicePrimaryCtxGetState(device_id))
+    return bool(active)
 
 
 def _assert_event_record_rejected_from_ambient_context(event):

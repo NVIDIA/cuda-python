@@ -58,6 +58,7 @@ namespace cuda_core::rt {
     X(cuGetErrorString, 6000)                                                   \
     /* Context */                                                               \
     X(cuDevicePrimaryCtxRetain, 7000)                                           \
+    X(cuDevicePrimaryCtxGetState, 7000)                                         \
     X(cuDevicePrimaryCtxRelease, 11000)                                         \
     X(cuCtxGetCurrent, 4000)                                                    \
     X(cuCtxSetCurrent, 4000)                                                    \

@@ -142,6 +142,7 @@ const WarnOnFailure<p_cuMipmappedArrayDestroy> pw_cuMipmappedArrayDestroy{"cuMip
 const WarnOnFailure<p_cuTexObjectDestroy> pw_cuTexObjectDestroy{"cuTexObjectDestroy"};
 const WarnOnFailure<p_cuSurfObjectDestroy> pw_cuSurfObjectDestroy{"cuSurfObjectDestroy"};
 const WarnOnFailure<p_cuGreenCtxDestroy> pw_cuGreenCtxDestroy{"cuGreenCtxDestroy"};
+const WarnOnFailure<p_cuDevicePrimaryCtxRelease> pw_cuDevicePrimaryCtxRelease{"cuDevicePrimaryCtxRelease"};
 const WarnOnFailure<p_cuMemPoolDestroy> pw_cuMemPoolDestroy{"cuMemPoolDestroy"};
 const WarnOnFailure<p_cuMemFreeHost> pw_cuMemFreeHost{"cuMemFreeHost"};
 const WarnOnFailure<p_cuMemRelease> pw_cuMemRelease{"cuMemRelease"};
@@ -179,28 +180,72 @@ void enqueue_cleanup(void *item) noexcept;
 template <typename Key, typename Handle, typename Hash = std::hash<Key>>
 class HandleRegistry {
    public:
-    using MapType = std::unordered_map<Key, std::weak_ptr<typename Handle::element_type>, Hash>;
+    using Element = typename Handle::element_type;
+
+    // An entry keeps the element pointer next to the weak_ptr: a deleter's own
+    // weak_ptr has already expired, so ownership is checked by address.
+    struct Entry {
+        std::weak_ptr<Element> handle;
+        const Element *resource = nullptr;
+    };
+    using MapType = std::unordered_map<Key, Entry, Hash>;
 
     void
     register_handle(const Key &key, const Handle &h)
     {
         std::scoped_lock lock(mutex_);
-        map_[key] = h;
+        map_[key] = Entry{h, h.get()};
     }
 
+    // Erase key's entry only if it was registered by the handle that pointed
+    // to resource, so a dying handle cannot erase the entry of a live handle
+    // registered under the same key. A deleter erases before freeing its box,
+    // so no other handle can share the address while the entry is compared.
     void
-    unregister_handle(const Key &key) noexcept
+    unregister_handle(const Key &key, const Element *resource) noexcept
     {
         std::scoped_lock lock(mutex_);
-        map_.erase(key);
+        auto it = map_.find(key);
+        if (it != map_.end() && it->second.resource == resource) {
+            map_.erase(it);
+        }
     }
+
+    // Register candidate under key unless a live entry should be kept, and
+    // return the handle to use: the live entry, or candidate. replace(existing)
+    // decides whether candidate displaces a live entry; an expired entry is
+    // always displaced. replace runs under the registry's mutex, so it must
+    // not call the driver or acquire the GIL. Build candidate before calling
+    // and drop a losing candidate afterwards, never under the mutex: a deleter
+    // that takes this mutex would deadlock.
+    template <typename Replace>
+    Handle
+    insert_or_get(const Key &key, const Handle &candidate, Replace &&replace)
+    {
+        // Declared before the lock so that it is destroyed after the unlock.
+        // A displaced handle may hold the last reference to its box: another
+        // thread can drop its own copy while we hold this one. Its deleter
+        // takes this mutex, so releasing it under the lock would deadlock.
+        Handle existing;
+        std::scoped_lock lock(mutex_);
+        auto [it, inserted] = map_.try_emplace(key);
+        if (!inserted) {
+            existing = it->second.handle.lock();
+            if (existing && !replace(existing)) {
+                return existing;
+            }
+        }
+        it->second = Entry{candidate, candidate.get()};
+        return candidate;
+    }
+
     Handle
     lookup(const Key &key)
     {
         std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
-            if (auto h = it->second.lock()) {
+            if (auto h = it->second.handle.lock()) {
                 return h;
             }
             map_.erase(it);
@@ -215,7 +260,7 @@ class HandleRegistry {
         std::scoped_lock lock(mutex_);
         auto it = map_.find(key);
         if (it != map_.end()) {
-            if (Handle h = it->second.lock()) {
+            if (Handle h = it->second.handle.lock()) {
                 return h;
             }
             map_.erase(it);
@@ -223,7 +268,7 @@ class HandleRegistry {
 
         Handle h = create();
         if (h) {
-            map_[key] = h;
+            map_[key] = Entry{h, h.get()};
         }
         return h;
     }
@@ -295,6 +340,16 @@ class ReleasingHandleRegistry {
             map_.erase(it);
         }
         return h;
+    }
+
+    // Return the live handle registered under key, or an empty handle. Unlike
+    // get_or_create(), it never waits for a release in flight, so a caller that
+    // gets nothing goes on to get_or_create().
+    Handle
+    find_live(const Key &key)
+    {
+        std::unique_lock lock(mutex_);
+        return find(lock, key).owner;
     }
 
     // Called by an owner's deleter after its last driver call on the resource:

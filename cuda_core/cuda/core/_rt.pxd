@@ -6,6 +6,7 @@ from cpython.object cimport PyObject
 from libc.stddef cimport size_t
 from libc.stdint cimport intptr_t
 
+from libcpp cimport bool as cpp_bool
 from libcpp.memory cimport shared_ptr, unique_ptr
 from libcpp.vector cimport vector
 
@@ -188,6 +189,12 @@ cdef extern from "_cpp/rt/handles.hpp" namespace "cuda_core::rt":
 # Wrapper function declarations (implemented in _rt.pyx)
 #
 # Consumer modules cimport these. Calls go through _rt.so.
+#
+# A consumer calls each function through a pointer of the type declared here,
+# not the type in the C++ header, so return types must match the C++ exactly.
+# Declare a C++ bool return as cpp_bool, never bint (int): MSVC sets only the
+# low byte of the return register for a bool, so reading it as int on Windows
+# can turn false into true.
 # =============================================================================
 
 # Thread-local error handling
@@ -209,6 +216,8 @@ cdef void clear_last_error_detail() noexcept nogil
 
 # Context handles
 cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except+ nogil
+cdef ContextHandle create_current_context_handle_ref(
+    cydriver.CUcontext ctx, cydriver.CUdevice device) except+ nogil
 cdef ContextHandle create_context_handle_from_green_ctx(const GreenCtxHandle& h_green_ctx) except+ nogil
 cdef GreenCtxHandle get_context_green_ctx(const ContextHandle& h) noexcept nogil
 cdef GreenCtxHandle create_green_ctx_handle(
@@ -256,9 +265,9 @@ cdef EventHandle create_event_handle_ipc(
     const cydriver.CUipcEventHandle& ipc_handle, bint is_blocking_sync) except+ nogil
 
 # Event metadata getters
-cdef bint get_event_timing_enabled(const EventHandle& h) noexcept nogil
-cdef bint get_event_is_blocking_sync(const EventHandle& h) noexcept nogil
-cdef bint get_event_ipc_enabled(const EventHandle& h) noexcept nogil
+cdef cpp_bool get_event_timing_enabled(const EventHandle& h) noexcept nogil
+cdef cpp_bool get_event_is_blocking_sync(const EventHandle& h) noexcept nogil
+cdef cpp_bool get_event_ipc_enabled(const EventHandle& h) noexcept nogil
 cdef int get_event_device_id(const EventHandle& h) noexcept nogil
 cdef ContextHandle get_event_context(const EventHandle& h) noexcept nogil
 
@@ -302,7 +311,7 @@ cdef MemAllocationHandle create_mem_allocation_handle(
     size_t size, const cydriver.CUmemAllocationProp& prop,
     const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil
 cdef size_t mem_allocation_size(const MemAllocationHandle& h) noexcept nogil
-cdef bint mem_allocation_is_imported(const MemAllocationHandle& h) noexcept nogil
+cdef cpp_bool mem_allocation_is_imported(const MemAllocationHandle& h) noexcept nogil
 cdef MemAllocationHandle import_mem_allocation_handle(
     void* os_handle, cydriver.CUmemAllocationHandleType handle_type, size_t size,
     const cydriver.CUmemAccessDesc* descs, size_t count) except+ nogil

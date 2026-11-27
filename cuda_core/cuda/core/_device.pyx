@@ -12,7 +12,7 @@ from libcpp.vector cimport vector
 
 import threading
 
-from cuda.core._context cimport Context, Context_check_open
+from cuda.core._context cimport Context, Context_check_open, Context_primary
 from cuda.core._context import ContextOptions
 from cuda.core._device_resources cimport DeviceResources, SMResource, WorkqueueResource
 from cuda.core._event cimport Event as cyEvent
@@ -21,10 +21,9 @@ from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._rt cimport (
     ContextHandle,
     GreenCtxHandle,
-    create_context_handle_ref,
+    create_current_context_handle_ref,
     create_green_ctx_handle,
     context_synchronize,
-    get_primary_context,
     get_last_error,
     as_cu,
 )
@@ -1292,6 +1291,7 @@ class Device:
         cdef cydriver.CUcontext prev_ctx, curr_ctx
         cdef cydriver.CUdevice prev_dev
         cdef Context prev_owned = None
+        cdef Context primary
 
         if ctx is not None:
             Context_check_open(ctx)
@@ -1309,6 +1309,11 @@ class Device:
                 HANDLE_RETURN(cydriver.cuCtxGetCurrent(&prev_ctx))
                 if prev_ctx != NULL:
                     HANDLE_RETURN(cydriver.cuCtxGetDevice(&prev_dev))
+                    # Resolve the previous context while it is still current:
+                    # only then is a primary context that cuda.core has not
+                    # retained yet pinned, so that the returned Context keeps
+                    # it alive.
+                    h_context = create_current_context_handle_ref(prev_ctx, prev_dev)
                 # cuCtxSetCurrent replaces the top of the thread's context stack
                 # in one driver call (or binds ctx when nothing is current), so
                 # a failure leaves the previous context current instead of
@@ -1318,22 +1323,20 @@ class Device:
             self._has_inited = True
             self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:
-                if prev_owned is not None and as_cu(prev_owned._h_context) == prev_ctx:
+                # Reuse this device's Context object only if it holds the handle
+                # just resolved. Comparing CUcontext addresses is not enough: the
+                # driver reuses the address of a destroyed context, and a stale
+                # object for it would hide the live context's owning handle.
+                if prev_owned is not None and prev_owned._h_context.get() == h_context.get():
                     return prev_owned
-                return Context._from_handle(
-                    Context, create_context_handle_ref(prev_ctx), <int>prev_dev)
+                return Context._from_handle(Context, h_context, <int>prev_dev)
         else:
             # use primary ctx
-            h_context = get_primary_context(self._device_id)
-            if h_context.get() == NULL:
-                HANDLE_RETURN(get_last_error())
-                raise RuntimeError(
-                    f"Failed to retain the primary context for device {self._device_id}"
-                )
+            primary = Context_primary(self._device_id)
             with nogil:
-                HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(h_context)))
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(as_cu(primary._h_context)))
             self._has_inited = True
-            self._context = Context._from_handle(Context, h_context, self._device_id)  # Store owning context
+            self._context = primary  # Store owning context
 
     def create_context(self, options: ContextOptions | None = None) -> Context:
         """Create a new :obj:`~_context.Context` object.

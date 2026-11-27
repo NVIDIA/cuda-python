@@ -233,7 +233,8 @@ Two rules follow:
 1. Do not make a `DRIVER_CALL` while the caller holds a C++ lock, because the
    fill acquires the GIL. Resolve the table before the lock
    (`ensure_fn_table(FnTable::driver)`) and use the raw pointer inside it,
-   marked `// raw:` (see `deviceptr_import_ipc`).
+   marked `// raw:` (see `deviceptr_import_ipc`, and `pin_primary_context`
+   under the primary-context table's mutex).
 2. If the Cython layer gates a driver function, gate it at the version
    cuda-bindings requests it at (the number in the table), not at the version
    the driver first shipped it.
@@ -317,7 +318,61 @@ that must update shared state before user code can run does so in
 `cleanup_in_context`'s `after_cleanup` hook, which runs once the cleanup is done
 and before anything that may run user code; the IPC pointer deleter releases its
 registry entry there. The registries store `weak_ptr`s,
-so erasing an entry under a registry lock never runs a deleter.
+so erasing an entry under a registry lock never runs a deleter. Releasing a
+handle can, though: `HandleRegistry::insert_or_get` therefore destroys a
+displaced handle only after it has unlocked, and a caller drops a losing
+candidate outside the lock (REGISTRY_DESIGN.md).
+
+Resolving a context handle can call the driver and report a failure, so
+`create_context_handle_ref()`, `create_current_context_handle_ref()`,
+`get_current_context()` and everything that calls them, such as
+`make_deallocation_stream()` for a default-stream token, must not run while a
+C++ lock is held (see "Primary contexts"). `deviceptr_import_ipc`
+resolves its deallocation stream before it takes the IPC pointer cache's mutex
+for this reason.
+
+### Primary contexts
+
+`cuda.core` retains each device's primary context at most once per process and
+never releases it, as the CUDA runtime does. The driver destroys a primary
+context when its last retain is released, so code outside `cuda.core`
+(`cuDevicePrimaryCtxReset`, `cudaDeviceReset`) is the only way a primary context
+that `cuda.core` has handed out can go away. Before #1368 `cuda.core` already
+behaved this way; #1368 released the retain when the last handle dropped, which
+#3533 showed to be wrong.
+
+- `get_primary_context()` pins one retaining `ContextBox` per device in a
+  process-wide table (`pin_primary_context()` in `context.cpp`). The table is
+  leaked on purpose and holds a strong reference, so the box's deleter never
+  runs and its retain is never given back. The table is read without a lock:
+  pinning publishes a new immutable snapshot under the table's mutex, and old
+  snapshots are leaked, so a reader never sees freed memory. There is no
+  per-thread cache, so a thread's exit has no effect on primary contexts. The
+  mutex and the snapshot pointer are constant-initialized globals, not
+  function-local statics, so no static-initialization guard is involved (see
+  "Static Initialization and Deadlock Hazards").
+- `create_context_handle_ref()`, `create_current_context_handle_ref()` and
+  `get_current_context()` pin a primary context that another library made
+  current: when `ctx` is the calling thread's current context and its device's
+  active primary context, it is retained and pinned. All three go through
+  `resolve_context_handle()`; the last two are for callers that already know
+  what is current, so it is not queried again. Only the current context is
+  examined, because its device is the only one that can be queried without
+  switching contexts. An inactive primary context is never retained, because
+  that would create it. When the active primary context turns out to be
+  another one, the retain taken to find out is given back. That release cannot
+  destroy a context, because it was active without that retain.
+- A context that is not current at the time of the lookup, such as another
+  context's stream or a graph node's update context, gets a plain handle that
+  does not keep it alive.
+- The retain runs with the GIL released, under the table's mutex, through the
+  raw `p_` pointers after `ensure_fn_table()` (see "The GIL is the outermost
+  lock"). Giving back a probe retain can report a failure through Python, so it
+  runs after the mutex is released.
+- Cython code gets a primary context through `Context_get_primary_handle()`
+  (a `ContextHandle`) or `Context_primary()` (a `Context`) in `_context.pyx`,
+  not by calling `get_primary_context()` directly. Both drain
+  `get_last_error()` and raise on failure, so every caller fails the same way.
 
 ### Static Initialization and Deadlock Hazards
 

@@ -10,6 +10,7 @@ from libcpp.vector cimport vector
 cimport cpython
 
 from cuda.bindings cimport cydriver
+from cuda.core._context cimport Context_get_primary_handle
 from cuda.core._memory._buffer cimport (
     Buffer,
     Buffer_check_open,
@@ -40,7 +41,6 @@ from cuda.core._rt cimport (
     deallocation_stream,
     deviceptr_create_vmm,
     get_last_error,
-    get_primary_context,
     import_mem_allocation_handle,
     mem_allocation_is_imported,
     mem_allocation_size,
@@ -656,10 +656,9 @@ cdef class VirtualMemoryResource(MemoryResource):
             # Bind the legacy default-stream token to the device's primary
             # context so the free is ordered correctly no matter what is current
             # then, and so allocate() never depends on a current context.
-            # get_primary_context keeps its own cache; nothing is cached here.
-            h_ctx = get_primary_context(self.device.device_id)
-            if not h_ctx:
-                _raise_last_error()
+            # The primary context is pinned for the life of the process;
+            # nothing is cached here.
+            Context_get_primary_handle(self.device.device_id, &h_ctx)
             h = create_context_bound_legacy_stream(h_ctx)
             if not h:
                 _raise_last_error()

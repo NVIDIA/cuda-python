@@ -15,7 +15,8 @@ together to map a raw driver handle all the way back to the original
 Python object. Both use weak references so they
 do not prevent cleanup. Entries are removed either explicitly (via
 `destroy()` or a Box destructor) or implicitly when the weak reference
-expires.
+expires. The one exception is a primary context's Box, which a separate table
+pins for the life of the process (see "Removing and replacing entries").
 
 ## Level 1: Driver Handle -> Resource Handle (C++)
 
@@ -32,6 +33,27 @@ with default metadata, losing information that was set at creation.
 Instances: `context_registry`, `stream_registry`, `event_registry`,
 `kernel_registry`, and, per `GraphBox`, one registry for its direct child
 graphs and one for its nodes.
+
+### Removing and replacing entries
+
+More than one Box can exist for one raw handle, for example a plain `_ref`
+Box and an owning one. An entry therefore records the address of the
+element its handle points to, and `unregister_handle(key, resource)` erases
+the entry only if `resource` matches. A Box destructor thus never erases the
+entry of another, still-live Box registered under the same key.
+
+`insert_or_get(key, candidate, replace)` registers a new Box without blindly
+overwriting a live entry; `replace(existing)` decides. Build the candidate
+before the call and drop a losing candidate after it, never under the
+registry's lock, because its deleter takes that lock. For the same reason,
+`insert_or_get` releases a displaced live handle only after the unlock: another
+thread may have dropped its own copy, leaving the last reference to that Box
+inside the call. `context_registry` uses
+this to keep one owning Box per live context (#3533): a Box that holds a
+primary-context retain or the owning green-context handle replaces a plain
+one, and nothing replaces an owning one. A primary context's retaining Box is
+pinned for the life of the process (`pin_primary_context()` in `context.cpp`),
+so all threads share it and its retain is never released.
 
 ### Imports that wait for an in-flight release
 

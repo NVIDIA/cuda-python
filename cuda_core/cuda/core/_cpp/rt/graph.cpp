@@ -686,13 +686,14 @@ static void
 retire_graph(GraphHierarchy &hierarchy, std::list<GraphBox>::iterator graph) noexcept
 {
     for (auto &entry : graph->node_handles.drain()) {
-        if (GraphNodeHandle h_node = entry.second.lock()) {
+        if (GraphNodeHandle h_node = entry.second.handle.lock()) {
             get_box(h_node)->resource = nullptr;
         }
     }
     if (graph->resource) {
         if (graph->parent) {
-            graph->parent->children.unregister_handle({graph->resource, graph->owner_node});
+            // Child graph handles alias &child.resource (create_child_graph_handle).
+            graph->parent->children.unregister_handle({graph->resource, graph->owner_node}, &graph->resource);
         }
         graph->resource = nullptr;
     }
@@ -779,7 +780,7 @@ invalidate_graph_node(const GraphNodeHandle &h) noexcept
         return;
     }
     GraphBox *graph = get_box(node_box->h_graph);
-    graph->node_handles.unregister_handle(node);
+    graph->node_handles.unregister_handle(node, &node_box->resource);
     node_box->resource = nullptr;
 }
 

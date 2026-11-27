@@ -8,8 +8,10 @@
 #include "driver_api.hpp"
 #include "error.hpp"
 #include "internal.hpp"
+#include <atomic>
 #include <cstddef>
 #include <memory>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -119,6 +121,7 @@ namespace {
 struct ContextBox {
     CUcontext resource;
     GreenCtxHandle h_green_ctx;
+    bool retains_primary = false;  // Pinned primary context (see pin_primary_context).
 };
 
 struct GreenCtxBox {
@@ -135,35 +138,282 @@ get_box(const ContextHandle &h) noexcept
 // See REGISTRY_DESIGN.md (Level 1: Driver Handle -> Resource Handle)
 HandleRegistry<CUcontext, ContextHandle> context_registry;
 
-// Create a context handle reference, with optional green context as source.
-ContextHandle
-create_context_handle_ref(CUcontext ctx, GreenCtxHandle h_green_ctx)
+// A box keeps its context alive if it is a pinned primary context or holds the
+// owning green-context handle. Reads only immutable box fields, so it is safe
+// under the registry's mutex.
+bool
+owns_context(const ContextHandle &h) noexcept
 {
-    if (!ctx) {
-        return {};
-    }
-    if (auto h = context_registry.lookup(ctx)) {
-        return h;
-    }
+    const ContextBox *b = get_box(h);
+    return b->retains_primary || b->h_green_ctx;
+}
+
+// Registry replacement policy for contexts: an owning candidate replaces a
+// non-owning entry, and nothing replaces an owning entry. This keeps one
+// owning box per live context, and a lookup never trades it for a plain one.
+auto
+replace_if_upgrade(const ContextHandle &candidate) noexcept
+{
+    return [owning = owns_context(candidate)](const ContextHandle &existing) noexcept {
+        return owning && !owns_context(existing);
+    };
+}
+
+// Box ctx in a new handle, which the caller registers. The deleter erases the
+// box's registry entry if it is still the registered one. It releases nothing:
+// a plain box owns nothing, a green box releases its context through
+// h_green_ctx, and a pinned primary box is never deleted (its retain is
+// deliberately never released).
+ContextHandle
+make_context_handle(CUcontext ctx, GreenCtxHandle h_green_ctx, bool retains_primary)
+{
     // clang-format off
     auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, std::move(h_green_ctx)},
+        new ContextBox{ctx, std::move(h_green_ctx), retains_primary},
         [](const ContextBox *b) {
-            context_registry.unregister_handle(b->resource);
+            context_registry.unregister_handle(b->resource, &b->resource);
             delete b;
         }
     );
     // clang-format on
-    ContextHandle h(box, &box->resource);
-    context_registry.register_handle(ctx, h);
+    return ContextHandle(box, &box->resource);
+}
+
+// ----------------------------------------------------------------------------
+// Primary contexts
+//
+// cuda.core retains each device's primary context at most once per process and
+// never gives that retain back, as the CUDA runtime does. The driver destroys
+// a primary context when its last retain is released, so a context that
+// cuda.core has handed out can only be destroyed by code outside cuda.core
+// (cuDevicePrimaryCtxReset, cudaDeviceReset).
+//
+// The retain is held by one box per device, pinned in a process-wide table
+// that is never freed: no thread's exit and no handle's release can drop the
+// box's last reference, so its deleter never runs.
+//
+// The table is read without a lock. It is published as immutable snapshots:
+// pinning a context, under primary_context_mutex, publishes a copy of the
+// current snapshot with one more entry. Snapshots and the handles they point
+// to are leaked, so a reader never sees freed memory, and other threads may
+// still use them while the process exits. At most one snapshot is published
+// per device.
+// ----------------------------------------------------------------------------
+
+struct PinnedPrimaryContexts {
+    std::vector<const ContextHandle *> slots;  // indexed by device ordinal
+};
+
+std::mutex primary_context_mutex;  // serializes pinning
+std::atomic<const PinnedPrimaryContexts *> pinned_primary_contexts{nullptr};
+
+// Return the pinned primary context of device ordinal idx, or an empty handle.
+ContextHandle
+find_pinned_primary_context(size_t idx) noexcept
+{
+    const PinnedPrimaryContexts *pinned = pinned_primary_contexts.load(std::memory_order_acquire);
+    if (pinned && idx < pinned->slots.size() && pinned->slots[idx]) {
+        return *pinned->slots[idx];
+    }
+    return {};
+}
+
+// Publish h as the pinned primary context of device ordinal idx. The caller
+// holds primary_context_mutex, so no other snapshot is published meanwhile.
+void
+publish_pinned_primary_context(size_t idx, const ContextHandle &h)
+{
+    // The previous store was made under the same mutex, so a relaxed load sees it.
+    const PinnedPrimaryContexts *current = pinned_primary_contexts.load(std::memory_order_relaxed);
+    // Both allocations are leaked on purpose (see above).
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    auto *next = new PinnedPrimaryContexts{current ? current->slots : std::vector<const ContextHandle *>{}};
+    if (idx >= next->slots.size()) {
+        next->slots.resize(idx + 1, nullptr);
+    }
+    next->slots[idx] = new ContextHandle(h);  // NOLINT(cppcoreguidelines-owning-memory)
+    pinned_primary_contexts.store(next, std::memory_order_release);
+}
+
+// Return the pinned primary context of device_id, pinning it first if needed.
+//
+// With expected == nullptr, retain the device's primary context (creating it
+// if it is not active) and pin it. On failure, return an empty handle and
+// store the status in *status.
+//
+// With expected != nullptr, pin and return the primary context only if it is
+// active and is `expected`; otherwise return an empty handle. A primary
+// context that is not active is not retained, because that would create it. If
+// the active primary context is another one, the retain taken to learn its
+// address is given back: the context was active without it, so that release
+// cannot destroy a context that its other owners still hold.
+ContextHandle
+pin_primary_context(int device_id, CUcontext expected, CUresult *status)
+{
+    *status = CUDA_SUCCESS;
+    const auto idx = static_cast<size_t>(device_id);
+    auto pinned_result = [expected](ContextHandle pinned) -> ContextHandle {
+        if (expected && as_cu(pinned) != expected) {
+            return {};
+        }
+        return pinned;
+    };
+    if (ContextHandle pinned = find_pinned_primary_context(idx)) {
+        return pinned_result(std::move(pinned));
+    }
+
+    // The GIL is the outermost lock, and filling the table acquires it: do both
+    // before the mutex is taken. The raw p_ calls below rely on the fill.
+    GILReleaseGuard gil;
+    if (!ensure_fn_table(FnTable::driver)) {
+        report_unavailable_fn(FnTable::driver, "cuDevicePrimaryCtxRetain");
+        *status = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
+
+    ContextHandle h;
+    bool release_probe = false;
+    {
+        std::scoped_lock lock(primary_context_mutex);
+        // Another thread may have pinned it since the check above.
+        if (ContextHandle pinned = find_pinned_primary_context(idx)) {
+            return pinned_result(std::move(pinned));
+        }
+        if (expected) {
+            unsigned int flags = 0;
+            int active = 0;
+            *status = p_cuDevicePrimaryCtxGetState(device_id, &flags, &active);  // raw: under primary_context_mutex
+            if (*status != CUDA_SUCCESS || !active) {
+                return {};
+            }
+        }
+        CUcontext ctx = nullptr;
+        *status = p_cuDevicePrimaryCtxRetain(&ctx, device_id);  // raw: under primary_context_mutex
+        if (*status != CUDA_SUCCESS) {
+            return {};
+        }
+        if (expected && ctx != expected) {
+            release_probe = true;
+        }
+        else {
+            h = make_context_handle(ctx, {}, true);
+            publish_pinned_primary_context(idx, h);
+        }
+    }
+    if (release_probe) {
+        // Reports through Python on failure, so it runs after the unlock.
+        pw_cuDevicePrimaryCtxRelease(device_id);
+        return {};
+    }
+    // The driver has just returned this address as the device's primary
+    // context, so a live entry under it is a plain box or a stale one: replace
+    // it. Registering after the unlock keeps a displaced box's deleter out of
+    // primary_context_mutex. A lookup that misses the registry in between finds
+    // the box in the table (see resolve_context_handle).
+    context_registry.insert_or_get(as_cu(h), h, [](const ContextHandle &) noexcept { return true; });
     return h;
+}
+
+// A lookup falls back to a handle that holds no retain, and its callers do not
+// check for an error, so each failure while adopting a primary context is
+// reported.
+constexpr const char *adopt_failure_detail = "failed while looking up the current context";
+
+// ctx is the calling thread's current context, on `device`. If it is that
+// device's primary context, pin it and return the pinned handle; otherwise
+// return an empty handle.
+ContextHandle
+adopt_primary_context(CUcontext ctx, CUdevice device)
+{
+    CUresult status = CUDA_SUCCESS;
+    ContextHandle h = pin_primary_context(static_cast<int>(device), ctx, &status);
+    if (status != CUDA_SUCCESS) {
+        report_cuda_error("cuDevicePrimaryCtxRetain", status, adopt_failure_detail);
+    }
+    return h;
+}
+
+// ctx is the calling thread's current context: query its device and adopt it.
+ContextHandle
+adopt_current_context(CUcontext ctx)
+{
+    GILReleaseGuard gil;
+    CUdevice device = 0;
+    CUresult status = DRIVER_CALL(cuCtxGetDevice, &device);
+    if (status != CUDA_SUCCESS) {
+        report_cuda_error("cuCtxGetDevice", status, adopt_failure_detail);
+        return {};
+    }
+    return adopt_primary_context(ctx, device);
+}
+
+// Adopt ctx if it is the calling thread's current context. Only the current
+// context is examined, because its device can be queried without switching
+// contexts, which a lookup must not do.
+ContextHandle
+adopt_if_current(CUcontext ctx)
+{
+    GILReleaseGuard gil;
+    CUcontext current = nullptr;
+    CUresult status = DRIVER_CALL(cuCtxGetCurrent, &current);
+    if (status != CUDA_SUCCESS) {
+        report_cuda_error("cuCtxGetCurrent", status, adopt_failure_detail);
+        return {};
+    }
+    if (current != ctx) {
+        return {};
+    }
+    return adopt_current_context(ctx);
+}
+
+// Return the handle for ctx, with an optional owning green context as source.
+//
+// adopt() returns the pinned handle if ctx is a primary context that cuda.core
+// has not retained yet, for example one made current by another library, and
+// an empty handle otherwise. It runs only for a plain lookup (no h_green_ctx)
+// that finds no owning entry, so callers that know what is current pass what
+// they know instead of querying the driver again.
+template <typename Adopt>
+ContextHandle
+resolve_context_handle(CUcontext ctx, GreenCtxHandle h_green_ctx, Adopt &&adopt)
+{
+    if (!ctx) {
+        return {};
+    }
+    ContextHandle registered = context_registry.lookup(ctx);
+    // An owning entry for ctx is either this green context's own box or a
+    // pinned primary context. A green context cannot share a live primary
+    // context's CUcontext, so returning it never drops a needed green owner.
+    if (registered && owns_context(registered)) {
+        return registered;
+    }
+    if (!h_green_ctx) {
+        // Pin a primary context, so that the handle keeps it alive like every
+        // other primary-context handle.
+        if (ContextHandle h = adopt()) {
+            return h;
+        }
+        if (registered) {
+            return registered;
+        }
+    }
+    ContextHandle candidate = make_context_handle(ctx, std::move(h_green_ctx), false);
+    // A losing candidate is dropped by the caller, outside the registry's lock;
+    // its deleter's ownership-checked erase is then a no-op.
+    return context_registry.insert_or_get(ctx, candidate, replace_if_upgrade(candidate));
 }
 }  // namespace
 
 ContextHandle
 create_context_handle_ref(CUcontext ctx)
 {
-    return create_context_handle_ref(ctx, {});
+    return resolve_context_handle(ctx, {}, [ctx] { return adopt_if_current(ctx); });
+}
+
+ContextHandle
+create_current_context_handle_ref(CUcontext ctx, CUdevice device)
+{
+    return resolve_context_handle(ctx, {}, [ctx, device] { return adopt_primary_context(ctx, device); });
 }
 
 ContextHandle
@@ -178,7 +428,7 @@ create_context_handle_from_green_ctx(const GreenCtxHandle &h_green_ctx)
         return {};
     }
 
-    return create_context_handle_ref(ctx, h_green_ctx);
+    return resolve_context_handle(ctx, h_green_ctx, [] { return ContextHandle{}; });
 }
 
 GreenCtxHandle
@@ -227,51 +477,15 @@ create_green_ctx_handle_ref(CUgreenCtx green_ctx)
     return GreenCtxHandle(box, &box->resource);
 }
 
-// Thread-local cache of primary contexts indexed by device ID
-static thread_local std::vector<ContextHandle> primary_context_cache;
-
 ContextHandle
 get_primary_context(int device_id)
 {
-    // Check thread-local cache
-    if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
-        if (auto cached = primary_context_cache[device_id]) {
-            return cached;
-        }
+    // The common case: the context is pinned already. Leave the thread's last
+    // error untouched, as any other lookup that succeeds does.
+    if (ContextHandle h = find_pinned_primary_context(static_cast<size_t>(device_id))) {
+        return h;
     }
-
-    // Cache miss - acquire primary context from driver
-    GILReleaseGuard gil;
-    CUcontext ctx;
-    if (CUDA_SUCCESS != (err = DRIVER_CALL(cuDevicePrimaryCtxRetain, &ctx, device_id))) {
-        return {};
-    }
-
-    // clang-format off
-    auto box = std::shared_ptr<const ContextBox>(
-        new ContextBox{ctx, {}},
-        [device_id](const ContextBox *b) {
-            context_registry.unregister_handle(b->resource);
-            // During interpreter shutdown, leave primary-context cleanup to
-            // process teardown. An unavailable table entry would need Python
-            // to report itself.
-            if (Py_IsInitialized() && !py_is_finalizing()) {
-                GILReleaseGuard gil;
-                DRIVER_CALL(cuDevicePrimaryCtxRelease, device_id);
-            }
-            delete b;
-        }
-    );
-    // clang-format on
-    auto h = ContextHandle(box, &box->resource);
-    context_registry.register_handle(ctx, h);
-
-    // Update cache
-    if (static_cast<size_t>(device_id) >= primary_context_cache.size()) {
-        primary_context_cache.resize(device_id + 1);
-    }
-    primary_context_cache[device_id] = h;
-    return h;
+    return pin_primary_context(device_id, nullptr, &err);
 }
 
 ContextHandle
@@ -285,7 +499,7 @@ get_current_context()
     if (!ctx) {
         return {};  // No current context (not an error)
     }
-    return create_context_handle_ref(ctx);
+    return resolve_context_handle(ctx, {}, [ctx] { return adopt_current_context(ctx); });
 }
 
 }  // namespace cuda_core::rt

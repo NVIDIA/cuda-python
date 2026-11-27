@@ -4,10 +4,18 @@
 
 import numpy as np
 import pytest
-from helpers.contexts import assert_device_operations_use_bound_context, current_context_handle, use_context
+from helpers.child_processes import run_child
+from helpers.contexts import (
+    assert_device_operations_use_bound_context,
+    assert_no_cuda_warning,
+    current_context_handle,
+    primary_context_active,
+    use_context,
+)
 
 from cuda.core import (
     ContextOptions,
+    Device,
     DeviceResources,
     LaunchConfig,
     LegacyPinnedMemoryResource,
@@ -15,6 +23,7 @@ from cuda.core import (
     ProgramOptions,
     SMResource,
     SMResourceOptions,
+    Stream,
     WorkqueueResource,
     WorkqueueResourceOptions,
     launch,
@@ -254,6 +263,171 @@ def test_set_current_rejects_closed_context(init_cuda, sm_resource):
     assert bool(ctx) is True  # Preserve backward-compatible truthiness after close.
     with pytest.raises(RuntimeError, match="Context has been closed"):
         init_cuda.set_current(ctx)
+
+
+@pytest.mark.agent_authored(model="claude-opus-5-5")
+def test_green_context_replaces_stale_plain_entry(init_cuda, sm_resource):
+    """create_context() keeps its green context alive when a plain Context for
+    a destroyed context at the same CUcontext address is still registered (#3533)."""
+    dev = init_cuda
+    primary = dev.context
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    opts = ContextOptions(resources=[groups[0]])
+    res = handle_return(driver.cuDeviceGetDevResource(dev.device_id, driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM))
+    desc = handle_return(driver.cuDevResourceGenerateDesc([res], 1))
+    flags = driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
+
+    # The stale plain entry must belong to a context that cuda.core did not
+    # create, then destroyed, and whose CUcontext address the driver reuses for
+    # the next green context. Retry until the address is reused.
+    for _ in range(20):
+        foreign = handle_return(driver.cuGreenCtxCreate(desc, dev.device_id, flags))
+        try:
+            handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+            # cuda.core did not create this context, so set_current() returns a
+            # plain, non-owning Context for it and registers it.
+            stale = dev.set_current(primary)
+        except BaseException as exc:
+            # Do not leave the foreign context current once it is destroyed. Run
+            # both rollback calls, and let the original error propagate with each
+            # rollback failure noted on it.
+            rollback = (
+                ("cuCtxSetCurrent", driver.cuCtxSetCurrent(primary.handle)),
+                ("cuGreenCtxDestroy", driver.cuGreenCtxDestroy(foreign)),
+            )
+            for name, (err,) in rollback:
+                if err != driver.CUresult.CUDA_SUCCESS:
+                    exc.add_note(f"rollback: {name} failed with {err.name}")
+            raise
+        handle_return(driver.cuGreenCtxDestroy(foreign))
+        assert not stale.is_green
+        green = dev.create_context(opts)
+        if int(green.handle) == int(stale.handle):
+            break
+        green.close()
+    else:
+        pytest.skip("driver did not reuse the destroyed context's CUcontext address")
+
+    # Do not compare green with stale: Context equality compares raw CUcontext
+    # values, so they are equal with or without the fix. Query the SM resource
+    # to show the context is alive: unlike a stream, that works on driver 12.4,
+    # which the sm_resource fixture admits.
+    try:
+        assert green.is_green
+        assert green.resources.sm.sm_count == groups[0].sm_count
+    finally:
+        green.close()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_set_current_returns_live_context_after_address_reuse(init_cuda, sm_resource):
+    """set_current() returns the live green context, not the Device's stale
+    Context for a destroyed context at the same CUcontext address."""
+    dev = init_cuda
+    primary = dev.context
+    groups, _ = sm_resource.split(SMResourceOptions(count=None))
+    opts = ContextOptions(resources=[groups[0]])
+    res = handle_return(driver.cuDeviceGetDevResource(dev.device_id, driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM))
+    desc = handle_return(driver.cuDevResourceGenerateDesc([res], 1))
+    flags = driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
+
+    # Make the Device remember a plain Context for a context that cuda.core did
+    # not create, destroy that context, and retry until the driver reuses its
+    # CUcontext address for a green context that cuda.core owns.
+    green = None
+    try:
+        for _ in range(20):
+            foreign = handle_return(driver.cuGreenCtxCreate(desc, dev.device_id, flags))
+            try:
+                handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+                stale = dev.set_current(primary)
+                dev.set_current(stale)  # the Device now remembers stale
+            finally:
+                # Behind the Device's back, so that it keeps remembering stale.
+                handle_return(driver.cuCtxSetCurrent(primary.handle))
+                handle_return(driver.cuGreenCtxDestroy(foreign))
+            assert not stale.is_green
+            green = dev.create_context(opts)
+            if int(green.handle) == int(stale.handle):
+                break
+            green.close()
+            green = None
+        else:
+            pytest.skip("driver did not reuse the destroyed context's CUcontext address")
+
+        handle_return(driver.cuCtxSetCurrent(green.handle))
+        previous = dev.set_current(primary)
+        # Context equality compares raw CUcontext values, so compare identity
+        # and ownership instead.
+        assert previous is not stale
+        assert previous.is_green
+    finally:
+        # A skip or a failure above leaves the Device remembering stale, which
+        # the init_cuda teardown would then synchronize: rebind it.
+        dev.set_current(primary)
+        if green is not None:
+            green.close()
+
+
+# The driver holds a retain of the primary context while any green context of
+# the device exists. The tests below therefore check the primary context's state
+# only after their green contexts are destroyed, and run in a fresh child
+# process, because the pytest process already retains the primary context.
+
+
+# Another owner (here cuda.bindings, standing in for another library) retains the
+# primary context and makes it current, and cuda.core has not retained it.
+# Device.set_current(green) then returns the previous context, which must keep
+# the primary context alive once that owner releases its retain.
+def _set_current_returns_foreign_primary_child(device_id):
+    handle_return(driver.cuInit(0))
+    dev = Device(device_id)
+    with assert_no_cuda_warning():
+        groups, _ = dev.resources.sm.split(SMResourceOptions(count=None))
+        green = dev.create_context(ContextOptions(resources=[groups[0]]))
+
+        primary = handle_return(driver.cuDevicePrimaryCtxRetain(device_id))
+        handle_return(driver.cuCtxSetCurrent(primary))
+        previous = dev.set_current(green)
+        assert not previous.is_green
+        assert int(previous.handle) == int(primary)
+
+        dev.set_current(previous)
+        green.close()
+        handle_return(driver.cuDevicePrimaryCtxRelease(device_id))
+        assert primary_context_active(device_id), "primary context destroyed while the previous Context is held"
+        dev.create_stream().sync()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_set_current_previous_context_retains_foreign_primary(init_cuda, green_ctx):
+    """The previous Context returned by Device.set_current(green) keeps a foreign primary context alive."""
+    # green_ctx skips the test where green contexts cannot be created.
+    run_child(_set_current_returns_foreign_primary_child, init_cuda.device_id)
+
+
+# A plain lookup of a context that is current but is not a primary context must
+# not keep a retain of the device's primary context.
+def _lookup_green_does_not_retain_primary_child(device_id):
+    handle_return(driver.cuInit(0))
+    with assert_no_cuda_warning():
+        res = handle_return(driver.cuDeviceGetDevResource(device_id, driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM))
+        desc = handle_return(driver.cuDevResourceGenerateDesc([res], 1))
+        flags = driver.CUgreenCtxCreate_flags.CU_GREEN_CTX_DEFAULT_STREAM
+        foreign = handle_return(driver.cuGreenCtxCreate(desc, device_id, flags))
+        handle_return(driver.cuCtxSetCurrent(handle_return(driver.cuCtxFromGreenCtx(foreign))))
+        ctx = Stream.from_handle(int(driver.CU_STREAM_LEGACY)).context
+        assert not ctx.is_green
+        handle_return(driver.cuCtxSetCurrent(None))
+        del ctx
+        handle_return(driver.cuGreenCtxDestroy(foreign))
+        assert not primary_context_active(device_id), "a lookup of a green context kept a primary-context retain"
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_green_context_lookup_does_not_retain_primary(init_cuda, green_ctx):
+    """Looking up a current green context leaves no primary-context retain behind."""
+    run_child(_lookup_green_does_not_retain_primary_child, init_cuda.device_id)
 
 
 # ---------------------------------------------------------------------------

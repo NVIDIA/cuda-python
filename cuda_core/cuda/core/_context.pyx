@@ -18,6 +18,7 @@ from cuda.core._rt cimport (
     create_context_handle_from_green_ctx,
     get_context_green_ctx,
     get_last_error,
+    get_primary_context,
     as_intptr,
     as_py,
 )
@@ -148,6 +149,26 @@ cdef class Context:
 
     def __repr__(self) -> str:
         return f"<Context handle={as_intptr(self._h_context):#x} device={self._device_id}>"
+
+
+cdef int Context_get_primary_handle(int device_id, ContextHandle* h_context) except -1:
+    """Store the primary context of ``device_id`` in ``h_context``.
+
+    cuda.core retains it on first use and never releases it. Raises if it
+    cannot be retained.
+    """
+    h_context[0] = get_primary_context(device_id)
+    if not h_context[0]:
+        HANDLE_RETURN(get_last_error())
+        raise RuntimeError(f"Failed to retain the primary context for device {device_id}")
+    return 0
+
+
+cdef Context Context_primary(int device_id):
+    """Return a :class:`Context` for the primary context of ``device_id``."""
+    cdef ContextHandle h_context
+    Context_get_primary_handle(device_id, &h_context)
+    return Context._from_handle(Context, h_context, device_id)
 
 
 @dataclass
