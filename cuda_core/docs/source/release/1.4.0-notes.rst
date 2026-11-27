@@ -59,3 +59,16 @@ Fixes and enhancements
   later driver; with a CUDA 12 build or an older driver, imports behave as
   before.
   (`#3502 <https://github.com/NVIDIA/cuda-python/issues/3502>`__)
+
+- An imported :class:`PinnedMemoryResource` reports the exporting resource's
+  NUMA node as ``numa_id`` also with a CUDA 12 build of ``cuda.core`` or a
+  driver before 13.2, where the pool's node cannot be queried. Unpickling a
+  resource now carries the node, and
+  :meth:`PinnedMemoryResource.from_allocation_handle` accepts an optional
+  ``numa_id`` argument for a raw allocation handle. If the handle's resource is
+  already registered in the process with an unknown node, the argument becomes
+  its node. ``from_allocation_handle`` raises ``ValueError`` for a negative
+  ``numa_id`` or one that differs from the pool's known node. When the node can be neither queried nor taken from the
+  argument, :attr:`PinnedMemoryResource.numa_id` now raises ``RuntimeError``
+  instead of returning 0, which was not known to be the pool's node.
+  (`#3508 <https://github.com/NVIDIA/cuda-python/issues/3508>`__)

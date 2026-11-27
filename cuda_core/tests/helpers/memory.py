@@ -66,15 +66,18 @@ def is_pool_resource(mr):
     return isinstance(mr, (DeviceMemoryResource, PinnedMemoryResource))
 
 
-def import_pool_resource(cls, device, alloc_handle):
+def import_pool_resource(cls, device, alloc_handle, numa_id=None):
     """Import the pool shared by ``alloc_handle`` as ``cls``, the class of the exporting resource.
 
     The class must match the exporter: importing a pinned pool as a
     ``DeviceMemoryResource`` (or the reverse) raises ``TypeError`` (#3502).
+    ``numa_id`` is passed to ``PinnedMemoryResource.from_allocation_handle``
+    and must be ``None`` for a ``DeviceMemoryResource``.
     """
     if cls is PinnedMemoryResource:
-        return PinnedMemoryResource.from_allocation_handle(alloc_handle)
+        return PinnedMemoryResource.from_allocation_handle(alloc_handle, numa_id=numa_id)
     assert cls is DeviceMemoryResource, cls
+    assert numa_id is None, numa_id
     return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
 
 
@@ -103,13 +106,13 @@ def drain_on_exit(stack, synchronizable):
     stack.callback(synchronizable.sync)
 
 
-def enter_imported_pool(stack, cls, device, alloc_handle):
+def enter_imported_pool(stack, cls, device, alloc_handle, numa_id=None):
     """Import the pool like :func:`import_pool_resource`, and register it to close on ``stack``.
 
     ``stack`` is a :class:`contextlib.ExitStack`. A pool resource is not a
     context manager, so it is entered through :func:`contextlib.closing`.
     """
-    return stack.enter_context(contextlib.closing(import_pool_resource(cls, device, alloc_handle)))
+    return stack.enter_context(contextlib.closing(import_pool_resource(cls, device, alloc_handle, numa_id)))
 
 
 def pool_access_flags(mr, device):

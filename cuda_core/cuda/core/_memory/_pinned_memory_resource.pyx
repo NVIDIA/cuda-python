@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer
 from cuda.core._memory._memory_pool cimport (
@@ -198,7 +199,7 @@ cdef class PinnedMemoryResource(_MemPool):
 
     @classmethod
     def from_allocation_handle(
-        cls, alloc_handle: int | IPCAllocationHandle
+        cls, alloc_handle: int | IPCAllocationHandle, numa_id: int | None = None
     ) -> PinnedMemoryResource:
         """Create a host-pinned memory resource from an allocation handle.
 
@@ -213,6 +214,18 @@ cdef class PinnedMemoryResource(_MemPool):
             The shareable handle of the host-pinned memory resource to import. If an
             integer is supplied, it must represent a valid platform-specific
             handle. It is the caller's responsibility to close that handle.
+        numa_id : int | None, optional
+            The host NUMA node the exporting process placed the pool on, that
+            is, the exporting resource's :attr:`numa_id`. Node IDs are the same
+            in every process on the host. The pool's node is read from the
+            driver when possible (a CUDA 13 build of ``cuda.core`` and a 13.2
+            or later driver); otherwise this value is the imported resource's
+            :attr:`numa_id`. Unpickling a resource passes the exporter's node
+            automatically if it was known. If the handle's resource is already
+            registered in this process with an unknown node, this value becomes
+            its node. If the node comes from neither the driver nor this
+            argument, the import succeeds but :attr:`numa_id` raises
+            ``RuntimeError``. Must be >= 0 if given.
 
         Returns
         -------
@@ -226,7 +239,14 @@ cdef class PinnedMemoryResource(_MemPool):
             The pool's kind is checked with a CUDA 13 build of ``cuda.core``
             and a 13.2 or later driver. Otherwise it is checked only when the
             handle's memory resource is already registered in this process.
+        ValueError
+            If ``numa_id`` is negative, or differs from the node of the pool,
+            as reported by the driver or by the resource already registered in
+            this process for the handle.
         """
+        if numa_id is not None and numa_id < 0:
+            raise ValueError(f"numa_id must be >= 0, got {numa_id}")
+
         # cuMemPoolImportFromShareableHandle requires CUDA to be initialized, but in
         # a child process CUDA may not be initialized yet. For DeviceMemoryResource,
         # this is not a concern because most likely when retrieving the device_id the
@@ -234,8 +254,12 @@ cdef class PinnedMemoryResource(_MemPool):
         # not device-specific it is unlikelt the case.
         HANDLE_RETURN(cydriver.cuInit(0))
 
-        return <PinnedMemoryResource>(
-            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported))
+        cdef PinnedMemoryResource mr = <PinnedMemoryResource>(
+            _ipc.MP_from_allocation_handle(cls, alloc_handle, _PMR_init_imported, numa_id))
+        # The import hook does not run for a resource that is already registered,
+        # whether found at the start or registered by a concurrent import.
+        _PMR_apply_numa_id(mr, numa_id)
+        return mr
 
     @property
     def allocation_handle(self) -> IPCAllocationHandle:
@@ -255,14 +279,27 @@ cdef class PinnedMemoryResource(_MemPool):
         return -1
 
     @property
+    @cython.critical_section
     def numa_id(self) -> int:
         """The host NUMA node ID used for pool placement, or -1 for OS-managed placement.
 
-        For a resource imported with :meth:`from_allocation_handle`, this is the
-        pool's node only if the pool's location can be queried (a CUDA 13 build
-        of ``cuda.core`` and a 13.2 or later driver). Otherwise it is 0, which is
-        not known to be the pool's node.
+        For a resource imported with :meth:`from_allocation_handle`, the node
+        comes from the driver if the pool's location can be queried (a CUDA 13
+        build of ``cuda.core`` and a 13.2 or later driver), otherwise from the
+        ``numa_id`` argument of :meth:`from_allocation_handle`, which unpickling
+        passes automatically if the exporter's node was known.
+
+        Raises
+        ------
+        RuntimeError
+            If the resource was imported and none of these sources gave the
+            pool's node.
         """
+        if not self._numa_id_known:
+            raise RuntimeError(
+                "The NUMA node of this imported memory pool is not known in this "
+                "process. Pass numa_id to PinnedMemoryResource.from_allocation_handle "
+                "to name the node the exporting process placed the pool on.")
         return self._numa_id
 
     @property
@@ -322,6 +359,7 @@ cdef inline _PMR_init(PinnedMemoryResource self, options):
         loc_type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
 
     self._numa_id = numa_id
+    self._numa_id_known = True
 
     if opts is None:
         MP_init_current_pool(
@@ -365,23 +403,60 @@ cdef inline int _PMR_grant_device_access(
     return 0
 
 
-cdef int _PMR_init_imported(_MemPool mr, object unused) except? -1:
+cdef inline int _PMR_apply_numa_id(PinnedMemoryResource self, object numa_id) except? -1:
+    # A node the caller passed must agree with a node that is known. A resource
+    # whose node is unknown, such as one registered by an earlier import that
+    # was given no node, takes the caller's node.
+    # Concurrent imports of one handle share this resource, so on a free-threaded
+    # build the check and the write are one step. Otherwise two imports with
+    # different nodes could both find the node unknown and both succeed.
+    cdef int node
+    if numa_id is None:
+        return 0
+    node = numa_id
+    with cython.critical_section(self):
+        if not self._numa_id_known:
+            self._numa_id = node
+            self._numa_id_known = True
+        elif self._numa_id != node:
+            raise ValueError(
+                f"numa_id {node} does not match the NUMA node of the memory pool, "
+                f"which is {self._numa_id}")
+    return 0
+
+
+cdef int _PMR_init_imported(_MemPool mr, object numa_id) except? -1:
     cdef PinnedMemoryResource self = <PinnedMemoryResource>mr
     cdef cydriver.CUmemLocation loc
     # IPC-enabled pinned pools created by cuda.core are always placed on a host
     # NUMA node. Without a location query (a CUDA 12 build or a driver before
-    # 13.2), the pool's kind is not checked and numa_id keeps its default.
+    # 13.2), the pool's kind is not checked and the node is the one the caller
+    # passed, if any. Otherwise it is unknown and the numa_id property raises.
     cdef bint host_numa = True
     if _ipc.MP_check_import_location(self, True, &loc):
         host_numa = loc.type == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
         self._numa_id = loc.id if host_numa else -1
+        self._numa_id_known = True
+        _PMR_apply_numa_id(self, numa_id)
+    elif numa_id is not None:
+        self._numa_id = numa_id
+        self._numa_id_known = True
     return _PMR_grant_device_access(self, host_numa, True)
 
 
 def _deep_reduce_pinned_memory_resource(mr: object) -> tuple[object, ...]:
     check_multiprocessing_start_method()
-    alloc_handle = mr.allocation_handle
-    return mr.from_allocation_handle, (alloc_handle,)
+    cdef PinnedMemoryResource pmr = <PinnedMemoryResource>mr
+    alloc_handle = pmr.allocation_handle
+    # NUMA node IDs are the same in every process on the host, so the node needs
+    # no translation as a device ordinal does. An unknown node is not sent, so
+    # that the importer does not mistake a placeholder for the pool's node, and
+    # neither is -1, which from_allocation_handle rejects.
+    numa_id = None
+    with cython.critical_section(pmr):
+        if pmr._numa_id_known and pmr._numa_id >= 0:
+            numa_id = pmr._numa_id
+    return pmr.from_allocation_handle, (alloc_handle, numa_id)
 
 
 multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)
