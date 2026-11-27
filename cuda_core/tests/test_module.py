@@ -18,11 +18,6 @@ from cuda.core._program import _can_load_generated_ptx
 from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 from cuda.core._utils.version import driver_version
 
-try:
-    import numba
-except ImportError:
-    numba = None
-
 SAXPY_KERNEL = r"""
 template<typename T>
 __global__ void saxpy(const T a,
@@ -662,22 +657,24 @@ def test_occupancy_max_potential_block_size_constant(get_saxpy_kernel_cubin, blo
         kernel.occupancy.max_potential_block_size(invalid_dsmem, block_size_limit)
 
 
-# This test is not currently run in any CI job
-@pytest.mark.skipif(numba is None, reason="Test requires numba to be installed")
 @pytest.mark.parametrize("block_size_limit", [32, 64, 96, 120, 128, 277, 0])
 def test_occupancy_max_potential_block_size_b2dsize(get_saxpy_kernel_cubin, block_size_limit):
     """Tests use case when shared memory needed depends on the block size"""
     kernel, _ = get_saxpy_kernel_cubin
+    queried_block_sizes = []
 
-    def shared_memory_needed(block_size: numba.intc) -> numba.size_t:
+    # The driver calls this synchronously on this thread, so a ctypes callback
+    # works. It must stay referenced until max_potential_block_size returns.
+    @ctypes.CFUNCTYPE(ctypes.c_size_t, ctypes.c_int)
+    def shared_memory_needed(block_size):
         "Size of dynamic shared memory needed by kernel of this block size"
+        queried_block_sizes.append(block_size)
         return 1024 * (block_size // 32)
 
-    b2dsize_sig = numba.size_t(numba.intc)
-    dsmem_needed_cfunc = numba.cfunc(b2dsize_sig)(shared_memory_needed)
-    fn_ptr = ctypes.cast(dsmem_needed_cfunc.ctypes, ctypes.c_void_p).value
+    fn_ptr = ctypes.cast(shared_memory_needed, ctypes.c_void_p).value
     b2dsize_fn = driver.CUoccupancyB2DSize(_ptr=fn_ptr)
     config_data = kernel.occupancy.max_potential_block_size(b2dsize_fn, block_size_limit)
+    assert queried_block_sizes, "the driver never called the block-size-to-shared-memory callback"
     dev_props = Device().properties
     assert block_size_limit <= dev_props.max_threads_per_block
     min_grid_size, max_block_size = config_data
