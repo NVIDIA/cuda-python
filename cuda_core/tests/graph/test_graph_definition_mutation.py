@@ -242,6 +242,41 @@ def test_adjacency_set_pred_direction(init_cuda):
     assert target not in x.succ
 
 
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("direction", ["pred", "succ"])
+def test_adjacency_update_rejects_invalid_batch_without_partial_edges(init_cuda, direction):
+    """An invalid batch leaves graph edges unchanged and allows a later valid update."""
+    definition = GraphDefinition()
+    owner, existing, candidate = (definition.empty() for _ in range(3))
+    proxy = getattr(owner, direction)
+    proxy.add(existing)
+    original_edges = definition.edges()
+    with pytest.raises(TypeError, match="expected GraphNode"):
+        proxy.update([candidate, object()])
+    assert definition.edges() == original_edges
+    assert proxy == {existing}
+    proxy.update(candidate)
+    assert proxy == {existing, candidate}
+    expected = {(node, owner) if direction == "pred" else (owner, node) for node in (existing, candidate)}
+    assert definition.edges() == expected
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("direction", ["pred", "succ"])
+def test_adjacency_subtracting_itself_removes_only_selected_edges(init_cuda, direction):
+    """Subtracting an adjacency proxy from itself preserves unrelated graph edges."""
+    definition = GraphDefinition()
+    owner, neighbor, unrelated = (definition.empty() for _ in range(3))
+    proxy = getattr(owner, direction)
+    proxy.add(neighbor)
+    neighbor.succ.add(unrelated)
+    assert len(definition.edges()) == 2
+    proxy -= proxy
+    assert proxy == set()
+    assert definition.edges() == {(neighbor, unrelated)}
+    assert definition.nodes() == {owner, neighbor, unrelated}
+
+
 def test_adjacency_set_property_setter(init_cuda):
     """Verify that assigning to node.pred or node.succ replaces all edges."""
     g = GraphDefinition()

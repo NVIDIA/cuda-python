@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from contextlib import closing
+
 import pytest
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
 from helpers.collection_interface_testers import assert_single_member_mutable_set_interface
@@ -206,6 +208,33 @@ def test_peer_accessible_by_accepts_int_and_device(isolated_dmr_x2):
     assert dmr.peer_accessible_by == {dev1}
     dmr.peer_accessible_by.discard(dev1.device_id)
     assert dmr.peer_accessible_by == set()
+
+    dmr.peer_accessible_by.discard(dev1)
+    assert dmr.peer_accessible_by == set()
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_peer_accessible_by_intersection_without_operands_preserves_access(isolated_dmr_x2):
+    """An intersection with no operands preserves the pool's existing peer access."""
+    dmr, _owner, peer = isolated_dmr_x2
+    with closing(dmr):
+        proxy = dmr.peer_accessible_by
+        proxy.add(peer)
+        assert proxy == {peer}
+        proxy.intersection_update()
+        assert dmr.peer_accessible_by == {peer}
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_peer_accessible_by_subtracting_itself_revokes_access(isolated_dmr_x2):
+    """Subtracting a peer-access proxy from itself revokes its pool permissions."""
+    dmr, _owner, peer = isolated_dmr_x2
+    with closing(dmr):
+        proxy = dmr.peer_accessible_by
+        proxy.add(peer)
+        assert proxy == {peer}
+        proxy -= proxy
+        assert dmr.peer_accessible_by == set()
 
 
 def test_peer_accessible_by_silently_ignores_owner(isolated_dmr_x2):

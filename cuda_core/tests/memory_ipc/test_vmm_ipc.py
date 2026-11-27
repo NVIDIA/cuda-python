@@ -926,24 +926,40 @@ class TestRawFileDescriptorTransport:
 
 class TestEmptyBuffer:
     @pytest.mark.agent_authored(model="claude-fable-5-1")
-    def test_round_trip(self, vmm_ipc_device):
+    @pytest.mark.parametrize("nondefault_stream", [False, True], ids=["default-stream", "created-stream"])
+    def test_round_trip(self, vmm_ipc_device, nondefault_stream):
         """An empty buffer exports no allocations and imports as an empty mapped buffer."""
         device = vmm_ipc_device
         mr = _resource(device)
-        empty = mr.allocate(0)
-        desc = empty.ipc_descriptor
-        assert desc.size == 0
-        assert desc.sizes == ()
-        assert desc.handles == ()
-        assert desc.fds == ()
-        alias = Buffer.from_ipc_descriptor(mr, desc, stream=device.default_stream)
-        assert alias.size == 0
-        assert alias.is_mapped
-        alias.close()
-        queue = mp.Queue()
-        run_child(self.child_main, device.device_id, desc, queue)
-        assert queue.get(timeout=CHILD_TIMEOUT_SEC) == {"size": 0, "is_mapped": True}
-        empty.close()
+        with ExitStack() as cleanup:
+            empty = mr.allocate(0)
+            cleanup.callback(empty.close)
+            desc = empty.ipc_descriptor
+            assert desc.size == 0
+            assert desc.sizes == ()
+            assert desc.handles == ()
+            assert desc.fds == ()
+            stream = device.create_stream() if nondefault_stream else device.default_stream
+            if nondefault_stream:
+                cleanup.callback(stream.close)
+            alias = Buffer.from_ipc_descriptor(mr, desc, stream=stream)
+            cleanup.callback(alias.close)
+            assert alias.size == 0
+            assert alias.is_mapped
+            if nondefault_stream:
+                with ExitStack() as capture_cleanup:
+                    builder = stream.create_graph_builder()
+                    capture_cleanup.callback(builder.close)
+                    builder.begin_building()
+                    capture_cleanup.callback(builder.end_building)
+                    with pytest.raises(RuntimeError, match="capturing stream"):
+                        alias.close()
+                assert not alias.is_closed
+            alias.close()
+            queue = mp.Queue()
+            cleanup.callback(queue.close)
+            run_child(self.child_main, device.device_id, desc, queue)
+            assert queue.get(timeout=CHILD_TIMEOUT_SEC) == {"size": 0, "is_mapped": True}
 
     @staticmethod
     def child_main(device_id, desc, queue):

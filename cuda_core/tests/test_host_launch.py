@@ -94,6 +94,17 @@ def test_host_launch_ctypes_bytes_user_data_is_copied(init_cuda):
         assert seen == [bytes(range(N))]
 
 
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_host_launch_ctypes_empty_user_data_runs_callback(init_cuda):
+    """An empty byte payload still invokes the ctypes host callback."""
+    called = []
+    callback = ctypes.CFUNCTYPE(None, ctypes.c_void_p)(lambda _data: called.append(True))
+    with closing(init_cuda.create_stream()) as stream:
+        host_launch(stream, callback, user_data=b"")
+        stream.sync()
+        assert called == [True]
+
+
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_host_launch_ctypes_int_user_data_passes_through(init_cuda):
     dev = Device(0)

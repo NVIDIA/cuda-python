@@ -3759,3 +3759,29 @@ def test_dmr_ipc_enabled_unsupported_raises(mempool_device):
     with pytest.raises(RuntimeError, match="IPC is not available"):
         # uncapped-pool-ok: IPC support is checked before the pool is created
         DeviceMemoryResource(mempool_device, DeviceMemoryResourceOptions(ipc_enabled=True))
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("null_pointer", [None, 0])
+def test_vmm_deallocate_empty_range_preserves_live_allocation(init_cuda, null_pointer):
+    """Deallocating a null pointer leaves a live VMM allocation usable."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device)
+    with mr.allocate(32) as buf:
+        _vmm_fill(buf, 0x4D, size=32)
+        mr.deallocate(null_pointer, 32, stream=device.default_stream)
+        assert _vmm_read(buf, 0, 32) == b"\x4d" * 32
+        _vmm_fill(buf, 0x6B, size=32)
+        assert _vmm_read(buf, 0, 32) == b"\x6b" * 32
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("location", ["device", "host"])
+def test_vmm_repr_reports_device_binding(init_cuda, location):
+    """A VMM resource repr reports its device binding, including unbound host resources."""
+    device = _vmm_device_or_skip()
+    mr = _vmm_resource(device, location_type=location, handle_type=None)
+    expected_device = device if location == "device" else None
+    assert mr.device == expected_device
+    assert "VirtualMemoryResource" in repr(mr)
+    assert f"device={expected_device}" in repr(mr)

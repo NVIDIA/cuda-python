@@ -952,3 +952,20 @@ def test_object_code_rejects_invalid_payload_on_load(init_cuda, payload, expecte
     for _ in range(2):
         with pytest.raises(expected_error, match=error_match):
             object_code.get_kernel("missing_kernel")
+
+
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_object_code_file_load_can_retry_after_missing_file(get_saxpy_kernel_cubin, tmp_path, convert_path):
+    """A failed lazy file load can be retried once the same file is restored."""
+    _, original = get_saxpy_kernel_cubin
+    path = tmp_path / "restored.cubin"
+    path.write_bytes(original.code)
+    code = ObjectCode.from_cubin(convert_path(path), symbol_mapping=original.symbol_mapping)
+    path.unlink()
+    with pytest.raises(CUDAError, match="CUDA_ERROR_FILE_NOT_FOUND"):
+        code.get_kernel("saxpy<float>")
+
+    path.write_bytes(original.code)
+    kernel = code.get_kernel("saxpy<float>")
+    assert int(kernel.handle) != 0
+    assert kernel.attributes.max_threads_per_block > 0

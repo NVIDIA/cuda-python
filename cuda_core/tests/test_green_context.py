@@ -395,6 +395,38 @@ class TestSMResourceSplitValidation:
         with pytest.raises(TypeError, match="count must be int, Sequence, or None"):
             sm_resource.split(SMResourceOptions(count=bad_count))
 
+    @pytest.mark.agent_authored(model="gpt-6-sol")
+    @pytest.mark.skipif(BUILD_CUDA_MAJOR != 12, reason="requires the CUDA 12 SplitByCount path")
+    @pytest.mark.parametrize(
+        ("field", "message"),
+        [
+            pytest.param("count", "only supports homogeneous count values", id="heterogeneous-counts"),
+            pytest.param(
+                "coscheduled_sm_count",
+                r"SMResourceOptions\.coscheduled_sm_count requires the CUDA 13\.1",
+                id="coscheduled-count",
+            ),
+            pytest.param(
+                "preferred_coscheduled_sm_count",
+                r"SMResourceOptions\.preferred_coscheduled_sm_count requires the CUDA 13\.1",
+                id="preferred-coscheduled-count",
+            ),
+        ],
+    )
+    def test_by_count_rejects_structured_options_without_consuming_resources(self, sm_resource, field, message):
+        """Rejected structured-split options leave a CUDA 12 SM resource usable."""
+        count = sm_resource.min_partition_size
+        original_count = sm_resource.sm_count
+        options = {"count": (count, 2 * count)} if field == "count" else {field: count}
+        with pytest.raises(RuntimeError, match=message):
+            sm_resource.split(SMResourceOptions(**options))
+
+        assert sm_resource.sm_count == original_count
+        groups, remainder = sm_resource.split(SMResourceOptions(count=None))
+        assert len(groups) == 1
+        assert groups[0].sm_count >= count
+        assert groups[0].sm_count + remainder.sm_count <= original_count
+
     def test_dry_run_cannot_create_context(self, init_cuda, sm_resource):
         groups, _ = sm_resource.split(SMResourceOptions(count=None), dry_run=True)
         assert len(groups) == 1

@@ -2,16 +2,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import ctypes
 import multiprocessing as mp
 import multiprocessing.reduction
 import os
+import pickle
+from contextlib import closing
 
 import pytest
 from helpers.buffers import PatternGen
-from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.child_processes import child_exporter, child_timeout_sec, kill_subprocesses, receive_with_timeout
+from helpers.constants import POOL_SIZE
+from helpers.contexts import current_context_handle, no_current_context
 from helpers.memory import drain_on_exit, import_pool_resource, is_pool_resource
 
-from cuda.core import Buffer, Device, DeviceMemoryResource, PinnedMemoryResource, VirtualMemoryResource
+from cuda.core import (
+    Buffer,
+    Device,
+    DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
+    PinnedMemoryResource,
+    VirtualMemoryResource,
+)
+from cuda.core._utils.cuda_utils import driver, handle_return
 
 CHILD_TIMEOUT_SEC = child_timeout_sec()
 NBYTES = 64
@@ -233,3 +246,60 @@ class TestObjectPassing:
             pgen.fill_buffer(buffer, seed=True)
             pgen.verify_buffer(buffer, seed=True)
             pgen.verify_buffer(buffer2, seed=True)
+
+
+def _read_buffer(buffer):
+    host = (ctypes.c_ubyte * NBYTES)()
+    handle_return(driver.cuMemcpyDtoH(ctypes.addressof(host), int(buffer.handle), NBYTES))
+    return bytes(host)
+
+
+def _export_buffer(connection, device_id):
+    device = Device(device_id)
+    device.set_current()
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+    with (
+        connection,
+        closing(DeviceMemoryResource(device, options)) as mr,
+        mr.allocate(NBYTES, stream=device.default_stream) as buffer,
+    ):
+        buffer.fill(0x35, stream=device.default_stream)
+        device.default_stream.sync()
+        # Transfer the MR first so ordinary Buffer pickle can find its UUID.
+        connection.send(mr)
+        connection.send_bytes(pickle.dumps(buffer))
+        assert receive_with_timeout(connection) == "buffer-updated"
+        assert _read_buffer(buffer) == b"\x6b" * NBYTES
+        connection.send("update-verified")
+        assert receive_with_timeout(connection) == "resource-closed"
+
+
+@pytest.mark.thread_unsafe(reason="spawns an IPC exporter and changes the receiving CUDA context")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+def test_buffer_unpickle_initializes_missing_current_context(ipc_device):
+    """Unpickling without a current context initializes it and preserves shared buffer contents."""
+    with child_exporter(_export_buffer, ipc_device.device_id) as connection:
+        with closing(receive_with_timeout(connection)) as mapped_mr:
+            payload = receive_with_timeout(connection, raw=True)
+            original_context = current_context_handle()
+            # Deserialize the MR beforehand so only Buffer restoration can initialize the context.
+            with no_current_context():
+                try:
+                    assert current_context_handle() == 0
+                    with closing(pickle.loads(payload)) as buffer:  # noqa: S301 - bytes from our own child
+                        assert current_context_handle() != 0
+                        assert buffer.memory_resource is mapped_mr
+                        assert buffer.device_id == ipc_device.device_id
+                        assert _read_buffer(buffer) == b"\x35" * NBYTES
+                        buffer.fill(0x6B, stream=ipc_device.default_stream)
+                        ipc_device.default_stream.sync()
+                    # Complete the imported free before allowing exporter teardown.
+                    ipc_device.default_stream.sync()
+                finally:
+                    # no_current_context restores the old stack; pop only the context created here.
+                    if current_context_handle():
+                        handle_return(driver.cuCtxPopCurrent())
+            assert current_context_handle() == original_context
+            connection.send("buffer-updated")
+            assert receive_with_timeout(connection) == "update-verified"
+        connection.send("resource-closed")

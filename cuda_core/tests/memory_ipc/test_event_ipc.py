@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing as mp
-from contextlib import ExitStack
+from contextlib import ExitStack, closing
 
 import pytest
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer, prefix_view
-from helpers.child_processes import child_timeout_sec, kill_subprocesses
+from helpers.child_processes import child_exporter, child_timeout_sec, kill_subprocesses, receive_with_timeout
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
 
-from cuda.core import Device, EventOptions
+from cuda.core import Device, Event, EventOptions
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 CHILD_TIMEOUT_SEC = child_timeout_sec()
@@ -207,3 +207,38 @@ class TestIpcEventProperties:
             e.context,
         )
         q_out.put(props)
+
+
+def _export_event(connection, device_id, blocking_sync):
+    device = Device(device_id)
+    device.set_current()
+    with (
+        connection,
+        closing(device.create_stream()) as stream,
+        closing(stream.record(options=EventOptions(ipc_enabled=True, blocking_sync=blocking_sync))) as event,
+    ):
+        connection.send(event.ipc_descriptor)
+        # The imported event is valid only while the original event is alive.
+        assert receive_with_timeout(connection) == "event-closed"
+
+
+@pytest.mark.thread_unsafe(reason="spawns an IPC event exporter")
+@pytest.mark.agent_authored(model="gpt-6-sol")
+@pytest.mark.parametrize("blocking_sync", [False, True])
+def test_event_import_from_child_descriptor_preserves_flags_and_waits(init_cuda, blocking_sync):
+    """An explicitly imported child event preserves its flags and supports waiting."""
+    if not init_cuda.properties.ipc_event_supported:
+        pytest.skip("Device does not support IPC events")
+    with child_exporter(_export_event, init_cuda.device_id, blocking_sync) as connection:
+        descriptor = receive_with_timeout(connection)
+        with closing(Event.from_ipc_descriptor(descriptor)) as event:
+            assert event.ipc_descriptor == descriptor
+            assert event.is_ipc_enabled is True
+            assert event.is_timing_enabled is False
+            assert event.is_blocking_sync is blocking_sync
+            with closing(init_cuda.create_stream()) as stream:
+                stream.wait(event)
+                stream.sync()
+            event.sync()
+            assert event.is_done is True
+        connection.send("event-closed")
