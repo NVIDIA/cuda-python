@@ -56,10 +56,6 @@ class SearchContext:
     attachments: list[str] = field(default_factory=list)
 
     @property
-    def libname(self) -> str:
-        return self.desc.name  # type: ignore[no-any-return]  # mypy can't resolve new sibling module
-
-    @property
     def lib_searched_for(self) -> str:
         return cast(str, self.platform.lib_searched_for(self.desc))
 
@@ -79,20 +75,6 @@ def _iter_lib_dirs(root: str, rel_dirs: tuple[str, ...]) -> Iterator[str]:
         for dirname in sorted(glob.glob(os.path.join(root, rel_path))):
             if os.path.isdir(dirname):
                 yield str(resolve_path(dirname))
-
-
-def _iter_lib_dirs_using_anchor(
-    desc: LibDescriptor,
-    platform: SearchPlatform,
-    anchor_point: str,
-) -> Iterator[str]:
-    """Yield existing library directories under *anchor_point* in descriptor order."""
-    yield from _iter_lib_dirs(anchor_point, platform.anchor_rel_dirs(desc))
-
-
-def _find_lib_dir_using_anchor(desc: LibDescriptor, platform: SearchPlatform, anchor_point: str) -> str | None:
-    """Find the first library directory under *anchor_point*."""
-    return next(_iter_lib_dirs_using_anchor(desc, platform, anchor_point), None)
 
 
 def _find_using_lib_dir(ctx: SearchContext, lib_dir: str | None) -> str | None:
