@@ -132,6 +132,18 @@ jobs:
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
 
+  dispatch-woa:
+    name: Dispatch WoA integration
+    if: ${{ github.repository == 'NVIDIA/cuda-python' && github.ref == 'refs/heads/main' }}
+    needs: find-wheels
+    permissions:
+      actions: read
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/woa-main-ci.yml
+    with:
+      public_run_id: ${{ needs.find-wheels.outputs.RUN_ID }}
+
   # ── PyTorch interop tests ──
 
   test-pytorch-linux:
@@ -350,6 +362,7 @@ jobs:
       - documentation-links
       - test-ci-tools-for-release
       - find-wheels
+      - dispatch-woa
       - test-pytorch-linux
       - test-pytorch-linux-aarch64
       - test-pytorch-windows
@@ -385,7 +398,8 @@ jobs:
           if ${{ needs.documentation-links.result != 'success' ||
                  needs.test-ci-tools-for-release.result == 'cancelled' ||
                  needs.test-ci-tools-for-release.result == 'failure' ||
-                 needs.find-wheels.result != 'success' }}; then
+                 needs.find-wheels.result != 'success' ||
+                 needs.dispatch-woa.result != 'success' }}; then
             exit 1
           fi
           if ${{ needs.test-pytorch-linux.result == 'cancelled' ||

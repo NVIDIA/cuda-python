@@ -6,9 +6,12 @@ name: "WoA main CI"
 run-name: "WoA main CI for ${{ inputs.public_run_id || 'latest successful public main CI run' }}"
 
 on:
-  schedule:
-    # 03:17 UTC daily, offset from the other nightly workflows.
-    - cron: "17 3 * * *"
+  workflow_call:
+    inputs:
+      public_run_id:
+        description: Public CI run selected by the nightly find-wheels job
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       public_run_id:
@@ -30,9 +33,8 @@ jobs:
     permissions:
       actions: read
       contents: read
-      checks: read
     outputs:
-      dispatch: ${{ steps.select.outputs.dispatch || 'false' }}
+      dispatch: ${{ steps.resolve.outputs.eligible || 'false' }}
       correlation-id: ${{ steps.resolve.outputs.correlation_id }}
       public-run-id: ${{ steps.resolve.outputs.public_run_id }}
       public-sha: ${{ steps.resolve.outputs.public_sha }}
@@ -44,7 +46,6 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             ci/tools/lookup-run-id
-            ci/tools/select-woa-batch
           sparse-checkout-cone-mode: false
 
       - name: Resolve exact public build
@@ -84,7 +85,7 @@ jobs:
               repository: (.repository.full_name == "NVIDIA/cuda-python"),
               workflow_id: (.workflow_id == 155304118),
               workflow_path: (.path == ".github/workflows/ci.yml"),
-              event: (.event == "push"),
+              event: (.event == "push" or .event == "schedule" or .event == "workflow_dispatch"),
               branch: (.head_branch == "main"),
               status_and_conclusion: ((.status == "in_progress" and .conclusion == null) or
                                      (.status == "completed" and .conclusion == "success")),
@@ -118,15 +119,6 @@ jobs:
           {
             echo "Resolved public run \`$PUBLIC_RUN_ID\` at commit \`$public_sha\`."
           } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Select public batch
-        if: ${{ steps.resolve.outputs.eligible == 'true' }}
-        id: select
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PUBLIC_RUN_ID: ${{ steps.resolve.outputs.public_run_id }}
-          PUBLIC_SHA: ${{ steps.resolve.outputs.public_sha }}
-        run: bash ./ci/tools/select-woa-batch
 
   dispatch-private-validation:
     needs: resolve-public-build
