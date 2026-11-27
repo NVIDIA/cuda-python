@@ -34,7 +34,12 @@ def copy_rebased_inventory_one_level_up(source: Path) -> None:
 
     header = b"\n".join(parts[:4]) + b"\n"
     entries = zlib.decompress(parts[4]).decode()
-    rebased = _ENTRY.sub(rebase_entry, entries)
+    rebased, matched = _ENTRY.subn(rebase_entry, entries)
+    expected = sum(1 for line in entries.split("\n") if line.strip())
+    if matched != expected:
+        raise ValueError(
+            f"{source}: {expected - matched} of {expected} inventory entries did not match the expected format"
+        )
     destination.write_bytes(header + zlib.compress(rebased.encode()))
 
 
