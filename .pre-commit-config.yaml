@@ -78,6 +78,13 @@ repos:
         language: python
         files: ^cuda_core/cuda/.*\.pyx$
 
+      - id: check-cython-bool-returns
+        name: Check C++ bool returns are declared cpp_bool, not bint
+        entry: python ./toolshed/check_cython_bool_returns.py
+        language: python
+        files: ^cuda_core/cuda/core/.*\.(pyx|pxd|pxi|hpp|h|cpp)$
+        pass_filenames: false
+
       - id: check-generated-file-seals
         name: Check generated-file seals
         entry: python ./toolshed/check_generated_file_seals.py
