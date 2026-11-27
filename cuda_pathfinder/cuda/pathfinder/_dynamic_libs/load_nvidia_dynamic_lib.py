@@ -170,11 +170,14 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
     ctx = SearchContext(desc)
 
-    # Phase 1: Try to find the library file on disk (pip wheels, conda).
-    find = run_find_steps(ctx, EARLY_FIND_STEPS)
-
-    # Phase 2: Cross-cutting — already-loaded check and dependency loading.
+    # An already-loaded library bypasses the wheel and conda search.
     loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
+    find = None
+    if loaded is None:
+        find = run_find_steps(ctx, EARLY_FIND_STEPS)
+        # Another component may have loaded the library during discovery.
+        loaded = LOADER.check_if_already_loaded_from_elsewhere(desc)
+
     load_dependencies(desc, load_nvidia_dynamic_lib)
     if loaded is not None:
         return loaded

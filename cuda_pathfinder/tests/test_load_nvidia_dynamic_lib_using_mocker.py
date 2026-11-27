@@ -174,7 +174,7 @@ def test_cupti_not_found_raises_error(mocker):
 @pytest.mark.parametrize("preferred_source", ("site-packages", "conda", "system-search"))
 @pytest.mark.agent_authored(model="gpt-6.1-sol")
 def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mocker, monkeypatch, preferred_source):
-    desc = load_mod.LIB_DESCRIPTORS["cublasLt"]
+    desc = load_mod.LIB_DESCRIPTORS["cublas"]
     platform = steps_mod.PLATFORM
     filename = desc.windows_dlls[0] if IS_WINDOWS else desc.linux_sonames[0]
 
@@ -208,20 +208,21 @@ def test_cuda_path_is_a_fallback_to_environment_and_native_search(tmp_path, mock
         side_effect=find_wheel_dirs,
     )
     mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
-    mocker.patch(f"{_MODULE}.load_dependencies")
+    load_dependency = mocker.patch(f"{_MODULE}.load_nvidia_dynamic_lib")
     native_path = tmp_path / "native" / filename
     native_search = mocker.patch.object(
         load_mod.LOADER,
         "load_with_system_search",
         return_value=_make_loaded_dl(str(native_path), "system-search"),
     )
-    mocker.patch.object(
-        load_mod.LOADER,
-        "load_with_abs_path",
-        side_effect=lambda _desc, path, via: _make_loaded_dl(path, via),
-    )
 
-    loaded = _load_lib_no_cache("cublasLt")
+    def load_from_discovered_path(_desc, path, via):
+        load_dependency.assert_called_once_with("cublasLt")
+        return _make_loaded_dl(path, via)
+
+    mocker.patch.object(load_mod.LOADER, "load_with_abs_path", side_effect=load_from_discovered_path)
+
+    loaded = _load_lib_no_cache("cublas")
 
     expected_path = {"site-packages": wheel_path, "conda": conda_path, "system-search": native_path}[preferred_source]
     assert loaded.found_via == preferred_source
@@ -274,3 +275,79 @@ def test_cupti_search_order_conda_before_cuda_home(tmp_path, mocker, monkeypatch
     result = _load_lib_no_cache("cupti")
     assert result.found_via == "conda"
     assert result.abs_path == str(conda_cupti_lib)
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_already_loaded_library_is_returned_without_searching_the_disk(mocker):
+    """An unreadable search location must not break a library that is already loaded."""
+    already_loaded = _make_loaded_dl("/opt/elsewhere/libcublas.so.13", "was-already-loaded-from-elsewhere")
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=already_loaded)
+    mocker.patch(f"{_MODULE}.load_dependencies")
+    unreadable = mocker.patch(
+        "cuda.pathfinder._dynamic_libs.search_platform.find_sub_dirs_all_sitepackages",
+        side_effect=PermissionError("site-packages is not readable"),
+    )
+
+    assert _load_lib_no_cache("cublas") is already_loaded
+    unreadable.assert_not_called()
+
+
+@pytest.mark.agent_authored(model="claude-fable-5-2")
+def test_already_loaded_library_still_loads_its_dependencies(mocker):
+    """Skipping the search must not skip the dependencies."""
+    already_loaded = _make_loaded_dl("/opt/elsewhere/libcublas.so.13", "was-already-loaded-from-elsewhere")
+    mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=already_loaded)
+    load_dependencies = mocker.patch(f"{_MODULE}.load_dependencies")
+    run_find_steps = mocker.patch(f"{_MODULE}.run_find_steps")
+
+    assert _load_lib_no_cache("cublas") is already_loaded
+    load_dependencies.assert_called_once()
+    run_find_steps.assert_not_called()
+
+
+@pytest.mark.parametrize("find_succeeds", [True, False], ids=["wheel-found", "wheel-missed"])
+@pytest.mark.agent_authored(model="gpt-6")
+def test_library_loaded_during_early_search_reuses_existing_handle(tmp_path, mocker, find_succeeds):
+    desc = load_mod.LIB_DESCRIPTORS["cublas"]
+    filename = desc.windows_dlls[0] if IS_WINDOWS else desc.linux_sonames[0]
+    already_loaded = LoadedDL(str(tmp_path / "external" / filename), True, 0xBEEF, "was-already-loaded-from-elsewhere")
+    probe = mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
+    load_dependencies = mocker.patch(f"{_MODULE}.load_dependencies")
+    calls = mocker.Mock()
+    calls.attach_mock(probe, "probe")
+    calls.attach_mock(load_dependencies, "load_dependencies")
+
+    def discover(_ctx, steps):
+        assert steps is EARLY_FIND_STEPS
+        probe.return_value = already_loaded
+        if find_succeeds:
+            return steps_mod.FindResult(str(tmp_path / "wheel" / filename), "site-packages")
+        return None
+
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=discover)
+    load_wheel = mocker.patch.object(load_mod.LOADER, "load_with_abs_path")
+    load_native = mocker.patch.object(load_mod.LOADER, "load_with_system_search")
+
+    assert _load_lib_no_cache("cublas") is already_loaded
+    load_wheel.assert_not_called()
+    load_native.assert_not_called()
+    assert calls.mock_calls == [
+        mocker.call.probe(desc),
+        mocker.call.probe(desc),
+        mocker.call.load_dependencies(desc, load_mod.load_nvidia_dynamic_lib),
+    ]
+
+
+@pytest.mark.agent_authored(model="gpt-6")
+def test_unloaded_library_search_failure_precedes_dependency_loading(mocker):
+    probe = mocker.patch.object(load_mod.LOADER, "check_if_already_loaded_from_elsewhere", return_value=None)
+    failure = PermissionError("site-packages is not readable")
+    mocker.patch(f"{_MODULE}.run_find_steps", side_effect=failure)
+    load_dependencies = mocker.patch(f"{_MODULE}.load_dependencies")
+
+    with pytest.raises(PermissionError) as exc_info:
+        _load_lib_no_cache("cublas")
+
+    assert exc_info.value is failure
+    probe.assert_called_once()
+    load_dependencies.assert_not_called()
