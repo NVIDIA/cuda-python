@@ -618,7 +618,7 @@ cpdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
         warnings.warn(
             "Passing foreign stream objects to this function via the "
             "stream protocol is deprecated. Convert the object explicitly "
-            "using Stream(obj) instead.",
+            "using device.create_stream(obj) instead.",
             stacklevel=2,
             category=DeprecationWarning,
         )

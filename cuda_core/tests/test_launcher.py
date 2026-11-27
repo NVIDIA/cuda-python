@@ -528,7 +528,7 @@ def test_launch_invalid_values(init_cuda):
     msg = (
         r"Passing foreign stream objects to this function via the stream "
         r"protocol is deprecated\. Convert the object explicitly using "
-        r"Stream\(obj\) instead\."
+        r"device\.create_stream\(obj\) instead\."
     )
     with pytest.warns(DeprecationWarning, match=msg):
         launch(StreamWrapper(stream), config, ker)
