@@ -9,6 +9,7 @@ import textwrap
 import threading
 import time
 import weakref
+from contextlib import closing
 
 import pytest
 from cuda_python_test_helpers.subprocess_runner import run_python_snippet
@@ -1899,3 +1900,165 @@ def test_memcpy_buffer_and_src_owner_rejected(init_cuda):
     g = GraphDefinition()
     with pytest.raises(ValueError, match="src_owner cannot be used when src is a Buffer"):
         g.memcpy(buf, buf, 4, src_owner=object())
+
+
+def test_public_clone_preserves_edges_and_can_change_them_independently(init_cuda):
+    called = []
+    source = GraphDefinition()
+    first = source.callback(lambda: called.append("first"))
+    second = source.callback(lambda: called.append("second"))
+    first.succ.add(second)
+
+    clone = source.clone()
+    cloned_first = clone.find_node(first)
+    cloned_second = clone.find_node(second)
+    assert clone.edges() == {(cloned_first, cloned_second)}
+
+    cloned_first.succ.remove(cloned_second)
+    cloned_second.succ.add(cloned_first)
+    assert clone.edges() == {(cloned_second, cloned_first)}
+    assert source.edges() == {(first, second)}
+
+    stream = init_cuda.create_stream()
+    for definition, expected in [(source, ["first", "second"]), (clone, ["second", "first"])]:
+        called.clear()
+        executable = definition.instantiate()
+        try:
+            executable.launch(stream)
+            stream.sync()
+            assert called == expected
+        finally:
+            executable.close()
+
+
+def test_public_clone_find_node_rejects_invalid_sources(init_cuda):
+    source = GraphDefinition()
+    original = source.empty()
+    clone = source.clone()
+    late_node = source.empty()
+
+    with pytest.raises(ValueError):
+        clone.find_node(source._entry)
+    with pytest.raises(CUDAError):
+        clone.find_node(late_node)
+
+    original.destroy()
+    with pytest.raises(RuntimeError):
+        clone.find_node(original)
+
+
+@pytest.mark.parametrize("depth", [0, 2])
+@pytest.mark.parametrize("source_first", [False, True])
+@pytest.mark.thread_unsafe(reason="waits for deferred cleanup on the main thread")
+def test_public_clone_retains_attachment_until_last_executable(init_cuda, depth, source_first):
+    """Cloned metadata releases each node's retain, including in nested graphs."""
+    called = []
+
+    def callback():
+        called.append(True)
+
+    callback_weak = weakref.ref(callback)
+    source = GraphDefinition()
+    source.callback(callback)
+    for _ in range(depth):
+        outer = GraphDefinition()
+        outer.embed(source)
+        source = outer
+        del outer
+    clone = source.clone()
+    source_view, clone_view = source, clone
+    for _ in range(depth):
+        source_child = next(iter(source_view.nodes()))
+        clone_child = clone_view.find_node(source_child)
+        source_view = source_child.child_graph
+        clone_view = clone_child.child_graph
+    source_node = next(iter(source_view.nodes()))
+    clone_node = clone_view.find_node(source_node)
+    assert clone_node.callback is callback
+    executable = clone.instantiate()
+    try:
+        del callback
+
+        first, second = (source_node, clone_node) if source_first else (clone_node, source_node)
+        first.destroy()
+        assert callback_weak() is not None
+        assert second.callback is callback_weak()
+        second.destroy()
+        del first, second, source_node, clone_node
+        # Both definitions have removed the node, but the executable retains it.
+        assert callback_weak() is not None
+        stream = init_cuda.create_stream()
+        assert called == []
+        executable.launch(stream)
+        stream.sync()
+        assert called == [True]
+    finally:
+        executable.close()
+    _wait_until(lambda: callback_weak() is None)
+
+
+@pytest.mark.thread_unsafe(reason="waits for deferred cleanup on the main thread")
+def test_public_clone_callback_update_has_independent_owners(init_cuda):
+    if driver_version() < (12, 2, 0):
+        pytest.skip("individual graph node updates require CUDA 12.2+")
+
+    def original():
+        pass
+
+    def replacement():
+        pass
+
+    original_weak = weakref.ref(original)
+    replacement_weak = weakref.ref(replacement)
+    source = GraphDefinition()
+    source_node = source.callback(original)
+    clone = source.clone()
+    clone_node = clone.find_node(source_node)
+    clone_node.update(replacement)
+    del original, replacement
+
+    assert source_node.callback is original_weak()
+    assert clone_node.callback is replacement_weak()
+    source_node.destroy()
+    del source_node
+    # original gets cleaned up
+    _wait_until(lambda: original_weak() is None)
+    assert replacement_weak() is not None
+    clone_node.destroy()
+    del clone_node
+    # now replacement gets cleaned up
+    _wait_until(lambda: replacement_weak() is None)
+
+
+@pytest.mark.thread_unsafe(reason="waits for deferred cleanup on the main thread")
+def test_public_clone_kernel_and_arguments_outlive_source(init_cuda):
+    """An executable retains the clone's kernel and arguments after both definitions die."""
+    from cuda.core._utils.cuda_utils import driver, handle_return
+
+    device = init_cuda
+    stream = device.create_stream()
+    with closing(_device_memory_resource(device)) as mr:
+        buffer = mr.allocate(ctypes.sizeof(ctypes.c_int), stream=stream)
+        buffer.fill(0, stream=stream)
+        stream.sync()
+        ptr = int(buffer.handle)
+        buffer_weak = weakref.ref(buffer)
+        module = compile_common_kernels()
+        kernel = module.get_kernel("add_one")
+        source = GraphDefinition()
+        source.launch(LaunchConfig(grid=1, block=1), kernel, buffer)
+        clone = source.clone()
+        executable = clone.instantiate()
+        try:
+            del buffer, module, kernel, source, clone
+            gc.collect()
+
+            assert buffer_weak() is not None
+            executable.launch(stream)
+            stream.sync()
+            result = (ctypes.c_int * 1)(0)
+            handle_return(driver.cuMemcpyDtoH(result, ptr, ctypes.sizeof(result)))
+            assert result[0] == 1
+        finally:
+            executable.close()
+        _wait_until(lambda: buffer_weak() is None)

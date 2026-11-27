@@ -146,6 +146,8 @@ avoid recompiling identical source + options + target without writing the
 CUDA graphs
 -----------
 
+.. currentmodule:: cuda.core
+
 A CUDA graph captures a set of GPU operations and their dependencies,
 allowing them to be defined once and launched repeatedly with minimal
 CPU overhead. Graphs can be constructed in two ways:
@@ -153,6 +155,28 @@ CPU overhead. Graphs can be constructed in two ways:
 :class:`~graph.GraphDefinition` builds a graph explicitly by adding nodes and
 edges. Both produce an executable :class:`~graph.Graph` that can be
 launched on a :class:`Stream`.
+
+:meth:`graph.GraphDefinition.clone` copies a definition and its nested child
+graphs into an independently owned hierarchy. Node parameters and dependencies
+are preserved. Buffers, kernels, events, and callback objects are shared and
+retained independently; cloning does not copy their contents. Subsequent
+mutations to either definition do not change the other definition or existing
+executables.
+
+Use :meth:`graph.GraphDefinition.find_node` on the clone to reconstruct a
+source node's counterpart with its operation-specific subclass::
+
+   clone = definition.clone()
+   cloned_node = clone.find_node(original_node)
+   cloned_child = clone.find_node(original_child_node).child_graph
+   cloned_inner_node = cloned_child.find_node(original_inner_node)
+
+Lookup is local to each graph and requires a valid source node that existed at
+cloning time, and a corresponding node still present in the clone. The clone
+does not retain its source hierarchy for lookup. CUDA does not support cloning
+graphs containing allocation, free, or conditional nodes; driver errors
+propagate. See :ref:`cuda-core-graph-thread-safety` for the synchronization
+requirements of cloning and node lookup.
 
 With CUDA >= 13.1, graph definitions and
 executable graphs expose a read-only integer, ``id``. Nodes expose ``local_id``
@@ -162,8 +186,6 @@ shares ownership of the underlying graph. IDs are ephemeral, driver-assigned.
 
 ``kernel.attributes.device_node_update_supported`` reports whether a kernel
 supports device-side node updates. It requires CUDA >= 13.3.
-
-.. currentmodule:: cuda.core
 
 .. autosummary::
    :toctree: generated/
