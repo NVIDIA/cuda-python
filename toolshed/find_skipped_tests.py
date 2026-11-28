@@ -7,9 +7,11 @@
 """Report tests skipped across all test configurations.
 
 Finds the latest ci.yml run triggered by a push to the main branch and the
-latest ci-nightly.yml run, then reports tests that were skipped in every
-wheel-based test configuration across both runs. sdist-based test jobs are
-excluded. The report is written to stdout in markdown.
+latest scheduled ci-nightly.yml run, then reports tests that were skipped in
+every wheel-based test configuration across both runs. sdist-based test jobs
+are excluded. Test ids are qualified by the package directory pytest ran in
+(e.g. ``cuda_bindings_12/tests/...``), so the two bindings majors are tracked
+separately. The report is written to stdout in markdown.
 
 Requires `gh` on PATH and an authenticated GitHub CLI session.
 """
@@ -23,43 +25,54 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 from collections.abc import Iterable
-from pathlib import Path
 
 # Workflows to inspect, with the gh-api filter used to find the latest
 # completed run for each. The order here determines report ordering.
 WORKFLOWS: tuple[tuple[str, str], ...] = (
     ("ci.yml", "branch=main&event=push&status=completed&per_page=1"),
-    ("ci-nightly.yml", "status=completed&per_page=1"),
+    ("ci-nightly.yml", "branch=main&event=schedule&status=completed&per_page=1"),
 )
 
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-9;]*[A-Za-z]")
-PYTEST_NODE_ID = re.compile(r"tests/\S+\.py::\S+")
-PYTEST_TEST_OUTCOME = re.compile(
-    r"(tests/\S+\.py::\S+)\s+"
-    r"(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS|SUBPASSED|SUBFAILED|SUBERROR|SUBSKIPPED|SUBXFAIL|SUBXPASS)\b"
-)
 
-# GHA log format markers used to identify which test suite is active.
-# `gh api` logs: ##[group]<step-name> opens a section, ##[endgroup] closes it.
-GHA_GROUP = re.compile(r"##\[group\](.+)")
+PYTEST_OUTCOMES = (
+    "PASSED",
+    "FAILED",
+    "ERROR",
+    "SKIPPED",
+    "XFAIL",
+    "XPASS",
+    "SUBPASSED",
+    "SUBFAILED",
+    "SUBERROR",
+    "SUBSKIPPED",
+    "SUBXFAIL",
+    "SUBXPASS",
+)
+# Free-threaded jobs interleave output from parallel threads: a node id can
+# start mid-line or be printed twice in a row, several progress markers can
+# precede the outcome, and the outcome can run into the next thread's output
+# ("PASSEDPARALLEL PASSED", "PASSEDtests/..."). An id never extends across the
+# start of another one, and one line can hold several results.
+PYTEST_RESULT = re.compile(
+    r"(tests/\S*?\.py::(?:(?!\stests/\S*?\.py::).)+?)\s+(?:\[\s*\d+%\]\s*)*(?:PARALLEL\s+)?"
+    r"(" + "|".join(PYTEST_OUTCOMES) + r")(?=[\s(\[]|PARALLEL|tests/|$)"
+)
+# pytest prints "rootdir: <path>" when a session starts. The package directory
+# in that path names the suite (and bindings major) of the results that follow;
+# the group is empty for a third-party suite, e.g. numba-cuda's in nightly CI.
+PYTEST_ROOTDIR = re.compile(r"\brootdir: (?:\S*?/(cuda_bindings_\d+|cuda_core|cuda_pathfinder|cuda_python)(?=/|\s|$))?")
+# Parameter id pytest uses for an empty parameter set; not a real test.
+EMPTY_PARAMETER_SET = "[NOTSET]"
+# Expected to be skipped everywhere; its absence means a suite did not run.
+CANARY_TEST = "/tests/test_cuda.py::test_always_skip"
+
+# GHA log format markers.
+# `gh api` logs: "##[group]Run <command>" opens each step.
+GHA_STEP_START = re.compile(r"##\[group\]Run ")
 # `gh run view --log` logs: tab-separated  <job>\t<step>\t<timestamp>\t<content>
 GHA_LOG_LINE = re.compile(r"^[^\t]+\t([^\t]+)\t[^\t]+\t(.*)", re.DOTALL)
-
-# Map step-name substrings to canonical test suite names.
-STEP_SUITE_PATTERNS: list[tuple[re.Pattern[str], str]] = [
-    (re.compile(r"\brun-tests bindings\b"), "cuda_bindings_13"),
-    (re.compile(r"\brun-tests core\b"), "cuda_core"),
-    (re.compile(r"\brun-tests pathfinder\b"), "cuda_pathfinder"),
-]
-
-
-def step_name_to_suite(step_name: str) -> str:
-    for pattern, suite in STEP_SUITE_PATTERNS:
-        if pattern.search(step_name):
-            return suite
-    return ""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -73,6 +86,16 @@ class WorkflowRun:
 
 
 @dataclasses.dataclass(frozen=True)
+class LogResults:
+    """Pytest results parsed from one job log, keyed by suite-qualified node id."""
+
+    skipped: set[str]
+    non_skipped: set[str]
+    # Number of pytest sessions started in the log, for any project.
+    pytest_sessions: int
+
+
+@dataclasses.dataclass(frozen=True)
 class ConfigResult:
     name: str
     workflow_file: str
@@ -82,7 +105,9 @@ class ConfigResult:
     non_skipped: set[str]
     has_logs: bool
     has_pytest_activity: bool
-    test_suites: dict[str, str] = dataclasses.field(default_factory=dict)
+    # Jobs whose log shows no pytest session at all, e.g. a job that failed
+    # while installing. Tests that only run in such a job look never-run.
+    jobs_without_pytest: list[str] = dataclasses.field(default_factory=list)
 
 
 def run_gh(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -153,6 +178,9 @@ def is_test_config_job(job_name: str) -> bool:
         return False
     if "check status" in lower or "check job status" in lower:
         return False
+    # The matrix-setup job of each reusable test workflow runs no tests.
+    if job_name.endswith(" / compute-matrix"):
+        return False
     return job_name.startswith(("Test ", "Nightly "))
 
 
@@ -161,8 +189,9 @@ def config_name_for_job(job_name: str) -> str:
     return job_name.split(" / ", 1)[0]
 
 
-def group_jobs_into_configs(jobs: Iterable[dict]) -> dict[str, list[int]]:
-    grouped: dict[str, list[int]] = {}
+def group_jobs_into_configs(jobs: Iterable[dict]) -> dict[str, list[tuple[int, str]]]:
+    """Group finished test jobs by configuration, as (job id, job name) pairs."""
+    grouped: dict[str, list[tuple[int, str]]] = {}
     for job in jobs:
         # Only consider jobs that actually executed and finished. Skipped or
         # cancelled jobs include the still-templated job name (e.g. when a
@@ -173,113 +202,94 @@ def group_jobs_into_configs(jobs: Iterable[dict]) -> dict[str, list[int]]:
         name = str(job.get("name", ""))
         if not is_test_config_job(name):
             continue
-        grouped.setdefault(config_name_for_job(name), []).append(int(job["id"]))
+        grouped.setdefault(config_name_for_job(name), []).append((int(job["id"]), name))
     return grouped
 
 
-def download_job_log(repo: str, run_id: int, job_id: int, out_path: Path) -> bool:
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    api_result = run_gh("api", f"repos/{repo}/actions/jobs/{job_id}/logs", check=False)
-    if api_result.returncode == 0:
-        out_path.write_text(api_result.stdout, encoding="utf-8", errors="replace")
-        return True
-
-    view_result = run_gh("run", "view", str(run_id), "--job", str(job_id), "--log", check=False)
-    if view_result.returncode == 0:
-        out_path.write_text(view_result.stdout, encoding="utf-8", errors="replace")
-        return True
-
-    return False
+def fetch_job_log(repo: str, run_id: int, job_id: int) -> str | None:
+    """Return a job's log, trying `gh api` first and `gh run view` second."""
+    for args in (
+        ("api", f"repos/{repo}/actions/jobs/{job_id}/logs"),
+        ("run", "view", str(run_id), "--job", str(job_id), "--log"),
+    ):
+        result = run_gh(*args, check=False)
+        if result.returncode == 0:
+            return result.stdout
+    return None
 
 
-def extract_test_status_sets(text: str) -> tuple[set[str], set[str], dict[str, str]]:
-    """Parse pytest output and return (skipped, non_skipped, test_id->suite)."""
+def parse_log(text: str) -> LogResults:
+    """Parse the pytest results in one job log.
+
+    Each node id is qualified by the package directory of the pytest session
+    it ran in (e.g. ``cuda_bindings_12/tests/test_x.py::test_y``), so the same
+    test in two bindings roots is tracked separately.
+    """
     skipped: set[str] = set()
     non_skipped: set[str] = set()
     passed: set[str] = set()
     subtest_seen: set[str] = set()
-    test_suites: dict[str, str] = {}
-    current_suite = ""
+    sessions = 0
+    suite = ""
+    step = None
 
-    for raw_line in text.splitlines():
-        # Handle `gh run view --log` tab-separated format.
-        # Each line: <job>\t<step>\t<timestamp>\t<content>
-        if log_match := GHA_LOG_LINE.match(raw_line):
-            suite = step_name_to_suite(log_match.group(1))
-            if suite:
-                current_suite = suite
-            line = ANSI_ESCAPE.sub("", log_match.group(2)).replace("\\", "/")
-        else:
-            line = ANSI_ESCAPE.sub("", raw_line).replace("\\", "/")
-            # Handle `gh api` log format: ##[group]<step-name> opens a section.
-            if group_match := GHA_GROUP.search(line):
-                suite = step_name_to_suite(group_match.group(1))
-                if suite:
-                    current_suite = suite
+    for line in text.splitlines():
+        # `gh run view --log` lines are <job>\t<step>\t<timestamp>\t<content>.
+        if log_match := GHA_LOG_LINE.match(line):
+            if log_match.group(1) != step:
+                step, suite = log_match.group(1), ""
+            line = log_match.group(2)
+        line = ANSI_ESCAPE.sub("", line).replace("\\", "/")
+
+        if GHA_STEP_START.search(line):
+            suite = ""
+            continue
+        if rootdir := PYTEST_ROOTDIR.search(line):
+            sessions += 1
+            suite = rootdir.group(1) or ""
+            continue
+        # Only results from a cuda-python package's own pytest session count.
+        if not suite:
+            continue
+
+        for result in PYTEST_RESULT.finditer(line):
+            node_id, outcome = result.groups()
+            if node_id.endswith(EMPTY_PARAMETER_SET):
                 continue
-
-        # Parse per-test outcomes first so PASS/FAIL lines disqualify tests.
-        for test_id, outcome in PYTEST_TEST_OUTCOME.findall(line):
-            if outcome.startswith("SUB"):
-                subtest_seen.add(test_id)
-                if outcome == "SUBSKIPPED":
-                    skipped.add(test_id)
-                    if current_suite:
-                        test_suites.setdefault(test_id, current_suite)
-                else:
-                    non_skipped.add(test_id)
-            elif outcome == "SKIPPED":
+            test_id = f"{suite}/{node_id}"
+            if outcome in ("SKIPPED", "SUBSKIPPED"):
                 skipped.add(test_id)
-                if current_suite:
-                    test_suites.setdefault(test_id, current_suite)
             elif outcome == "PASSED":
                 passed.add(test_id)
             else:
                 non_skipped.add(test_id)
-
-        if "SKIPPED" not in line:
-            continue
-
-        # Keep compatibility with summary-style SKIPPED lines that may still
-        # include a node id but don't match the strict outcome pattern above.
-        for test_id in PYTEST_NODE_ID.findall(line):
-            skipped.add(test_id)
-            if current_suite:
-                test_suites.setdefault(test_id, current_suite)
+            if outcome.startswith("SUB"):
+                subtest_seen.add(test_id)
 
     # Pytest reports a passing parent after its subtests even when every
     # subtest skipped. Only treat that parent pass as execution evidence when
     # the test did not emit subtest outcomes of its own.
     non_skipped.update(passed - subtest_seen)
 
-    return skipped, non_skipped, test_suites
+    return LogResults(skipped=skipped, non_skipped=non_skipped, pytest_sessions=sessions)
 
 
-def analyze_config(
-    config_name: str,
-    run: WorkflowRun,
-    job_ids: list[int],
-    logs_root: Path,
-    repo: str,
-) -> ConfigResult:
+def analyze_config(config_name: str, run: WorkflowRun, jobs: list[tuple[int, str]], repo: str) -> ConfigResult:
     skipped_any: set[str] = set()
     non_skipped_any: set[str] = set()
-    test_suites: dict[str, str] = {}
+    jobs_without_pytest: list[str] = []
     have_any_log = False
 
-    for job_id in job_ids:
-        log_path = logs_root / f"{job_id}.log"
-        if not download_job_log(repo, run.run_id, job_id, log_path):
+    for job_id, job_name in jobs:
+        text = fetch_job_log(repo, run.run_id, job_id)
+        if text is None:
             continue
         have_any_log = True
-        text = log_path.read_text(encoding="utf-8", errors="replace")
-        skipped_in_log, non_skipped_in_log, suites_in_log = extract_test_status_sets(text)
-        skipped_any.update(skipped_in_log)
-        non_skipped_any.update(non_skipped_in_log)
-        for test_id, suite in suites_in_log.items():
-            test_suites.setdefault(test_id, suite)
-        log_path.unlink(missing_ok=True)
+        results = parse_log(text)
+        skipped_any.update(results.skipped)
+        non_skipped_any.update(results.non_skipped)
+        if results.pytest_sessions == 0:
+            jobs_without_pytest.append(job_name)
 
     # For sharded matrices a test may only appear in one log. Treat it as
     # config-skipped if it is skipped at least once and never non-skipped in
@@ -290,13 +300,36 @@ def analyze_config(
         name=config_name,
         workflow_file=run.workflow_file,
         run_id=run.run_id,
-        job_ids=job_ids,
+        job_ids=[job_id for job_id, _ in jobs],
         skipped=skipped_for_config,
         non_skipped=non_skipped_any,
         has_logs=have_any_log,
         has_pytest_activity=bool(skipped_any or non_skipped_any),
-        test_suites=test_suites,
+        jobs_without_pytest=jobs_without_pytest,
     )
+
+
+def universally_skipped(active: Iterable[ConfigResult]) -> set[str]:
+    """Tests that some configuration skipped and no configuration ran.
+
+    This tolerates narrow configurations (e.g. nightly-pytorch) that only
+    invoke a subset of tests: such configs do not contribute either way for
+    tests they do not exercise.
+    """
+    ever_skipped: set[str] = set()
+    ever_non_skipped: set[str] = set()
+    for result in active:
+        ever_skipped |= result.skipped
+        ever_non_skipped |= result.non_skipped
+    return ever_skipped - ever_non_skipped
+
+
+def bullet_list(header: str, entries: Iterable[str]) -> list[str]:
+    """Markdown lines for a header and one code-formatted bullet per entry; none if empty."""
+    bullets = [f"- `{entry}`" for entry in entries]
+    if not bullets:
+        return []
+    return [header, *bullets, ""]
 
 
 def build_summary(runs: list[WorkflowRun], results: list[ConfigResult]) -> str:
@@ -312,9 +345,8 @@ def build_summary(runs: list[WorkflowRun], results: list[ConfigResult]) -> str:
         )
     lines.append("")
 
-    missing = [f"{r.workflow_file} / {r.name}" for r in results if not r.has_logs]
-    # Configurations whose logs contained no pytest test outcomes (e.g.
-    # nightly-numba-cuda, which runs numba's own test runner). These don't
+    # Configurations whose logs contained no cuda-python test outcomes (e.g.
+    # nightly-numba-cuda, which runs only numba-cuda's own tests). These don't
     # have a meaningful "skipped" set and would otherwise empty the
     # intersection, so exclude them from it and call them out separately.
     inactive = [r for r in results if r.has_logs and not r.has_pytest_activity]
@@ -324,46 +356,28 @@ def build_summary(runs: list[WorkflowRun], results: list[ConfigResult]) -> str:
         lines.append("_No pytest activity detected in any configuration._")
         return "\n".join(lines) + "\n"
 
-    if missing:
-        lines.append("_Warning: missing logs for configuration(s):_")
-        for entry in missing:
-            lines.append(f"- `{entry}`")
-        lines.append("")
+    lines += bullet_list(
+        "_Warning: missing logs for configuration(s):_",
+        (f"{r.workflow_file} / {r.name}" for r in results if not r.has_logs),
+    )
+    lines += bullet_list(
+        "_Configurations with no pytest activity (excluded from intersection):_",
+        (f"{r.workflow_file} / {r.name}" for r in inactive),
+    )
+    lines += bullet_list(
+        "_Warning: pytest never ran in these job(s) (for example, they failed during setup). "
+        "Tests that run only in them may be listed below by mistake:_",
+        (f"{r.workflow_file} / {job}" for r in results for job in r.jobs_without_pytest),
+    )
 
-    if inactive:
-        lines.append("_Configurations with no pytest activity (excluded from intersection):_")
-        for r in inactive:
-            lines.append(f"- `{r.workflow_file}` / `{r.name}`")
-        lines.append("")
+    universal_set = universally_skipped(active)
 
-    # A test counts as universally-skipped if some configuration skipped it
-    # AND no configuration ever recorded a non-skipped outcome for it. This
-    # tolerates narrow configurations (e.g. nightly-pytorch) that only invoke
-    # a subset of tests: such configs simply do not contribute either way for
-    # tests they do not exercise.
-    ever_skipped: set[str] = set()
-    ever_non_skipped: set[str] = set()
-    for result in active:
-        ever_skipped |= result.skipped
-        ever_non_skipped |= result.non_skipped
-    universal_set = ever_skipped - ever_non_skipped
-
-    if "tests/test_cuda.py::test_always_skip" not in universal_set:
+    if not any(test_id.endswith(CANARY_TEST) for test_id in universal_set):
         lines.append(
-            "_Note: the test `tests/test_cuda.py::test_always_skip` is expected to be "
+            "_Note: `tests/test_cuda.py::test_always_skip` is expected to be "
             "skipped in all configurations, but is missing._"
         )
         lines.append("")
-
-    # Merge test->suite mappings across all configs (first to identify wins).
-    test_suites: dict[str, str] = {}
-    for result in results:
-        for test_id, suite in result.test_suites.items():
-            test_suites.setdefault(test_id, suite)
-
-    def sort_key(test_id: str) -> tuple[bool, str, str]:
-        suite = test_suites.get(test_id, "")
-        return (not suite, suite, test_id)
 
     lines.append(f"### Configurations analyzed ({len(active)})")
     lines.append("")
@@ -374,16 +388,14 @@ def build_summary(runs: list[WorkflowRun], results: list[ConfigResult]) -> str:
         )
     lines.append("")
 
-    universal = sorted(universal_set, key=sort_key)
+    universal = sorted(universal_set)
     lines.append(f"### Tests skipped in every configuration ({len(universal)})")
     lines.append("")
     if not universal:
         lines.append("_No tests were skipped in all configurations._")
     else:
         for test_id in universal:
-            suite = test_suites.get(test_id, "")
-            label = f"{suite}/{test_id}" if suite else test_id
-            lines.append(f"- [ ] `{label}`")
+            lines.append(f"- [ ] `{test_id}`")
 
     return "\n".join(lines) + "\n"
 
@@ -420,19 +432,13 @@ def main() -> int:
         return 1
 
     results: list[ConfigResult] = []
-    with tempfile.TemporaryDirectory(prefix="universally-skipped-logs-") as tmp:
-        logs_root = Path(tmp)
-        for run in runs:
-            print(f"Loading jobs for {run.workflow_file} run {run.run_id}...", file=sys.stderr)
-            jobs = load_run_jobs(repo, run.run_id)
-            grouped = group_jobs_into_configs(jobs)
-            print(f"  Found {len(grouped)} test configuration(s)", file=sys.stderr)
-            for config_name, job_ids in sorted(grouped.items()):
-                print(
-                    f"  Analyzing {config_name} ({len(job_ids)} job(s))...",
-                    file=sys.stderr,
-                )
-                results.append(analyze_config(config_name, run, job_ids, logs_root, repo))
+    for run in runs:
+        print(f"Loading jobs for {run.workflow_file} run {run.run_id}...", file=sys.stderr)
+        grouped = group_jobs_into_configs(load_run_jobs(repo, run.run_id))
+        print(f"  Found {len(grouped)} test configuration(s)", file=sys.stderr)
+        for config_name, jobs in sorted(grouped.items()):
+            print(f"  Analyzing {config_name} ({len(jobs)} job(s))...", file=sys.stderr)
+            results.append(analyze_config(config_name, run, jobs, repo))
 
     summary = build_summary(runs, results)
     sys.stdout.write(summary)
