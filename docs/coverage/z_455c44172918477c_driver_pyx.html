@@ -70,7 +70,7 @@
   "8": "tests/test_cuda.py::test_all_CUresult_codes|run",
   "9": "tests/test_cuda.py::test_get_error_string_and_name_reject_unknown_error_code|run",
   "!": "tests/nvml/test_cuda.py::test_cuda_device_order|run",
-  "#": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
+  "#": "tests/test_cufile.py::test_get_stats_l1|setup",
   "$": "tests/test_cufile.py::test_buf_register_host_memory|run",
   "%": "tests/test_cufile.py::test_cufile_read_write_host_memory|run",
   "'": "tests/test_cuda.py::test_cuGraphNodeGetLocalId|run",
@@ -83,19 +83,19 @@
   ".": "tests/test_cufile.py::test_batch_io_large_operations|setup",
   "/": "tests/test_cufile.py::test_buf_register_already_registered|setup",
   ":": "tests/test_cufile.py::test_buf_register_host_memory|setup",
-  ";": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
-  "=": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
-  "?": "tests/test_cufile.py::test_buf_register_simple|setup",
-  "@": "tests/test_cufile.py::test_cufile_async_read_write|setup",
-  "[": "tests/test_cufile.py::test_cufile_read_async|setup",
-  "]": "tests/test_cufile.py::test_cufile_read_write_host_memory|setup",
-  "^": "tests/test_cufile.py::test_cufile_read_write_large|setup",
-  "_": "tests/test_cufile.py::test_cufile_read_write|setup",
-  "`": "tests/test_cufile.py::test_cufile_success_defined|setup",
-  "{": "tests/test_cufile.py::test_cufile_write_async|setup",
-  "|": "tests/test_cufile.py::test_get_bar_size_in_kb|setup",
-  "}": "tests/test_cufile.py::test_get_parameter_min_max_value|setup",
-  "~": "tests/test_cufile.py::test_get_stats_l1|setup",
+  ";": "tests/test_cufile.py::test_buf_register_invalid_flags|setup",
+  "=": "tests/test_cufile.py::test_buf_register_large_buffer|setup",
+  "?": "tests/test_cufile.py::test_buf_register_multiple_buffers|setup",
+  "@": "tests/test_cufile.py::test_buf_register_simple|setup",
+  "[": "tests/test_cufile.py::test_cufile_async_read_write|setup",
+  "]": "tests/test_cufile.py::test_cufile_read_async|setup",
+  "^": "tests/test_cufile.py::test_cufile_read_write_host_memory|setup",
+  "_": "tests/test_cufile.py::test_cufile_read_write_large|setup",
+  "`": "tests/test_cufile.py::test_cufile_read_write|setup",
+  "{": "tests/test_cufile.py::test_cufile_success_defined|setup",
+  "|": "tests/test_cufile.py::test_cufile_write_async|setup",
+  "}": "tests/test_cufile.py::test_get_bar_size_in_kb|setup",
+  "~": "tests/test_cufile.py::test_get_parameter_min_max_value|setup",
   "ab": "tests/test_cufile.py::test_get_stats_l2|setup",
   "bb": "tests/test_cufile.py::test_get_stats_l3|setup",
   "cb": "tests/test_cufile.py::test_handle_register|setup",
@@ -108,104 +108,104 @@
   "jb": "tests/test_cuda.py::test_cuCheckpointProcessGetState_failure|run",
   "kb": "tests/test_cuda.py::test_cuFuncGetName_failure|run",
   "lb": "tests/test_cuda.py::test_cuKernelGetName_failure|run",
-  "mb": "tests/example_tests/test_cuda_bindings_utils.py::test_value_flag_accepts_documented_and_legacy_forms[--device=3-device=-3]|setup",
-  "nb": "tests/example_tests/test_cuda_bindings_utils.py::test_value_flag_accepts_documented_and_legacy_forms[kernel=7-kernel=-7]|setup",
+  "mb": "tests/example_tests/test_cuda_bindings_utils.py::test_invalid_integer_value_preserves_zero_default[--device=invalid]|setup",
+  "nb": "tests/example_tests/test_cuda_bindings_utils.py::test_value_flag_accepts_documented_and_legacy_forms[device=3-device=-3]|setup",
   "ob": "tests/example_tests/test_interactive_sample_configuration.py::test_iso_fd_modelling_exposes_no_display_option|setup",
-  "pb": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/3_CUDA_Features/cudaGraphsManualNodes]|setup",
-  "qb": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/extra/isoFdModelling]|setup",
-  "rb": "tests/nvml/test_compute_mode.py::test_compute_mode_supported_nonroot|setup",
-  "sb": "tests/nvml/test_cuda.py::test_cuda_device_order|setup",
-  "tb": "tests/nvml/test_device.py::test_device_vgpu_get_heterogeneous_mode|setup",
-  "ub": "tests/nvml/test_device.py::test_set_power_management_limit|setup",
-  "vb": "tests/nvml/test_gpu.py::test_gpu_get_platform_info|setup",
-  "wb": "tests/nvml/test_init.py::test_devices_are_the_same_architecture|setup",
-  "xb": "tests/nvml/test_init.py::test_init_ref_count|setup",
-  "yb": "tests/nvml/test_nvlink.py::test_nvlink_get_link_count|setup",
-  "zb": "tests/nvml/test_page_retirement.py::test_page_retirement_notsupported|setup",
-  "Ab": "tests/nvml/test_page_retirement.py::test_page_retirement_supported|setup",
-  "Bb": "tests/nvml/test_pci.py::test_bridge_chip_hierarchy_t|setup",
-  "Cb": "tests/nvml/test_pci.py::test_bridge_chip_info|setup",
-  "Db": "tests/nvml/test_pynvml.py::test_system_get_driver_version|setup",
-  "Eb": "tests/nvml/test_pynvml.py::test_system_get_nvml_version|setup",
+  "pb": "tests/example_tests/test_interactive_sample_configuration.py::test_iso_fd_modelling_has_headless_test_configuration|setup",
+  "qb": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/0_Introduction/simpleCubemapTexture]|setup",
+  "rb": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/0_Introduction/systemWideAtomics]|setup",
+  "sb": "tests/nvml/test_compute_mode.py::test_compute_mode_supported_nonroot|setup",
+  "tb": "tests/nvml/test_cuda.py::test_cuda_device_order|setup",
+  "ub": "tests/nvml/test_device.py::test_device_get_creatable_vgpus_no_namerror|setup",
+  "vb": "tests/nvml/test_device.py::test_get_nv_link_supported_bw_modes|setup",
+  "wb": "tests/nvml/test_gpu.py::test_gpu_conf_compute_attestation_report|setup",
+  "xb": "tests/nvml/test_init.py::test_devices_are_the_same_architecture|setup",
+  "yb": "tests/nvml/test_init.py::test_init_ref_count|setup",
+  "zb": "tests/nvml/test_nvlink.py::test_nvlink_get_link_count|setup",
+  "Ab": "tests/nvml/test_page_retirement.py::test_page_retirement_notsupported|setup",
+  "Bb": "tests/nvml/test_pci.py::test_bridge_chip_info|setup",
+  "Cb": "tests/nvml/test_pci.py::test_discover_gpus|setup",
+  "Db": "tests/nvml/test_pynvml.py::test_device_get_handle_by_uuid|setup",
+  "Eb": "tests/nvml/test_pynvml.py::test_nvml_system_get_process_name|setup",
   "Fb": "tests/nvml/test_unit.py::test_unit_get_devices_returns_array|setup",
   "Gb": "tests/nvml/test_util.py::test_supports_nvlink_queries_a_real_field_id|setup",
   "Hb": "tests/test_basics.py::test_enum[MyIntEnum]|setup",
-  "Ib": "tests/test_build_hooks.py::TestAbiStampPath::test_missing_ext_suffix_is_an_error|setup",
-  "Jb": "tests/test_build_hooks.py::TestDropEmptyVenvIncludeDir::test_outside_a_venv_returns_the_list_unchanged|setup",
-  "Kb": "tests/test_callback_threads.py::test_culogs_register_unregister_from_many_threads|setup",
-  "Lb": "tests/test_cuda.py::test_conditional|setup",
-  "Mb": "tests/test_cuda.py::test_cuDevSmResourceSplit|setup",
-  "Nb": "tests/test_cudart.py::test_cudart_cudaGraphAddMemcpyNode1D|setup",
-  "Ob": "tests/test_cudart.py::test_cudart_cudaMemcpy3DPeerAsync|setup",
-  "Pb": "tests/test_envvar.py::test_envvar_bool_parsing[one]|setup",
-  "Qb": "tests/test_envvar.py::test_envvar_bool_unset_returns_default[True]|setup",
-  "Rb": "tests/test_graph_node_params_lifetime.py::test_dsts_getter_reads_public_count_field|setup",
-  "Sb": "tests/test_graph_node_params_lifetime.py::test_memcpy_batch_assignment_is_a_shallow_copy|setup",
-  "Tb": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone: 0\u003e]|setup",
+  "Ib": "tests/test_basics.py::test_enum_doc|setup",
+  "Jb": "tests/test_build_hooks.py::TestDistutilsLinkerIntegration::test_linker_so_cxx_swaps_compiler_and_keeps_sysconfig_flags|setup",
+  "Kb": "tests/test_build_hooks.py::TestWithCompiler::test_keeps_env_prefix|setup",
+  "Lb": "tests/test_callback_threads.py::test_culogs_register_unregister_from_many_threads|setup",
+  "Mb": "tests/test_cuda.py::test_cuFuncGetName_failure|setup",
+  "Nb": "tests/test_cuda.py::test_cuGraphGetEdges_edgeData_outlives_call|setup",
+  "Ob": "tests/test_cudart.py::test_cudaGraphGetId|setup",
+  "Pb": "tests/test_cudart.py::test_cudaGraphNodeGetLocalId|setup",
+  "Qb": "tests/test_envvar.py::test_envvar_bool_blank_returns_default[   ]|setup",
+  "Rb": "tests/test_envvar.py::test_envvar_bool_parsing[off]|setup",
+  "Sb": "tests/test_graph_node_params_lifetime.py::test_dsts_getter_returns_value_copies_not_aliases|setup",
+  "Tb": "tests/test_graph_node_params_lifetime.py::test_set_dsts_srcs_requires_matching_lengths|setup",
   "Ub": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard: 2\u003e]|setup",
-  "Vb": "tests/test_interoperability.py::test_interop_event|setup",
-  "Wb": "tests/test_interoperability.py::test_interop_graphNode|run",
-  "Xb": "tests/test_interoperability.py::test_interop_graph|setup",
-  "Yb": "tests/test_kernelParams.py::test_kernelParams[ctypes]|setup",
-  "Zb": "tests/test_kernelParams.py::test_kernelParams_c_int_out_of_range_raises|setup",
-  "0b": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_90]|setup",
-  "1b": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-8.5]|setup",
-  "2b": "tests/test_nvjitlink.py::test_add_data[sm_100_8.8]|setup",
-  "3b": "tests/test_nvjitlink.py::test_create_and_destroy[sm_100]|setup",
-  "4b": "tests/test_nvrtc.py::test_install_and_remove_bundled_headers|setup",
-  "5b": "tests/test_nvvm.py::test_compile_program_with_minimal_nvvm_ir[txt-options3]|setup",
-  "6b": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options0]|setup",
-  "7b": "tests/test_utils.py::test_cyclical_imports[driver]|setup",
-  "8b": "tests/test_utils.py::test_get_handle[CUcontext]|setup",
-  "9b": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_error_when_driver_version_fails|setup",
-  "!b": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_only_issued_once|setup",
-  "#b": "tests/test_cuda.py::test_cuGraphGetId|run",
-  "$b": "tests/test_cuda.py::test_cuda_struct_list_of_enums|run",
-  "%b": "tests/test_cuda.py::test_invalid_repr_attribute|run",
-  "'b": "tests/test_cufile.py::test_batch_io_cancel|run",
-  "(b": "tests/test_cufile.py::test_buf_register_already_registered|run",
-  ")b": "tests/test_cufile.py::test_buf_register_invalid_flags|run",
-  "*b": "tests/test_cufile.py::test_buf_register_large_buffer|run",
-  "+b": "tests/test_cufile.py::test_buf_register_multiple_buffers|run",
-  ",b": "tests/test_cufile.py::test_buf_register_simple|run",
-  "-b": "tests/test_interoperability.py::test_interop_deviceptr|run",
-  ".b": "tests/test_interoperability.py::test_interop_event|run",
-  "/b": "tests/test_interoperability.py::test_interop_graph|run",
-  ":b": "tests/test_interoperability.py::test_interop_stream|run",
-  ";b": "tests/test_cuda.py::test_profiler|run",
-  "=b": "tests/test_cuda.py::test_thread_exchange_stream_capture_mode|run",
-  "?b": "tests/test_cufile.py::test_get_bar_size_in_kb|run",
-  "@b": "tests/nvml/test_gpu.py::test_gpu_conf_compute_attestation_report|run",
-  "[b": "tests/test_cudart.py::test_struct_pointer_comparison[cudaGraph_t]|run",
+  "Vb": "tests/test_graphics_apis.py::test_cuda_register_image_invalid|setup",
+  "Wb": "tests/test_interoperability.py::test_interop_event|setup",
+  "Xb": "tests/test_interoperability.py::test_interop_graphNode|run",
+  "Yb": "tests/test_interoperability.py::test_interop_stream|setup",
+  "Zb": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[not-by-address]|setup",
+  "0b": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol_numpy|setup",
+  "1b": "tests/test_nvfatbin.py::test_get_error_string[\u003cResult.ERROR_COMPRESSION_FAILED: 6\u003e]|setup",
+  "2b": "tests/test_nvfatbin.py::test_nvdfatbin_add_ltoir[sm_75]|setup",
+  "3b": "tests/test_nvjitlink.py::test_get_error_log[sm_90]|setup",
+  "4b": "tests/test_nvjitlink.py::test_get_linked_cubin[sm_90_8.5]|setup",
+  "5b": "tests/test_nvrtc.py::test_get_bundled_headers_info|setup",
+  "6b": "tests/test_nvrtc.py::test_get_lowered_name_failure|setup",
+  "7b": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[bitcode_static-verify_program]|setup",
+  "8b": "tests/test_nvvm.py::test_c_or_v_program_fail_bad_option[txt-compile_program]|setup",
+  "9b": "tests/test_utils.py::test_get_handle[CUfunction]|setup",
+  "!b": "tests/test_utils.py::test_get_handle[cudaMemPool_t]|setup",
+  "#b": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_only_issued_once|setup",
+  "$b": "tests/test_cuda.py::test_cuGraphGetId|run",
+  "%b": "tests/test_cuda.py::test_cuda_struct_list_of_enums|run",
+  "'b": "tests/test_cuda.py::test_invalid_repr_attribute|run",
+  "(b": "tests/test_cufile.py::test_batch_io_cancel|run",
+  ")b": "tests/test_cufile.py::test_buf_register_already_registered|run",
+  "*b": "tests/test_cufile.py::test_buf_register_invalid_flags|run",
+  "+b": "tests/test_cufile.py::test_buf_register_large_buffer|run",
+  ",b": "tests/test_cufile.py::test_buf_register_multiple_buffers|run",
+  "-b": "tests/test_cufile.py::test_buf_register_simple|run",
+  ".b": "tests/test_interoperability.py::test_interop_deviceptr|run",
+  "/b": "tests/test_interoperability.py::test_interop_event|run",
+  ":b": "tests/test_interoperability.py::test_interop_graph|run",
+  ";b": "tests/test_interoperability.py::test_interop_stream|run",
+  "=b": "tests/test_cuda.py::test_profiler|run",
+  "?b": "tests/test_cuda.py::test_thread_exchange_stream_capture_mode|run",
+  "@b": "tests/test_cufile.py::test_get_bar_size_in_kb|run",
+  "[b": "tests/example_tests/test_cuda_bindings_utils.py::test_flag_parameter_accepts_leading_dashes|teardown",
   "]b": "tests/example_tests/test_cuda_bindings_utils.py::test_invalid_integer_value_preserves_zero_default[--device=]|teardown",
-  "^b": "tests/example_tests/test_cuda_bindings_utils.py::test_requirement_not_met_uses_negotiated_waiver_code|teardown",
+  "^b": "tests/example_tests/test_interactive_sample_configuration.py::test_iso_fd_modelling_exposes_no_display_option|teardown",
   "_b": "tests/example_tests/test_interactive_sample_configuration.py::test_iso_fd_modelling_has_headless_test_configuration|teardown",
-  "`b": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/0_Introduction/vectorAddMmap]|teardown",
-  "{b": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/extra/jitProgram]|teardown",
+  "`b": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/0_Introduction/simpleCubemapTexture]|teardown",
+  "{b": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/3_CUDA_Features/globalToShmemAsyncCopy]|teardown",
   "|b": "tests/nvml/test_compute_mode.py::test_compute_mode_supported_nonroot|teardown",
   "}b": "tests/nvml/test_cuda.py::test_cuda_device_order|teardown",
-  "~b": "tests/nvml/test_device.py::test_get_handle_by_uuidv|teardown",
-  "ac": "tests/nvml/test_device.py::test_set_temperature_threshold|teardown",
+  "~b": "tests/nvml/test_device.py::test_device_vgpu_get_heterogeneous_mode|teardown",
+  "ac": "tests/nvml/test_device.py::test_get_handle_by_uuidv|teardown",
   "bc": "tests/nvml/test_gpu.py::test_conf_compute_gpu_certificate|teardown",
-  "cc": "tests/nvml/test_gpu.py::test_gpu_conf_compute_attestation_report|teardown",
-  "dc": "tests/nvml/test_init.py::test_init_check_index|teardown",
-  "ec": "tests/nvml/test_nvlink.py::test_nvlink_get_link_count|teardown",
-  "fc": "tests/nvml/test_page_retirement.py::test_page_retirement_notsupported|teardown",
+  "cc": "tests/nvml/test_gpu.py::test_gpu_get_platform_info|teardown",
+  "dc": "tests/nvml/test_init.py::test_devices_are_the_same_architecture|teardown",
+  "ec": "tests/nvml/test_init.py::test_init_check_index|teardown",
+  "fc": "tests/nvml/test_nvlink.py::test_nvlink_get_link_count|teardown",
   "gc": "tests/nvml/test_page_retirement.py::test_page_retirement_supported|teardown",
-  "hc": "tests/nvml/test_pci.py::test_discover_gpus|teardown",
-  "ic": "tests/nvml/test_pynvml.py::test_device_get_memory_affinity[\u003cAffinityScope.SOCKET: 1\u003e]|teardown",
-  "jc": "tests/nvml/test_pynvml.py::test_device_get_p2p_status[\u003cGpuP2PCapsIndex.ATOMICS: 3\u003e]|teardown",
+  "hc": "tests/nvml/test_pci.py::test_bridge_chip_info|teardown",
+  "ic": "tests/nvml/test_pci.py::test_discover_gpus|teardown",
+  "jc": "tests/nvml/test_pynvml.py::test_device_get_memory_affinity[\u003cAffinityScope.SOCKET: 1\u003e]|teardown",
   "kc": "tests/nvml/test_unit.py::test_unit_get_devices_returns_array|teardown",
   "lc": "tests/nvml/test_util.py::test_supports_nvlink_queries_a_real_field_id|teardown",
   "mc": "tests/test_basics.py::test_enum[MyFastEnum]|teardown",
   "nc": "tests/test_basics.py::test_enum_doc|teardown",
-  "oc": "tests/test_build_hooks.py::TestCythonAlias::test_stale_dangling_symlink_atomically_replaced|teardown",
-  "pc": "tests/test_build_hooks.py::TestCythonCachePath::test_windows_cache_dir_warns_and_returns_none|teardown",
+  "oc": "tests/test_build_hooks.py::TestResolveToolchain::test_linux_flag_set|teardown",
+  "pc": "tests/test_build_hooks.py::TestWithSccache::test_bare_or_unrelated_cc_returns_compiler|teardown",
   "qc": "tests/test_callback_threads.py::test_culogs_register_unregister_from_many_threads|teardown",
-  "rc": "tests/test_cuda.py::test_cuda_struct_list_of_enums|teardown",
-  "sc": "tests/test_cuda.py::test_device_get_host_atomic_capabilities_item_size|teardown",
-  "tc": "tests/test_cudart.py::test_cudaDevSmResourceSplitByCount|teardown",
-  "uc": "tests/test_cudart.py::test_struct_pointer_comparison[cudaGraph_t]|teardown",
+  "rc": "tests/test_cuda.py::test_CUmemDecompressParams_st|teardown",
+  "sc": "tests/test_cuda.py::test_cuda_uuid_list_access|teardown",
+  "tc": "tests/test_cudart.py::test_cudart_cudaGraphNodeGetDependencies_edgeData_outlives_call|teardown",
+  "uc": "tests/test_cudart.py::test_cudart_graphs|teardown",
   "vc": "tests/test_cufile.py::test_batch_io_basic|teardown",
   "wc": "tests/test_cufile.py::test_batch_io_cancel|teardown",
   "xc": "tests/test_cufile.py::test_batch_io_large_operations|teardown",
@@ -234,30 +234,32 @@
   "Uc": "tests/test_cufile.py::test_set_parameter_posix_pool_slab_array|teardown",
   "Vc": "tests/test_cufile.py::test_set_stats_level|teardown",
   "Wc": "tests/test_cufile.py::test_stats_start_stop|teardown",
-  "Xc": "tests/test_envvar.py::test_envvar_bool_parsing[negative-zero]|teardown",
-  "Yc": "tests/test_envvar.py::test_envvar_bool_parsing[unrecognised]|teardown",
+  "Xc": "tests/test_envvar.py::test_envvar_bool_parsing[on]|teardown",
+  "Yc": "tests/test_envvar.py::test_envvar_bool_parsing[zero]|teardown",
   "Zc": "tests/test_graph_node_params_lifetime.py::test_dsts_getter_reads_public_count_field|teardown",
-  "0c": "tests/test_graph_node_params_lifetime.py::test_set_dsts_srcs_raises_without_leaking_or_mutating_on_bad_element|teardown",
-  "1c": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsNone: 0\u003e]|teardown",
-  "2c": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard: 2\u003e]|teardown",
+  "0c": "tests/test_graph_node_params_lifetime.py::test_set_dsts_srcs_updates_both_and_shared_count|teardown",
+  "1c": "tests/test_graphics_apis.py::test_cuda_gl_register_image_smoketest[\u003ccudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard: 2\u003e]|teardown",
+  "2c": "tests/test_graphics_apis.py::test_cuda_register_image_invalid|teardown",
   "3c": "tests/test_interoperability.py::test_interop_graphExec|teardown",
   "4c": "tests/test_interoperability.py::test_interop_stream|teardown",
-  "5c": "tests/test_kernelParams.py::test_kernelParams_buffer_protocol[not-by-address]|teardown",
-  "6c": "tests/test_kernelParams.py::test_kernelParams_c_int_out_of_range_raises|teardown",
-  "7c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_100]|teardown",
-  "8c": "tests/test_nvfatbin.py::test_nvfatbin_add_ptx[sm_80-6.4]|teardown",
-  "9c": "tests/test_nvjitlink.py::test_add_file[sm_90_8.5]|teardown",
-  "!c": "tests/test_nvjitlink.py::test_add_file[sm_100_8.8]|teardown",
+  "5c": "tests/test_kernelParams.py::test_kernelParams[no-ctypes]|teardown",
+  "6c": "tests/test_nvfatbin.py::test_nvfatbin_add_cubin[sm_75]|teardown",
+  "7c": "tests/test_nvfatbin.py::test_nvfatbin_add_reloc[sm_90]|teardown",
+  "8c": "tests/test_nvjitlink.py::test_get_info_log[sm_80_7.0]|teardown",
+  "9c": "tests/test_nvjitlink.py::test_get_linked_ltoir[sm_100]|teardown",
+  "!c": "tests/test_nvrtc.py::test_get_bundled_headers_info|teardown",
   "#c": "tests/test_nvrtc.py::test_get_lowered_name_failure|teardown",
-  "$c": "tests/test_nvrtc.py::test_get_lowered_name|teardown",
-  "%c": "tests/test_nvvm.py::test_nvvm_version|teardown",
-  "'c": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options0]|teardown",
-  "(c": "tests/test_utils.py::test_get_handle_error[target2]|teardown",
-  ")c": "tests/test_utils.py::test_ptx_utils[\\n.version 8.8\\n.target sm_75\\n.address_size 64\\n\\n\\t// .globl\\tempty_kernel\\n\\n.visible .entry empty_kernel()\\n{\\n\\tret;\\n}\\n-8.8-12090]|teardown",
-  "*c": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_no_warning_when_driver_newer|teardown",
-  "+c": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_suppressed_by_env_var|teardown",
-  ",c": "tests/test_cuda.py::test_CUmemDecompressParams_st|run",
-  "-c": "tests/test_cuda.py::test_driver_namespace_naming|run"
+  "$c": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[bitcode_static-options1]|teardown",
+  "%c": "tests/test_nvvm.py::test_verify_program_with_minimal_nvvm_ir[txt-options0]|teardown",
+  "'c": "tests/test_utils.py::test_cyclical_imports[nvrtc]|teardown",
+  "(c": "tests/test_utils.py::test_get_handle_error[target0]|teardown",
+  ")c": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_not_suppressed_when_env_var_is_zero|teardown",
+  "*c": "tests/test_version_check.py::TestVersionCompatibilityCheck::test_warning_when_compile_major_newer|teardown",
+  "+c": "tests/example_tests/test_samples.py::test_sample[cuda_bindings/4_CUDA_Libraries/conjugateGradientMultiBlockCG]|run",
+  ",c": "tests/legacy_api/test_legacy_cuda.py::test_struct_pointer_comparison[CUkernel]|run",
+  "-c": "tests/test_cuda.py::test_CUmemDecompressParams_st|run",
+  ".c": "tests/test_cuda.py::test_driver_namespace_naming|run",
+  "/c": "tests/test_cuda.py::test_stream_capture|run"
 }
     </script>
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -320,7 +322,7 @@
             <a id="nextFileLink" class="nav" href="z_455c44172918477c_nvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.5">coverage.py v7.17.5</a>,
-            created at 2026-11-27 01:19 +0000
+            created at 2026-11-28 00:56 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -3102,10 +3104,10 @@
     <p class="pln"><span class="n"><a id="t2765" href="#t2765">2765</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t2766" href="#t2766">2766</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs2766" class="ctx">(empty)</label></span></p>
     <p class="pln"><span class="n"><a id="t2767" href="#t2767">2767</a></span><span class="t"><span class="txt">cdef int check_status(int status) except 1 nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t2768" href="#t2768">2768</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs2768"><span class="r"><label for="ctxs2768" class="ctx">236 ctx</label></span><span class="ctxs">2]b^bmbnbob_b`bpbqb{brb|b! sb}btb~bubacbcccvbwbdcxbybeczbfcAbgcBbCbhcicjcDbEbFbkcGblcmcHbncIbocpcJbKbqc8 E LbK jbx Mbp kbQ k #bC l ' ( lb7 U F X Y n L w o T i rc1 2 + scR W 0 r D Z 9 b g 3 S ;b=btcNbObucM , vc'b- wcN . xc(b/ yc$ : zc)b# Ac*b; Bc+b= Cc,b? DcG @ EcI [ Fc% ] GcO ^ HcP _ Ic` JcJ { Kc?b| Lc} Mc4 ~ Nc5 abOc6 bbPccbQcdbRcebScfbTcgbUchbVcibWcXcPbYcQbRbZcSb0cTb1cUb2c-b.bVb) 3cWb/bXbH :b4ce Ybd u y 5cv j Zb6cm h f B 0b7c8c1b2b9c!c3b#c$c4b5b%c'c6b7b8b(c)c9b*c!b+c</span></p>
+    <p class="run"><span class="n"><a id="t2768" href="#t2768">2768</a></span><span class="t"><span class="txt">    if status != 0:</span>&nbsp;</span><input type="checkbox" id="ctxs2768"><span class="r"><label for="ctxs2768" class="ctx">237 ctx</label></span><span class="ctxs">2[b]bmbnbob^bpb_bqb`brb{bsb|b! tb}bub~bacvbbcwbccxbdcecybzbfcAbgcBbhcCbicDbjcEbFbkcGblcmcHbIbncJbocKbpcLbqcrc8 E K jbx p kbMbQ k Nb$bC l ' ( lb7 U F X Y n L w o T i 1 sc2 + R W 0 r D Z 9 b g 3 S =b?bObPbtcucM , vc(b- wcN . xc)b/ yc$ : zc*b; Ac+b= Bc,b? Cc-b@ DcG [ EcI ] Fc% ^ GcO _ HcP ` Ic{ JcJ | Kc@b} Lc~ Mc4 # Nc5 abOc6 bbPccbQcdbRcebScfbTcgbUchbVcibWcQbRbXcYcZcSbTb0cUb1cVb2c.b/bWb) 3cXb:bH ;bYb4ce d 5cu y Zbv 0bj m h f B 1b2b6c7c3b8c4b9c5b!c6b#c7b8b$c%c'c9b!b(c)c#b*c</span></p>
     <p class="run"><span class="n"><a id="t2769" href="#t2769">2769</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><input type="checkbox" id="ctxs2769"><span class="r"><label for="ctxs2769" class="ctx">12 ctx</label></span><span class="ctxs">28 jbx kblbU X r D Z 9 B </span></p>
     <p class="run"><span class="n"><a id="t2770" href="#t2770">2770</a></span><span class="t"><span class="txt">            raise _driver_error_factory(status)</span>&nbsp;</span><input type="checkbox" id="ctxs2770"><span class="r"><label for="ctxs2770" class="ctx">12 ctx</label></span><span class="ctxs">28 jbx kblbU X r D Z 9 B </span></p>
-    <p class="run"><span class="n"><a id="t2771" href="#t2771">2771</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs2771"><span class="r"><label for="ctxs2771" class="ctx">231 ctx</label></span><span class="ctxs">2]b^bmbnbob_b`bpbqb{brb|b! sb}btb~bubacbcccvbwbdcxbybeczbfcAbgcBbCbhcicjcDbEbFbkcGblcmcHbncIbocpcJbKbqc8 E LbK x Mbp Q k #bC l ' ( 7 U F Y n L w o T i rc1 2 + scR W 0 r D Z b g 3 S ;b=btcNbObucM , vc'b- wcN . xc(b/ yc$ : zc)b# Ac*b; Bc+b= Cc,b? DcG @ EcI [ Fc% ] GcO ^ HcP _ Ic` JcJ { Kc?b| Lc} Mc4 ~ Nc5 abOc6 bbPccbQcdbRcebScfbTcgbUchbVcibWcXcPbYcQbRbZcSb0cTb1cUb2c-b.bVb) 3cWb/bXbH :b4ce Ybd u y 5cv j Zb6cm h f B 0b7c8c1b2b9c!c3b#c$c4b5b%c'c6b7b8b(c)c9b*c!b+c</span></p>
+    <p class="run"><span class="n"><a id="t2771" href="#t2771">2771</a></span><span class="t"><span class="txt">    return status</span>&nbsp;</span><input type="checkbox" id="ctxs2771"><span class="r"><label for="ctxs2771" class="ctx">232 ctx</label></span><span class="ctxs">2[b]bmbnbob^bpb_bqb`brb{bsb|b! tb}bub~bacvbbcwbccxbdcecybzbfcAbgcBbhcCbicDbjcEbFbkcGblcmcHbIbncJbocKbpcLbqcrc8 E K x p MbQ k Nb$bC l ' ( 7 U F Y n L w o T i 1 sc2 + R W 0 r D Z b g 3 S =b?bObPbtcucM , vc(b- wcN . xc)b/ yc$ : zc*b; Ac+b= Bc,b? Cc-b@ DcG [ EcI ] Fc% ^ GcO _ HcP ` Ic{ JcJ | Kc@b} Lc~ Mc4 # Nc5 abOc6 bbPccbQcdbRcebScfbTcgbUchbVcibWcQbRbXcYcZcSbTb0cUb1cVb2c.b/bWb) 3cXb:bH ;bYb4ce d 5cu y Zbv 0bj m h f B 1b2b6c7c3b8c4b9c5b!c6b#c7b8b$c%c'c9b!b(c)c#b*c</span></p>
     <p class="pln"><span class="n"><a id="t2772" href="#t2772">2772</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2773" href="#t2773">2773</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t2774" href="#t2774">2774</a></span><span class="t"><span class="txt">@cython.profile(False)</span>&nbsp;</span><span class="r"><label for="ctxs2774" class="ctx">(empty)</label></span></p>
@@ -3680,7 +3682,7 @@
     <p class="pln"><span class="n"><a id="t3343" href="#t3343">3343</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3344" href="#t3344">3344</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3345" href="#t3345">3345</a></span><span class="t"><span class="txt">        cdef CUstreamMemOpFlushRemoteWritesParams_st *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t3346" href="#t3346">3346</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs3346"><span class="r"><label for="ctxs3346" class="ctx">2 ctx</label></span><span class="ctxs">2@b[b</span></p>
+    <p class="run"><span class="n"><a id="t3346" href="#t3346">3346</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs3346"><span class="r"><label for="ctxs3346" class="ctx">2 ctx</label></span><span class="ctxs">2+c,c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t3347" href="#t3347">3347</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t3348" href="#t3348">3348</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t3349" href="#t3349">3349</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><span class="r"></span></p>
@@ -10379,9 +10381,9 @@
     <p class="pln"><span class="n"><a id="t10042" href="#t10042">10042</a></span><span class="t"><span class="txt">        bint _readonly</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10043" href="#t10043">10043</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10044" href="#t10044">10044</a></span><span class="t"><span class="txt">    def __init__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10045" href="#t10045">10045</a></span><span class="t"><span class="txt">        self._ptr = &amp;self._data</span>&nbsp;</span><input type="checkbox" id="ctxs10045"><span class="r"><label for="ctxs10045" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
-    <p class="run"><span class="n"><a id="t10046" href="#t10046">10046</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><input type="checkbox" id="ctxs10046"><span class="r"><label for="ctxs10046" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
-    <p class="run"><span class="n"><a id="t10047" href="#t10047">10047</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><input type="checkbox" id="ctxs10047"><span class="r"><label for="ctxs10047" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t10045" href="#t10045">10045</a></span><span class="t"><span class="txt">        self._ptr = &amp;self._data</span>&nbsp;</span><input type="checkbox" id="ctxs10045"><span class="r"><label for="ctxs10045" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
+    <p class="run"><span class="n"><a id="t10046" href="#t10046">10046</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><input type="checkbox" id="ctxs10046"><span class="r"><label for="ctxs10046" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
+    <p class="run"><span class="n"><a id="t10047" href="#t10047">10047</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><input type="checkbox" id="ctxs10047"><span class="r"><label for="ctxs10047" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
     <p class="pln"><span class="n"><a id="t10048" href="#t10048">10048</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10049" href="#t10049">10049</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t10050" href="#t10050">10050</a></span><span class="t"><span class="txt">        return f&quot;&lt;{__name__}.TextureDesc_v1 object at {hex(id(self))}&gt;&quot;</span>&nbsp;</span><span class="r"></span></p>
@@ -10433,19 +10435,19 @@
     <p class="pln"><span class="n"><a id="t10096" href="#t10096">10096</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10097" href="#t10097">10097</a></span><span class="t"><span class="txt">    def address_mode(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10098" href="#t10098">10098</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;~_numpy.int32: (array of length 3).&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10099" href="#t10099">10099</a></span><span class="t"><span class="txt">        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(intptr_t), format=&quot;q&quot;, mode=&quot;c&quot;, allocate_buffer=False)</span>&nbsp;</span><input type="checkbox" id="ctxs10099"><span class="r"><label for="ctxs10099" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
-    <p class="run"><span class="n"><a id="t10100" href="#t10100">10100</a></span><span class="t"><span class="txt">        arr.data = &lt;char *&gt;(&amp;(self._ptr[0].addressMode))</span>&nbsp;</span><input type="checkbox" id="ctxs10100"><span class="r"><label for="ctxs10100" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
-    <p class="run"><span class="n"><a id="t10101" href="#t10101">10101</a></span><span class="t"><span class="txt">        return _numpy.asarray(arr)</span>&nbsp;</span><input type="checkbox" id="ctxs10101"><span class="r"><label for="ctxs10101" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t10099" href="#t10099">10099</a></span><span class="t"><span class="txt">        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(intptr_t), format=&quot;q&quot;, mode=&quot;c&quot;, allocate_buffer=False)</span>&nbsp;</span><input type="checkbox" id="ctxs10099"><span class="r"><label for="ctxs10099" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
+    <p class="run"><span class="n"><a id="t10100" href="#t10100">10100</a></span><span class="t"><span class="txt">        arr.data = &lt;char *&gt;(&amp;(self._ptr[0].addressMode))</span>&nbsp;</span><input type="checkbox" id="ctxs10100"><span class="r"><label for="ctxs10100" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
+    <p class="run"><span class="n"><a id="t10101" href="#t10101">10101</a></span><span class="t"><span class="txt">        return _numpy.asarray(arr)</span>&nbsp;</span><input type="checkbox" id="ctxs10101"><span class="r"><label for="ctxs10101" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
     <p class="pln"><span class="n"><a id="t10102" href="#t10102">10102</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10103" href="#t10103">10103</a></span><span class="t"><span class="txt">    @address_mode.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10104" href="#t10104">10104</a></span><span class="t"><span class="txt">    def address_mode(self, val):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10105" href="#t10105">10105</a></span><span class="t"><span class="txt">        if self._readonly:</span>&nbsp;</span><input type="checkbox" id="ctxs10105"><span class="r"><label for="ctxs10105" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t10105" href="#t10105">10105</a></span><span class="t"><span class="txt">        if self._readonly:</span>&nbsp;</span><input type="checkbox" id="ctxs10105"><span class="r"><label for="ctxs10105" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t10106" href="#t10106">10106</a></span><span class="t"><span class="txt">            raise ValueError(&quot;This TextureDesc_v1 instance is read-only&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10107" href="#t10107">10107</a></span><span class="t"><span class="txt">        if len(val) != 3:</span>&nbsp;</span><input type="checkbox" id="ctxs10107"><span class="r"><label for="ctxs10107" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t10107" href="#t10107">10107</a></span><span class="t"><span class="txt">        if len(val) != 3:</span>&nbsp;</span><input type="checkbox" id="ctxs10107"><span class="r"><label for="ctxs10107" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
     <p class="mis show_mis"><span class="n"><a id="t10108" href="#t10108">10108</a></span><span class="t"><span class="txt">            raise ValueError(f&quot;Expected length { 3 } for field address_mode, got {len(val)}&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t10109" href="#t10109">10109</a></span><span class="t"><span class="txt">        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(intptr_t), format=&quot;q&quot;, mode=&quot;c&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs10109"><span class="r"><label for="ctxs10109" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
-    <p class="run"><span class="n"><a id="t10110" href="#t10110">10110</a></span><span class="t"><span class="txt">        arr[:] = _numpy.asarray(val, dtype=_numpy.intp)</span>&nbsp;</span><input type="checkbox" id="ctxs10110"><span class="r"><label for="ctxs10110" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
-    <p class="run"><span class="n"><a id="t10111" href="#t10111">10111</a></span><span class="t"><span class="txt">        _cyb_memcpy(&lt;void *&gt;(&amp;(self._ptr[0].addressMode)), &lt;void *&gt;(arr.data), sizeof(intptr_t) * len(val))</span>&nbsp;</span><input type="checkbox" id="ctxs10111"><span class="r"><label for="ctxs10111" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t10109" href="#t10109">10109</a></span><span class="t"><span class="txt">        cdef _cyb_view.array arr = _cyb_view.array(shape=(3,), itemsize=sizeof(intptr_t), format=&quot;q&quot;, mode=&quot;c&quot;)</span>&nbsp;</span><input type="checkbox" id="ctxs10109"><span class="r"><label for="ctxs10109" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
+    <p class="run"><span class="n"><a id="t10110" href="#t10110">10110</a></span><span class="t"><span class="txt">        arr[:] = _numpy.asarray(val, dtype=_numpy.intp)</span>&nbsp;</span><input type="checkbox" id="ctxs10110"><span class="r"><label for="ctxs10110" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
+    <p class="run"><span class="n"><a id="t10111" href="#t10111">10111</a></span><span class="t"><span class="txt">        _cyb_memcpy(&lt;void *&gt;(&amp;(self._ptr[0].addressMode)), &lt;void *&gt;(arr.data), sizeof(intptr_t) * len(val))</span>&nbsp;</span><input type="checkbox" id="ctxs10111"><span class="r"><label for="ctxs10111" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
     <p class="pln"><span class="n"><a id="t10112" href="#t10112">10112</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10113" href="#t10113">10113</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t10114" href="#t10114">10114</a></span><span class="t"><span class="txt">    def filter_mode(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -12679,7 +12681,7 @@
     <p class="pln"><span class="n"><a id="t12342" href="#t12342">12342</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12343" href="#t12343">12343</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12344" href="#t12344">12344</a></span><span class="t"><span class="txt">        cdef cuda_bindings_driver__anon_pod32 *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t12345" href="#t12345">12345</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs12345"><span class="r"><label for="ctxs12345" class="ctx">2 ctx</label></span><span class="ctxs">2@b[b</span></p>
+    <p class="run"><span class="n"><a id="t12345" href="#t12345">12345</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs12345"><span class="r"><label for="ctxs12345" class="ctx">2 ctx</label></span><span class="ctxs">2+c,c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t12346" href="#t12346">12346</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t12347" href="#t12347">12347</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t12348" href="#t12348">12348</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><span class="r"></span></p>
@@ -15120,9 +15122,9 @@
     <p class="pln"><span class="n"><a id="t14783" href="#t14783">14783</a></span><span class="t"><span class="txt">        bint _readonly</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14784" href="#t14784">14784</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14785" href="#t14785">14785</a></span><span class="t"><span class="txt">    def __init__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14786" href="#t14786">14786</a></span><span class="t"><span class="txt">        self._ptr = &amp;self._data</span>&nbsp;</span><input type="checkbox" id="ctxs14786"><span class="r"><label for="ctxs14786" class="ctx">1 ctx</label></span><span class="ctxs">2,c</span></p>
-    <p class="run"><span class="n"><a id="t14787" href="#t14787">14787</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><input type="checkbox" id="ctxs14787"><span class="r"><label for="ctxs14787" class="ctx">1 ctx</label></span><span class="ctxs">2,c</span></p>
-    <p class="run"><span class="n"><a id="t14788" href="#t14788">14788</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><input type="checkbox" id="ctxs14788"><span class="r"><label for="ctxs14788" class="ctx">1 ctx</label></span><span class="ctxs">2,c</span></p>
+    <p class="run"><span class="n"><a id="t14786" href="#t14786">14786</a></span><span class="t"><span class="txt">        self._ptr = &amp;self._data</span>&nbsp;</span><input type="checkbox" id="ctxs14786"><span class="r"><label for="ctxs14786" class="ctx">1 ctx</label></span><span class="ctxs">2-c</span></p>
+    <p class="run"><span class="n"><a id="t14787" href="#t14787">14787</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><input type="checkbox" id="ctxs14787"><span class="r"><label for="ctxs14787" class="ctx">1 ctx</label></span><span class="ctxs">2-c</span></p>
+    <p class="run"><span class="n"><a id="t14788" href="#t14788">14788</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><input type="checkbox" id="ctxs14788"><span class="r"><label for="ctxs14788" class="ctx">1 ctx</label></span><span class="ctxs">2-c</span></p>
     <p class="pln"><span class="n"><a id="t14789" href="#t14789">14789</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14790" href="#t14790">14790</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t14791" href="#t14791">14791</a></span><span class="t"><span class="txt">        return f&quot;&lt;{__name__}.MemDecompressParams object at {hex(id(self))}&gt;&quot;</span>&nbsp;</span><span class="r"></span></p>
@@ -15196,7 +15198,7 @@
     <p class="pln"><span class="n"><a id="t14859" href="#t14859">14859</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14860" href="#t14860">14860</a></span><span class="t"><span class="txt">    def dst_act_bytes(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14861" href="#t14861">14861</a></span><span class="t"><span class="txt">        &quot;&quot;&quot;int: &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14862" href="#t14862">14862</a></span><span class="t"><span class="txt">        return &lt;intptr_t&gt;(self._ptr[0].dstActBytes)</span>&nbsp;</span><input type="checkbox" id="ctxs14862"><span class="r"><label for="ctxs14862" class="ctx">1 ctx</label></span><span class="ctxs">2,c</span></p>
+    <p class="run"><span class="n"><a id="t14862" href="#t14862">14862</a></span><span class="t"><span class="txt">        return &lt;intptr_t&gt;(self._ptr[0].dstActBytes)</span>&nbsp;</span><input type="checkbox" id="ctxs14862"><span class="r"><label for="ctxs14862" class="ctx">1 ctx</label></span><span class="ctxs">2-c</span></p>
     <p class="pln"><span class="n"><a id="t14863" href="#t14863">14863</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14864" href="#t14864">14864</a></span><span class="t"><span class="txt">    @dst_act_bytes.setter</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14865" href="#t14865">14865</a></span><span class="t"><span class="txt">    def dst_act_bytes(self, val):</span>&nbsp;</span><span class="r"></span></p>
@@ -15318,7 +15320,7 @@
     <p class="pln"><span class="n"><a id="t14981" href="#t14981">14981</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14982" href="#t14982">14982</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t14983" href="#t14983">14983</a></span><span class="t"><span class="txt">        cdef CUdevSmResource *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14984" href="#t14984">14984</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs14984"><span class="r"><label for="ctxs14984" class="ctx">2 ctx</label></span><span class="ctxs">2@b[b</span></p>
+    <p class="run"><span class="n"><a id="t14984" href="#t14984">14984</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs14984"><span class="r"><label for="ctxs14984" class="ctx">2 ctx</label></span><span class="ctxs">2+c/c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t14985" href="#t14985">14985</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t14986" href="#t14986">14986</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t14987" href="#t14987">14987</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><span class="r"></span></p>
@@ -15800,8 +15802,8 @@
     <p class="pln"><span class="n"><a id="t15463" href="#t15463">15463</a></span><span class="t"><span class="txt">        object _owner</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15464" href="#t15464">15464</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15465" href="#t15465">15465</a></span><span class="t"><span class="txt">    def __init__(self, size=1):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15466" href="#t15466">15466</a></span><span class="t"><span class="txt">        self._data = _numpy.zeros(size, dtype=dev_sm_resource_group_params_dtype_record)</span>&nbsp;</span><input type="checkbox" id="ctxs15466"><span class="r"><label for="ctxs15466" class="ctx">2 ctx</label></span><span class="ctxs">2x -c</span></p>
-    <p class="run"><span class="n"><a id="t15467" href="#t15467">15467</a></span><span class="t"><span class="txt">        assert self._data.itemsize == sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS), \</span>&nbsp;</span><input type="checkbox" id="ctxs15467"><span class="r"><label for="ctxs15467" class="ctx">2 ctx</label></span><span class="ctxs">2x -c</span></p>
+    <p class="run"><span class="n"><a id="t15466" href="#t15466">15466</a></span><span class="t"><span class="txt">        self._data = _numpy.zeros(size, dtype=dev_sm_resource_group_params_dtype_record)</span>&nbsp;</span><input type="checkbox" id="ctxs15466"><span class="r"><label for="ctxs15466" class="ctx">2 ctx</label></span><span class="ctxs">2x .c</span></p>
+    <p class="run"><span class="n"><a id="t15467" href="#t15467">15467</a></span><span class="t"><span class="txt">        assert self._data.itemsize == sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS), \</span>&nbsp;</span><input type="checkbox" id="ctxs15467"><span class="r"><label for="ctxs15467" class="ctx">2 ctx</label></span><span class="ctxs">2x .c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t15468" href="#t15468">15468</a></span><span class="t"><span class="txt">            f&quot;itemsize {self._data.itemsize} mismatches struct size { sizeof(CU_DEV_SM_RESOURCE_GROUP_PARAMS) }&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15469" href="#t15469">15469</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15470" href="#t15470">15470</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -15826,7 +15828,7 @@
     <p class="run"><span class="n"><a id="t15489" href="#t15489">15489</a></span><span class="t"><span class="txt">        return _cyb_array_ptr(self._data)</span>&nbsp;</span><input type="checkbox" id="ctxs15489"><span class="r"><label for="ctxs15489" class="ctx">1 ctx</label></span><span class="ctxs">1x</span></p>
     <p class="pln"><span class="n"><a id="t15490" href="#t15490">15490</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15491" href="#t15491">15491</a></span><span class="t"><span class="txt">    def __len__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t15492" href="#t15492">15492</a></span><span class="t"><span class="txt">        return self._data.size</span>&nbsp;</span><input type="checkbox" id="ctxs15492"><span class="r"><label for="ctxs15492" class="ctx">1 ctx</label></span><span class="ctxs">2-c</span></p>
+    <p class="run"><span class="n"><a id="t15492" href="#t15492">15492</a></span><span class="t"><span class="txt">        return self._data.size</span>&nbsp;</span><input type="checkbox" id="ctxs15492"><span class="r"><label for="ctxs15492" class="ctx">1 ctx</label></span><span class="ctxs">2.c</span></p>
     <p class="pln"><span class="n"><a id="t15493" href="#t15493">15493</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t15494" href="#t15494">15494</a></span><span class="t"><span class="txt">    def __eq__(self, other):</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t15495" href="#t15495">15495</a></span><span class="t"><span class="txt">        cdef object self_data = self._data</span>&nbsp;</span><span class="r"></span></p>
@@ -16909,7 +16911,7 @@
     <p class="pln"><span class="n"><a id="t16572" href="#t16572">16572</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16573" href="#t16573">16573</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16574" href="#t16574">16574</a></span><span class="t"><span class="txt">        cdef CUstreamMemOpWaitValueParams_st *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16575" href="#t16575">16575</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs16575"><span class="r"><label for="ctxs16575" class="ctx">2 ctx</label></span><span class="ctxs">2@b[b</span></p>
+    <p class="run"><span class="n"><a id="t16575" href="#t16575">16575</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs16575"><span class="r"><label for="ctxs16575" class="ctx">2 ctx</label></span><span class="ctxs">2+c,c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t16576" href="#t16576">16576</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t16577" href="#t16577">16577</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t16578" href="#t16578">16578</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><span class="r"></span></p>
@@ -17111,7 +17113,7 @@
     <p class="pln"><span class="n"><a id="t16774" href="#t16774">16774</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16775" href="#t16775">16775</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t16776" href="#t16776">16776</a></span><span class="t"><span class="txt">        cdef CUstreamMemOpWriteValueParams_st *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t16777" href="#t16777">16777</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs16777"><span class="r"><label for="ctxs16777" class="ctx">2 ctx</label></span><span class="ctxs">2@b[b</span></p>
+    <p class="run"><span class="n"><a id="t16777" href="#t16777">16777</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs16777"><span class="r"><label for="ctxs16777" class="ctx">2 ctx</label></span><span class="ctxs">2+c,c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t16778" href="#t16778">16778</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t16779" href="#t16779">16779</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t16780" href="#t16780">16780</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><span class="r"></span></p>
@@ -17653,22 +17655,22 @@
     <p class="pln"><span class="n"><a id="t17316" href="#t17316">17316</a></span><span class="t"><span class="txt">        bint _readonly</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17317" href="#t17317">17317</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17318" href="#t17318">17318</a></span><span class="t"><span class="txt">    def __init__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17319" href="#t17319">17319</a></span><span class="t"><span class="txt">        self._ptr = &lt;CUlaunchAttributeValue *&gt;_cyb_calloc(1, sizeof(CUlaunchAttributeValue))</span>&nbsp;</span><input type="checkbox" id="ctxs17319"><span class="r"><label for="ctxs17319" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
-    <p class="run"><span class="n"><a id="t17320" href="#t17320">17320</a></span><span class="t"><span class="txt">        if self._ptr == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs17320"><span class="r"><label for="ctxs17320" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
+    <p class="run"><span class="n"><a id="t17319" href="#t17319">17319</a></span><span class="t"><span class="txt">        self._ptr = &lt;CUlaunchAttributeValue *&gt;_cyb_calloc(1, sizeof(CUlaunchAttributeValue))</span>&nbsp;</span><input type="checkbox" id="ctxs17319"><span class="r"><label for="ctxs17319" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
+    <p class="run"><span class="n"><a id="t17320" href="#t17320">17320</a></span><span class="t"><span class="txt">        if self._ptr == NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs17320"><span class="r"><label for="ctxs17320" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
     <p class="mis show_mis"><span class="n"><a id="t17321" href="#t17321">17321</a></span><span class="t"><span class="txt">            raise MemoryError(&quot;Error allocating LaunchAttributeValue&quot;)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17322" href="#t17322">17322</a></span><span class="t"><span class="txt">        self._owns_ptr = True</span>&nbsp;</span><input type="checkbox" id="ctxs17322"><span class="r"><label for="ctxs17322" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
-    <p class="run"><span class="n"><a id="t17323" href="#t17323">17323</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><input type="checkbox" id="ctxs17323"><span class="r"><label for="ctxs17323" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
-    <p class="run"><span class="n"><a id="t17324" href="#t17324">17324</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><input type="checkbox" id="ctxs17324"><span class="r"><label for="ctxs17324" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
+    <p class="run"><span class="n"><a id="t17322" href="#t17322">17322</a></span><span class="t"><span class="txt">        self._owns_ptr = True</span>&nbsp;</span><input type="checkbox" id="ctxs17322"><span class="r"><label for="ctxs17322" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
+    <p class="run"><span class="n"><a id="t17323" href="#t17323">17323</a></span><span class="t"><span class="txt">        self._owner = None</span>&nbsp;</span><input type="checkbox" id="ctxs17323"><span class="r"><label for="ctxs17323" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
+    <p class="run"><span class="n"><a id="t17324" href="#t17324">17324</a></span><span class="t"><span class="txt">        self._readonly = False</span>&nbsp;</span><input type="checkbox" id="ctxs17324"><span class="r"><label for="ctxs17324" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
     <p class="pln"><span class="n"><a id="t17325" href="#t17325">17325</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17326" href="#t17326">17326</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17327" href="#t17327">17327</a></span><span class="t"><span class="txt">        cdef CUlaunchAttributeValue *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17328" href="#t17328">17328</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs17328"><span class="r"><label for="ctxs17328" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
-    <p class="run"><span class="n"><a id="t17329" href="#t17329">17329</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><input type="checkbox" id="ctxs17329"><span class="r"><label for="ctxs17329" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
-    <p class="run"><span class="n"><a id="t17330" href="#t17330">17330</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs17330"><span class="r"><label for="ctxs17330" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
-    <p class="run"><span class="n"><a id="t17331" href="#t17331">17331</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs17331"><span class="r"><label for="ctxs17331" class="ctx">2 ctx</label></span><span class="ctxs">2%bz </span></p>
+    <p class="run"><span class="n"><a id="t17328" href="#t17328">17328</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs17328"><span class="r"><label for="ctxs17328" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
+    <p class="run"><span class="n"><a id="t17329" href="#t17329">17329</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><input type="checkbox" id="ctxs17329"><span class="r"><label for="ctxs17329" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
+    <p class="run"><span class="n"><a id="t17330" href="#t17330">17330</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><input type="checkbox" id="ctxs17330"><span class="r"><label for="ctxs17330" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
+    <p class="run"><span class="n"><a id="t17331" href="#t17331">17331</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><input type="checkbox" id="ctxs17331"><span class="r"><label for="ctxs17331" class="ctx">2 ctx</label></span><span class="ctxs">2'bz </span></p>
     <p class="pln"><span class="n"><a id="t17332" href="#t17332">17332</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17333" href="#t17333">17333</a></span><span class="t"><span class="txt">    def __repr__(self):</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17334" href="#t17334">17334</a></span><span class="t"><span class="txt">        return f&quot;&lt;{__name__}.LaunchAttributeValue object at {hex(id(self))}&gt;&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs17334"><span class="r"><label for="ctxs17334" class="ctx">1 ctx</label></span><span class="ctxs">2%b</span></p>
+    <p class="run"><span class="n"><a id="t17334" href="#t17334">17334</a></span><span class="t"><span class="txt">        return f&quot;&lt;{__name__}.LaunchAttributeValue object at {hex(id(self))}&gt;&quot;</span>&nbsp;</span><input type="checkbox" id="ctxs17334"><span class="r"><label for="ctxs17334" class="ctx">1 ctx</label></span><span class="ctxs">2'b</span></p>
     <p class="pln"><span class="n"><a id="t17335" href="#t17335">17335</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17336" href="#t17336">17336</a></span><span class="t"><span class="txt">    @property</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17337" href="#t17337">17337</a></span><span class="t"><span class="txt">    def ptr(self):</span>&nbsp;</span><span class="r"></span></p>
@@ -18015,7 +18017,7 @@
     <p class="pln"><span class="n"><a id="t17678" href="#t17678">17678</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17679" href="#t17679">17679</a></span><span class="t"><span class="txt">    def __dealloc__(self):</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17680" href="#t17680">17680</a></span><span class="t"><span class="txt">        cdef cuda_bindings_driver__anon_pod10 *ptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17681" href="#t17681">17681</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs17681"><span class="r"><label for="ctxs17681" class="ctx">2 ctx</label></span><span class="ctxs">2@b[b</span></p>
+    <p class="run"><span class="n"><a id="t17681" href="#t17681">17681</a></span><span class="t"><span class="txt">        if self._owns_ptr and self._ptr != NULL:</span>&nbsp;</span><input type="checkbox" id="ctxs17681"><span class="r"><label for="ctxs17681" class="ctx">2 ctx</label></span><span class="ctxs">2,c/c</span></p>
     <p class="mis show_mis"><span class="n"><a id="t17682" href="#t17682">17682</a></span><span class="t"><span class="txt">            ptr = self._ptr</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t17683" href="#t17683">17683</a></span><span class="t"><span class="txt">            self._ptr = NULL</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t17684" href="#t17684">17684</a></span><span class="t"><span class="txt">            _cyb_free(ptr)</span>&nbsp;</span><span class="r"></span></p>
@@ -28036,12 +28038,12 @@
     <p class="pln"><span class="n"><a id="t27699" href="#t27699">27699</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27700" href="#t27700">27700</a></span><span class="t"><span class="txt">    .. seealso:: `cuThreadExchangeStreamCaptureMode`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27701" href="#t27701">27701</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t27702" href="#t27702">27702</a></span><span class="t"><span class="txt">    cdef CUstreamCaptureMode c_mode = &lt;CUstreamCaptureMode&gt;mode</span>&nbsp;</span><input type="checkbox" id="ctxs27702"><span class="r"><label for="ctxs27702" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
+    <p class="run"><span class="n"><a id="t27702" href="#t27702">27702</a></span><span class="t"><span class="txt">    cdef CUstreamCaptureMode c_mode = &lt;CUstreamCaptureMode&gt;mode</span>&nbsp;</span><input type="checkbox" id="ctxs27702"><span class="r"><label for="ctxs27702" class="ctx">1 ctx</label></span><span class="ctxs">2?b</span></p>
     <p class="pln"><span class="n"><a id="t27703" href="#t27703">27703</a></span><span class="t"><span class="txt">    cdef CUresult status</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t27704" href="#t27704">27704</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs27704"><span class="r"><label for="ctxs27704" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
-    <p class="run"><span class="n"><a id="t27705" href="#t27705">27705</a></span><span class="t"><span class="txt">        status = cuThreadExchangeStreamCaptureMode(&amp;c_mode)</span>&nbsp;</span><input type="checkbox" id="ctxs27705"><span class="r"><label for="ctxs27705" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
-    <p class="run"><span class="n"><a id="t27706" href="#t27706">27706</a></span><span class="t"><span class="txt">    check_status(status)</span>&nbsp;</span><input type="checkbox" id="ctxs27706"><span class="r"><label for="ctxs27706" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
-    <p class="run"><span class="n"><a id="t27707" href="#t27707">27707</a></span><span class="t"><span class="txt">    return &lt;int&gt;c_mode</span>&nbsp;</span><input type="checkbox" id="ctxs27707"><span class="r"><label for="ctxs27707" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
+    <p class="run"><span class="n"><a id="t27704" href="#t27704">27704</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs27704"><span class="r"><label for="ctxs27704" class="ctx">1 ctx</label></span><span class="ctxs">2?b</span></p>
+    <p class="run"><span class="n"><a id="t27705" href="#t27705">27705</a></span><span class="t"><span class="txt">        status = cuThreadExchangeStreamCaptureMode(&amp;c_mode)</span>&nbsp;</span><input type="checkbox" id="ctxs27705"><span class="r"><label for="ctxs27705" class="ctx">1 ctx</label></span><span class="ctxs">2?b</span></p>
+    <p class="run"><span class="n"><a id="t27706" href="#t27706">27706</a></span><span class="t"><span class="txt">    check_status(status)</span>&nbsp;</span><input type="checkbox" id="ctxs27706"><span class="r"><label for="ctxs27706" class="ctx">1 ctx</label></span><span class="ctxs">2?b</span></p>
+    <p class="run"><span class="n"><a id="t27707" href="#t27707">27707</a></span><span class="t"><span class="txt">    return &lt;int&gt;c_mode</span>&nbsp;</span><input type="checkbox" id="ctxs27707"><span class="r"><label for="ctxs27707" class="ctx">1 ctx</label></span><span class="ctxs">2?b</span></p>
     <p class="pln"><span class="n"><a id="t27708" href="#t27708">27708</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27709" href="#t27709">27709</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t27710" href="#t27710">27710</a></span><span class="t"><span class="txt">cpdef list tex_ref_get_border_color(intptr_t h_tex_ref):</span>&nbsp;</span><span class="r"><label for="ctxs27710" class="ctx">(empty)</label></span></p>
@@ -28346,9 +28348,9 @@
     <p class="pln"><span class="n"><a id="t28009" href="#t28009">28009</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28010" href="#t28010">28010</a></span><span class="t"><span class="txt">    .. seealso:: `cuInit`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28011" href="#t28011">28011</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28012" href="#t28012">28012</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28012"><span class="r"><label for="ctxs28012" class="ctx">79 ctx</label></span><span class="ctxs">2mbnbobpbqbrb! sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbOb, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28013" href="#t28013">28013</a></span><span class="t"><span class="txt">        __status__ = cuInit(flags)</span>&nbsp;</span><input type="checkbox" id="ctxs28013"><span class="r"><label for="ctxs28013" class="ctx">79 ctx</label></span><span class="ctxs">2mbnbobpbqbrb! sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbOb, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28014" href="#t28014">28014</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28014"><span class="r"><label for="ctxs28014" class="ctx">79 ctx</label></span><span class="ctxs">2mbnbobpbqbrb! sbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbOb, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
+    <p class="run"><span class="n"><a id="t28012" href="#t28012">28012</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28012"><span class="r"><label for="ctxs28012" class="ctx">80 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsb! tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPb, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbibQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28013" href="#t28013">28013</a></span><span class="t"><span class="txt">        __status__ = cuInit(flags)</span>&nbsp;</span><input type="checkbox" id="ctxs28013"><span class="r"><label for="ctxs28013" class="ctx">80 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsb! tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPb, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbibQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28014" href="#t28014">28014</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28014"><span class="r"><label for="ctxs28014" class="ctx">80 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsb! tbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPb, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbibQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
     <p class="pln"><span class="n"><a id="t28015" href="#t28015">28015</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28016" href="#t28016">28016</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28017" href="#t28017">28017</a></span><span class="t"><span class="txt">cpdef int driver_get_version() except? -1:</span>&nbsp;</span><span class="r"><label for="ctxs28017" class="ctx">(empty)</label></span></p>
@@ -28387,10 +28389,10 @@
     <p class="pln"><span class="n"><a id="t28050" href="#t28050">28050</a></span><span class="t"><span class="txt">    .. seealso:: `cuDeviceGet`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28051" href="#t28051">28051</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28052" href="#t28052">28052</a></span><span class="t"><span class="txt">    cdef CUdevice device</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28053" href="#t28053">28053</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28053"><span class="r"><label for="ctxs28053" class="ctx">79 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbZ NbOb, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28054" href="#t28054">28054</a></span><span class="t"><span class="txt">        __status__ = cuDeviceGet(&amp;device, ordinal)</span>&nbsp;</span><input type="checkbox" id="ctxs28054"><span class="r"><label for="ctxs28054" class="ctx">79 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbZ NbOb, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28055" href="#t28055">28055</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28055"><span class="r"><label for="ctxs28055" class="ctx">79 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbZ NbOb, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28056" href="#t28056">28056</a></span><span class="t"><span class="txt">    return device</span>&nbsp;</span><input type="checkbox" id="ctxs28056"><span class="r"><label for="ctxs28056" class="ctx">79 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbZ NbOb, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbibPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
+    <p class="run"><span class="n"><a id="t28053" href="#t28053">28053</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28053"><span class="r"><label for="ctxs28053" class="ctx">80 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbZ ObPb, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbibQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28054" href="#t28054">28054</a></span><span class="t"><span class="txt">        __status__ = cuDeviceGet(&amp;device, ordinal)</span>&nbsp;</span><input type="checkbox" id="ctxs28054"><span class="r"><label for="ctxs28054" class="ctx">80 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbZ ObPb, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbibQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28055" href="#t28055">28055</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28055"><span class="r"><label for="ctxs28055" class="ctx">80 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbZ ObPb, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbibQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28056" href="#t28056">28056</a></span><span class="t"><span class="txt">    return device</span>&nbsp;</span><input type="checkbox" id="ctxs28056"><span class="r"><label for="ctxs28056" class="ctx">80 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbZ ObPb, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbibQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
     <p class="pln"><span class="n"><a id="t28057" href="#t28057">28057</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28058" href="#t28058">28058</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28059" href="#t28059">28059</a></span><span class="t"><span class="txt">cpdef int device_get_count() except? -1:</span>&nbsp;</span><span class="r"><label for="ctxs28059" class="ctx">(empty)</label></span></p>
@@ -28545,10 +28547,10 @@
     <p class="pln"><span class="n"><a id="t28208" href="#t28208">28208</a></span><span class="t"><span class="txt">    .. seealso:: `cuDeviceGetAttribute`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28209" href="#t28209">28209</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28210" href="#t28210">28210</a></span><span class="t"><span class="txt">    cdef int pi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28211" href="#t28211">28211</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28211"><span class="r"><label for="ctxs28211" class="ctx">13 ctx</label></span><span class="ctxs">2! o ?be d u y v j m h f B </span></p>
-    <p class="run"><span class="n"><a id="t28212" href="#t28212">28212</a></span><span class="t"><span class="txt">        __status__ = cuDeviceGetAttribute(&amp;pi, &lt;CUdevice_attribute&gt;attrib, &lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28212"><span class="r"><label for="ctxs28212" class="ctx">13 ctx</label></span><span class="ctxs">2! o ?be d u y v j m h f B </span></p>
-    <p class="run"><span class="n"><a id="t28213" href="#t28213">28213</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28213"><span class="r"><label for="ctxs28213" class="ctx">13 ctx</label></span><span class="ctxs">2! o ?be d u y v j m h f B </span></p>
-    <p class="run"><span class="n"><a id="t28214" href="#t28214">28214</a></span><span class="t"><span class="txt">    return pi</span>&nbsp;</span><input type="checkbox" id="ctxs28214"><span class="r"><label for="ctxs28214" class="ctx">13 ctx</label></span><span class="ctxs">2! o ?be d u y v j m h f B </span></p>
+    <p class="run"><span class="n"><a id="t28211" href="#t28211">28211</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28211"><span class="r"><label for="ctxs28211" class="ctx">13 ctx</label></span><span class="ctxs">2! o @be d u y v j m h f B </span></p>
+    <p class="run"><span class="n"><a id="t28212" href="#t28212">28212</a></span><span class="t"><span class="txt">        __status__ = cuDeviceGetAttribute(&amp;pi, &lt;CUdevice_attribute&gt;attrib, &lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28212"><span class="r"><label for="ctxs28212" class="ctx">13 ctx</label></span><span class="ctxs">2! o @be d u y v j m h f B </span></p>
+    <p class="run"><span class="n"><a id="t28213" href="#t28213">28213</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28213"><span class="r"><label for="ctxs28213" class="ctx">13 ctx</label></span><span class="ctxs">2! o @be d u y v j m h f B </span></p>
+    <p class="run"><span class="n"><a id="t28214" href="#t28214">28214</a></span><span class="t"><span class="txt">    return pi</span>&nbsp;</span><input type="checkbox" id="ctxs28214"><span class="r"><label for="ctxs28214" class="ctx">13 ctx</label></span><span class="ctxs">2! o @be d u y v j m h f B </span></p>
     <p class="pln"><span class="n"><a id="t28215" href="#t28215">28215</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28216" href="#t28216">28216</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28217" href="#t28217">28217</a></span><span class="t"><span class="txt">cpdef device_set_mem_pool(int dev, intptr_t pool):</span>&nbsp;</span><span class="r"><label for="ctxs28217" class="ctx">(empty)</label></span></p>
@@ -28775,10 +28777,10 @@
     <p class="pln"><span class="n"><a id="t28438" href="#t28438">28438</a></span><span class="t"><span class="txt">    .. seealso:: `cuDevicePrimaryCtxRetain`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28439" href="#t28439">28439</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28440" href="#t28440">28440</a></span><span class="t"><span class="txt">    cdef CUcontext pctx</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28441" href="#t28441">28441</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28441"><span class="r"><label for="ctxs28441" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbib</span></p>
-    <p class="run"><span class="n"><a id="t28442" href="#t28442">28442</a></span><span class="t"><span class="txt">        __status__ = cuDevicePrimaryCtxRetain(&amp;pctx, &lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28442"><span class="r"><label for="ctxs28442" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbib</span></p>
-    <p class="run"><span class="n"><a id="t28443" href="#t28443">28443</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28443"><span class="r"><label for="ctxs28443" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbib</span></p>
-    <p class="run"><span class="n"><a id="t28444" href="#t28444">28444</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;pctx</span>&nbsp;</span><input type="checkbox" id="ctxs28444"><span class="r"><label for="ctxs28444" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbib</span></p>
+    <p class="run"><span class="n"><a id="t28441" href="#t28441">28441</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28441"><span class="r"><label for="ctxs28441" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbib</span></p>
+    <p class="run"><span class="n"><a id="t28442" href="#t28442">28442</a></span><span class="t"><span class="txt">        __status__ = cuDevicePrimaryCtxRetain(&amp;pctx, &lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28442"><span class="r"><label for="ctxs28442" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbib</span></p>
+    <p class="run"><span class="n"><a id="t28443" href="#t28443">28443</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28443"><span class="r"><label for="ctxs28443" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbib</span></p>
+    <p class="run"><span class="n"><a id="t28444" href="#t28444">28444</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;pctx</span>&nbsp;</span><input type="checkbox" id="ctxs28444"><span class="r"><label for="ctxs28444" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbib</span></p>
     <p class="pln"><span class="n"><a id="t28445" href="#t28445">28445</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28446" href="#t28446">28446</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28447" href="#t28447">28447</a></span><span class="t"><span class="txt">cpdef device_primary_ctx_release_v2(int dev):</span>&nbsp;</span><span class="r"><label for="ctxs28447" class="ctx">(empty)</label></span></p>
@@ -28799,9 +28801,9 @@
     <p class="pln"><span class="n"><a id="t28462" href="#t28462">28462</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28463" href="#t28463">28463</a></span><span class="t"><span class="txt">    .. seealso:: `cuDevicePrimaryCtxRelease_v2`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28464" href="#t28464">28464</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28465" href="#t28465">28465</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28465"><span class="r"><label for="ctxs28465" class="ctx">29 ctx</label></span><span class="ctxs">2vcwcxcyczc# AcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWc</span></p>
-    <p class="run"><span class="n"><a id="t28466" href="#t28466">28466</a></span><span class="t"><span class="txt">        __status__ = cuDevicePrimaryCtxRelease(&lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28466"><span class="r"><label for="ctxs28466" class="ctx">29 ctx</label></span><span class="ctxs">2vcwcxcyczc# AcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWc</span></p>
-    <p class="run"><span class="n"><a id="t28467" href="#t28467">28467</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28467"><span class="r"><label for="ctxs28467" class="ctx">29 ctx</label></span><span class="ctxs">2vcwcxcyczc# AcBcCcDcEcFcGcHcIcJcKcLcMcNcOcPcQcRcScTcUcVcWc</span></p>
+    <p class="run"><span class="n"><a id="t28465" href="#t28465">28465</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28465"><span class="r"><label for="ctxs28465" class="ctx">29 ctx</label></span><span class="ctxs">2vcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMc# NcOcPcQcRcScTcUcVcWc</span></p>
+    <p class="run"><span class="n"><a id="t28466" href="#t28466">28466</a></span><span class="t"><span class="txt">        __status__ = cuDevicePrimaryCtxRelease(&lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28466"><span class="r"><label for="ctxs28466" class="ctx">29 ctx</label></span><span class="ctxs">2vcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMc# NcOcPcQcRcScTcUcVcWc</span></p>
+    <p class="run"><span class="n"><a id="t28467" href="#t28467">28467</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28467"><span class="r"><label for="ctxs28467" class="ctx">29 ctx</label></span><span class="ctxs">2vcwcxcyczcAcBcCcDcEcFcGcHcIcJcKcLcMc# NcOcPcQcRcScTcUcVcWc</span></p>
     <p class="pln"><span class="n"><a id="t28468" href="#t28468">28468</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28469" href="#t28469">28469</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28470" href="#t28470">28470</a></span><span class="t"><span class="txt">cpdef device_primary_ctx_set_flags_v2(int dev, unsigned int flags):</span>&nbsp;</span><span class="r"><label for="ctxs28470" class="ctx">(empty)</label></span></p>
@@ -29058,12 +29060,12 @@
     <p class="pln"><span class="n"><a id="t28721" href="#t28721">28721</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28722" href="#t28722">28722</a></span><span class="t"><span class="txt">    .. seealso:: `cuCtxCreate_v4`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28723" href="#t28723">28723</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28724" href="#t28724">28724</a></span><span class="t"><span class="txt">    cdef intptr_t _ctx_create_params_ptr_ = 0 if ctx_create_params is None else int(ctx_create_params)</span>&nbsp;</span><input type="checkbox" id="ctxs28724"><span class="r"><label for="ctxs28724" class="ctx">50 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
+    <p class="run"><span class="n"><a id="t28724" href="#t28724">28724</a></span><span class="t"><span class="txt">    cdef intptr_t _ctx_create_params_ptr_ = 0 if ctx_create_params is None else int(ctx_create_params)</span>&nbsp;</span><input type="checkbox" id="ctxs28724"><span class="r"><label for="ctxs28724" class="ctx">51 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
     <p class="pln"><span class="n"><a id="t28725" href="#t28725">28725</a></span><span class="t"><span class="txt">    cdef CUcontext pctx</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28726" href="#t28726">28726</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28726"><span class="r"><label for="ctxs28726" class="ctx">50 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28727" href="#t28727">28727</a></span><span class="t"><span class="txt">        __status__ = cuCtxCreate(&amp;pctx, &lt;CUctxCreateParams*&gt;_ctx_create_params_ptr_, flags, &lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28727"><span class="r"><label for="ctxs28727" class="ctx">50 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28728" href="#t28728">28728</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28728"><span class="r"><label for="ctxs28728" class="ctx">50 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
-    <p class="run"><span class="n"><a id="t28729" href="#t28729">28729</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;pctx</span>&nbsp;</span><input type="checkbox" id="ctxs28729"><span class="r"><label for="ctxs28729" class="ctx">50 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbXbYbZb0b1b2b3b4b5b6b7b8b9b!b</span></p>
+    <p class="run"><span class="n"><a id="t28726" href="#t28726">28726</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28726"><span class="r"><label for="ctxs28726" class="ctx">51 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28727" href="#t28727">28727</a></span><span class="t"><span class="txt">        __status__ = cuCtxCreate(&amp;pctx, &lt;CUctxCreateParams*&gt;_ctx_create_params_ptr_, flags, &lt;CUdevice&gt;dev)</span>&nbsp;</span><input type="checkbox" id="ctxs28727"><span class="r"><label for="ctxs28727" class="ctx">51 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28728" href="#t28728">28728</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28728"><span class="r"><label for="ctxs28728" class="ctx">51 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
+    <p class="run"><span class="n"><a id="t28729" href="#t28729">28729</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;pctx</span>&nbsp;</span><input type="checkbox" id="ctxs28729"><span class="r"><label for="ctxs28729" class="ctx">51 ctx</label></span><span class="ctxs">2mbnbobpbqbrbsbtbubvbwbxbybzbAbBbCbDbEbFbGbHbIbJbKbLbMbNbObPbQbRbSbTbUbVbWbYbZb0b1b2b3b4b5b6b7b8b9b!b#b</span></p>
     <p class="pln"><span class="n"><a id="t28730" href="#t28730">28730</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28731" href="#t28731">28731</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28732" href="#t28732">28732</a></span><span class="t"><span class="txt">cpdef ctx_destroy_v2(intptr_t ctx):</span>&nbsp;</span><span class="r"><label for="ctxs28732" class="ctx">(empty)</label></span></p>
@@ -29099,9 +29101,9 @@
     <p class="pln"><span class="n"><a id="t28762" href="#t28762">28762</a></span><span class="t"><span class="txt">        explicitly.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28763" href="#t28763">28763</a></span><span class="t"><span class="txt">    .. seealso:: `cuCtxDestroy_v2`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28764" href="#t28764">28764</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28765" href="#t28765">28765</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28765"><span class="r"><label for="ctxs28765" class="ctx">51 ctx</label></span><span class="ctxs">2]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c</span></p>
-    <p class="run"><span class="n"><a id="t28766" href="#t28766">28766</a></span><span class="t"><span class="txt">        __status__ = cuCtxDestroy(&lt;CUcontext&gt;ctx)</span>&nbsp;</span><input type="checkbox" id="ctxs28766"><span class="r"><label for="ctxs28766" class="ctx">51 ctx</label></span><span class="ctxs">2]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c</span></p>
-    <p class="run"><span class="n"><a id="t28767" href="#t28767">28767</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28767"><span class="r"><label for="ctxs28767" class="ctx">51 ctx</label></span><span class="ctxs">2]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c+c</span></p>
+    <p class="run"><span class="n"><a id="t28765" href="#t28765">28765</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28765"><span class="r"><label for="ctxs28765" class="ctx">51 ctx</label></span><span class="ctxs">2[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c</span></p>
+    <p class="run"><span class="n"><a id="t28766" href="#t28766">28766</a></span><span class="t"><span class="txt">        __status__ = cuCtxDestroy(&lt;CUcontext&gt;ctx)</span>&nbsp;</span><input type="checkbox" id="ctxs28766"><span class="r"><label for="ctxs28766" class="ctx">51 ctx</label></span><span class="ctxs">2[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c</span></p>
+    <p class="run"><span class="n"><a id="t28767" href="#t28767">28767</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28767"><span class="r"><label for="ctxs28767" class="ctx">51 ctx</label></span><span class="ctxs">2[b]b^b_b`b{b|b}b~bacbcccdcecfcgchcicjckclcmcncocpcqcrcsctcucXcYcZc0c1c2c3c4c5c6c7c8c9c!c#c$c%c'c(c)c*c</span></p>
     <p class="pln"><span class="n"><a id="t28768" href="#t28768">28768</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28769" href="#t28769">28769</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28770" href="#t28770">28770</a></span><span class="t"><span class="txt">cpdef ctx_push_current_v2(intptr_t ctx):</span>&nbsp;</span><span class="r"><label for="ctxs28770" class="ctx">(empty)</label></span></p>
@@ -29161,9 +29163,9 @@
     <p class="pln"><span class="n"><a id="t28824" href="#t28824">28824</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28825" href="#t28825">28825</a></span><span class="t"><span class="txt">    .. seealso:: `cuCtxSetCurrent`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28826" href="#t28826">28826</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t28827" href="#t28827">28827</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28827"><span class="r"><label for="ctxs28827" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbib</span></p>
-    <p class="run"><span class="n"><a id="t28828" href="#t28828">28828</a></span><span class="t"><span class="txt">        __status__ = cuCtxSetCurrent(&lt;CUcontext&gt;ctx)</span>&nbsp;</span><input type="checkbox" id="ctxs28828"><span class="r"><label for="ctxs28828" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbib</span></p>
-    <p class="run"><span class="n"><a id="t28829" href="#t28829">28829</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28829"><span class="r"><label for="ctxs28829" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : # ; = ? @ [ ] ^ _ ` { | } ~ abbbcbdbebfbgbhbib</span></p>
+    <p class="run"><span class="n"><a id="t28827" href="#t28827">28827</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs28827"><span class="r"><label for="ctxs28827" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbib</span></p>
+    <p class="run"><span class="n"><a id="t28828" href="#t28828">28828</a></span><span class="t"><span class="txt">        __status__ = cuCtxSetCurrent(&lt;CUcontext&gt;ctx)</span>&nbsp;</span><input type="checkbox" id="ctxs28828"><span class="r"><label for="ctxs28828" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbib</span></p>
+    <p class="run"><span class="n"><a id="t28829" href="#t28829">28829</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs28829"><span class="r"><label for="ctxs28829" class="ctx">28 ctx</label></span><span class="ctxs">2, - . / : ; = ? @ [ ] ^ _ ` { | } ~ # abbbcbdbebfbgbhbib</span></p>
     <p class="pln"><span class="n"><a id="t28830" href="#t28830">28830</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28831" href="#t28831">28831</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28832" href="#t28832">28832</a></span><span class="t"><span class="txt">cpdef intptr_t ctx_get_current() except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs28832" class="ctx">(empty)</label></span></p>
@@ -30825,10 +30827,10 @@
     <p class="pln"><span class="n"><a id="t30488" href="#t30488">30488</a></span><span class="t"><span class="txt">    .. seealso:: `cuMemAlloc_v2`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30489" href="#t30489">30489</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30490" href="#t30490">30490</a></span><span class="t"><span class="txt">    cdef CUdeviceptr dptr</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30491" href="#t30491">30491</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs30491"><span class="r"><label for="ctxs30491" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M 'bN (b)b*b+b,bG I O P J 4 5 6 -be d </span></p>
-    <p class="run"><span class="n"><a id="t30492" href="#t30492">30492</a></span><span class="t"><span class="txt">        __status__ = cuMemAlloc(&amp;dptr, bytesize)</span>&nbsp;</span><input type="checkbox" id="ctxs30492"><span class="r"><label for="ctxs30492" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M 'bN (b)b*b+b,bG I O P J 4 5 6 -be d </span></p>
-    <p class="run"><span class="n"><a id="t30493" href="#t30493">30493</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs30493"><span class="r"><label for="ctxs30493" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M 'bN (b)b*b+b,bG I O P J 4 5 6 -be d </span></p>
-    <p class="run"><span class="n"><a id="t30494" href="#t30494">30494</a></span><span class="t"><span class="txt">    return &lt;uint64_t&gt;dptr</span>&nbsp;</span><input type="checkbox" id="ctxs30494"><span class="r"><label for="ctxs30494" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M 'bN (b)b*b+b,bG I O P J 4 5 6 -be d </span></p>
+    <p class="run"><span class="n"><a id="t30491" href="#t30491">30491</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs30491"><span class="r"><label for="ctxs30491" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M (bN )b*b+b,b-bG I O P J 4 5 6 .be d </span></p>
+    <p class="run"><span class="n"><a id="t30492" href="#t30492">30492</a></span><span class="t"><span class="txt">        __status__ = cuMemAlloc(&amp;dptr, bytesize)</span>&nbsp;</span><input type="checkbox" id="ctxs30492"><span class="r"><label for="ctxs30492" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M (bN )b*b+b,b-bG I O P J 4 5 6 .be d </span></p>
+    <p class="run"><span class="n"><a id="t30493" href="#t30493">30493</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs30493"><span class="r"><label for="ctxs30493" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M (bN )b*b+b,b-bG I O P J 4 5 6 .be d </span></p>
+    <p class="run"><span class="n"><a id="t30494" href="#t30494">30494</a></span><span class="t"><span class="txt">    return &lt;uint64_t&gt;dptr</span>&nbsp;</span><input type="checkbox" id="ctxs30494"><span class="r"><label for="ctxs30494" class="ctx">24 ctx</label></span><span class="ctxs">2T W D b g M (bN )b*b+b,b-bG I O P J 4 5 6 .be d </span></p>
     <p class="pln"><span class="n"><a id="t30495" href="#t30495">30495</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30496" href="#t30496">30496</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t30497" href="#t30497">30497</a></span><span class="t"><span class="txt">cpdef tuple mem_alloc_pitch_v2(size_t width_in_bytes, size_t height, unsigned int element_size_bytes):</span>&nbsp;</span><span class="r"><label for="ctxs30497" class="ctx">(empty)</label></span></p>
@@ -30900,9 +30902,9 @@
     <p class="pln"><span class="n"><a id="t30563" href="#t30563">30563</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30564" href="#t30564">30564</a></span><span class="t"><span class="txt">    .. seealso:: `cuMemFree_v2`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30565" href="#t30565">30565</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t30566" href="#t30566">30566</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs30566"><span class="r"><label for="ctxs30566" class="ctx">28 ctx</label></span><span class="ctxs">2o T i W 0 D b g 3 M 'bN (b)b*b+b,bG I O P J 4 5 6 -be d </span></p>
-    <p class="run"><span class="n"><a id="t30567" href="#t30567">30567</a></span><span class="t"><span class="txt">        __status__ = cuMemFree(&lt;CUdeviceptr&gt;dptr)</span>&nbsp;</span><input type="checkbox" id="ctxs30567"><span class="r"><label for="ctxs30567" class="ctx">28 ctx</label></span><span class="ctxs">2o T i W 0 D b g 3 M 'bN (b)b*b+b,bG I O P J 4 5 6 -be d </span></p>
-    <p class="run"><span class="n"><a id="t30568" href="#t30568">30568</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs30568"><span class="r"><label for="ctxs30568" class="ctx">28 ctx</label></span><span class="ctxs">2o T i W 0 D b g 3 M 'bN (b)b*b+b,bG I O P J 4 5 6 -be d </span></p>
+    <p class="run"><span class="n"><a id="t30566" href="#t30566">30566</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs30566"><span class="r"><label for="ctxs30566" class="ctx">28 ctx</label></span><span class="ctxs">2o T i W 0 D b g 3 M (bN )b*b+b,b-bG I O P J 4 5 6 .be d </span></p>
+    <p class="run"><span class="n"><a id="t30567" href="#t30567">30567</a></span><span class="t"><span class="txt">        __status__ = cuMemFree(&lt;CUdeviceptr&gt;dptr)</span>&nbsp;</span><input type="checkbox" id="ctxs30567"><span class="r"><label for="ctxs30567" class="ctx">28 ctx</label></span><span class="ctxs">2o T i W 0 D b g 3 M (bN )b*b+b,b-bG I O P J 4 5 6 .be d </span></p>
+    <p class="run"><span class="n"><a id="t30568" href="#t30568">30568</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs30568"><span class="r"><label for="ctxs30568" class="ctx">28 ctx</label></span><span class="ctxs">2o T i W 0 D b g 3 M (bN )b*b+b,b-bG I O P J 4 5 6 .be d </span></p>
     <p class="pln"><span class="n"><a id="t30569" href="#t30569">30569</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30570" href="#t30570">30570</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t30571" href="#t30571">30571</a></span><span class="t"><span class="txt">cpdef tuple mem_get_address_range_v2(uint64_t dptr):</span>&nbsp;</span><span class="r"><label for="ctxs30571" class="ctx">(empty)</label></span></p>
@@ -34653,10 +34655,10 @@
     <p class="pln"><span class="n"><a id="t34316" href="#t34316">34316</a></span><span class="t"><span class="txt">    .. seealso:: `cuStreamCreate`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34317" href="#t34317">34317</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34318" href="#t34318">34318</a></span><span class="t"><span class="txt">    cdef CUstream ph_stream</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34319" href="#t34319">34319</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs34319"><span class="r"><label for="ctxs34319" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J :be d u y v j m h f </span></p>
-    <p class="run"><span class="n"><a id="t34320" href="#t34320">34320</a></span><span class="t"><span class="txt">        __status__ = cuStreamCreate(&amp;ph_stream, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs34320"><span class="r"><label for="ctxs34320" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J :be d u y v j m h f </span></p>
-    <p class="run"><span class="n"><a id="t34321" href="#t34321">34321</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs34321"><span class="r"><label for="ctxs34321" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J :be d u y v j m h f </span></p>
-    <p class="run"><span class="n"><a id="t34322" href="#t34322">34322</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_stream</span>&nbsp;</span><input type="checkbox" id="ctxs34322"><span class="r"><label for="ctxs34322" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J :be d u y v j m h f </span></p>
+    <p class="run"><span class="n"><a id="t34319" href="#t34319">34319</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs34319"><span class="r"><label for="ctxs34319" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J ;be d u y v j m h f </span></p>
+    <p class="run"><span class="n"><a id="t34320" href="#t34320">34320</a></span><span class="t"><span class="txt">        __status__ = cuStreamCreate(&amp;ph_stream, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs34320"><span class="r"><label for="ctxs34320" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J ;be d u y v j m h f </span></p>
+    <p class="run"><span class="n"><a id="t34321" href="#t34321">34321</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs34321"><span class="r"><label for="ctxs34321" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J ;be d u y v j m h f </span></p>
+    <p class="run"><span class="n"><a id="t34322" href="#t34322">34322</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_stream</span>&nbsp;</span><input type="checkbox" id="ctxs34322"><span class="r"><label for="ctxs34322" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J ;be d u y v j m h f </span></p>
     <p class="pln"><span class="n"><a id="t34323" href="#t34323">34323</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34324" href="#t34324">34324</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34325" href="#t34325">34325</a></span><span class="t"><span class="txt">cpdef intptr_t stream_create_with_priority(unsigned int flags, int priority) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs34325" class="ctx">(empty)</label></span></p>
@@ -35394,9 +35396,9 @@
     <p class="pln"><span class="n"><a id="t35057" href="#t35057">35057</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35058" href="#t35058">35058</a></span><span class="t"><span class="txt">    .. seealso:: `cuStreamDestroy_v2`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35059" href="#t35059">35059</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35060" href="#t35060">35060</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs35060"><span class="r"><label for="ctxs35060" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J :be d u y v j m h f </span></p>
-    <p class="run"><span class="n"><a id="t35061" href="#t35061">35061</a></span><span class="t"><span class="txt">        __status__ = cuStreamDestroy(&lt;CUstream&gt;h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs35061"><span class="r"><label for="ctxs35061" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J :be d u y v j m h f </span></p>
-    <p class="run"><span class="n"><a id="t35062" href="#t35062">35062</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs35062"><span class="r"><label for="ctxs35062" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J :be d u y v j m h f </span></p>
+    <p class="run"><span class="n"><a id="t35060" href="#t35060">35060</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs35060"><span class="r"><label for="ctxs35060" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J ;be d u y v j m h f </span></p>
+    <p class="run"><span class="n"><a id="t35061" href="#t35061">35061</a></span><span class="t"><span class="txt">        __status__ = cuStreamDestroy(&lt;CUstream&gt;h_stream)</span>&nbsp;</span><input type="checkbox" id="ctxs35061"><span class="r"><label for="ctxs35061" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J ;be d u y v j m h f </span></p>
+    <p class="run"><span class="n"><a id="t35062" href="#t35062">35062</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs35062"><span class="r"><label for="ctxs35062" class="ctx">19 ctx</label></span><span class="ctxs">2Q 7 n L b g G I J ;be d u y v j m h f </span></p>
     <p class="pln"><span class="n"><a id="t35063" href="#t35063">35063</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35064" href="#t35064">35064</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35065" href="#t35065">35065</a></span><span class="t"><span class="txt">cpdef stream_copy_attributes(intptr_t dst, intptr_t src):</span>&nbsp;</span><span class="r"><label for="ctxs35065" class="ctx">(empty)</label></span></p>
@@ -35488,10 +35490,10 @@
     <p class="pln"><span class="n"><a id="t35151" href="#t35151">35151</a></span><span class="t"><span class="txt">    .. seealso:: `cuEventCreate`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35152" href="#t35152">35152</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35153" href="#t35153">35153</a></span><span class="t"><span class="txt">    cdef CUevent ph_event</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35154" href="#t35154">35154</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs35154"><span class="r"><label for="ctxs35154" class="ctx">1 ctx</label></span><span class="ctxs">2.b</span></p>
-    <p class="run"><span class="n"><a id="t35155" href="#t35155">35155</a></span><span class="t"><span class="txt">        __status__ = cuEventCreate(&amp;ph_event, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs35155"><span class="r"><label for="ctxs35155" class="ctx">1 ctx</label></span><span class="ctxs">2.b</span></p>
-    <p class="run"><span class="n"><a id="t35156" href="#t35156">35156</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs35156"><span class="r"><label for="ctxs35156" class="ctx">1 ctx</label></span><span class="ctxs">2.b</span></p>
-    <p class="run"><span class="n"><a id="t35157" href="#t35157">35157</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_event</span>&nbsp;</span><input type="checkbox" id="ctxs35157"><span class="r"><label for="ctxs35157" class="ctx">1 ctx</label></span><span class="ctxs">2.b</span></p>
+    <p class="run"><span class="n"><a id="t35154" href="#t35154">35154</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs35154"><span class="r"><label for="ctxs35154" class="ctx">1 ctx</label></span><span class="ctxs">2/b</span></p>
+    <p class="run"><span class="n"><a id="t35155" href="#t35155">35155</a></span><span class="t"><span class="txt">        __status__ = cuEventCreate(&amp;ph_event, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs35155"><span class="r"><label for="ctxs35155" class="ctx">1 ctx</label></span><span class="ctxs">2/b</span></p>
+    <p class="run"><span class="n"><a id="t35156" href="#t35156">35156</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs35156"><span class="r"><label for="ctxs35156" class="ctx">1 ctx</label></span><span class="ctxs">2/b</span></p>
+    <p class="run"><span class="n"><a id="t35157" href="#t35157">35157</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_event</span>&nbsp;</span><input type="checkbox" id="ctxs35157"><span class="r"><label for="ctxs35157" class="ctx">1 ctx</label></span><span class="ctxs">2/b</span></p>
     <p class="pln"><span class="n"><a id="t35158" href="#t35158">35158</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35159" href="#t35159">35159</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35160" href="#t35160">35160</a></span><span class="t"><span class="txt">cpdef event_record(intptr_t h_event, intptr_t h_stream):</span>&nbsp;</span><span class="r"><label for="ctxs35160" class="ctx">(empty)</label></span></p>
@@ -35612,9 +35614,9 @@
     <p class="pln"><span class="n"><a id="t35275" href="#t35275">35275</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35276" href="#t35276">35276</a></span><span class="t"><span class="txt">    .. seealso:: `cuEventDestroy_v2`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35277" href="#t35277">35277</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35278" href="#t35278">35278</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs35278"><span class="r"><label for="ctxs35278" class="ctx">1 ctx</label></span><span class="ctxs">2.b</span></p>
-    <p class="run"><span class="n"><a id="t35279" href="#t35279">35279</a></span><span class="t"><span class="txt">        __status__ = cuEventDestroy(&lt;CUevent&gt;h_event)</span>&nbsp;</span><input type="checkbox" id="ctxs35279"><span class="r"><label for="ctxs35279" class="ctx">1 ctx</label></span><span class="ctxs">2.b</span></p>
-    <p class="run"><span class="n"><a id="t35280" href="#t35280">35280</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs35280"><span class="r"><label for="ctxs35280" class="ctx">1 ctx</label></span><span class="ctxs">2.b</span></p>
+    <p class="run"><span class="n"><a id="t35278" href="#t35278">35278</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs35278"><span class="r"><label for="ctxs35278" class="ctx">1 ctx</label></span><span class="ctxs">2/b</span></p>
+    <p class="run"><span class="n"><a id="t35279" href="#t35279">35279</a></span><span class="t"><span class="txt">        __status__ = cuEventDestroy(&lt;CUevent&gt;h_event)</span>&nbsp;</span><input type="checkbox" id="ctxs35279"><span class="r"><label for="ctxs35279" class="ctx">1 ctx</label></span><span class="ctxs">2/b</span></p>
+    <p class="run"><span class="n"><a id="t35280" href="#t35280">35280</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs35280"><span class="r"><label for="ctxs35280" class="ctx">1 ctx</label></span><span class="ctxs">2/b</span></p>
     <p class="pln"><span class="n"><a id="t35281" href="#t35281">35281</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35282" href="#t35282">35282</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35283" href="#t35283">35283</a></span><span class="t"><span class="txt">cpdef float event_elapsed_time_v2(intptr_t h_start, intptr_t h_end) except? -1.0:</span>&nbsp;</span><span class="r"><label for="ctxs35283" class="ctx">(empty)</label></span></p>
@@ -37359,10 +37361,10 @@
     <p class="pln"><span class="n"><a id="t37022" href="#t37022">37022</a></span><span class="t"><span class="txt">    .. seealso:: `cuGraphCreate`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37023" href="#t37023">37023</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37024" href="#t37024">37024</a></span><span class="t"><span class="txt">    cdef CUgraph ph_graph</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37025" href="#t37025">37025</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs37025"><span class="r"><label for="ctxs37025" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k #bC l ' ( n b ) Wb/b</span></p>
-    <p class="run"><span class="n"><a id="t37026" href="#t37026">37026</a></span><span class="t"><span class="txt">        __status__ = cuGraphCreate(&amp;ph_graph, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs37026"><span class="r"><label for="ctxs37026" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k #bC l ' ( n b ) Wb/b</span></p>
-    <p class="run"><span class="n"><a id="t37027" href="#t37027">37027</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs37027"><span class="r"><label for="ctxs37027" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k #bC l ' ( n b ) Wb/b</span></p>
-    <p class="run"><span class="n"><a id="t37028" href="#t37028">37028</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_graph</span>&nbsp;</span><input type="checkbox" id="ctxs37028"><span class="r"><label for="ctxs37028" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k #bC l ' ( n b ) Wb/b</span></p>
+    <p class="run"><span class="n"><a id="t37025" href="#t37025">37025</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs37025"><span class="r"><label for="ctxs37025" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k $bC l ' ( n b ) Xb:b</span></p>
+    <p class="run"><span class="n"><a id="t37026" href="#t37026">37026</a></span><span class="t"><span class="txt">        __status__ = cuGraphCreate(&amp;ph_graph, flags)</span>&nbsp;</span><input type="checkbox" id="ctxs37026"><span class="r"><label for="ctxs37026" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k $bC l ' ( n b ) Xb:b</span></p>
+    <p class="run"><span class="n"><a id="t37027" href="#t37027">37027</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs37027"><span class="r"><label for="ctxs37027" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k $bC l ' ( n b ) Xb:b</span></p>
+    <p class="run"><span class="n"><a id="t37028" href="#t37028">37028</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_graph</span>&nbsp;</span><input type="checkbox" id="ctxs37028"><span class="r"><label for="ctxs37028" class="ctx">13 ctx</label></span><span class="ctxs">2E Q k $bC l ' ( n b ) Xb:b</span></p>
     <p class="pln"><span class="n"><a id="t37029" href="#t37029">37029</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37030" href="#t37030">37030</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t37031" href="#t37031">37031</a></span><span class="t"><span class="txt">cpdef intptr_t graph_add_kernel_node_v2(intptr_t h_graph, dependencies, size_t num_dependencies, node_params) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs37031" class="ctx">(empty)</label></span></p>
@@ -37847,12 +37849,12 @@
     <p class="pln"><span class="n"><a id="t37510" href="#t37510">37510</a></span><span class="t"><span class="txt">    .. seealso:: `cuGraphAddEmptyNode`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37511" href="#t37511">37511</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37512" href="#t37512">37512</a></span><span class="t"><span class="txt">    cdef _cyb_nullable_unique_ptr[ _cyb_vector[void*] ] _dependencies_</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37513" href="#t37513">37513</a></span><span class="t"><span class="txt">    _cyb_get_resource_ptrs[void](_dependencies_, dependencies, &lt;void*&gt;NULL)</span>&nbsp;</span><input type="checkbox" id="ctxs37513"><span class="r"><label for="ctxs37513" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Wb</span></p>
+    <p class="run"><span class="n"><a id="t37513" href="#t37513">37513</a></span><span class="t"><span class="txt">    _cyb_get_resource_ptrs[void](_dependencies_, dependencies, &lt;void*&gt;NULL)</span>&nbsp;</span><input type="checkbox" id="ctxs37513"><span class="r"><label for="ctxs37513" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Xb</span></p>
     <p class="pln"><span class="n"><a id="t37514" href="#t37514">37514</a></span><span class="t"><span class="txt">    cdef CUgraphNode ph_graph_node</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37515" href="#t37515">37515</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs37515"><span class="r"><label for="ctxs37515" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Wb</span></p>
-    <p class="run"><span class="n"><a id="t37516" href="#t37516">37516</a></span><span class="t"><span class="txt">        __status__ = cuGraphAddEmptyNode(&amp;ph_graph_node, &lt;CUgraph&gt;h_graph, &lt;const CUgraphNode*&gt;(_dependencies_.data()), num_dependencies)</span>&nbsp;</span><input type="checkbox" id="ctxs37516"><span class="r"><label for="ctxs37516" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Wb</span></p>
-    <p class="run"><span class="n"><a id="t37517" href="#t37517">37517</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs37517"><span class="r"><label for="ctxs37517" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Wb</span></p>
-    <p class="run"><span class="n"><a id="t37518" href="#t37518">37518</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_graph_node</span>&nbsp;</span><input type="checkbox" id="ctxs37518"><span class="r"><label for="ctxs37518" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Wb</span></p>
+    <p class="run"><span class="n"><a id="t37515" href="#t37515">37515</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs37515"><span class="r"><label for="ctxs37515" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Xb</span></p>
+    <p class="run"><span class="n"><a id="t37516" href="#t37516">37516</a></span><span class="t"><span class="txt">        __status__ = cuGraphAddEmptyNode(&amp;ph_graph_node, &lt;CUgraph&gt;h_graph, &lt;const CUgraphNode*&gt;(_dependencies_.data()), num_dependencies)</span>&nbsp;</span><input type="checkbox" id="ctxs37516"><span class="r"><label for="ctxs37516" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Xb</span></p>
+    <p class="run"><span class="n"><a id="t37517" href="#t37517">37517</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs37517"><span class="r"><label for="ctxs37517" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Xb</span></p>
+    <p class="run"><span class="n"><a id="t37518" href="#t37518">37518</a></span><span class="t"><span class="txt">    return &lt;intptr_t&gt;ph_graph_node</span>&nbsp;</span><input type="checkbox" id="ctxs37518"><span class="r"><label for="ctxs37518" class="ctx">8 ctx</label></span><span class="ctxs">2Q k C l ' ( ) Xb</span></p>
     <p class="pln"><span class="n"><a id="t37519" href="#t37519">37519</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37520" href="#t37520">37520</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t37521" href="#t37521">37521</a></span><span class="t"><span class="txt">cpdef intptr_t graph_add_event_record_node(intptr_t h_graph, dependencies, size_t num_dependencies, intptr_t event) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs37521" class="ctx">(empty)</label></span></p>
@@ -38893,9 +38895,9 @@
     <p class="pln"><span class="n"><a id="t38556" href="#t38556">38556</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38557" href="#t38557">38557</a></span><span class="t"><span class="txt">    .. seealso:: `cuGraphDestroyNode`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38558" href="#t38558">38558</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t38559" href="#t38559">38559</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs38559"><span class="r"><label for="ctxs38559" class="ctx">1 ctx</label></span><span class="ctxs">2Wb</span></p>
-    <p class="run"><span class="n"><a id="t38560" href="#t38560">38560</a></span><span class="t"><span class="txt">        __status__ = cuGraphDestroyNode(&lt;CUgraphNode&gt;h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs38560"><span class="r"><label for="ctxs38560" class="ctx">1 ctx</label></span><span class="ctxs">2Wb</span></p>
-    <p class="run"><span class="n"><a id="t38561" href="#t38561">38561</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs38561"><span class="r"><label for="ctxs38561" class="ctx">1 ctx</label></span><span class="ctxs">2Wb</span></p>
+    <p class="run"><span class="n"><a id="t38559" href="#t38559">38559</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs38559"><span class="r"><label for="ctxs38559" class="ctx">1 ctx</label></span><span class="ctxs">2Xb</span></p>
+    <p class="run"><span class="n"><a id="t38560" href="#t38560">38560</a></span><span class="t"><span class="txt">        __status__ = cuGraphDestroyNode(&lt;CUgraphNode&gt;h_node)</span>&nbsp;</span><input type="checkbox" id="ctxs38560"><span class="r"><label for="ctxs38560" class="ctx">1 ctx</label></span><span class="ctxs">2Xb</span></p>
+    <p class="run"><span class="n"><a id="t38561" href="#t38561">38561</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs38561"><span class="r"><label for="ctxs38561" class="ctx">1 ctx</label></span><span class="ctxs">2Xb</span></p>
     <p class="pln"><span class="n"><a id="t38562" href="#t38562">38562</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38563" href="#t38563">38563</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t38564" href="#t38564">38564</a></span><span class="t"><span class="txt">cpdef intptr_t graph_instantiate_with_flags(intptr_t h_graph, unsigned long long flags) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs38564" class="ctx">(empty)</label></span></p>
@@ -39517,9 +39519,9 @@
     <p class="pln"><span class="n"><a id="t39180" href="#t39180">39180</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39181" href="#t39181">39181</a></span><span class="t"><span class="txt">    .. seealso:: `cuGraphDestroy`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39182" href="#t39182">39182</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t39183" href="#t39183">39183</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs39183"><span class="r"><label for="ctxs39183" class="ctx">11 ctx</label></span><span class="ctxs">2Q k #bC l ' ( n L b /b</span></p>
-    <p class="run"><span class="n"><a id="t39184" href="#t39184">39184</a></span><span class="t"><span class="txt">        __status__ = cuGraphDestroy(&lt;CUgraph&gt;h_graph)</span>&nbsp;</span><input type="checkbox" id="ctxs39184"><span class="r"><label for="ctxs39184" class="ctx">11 ctx</label></span><span class="ctxs">2Q k #bC l ' ( n L b /b</span></p>
-    <p class="run"><span class="n"><a id="t39185" href="#t39185">39185</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs39185"><span class="r"><label for="ctxs39185" class="ctx">11 ctx</label></span><span class="ctxs">2Q k #bC l ' ( n L b /b</span></p>
+    <p class="run"><span class="n"><a id="t39183" href="#t39183">39183</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs39183"><span class="r"><label for="ctxs39183" class="ctx">11 ctx</label></span><span class="ctxs">2Q k $bC l ' ( n L b :b</span></p>
+    <p class="run"><span class="n"><a id="t39184" href="#t39184">39184</a></span><span class="t"><span class="txt">        __status__ = cuGraphDestroy(&lt;CUgraph&gt;h_graph)</span>&nbsp;</span><input type="checkbox" id="ctxs39184"><span class="r"><label for="ctxs39184" class="ctx">11 ctx</label></span><span class="ctxs">2Q k $bC l ' ( n L b :b</span></p>
+    <p class="run"><span class="n"><a id="t39185" href="#t39185">39185</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs39185"><span class="r"><label for="ctxs39185" class="ctx">11 ctx</label></span><span class="ctxs">2Q k $bC l ' ( n L b :b</span></p>
     <p class="pln"><span class="n"><a id="t39186" href="#t39186">39186</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39187" href="#t39187">39187</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39188" href="#t39188">39188</a></span><span class="t"><span class="txt">cpdef object graph_exec_update_v2(intptr_t h_graph_exec, intptr_t h_graph):</span>&nbsp;</span><span class="r"><label for="ctxs39188" class="ctx">(empty)</label></span></p>
@@ -43310,9 +43312,9 @@
     <p class="pln"><span class="n"><a id="t42973" href="#t42973">42973</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42974" href="#t42974">42974</a></span><span class="t"><span class="txt">    .. seealso:: `cuProfilerStart`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42975" href="#t42975">42975</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t42976" href="#t42976">42976</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs42976"><span class="r"><label for="ctxs42976" class="ctx">1 ctx</label></span><span class="ctxs">2;b</span></p>
-    <p class="run"><span class="n"><a id="t42977" href="#t42977">42977</a></span><span class="t"><span class="txt">        __status__ = cuProfilerStart()</span>&nbsp;</span><input type="checkbox" id="ctxs42977"><span class="r"><label for="ctxs42977" class="ctx">1 ctx</label></span><span class="ctxs">2;b</span></p>
-    <p class="run"><span class="n"><a id="t42978" href="#t42978">42978</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs42978"><span class="r"><label for="ctxs42978" class="ctx">1 ctx</label></span><span class="ctxs">2;b</span></p>
+    <p class="run"><span class="n"><a id="t42976" href="#t42976">42976</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs42976"><span class="r"><label for="ctxs42976" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
+    <p class="run"><span class="n"><a id="t42977" href="#t42977">42977</a></span><span class="t"><span class="txt">        __status__ = cuProfilerStart()</span>&nbsp;</span><input type="checkbox" id="ctxs42977"><span class="r"><label for="ctxs42977" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
+    <p class="run"><span class="n"><a id="t42978" href="#t42978">42978</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs42978"><span class="r"><label for="ctxs42978" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
     <p class="pln"><span class="n"><a id="t42979" href="#t42979">42979</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42980" href="#t42980">42980</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t42981" href="#t42981">42981</a></span><span class="t"><span class="txt">cpdef profiler_stop():</span>&nbsp;</span><span class="r"><label for="ctxs42981" class="ctx">(empty)</label></span></p>
@@ -43327,9 +43329,9 @@
     <p class="pln"><span class="n"><a id="t42990" href="#t42990">42990</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42991" href="#t42991">42991</a></span><span class="t"><span class="txt">    .. seealso:: `cuProfilerStop`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42992" href="#t42992">42992</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t42993" href="#t42993">42993</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs42993"><span class="r"><label for="ctxs42993" class="ctx">1 ctx</label></span><span class="ctxs">2;b</span></p>
-    <p class="run"><span class="n"><a id="t42994" href="#t42994">42994</a></span><span class="t"><span class="txt">        __status__ = cuProfilerStop()</span>&nbsp;</span><input type="checkbox" id="ctxs42994"><span class="r"><label for="ctxs42994" class="ctx">1 ctx</label></span><span class="ctxs">2;b</span></p>
-    <p class="run"><span class="n"><a id="t42995" href="#t42995">42995</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs42995"><span class="r"><label for="ctxs42995" class="ctx">1 ctx</label></span><span class="ctxs">2;b</span></p>
+    <p class="run"><span class="n"><a id="t42993" href="#t42993">42993</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs42993"><span class="r"><label for="ctxs42993" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
+    <p class="run"><span class="n"><a id="t42994" href="#t42994">42994</a></span><span class="t"><span class="txt">        __status__ = cuProfilerStop()</span>&nbsp;</span><input type="checkbox" id="ctxs42994"><span class="r"><label for="ctxs42994" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
+    <p class="run"><span class="n"><a id="t42995" href="#t42995">42995</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs42995"><span class="r"><label for="ctxs42995" class="ctx">1 ctx</label></span><span class="ctxs">2=b</span></p>
     <p class="pln"><span class="n"><a id="t42996" href="#t42996">42996</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42997" href="#t42997">42997</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t42998" href="#t42998">42998</a></span><span class="t"><span class="txt">cpdef int vdpau_get_device(VdpDevice vdp_device, intptr_t vdp_get_proc_address) except? -1:</span>&nbsp;</span><span class="r"><label for="ctxs42998" class="ctx">(empty)</label></span></p>
@@ -44227,10 +44229,10 @@
     <p class="pln"><span class="n"><a id="t43890" href="#t43890">43890</a></span><span class="t"><span class="txt">    .. seealso:: `cuGraphGetId`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43891" href="#t43891">43891</a></span><span class="t"><span class="txt">    &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43892" href="#t43892">43892</a></span><span class="t"><span class="txt">    cdef unsigned int graph_id</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t43893" href="#t43893">43893</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs43893"><span class="r"><label for="ctxs43893" class="ctx">1 ctx</label></span><span class="ctxs">2#b</span></p>
-    <p class="run"><span class="n"><a id="t43894" href="#t43894">43894</a></span><span class="t"><span class="txt">        __status__ = cuGraphGetId(&lt;CUgraph&gt;h_graph, &amp;graph_id)</span>&nbsp;</span><input type="checkbox" id="ctxs43894"><span class="r"><label for="ctxs43894" class="ctx">1 ctx</label></span><span class="ctxs">2#b</span></p>
-    <p class="run"><span class="n"><a id="t43895" href="#t43895">43895</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs43895"><span class="r"><label for="ctxs43895" class="ctx">1 ctx</label></span><span class="ctxs">2#b</span></p>
-    <p class="run"><span class="n"><a id="t43896" href="#t43896">43896</a></span><span class="t"><span class="txt">    return graph_id</span>&nbsp;</span><input type="checkbox" id="ctxs43896"><span class="r"><label for="ctxs43896" class="ctx">1 ctx</label></span><span class="ctxs">2#b</span></p>
+    <p class="run"><span class="n"><a id="t43893" href="#t43893">43893</a></span><span class="t"><span class="txt">    with nogil:</span>&nbsp;</span><input type="checkbox" id="ctxs43893"><span class="r"><label for="ctxs43893" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t43894" href="#t43894">43894</a></span><span class="t"><span class="txt">        __status__ = cuGraphGetId(&lt;CUgraph&gt;h_graph, &amp;graph_id)</span>&nbsp;</span><input type="checkbox" id="ctxs43894"><span class="r"><label for="ctxs43894" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t43895" href="#t43895">43895</a></span><span class="t"><span class="txt">    check_status(__status__)</span>&nbsp;</span><input type="checkbox" id="ctxs43895"><span class="r"><label for="ctxs43895" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
+    <p class="run"><span class="n"><a id="t43896" href="#t43896">43896</a></span><span class="t"><span class="txt">    return graph_id</span>&nbsp;</span><input type="checkbox" id="ctxs43896"><span class="r"><label for="ctxs43896" class="ctx">1 ctx</label></span><span class="ctxs">2$b</span></p>
     <p class="pln"><span class="n"><a id="t43897" href="#t43897">43897</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43898" href="#t43898">43898</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t43899" href="#t43899">43899</a></span><span class="t"><span class="txt">cpdef unsigned int graph_exec_get_id(intptr_t h_graph_exec) except? 0:</span>&nbsp;</span><span class="r"><label for="ctxs43899" class="ctx">(empty)</label></span></p>
@@ -45534,7 +45536,7 @@
             <a class="nav" href="z_455c44172918477c_nvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.5">coverage.py v7.17.5</a>,
-            created at 2026-11-27 01:19 +0000
+            created at 2026-11-28 00:56 +0000
         </p>
     </div>
 </footer>
