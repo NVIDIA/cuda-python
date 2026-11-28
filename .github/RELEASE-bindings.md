@@ -153,6 +153,17 @@ https://github.com/NVIDIA/cuda-python/releases/download/vX.Y.Z/cuda-python-vX.Y.
 
 ### Choose the feedstock PR
 
+Check what has already been published and which release should go next. This
+avoids duplicate updates, accidental recipe downgrades, and skipping a
+release planned for conda-forge. Concretely, check the recipe's
+`context.version` in `recipe/recipe.yaml` on the target feedstock branch
+before requesting a bot update or opening a manual PR. If it matches the
+requested version, check the existing build and verify that both packages
+install from conda-forge. If the branch is already on a newer version,
+check whether both requested packages are available and coordinate any
+needed backfill with the feedstock maintainers. When updating to a newer
+version, publish and verify any earlier planned release first.
+
 - **CUDA 12.9** targets the feedstock's `12.9` branch. Start from that branch
   and open a manual PR from a fork with `12.9` as its base. [Conda-forge
   maintenance branch guidance](https://conda-forge.org/docs/how-to/advanced/several-versions/)
