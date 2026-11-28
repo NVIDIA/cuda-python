@@ -99,6 +99,19 @@ check the resulting release tuple rather than hard-code the expected
 alpha/development suffix, and report the effective `git describe` result for
 traceability.
 
+## Conda release handoff
+
+Follow the [bindings Conda release guide](.github/RELEASE-bindings.md#publish-on-conda-forge)
+for `cuda-bindings` and `cuda-python`. Verify the requested version, published
+release asset and digest, and the feedstock PR base before editing or asking
+the update bot to act. CUDA 12.9 uses the feedstock's `12.9` branch and CUDA
+13 uses its `main` branch.
+
+Check the final PR head's logs for both outputs and compare build and test
+coverage with the target branch. Treat the feedstock merge as a publication
+action and merge only when authorized. Record the feedstock PR and CI run
+and report public exact-version installation separately from CI results.
+
 # Contributions
 
 Before starting implementation or preparing an issue or PR, follow the

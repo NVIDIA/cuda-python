@@ -62,7 +62,9 @@ intended toolkit inputs. Follow the
    `vX.Y.Z` GitHub Release draft. Check its release notes, versioned
    documentation links, source archive, checksum, and wheels. These component
    workflows leave the draft for the release owner to publish.
-7. Finish post-release QA and announcements and return every applicable fix
+7. [Publish both packages on conda-forge](#publish-on-conda-forge) for this
+   release line.
+8. Finish post-release QA and announcements and return every applicable fix
    to `main`.
 
 For a bindings `vX.Y.Z` tag, tag CI validates that line's bindings documentation.
@@ -135,3 +137,78 @@ then approved full releases. Run lookup matches the requested tag and source
 SHA, and artifact validation rejects mismatched versions. Tag creation and
 release order do not choose the version; releasing one line does not release
 the other.
+
+## Publish on conda-forge
+
+The [cuda-python feedstock](https://github.com/conda-forge/cuda-python-feedstock)
+builds both `cuda-bindings` and the `cuda-python` metapackage from one recipe.
+Start after publishing the matching `vX.Y.Z` GitHub Release. Download its
+`cuda-python-vX.Y.Z.tar.gz` release asset and its `.sha256sum` sidecar. Compute
+the archive's SHA-256 and compare it with the digest in the sidecar. Use the
+verified digest and the release asset URL below in the feedstock recipe.
+
+```text
+https://github.com/NVIDIA/cuda-python/releases/download/vX.Y.Z/cuda-python-vX.Y.Z.tar.gz
+```
+
+### Choose the feedstock PR
+
+Check what has already been published and which release should go next. This
+avoids duplicate updates, accidental recipe downgrades, and skipping a
+release planned for conda-forge. Concretely, check the recipe's
+`context.version` in `recipe/recipe.yaml` on the target feedstock branch
+before requesting a bot update or opening a manual PR. If it matches the
+requested version, check the existing build and verify that both packages
+install from conda-forge. If the branch is already on a newer version,
+check whether both requested packages are available and coordinate any
+needed backfill with the feedstock maintainers. When updating to a newer
+version, publish and verify any earlier planned release first.
+
+- **CUDA 12.9** targets the feedstock's `12.9` branch. Start from that branch
+  and open a manual PR from a fork with `12.9` as its base. [Conda-forge
+  maintenance branch guidance](https://conda-forge.org/docs/how-to/advanced/several-versions/)
+- **CUDA 13** targets the feedstock's `main` branch. Look for an existing
+  version-update PR for the exact release. If there is none, open an issue in
+  the feedstock with the title `@conda-forge-admin, please update version`.
+  Wait for any follow-up bot commits that complete the recipe update. If the bot
+  does not produce a PR for the intended version, open one from a fork against
+  `main`. [Conda-forge version update command](https://conda-forge.org/docs/maintainer/infrastructure/#conda-forge-admin-please-update-version)
+
+### Review, test, and publish
+
+1. Review `recipe/recipe.yaml` against the release asset. Verify the PR base,
+   set the release version and SHA-256, and reset the build number to `0` for
+   a new version. Compare the packaged paths, license files, Python minimum,
+   and dependency constraints with the tagged bindings and metapackage
+   `pyproject.toml` files and `cuda_python/setup.py`. For tags with the split
+   source layout, use `cuda_bindings_12` or `cuda_bindings_13` as appropriate.
+   If the tagged metapackage requires `CUDA_PYTHON_BUILD_MAJOR`, set it to
+   `12` or `13` for that build. Verify any newly required `cuda-core` or
+   `cuda-pathfinder` versions are available from conda-forge.
+2. Run `pixi run lint` in the feedstock. Run `pixi run rerender` when changes
+   affect generated CI configuration or variants. Inspect any staged changes
+   from the rerender and compare the resulting matrix with the target branch.
+3. Wait for the feedstock's **Build conda package** checks and lint to pass at
+   the final PR head. Check the logs against `.ci_support/` to verify bindings
+   builds and tests across the expected platform and Python variants and the
+   `noarch` metapackage build and tests. Investigate any unexplained differences
+   in coverage, including test steps skipped by recipe conditions.
+4. Merge the reviewed PR to start conda-forge's build and upload. Check the
+   post-merge run, then verify that both exact package versions install
+   together in a fresh environment from the standard `conda-forge` channel.
+   Anaconda.org file listings can appear before channel repodata includes the
+   builds. Record the feedstock PR, CI run, and install result in the release
+   checklist.
+
+For a smoke test, substitute the release version and a supported Python minor
+for the placeholders. Pin both package versions so the solver verifies the
+specific bindings and metapackage being released.
+
+```bash
+version=X.Y.Z
+python_version=X.Y
+pixi exec --force-reinstall --channel conda-forge \
+    --spec "python=$python_version" \
+    --spec "cuda-bindings==$version" --spec "cuda-python==$version" \
+    python -c 'from cuda.bindings import driver, nvrtc, runtime'
+```

@@ -26,8 +26,9 @@ body:
         - label: "For cuda-core: create the release branch (`release/cuda-core-vX.Y.x`) from `main` for a minor release, or use the existing one for a patch release"
         - label: Record the exact source commit, workflow control revision, and selected package root before creating the approved public release tag (for cuda-core, on the release branch)
         - label: Wait for the exact tag-triggered CI run to pass and complete a release dry run before approving publication
-        - label: Publish the release at https://github.com/NVIDIA/cuda-python/releases (this will trigger the conda package update)
-        - label: Approve the conda-package update PR
+        - label: Publish the release at https://github.com/NVIDIA/cuda-python/releases
+        - label: Open or find the conda-forge feedstock PR for the release, verify CI, and merge it
+        - label: Verify the released package versions install from conda-forge and record the result
         - label: Post-release QA
         - label: Finalize the announcement update
         - label: Send out the announcement internally (on `#swcuda-python`)
